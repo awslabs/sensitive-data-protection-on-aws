@@ -55,7 +55,7 @@
   "devDependencies": {
     "@babel/core": "^7.16.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
-    "@svgr/webpack": "^5.5.0",
+    "@svgr/webpack": "^7.0.0",
     "@types/lodash": "^4.14.191",
     "@types/react-simple-maps": "^3.0.0",
     "@typescript-eslint/eslint-plugin": "^5.42.0",
