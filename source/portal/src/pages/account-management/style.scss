@@ -1,0 +1,47 @@
+.account-id {
+  color: #0972d3;
+  cursor: pointer;
+}
+
+.account-id:hover {
+  text-decoration: underline;
+}
+
+.coverage-small {
+  font-size: 12px;
+}
+
+.progress-percent {
+  color: #5F6B7A;
+}
+
+.success-percent {
+  color: #037F0C;
+}
+
+.failed-percent {
+  color: #D91515;
+}
+
+.info-percent {
+  color: #0972D3;
+}
+
+.clk-refresh {
+  color: #0972D3;
+  user-select: none;
+  cursor: pointer;
+}
+
+.clk-refresh:hover {
+  text-decoration: underline;
+}
+
+.small-icon {
+  margin-top: 3px;
+  transform: scale(0.8);
+}
+
+.account-container {
+  margin-top: 16px;
+}

@@ -1,0 +1,25 @@
+@media (max-width: 1440px) {
+  .job-table-width {
+    width: 700px !important;
+  }
+}
+
+.clk-remove {
+  color: #D91515;
+  user-select: none;
+  cursor: pointer;
+}
+
+.clk-remove:hover {
+  text-decoration: underline;
+}
+
+.titel-info {
+  cursor: pointer;
+  user-select: none;
+  color: rgb(9, 114, 211);
+}
+
+.titel-info:hover {
+  color: #033160;
+}

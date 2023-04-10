@@ -1,0 +1,184 @@
+export const COLUMN_OBJECT_STR = {
+  DatabaseName: 'database_name',
+};
+
+export const S3_CATALOG_COLUMS = [
+  {
+    id: COLUMN_OBJECT_STR.DatabaseName,
+    label: 'Bucket name',
+    filter: true,
+  },
+  {
+    id: 'object_count',
+    label: 'Objects',
+    filter: true,
+  },
+  {
+    id: 'size_key',
+    label: 'Size',
+    filter: false,
+  },
+  {
+    id: 'privacy',
+    label: 'Privacy',
+    filter: true,
+  },
+  {
+    id: 'account_id',
+    label: 'AWS account',
+    filter: true,
+  },
+
+  {
+    id: 'region',
+    label: 'AWS region',
+    filter: true,
+  },
+];
+
+export const RDS_CATALOG_COLUMS = [
+  {
+    id: COLUMN_OBJECT_STR.DatabaseName,
+    label: 'Instance name',
+    filter: true,
+  },
+  {
+    id: 'object_count',
+    label: 'Tables',
+    filter: true,
+  },
+  {
+    id: 'privacy',
+    label: 'Privacy',
+    filter: true,
+  },
+  {
+    id: 'account_id',
+    label: 'AWS account',
+    filter: true,
+  },
+  {
+    id: 'region',
+    label: 'AWS region',
+    filter: true,
+  },
+];
+
+export const S3_CATALOG_COLUMS_OLDDATA = [
+  ...S3_CATALOG_COLUMS,
+  {
+    id: 'operate',
+    label: 'Operate',
+    filter: false,
+  },
+];
+
+export const RDS_CATALOG_COLUMS_OLDDATA = [
+  ...RDS_CATALOG_COLUMS,
+  {
+    id: 'operate',
+    label: 'Operate',
+    filter: false,
+  },
+];
+
+export const HOUR_OPTIONS = [
+  { label: '00:00', value: '0' },
+  { label: '01:00', value: '1' },
+  { label: '02:00', value: '2' },
+  { label: '03:00', value: '3' },
+  { label: '04:00', value: '4' },
+  { label: '05:00', value: '5' },
+  { label: '06:00', value: '6' },
+  { label: '07:00', value: '7' },
+  { label: '08:00', value: '8' },
+  { label: '09:00', value: '9' },
+  { label: '10:00', value: '10' },
+  { label: '11:00', value: '11' },
+  { label: '12:00', value: '12' },
+  { label: '13:00', value: '13' },
+  { label: '14:00', value: '14' },
+  { label: '15:00', value: '15' },
+  { label: '16:00', value: '16' },
+  { label: '17:00', value: '17' },
+  { label: '18:00', value: '18' },
+  { label: '19:00', value: '19' },
+  { label: '20:00', value: '20' },
+  { label: '21:00', value: '21' },
+  { label: '22:00', value: '22' },
+  { label: '23:00', value: '23' },
+];
+
+export const DAY_OPTIONS = [
+  { label: 'SUN', value: 'SUN' },
+  { label: 'MON', value: 'MON' },
+  { label: 'TUE', value: 'TUE' },
+  { label: 'WED', value: 'WED' },
+  { label: 'THU', value: 'THU' },
+  { label: 'FRI', value: 'FRI' },
+  { label: 'SAT', value: 'SAT' },
+];
+
+export const MONTH_OPTIONS = [
+  { label: '1', value: '1' },
+  { label: '2', value: '2' },
+  { label: '3', value: '3' },
+  { label: '4', value: '4' },
+  { label: '5', value: '5' },
+  { label: '6', value: '6' },
+  { label: '7', value: '7' },
+  { label: '8', value: '8' },
+  { label: '9', value: '9' },
+  { label: '10', value: '10' },
+  { label: '11', value: '11' },
+  { label: '12', value: '12' },
+  { label: '13', value: '13' },
+  { label: '14', value: '14' },
+  { label: '15', value: '15' },
+  { label: '16', value: '16' },
+  { label: '17', value: '17' },
+  { label: '18', value: '18' },
+  { label: '19', value: '19' },
+  { label: '20', value: '20' },
+  { label: '21', value: '21' },
+  { label: '22', value: '22' },
+  { label: '23', value: '23' },
+  { label: '24', value: '24' },
+  { label: '25', value: '25' },
+  { label: '26', value: '26' },
+  { label: '27', value: '27' },
+  { label: '28', value: '28' },
+];
+
+export interface DbItemInfo {
+  database_type?: any;
+  account_id: any;
+  region: any;
+  database_name: any;
+}
+
+export const SCAN_DEPTH_OPTIONS = [
+  { label: '1000 (recommended)', value: '1000' },
+  { label: '100', value: '100' },
+];
+
+export const SCAN_RANGE_OPTIONS = [
+  { label: 'Full scan', value: '0' },
+  { label: 'Incremental scan (recommended)', value: '1' },
+];
+
+export const DETECTION_THRESHOLD_OPTIONS = [
+  { label: '5%', value: '0.05' },
+  { label: '10% (recommended)', value: '0.1' },
+  { label: '20%', value: '0.2' },
+  { label: '30%', value: '0.3' },
+  { label: '50%', value: '0.5' },
+  { label: '100%', value: '1' },
+];
+
+export const FREQUENCY_TYPE = {
+  on_demand_run: 'On-demand run',
+  daily: 'Daily',
+  weekly: 'Weekly',
+  monthly: 'Monthly',
+};

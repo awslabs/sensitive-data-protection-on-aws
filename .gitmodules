@@ -1,0 +1,3 @@
+[submodule "source/portal/lambda/layer/_build_layer"]
+	path = source/portal/lambda/layer/_build_layer
+	url = https://github.com/nowfox/build-lambda-layer-python

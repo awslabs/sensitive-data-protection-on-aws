@@ -1,0 +1,13 @@
+.error-badge {
+  color: #D91515;
+
+  .error-badge-span {
+    display: inline-block;
+    margin-left: 2px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 190px;
+    text-decoration: underline dashed;
+  }
+}

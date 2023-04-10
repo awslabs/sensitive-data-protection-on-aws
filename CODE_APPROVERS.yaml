@@ -1,0 +1,17 @@
+rules: 
+  - pattern:
+      matching: source/constructs/* 
+      type: WILDCARD 
+    approvers:
+    - type: USER
+      id: yiyanz
+      required: 2
+    - type: USER
+      id: junzhong
+      required: 2
+    - type: USER
+      id: jiatin
+      required: 2
+    - type: USER
+      id: cuihubin
+      required: 2

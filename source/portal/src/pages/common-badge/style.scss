@@ -1,0 +1,70 @@
+.common-badge {
+  width: fit-content;
+  user-select: none;
+}
+
+.pii-badge {
+  background: #EB6F6F !important;
+}
+
+.no-pii-badge {
+  background: #89BDEE !important;
+}
+
+.classified-badge {
+  user-select: none;
+
+  .classified-icon {
+    top: 4px;
+  }
+
+  .classified-span {
+    margin-left: 4px;
+    position: relative;
+    top: 3px;
+  }
+}
+
+.system-badge {
+  color: #0972D3;
+}
+
+.manual-badge {
+  color: #037F0C;
+}
+
+.system-mark-badge {
+  color: #5F6B7A;
+}
+
+.data-indf-badge {
+  width: fit-content !important;
+  color: #fff !important;
+  background-color: #9BA7B6 !important;
+  border-radius: 10px !important;
+}
+
+.success-badge {
+  color: #037F0C;
+}
+
+.contain-pii-select {
+  min-width: 80px;
+  position: relative;
+  bottom: 5px;
+}
+
+.non-pii-select {
+  min-width: 60px;
+  position: relative;
+  bottom: 5px;
+}
+
+.fit-select {
+  min-width: 120px;
+  width: fit-content !important;
+}
+
+.failed-badge {
+  color: #D91515;
+}

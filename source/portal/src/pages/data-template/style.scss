@@ -1,0 +1,29 @@
+.template-container {
+
+  margin-top: 16px;
+
+  .template-container-title {
+    font-family: "Open Sans", sans-serif;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 22px;
+    color: #000716;
+
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+  }
+}
+
+.add-identfier-modal {
+  padding: 5px 35px;
+}
+
+.privacy-tab {
+  margin-top: 40px;
+}
+
+.mapping-container {
+  margin-top: -10px;
+}

@@ -1,0 +1,181 @@
+{
+  "Comment": "Sensitive data protection",
+  "StartAt": "FirstWait",
+  "States": {
+    "FirstWait": {
+      "Type": "Wait",
+      "Next": "GetCrawler",
+      "SecondsPath": "$.FirstWait"
+    },
+    "GetCrawler": {
+      "Type": "Task",
+      "Parameters": {
+        "Name.$": "$.CrawlerName"
+      },
+      "Resource": "arn:aws-cn:states:::aws-sdk:glue:getCrawler",
+      "ResultPath": "$.GetCrawler",
+      "Next": "Choice",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "BackoffRate": 2,
+          "IntervalSeconds": 100,
+          "MaxAttempts": 3
+        }
+      ]
+    },
+    "Choice": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.GetCrawler.Crawler.State",
+          "StringEquals": "READY",
+          "Next": "StartCrawler"
+        }
+      ],
+      "Default": "Wait"
+    },
+    "StartCrawler": {
+      "Type": "Task",
+      "Parameters": {
+        "Name.$": "$.CrawlerName"
+      },
+      "ResultPath": "$.StartCrawler",
+      "Resource": "arn:aws-cn:states:::aws-sdk:glue:startCrawler",
+      "Next": "Wait"
+    },
+    "GetCrawler2": {
+      "Type": "Task",
+      "Parameters": {
+        "Name.$": "$.CrawlerName"
+      },
+      "Resource": "arn:aws-cn:states:::aws-sdk:glue:getCrawler",
+      "Next": "Choice2",
+      "ResultPath": "$.GetCrawler",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "BackoffRate": 2,
+          "IntervalSeconds": 100,
+          "MaxAttempts": 3
+        }
+      ]
+    },
+    "Choice2": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.GetCrawler.Crawler.State",
+          "StringEquals": "READY",
+          "Next": "Glue StartJobRun"
+        },
+        {
+          "Or": [
+            {
+              "Variable": "$.GetCrawler.Crawler.State",
+              "StringEquals": "FAILED"
+            },
+            {
+              "Variable": "$.GetCrawler.Crawler.State",
+              "StringEquals": "CANCELLED"
+            }
+          ],
+          "Next": "GetCrawlerFail"
+        }
+      ],
+      "Default": "Wait"
+    },
+    "GetCrawlerFail": {
+      "Type": "Pass",
+      "Next": "SQS SendMessageFail",
+      "Result": {
+        "Status": "Failed",
+        "Message": "The state of the crawler is not ready."
+      },
+      "ResultPath": "$.Result"
+    },
+    "SQS SendMessageFail": {
+      "Type": "Task",
+      "Resource": "arn:aws-cn:states:::sqs:sendMessage",
+      "Parameters": {
+        "MessageBody.$": "$",
+        "QueueUrl.$": "$.QueueUrl"
+      },
+      "Next": "Fail"
+    },
+    "Glue StartJobRun": {
+      "Type": "Task",
+      "Resource": "arn:aws-cn:states:::glue:startJobRun.sync",
+      "Parameters": {
+        "JobName.$": "$.JobName",
+        "Arguments": {
+          "--JobId.$": "$.JobId",
+          "--RunId.$": "$.RunId",
+          "--AccountId.$": "$.AccountId",
+          "--Region.$": "$.Region",
+          "--RunDatabaseId.$": "$.RunDatabaseId",
+          "--DatabaseName.$": "$.DatabaseName",
+          "--DatabaseType.$": "$.DatabaseType",
+          "--TemplateId.$": "$.TemplateId",
+          "--Depth.$": "$.Depth",
+          "--DetectionThreshold.$": "$.DetectionThreshold",
+          "--Range.$": "$.JobRange",
+          "--BaseTime.$": "$.BaseTime",
+          "--AdminAccountId.$": "$.AdminAccountId",
+          "--BucketName.$": "$.BucketName",
+          "--additional-python-modules.$": "$.AdditionalPythonModules"
+        }
+      },
+      "ResultPath": "$.StartJobRun",
+      "Next": "Choice3"
+    },
+    "Choice3": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.StartJobRun.JobRunState",
+          "StringEquals": "SUCCEEDED",
+          "Next": "SuccessPass"
+        }
+      ],
+      "Default": "GetJobRunFail"
+    },
+    "GetJobRunFail": {
+      "Type": "Pass",
+      "Next": "SQS SendMessageFail",
+      "Result": {
+        "State": "Failed",
+        "Message": "The state of the JobRun is not Succeeded."
+      }
+    },
+    "SuccessPass": {
+      "Type": "Pass",
+      "Result": {
+        "State": "Succeeded"
+      },
+      "ResultPath": "$.Result",
+      "Next": "SQS SendMessage"
+    },
+    "SQS SendMessage": {
+      "Type": "Task",
+      "Resource": "arn:aws-cn:states:::sqs:sendMessage",
+      "Parameters": {
+        "MessageBody.$": "$",
+        "QueueUrl.$": "$.QueueUrl"
+      },
+      "End": true
+    },
+    "Wait": {
+      "Type": "Wait",
+      "Next": "GetCrawler2",
+      "SecondsPath": "$.LoopWait"
+    },
+    "Fail": {
+      "Type": "Fail"
+    }
+  }
+}

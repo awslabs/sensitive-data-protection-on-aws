@@ -1,0 +1,10 @@
+# Instructions
+# ------------
+# 1) Create a SIM ticket for cfg-nag bypass
+# 2) Place the url for your ticket below in sim_ticket:
+# 3) Put a reason for the bypass below in reason:
+# 4) Management approval is required. Place the Amazon ID of the manager in approval:
+# 5) Rename this file to .cfnnag_global_disable
+sim_ticket:
+reason:
+approval:

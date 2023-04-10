@@ -1,0 +1,80 @@
+import { Box, Table } from '@cloudscape-design/components';
+import { getJobDetail } from 'apis/data-job/api';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { RouterEnum } from 'routers/routerEnum';
+
+const DATABASE_COLUMN_LIST = [
+  { id: 'job_id', label: 'Job id' },
+  { id: 'database_name', label: 'Data catalog name' },
+  { id: 'account_id', label: 'AWS account' },
+  { id: 'region', label: 'AWS region' },
+  { id: 'database_type', label: 'Data source type' },
+];
+
+const JobCatalogs = (props: any) => {
+  const { detailRow } = props;
+  const navigate = useNavigate();
+
+  const [isLoading, setIsloading] = useState(false);
+  const [dataList, setDataList] = useState([]);
+  const columnList = DATABASE_COLUMN_LIST;
+
+  useEffect(() => {
+    getDetailData();
+  }, []);
+
+  const getDetailData = async () => {
+    setIsloading(true);
+    const { id } = detailRow;
+    const result: any = await getJobDetail({ id });
+    setIsloading(false);
+    if (!result) {
+      return;
+    }
+    setDataList(result['databases']);
+  };
+  const clkCatalog = (rowData: any) => {
+    navigate(
+      `${RouterEnum.Catalog.path}?tagType=${rowData.database_type}&catalogId=${rowData.database_name}`
+    );
+  };
+
+  return (
+    <Table
+      className="no-shadow"
+      variant="embedded"
+      loading={isLoading}
+      columnDefinitions={
+        columnList.map((item) => {
+          return {
+            id: item.id,
+            header: item.label,
+            cell: (e: any) => {
+              if (item.id === 'database_name') {
+                return (
+                  <span className="job-name" onClick={() => clkCatalog(e)}>
+                    {(e as any)[item.id]}
+                  </span>
+                );
+              }
+              return <>{(e as any)[item.id]}</>;
+            },
+          };
+        }) as any
+      }
+      items={dataList}
+      loadingText="Loading resources"
+      visibleColumns={columnList.map((i) => i.id)}
+      empty={
+        <Box textAlign="center" color="inherit">
+          <b>No resources</b>
+          <Box padding={{ bottom: 's' }} variant="p" color="inherit">
+            No resources to display.
+          </Box>
+        </Box>
+      }
+    />
+  );
+};
+export default JobCatalogs;

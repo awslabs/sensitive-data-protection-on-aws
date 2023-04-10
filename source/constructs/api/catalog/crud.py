@@ -1,0 +1,505 @@
+import db.models_catalog as models
+from tools.pydantic_tool import parse_pydantic_schema
+import tools.mytime as mytime
+from db.database import get_session
+from . import schemas
+from common.constant import const
+from common.enum import (
+    CatalogState,
+    Privacy,
+    DatabaseType
+)
+from common.query_condition import QueryCondition, query_with_condition
+from itertools import count
+from sqlalchemy import func, distinct
+
+
+def get_catalog_column_level_classification_by_table(
+    account_id: str,
+    region: str,
+    database_type: str,
+    database_name: str,
+    table_name: str,
+):
+    result = (
+        get_session()
+        .query(models.CatalogColumnLevelClassification)
+        .filter(models.CatalogColumnLevelClassification.account_id == account_id)
+        .filter(models.CatalogColumnLevelClassification.region == region)
+        .filter(models.CatalogColumnLevelClassification.database_type == database_type)
+        .filter(models.CatalogColumnLevelClassification.database_name == database_name)
+        .filter(models.CatalogColumnLevelClassification.table_name == table_name)
+        .order_by(models.CatalogColumnLevelClassification.column_order_num)
+    )
+    return result
+
+
+def get_catalog_column_level_classification_by_name(
+    account_id: str,
+    region: str,
+    database_type: str,
+    database_name: str,
+    table_name: str,
+    column_name: str,
+):
+    result = (
+        get_session()
+        .query(models.CatalogColumnLevelClassification)
+        .filter(models.CatalogColumnLevelClassification.account_id == account_id)
+        .filter(models.CatalogColumnLevelClassification.region == region)
+        .filter(models.CatalogColumnLevelClassification.database_type == database_type)
+        .filter(models.CatalogColumnLevelClassification.database_name == database_name)
+        .filter(models.CatalogColumnLevelClassification.table_name == table_name)
+        .filter(models.CatalogColumnLevelClassification.column_name == column_name)
+        .first()
+    )
+    return result
+
+
+def get_catalog_database_level_classification_by_params(
+    account_id: str, region: str, database_type: str
+):
+    result = (
+        get_session()
+        .query(models.CatalogDatabaseLevelClassification)
+        .filter(models.CatalogDatabaseLevelClassification.account_id == account_id)
+        .filter(models.CatalogDatabaseLevelClassification.region == region)
+        .filter(
+            models.CatalogDatabaseLevelClassification.database_type == database_type
+        )
+    )
+    return result
+
+
+def get_catalog_database_level_classification_by_type_all(database_type: str):
+    return get_session().query(models.CatalogDatabaseLevelClassification).filter(
+            models.CatalogDatabaseLevelClassification.database_type == database_type
+        )
+
+
+def get_catalog_database_level_classification_by_type(condition: QueryCondition):
+    return query_with_condition(get_session().query(models.CatalogDatabaseLevelClassification), condition)
+
+
+def get_catalog_database_level_classification_by_name(
+    account_id: str,
+    region: str,
+    database_type: str,
+    database_name: str,
+):
+    result = (
+        get_session()
+        .query(models.CatalogDatabaseLevelClassification)
+        .filter(models.CatalogDatabaseLevelClassification.account_id == account_id)
+        .filter(models.CatalogDatabaseLevelClassification.region == region)
+        .filter(
+            models.CatalogDatabaseLevelClassification.database_type == database_type
+        )
+        .filter(
+            models.CatalogDatabaseLevelClassification.database_name == database_name
+        )
+        .first()
+    )
+    return result
+
+
+def get_catalog_table_level_classification_by_database(
+    account_id: str,
+    region: str,
+    database_type: str,
+    database_name: str,
+):
+    result = (
+        get_session()
+        .query(models.CatalogTableLevelClassification)
+        .filter(models.CatalogTableLevelClassification.account_id == account_id)
+        .filter(models.CatalogTableLevelClassification.region == region)
+        .filter(models.CatalogTableLevelClassification.database_type == database_type)
+        .filter(models.CatalogTableLevelClassification.database_name == database_name)
+    )
+    return result
+
+
+def get_catalog_table_level_classification_by_name(
+    account_id: str,
+    region: str,
+    database_type: str,
+    database_name: str,
+    table_name: str,
+):
+    result = (
+        get_session()
+        .query(models.CatalogTableLevelClassification)
+        .filter(models.CatalogTableLevelClassification.account_id == account_id)
+        .filter(models.CatalogTableLevelClassification.region == region)
+        .filter(models.CatalogTableLevelClassification.database_type == database_type)
+        .filter(models.CatalogTableLevelClassification.database_name == database_name)
+        .filter(models.CatalogTableLevelClassification.table_name == table_name)
+        .first()
+    )
+    return result
+
+
+def get_catalog_table_level_classification_by_database_identifier(
+    account_id: str,
+    region: str,
+    database_type: str,
+    database_name: str,
+    identifier: str,
+):
+    result = (
+        get_session()
+        .query(models.CatalogTableLevelClassification)
+        .filter(models.CatalogTableLevelClassification.account_id == account_id)
+        .filter(models.CatalogTableLevelClassification.region == region)
+        .filter(models.CatalogTableLevelClassification.database_type == database_type)
+        .filter(models.CatalogTableLevelClassification.database_name == database_name)
+        .filter(
+            models.CatalogTableLevelClassification.identifiers.ilike(
+                "%" + identifier + "%"
+            )
+        )
+    )
+    return result
+
+
+def get_catalog_table_level_classification_by_identifier_and_database_type(
+    identifier: str,
+    database_type: str
+):
+    result = (
+        get_session()
+        .query(models.CatalogTableLevelClassification)
+        .filter(models.CatalogTableLevelClassification.database_type == database_type)
+        .filter(
+            models.CatalogTableLevelClassification.identifiers.ilike(
+                "%" + identifier + "%"
+            )
+        )
+    )
+    return result
+
+
+
+def create_catalog_column_level_classification(catalog_column: dict):
+    parsed_schema = parse_pydantic_schema(catalog_column)
+    db_catalog = models.CatalogColumnLevelClassification(
+        **parsed_schema,
+        column_value_example=const.NA,
+        identifier='{"' + const.NA + '": 0}',
+        identifier_score=0.0,
+        privacy=Privacy.NA.value,
+        sensitivity=const.NA,
+        version=0,
+        create_by=const.SOLUTION_NAME,
+        create_time=mytime.get_time(),
+        modify_by=const.SOLUTION_NAME,
+        modify_time=mytime.get_time(),
+        state=CatalogState.CREATED.value,
+    )
+    get_session().add(db_catalog)
+    get_session().commit()
+    return db_catalog
+
+
+def create_catalog_table_level_classification(catalog_table: dict):
+    parsed_schema = parse_pydantic_schema(catalog_table)
+    db_catalog = models.CatalogTableLevelClassification(
+        **parsed_schema,
+        privacy=Privacy.NA.value,
+        sensitivity=const.NA,
+        identifiers=const.NA,
+        version=0,
+        create_by=const.SOLUTION_NAME,
+        create_time=mytime.get_time(),
+        modify_by=const.SOLUTION_NAME,
+        modify_time=mytime.get_time(),
+        state=CatalogState.CREATED.value,
+    )
+    get_session().add(db_catalog)
+    get_session().commit()
+    return db_catalog
+
+
+def create_catalog_database_level_classification(catalog_database: dict):
+    parsed_schema = parse_pydantic_schema(catalog_database)
+    db_catalog = models.CatalogDatabaseLevelClassification(
+        **parsed_schema,
+        privacy=Privacy.NA.value,
+        sensitivity=const.NA,
+        version=0,
+        create_by=const.SOLUTION_NAME,
+        create_time=mytime.get_time(),
+        modify_by=const.SOLUTION_NAME,
+        modify_time=mytime.get_time(),
+        state=CatalogState.CREATED.value,
+    )
+    get_session().add(db_catalog)
+    get_session().commit()
+    return db_catalog
+
+
+def update_catalog_database_level_classification(
+    database: schemas.CatalogDatabaseLevelClassification,
+):
+    database.modify_time = mytime.get_time()
+    size = (
+        get_session()
+        .query(models.CatalogDatabaseLevelClassification)
+        .filter(models.CatalogDatabaseLevelClassification.id == database.id)
+        .update(database.dict(exclude_unset=True))
+    )
+    get_session().commit()
+    return size > 0
+
+
+def update_catalog_table_level_classification(
+    table: schemas.CatalogTableLevelClassification,
+):
+    table.modify_time = mytime.get_time()
+    size = (
+        get_session()
+        .query(models.CatalogTableLevelClassification)
+        .filter(models.CatalogTableLevelClassification.id == table.id)
+        .update(table.dict(exclude_unset=True))
+    )
+    get_session().commit()
+    return size > 0
+
+
+def update_catalog_column_level_classification(
+    column: schemas.CatalogColumnLevelClassification,
+) -> bool:
+    column.modify_time = mytime.get_time()
+    size = (
+        get_session()
+        .query(models.CatalogColumnLevelClassification)
+        .filter(models.CatalogColumnLevelClassification.id == column.id)
+        .update(column.dict(exclude_unset=True))
+    )
+    get_session().commit()
+    return size > 0
+
+
+def update_catalog_column_level_classification_by_id(
+    id: int,
+    column: dict,
+) -> bool:
+    column["modify_time"] = mytime.get_time()
+    size = (
+        get_session()
+        .query(models.CatalogColumnLevelClassification)
+        .filter(models.CatalogColumnLevelClassification.id == id)
+        .update(column)  # column.dict(exclude_unset=True)
+    )
+    get_session().commit()
+    return size > 0
+
+
+def update_catalog_database_level_classification_by_id(
+    id: int,
+    database: dict,
+):
+    database["modify_time"] = mytime.get_time()
+    size = (
+        get_session()
+        .query(models.CatalogDatabaseLevelClassification)
+        .filter(models.CatalogDatabaseLevelClassification.id == id)
+        .update(database)
+    )
+    get_session().commit()
+    return size > 0
+
+
+def update_catalog_table_level_classification_by_id(
+    id: int,
+    table: dict,
+):
+    table["modify_time"] = mytime.get_time()
+    size = (
+        get_session()
+        .query(models.CatalogTableLevelClassification)
+        .filter(models.CatalogTableLevelClassification.id == id)
+        .update(table)
+    )
+    get_session().commit()
+    return size > 0
+
+
+def delete_catalog_table_level_classification(id: int):
+    session = get_session()
+    session.query(models.CatalogTableLevelClassification).filter(
+        models.CatalogTableLevelClassification.id == id
+    ).delete()
+    session.commit()
+
+
+def delete_catalog_database_level_classification(id: int):
+    session = get_session()
+    session.query(models.CatalogDatabaseLevelClassification).filter(
+        models.CatalogDatabaseLevelClassification.id == id
+    ).delete()
+    session.commit()
+
+
+def delete_catalog_column_level_classification(id: int):
+    session = get_session()
+    session.query(models.CatalogColumnLevelClassification).filter(
+        models.CatalogColumnLevelClassification.id == id
+    ).delete()
+    session.commit()
+
+
+def delete_catalog_table_level_classification_by_account_region(account_id: str, region: str):
+    session = get_session()
+    session.query(models.CatalogTableLevelClassification).filter(
+        models.CatalogTableLevelClassification.account_id == account_id
+    ).filter(
+        models.CatalogTableLevelClassification.region == region
+    ).delete()
+    session.commit()
+
+
+def delete_catalog_database_level_classification_by_account_region(account_id: str, region: str):
+    session = get_session()
+    session.query(models.CatalogDatabaseLevelClassification).filter(
+        models.CatalogDatabaseLevelClassification.account_id == account_id
+    ).filter(
+        models.CatalogDatabaseLevelClassification.region == region
+    ).delete()
+    session.commit()
+
+
+def delete_catalog_column_level_classification_by_account_region(account_id: str, region: str):
+    session = get_session()
+    session.query(models.CatalogColumnLevelClassification).filter(
+        models.CatalogColumnLevelClassification.account_id == account_id
+    ).filter(
+        models.CatalogColumnLevelClassification.region == region
+    ).delete()
+    session.commit()
+
+
+def get_s3_database_summary():
+    return (get_session()
+    .query(func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label("database_total"), 
+        func.sum(models.CatalogDatabaseLevelClassification.object_count).label("object_total"), 
+        func.sum(models.CatalogDatabaseLevelClassification.size_key).label("size_total"))
+    .filter(models.CatalogDatabaseLevelClassification.database_type == DatabaseType.S3.value)
+    .all()
+    )
+
+
+def get_rds_column_summary():
+    return (get_session()
+    .query(func.count(distinct(models.CatalogColumnLevelClassification.database_name)).label("instance_total"), 
+        func.count(models.CatalogColumnLevelClassification.column_name).label("column_total"))
+    .filter(models.CatalogColumnLevelClassification.database_type == DatabaseType.RDS.value)
+    .all()
+    )
+
+
+def get_catalog_table_level_classification_by_type(database_type: str):
+    return (get_session()
+    .query(models.CatalogTableLevelClassification)
+    .filter(models.CatalogTableLevelClassification.database_type == database_type)
+    .all()
+    )
+
+
+def get_catalog_table_count_by_type(database_type: str):
+    return (get_session()
+    .query(models.CatalogTableLevelClassification.classification, func.count(models.CatalogTableLevelClassification.table_name).label("table_total"))
+    .filter(models.CatalogTableLevelClassification.database_type == database_type)
+    .group_by(models.CatalogTableLevelClassification.classification)
+    .all()
+    )
+
+
+def get_s3_database_summary_with_region():
+    return (get_session()
+    .query(models.CatalogDatabaseLevelClassification.region,
+        func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label("database_total"), 
+        func.sum(models.CatalogDatabaseLevelClassification.object_count).label("object_total"), 
+        func.sum(models.CatalogDatabaseLevelClassification.size_key).label("size_total"))
+    .filter(models.CatalogDatabaseLevelClassification.database_type == DatabaseType.S3.value)
+    .group_by(models.CatalogDatabaseLevelClassification.region)
+    .all()
+    )
+
+def get_rds_database_summary_with_attr(attribute: str):
+    return (get_session()
+    .query(getattr(models.CatalogDatabaseLevelClassification, attribute),
+        func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label("instance_total"),
+        func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label("database_total"), 
+        func.sum(models.CatalogDatabaseLevelClassification.table_count).label("table_total"))
+    .filter(models.CatalogDatabaseLevelClassification.database_type == DatabaseType.RDS.value)
+    .group_by(getattr(models.CatalogDatabaseLevelClassification, attribute))
+    .all()
+    )
+
+def get_s3_database_summary_with_attr(attribute: str):
+    return (get_session()
+    .query(getattr(models.CatalogDatabaseLevelClassification, attribute),
+        func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label("database_total"), 
+        func.sum(models.CatalogDatabaseLevelClassification.object_count).label("object_total"), 
+        func.sum(models.CatalogDatabaseLevelClassification.size_key).label("size_total"),
+        func.sum(models.CatalogDatabaseLevelClassification.table_count).label("table_total"))
+    .filter(models.CatalogDatabaseLevelClassification.database_type == DatabaseType.S3.value)
+    .group_by(getattr(models.CatalogDatabaseLevelClassification, attribute))
+    .all()
+    )
+
+
+def delete_catalog_column_level_classification_by_database_name(account_id: str,
+    region: str,
+    database_type: str,
+    database_name: str,):
+    session = get_session()
+    session.query(models.CatalogColumnLevelClassification).filter(
+            models.CatalogColumnLevelClassification.account_id == account_id
+        ).filter(
+            models.CatalogColumnLevelClassification.region == region
+        ).filter(
+            models.CatalogColumnLevelClassification.database_type == database_type
+        ).filter(
+            models.CatalogColumnLevelClassification.database_name == database_name
+        ).delete()
+    
+    session.commit()
+
+
+def delete_catalog_table_level_classification_by_database_name(account_id: str,
+    region: str,
+    database_type: str,
+    database_name: str,):
+    session = get_session()
+    session.query(models.CatalogTableLevelClassification).filter(
+            models.CatalogTableLevelClassification.account_id == account_id
+        ).filter(
+            models.CatalogTableLevelClassification.region == region
+        ).filter(
+            models.CatalogTableLevelClassification.database_type == database_type
+        ).filter(
+            models.CatalogTableLevelClassification.database_name == database_name
+        ).delete()
+    
+    session.commit()
+
+
+def delete_catalog_database_level_classification_by_name(account_id: str,
+    region: str,
+    database_type: str,
+    database_name: str,):
+    session = get_session()
+    session.query(models.CatalogDatabaseLevelClassification).filter(
+            models.CatalogDatabaseLevelClassification.account_id == account_id
+        ).filter(
+            models.CatalogDatabaseLevelClassification.region == region
+        ).filter(
+            models.CatalogDatabaseLevelClassification.database_type == database_type
+        ).filter(
+            models.CatalogDatabaseLevelClassification.database_name == database_name
+        ).delete()
+    
+    session.commit()

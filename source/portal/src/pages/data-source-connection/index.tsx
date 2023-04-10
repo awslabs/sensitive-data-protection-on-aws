@@ -1,0 +1,115 @@
+import React from 'react';
+import {
+  AppLayout,
+  Button,
+  Container,
+  Header,
+  SpaceBetween,
+  Tabs,
+} from '@cloudscape-design/components';
+import { TAB_LIST } from 'enum/common_types';
+import DataSourceList from './componments/DataSourceList';
+import './style.scss';
+import DataSourceInfo from './componments/DataSourceInfo';
+import { useLocation, useNavigate } from 'react-router-dom';
+import Navigation from 'pages/left-menu/Navigation';
+import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
+import { RouterEnum } from 'routers/routerEnum';
+
+const DataSourceConnectionHeader: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const {
+    accountData = {
+      aws_account_id: '',
+    },
+  } = location.state || {};
+  return (
+    <Header
+      variant="h1"
+      description="You can create data catalogs by connecting data source."
+      actions={
+        <Button onClick={() => navigate(RouterEnum.AccountManagement.path)}>
+          Back to AWS accounts view
+        </Button>
+      }
+    >
+      Connect to data source for account Id: {accountData.aws_account_id}
+    </Header>
+  );
+};
+
+const DataSourceConnectionContent: React.FC = () => {
+  const location = useLocation();
+  const {
+    accountData = {
+      aws_account_email: '',
+      aws_account_id: '',
+      region: '',
+      stack_instance_status: '',
+      stack_status: '',
+      organization_unit_id: '',
+    },
+  } = location.state || {};
+
+  return (
+    <SpaceBetween direction="vertical" size="xl" className="connect-container">
+      <div>
+        {accountData && accountData.aws_account_id && (
+          <DataSourceInfo accountData={accountData} />
+        )}
+      </div>
+      <Container disableContentPaddings>
+        <Tabs
+          tabs={[
+            {
+              label: TAB_LIST.S3.label,
+              id: TAB_LIST.S3.id,
+              content: (
+                <DataSourceList
+                  tagType={TAB_LIST.S3.id}
+                  accountData={accountData}
+                />
+              ),
+            },
+            {
+              label: TAB_LIST.RDS.label,
+              id: TAB_LIST.RDS.id,
+              content: (
+                <DataSourceList
+                  tagType={TAB_LIST.RDS.id}
+                  accountData={accountData}
+                />
+              ),
+            },
+          ]}
+        />
+      </Container>
+    </SpaceBetween>
+  );
+};
+
+const DataSourceConnection: React.FC = () => {
+  const breadcrumbItems = [
+    { text: 'Sensitive Data Protection Solution', href: RouterEnum.Home.path },
+    {
+      text: 'Data Source Connection',
+      href: RouterEnum.DataSourceConnection.path,
+    },
+  ];
+  return (
+    <AppLayout
+      contentHeader={<DataSourceConnectionHeader />}
+      content={<DataSourceConnectionContent />}
+      headerSelector="#header"
+      breadcrumbs={<CustomBreadCrumb breadcrumbItems={breadcrumbItems} />}
+      navigation={
+        <Navigation activeHref={RouterEnum.DataSourceConnection.path} />
+      }
+      navigationWidth={290}
+    />
+  );
+};
+
+export default DataSourceConnection;

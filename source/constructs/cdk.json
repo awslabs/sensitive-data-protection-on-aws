@@ -1,0 +1,8 @@
+{
+  "app": "npx ts-node bin/main.ts",
+  "context": {
+    "solution_id": "SO8031",
+    "solution_name": "Sensitive Data Protection",
+    "solution_version": "0.1.0"
+  }
+}

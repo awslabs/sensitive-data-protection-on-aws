@@ -1,0 +1,117 @@
+import {
+  Header,
+  SpaceBetween,
+  Button,
+  Grid,
+  Spinner,
+} from '@cloudscape-design/components';
+import React, { memo, useEffect, useState } from 'react';
+import CircleChart from './items/CircleChart';
+// import CustomLineChart from './items/CustomLineChart';
+import MapChart from './items/MapChart';
+import RDSCatalogOverview from './items/RDSCatalogOverview';
+import TableData from './items/TableData';
+import { getCatalogTopNData } from 'apis/dashboard/api';
+import { ITableListKeyValue, ITableDataType } from 'ts/dashboard/types';
+import { useNavigate } from 'react-router-dom';
+import { RouterEnum } from 'routers/routerEnum';
+
+export const AmazonRDS: React.FC<any> = memo(() => {
+  const navigate = useNavigate();
+  const [loadingTableData, setLoadingTableData] = useState(true);
+  const [conatainsPIIData, setConatainsPIIData] = useState<
+    ITableListKeyValue[]
+  >([]);
+  const [identifierData, setIdentifierData] = useState<ITableListKeyValue[]>(
+    []
+  );
+
+  const getTopNTableData = async () => {
+    setLoadingTableData(true);
+    const tableData = (await getCatalogTopNData({
+      database_type: 'rds',
+      top_n: 10,
+    })) as ITableDataType;
+    setConatainsPIIData(tableData.account_top_n);
+    setIdentifierData(tableData.identifier_top_n);
+    setLoadingTableData(false);
+  };
+
+  useEffect(() => {
+    getTopNTableData();
+  }, []);
+
+  return (
+    <div>
+      <Header
+        variant="h2"
+        actions={
+          <SpaceBetween direction="horizontal" size="xs">
+            <Button
+              onClick={() => navigate(`${RouterEnum.Catalog.path}?tagType=rds`)}
+            >
+              Browse data catalogs
+            </Button>
+          </SpaceBetween>
+        }
+      >
+        Data catalogs
+      </Header>
+      <RDSCatalogOverview />
+      <Grid
+        gridDefinition={[
+          { colspan: 6 },
+          { colspan: 6 },
+          { colspan: 6 },
+          { colspan: 6 },
+          { colspan: 6 },
+        ]}
+      >
+        {/* <div className="mt-20 pd-10">
+          <CustomLineChart title="Data catalog trend" />
+        </div> */}
+        <div className="mt-20 pd-10">
+          <MapChart sourceType="rds" title="Data location" />
+        </div>
+        <div className="mt-20 pd-10">
+          <CircleChart
+            title="Privacy tagging for data catalogs"
+            circleType="donut"
+            sourceType="rds"
+          />
+        </div>
+        <div className="mt-20 pd-10">
+          {loadingTableData ? (
+            <Spinner />
+          ) : (
+            <TableData
+              dataList={conatainsPIIData}
+              keyLable="AWS account"
+              valueLable="RDS instances"
+              title="Top 10 AWS accounts contains PII"
+            />
+          )}
+        </div>
+        <div className="mt-20 pd-10">
+          {loadingTableData ? (
+            <Spinner />
+          ) : (
+            <TableData
+              dataList={identifierData}
+              keyLable="Data identifier"
+              valueLable="RDS instances"
+              title="Top 10 data identifiers"
+            />
+          )}
+        </div>
+        <div className="mt-20 pd-10">
+          <CircleChart
+            title="Last updated status"
+            circleType="pie"
+            sourceType="rds"
+          />
+        </div>
+      </Grid>
+    </div>
+  );
+});

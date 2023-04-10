@@ -1,0 +1,73 @@
+import React, { useState } from 'react';
+import Tabs from '@cloudscape-design/components/tabs';
+import CatalogList from './componments/CatalogList';
+import { TAB_LIST } from 'enum/common_types';
+import { useSearchParams } from 'react-router-dom';
+import './style.scss';
+import {
+  AppLayout,
+  Container,
+  ContentLayout,
+  Header,
+} from '@cloudscape-design/components';
+import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
+import Navigation from 'pages/left-menu/Navigation';
+import { RouterEnum } from 'routers/routerEnum';
+
+const CatalogListHeader: React.FC = () => {
+  return (
+    <Header
+      variant="h1"
+      description="The platform connects to data source to create and update data catalogs. A data catalog is a repository of metadata of data sources."
+    >
+      Browse data catalogs
+    </Header>
+  );
+};
+
+const DataCatalogList: React.FC = () => {
+  const [searchParams] = useSearchParams();
+
+  const [activeTabId, setActiveTabId] = useState(
+    searchParams.get('tagType') || TAB_LIST.S3.id
+  );
+
+  const breadcrumbItems = [
+    { text: 'Sensitive Data Protection Solution', href: RouterEnum.Home.path },
+    { text: 'Browse data catalogs', href: RouterEnum.Catalog.path },
+  ];
+
+  return (
+    <AppLayout
+      contentHeader={<CatalogListHeader />}
+      content={
+        <ContentLayout className="catalog-layout">
+          <Container disableContentPaddings>
+            <Tabs
+              activeTabId={activeTabId}
+              onChange={({ detail }) => setActiveTabId(detail.activeTabId)}
+              tabs={[
+                {
+                  label: TAB_LIST.S3.label,
+                  id: TAB_LIST.S3.id,
+                  content: <CatalogList catalogType={TAB_LIST.S3.id} />,
+                },
+                {
+                  label: TAB_LIST.RDS.label,
+                  id: TAB_LIST.RDS.id,
+                  content: <CatalogList catalogType={TAB_LIST.RDS.id} />,
+                },
+              ]}
+            />
+          </Container>
+        </ContentLayout>
+      }
+      headerSelector="#header"
+      breadcrumbs={<CustomBreadCrumb breadcrumbItems={breadcrumbItems} />}
+      navigation={<Navigation activeHref={RouterEnum.Catalog.path} />}
+      navigationWidth={290}
+    />
+  );
+};
+
+export default DataCatalogList;

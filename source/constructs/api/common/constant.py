@@ -1,0 +1,44 @@
+class _const(object):
+    class ConstError(TypeError):
+        def __init__(self, msg):
+            super().__init__(msg)
+
+    def __setattr__(self, name, value):
+        if name in self.__dict__:
+            err = self.ConstError("Can't change const.%s" % name)
+            raise err
+        if not name.isupper():
+            err = self.ConstError('Const name "%s" is not all uppercase' % name)
+            raise err
+        self.__dict__[name] = value
+
+
+const = _const()
+
+const.SOLUTION_FULL_NAME = "Sensitive Data Protect Solution"
+const.SOLUTION_NAME = "SDPS"
+
+const.LOGGER_API = "api"
+
+const.RESPONSE_SUCCESS = "success"
+const.RESPONSE_FAIL = "fail"
+const.ON_DEMAND = "OnDemand"
+const.MIME_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+const.JWT_TOKEN_EXPIRE_TIME = 60 * 60 * 2
+const.JWT_ALGORITHM = "HS256"
+const.JWT_SECRET = ""
+const.NA = "N/A"
+const.PROJECT_BUCKET_NAME = "ProjectBucketName"
+const.PROJECT_BUCKET_DEFAULT_NAME = "sdps-admin"
+const.USER = "user"
+const.USER_DEFAULT_NAME = "SDPS"
+const.JOB_RESULT_DATABASE_NAME = "sdps_database"
+const.JOB_RESULT_TABLE_NAME = "job_detection_output_table"
+const.CATALOG_SAMPLE_ITEM_COUNT = 10
+const.CN_REGIONS = ['cn-northwest-1', 'cn-north-1']
+const.MODE = 'mode'
+const.MODE_DEV = 'dev'
+const.EXCLUDE_PATH_LIST = ['/', '/docs', '/openapi.json']
+const.JOB_INTERVAL_WAIT = 10
+const.RDS_SUPPORTED_ENGINES = ['aurora-mysql', 'mysql', 'aurora-postgres', 'postgres']
+
