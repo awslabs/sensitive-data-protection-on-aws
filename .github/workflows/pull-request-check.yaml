@@ -31,7 +31,8 @@ jobs:
       - name: Run git-secrets
         run: |
           git-secrets --register-aws
-          git-secrets --scan
+          git secrets --add --allowed 'source/constructs/lib/common/constants.ts'
+          git-secrets --scan 
 
   opensource-license-review:
     needs: git-secrets
