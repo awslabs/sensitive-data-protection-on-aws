@@ -167,6 +167,10 @@ jobs:
           viperlight --version
           echo "Content scanning utility installation complete `date`"
           echo "Starting content scanning `date` in `pwd`"
+          echo "pwd is"
+          ll `pwd`
+          echo "templates is"
+          ll  /home/runner/work/sensitive-data-protection-on-aws/templates/console/source
           cd /home/runner/work/sensitive-data-protection-on-aws/templates/console/source
           viperlight scan -m files-contents -m files-aws -m files-binary -m files-entropy -m files-secrets
           echo "Completed content scanning `date`"
