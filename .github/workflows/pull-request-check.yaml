@@ -167,8 +167,8 @@ jobs:
           viperlight --version
           echo "Content scanning utility installation complete `date`"
           echo "Starting content scanning `date` in `pwd`"
-          echo "pwd is...>>>>>"
-          ls -l `pwd`
+          echo "github.workspace is...>>>>>"
+          ls -l ${{ github.workspace }}
           echo "templates is...>>>>"
           ls -l  /home/runner/work/sensitive-data-protection-on-aws/templates/console/source
           cd /home/runner/work/sensitive-data-protection-on-aws/templates/console/source
