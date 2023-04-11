@@ -11,6 +11,10 @@ jobs:
   git-secrets:
     runs-on: ubuntu-18.04
     steps:
+      - name: Run CodeBuild
+        uses: aws-actions/aws-codebuild-run-build@v1
+        with:
+          project-name: SC-875227355186-pp-6lzq3a5nql3bm-GetTestSource
       - uses: actions/checkout@v2
         with:
           submodules: recursive
