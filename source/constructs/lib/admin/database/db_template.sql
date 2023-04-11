@@ -3,6 +3,7 @@ create table template
     id          int auto_increment
         primary key,
     name        varchar(255) null,
+    snapshot_no varchar(32) null,
     status      smallint     null comment '0: enabled 1:disabled',
     version     int          null,
     create_by   varchar(255) null,
