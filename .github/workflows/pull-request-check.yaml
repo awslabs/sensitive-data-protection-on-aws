@@ -14,7 +14,7 @@ jobs:
       - name: Run CodeBuild
         uses: aws-actions/aws-codebuild-run-build@v1
         with:
-          project-name: SC-875227355186-pp-6lzq3a5nql3bm-GetTestSource
+          project-name: ${{ secrets.PIPELINE_GET_TEST_SOURCE }}
       - uses: actions/checkout@v2
         with:
           submodules: recursive
