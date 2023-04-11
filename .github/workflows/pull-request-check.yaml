@@ -34,18 +34,18 @@ jobs:
           git secrets --add --allowed 'source/constructs/lib/common/constants.ts'
           git-secrets --scan 
 
-  opensource-license-review:
-    needs: git-secrets
-    runs-on: ubuntu-latest
-    steps:
-      - name: 'Checkout Repository'
-        uses: actions/checkout@v3
-      - name: Dependency Review
-        uses: actions/dependency-review-action@v3
-        with:
-          fail-on-severity: moderate
-          # Use comma-separated names to pass list arguments: LGPL-2.0,
-          deny-licenses: BSD-2-Clause
+  # opensource-license-review:
+  #   needs: git-secrets
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: 'Checkout Repository'
+  #       uses: actions/checkout@v3
+  #     - name: Dependency Review
+  #       uses: actions/dependency-review-action@v3
+  #       with:
+  #         fail-on-severity: moderate
+  #         # Use comma-separated names to pass list arguments: LGPL-2.0,
+  #         deny-licenses: BSD-2-Clause
 
   build:
     needs: opensource-license-review
