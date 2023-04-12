@@ -152,7 +152,7 @@ jobs:
 
   cdk-unit-test:
     runs-on: ubuntu-latest
-    needs: [semgrep-scan, viperlight, opensource-license-review]
+    needs: [semgrep-scan, viperlight]
     env:
       CI: "false"
     steps:
@@ -186,7 +186,7 @@ jobs:
 
   api-unit-test:
     runs-on: ubuntu-latest
-    needs: [semgrep-scan, viperlight, opensource-license-review]
+    needs: [semgrep-scan, viperlight]
     env:
       CI: "false"
     steps:
@@ -210,9 +210,19 @@ jobs:
       #     export PYTHONPATH=../ssl_for_saas
       #     echo "PYTHONPATH=../ssl_for_saas" >> $GITHUB_ENV
       #     poetry run pytest --cov --cov-config=.coveragerc -cov-report=term-missing --cov-report="xml:./ssl-for-saas.coverage.xml" test
+  
+  regression-test:
+    runs-on: ubuntu-latest
+    needs: [semgrep-scan, viperlight]
+    env:
+      CI: "false"
+    steps:
+      - name: demo test
+        run: |
+          true
 
-  build:
-    needs: [cdk-unit-test, api-unit-test]
+  cfn-nag-scan:
+    needs: [cdk-unit-test, api-unit-test, regression-test]
     runs-on: ubuntu-latest
     env:
       CI: "false"
