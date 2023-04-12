@@ -90,30 +90,6 @@ jobs:
           echo "Build BE END>>>>>>>>>>>>>>>"
           echo "BE Content is shown as below:"
           ls -LR ${{ github.workspace }}/source/constructs
-      # - name: archive production artifacts
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: build-artifacts
-      #     path: |
-      #         .git/**/*
-      #         deployment/**/*
-      #         docs/**/*
-      #         ${{ github.workspace }}/source/portal
-      #         ${{ github.workspace }}/source/constructs               
-      #         deploy_vtag.yml
-      #         CHANGELOG.md
-      #         .cfnnagignore
-      #         .cfnnag_global_suppress_list
-      #         .cfnnag_*
-
-  cfn-nag-scan:
-    needs: build
-    runs-on: ubuntu-latest
-    env:
-      CI: "false"
-    steps:
-      - name: Download all workflow run artifacts
-        uses: actions/download-artifact@v3
       - name: Setup Ruby 2.6
         uses: ruby/setup-ruby@477b21f02be01bcb8030d50f37cfec92bfa615b6
         with:
@@ -133,6 +109,50 @@ jobs:
           set -x; cfn_nag_scan $CFN_NAG_OPTS --input-path templates/console/deployment/global-s3-assets/
           # cfn_nag_scan --input-path .
           # echo "Completed CloudFormation template scanning `date`"
+
+      # - name: archive production artifacts
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: build-artifacts
+      #     path: |
+      #         .git/**/*
+      #         deployment/**/*
+      #         docs/**/*
+      #         ${{ github.workspace }}/source/portal
+      #         ${{ github.workspace }}/source/constructs               
+      #         deploy_vtag.yml
+      #         CHANGELOG.md
+      #         .cfnnagignore
+      #         .cfnnag_global_suppress_list
+      #         .cfnnag_*
+
+  # cfn-nag-scan:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     CI: "false"
+  #   steps:
+  #     - name: Download all workflow run artifacts
+  #       uses: actions/download-artifact@v3
+      # - name: Setup Ruby 2.6
+      #   uses: ruby/setup-ruby@477b21f02be01bcb8030d50f37cfec92bfa615b6
+      #   with:
+      #     ruby-version: 2.6
+      # - name: cfn_nag
+      #   run: |
+      #     # install Ruby
+      #     # sudo apt-get install ruby-full
+      #     # ls -R
+      #     gem install cfn-nag
+      #     cfn_nag -v
+      #     echo "CloudFormation template scanning utility installation complete `date`"
+      #     echo "Starting CloudFormation template scanning `date` in `pwd`"
+      #     cd build-artifacts/
+      #     export CFN_NAG_OPTS="--template-pattern ..*.template.json --print-suppression --fail-on-warnings"
+      #     if [ -f ".cfnnag_global_suppress_list" ]; then export CFN_NAG_OPTS="$CFN_NAG_OPTS -b .cfnnag_global_suppress_list"; fi
+      #     set -x; cfn_nag_scan $CFN_NAG_OPTS --input-path templates/console/deployment/global-s3-assets/
+      #     # cfn_nag_scan --input-path .
+      #     # echo "Completed CloudFormation template scanning `date`"
 
   # the repository is private, this check cannot be done, set it to pass
   semgrep-scan:
