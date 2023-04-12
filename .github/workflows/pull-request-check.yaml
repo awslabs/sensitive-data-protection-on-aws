@@ -60,7 +60,6 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
-          token: ${{ secrets.GH_PAT }}
       - name: Use Node.js 18.x
         uses: actions/setup-node@v3
         with:
