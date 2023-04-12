@@ -268,6 +268,8 @@ jobs:
           cd build-artifacts/
           export CFN_NAG_OPTS="--template-pattern ..*.template.json --print-suppression --fail-on-warnings"
           if [ -f ".cfnnag_global_suppress_list" ]; then export CFN_NAG_OPTS="$CFN_NAG_OPTS -b .cfnnag_global_suppress_list"; fi
-          set -x; cfn_nag_scan $CFN_NAG_OPTS --input-path templates/console/deployment/global-s3-assets/
-          # cfn_nag_scan --input-path .
-          # echo "Completed CloudFormation template scanning `date`"
+          set -x; 
+          cd ${{ github.workspace }}/source/constructs/cdk.out
+          cfn_nag_scan $CFN_NAG_OPTS --input-path Admin.template.json
+          cfn_nag_scan $CFN_NAG_OPTS --input-path Agent.template.json
+          cfn_nag_scan $CFN_NAG_OPTS --input-path IT.template.json
