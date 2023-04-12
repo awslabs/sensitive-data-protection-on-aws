@@ -74,6 +74,7 @@ jobs:
       - name: build
         run: |
           echo "Build FE START>>>>>>>>>>>>>>>"
+          ls -LR ${{ github.workspace }}
           cd ${{ github.workspace }}/source/portal
           npm install --legacy-peer-deps 
           npm run build
