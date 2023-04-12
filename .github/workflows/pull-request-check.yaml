@@ -73,14 +73,12 @@ jobs:
       - name: build
         run: |
           echo "Build FE START>>>>>>>>>>>>>>>"
-          cd ${{ github.workspace }}/source/portal
-          npm install --legacy-peer-deps 
-          npm run build
           echo "Build FE END>>>>>>>>>>>>>>>"
           echo "FE Content is shown as below:"
           ls -LR ${{ github.workspace }}/source/portal
           echo "Build BE START>>>>>>>>>>>>>>>"
           cd ${{ github.workspace }}/source/constructs
+          npm -rf node_modules
           npm install --legacy-peer-deps
           cdk synth
           echo "Build BE END>>>>>>>>>>>>>>>"
