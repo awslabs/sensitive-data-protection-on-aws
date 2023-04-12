@@ -73,15 +73,20 @@ jobs:
           cdk --version
       - name: build
         run: |
-          cd ${{ github.workspace }}/portal
+          echo "Build FE START>>>>>>>>>>>>>>>"
+          cd ${{ github.workspace }}/source/portal
           npm install --legacy-peer-deps 
           npm run build
-          cd ${{ github.workspace }}/templates/console/deployment
-          ./pre-build.sh
-          cd ${{ github.workspace }}/templates/console/source
+          echo "Build FE END>>>>>>>>>>>>>>>"
+          echo "FE Content is shown as below:"
+          ls -LR ${{ github.workspace }}/source/portal
+          echo "Build BE START>>>>>>>>>>>>>>>"
+          cd ${{ github.workspace }}/source/constructs
           npm install --legacy-peer-deps
           cdk synth
-          ls -LR ${{ github.workspace }}/templates/console/deployment/
+          echo "Build BE END>>>>>>>>>>>>>>>"
+          echo "BE Content is shown as below:"
+          ls -LR ${{ github.workspace }}/source/constructs
       - name: archive production artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -90,7 +95,8 @@ jobs:
               .git/**/*
               deployment/**/*
               docs/**/*
-              templates/console/deployment/**/*              
+              ${{ github.workspace }}/source/portal
+              ${{ github.workspace }}/source/constructs               
               deploy_vtag.yml
               CHANGELOG.md
               .cfnnagignore
