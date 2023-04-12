@@ -58,7 +58,6 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           token: ${{ secrets.GH_PAT }}
-          path: main
       - name: Use Node.js 18.x
         uses: actions/setup-node@v3
         with:
@@ -74,7 +73,6 @@ jobs:
       - name: build
         run: |
           echo "Build FE START>>>>>>>>>>>>>>>"
-          ls -LR ${{ github.workspace }}
           cd ${{ github.workspace }}/source/portal
           npm install --legacy-peer-deps 
           npm run build
