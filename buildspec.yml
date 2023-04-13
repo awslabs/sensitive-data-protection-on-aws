@@ -25,7 +25,7 @@ phases:
       - chmod +x ./run-all-tests.sh && ./run-all-tests.sh
       - echo "Installing dependencies and executing unit tests completed `date`"
       - export BSS_IMAGE_ASSET_REPOSITORY_NAME='aws-sensitive-data-protection'
-      - export BUILD_VERSION=0.8.0-$(git rev-parse --short HEAD || echo latest)
+      - export BUILD_VERSION=0.8.0-$(CODEBUILD_RESOLVED_SOURCE_VERSION || echo latest)
       - export CN_ASSETS='cn/'
       - |-
         set -euxo pipefail
