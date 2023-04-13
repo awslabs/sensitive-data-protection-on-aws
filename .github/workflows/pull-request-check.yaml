@@ -8,8 +8,8 @@ permissions:
   id-token: write # required to use OIDC authentication
 
 jobs:
-  semantic-validate:
-    name: Validate PR title
+  validate:
+    name: semantic-validate
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
