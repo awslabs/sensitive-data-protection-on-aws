@@ -235,7 +235,6 @@ jobs:
       - name: demo test
         run: |
           true
-
   cfn-nag-scan:
     needs: [cdk-unit-test, api-unit-test, regression-test]
     runs-on: ubuntu-latest
