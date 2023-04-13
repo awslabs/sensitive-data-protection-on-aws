@@ -1,6 +1,6 @@
 !jest.config.js
 *.d.ts
-*.js
+source/constructs/*.js
 node_modules
 .idea
 

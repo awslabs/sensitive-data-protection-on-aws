@@ -112,7 +112,9 @@ def get_mappings(condition: QueryCondition):
                                             models.TemplateIdentifier.name,
                                             models.TemplateIdentifier.description).filter(
         models.TemplateMapping.template_id == 1).join(
-        models.TemplateMapping, models.TemplateMapping.identifier_id == models.TemplateIdentifier.id), condition, mappings, ignoreProperties)
+            models.TemplateMapping,
+            models.TemplateMapping.identifier_id == models.TemplateIdentifier.id),
+        condition, mappings, ignoreProperties)
 
 
 def get_ref_identifiers(id: int):
@@ -134,3 +136,15 @@ def get_ref_identifiers(id: int):
 
 def get_identify_by_name(name: str):
     return get_session().query(models.TemplateIdentifier).filter(models.TemplateIdentifier.name == name).all()
+
+
+def update_template_snapshot_no(id: int, no: str):
+    session = get_session()
+    size = session.query(models.Template).filter(models.Template.id == id).update({"snapshot_no": no})
+    if size <= 0:
+        raise BizException(MessageEnum.BIZ_ITEM_NOT_EXISTS.get_code(), MessageEnum.BIZ_ITEM_NOT_EXISTS.get_msg())
+    return get_template(id)
+
+
+def get_template_snapshot_no(id: int):
+    return get_session().query(models.Template.snapshot_no).filter(models.Template.id == id).first()[0]
