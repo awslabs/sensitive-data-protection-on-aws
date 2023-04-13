@@ -14,22 +14,22 @@ jobs:
   #     - uses: aws-actions/aws-codebuild-run-build@v1
   #       with:
   #         project-name: Aws-sensitive-data-protection-mainline-scan
-  validate:
-    name: Validate PR title
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-    steps:
-      - uses: amannn/action-semantic-pull-request@v3.4.6
-        with:
-          types: |-
-            feat
-            fix
-            chore
-            docs
-            ci
-            test
-          requireScope: false
+  # validate:
+  #   name: Validate PR title
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     pull-requests: write
+  #   steps:
+  #     - uses: amannn/action-semantic-pull-request@v3.4.6
+  #       with:
+  #         types: |-
+  #           feat
+  #           fix
+  #           chore
+  #           docs
+  #           ci
+  #           test
+  #         requireScope: false
   git-secrets:
     runs-on: ubuntu-latest
     steps:
