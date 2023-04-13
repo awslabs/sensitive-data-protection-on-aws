@@ -6,7 +6,6 @@ from common.request_wrapper import BaseColumn
 class Template(BaseModel):
 
     name: Optional[str]
-    snapshot_no: Optional[str]
     status: Optional[int]
 
     class Config:

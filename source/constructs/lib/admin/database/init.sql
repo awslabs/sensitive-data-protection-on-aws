@@ -1,5 +1,5 @@
 DELETE FROM template where id=1;
-INSERT INTO template (id, name, snapshot_no, status, version, create_by, create_time, modify_by, modify_time) VALUES (1, 'default-template', 'init', 1, 1, null, null, null, null);
+INSERT INTO template (id, name, status, version, create_by, create_time, modify_by, modify_time) VALUES (1, 'default-template', 1, 1, null, null, null, null);
 DELETE FROM template_identifier where type=0;
 INSERT INTO template_identifier (description, type, version, name, category, privacy, rule, header_keywords, create_by) VALUES ('AI-based identifier for detecting Chinese name. (Built-in)', 0, null, 'CHINESE-NAME', 0, 1, '', '', 'SDPS');
 INSERT INTO template_identifier (description, type, version, name, category, privacy, rule, header_keywords, create_by) VALUES ('AI-based identifier for detecting English name. (Built-in)', 0, null, 'ENGLISH-NAME', 0, 1, '', '', 'SDPS');
