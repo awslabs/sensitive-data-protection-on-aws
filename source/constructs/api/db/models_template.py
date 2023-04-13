@@ -8,6 +8,7 @@ class Template(Base):
 
     id = sa.Column(sa.Integer(), autoincrement=True, primary_key=True)
     name = sa.Column(sa.String(255))
+    snapshot_no = sa.Column(sa.String(32))
     status = sa.Column(sa.SmallInteger())
     version = sa.Column(sa.Integer())
     create_by = sa.Column(sa.String(255))

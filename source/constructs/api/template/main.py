@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 from fastapi_pagination import Page, Params
 from fastapi_pagination.ext.sqlalchemy import paginate
 from common.request_wrapper import inject_session
@@ -8,7 +8,7 @@ from template import schemas, service
 
 router = APIRouter(prefix="/template", tags=["template"])
 
-# condition query support
+
 @router.post("/list-identifiers", response_model=BaseResponse[Page[schemas.TemplateIdentifierFullInfo]])
 @inject_session
 def list_identifiers(condition: QueryCondition):
@@ -56,6 +56,7 @@ def update_identifier(id: int, identifier: schemas.TemplateIdentifier):
 @inject_session
 def get_template(id: int):
     return service.get_template(id)
+
 
 # condition query support
 @router.post("/list-template-mappings", response_model=BaseResponse[Page[schemas.TemplateMappingRes]])

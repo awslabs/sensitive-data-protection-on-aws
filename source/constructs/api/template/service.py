@@ -1,5 +1,5 @@
-
 import json
+import time
 import boto3
 import os
 from common.constant import const
@@ -87,9 +87,14 @@ def get_mappings(condition: QueryCondition):
     return crud.get_mappings(condition)
 
 
+def get_template_snapshot_no(id: int):
+    return crud.get_template_snapshot_no(id)
+
+
 def async_s3():
-    # generate
-    template = crud.get_template(1)
+    # generate new version
+    snapshot_no = time.strftime("%Y%m%d%H%M%S")
+    template = crud.update_template_snapshot_no(1, snapshot_no)
     identifiers = []
     res = crud.get_ref_identifiers(1)
     res_json = {}
@@ -113,5 +118,5 @@ def async_s3():
     client.put_object(
         Body=json.dumps(res_json, ensure_ascii=False),
         Bucket=os.getenv(const.PROJECT_BUCKET_NAME, const.PROJECT_BUCKET_DEFAULT_NAME),
-        Key='template/template-1.json',
+        Key='template/template-{}-{}.json'.format(res_json['template_id'], snapshot_no),
     )
