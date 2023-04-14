@@ -13,6 +13,11 @@ create table discovery_job
     `range`             int           not null,
     depth               int           not null,
     detection_threshold decimal(3, 2) null,
+    all_s3              int           null,
+    all_rds             int           null,
+    all_ddb             int           null,
+    all_emr             int           null,
+    overwrite           int           null,
     version             int           null,
     create_by           varchar(255)  null,
     create_time         datetime      null,
@@ -41,17 +46,19 @@ create index job_id
 
 create table discovery_job_run
 (
-    id          int auto_increment
+    id                   int auto_increment
         primary key,
-    job_id      int          not null,
-    state       varchar(10)  null,
-    start_time  datetime     null,
-    end_time    datetime     null,
-    version     int          null,
-    create_by   varchar(255) null,
-    create_time datetime     null,
-    modify_by   varchar(255) null,
-    modify_time datetime     null
+    job_id               int          not null,
+    template_id          int          null,
+    template_snapshot_no varchar(32)  null,
+    state                varchar(10)  null,
+    start_time           datetime     null,
+    end_time             datetime     null,
+    version              int          null,
+    create_by            varchar(255) null,
+    create_time          datetime     null,
+    modify_by            varchar(255) null,
+    modify_time          datetime     null
 );
 
 create index job_id

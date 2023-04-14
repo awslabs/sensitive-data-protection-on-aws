@@ -57,7 +57,7 @@ async def validate_token(request: Request, call_next):
         )
     authorization = hs.get("authorization")
     os.environ[const.USER] = const.USER_DEFAULT_NAME
-    if os.getenv(const.MODE) == const.MODE_DEV or request.scope["path"] in const.EXCLUDE_PATH_LIST :
+    if request.scope["path"] in const.EXCLUDE_PATH_LIST:
         pass
     elif authorization:
         try:
@@ -74,6 +74,8 @@ async def validate_token(request: Request, call_next):
                 invoke_okta_auth(token, jwt_str)
         else:
             invoke_okta_auth(token, jwt_str)
+    elif os.getenv(const.MODE) == const.MODE_DEV:
+        pass
     else:
         return resp_err(MessageEnum.BIZ_INVALID_TOKEN.get_code(), MessageEnum.BIZ_INVALID_TOKEN.get_msg())
     response = await call_next(request)

@@ -5,14 +5,26 @@ import tools.mytime as mytime
 from . import schemas
 from common.exception_handler import BizException
 from common.query_condition import QueryCondition, query_with_condition
-from common.enum import MessageEnum, JobState, RunState, RunDatabaseState
+from common.enum import MessageEnum, JobState, RunState, RunDatabaseState, DatabaseType
 from sqlalchemy import func
 from common.constant import const
 import uuid
+from catalog.crud import get_catalog_database_level_classification_by_type_all
+from template.service import get_template_snapshot_no
 
 
 def get_job(id: int) -> models.DiscoveryJob:
     db_job = get_session().query(models.DiscoveryJob).get(id)
+    if db_job is None:
+        raise BizException(MessageEnum.DISCOVERY_JOB_NON_EXIST.get_code(),
+                           MessageEnum.DISCOVERY_JOB_NON_EXIST.get_msg())
+    db_job.databases
+    return db_job
+
+
+def get_job_by_run_id(run_id: int) -> models.DiscoveryJob:
+    subq = get_session().query(models.DiscoveryJobRun.job_id).filter(models.DiscoveryJobRun.id == run_id).subquery()
+    db_job = get_session().query(models.DiscoveryJob).filter(models.DiscoveryJob.id == subq.c.job_id).first()
     if db_job is None:
         raise BizException(MessageEnum.DISCOVERY_JOB_NON_EXIST.get_code(),
                            MessageEnum.DISCOVERY_JOB_NON_EXIST.get_msg())
@@ -89,6 +101,19 @@ def get_running_run(job_id: int) -> models.DiscoveryJobRun:
     return db_run
 
 
+def __add_job_databases(run: models.DiscoveryJobRun, database_type: DatabaseType):
+    databases = get_catalog_database_level_classification_by_type_all(database_type.value).all()
+    for database in databases:
+        run_database = models.DiscoveryJobRunDatabase(run_id=run.id,
+                                                      account_id=database.account_id,
+                                                      region=database.region,
+                                                      database_type=database_type.value,
+                                                      database_name=database.database_name,
+                                                      state=RunDatabaseState.READY.value,
+                                                      uuid=uuid.uuid4().hex)
+        run.databases.append(run_database)
+
+
 def init_run(job_id: int) -> int:
     session = get_session()
     job: models.DiscoveryJob = session.query(models.DiscoveryJob).get(job_id)
@@ -103,10 +128,21 @@ def init_run(job_id: int) -> int:
     job.last_end_time = None
     job_databases = session.query(models.DiscoveryJobDatabase).filter(
         models.DiscoveryJobDatabase.job_id == job_id).all()
+    template_snapshot_no = get_template_snapshot_no(job.template_id)
     run = models.DiscoveryJobRun(job_id=job_id,
+                                 template_id=job.template_id,
+                                 template_snapshot_no=template_snapshot_no,
                                  start_time=current_time,
                                  state=RunState.RUNNING.value)
     run.databases = []
+    if job.all_rds == 1:
+        __add_job_databases(run, DatabaseType.RDS)
+    if job.all_s3 == 1:
+        __add_job_databases(run, DatabaseType.S3)
+    if job.all_ddb == 1:
+        __add_job_databases(run, DatabaseType.DDB)
+    if job.all_emr == 1:
+        __add_job_databases(run, DatabaseType.EMR)
     for job_database in job_databases:
         run_database = models.DiscoveryJobRunDatabase(run_id=run.id,
                                                       account_id=job_database.account_id,

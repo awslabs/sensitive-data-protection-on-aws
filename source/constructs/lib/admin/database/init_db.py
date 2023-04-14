@@ -1,23 +1,78 @@
 import logging
-from crhelper import CfnResource
 import boto3
 import json
+import traceback
+import requests
 import os
 import pymysql
-import traceback
 
 logger = logging.getLogger('init_db')
 logger.setLevel(logging.INFO)
+request_type_list = ["Create","Update","Delete"]
 
-helper = CfnResource(json_logging=False, log_level='DEBUG', boto_level='CRITICAL', sleep_on_delete=120, ssl_verify=None)
+
+def lambda_handler(event, context):
+    logger.info(event)
+    try:
+        request_type = event['RequestType']
+        if request_type not in request_type_list:
+            send_response(event,"FAILED","request type not in list")
+            return
+
+        if request_type == 'Create':
+            on_create(event)
+        elif request_type == 'Update':
+            on_update(event)
+        elif request_type == 'Delete':
+            on_delete(event)
+        send_response(event)
+    except Exception:
+        error_msg = traceback.format_exc()
+        logger.exception(error_msg.replace("\n", "\r"))
+        send_response(event, "FAILED" ,error_msg)
+
+
+def send_response(event, response_status = "SUCCESS", reason = "OK"):
+    response_url = event['ResponseURL']
+    response_body = {}
+    response_body['Status'] = response_status
+    response_body['PhysicalResourceId'] = event['PhysicalResourceId'] if 'PhysicalResourceId' in event else event['LogicalResourceId']
+    response_body['StackId'] = event['StackId']
+    response_body['RequestId'] = event['RequestId']
+    response_body['LogicalResourceId'] = event['LogicalResourceId']
+    response_body['Reason'] = reason
+
+    json_response_body = json.dumps(response_body)
+
+    headers = {
+        'content-type': '',
+        'content-length': str(len(json_response_body))
+    }
+    response = requests.put(response_url,
+                            data=json_response_body,
+                            headers=headers)
+    return response
+
+
+def on_create(event):
+    main(event,"./whole")
+
+
+def on_update(event):
+    logger.info("Got Update")
+
+
+def on_delete(event):
+    logger.info("Got Delete")
 
 
 def __get_sql_files(path):
     files = []
     filenames = os.listdir(path)
     for filename in filenames:
-        if filename.endswith(".sql") and filename != "db.sql" and filename != "init.sql":
+        if filename.endswith(".sql"):
             files.append(f"{path}/{filename}")
+    list.sort(files)
     return files
 
 
@@ -33,7 +88,7 @@ def __exec_file(cursor, sql_file):
         cursor.execute(sql)
 
 
-def main(event):
+def main(event,path):
     secret_id = os.getenv("SecretId", event["ResourceProperties"]["SolutionNameAbbr"])
     secrets_client = boto3.client('secretsmanager')
     secret_response = secrets_client.get_secret_value(SecretId=secret_id)
@@ -45,38 +100,7 @@ def main(event):
                          database=secrets['dbname'])
     db.autocommit(True)
     cursor = db.cursor()
-    __exec_file(cursor, './db.sql')
-    sql_files = __get_sql_files(".")
+    sql_files = __get_sql_files(path)
     for sql_file in sql_files:
         __exec_file(cursor, sql_file)
-    __exec_file(cursor, './init.sql')
     db.close()
-
-
-@helper.create
-def create(event, context):
-    try:
-        main(event)
-    except Exception:
-        msg = traceback.format_exc()
-        error_msg = f"Error initializing database:{msg}"
-        logger.exception(error_msg)
-        raise ValueError(error_msg)
-    return "MyResourceId"
-
-
-@helper.update
-def update(event, context):
-    logger.info("Got Update")
-    return "MyResourceId"
-
-
-@helper.delete
-def delete(event, context):
-    logger.info("Got Delete")
-    return "MyResourceId"
-
-
-def lambda_handler(event, context):
-    logger.info(event)
-    helper(event, context)

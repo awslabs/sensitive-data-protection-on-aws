@@ -8,7 +8,7 @@ from db.database import get_session
 from db.models_data_source import DetectionHistory, RdsInstanceSource, Account
 from . import crud
 
-admin_account_region = os.getenv('AWS_REGION', const.CN_REGIONS[0])
+admin_account_region = boto3.session.Session().region_name
 
 
 def detect(accounts):

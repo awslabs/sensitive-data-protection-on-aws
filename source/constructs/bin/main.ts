@@ -15,7 +15,7 @@ import { App, Aspects, Stack } from 'aws-cdk-lib';
 import { BootstraplessStackSynthesizer, CompositeECRRepositoryAspect } from 'cdk-bootstrapless-synthesizer';
 import { AwsSolutionsChecks, NagPackSuppression, NagSuppressions } from 'cdk-nag';
 import { AdminStack } from '../lib/admin-stack';
-import { AdminRegionStack } from '../lib/admin-region-stack';
+// import { AdminRegionStack } from '../lib/admin-region-stack';
 import { AgentStack } from '../lib/agent-stack';
 import { ITStack } from '../lib/it-stack';
 
@@ -32,9 +32,13 @@ stackSuppressions(
     new AdminStack(app, 'Admin', {
       synthesizer: synthesizer(),
     }),
-    new AdminRegionStack(app, 'AdminRegion', {
+    new AdminStack(app, 'Admin-exist-vpc', {
       synthesizer: synthesizer(),
+      existingVpc: true,
     }),
+    // new AdminRegionStack(app, 'AdminRegion', {
+    //   synthesizer: synthesizer(),
+    // }),
     new ITStack(app, 'IT', {
       synthesizer: synthesizer(),
     }),
@@ -43,16 +47,17 @@ stackSuppressions(
     }),
   ],
   [
-    { id: "AwsSolutions-IAM5", reason: "Some roles and policies need to get dynamic resources" },
-    { id: "AwsSolutions-IAM4", reason: "these policies is used by CDK Customer Resource lambda" },
-    { id: "AwsSolutions-SF2", reason: "Xray is not needed" },
-    { id: "AwsSolutions-S1", reason: "These buckets dont need access log" },
-    { id: "AwsSolutions-L1", reason: "The custom resource runtime version is not latest" },
-    { id: "AwsSolutions-RDS10", reason: "Delete protection is not needed" },
-    { id: "AwsSolutions-EC23", reason: "Use private subnet and has setup the port" },
-    { id: "AwsSolutions-SQS3", reason: "It is a DLQ and doesn't need another DLQ" },
-    { id: "AwsSolutions-SQS4", reason: "It is a DLQ" },
-  ]
+    { id: 'AwsSolutions-IAM5', reason: 'Some roles and policies need to get dynamic resources' },
+    { id: 'AwsSolutions-IAM4', reason: 'these policies is used by CDK Customer Resource lambda' },
+    { id: 'AwsSolutions-SF2', reason: 'Xray is not needed' },
+    { id: 'AwsSolutions-S1', reason: 'These buckets dont need access log' },
+    { id: 'AwsSolutions-L1', reason: 'The custom resource runtime version is not latest' },
+    { id: 'AwsSolutions-RDS10', reason: 'Delete protection is not needed' },
+    { id: 'AwsSolutions-EC23', reason: 'Use private subnet and has setup the port' },
+    { id: 'AwsSolutions-SQS3', reason: "It is a DLQ and doesn't need another DLQ" },
+    { id: 'AwsSolutions-SQS4', reason: 'It is a DLQ' },
+    { id: 'AwsSolutions-SMG4', reason: 'Using an existing VPC, SecretRotation will report an error' },
+  ],
 );
 
 if (process.env.USE_BSS) {
