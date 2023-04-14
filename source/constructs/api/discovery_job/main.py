@@ -19,8 +19,8 @@ def last_job_time():
 
 @router.post("", response_model=BaseResponse[schemas.DiscoveryJob])
 @inject_session
-def create_job(job: schemas.DiscoveryJobCreate, ext: schemas.DiscoveryJobCreateExt = None):
-    return service.create_job(job, ext)
+def create_job(job: schemas.DiscoveryJobCreate):
+    return service.create_job(job)
 
 
 @router.post("/list-jobs", response_model=BaseResponse[Page[schemas.DiscoveryJobList]])
@@ -117,12 +117,19 @@ def get_run_status(id: int, run_id: int):
             },
             )
 def download_report(id: int, run_id: int):
-    filename = service.get_report(run_id)
-    return RedirectResponse(filename)
+    url = service.get_report_url(run_id)
+    return RedirectResponse(url)
 
 
 @router.get("/{id}/runs/{run_id}/report_url", response_model=BaseResponse[str])
 @inject_session
 def get_report_url(id: int, run_id: int):
-    filename = service.get_report(run_id)
-    return filename
+    url = service.get_report_url(run_id)
+    return url
+
+
+@router.get("/{id}/runs/{run_id}/template_snapshot_url", response_model=BaseResponse[str])
+@inject_session
+def get_template_snapshot_url(id: int, run_id: int):
+    url = service.get_template_snapshot_url(run_id)
+    return url

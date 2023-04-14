@@ -1,22 +1,19 @@
-/*
-Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+/**
+ *  Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance
+ *  with the License. A copy of the License is located at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  or in the 'license' file accompanying this file. This file is distributed on an 'AS IS' BASIS, WITHOUT WARRANTIES
+ *  OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions
+ *  and limitations under the License.
+ */
 
 import * as path from 'path';
 import {
-  Aws, CustomResource, Duration,
+  CustomResource, Duration,
   RemovalPolicy,
 } from 'aws-cdk-lib';
 import {
@@ -40,16 +37,22 @@ import {
   DatabaseInstanceEngine,
   DatabaseSecret, MysqlEngineVersion,
 } from 'aws-cdk-lib/aws-rds';
-import { Provider } from 'aws-cdk-lib/custom-resources';
 import {
   SecretRotation,
   SecretRotationApplication,
- } from 'aws-cdk-lib/aws-secretsmanager';
+} from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
+import { BuildConfig } from '../common/build-config';
 import { SolutionInfo } from '../common/solution-info';
 
 export interface RdsProps {
   vpc: IVpc;
+  /**
+   * Indicate whether to create a new VPC or use existing VPC for this Solution.
+   *
+   * @default - false.
+   */
+  existingVpc?: boolean;
 }
 
 /**
@@ -57,33 +60,33 @@ export interface RdsProps {
  */
 export class RdsStack extends Construct {
   readonly clientSecurityGroup: SecurityGroup;
-  static dbPort = 6306;
-  static excludeCharacters = ' %+:;{}/@"';//Only printable ASCII characters besides '/', '@', '"', ' ' may be used
+  private dbPort = 6306;
+  private excludeCharacters = ' %+:;{}/@"';//Only printable ASCII characters besides '/', '@', '"', ' ' may be used
 
   constructor(scope: Construct, id: string, props: RdsProps) {
     super(scope, id);
 
     this.clientSecurityGroup = new SecurityGroup(this, 'RDSClientSecurityGroup', {
-      securityGroupName: "RDSClient",
+      securityGroupName: 'RDSClient',
       vpc: props.vpc,
       description: 'connet to RDS',
     });
     const rdsSecurityGroup = new SecurityGroup(this, 'RDSSecurityGroup', {
-      securityGroupName: "RDS",
+      securityGroupName: 'RDS',
       vpc: props.vpc,
       description: 'RDS',
     });
     rdsSecurityGroup.addIngressRule(
       Peer.securityGroupId(this.clientSecurityGroup.securityGroupId),
-      Port.tcp(RdsStack.dbPort),
+      Port.tcp(this.dbPort),
       'Allow RDS client',
     );
 
     const secretName = `${SolutionInfo.SOLUTION_NAME_ABBR}`;
-    const dbSecret = new DatabaseSecret(this, "Secret", {
-      username: "root",
+    const dbSecret = new DatabaseSecret(this, 'Secret', {
+      username: 'root',
       secretName: secretName,
-      excludeCharacters: RdsStack.excludeCharacters,
+      excludeCharacters: this.excludeCharacters,
     });
 
     const databaseInstance = new DatabaseInstance(this, 'DatabaseInstance', {
@@ -94,14 +97,14 @@ export class RdsStack extends Construct {
         InstanceClass.BURSTABLE3,
         InstanceSize.MEDIUM,
       ),
-      databaseName: "sdps", //Do not modify the value
-      // instanceIdentifier: `${SolutionInfo.SOLUTION_NAME_ABBR}`,
+      databaseName: 'sdps', //Do not modify the value
+      instanceIdentifier: `${SolutionInfo.SOLUTION_NAME_ABBR}-RDS`,
       vpc: props.vpc,
       vpcSubnets: props.vpc.selectSubnets({
         subnetType: SubnetType.PRIVATE_WITH_EGRESS,
       }),
       securityGroups: [rdsSecurityGroup],
-      port: RdsStack.dbPort,
+      port: this.dbPort,
       credentials: Credentials.fromSecret(dbSecret),
       iamAuthentication: true,
       allowMajorVersionUpgrade: false,
@@ -115,13 +118,20 @@ export class RdsStack extends Construct {
       deletionProtection: false,
     });
 
-    const secretRotation = new SecretRotation(this, 'SecretRotation', {
-      application: SecretRotationApplication.MYSQL_ROTATION_SINGLE_USER,
-      secret: dbSecret,
-      target: databaseInstance,
-      vpc: props.vpc,
-      excludeCharacters: RdsStack.excludeCharacters,
-    });
+    // Using an existing VPC, SecretRotation will report an error
+    if (!props.existingVpc) {
+      new SecretRotation(this, 'SecretRotation', {
+        application: SecretRotationApplication.MYSQL_ROTATION_SINGLE_USER,
+        secret: dbSecret,
+        target: databaseInstance,
+        vpc: props.vpc,
+        vpcSubnets: props.vpc.selectSubnets({
+          subnetType: SubnetType.PRIVATE_WITH_EGRESS,
+        }),
+        securityGroup: this.clientSecurityGroup,
+        excludeCharacters: this.excludeCharacters,
+      });
+    }
 
     // Begin initDatabase
     // Create a lambda layer with required python packages.
@@ -132,7 +142,7 @@ export class RdsStack extends Construct {
           command: [
             'bash',
             '-c',
-            `pip install -r requirements.txt ${SolutionInfo.PIP_MIRROR_PARAMETER} -t /asset-output/python`,
+            `pip install -r requirements.txt ${BuildConfig.PIP_MIRROR_PARAMETER} -t /asset-output/python`,
           ],
         },
       }),
@@ -154,22 +164,19 @@ export class RdsStack extends Construct {
       }),
       vpc: props.vpc,
       securityGroups: [this.clientSecurityGroup],
-      environment: {"SecretId": secretName},
+      environment: { SecretId: secretName },
       layers: [initDababaseLayer],
     });
     dbSecret.grantRead(initDatabaseFunction);
     initDatabaseFunction.node.addDependency(databaseInstance);
 
-    const initDabaseProvider = new Provider(this, 'InitDabaseProvider', {
-      onEventHandler: initDatabaseFunction,
-    });
-
     const initDatabaseTrigger = new CustomResource(this, 'InitDatabaseTrigger', {
-      serviceToken: initDabaseProvider.serviceToken,
+      serviceToken: initDatabaseFunction.functionArn,
       properties: {
         SolutionNameAbbr: SolutionInfo.SOLUTION_NAME_ABBR,
+        Version: SolutionInfo.SOLUTION_VERSION,
       },
     });
-    initDatabaseTrigger.node.addDependency(initDabaseProvider);
+    initDatabaseTrigger.node.addDependency(initDatabaseFunction);
   }
 }

@@ -12,7 +12,7 @@
       "Parameters": {
         "Name.$": "$.CrawlerName"
       },
-      "Resource": "arn:aws-cn:states:::aws-sdk:glue:getCrawler",
+      "Resource": "arn:${AWS::Partition}:states:::aws-sdk:glue:getCrawler",
       "ResultPath": "$.GetCrawler",
       "Next": "Choice",
       "Retry": [
@@ -43,7 +43,7 @@
         "Name.$": "$.CrawlerName"
       },
       "ResultPath": "$.StartCrawler",
-      "Resource": "arn:aws-cn:states:::aws-sdk:glue:startCrawler",
+      "Resource": "arn:${AWS::Partition}:states:::aws-sdk:glue:startCrawler",
       "Next": "Wait"
     },
     "GetCrawler2": {
@@ -51,7 +51,7 @@
       "Parameters": {
         "Name.$": "$.CrawlerName"
       },
-      "Resource": "arn:aws-cn:states:::aws-sdk:glue:getCrawler",
+      "Resource": "arn:${AWS::Partition}:states:::aws-sdk:glue:getCrawler",
       "Next": "Choice2",
       "ResultPath": "$.GetCrawler",
       "Retry": [
@@ -100,7 +100,7 @@
     },
     "SQS SendMessageFail": {
       "Type": "Task",
-      "Resource": "arn:aws-cn:states:::sqs:sendMessage",
+      "Resource": "arn:${AWS::Partition}:states:::sqs:sendMessage",
       "Parameters": {
         "MessageBody.$": "$",
         "QueueUrl.$": "$.QueueUrl"
@@ -109,7 +109,7 @@
     },
     "Glue StartJobRun": {
       "Type": "Task",
-      "Resource": "arn:aws-cn:states:::glue:startJobRun.sync",
+      "Resource": "arn:${AWS::Partition}:states:::glue:startJobRun.sync",
       "Parameters": {
         "JobName.$": "$.JobName",
         "Arguments": {
@@ -121,6 +121,7 @@
           "--DatabaseName.$": "$.DatabaseName",
           "--DatabaseType.$": "$.DatabaseType",
           "--TemplateId.$": "$.TemplateId",
+          "--TemplateSnapshotNo.$": "$.TemplateSnapshotNo",
           "--Depth.$": "$.Depth",
           "--DetectionThreshold.$": "$.DetectionThreshold",
           "--Range.$": "$.JobRange",
@@ -162,7 +163,7 @@
     },
     "SQS SendMessage": {
       "Type": "Task",
-      "Resource": "arn:aws-cn:states:::sqs:sendMessage",
+      "Resource": "arn:${AWS::Partition}:states:::sqs:sendMessage",
       "Parameters": {
         "MessageBody.$": "$",
         "QueueUrl.$": "$.QueueUrl"

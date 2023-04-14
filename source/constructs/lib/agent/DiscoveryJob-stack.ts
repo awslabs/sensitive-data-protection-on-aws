@@ -1,26 +1,23 @@
-/*
-Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+/**
+ *  Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance
+ *  with the License. A copy of the License is located at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  or in the 'license' file accompanying this file. This file is distributed on an 'AS IS' BASIS, WITHOUT WARRANTIES
+ *  OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions
+ *  and limitations under the License.
+ */
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
+import * as fs from 'fs';
 import {
   aws_stepfunctions as sfn,
   aws_logs as logs,
-  Aws
-} from "aws-cdk-lib";
-import { Construct } from "constructs";
-import * as fs from 'fs';
+  Aws,
+  Fn,
+} from 'aws-cdk-lib';
 import {
   PolicyStatement,
   Role,
@@ -28,9 +25,10 @@ import {
   Policy,
   Effect,
 } from 'aws-cdk-lib/aws-iam';
+import { Construct } from 'constructs';
+import { SolutionInfo } from '../common/solution-info';
 
-export interface SfnFlowProps {
-  projectName: string;
+export interface DiscoveryJobProps {
   adminAccountId: string;
 }
 
@@ -40,15 +38,15 @@ export interface SfnFlowProps {
  * Therefore the input must contains a token.
  */
 export class DiscoveryJobStack extends Construct {
-  readonly stateMachineArn: string;
 
-  constructor(scope: Construct, id: string, props: SfnFlowProps) {
+  constructor(scope: Construct, id: string, props: DiscoveryJobProps) {
     super(scope, id);
-    var jsonDiscoveryJob = fs.readFileSync("lib/agent/DiscoveryJob.json").toString();
+    let jsonDiscoveryJob = fs.readFileSync('lib/agent/DiscoveryJob.json').toString();
+    jsonDiscoveryJob = Fn.sub(jsonDiscoveryJob);
 
     const discoveryJobRole = new Role(this, 'DiscoveryJobRole', {
       assumedBy: new ServicePrincipal('states.amazonaws.com'),
-      roleName: `${props.projectName}DiscoveryJobRole-${Aws.REGION}`
+      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}DiscoveryJobRole-${Aws.REGION}`,
     });
     discoveryJobRole.attachInlinePolicy(new Policy(this, 'AWSGlueServicePolicy', {
       policyName: 'AWSGlueServicePolicy',
@@ -56,109 +54,107 @@ export class DiscoveryJobStack extends Construct {
         new PolicyStatement({
           effect: Effect.ALLOW,
           actions: [
-            "s3:GetObject",
-            "s3:PutObject",
-            "s3:CreateBucket",
-            "s3:DeleteObject",
+            's3:GetObject',
+            's3:PutObject',
+            's3:CreateBucket',
+            's3:DeleteObject',
           ],
-          resources: ["arn:aws-cn:s3:::*"]
+          resources: [`arn:${Aws.PARTITION}:s3:::*`],
         }),
         new PolicyStatement({
           effect: Effect.ALLOW,
           actions: [
-            "glue:*",
-            "s3:GetBucketLocation",
-            "s3:ListBucket",
-            "s3:ListAllMyBuckets",
-            "s3:GetBucketAcl",
-            "ec2:DescribeVpcEndpoints",
-            "ec2:DescribeRouteTables",
-            "ec2:CreateNetworkInterface",
-            "ec2:DeleteNetworkInterface",
-            "ec2:DescribeNetworkInterfaces",
-            "ec2:DescribeSecurityGroups",
-            "ec2:DescribeSubnets",
-            "ec2:DescribeVpcAttribute",
-            "iam:ListRolePolicies",
-            "iam:GetRole",
-            "iam:GetRolePolicy",
-            "cloudwatch:PutMetricData",
+            'glue:*',
+            's3:GetBucketLocation',
+            's3:ListBucket',
+            's3:ListAllMyBuckets',
+            's3:GetBucketAcl',
+            'ec2:DescribeVpcEndpoints',
+            'ec2:DescribeRouteTables',
+            'ec2:CreateNetworkInterface',
+            'ec2:DeleteNetworkInterface',
+            'ec2:DescribeNetworkInterfaces',
+            'ec2:DescribeSecurityGroups',
+            'ec2:DescribeSubnets',
+            'ec2:DescribeVpcAttribute',
+            'iam:ListRolePolicies',
+            'iam:GetRole',
+            'iam:GetRolePolicy',
+            'cloudwatch:PutMetricData',
           ],
-          resources: ["*"]
+          resources: ['*'],
         }),
         new PolicyStatement({
           effect: Effect.ALLOW,
           actions: [
-            "logs:CreateLogGroup",
-            "logs:CreateLogStream",
-            "logs:PutLogEvents"
+            'logs:CreateLogGroup',
+            'logs:CreateLogStream',
+            'logs:PutLogEvents',
           ],
           resources: [
-            "arn:aws-cn:logs:*:*:/aws-glue/*"
-          ]
+            `arn:${Aws.PARTITION}:logs:*:*:/aws-glue/*`,
+          ],
         }),
         new PolicyStatement({
           effect: Effect.ALLOW,
           actions: [
-            "ec2:CreateTags",
-            "ec2:DeleteTags"
+            'ec2:CreateTags',
+            'ec2:DeleteTags',
           ],
           conditions: {
             StringEquals: {
-              'aws:TagKeys': "aws-glue-service-resource"
-            }
+              'aws:TagKeys': 'aws-glue-service-resource',
+            },
           },
           resources: [
-            "arn:aws-cn:ec2:*:*:network-interface/*",
-            "arn:aws-cn:ec2:*:*:security-group/*",
-            "arn:aws-cn:ec2:*:*:instance/*"
-          ]
-        }), 
-      ]
+            `arn:${Aws.PARTITION}:ec2:*:*:network-interface/*`,
+            `arn:${Aws.PARTITION}:ec2:*:*:security-group/*`,
+            `arn:${Aws.PARTITION}:ec2:*:*:instance/*`,
+          ],
+        }),
+      ],
     }));
     discoveryJobRole.addToPolicy(new PolicyStatement({
       actions: [
-        "logs:CreateLogDelivery",
-        "logs:GetLogDelivery",
-        "logs:UpdateLogDelivery",
-        "logs:DeleteLogDelivery",
-        "logs:ListLogDeliveries",
-        "logs:PutResourcePolicy",
-        "logs:DescribeResourcePolicies",
-        "logs:DescribeLogGroups",
-        "lambda:InvokeFunction",
+        'logs:CreateLogDelivery',
+        'logs:GetLogDelivery',
+        'logs:UpdateLogDelivery',
+        'logs:DeleteLogDelivery',
+        'logs:ListLogDeliveries',
+        'logs:PutResourcePolicy',
+        'logs:DescribeResourcePolicies',
+        'logs:DescribeLogGroups',
+        'lambda:InvokeFunction',
       ],
       effect: Effect.ALLOW,
       resources: ['*'],
     }));
     discoveryJobRole.attachInlinePolicy(new Policy(this, 'DiscoveryJobPolicy', {
-      policyName: `${props.projectName}DiscoveryJobPolicy`,
+      policyName: `${SolutionInfo.SOLUTION_NAME_ABBR}DiscoveryJobPolicy`,
       statements: [new PolicyStatement({
-        actions: ["xray:PutTraceSegments",
-          "xray:PutTelemetryRecords",
-          "xray:GetSamplingRules",
-          "xray:GetSamplingTargets",
-        ],
-        resources: ["*"],
+        actions: ['xray:PutTraceSegments',
+          'xray:PutTelemetryRecords',
+          'xray:GetSamplingRules',
+          'xray:GetSamplingTargets'],
+        resources: ['*'],
       }),
       new PolicyStatement({
-        actions: ["sqs:SendMessage",
-        ],
-        resources: [`arn:${Aws.PARTITION}:sqs:${Aws.REGION}:${props.adminAccountId}:${props.projectName}-DiscoveryJob`],
+        actions: ['sqs:SendMessage'],
+        resources: [`arn:${Aws.PARTITION}:sqs:${Aws.REGION}:${props.adminAccountId}:${SolutionInfo.SOLUTION_NAME_ABBR}-DiscoveryJob`],
       })],
     }));
 
     // State machine log group
-    const logGroup = new logs.LogGroup(this, "SFNLogGroup", {
+    const logGroup = new logs.LogGroup(this, 'SFNLogGroup', {
       retention: logs.RetentionDays.ONE_MONTH,
     });
     const stepFunction = new sfn.CfnStateMachine(
       this,
-      "cfnStepFunction",
+      'cfnStepFunction',
       {
         roleArn: discoveryJobRole.roleArn,
         definitionString: jsonDiscoveryJob,
-        stateMachineName: `${props.projectName}-DiscoveryJob`,
+        stateMachineName: `${SolutionInfo.SOLUTION_NAME_ABBR}-DiscoveryJob`,
         loggingConfiguration: {
           destinations: [{
             cloudWatchLogsLogGroup: {
@@ -168,10 +164,9 @@ export class DiscoveryJobStack extends Construct {
           includeExecutionData: true,
           level: 'ALL',
         },
-      }
+      },
     );
 
     stepFunction.node.addDependency(discoveryJobRole);
-    this.stateMachineArn = stepFunction.attrArn;
   }
 }

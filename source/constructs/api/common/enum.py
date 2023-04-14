@@ -35,6 +35,7 @@ class MessageEnum(Enum):
     DISCOVERY_JOB_CAN_NOT_DELETE_JOB = {1517: "Could not delete a running job"}
     DISCOVERY_JOB_CAN_NOT_DELETE_ACCOUNT = {1518: "This account cannot be deleted because it has running job(s)."}
     DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE = {1519: "This database cannot be deleted because it has running job(s)."}
+    DISCOVERY_RUN_NON_EXIST_TEMPLATE_SNAPSHOT = {1520: "This running does not have a template snapshot."}
 
     # catalog
     CATALOG_RDS_TABLE_HAS_NO_COLUMNS = {1301: "RDS table columns does not exist"}
@@ -112,6 +113,8 @@ class RunDatabaseState(Enum):
 class DatabaseType(Enum):
     RDS = "rds"
     S3 = "s3"
+    DDB = "ddb"
+    EMR = "emr"
 
 
 @unique

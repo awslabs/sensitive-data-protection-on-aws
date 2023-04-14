@@ -1,31 +1,46 @@
-# 后台API介绍
-## 本地运行
-Python版本要求3.9
-### 1. 安装包
+# API Introduction
+## Run locally
+Python version requirement 3.9
+### 1. Installation package
 ```shell
 pip install -r requirements.txt
 pip install uvicorn
 ```
-### 2. 确认本地可连接数据库
-RDS在VPC私有子网中，可考虑SSH隧道方式
+### 2. Connect to the database locally
+RDS is in a VPC private subnet. You can connect using an SSH tunnel.  
+You need to start an EC2 in the public subnet first.
 ```shell
-ssh -i SDPS-ZHY.pem ec2-user@ip -Nf -L 5306:xxx.rds.cn-northwest-1.amazonaws.com.cn:5306
+ssh -i SDPS.pem ec2-user@EC2-IP -Nf -L 6306:xxx.rds.cn-northwest-1.amazonaws.com.cn:6306
 ```
-设置后，数据库客户端工具/系统可以使用127.0.0.1:5306进行访问
-### 3. 配置数据库连接信息
-系统会读取SecretsManager(default profile)里名为SDPS的信息，格式如下行所示，请按此配置。Secret type选择"Other type of secret"。
+After setting, the database client tool/program can be accessed using 127.0.0.1:6306.
+### 3. Configure database connection information
+The program will read the information named `SDPS` in the SecretsManager (default profile).  
+You can use the following command to modify the default SecretId.
+```shell
+export SecretId="NewSecretId"
+```
+As shown in the following format. Please follow this configuration. Select 'Other type of secret' for Secret type.
 ```json
-{"username":"db username","password":"db password","engine":"mysql","host":"127.0.0.1","port":5306}
+{"username":"db username","password":"db password","engine":"mysql","host":"127.0.0.1","port":6306}
 ```
-### 4. 本地运行
+### 4. Configuration development mode
+The following command is configured as development mode to bypass authentication.
+```shell
+export mode=dev
+```
+The following command is to configure the bucket name.
+```shell
+export ProjectBucketName="YourBucketName"
+```
+### 5. Starting web services locally
 ```shell
 uvicorn main:app --reload
 ```
-### 5. 查看API
+### 6. View API
 http://127.0.0.1:8000/docs
 
-## 模块文件命名
-| 文件名              | 作用        |
+## File Naming
+| File Name         | Role        |
 |------------------|-----------|
 | main.py          | controller |
 | service.py       | service   |
@@ -33,25 +48,25 @@ http://127.0.0.1:8000/docs
 | crud.py          | DAO       |
 | db/models-xxx.py | DO        |
 
-## 添加一个模块
-### 1. 生成DDL sql
-建议使用DataGrip，Place constraints采用Inside table模式
-### 2. 安装omm
+## Add a module
+### 1. Generate DDL sql
+Recommend using DataGrip, Place constraints use Inside table mode
+### 2. Install omm
 ```shell
 pip install omymodels
 ```
-### 3. 生成models
+### 3. Generate models
 ```shell
 omm db.sql -m sqlalchemy -t models_xxx.py
 ```
-### 4. 生成schemas
+### 4. Generate schemas
 ```shell
 omm db.sql -m pydantic --defaults-off -t schemas.py
 ```
-### 5. 编写模块代码
-正常开发controller、service、dao，适当修改schemas.py
-### 6. 添加API导出
-在根目录下的main.py添加模块的router
+### 5. Coding
+Develop controllers, services, dao normally, and modify schemas
+### 6. Export API
+Add the router for the module to main.py in the root directory
 
 ```python
 from discovery_job.main import router as discovery_router
@@ -59,7 +74,8 @@ from discovery_job.main import router as discovery_router
 app.include_router(discovery_router)
 ```
 
-### 6. 手动打包测试
-```
+### 7. Manual packaging testing
+```shell
 zip -r api.zip * -x "venv/*" "lambda/*_test.py"
 ```
+Then put this zip file into lambda and run it.

@@ -11,7 +11,6 @@
  *  and limitations under the License.
  */
 
-
 import {
   CfnOutput,
   CfnParameter,
@@ -19,16 +18,21 @@ import {
   Stack,
   StackProps,
   CfnCondition,
+  Fn,
+  CfnStack,
 } from 'aws-cdk-lib';
+import { ApplicationProtocol } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { Construct } from 'constructs';
+import { AlbStack } from './admin/alb-stack';
+import { ApiStack } from './admin/api-stack';
+import { BucketStack } from './admin/bucket-stack';
+import { DeleteResourcesStack } from './admin/delete-resources-stack';
+import { GlueStack } from './admin/glue-stack';
 import { RdsStack } from './admin/rds-stack';
 import { VpcStack } from './admin/vpc-stack';
-import { ApiStack } from './admin/api-stack';
+import { BuildConfig } from './common/build-config';
+import { Parameter } from './common/parameter';
 import { SolutionInfo } from './common/solution-info';
-import { BucketStack } from './admin/bucket-stack';
-import { GlueStack } from './admin/glue-stack';
-import { DeleteResourcesStack } from './admin/delete-resources-stack';
-import { AlbStack } from './admin/alb-stack';
 
 /**
  * cfn-nag suppression rule interface
@@ -54,10 +58,6 @@ export interface AdminProps extends StackProps {
    * @default - false.
    */
   existingVpc?: boolean;
-  /**
-   * Indicate the auth type in which main stack uses
-   */
-  authType?: string;
 }
 
 export const enum AuthType {
@@ -66,56 +66,78 @@ export const enum AuthType {
 }
 // Admin stack
 export class AdminStack extends Stack {
-  private readonly paramGroups: any[] = [];
-  private paramLabels: any = {};
-  private oidcProvider = "";
-  private oidcClientId = "";
 
   constructor(scope: Construct, id: string, props?: AdminProps) {
     super(scope, id, props);
 
     this.templateOptions.description = SolutionInfo.DESCRIPTION;
+    Parameter.init();
+    this.setBuildConfig();
 
-    let oidcProvider: CfnParameter | null = null;
-    let oidcClientId: CfnParameter | null = null;
-
-    oidcProvider = new CfnParameter(this, "OidcProvider", {
-      type: "String",
-      description: "Open Id Connector Provider Issuer",
-      allowedPattern:
-        "(https):\\/\\/[\\w\\-_]+(\\.[\\w\\-_]+)+([\\w\\-\\.,@?^=%&:/~\\+#]*[\\w\\-\\@?^=%&/~\\+#])?",
+    // Oidc Paramter
+    const oidcProvider = new CfnParameter(this, 'OidcProvider', {
+      type: 'String',
+      description: 'Open Id Connector Provider Issuer',
+      allowedPattern: '(https):\\/\\/[\\w\\-_]+(\\.[\\w\\-_]+)+([\\w\\-\\.,@?^=%&:/~\\+#]*[\\w\\-\\@?^=%&/~\\+#])?',
     });
-    this.addToParamLabels("OidcProvider", oidcProvider.logicalId);
-    this.oidcProvider = oidcProvider.valueAsString;
-
-    oidcClientId = new CfnParameter(this, "OidcClientId", {
-      type: "String",
-      description: "OpenID Connector Client Id",
-      allowedPattern: "^[^ ]+$",
+    const oidcClientId = new CfnParameter(this, 'OidcClientId', {
+      type: 'String',
+      description: 'OpenID Connector Client Id',
+      allowedPattern: '^[^ ]+$',
     });
-    this.addToParamLabels("OidcClientId", oidcClientId.logicalId);
-    this.oidcClientId = oidcClientId.valueAsString;
-
-    this.addToParamGroups(
-      "OpenID Connect (OIDC) Settings",
+    Parameter.addToParamGroups(
+      'OpenID Connect (OIDC) Settings',
       oidcClientId.logicalId,
-      oidcProvider.logicalId
+      oidcProvider.logicalId,
     );
 
-    const buildInChina = this.node.tryGetContext("BuildInChina");
-    if (buildInChina){
-      SolutionInfo.PIP_MIRROR_PARAMETER = `-i ${SolutionInfo.PIP_MIRROR_CHINA_URL}`;
-    }
+    // ALB Paramter
+    const internetFacing = new CfnParameter(this, 'AlbInternetFacing', {
+      type: 'String',
+      default: 'Yes',
+      description: 'Set whether ALB faces the Internet',
+      allowedValues: ['Yes', 'No'],
+    });
+    const port = new CfnParameter(this, 'AlbPort', {
+      type: 'Number',
+      default: 80,
+      minValue: 1,
+      maxValue: 65535,
+      description: 'Set the port number of ALB',
+    });
+    const certificate = new CfnParameter(this, 'AlbCertificate', {
+      type: 'String',
+      default: '',
+      allowedPattern: '^(arn:(aws|aws-cn):acm:[a-zA-Z0-9-_:/]+)?$',
+      description: 'If you want to use the https feature, Please fill in the arn of the ACM certificate.',
+    });
+    Parameter.addToParamLabels('(optional)AlbCertificate', certificate.logicalId);
+    const domainName = new CfnParameter(this, 'CustomDomainName', {
+      type: 'String',
+      default: '',
+      description: 'Only fill in the domain name, do not fill in http(s)://',
+    });
+    Parameter.addToParamLabels('(optional)CustomDomainName', domainName.logicalId);
+    Parameter.addToParamGroups(
+      'ALB Settings',
+      internetFacing.logicalId,
+      port.logicalId,
+      certificate.logicalId,
+      domainName.logicalId,
+    );
 
-    const vpcStack = new VpcStack(this, "VPC", {});
-
-    const rdsStack = new RdsStack(this, "RDS", {
-      vpc: vpcStack.vpc,
+    const vpcStack = new VpcStack(this, 'VPC', {
+      existingVpc: props?.existingVpc,
     });
 
-    const bucketStack = new BucketStack(this, "S3");
+    const rdsStack = new RdsStack(this, 'RDS', {
+      vpc: vpcStack.vpc,
+      existingVpc: props?.existingVpc,
+    });
 
-    const glueStack = new GlueStack(this, "Glue", {
+    const bucketStack = new BucketStack(this, 'S3');
+
+    new GlueStack(this, 'Glue', {
       bucket: bucketStack.bucket,
     });
 
@@ -126,41 +148,63 @@ export class AdminStack extends Stack {
       rdsClientSecurityGroup: rdsStack.clientSecurityGroup,
     });
 
-    const albStack = new AlbStack(this, "ALB", {
+    const isHttp = new CfnCondition(this, 'IsHttp', { expression: Fn.conditionEquals(certificate.valueAsString, '') });
+    const isHttps = new CfnCondition(this, 'IsHttps', { expression: Fn.conditionNot(isHttp) });
+
+    const httpAlbStack = new AlbStack(this, 'HttpALB', {
       vpc: vpcStack.vpc,
       bucket: bucketStack.bucket,
-      internetFacing: false,
-      port: 80,
       apiFunction: apiStack.apiFunction,
-      oidcProvider: this.oidcProvider,
-      oidcClientId: this.oidcClientId,
-    })
+      port: port.valueAsNumber,
+      internetFacing: internetFacing.valueAsString,
+      certificateArn: '',
+      oidcProvider: oidcProvider.valueAsString,
+      oidcClientId: oidcClientId.valueAsString,
+      domainName: domainName.valueAsString,
+    });
+    (httpAlbStack.nestedStackResource as CfnStack).cfnOptions.condition = isHttp;
+
+    const httpsAlbStack = new AlbStack(this, 'HttpsALB', {
+      vpc: vpcStack.vpc,
+      bucket: bucketStack.bucket,
+      apiFunction: apiStack.apiFunction,
+      port: port.valueAsNumber,
+      internetFacing: internetFacing.valueAsString,
+      certificateArn: certificate.valueAsString,
+      oidcProvider: oidcProvider.valueAsString,
+      oidcClientId: oidcClientId.valueAsString,
+      domainName: domainName.valueAsString,
+    });
+    (httpsAlbStack.nestedStackResource as CfnStack).cfnOptions.condition = isHttps;
+
 
     new DeleteResourcesStack(this, 'DeleteResources');
 
     // new CallRegionStack(this, "CallRegion");
 
-    new CfnOutput(this, 'VpcId', {
+    this.templateOptions.metadata = {
+      'AWS::CloudFormation::Interface': {
+        ParameterGroups: Parameter.paramGroups,
+        ParameterLabels: Parameter.paramLabels,
+      },
+    };
+
+    new CfnOutput(this, 'VpcIdOutput', {
       description: 'VPC Id',
-      value: vpcStack.vpc.vpcId
-    }).overrideLogicalId('VpcId');
-
-    new CfnOutput(this, 'portalUrl', {
-      description: 'Portal URL',
-      value: albStack.url,
-    }).overrideLogicalId('portalUrl');
-  }
-
-  private addToParamGroups(label: string, ...param: string[]) {
-    this.paramGroups.push({
-      Label: { default: label },
-      Parameters: param,
+      value: vpcStack.vpc.vpcId,
     });
   }
 
-  private addToParamLabels(label: string, param: string) {
-    this.paramLabels[param] = {
-      default: label,
-    };
+  private setBuildConfig() {
+    BuildConfig.BuildInChina = this.node.tryGetContext('BuildInChina') != undefined;
+    BuildConfig.InternetFacing = this.node.tryGetContext('InternetFacing') != undefined;
+    const portalRepository = this.node.tryGetContext('PortalRepository');
+    if (portalRepository) {
+      BuildConfig.PortalRepository = portalRepository;
+    }
+    BuildConfig.PortalTag = this.node.tryGetContext('PortalTag');
+    if (BuildConfig.BuildInChina) {
+      BuildConfig.PIP_MIRROR_PARAMETER = `-i ${BuildConfig.PIP_MIRROR_CHINA_URL}`;
+    }
   }
 }

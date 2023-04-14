@@ -29,7 +29,9 @@ logger = logging.getLogger("api")
 sts = boto3.client('sts')
 """ :type : pyboto3.sts """
 
-_admin_account_id = sts.get_caller_identity().get('Account')
+caller_identity = boto3.client('sts').get_caller_identity()
+partition = caller_identity['Arn'].split(':')[1]
+_admin_account_id = caller_identity.get('Account')
 _admin_account_region = boto3.session.Session().region_name
 
 
@@ -641,7 +643,7 @@ def get_data_source_coverage():
 def reload_organization_account(it_account: str, stack_name: str):
     delegated_role_arn = __gen_role_arn(
         account_id=it_account,
-        region=None,
+        region=_admin_account_region,
         role_name=_delegated_role_name)
 
     stack_sets = []
@@ -655,55 +657,55 @@ def reload_organization_account(it_account: str, stack_name: str):
             RoleSessionName='get_organization'
         )
         credentials = assumed_role['Credentials']
-        for region in const.CN_REGIONS:
-            try:
-                cloudformation = boto3.client('cloudformation',
-                                              aws_access_key_id=credentials['AccessKeyId'],
-                                              aws_secret_access_key=credentials['SecretAccessKey'],
-                                              aws_session_token=credentials['SessionToken'],
-                                              region_name=region
-                                              )
-                """ :type : pyboto3.cloudformation """
+        # for region in const.CN_REGIONS:
+        try:
+            cloudformation = boto3.client('cloudformation',
+                                          aws_access_key_id=credentials['AccessKeyId'],
+                                          aws_secret_access_key=credentials['SecretAccessKey'],
+                                          aws_session_token=credentials['SessionToken'],
+                                          region_name=_admin_account_region
+                                          )
+            """ :type : pyboto3.cloudformation """
 
+            response = cloudformation.list_stack_instances(
+                StackSetName=stack_name,
+                MaxResults=30,
+                CallAs='DELEGATED_ADMIN'
+            )
+
+            stack_sets.extend(response['Summaries'])
+
+            while 'NextToken' in response:
                 response = cloudformation.list_stack_instances(
                     StackSetName=stack_name,
                     MaxResults=30,
+                    NextToken=response['NextToken'],
                     CallAs='DELEGATED_ADMIN'
                 )
-
                 stack_sets.extend(response['Summaries'])
 
-                while 'NextToken' in response:
-                    response = cloudformation.list_stack_instances(
-                        StackSetName=stack_name,
-                        MaxResults=30,
-                        NextToken=response['NextToken'],
-                        CallAs='DELEGATED_ADMIN'
-                    )
-                    stack_sets.extend(response['Summaries'])
-
-                for stackset in stack_sets:
-                    crud.add_account(
-                        aws_account_id=stackset['Account'],
-                        aws_account_alias=None,
-                        aws_account_email=None,
-                        delegated_aws_account_id=it_account,
-                        region=region,
-                        organization_unit_id=stackset['OrganizationalUnitId'],
-                        stack_id=stackset['StackId'],
-                        stackset_id=stackset['StackSetId'],
-                        stackset_name=stack_name,
-                        status=1,
-                        stack_status=stackset['Status'],
-                        stack_instance_status=stackset['StackInstanceStatus']['DetailedStatus'],
-                        # detection_role_name=delegated_role_arn,
-                        detection_role_name='data-source-admin-role',
-                        # TODO assume role test, validate the role has been created
-                        detection_role_status='',
-                    )
-                    __update_access_policy_for_account()
-            except Exception as error:
-                pass
+            for stackset in stack_sets:
+                crud.add_account(
+                    aws_account_id=stackset['Account'],
+                    aws_account_alias=None,
+                    aws_account_email=None,
+                    delegated_aws_account_id=it_account,
+                    region=_admin_account_region,
+                    organization_unit_id=stackset['OrganizationalUnitId'],
+                    stack_id=stackset['StackId'],
+                    stackset_id=stackset['StackSetId'],
+                    stackset_name=stack_name,
+                    status=1,
+                    stack_status=stackset['Status'],
+                    stack_instance_status=stackset['StackInstanceStatus']['DetailedStatus'],
+                    # detection_role_name=delegated_role_arn,
+                    detection_role_name='data-source-admin-role',
+                    # TODO assume role test, validate the role has been created
+                    detection_role_status='',
+                )
+                __update_access_policy_for_account()
+        except Exception as error:
+            pass
     else:
         raise BizException(MessageEnum.SOURCE_ASSUME_DELEGATED_ROLE_FAILED.get_code(),
                            MessageEnum.SOURCE_ASSUME_DELEGATED_ROLE_FAILED.get_msg())
@@ -848,179 +850,179 @@ def __create_jdbc_url(engine: str, host: str, port: str):
 # Add S3 bucket, SQS queues access policies
 def __update_access_policy_for_account():
     s3_resource = boto3.session.Session().resource('s3')
-    for cn_region in const.CN_REGIONS:
-        # check if s3 bucket, sqs exists
-        bucket_name = f"{const.SOLUTION_NAME}-admin-{_admin_account_id}-{cn_region}".lower()
+    # for cn_region in const.CN_REGIONS:
+    # check if s3 bucket, sqs exists
+    bucket_name = f"{const.SOLUTION_NAME}-admin-{_admin_account_id}-{_admin_account_region}".lower()
+    try:
+        missing_resource = bucket_name
+        s3_resource.meta.client.head_bucket(
+            Bucket=bucket_name
+        )
+        sqs = boto3.client(
+            'sqs',
+            region_name=_admin_account_region
+        )
+        missing_resource = f"{const.SOLUTION_NAME}-Crawler"
+        sqs.get_queue_url(
+            QueueName=f"{const.SOLUTION_NAME}-Crawler",
+            QueueOwnerAWSAccountId=_admin_account_id
+        )
+        missing_resource = f"{const.SOLUTION_NAME}-DiscoveryJob"
+        sqs.get_queue_url(
+            QueueName=f"{const.SOLUTION_NAME}-DiscoveryJob",
+            QueueOwnerAWSAccountId=_admin_account_id
+        )
+    except Exception as err:
+        logger.error(f"Required resource {missing_resource} is missing, skipping region: {_admin_account_region}")
+        return
+
+    accounts = crud.list_all_accounts_by_region(region=_admin_account_region)
+    if len(accounts) > 0:
+        bucket_access_principals = []
+        sqs_job_trigger_principals = []
+        sqs_crawler_trigger_principals = []
+        for account in accounts:
+
+            role_arn = __gen_role_arn(account_id=account.aws_account_id, region=account.region, role_name=_agent_role_name)
+            # validate assumed
+            if __assume_role(account.aws_account_id, role_arn):
+                s3_access_role_arn = f"arn:{partition}:iam::{account.aws_account_id}:role/{const.SOLUTION_NAME}GlueDetectionJobRole-{account.region}"
+                bucket_access_principals.append(s3_access_role_arn)
+
+                crawler_trigger_role_arn = f"arn:{partition}:iam::{account.aws_account_id}:role/{const.SOLUTION_NAME}RoleForCrawlerEvent-{account.region}"
+                sqs_crawler_trigger_principals.append(crawler_trigger_role_arn)
+
+                job_trigger_role_arn = f"arn:{partition}:iam::{account.aws_account_id}:role/{const.SOLUTION_NAME}DiscoveryJobRole-{account.region}"
+                sqs_job_trigger_principals.append(job_trigger_role_arn)
+
+        # Bucket policies are limited to 20 KB in size.
+        read_statement = {
+            "Sid": "res-r",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": bucket_access_principals
+            },
+            "Action": [
+                "s3:GetObject",
+            ],
+            "Resource": [
+                f"arn:{partition}:s3:::{bucket_name}/job/*",
+                f"arn:{partition}:s3:::{bucket_name}/template/*"
+            ]
+        }
+        list_statement = {
+            "Sid": "res-l",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": bucket_access_principals
+            },
+            "Action": [
+                "s3:ListBucket",
+            ],
+            "Resource": [
+                f"arn:{partition}:s3:::{bucket_name}"
+            ]
+        }
+        write_statement = {
+            "Sid": "res-w",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": bucket_access_principals
+            },
+            "Action": [
+                "s3:GetObject",
+                "s3:PutObject",
+            ],
+            "Resource": f"arn:{partition}:s3:::{bucket_name}/glue-database/*"
+        }
+        s3 = boto3.client('s3')
+        """ :type : pyboto3.s3 """
         try:
-            missing_resource = bucket_name
-            s3_resource.meta.client.head_bucket(
-                Bucket=bucket_name
-            )
-            sqs = boto3.client(
-                'sqs',
-                region_name=cn_region
-            )
-            missing_resource = f"{const.SOLUTION_NAME}-Crawler"
-            sqs.get_queue_url(
-                QueueName=f"{const.SOLUTION_NAME}-Crawler",
-                QueueOwnerAWSAccountId=_admin_account_id
-            )
-            missing_resource = f"{const.SOLUTION_NAME}-DiscoveryJob"
-            sqs.get_queue_url(
-                QueueName=f"{const.SOLUTION_NAME}-DiscoveryJob",
-                QueueOwnerAWSAccountId=_admin_account_id
+            restored_statements = []
+            bucket_policy = json.loads(s3.get_bucket_policy(Bucket=bucket_name)['Policy'])
+            for stat in bucket_policy['Statement']:
+                if 'Sid' in stat and stat['Sid'] in ('res-w', 'res-r', 'res-l'):
+                    continue
+                else:
+                    restored_statements.append(stat)
+
+            restored_statements.append(read_statement)
+            restored_statements.append(write_statement)
+            restored_statements.append(list_statement)
+            bucket_policy['Statement'] = restored_statements
+
+            s3.put_bucket_policy(
+                Bucket=bucket_name,
+                Policy=json.dumps(bucket_policy)
             )
         except Exception as err:
-            logger.error(f"Required resource {missing_resource} is missing, skipping region: {cn_region}")
-            continue
+            logger.error(traceback.format_exc())
 
-        accounts = crud.list_all_accounts_by_region(region=cn_region)
-        if len(accounts) > 0:
-            bucket_access_principals = []
-            sqs_job_trigger_principals = []
-            sqs_crawler_trigger_principals = []
-            for account in accounts:
-
-                role_arn = __gen_role_arn(account_id=account.aws_account_id, region=account.region, role_name=_agent_role_name)
-                # validate assumed
-                if __assume_role(account.aws_account_id, role_arn):
-                    s3_access_role_arn = f"arn:aws-cn:iam::{account.aws_account_id}:role/{const.SOLUTION_NAME}GlueDetectionJobRole-{account.region}"
-                    bucket_access_principals.append(s3_access_role_arn)
-
-                    crawler_trigger_role_arn = f"arn:aws-cn:iam::{account.aws_account_id}:role/{const.SOLUTION_NAME}RoleForCrawlerEvent-{account.region}"
-                    sqs_crawler_trigger_principals.append(crawler_trigger_role_arn)
-
-                    job_trigger_role_arn = f"arn:aws-cn:iam::{account.aws_account_id}:role/{const.SOLUTION_NAME}DiscoveryJobRole-{account.region}"
-                    sqs_job_trigger_principals.append(job_trigger_role_arn)
-
-            # Bucket policies are limited to 20 KB in size.
-            read_statement = {
-                "Sid": "res-r",
-                "Effect": "Allow",
-                "Principal": {
-                    "AWS": bucket_access_principals
+        sqs = boto3.client(
+            'sqs',
+            region_name=_admin_account_region
+        )
+        """ :type : pyboto3.sqs """
+        sqs_job_trigger_policy = {
+            "Version": "2008-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Principal": {
+                        "AWS": f"arn:{partition}:iam::{_admin_account_id}:root"
+                    },
+                    "Action": "SQS:*",
+                    "Resource": f"arn:{partition}:sqs:{_admin_account_region}:{_admin_account_id}:{const.SOLUTION_NAME}-DiscoveryJob"
                 },
-                "Action": [
-                    "s3:GetObject",
-                ],
-                "Resource": [
-                    f"arn:aws-cn:s3:::{bucket_name}/job/*",
-                    f"arn:aws-cn:s3:::{bucket_name}/template/*"
-                ]
-            }
-            list_statement = {
-                "Sid": "res-l",
-                "Effect": "Allow",
-                "Principal": {
-                    "AWS": bucket_access_principals
+                {
+                    "Effect": "Allow",
+                    "Principal": {
+                        "AWS": sqs_job_trigger_principals
+                    },
+                    "Action": "SQS:SendMessage",
+                    "Resource": f"arn:{partition}:sqs:{_admin_account_region}:{_admin_account_id}:{const.SOLUTION_NAME}-DiscoveryJob"
+                }
+            ]
+        }
+        sqs_crawler_trigger_policy = {
+            "Version": "2008-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Principal": {
+                        "AWS": f"arn:{partition}:iam::{_admin_account_id}:root"
+                    },
+                    "Action": "SQS:*",
+                    "Resource": f"arn:{partition}:sqs:{_admin_account_region}:{_admin_account_id}:{const.SOLUTION_NAME}-Crawler"
                 },
-                "Action": [
-                    "s3:ListBucket",
-                ],
-                "Resource": [
-                    f"arn:aws-cn:s3:::{bucket_name}"
-                ]
-            }
-            write_statement = {
-                "Sid": "res-w",
-                "Effect": "Allow",
-                "Principal": {
-                    "AWS": bucket_access_principals
-                },
-                "Action": [
-                    "s3:GetObject",
-                    "s3:PutObject",
-                ],
-                "Resource": f"arn:aws-cn:s3:::{bucket_name}/glue-database/*"
-            }
-            s3 = boto3.client('s3')
-            """ :type : pyboto3.s3 """
-            try:
-                restored_statements = []
-                bucket_policy = json.loads(s3.get_bucket_policy(Bucket=bucket_name)['Policy'])
-                for stat in bucket_policy['Statement']:
-                    if 'Sid' in stat and stat['Sid'] in ('res-w', 'res-r', 'res-l'):
-                        continue
-                    else:
-                        restored_statements.append(stat)
-
-                restored_statements.append(read_statement)
-                restored_statements.append(write_statement)
-                restored_statements.append(list_statement)
-                bucket_policy['Statement'] = restored_statements
-
-                s3.put_bucket_policy(
-                    Bucket=bucket_name,
-                    Policy=json.dumps(bucket_policy)
-                )
-            except Exception as err:
-                logger.error(traceback.format_exc())
-
-            sqs = boto3.client(
-                'sqs',
-                region_name=cn_region
+                {
+                    "Effect": "Allow",
+                    "Principal": {
+                        "AWS": sqs_crawler_trigger_principals
+                    },
+                    "Action": "SQS:SendMessage",
+                    "Resource": f"arn:{partition}:sqs:{_admin_account_region}:{_admin_account_id}:{const.SOLUTION_NAME}-Crawler"
+                }
+            ]
+        }
+        try:
+            sqs.set_queue_attributes(
+                QueueUrl=sqs.get_queue_url(QueueName=f"{const.SOLUTION_NAME}-DiscoveryJob")['QueueUrl'],
+                Attributes={
+                    "Policy": json.dumps(sqs_job_trigger_policy)
+                }
             )
-            """ :type : pyboto3.sqs """
-            sqs_job_trigger_policy = {
-                "Version": "2008-10-17",
-                "Statement": [
-                    {
-                        "Effect": "Allow",
-                        "Principal": {
-                            "AWS": f"arn:aws-cn:iam::{_admin_account_id}:root"
-                        },
-                        "Action": "SQS:*",
-                        "Resource": f"arn:aws-cn:sqs:{cn_region}:{_admin_account_id}:{const.SOLUTION_NAME}-DiscoveryJob"
-                    },
-                    {
-                        "Effect": "Allow",
-                        "Principal": {
-                            "AWS": sqs_job_trigger_principals
-                        },
-                        "Action": "SQS:SendMessage",
-                        "Resource": f"arn:aws-cn:sqs:{cn_region}:{_admin_account_id}:{const.SOLUTION_NAME}-DiscoveryJob"
-                    }
-                ]
-            }
-            sqs_crawler_trigger_policy = {
-                "Version": "2008-10-17",
-                "Statement": [
-                    {
-                        "Effect": "Allow",
-                        "Principal": {
-                            "AWS": f"arn:aws-cn:iam::{_admin_account_id}:root"
-                        },
-                        "Action": "SQS:*",
-                        "Resource": f"arn:aws-cn:sqs:{cn_region}:{_admin_account_id}:{const.SOLUTION_NAME}-Crawler"
-                    },
-                    {
-                        "Effect": "Allow",
-                        "Principal": {
-                            "AWS": sqs_crawler_trigger_principals
-                        },
-                        "Action": "SQS:SendMessage",
-                        "Resource": f"arn:aws-cn:sqs:{cn_region}:{_admin_account_id}:{const.SOLUTION_NAME}-Crawler"
-                    }
-                ]
-            }
-            try:
-                sqs.set_queue_attributes(
-                    QueueUrl=sqs.get_queue_url(QueueName=f"{const.SOLUTION_NAME}-DiscoveryJob")['QueueUrl'],
-                    Attributes={
-                        "Policy": json.dumps(sqs_job_trigger_policy)
-                    }
-                )
-            except Exception as err:
-                logger.error(traceback.format_exc())
-            try:
-                sqs.set_queue_attributes(
-                    QueueUrl=sqs.get_queue_url(QueueName=f"{const.SOLUTION_NAME}-Crawler")['QueueUrl'],
-                    Attributes={
-                        "Policy": json.dumps(sqs_crawler_trigger_policy)
-                    }
-                )
-            except Exception as err:
-                logger.error(traceback.format_exc())
+        except Exception as err:
+            logger.error(traceback.format_exc())
+        try:
+            sqs.set_queue_attributes(
+                QueueUrl=sqs.get_queue_url(QueueName=f"{const.SOLUTION_NAME}-Crawler")['QueueUrl'],
+                Attributes={
+                    "Policy": json.dumps(sqs_crawler_trigger_policy)
+                }
+            )
+        except Exception as err:
+            logger.error(traceback.format_exc())
 
 
 def __update_access_policy_for_ou(ou_id: str):
@@ -1028,12 +1030,7 @@ def __update_access_policy_for_ou(ou_id: str):
 
 
 def __gen_role_arn(account_id: str, region: str, role_name: str):
-    if region is None:
-        return f'arn:aws-cn:iam::{account_id}:role/{const.SOLUTION_NAME}{role_name}'
-    if region in const.CN_REGIONS:
-        return f'arn:aws-cn:iam::{account_id}:role/{const.SOLUTION_NAME}{role_name}-{region}'
-    else:
-        return f'arn:aws:iam::{account_id}:role/{const.SOLUTION_NAME}{role_name}-{region}'
+    return f'arn:{partition}:iam::{account_id}:role/{const.SOLUTION_NAME}{role_name}-{region}'
 
 
 def __assume_role(account_id: str, role_arn: str):
@@ -1067,7 +1064,7 @@ def __list_rds_schema(account, region, credentials, instance_name, payload, rds_
             FunctionName=function_name,
             Handler='lambda_function.lambda_handler',
             Runtime='python3.9',
-            Role=f"arn:aws-cn:iam::{account}:role/SDPSLambdaRdsRole-{region}",
+            Role=f"arn:{partition}:iam::{account}:role/SDPSLambdaRdsRole-{region}",
             Code={
                 'S3Bucket': f"aws-gcr-solutions-{region}",
                 'S3Key': 'aws-sensitive-data-protection/1.0.0/resource/schema_detection_function.zip',

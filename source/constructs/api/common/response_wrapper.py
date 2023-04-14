@@ -9,14 +9,14 @@ import logging
 from .constant import const
 
 logger = logging.getLogger(const.LOGGER_API)
-DataT = TypeVar("DataT")
+T = TypeVar("T")
 
 
-class BaseResponse(GenericModel, Generic[DataT]):
+class BaseResponse(GenericModel, Generic[T]):
     status: str
     code: int
     message: Optional[str]
-    data: Optional[DataT] = None
+    data: Optional[T] = None
 
     class Config:
         orm_mode = True
