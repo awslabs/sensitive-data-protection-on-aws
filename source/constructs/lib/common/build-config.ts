@@ -14,7 +14,7 @@
 export class BuildConfig {
   static BuildInChina = false;
   static InternetFacing = false;
-  static PortalRepository = 'arn:aws-cn:ecr:cn-northwest-1:753680513547:repository/aws-sensitive-data-protection';
+  static PortalRepository = '';
   static PortalTag = undefined;
   static PIP_MIRROR_PARAMETER = '';
   static PIP_MIRROR_CHINA_URL = 'https://opentuna.cn/pypi/web/simple';
