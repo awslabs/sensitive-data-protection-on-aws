@@ -13,21 +13,22 @@
 
 import * as path from 'path';
 import {
+  Aws,
   CfnParameter,
+  Duration,
   Stack,
   StackProps,
 } from 'aws-cdk-lib';
-import { Construct } from 'constructs';
-import { SolutionInfo } from './common/solution-info';
-import { SqsStack } from './admin/sqs-stack';
 
-import { Aws, RemovalPolicy, Duration } from 'aws-cdk-lib';
-import { PolicyStatement, AnyPrincipal, Effect, AccountRootPrincipal } from 'aws-cdk-lib/aws-iam';
+import { PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
 import {
   Code, Function,
   Runtime,
 } from 'aws-cdk-lib/aws-lambda';
 import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
+import { Construct } from 'constructs';
+import { SqsStack } from './admin/sqs-stack';
+import { SolutionInfo } from './common/solution-info';
 
 
 // Admin region stack
@@ -37,13 +38,13 @@ export class AdminRegionStack extends Stack {
     super(scope, id, props);
     this.templateOptions.description = SolutionInfo.DESCRIPTION;
 
-    const adminRegion = new CfnParameter(this, "AdminRegion", {
-      type: "String",
-      description: "The region of admin account.",
+    const adminRegion = new CfnParameter(this, 'AdminRegion', {
+      type: 'String',
+      description: 'The region of admin account.',
     });
 
-    const crawlerSqsStack = new SqsStack(this, "CrawlerQueue",{name:"Crawler"});
-    const discoveryJobSqsStack = new SqsStack(this, "DiscoveryJobQueue",{name:"DiscoveryJob"});
+    const crawlerSqsStack = new SqsStack(this, 'CrawlerQueue', { name: 'Crawler' });
+    const discoveryJobSqsStack = new SqsStack(this, 'DiscoveryJobQueue', { name: 'DiscoveryJob' });
 
     const forwardMessageFunction = new Function(this, 'ForwardMessageFunction', {
       functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-Forward-Message`,
@@ -53,7 +54,7 @@ export class AdminRegionStack extends Stack {
       code: Code.fromAsset(path.join(__dirname, '../api/lambda')),
       memorySize: 1024,
       timeout: Duration.seconds(20),
-      environment: {"AdminRegion": adminRegion.valueAsString}
+      environment: { AdminRegion: adminRegion.valueAsString },
     });
     const crawlerEventSource = new SqsEventSource(crawlerSqsStack.queue);
     forwardMessageFunction.addEventSource(crawlerEventSource);
@@ -62,9 +63,9 @@ export class AdminRegionStack extends Stack {
 
     const functionStatement = new PolicyStatement({
       effect: Effect.ALLOW,
-      actions:["sqs:*"],
+      actions: ['sqs:*'],
       resources: [`arn:${Aws.PARTITION}:sqs:${adminRegion.valueAsString}:${Aws.ACCOUNT_ID}:${SolutionInfo.SOLUTION_NAME_ABBR}-*`],
-    })
+    });
     forwardMessageFunction.addToRolePolicy(functionStatement);
   }
 }

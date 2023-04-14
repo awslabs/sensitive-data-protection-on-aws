@@ -35,10 +35,10 @@ const.USER_DEFAULT_NAME = "SDPS"
 const.JOB_RESULT_DATABASE_NAME = "sdps_database"
 const.JOB_RESULT_TABLE_NAME = "job_detection_output_table"
 const.CATALOG_SAMPLE_ITEM_COUNT = 10
-const.CN_REGIONS = ['cn-northwest-1', 'cn-north-1']
 const.MODE = 'mode'
 const.MODE_DEV = 'dev'
 const.EXCLUDE_PATH_LIST = ['/', '/docs', '/openapi.json']
 const.JOB_INTERVAL_WAIT = 10
 const.RDS_SUPPORTED_ENGINES = ['aurora-mysql', 'mysql', 'aurora-postgres', 'postgres']
-
+const.PARTITION_CN = 'aws-cn'
+const.URL_SUFFIX_CN = '.cn'

@@ -107,15 +107,15 @@ class DiscoveryJobBase(BaseModel):
     range: int = 1
     depth: int = 1000
     detection_threshold: Optional[float] = 0.2
+    all_s3: Optional[int]
+    all_rds: Optional[int]
+    all_ddb: Optional[int]
+    all_emr: Optional[int]
+    overwrite: Optional[int]
 
 
 class DiscoveryJobCreate(DiscoveryJobBase):
     databases: list[DiscoveryJobDatabaseCreate]
-
-
-class DiscoveryJobCreateExt(BaseModel):
-    all_s3: Optional[int] = 0
-    all_rds: Optional[int] = 0
 
 
 class DiscoveryJobUpdate(DiscoveryJobBase):
@@ -124,7 +124,7 @@ class DiscoveryJobUpdate(DiscoveryJobBase):
     schedule: Optional[str] = "cron(0 12 * * ? *)"
     description: Optional[str]
     range: Optional[int] = 1
-    depth: Optional[int] = 1000
+    depth: Optional[int] = 100
     detection_threshold: Optional[float] = 0.2
 
 

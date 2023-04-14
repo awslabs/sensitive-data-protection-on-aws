@@ -1,6 +1,7 @@
+source/*/*.js
 !jest.config.js
 *.d.ts
-source/constructs/*.js
+*.js
 node_modules
 .idea
 source/portal/lambda
@@ -20,6 +21,7 @@ viperlight
 release-cn-helper.sh
 release-global-helper.sh
 
+!source/portal/src/react-app-env.d.ts
 .idea/
 site/
 .DS_Store*
@@ -360,3 +362,5 @@ cython_debug/
 # End of https://www.toptal.com/developers/gitignore/api/python,pycharm,visualstudiocode,macos
 source/constructs/package-lock.json
 /bin/
+*_test.py
+source/constructs/lib/test*

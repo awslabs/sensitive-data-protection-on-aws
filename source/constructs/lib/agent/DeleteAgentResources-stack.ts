@@ -1,32 +1,35 @@
-/*
-Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+/**
+ *  Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance
+ *  with the License. A copy of the License is located at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  or in the 'license' file accompanying this file. This file is distributed on an 'AS IS' BASIS, WITHOUT WARRANTIES
+ *  OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions
+ *  and limitations under the License.
+ */
 
 import * as path from 'path';
 import {
-  Aws, CustomResource, Duration,
-  RemovalPolicy,
+  CustomResource,
+  Duration,
 } from 'aws-cdk-lib';
+import {
+  PolicyStatement,
+  Effect,
+  Role,
+  ServicePrincipal,
+  Policy,
+} from 'aws-cdk-lib/aws-iam';
 import {
   Code, Function,
   LayerVersion,
   Runtime,
 } from 'aws-cdk-lib/aws-lambda';
-import { PolicyStatement, Effect, Role, ServicePrincipal, Policy } from 'aws-cdk-lib/aws-iam';
-import { Provider } from 'aws-cdk-lib/custom-resources';
 import { Construct } from 'constructs';
+import { BuildConfig } from '../common/build-config';
 import { SolutionInfo } from '../common/solution-info';
 
 export interface DeleteAgentResourcesProps {
@@ -46,7 +49,7 @@ export class DeleteAgentResourcesStack extends Construct {
           command: [
             'bash',
             '-c',
-            `pip install -r requirements.txt ${SolutionInfo.PIP_MIRROR_PARAMETER} -t /asset-output/python`,
+            `pip install -r requirements.txt ${BuildConfig.PIP_MIRROR_PARAMETER} -t /asset-output/python`,
           ],
         },
       }),
@@ -64,26 +67,26 @@ export class DeleteAgentResourcesStack extends Construct {
         new PolicyStatement({
           effect: Effect.ALLOW,
           actions: [
-            "logs:CreateLogGroup",
-            "logs:CreateLogStream",
-            "logs:PutLogEvents",
-            "glue:GetDatabase",
-            "glue:GetDatabases",
-            "glue:DeleteDatabase",
-            "glue:GetConnections",
-            "glue:DeleteConnection",
-            "glue:GetTable",
-            "glue:GetTables",
-            "glue:DeleteTable",
-            "glue:GetCrawler",
-            "glue:ListCrawlers",
-            "glue:DeleteCrawler",
-            "glue:ListJobs",
-            "glue:DeleteJob",
+            'logs:CreateLogGroup',
+            'logs:CreateLogStream',
+            'logs:PutLogEvents',
+            'glue:GetDatabase',
+            'glue:GetDatabases',
+            'glue:DeleteDatabase',
+            'glue:GetConnections',
+            'glue:DeleteConnection',
+            'glue:GetTable',
+            'glue:GetTables',
+            'glue:DeleteTable',
+            'glue:GetCrawler',
+            'glue:ListCrawlers',
+            'glue:DeleteCrawler',
+            'glue:ListJobs',
+            'glue:DeleteJob',
           ],
-          resources: ["*"]
+          resources: ['*'],
         }),
-      ]
+      ],
     }));
 
     const deleteAgentResourcesFunction = new Function(this, 'DeleteAgentResourcesFunction', {
@@ -95,20 +98,17 @@ export class DeleteAgentResourcesStack extends Construct {
       timeout: Duration.minutes(15),
       layers: [deleteAgentResourcesLayer],
       role: deleteAgentResourcesRole,
-      environment: { "AdminAccountId": props.adminAccountId },
+      environment: { AdminAccountId: props.adminAccountId },
     });
     deleteAgentResourcesFunction.node.addDependency(deleteAgentResourcesRole);
 
-    const deleteAgentResourcesProvider = new Provider(this, 'DeleteAgentResourcesProvider', {
-      onEventHandler: deleteAgentResourcesFunction,
-    });
-
     const deleteAgentResourcesTrigger = new CustomResource(this, 'DeleteAgentResourcesTrigger', {
-      serviceToken: deleteAgentResourcesProvider.serviceToken,
+      serviceToken: deleteAgentResourcesFunction.functionArn,
       properties: {
         SolutionNameAbbr: SolutionInfo.SOLUTION_NAME_ABBR,
+        Version: SolutionInfo.SOLUTION_VERSION,
       },
     });
-    deleteAgentResourcesTrigger.node.addDependency(deleteAgentResourcesProvider);
+    deleteAgentResourcesTrigger.node.addDependency(deleteAgentResourcesFunction);
   }
 }

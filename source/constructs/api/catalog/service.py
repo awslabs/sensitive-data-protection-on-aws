@@ -22,13 +22,15 @@ import traceback
 
 
 logger = logging.getLogger("api")
+caller_identity = boto3.client('sts').get_caller_identity()
+partition = caller_identity['Arn'].split(':')[1]
 
 
 def get_boto3_client(account_id: str, region: str, service: str):
 
     sts_connection = boto3.client("sts")
     monitored_account = sts_connection.assume_role(
-        RoleArn=f"arn:aws-cn:iam::{account_id}:role/{const.SOLUTION_NAME}RoleForAdmin-{region}",
+        RoleArn=f"arn:{partition}:iam::{account_id}:role/{const.SOLUTION_NAME}RoleForAdmin-{region}",
         RoleSessionName="sensitive-data-cross-acc",
     )
 

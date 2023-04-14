@@ -30,10 +30,9 @@ result_database = 'sdps_database'
 result_table = 'job_detection_output_table'
 
 args = getResolvedOptions(sys.argv, ["AccountId", "JOB_NAME", 'DatabaseName', 'BaseTime', 'DatabaseType', 'BucketName',
-'Depth', 'DetectionThreshold', 'JobId', 'RunId', 'RunDatabaseId', 'TemplateId', 'AdminAccountId'])
+'Depth', 'DetectionThreshold', 'JobId', 'RunId', 'RunDatabaseId', 'TemplateId', 'TemplateSnapshotNo', 'AdminAccountId'])
 admin_account_id = args['AdminAccountId']
 account_id = args["AccountId"]
-job_run_id = args['JOB_RUN_ID']
 database_name = args["DatabaseName"]
 depth = int(args["Depth"])
 threshold = float(args['DetectionThreshold'])
@@ -44,6 +43,7 @@ run_id = args['RunId']
 run_database_id = args['RunDatabaseId']
 full_database_name = f'{database_type}-{database_name}-database'
 template_id = args['TemplateId']
+template_snapshot_no = args['TemplateSnapshotNo']
 bucket_name = args['BucketName']
 
 output_path = f's3://{bucket_name}/glue-database/{result_table}/'
@@ -64,7 +64,7 @@ def get_template(bucket_name, object_name):
         data.seek(0)
         return json.loads(data.read().decode('utf-8'))
 
-template = get_template(bucket_name, f'template/template-{template_id}.json')
+template = get_template(bucket_name, f'template/template-{template_id}-{template_snapshot_no}.json')
 
 broadcast_template = sc.broadcast(template)
 
