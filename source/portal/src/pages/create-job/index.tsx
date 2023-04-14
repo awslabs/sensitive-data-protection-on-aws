@@ -26,6 +26,7 @@ import {
   DETECTION_THRESHOLD_OPTIONS,
   DbItemInfo,
   FREQUENCY_TYPE,
+  OVERRIDE_OPTIONS,
   RDS_CATALOG_COLUMS,
   RDS_CATALOG_COLUMS_OLDDATA,
   S3_CATALOG_COLUMS,
@@ -130,7 +131,9 @@ const CreateJobContent = () => {
   const [detectionThreshold, setDetectionThreshold] = useState(
     DETECTION_THRESHOLD_OPTIONS[1] as SelectProps.Option | null
   );
-
+  const [overwrite, setOverwrite] = useState(
+    OVERRIDE_OPTIONS[0] as SelectProps.Option | null
+  );
   const [preferences, setPreferences] = useState({
     pageSize: 20,
     wrapLines: true,
@@ -499,6 +502,11 @@ const CreateJobContent = () => {
       range: parseInt(scanRange?.value || '0'),
       depth: parseInt(scanDepth?.value || '0'),
       detection_threshold: parseFloat(detectionThreshold?.value || '0'),
+      all_s3: s3CatalogType === 'allS3' ? 1 : 0,
+      all_rds: rdsCatalogType === 'allRds' ? 1 : 0,
+      all_ddb: 0,
+      all_emr: 0,
+      overwrite: parseInt(overwrite?.value || '0'),
       databases: [],
     };
     if (s3CatalogType === SELECT_S3) {
@@ -525,15 +533,8 @@ const CreateJobContent = () => {
       requestParamJob.databases =
         requestParamJob.databases.concat(rdsCatalogList);
     }
-    const requestParam = {
-      job: requestParamJob,
-      ext: {
-        all_s3: s3CatalogType === 'allS3' ? 1 : 0,
-        all_rds: rdsCatalogType === 'allRds' ? 1 : 0,
-      },
-    };
     try {
-      const result: any = await createJob(requestParam);
+      const result: any = await createJob(requestParamJob);
       if (result && result.id && frequencyType === 'on_demand_run') {
         await startJob(result);
       }
@@ -1251,6 +1252,20 @@ const CreateJobContent = () => {
                           placeholder="10% (recommended)"
                         ></Select>
                       </FormField>
+                      <FormField label="Overwrite">
+                        <Select
+                          selectedOption={overwrite}
+                          onChange={(select) => {
+                            setOverwrite(select.detail.selectedOption);
+                          }}
+                          triggerVariant="option"
+                          options={[
+                            { label: 'Yes', value: '1' },
+                            { label: 'No', value: '0' },
+                          ]}
+                          selectedAriaLabel="Selected"
+                        ></Select>
+                      </FormField>
                     </SpaceBetween>
                   </Container>
                 </SpaceBetween>
@@ -1363,6 +1378,9 @@ const CreateJobContent = () => {
                     <span>
                       {detectionThreshold ? detectionThreshold.label : ''}
                     </span>
+                  </FormField>
+                  <FormField label="Overwrite">
+                    <span>{overwrite ? overwrite.label : ''}</span>
                   </FormField>
                 </SpaceBetween>
               </Container>

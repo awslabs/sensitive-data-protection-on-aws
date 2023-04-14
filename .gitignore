@@ -3,8 +3,8 @@
 source/constructs/*.js
 node_modules
 .idea
-
-
+source/portal/lambda
+source/portal/public/aws-exports.json
 
 # CDK asset staging directory
 .cdk.staging

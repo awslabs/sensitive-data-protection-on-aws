@@ -31,6 +31,15 @@ const getReportS3Url = async (params: any) => {
   return result;
 };
 
+const getJobTemplateUrl = async (params: any) => {
+  const result = await apiRequest(
+    'get',
+    `discovery-jobs/${params.id}/runs/${params.runId}/template_snapshot_url`,
+    ''
+  );
+  return result;
+};
+
 const disableJob = async (params: any) => {
   const result = await apiRequest(
     'post',
@@ -112,4 +121,5 @@ export {
   getGuleJobDetailList,
   enableJob,
   getGuleJobStatus,
+  getJobTemplateUrl,
 };
