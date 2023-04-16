@@ -37,7 +37,7 @@ jobs:
             didn't match the configured pattern. Please ensure that the subject
             1) contains only alphanumeric characters,'_','-',' '.
             2) length between 5 and 100.
-          requireScope: false
+          requireScope: true
   git-secrets:
     needs: semantic-validate
     runs-on: ubuntu-latest
