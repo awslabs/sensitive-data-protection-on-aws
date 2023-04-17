@@ -6,9 +6,11 @@ import {
   CollectionPreferences,
   Container,
   Header,
+  Icon,
   Modal,
   Pagination,
   SpaceBetween,
+  Spinner,
   Table,
 } from '@cloudscape-design/components';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -19,13 +21,17 @@ import {
   CLSAAIFIED_TYPE,
 } from 'pages/common-badge/types/badge_type';
 import moment from 'moment';
-import { getGuleJobDetailList, getGuleJobStatus } from 'apis/data-job/api';
+import {
+  getGuleJobDetailList,
+  getGuleJobStatus,
+  getJobTemplateUrl,
+} from 'apis/data-job/api';
 import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import Navigation from 'pages/left-menu/Navigation';
 import { ColumnChartData } from 'ts/dashboard/types';
 import HorizontalBarChart from 'pages/summary/comps/charts/items/HorizontalBarChart';
 import ResourcesFilter from 'pages/resources-filter';
-import { useDidUpdateEffect } from 'tools/tools';
+import { alertMsg, useDidUpdateEffect } from 'tools/tools';
 
 const GULE_JOB_COLUMN = [
   {
@@ -88,7 +94,8 @@ const GlueJobContent = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { jobDetailData, jobData } = location.state;
-
+  
+  const [downloading, setDownloading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
   const [pageData, setPageData] = useState([]);

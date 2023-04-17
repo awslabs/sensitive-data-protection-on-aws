@@ -182,3 +182,8 @@ export const FREQUENCY_TYPE = {
   weekly: 'Weekly',
   monthly: 'Monthly',
 };
+
+export const OVERRIDE_OPTIONS = [
+  { label: 'No', value: '0' },
+  { label: 'Yes', value: '1' },
+];

@@ -92,13 +92,12 @@ def get_template_snapshot_no(id: int):
 
 
 def async_s3():
+    res_json = {}
+    identifiers = []
     # generate new version
     snapshot_no = time.strftime("%Y%m%d%H%M%S")
     template = crud.update_template_snapshot_no(1, snapshot_no)
-    identifiers = []
     res = crud.get_ref_identifiers(1)
-    res_json = {}
-    identifiers = []
     for item in res:
         item_json = {}
         item_json['name'] = item[4]
