@@ -96,6 +96,7 @@ export class GlueStack extends Construct {
             { name: 'database_name', type: 'string' },
             { name: 'database_type', type: 'string' },
             { name: 'table_name', type: 'string' },
+            { name: 'table_size', type: 'int' },
             { name: 'region', type: 'string' },
             { name: 'update_time', type: 'timestamp' },
             { name: 's3_location', type: 'string' },
