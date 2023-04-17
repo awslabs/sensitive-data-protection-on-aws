@@ -75,12 +75,16 @@ def get_database_identifiers_from_tables(
                     "objects": table.object_count,
                     "size": table.size_key,
                     "table_count": 1,  # Initialize table count
+                    "column_count": table.column_count,
+                    "row_count": table.row_count,
                     "table_name_list": [table.table_name]
                 }
             if identifier in identifier_dict and table.table_name not in identifier_dict[identifier]['table_name_list']:
                 identifier_dict[identifier]["objects"] += table.object_count
                 identifier_dict[identifier]["size"] += table.size_key
                 identifier_dict[identifier]["table_count"] += 1
+                identifier_dict[identifier]["column_count"] += table.column_count
+                identifier_dict[identifier]["row_count"] += table.row_count
                 identifier_dict[identifier]['table_name_list'].append(table.table_name)
 
     for k in identifier_dict:
@@ -92,6 +96,63 @@ def get_database_identifiers_from_tables(
 
     return result_list
 
+def __query_job_result_table_size_by_athena(
+    account_id: str,
+    region: str,
+    database_type: str,
+    database_name: str,
+):
+    client = boto3.client("athena")
+    select_sql = (
+        (
+            """SELECT table_name, column_name, job_id, run_id, account_id, region, database_type, database_name, table_size
+            FROM %s 
+            WHERE account_id='%s'
+                AND region='%s' 
+                AND database_type='%s' 
+                AND database_name='%s' """
+        )
+        % (const.JOB_RESULT_TABLE_NAME, account_id, region, database_type, database_name)
+    )
+    logger.debug("Athena SELECT TABLE_SIZE SQL : " + select_sql)
+    project_bucket_name = os.getenv(
+        const.PROJECT_BUCKET_NAME, const.PROJECT_BUCKET_DEFAULT_NAME
+    )
+    queryStart = client.start_query_execution(
+        QueryString=select_sql,
+        QueryExecutionContext={
+            "Database": const.JOB_RESULT_DATABASE_NAME,
+            "Catalog": "AwsDataCatalog",
+        },
+        ResultConfiguration={"OutputLocation": f"s3://{project_bucket_name}/athena-output/"},
+    )
+    query_id = queryStart["QueryExecutionId"]
+    while True:
+        response = client.get_query_execution(QueryExecutionId=query_id)
+        query_execution_status = response["QueryExecution"]["Status"]["State"]
+        if query_execution_status == AthenaQueryState.SUCCEEDED.value:
+            break
+        if query_execution_status == AthenaQueryState.FAILED.value:
+            raise Exception("Query Asset STATUS:" + query_execution_status)
+        else:
+            time.sleep(1)
+    result = client.get_query_results(QueryExecutionId=query_id)
+    # Remove Athena query result to save cost.
+    __remove_query_result_from_s3(query_id)
+    print(result)
+    table_size_dict = {}
+    if "ResultSet" in result and "Rows" in result["ResultSet"]:
+        i = 0
+        for row in result["ResultSet"]["Rows"]:
+            if "Data" in row and i > 0:
+                table_name = __get_athena_column_value(row["Data"][0], "str")
+                # column_name = __get_athena_column_value(row["Data"][1], "str")
+                table_size = int(__get_athena_column_value(row["Data"][8], "int"))
+                table_size_dict[table_name] = table_size
+            i += 1
+    print(table_size_dict)
+    # Initialize database privacy with NON-PII
+    return table_size_dict
 
 def sync_crawler_result(
     account_id: str,
@@ -139,6 +200,8 @@ def sync_crawler_result(
     )
     database_object_count = 0  # Aggregate from each table
     database_size = 0  # Aggregate from each table
+    database_column_count = 0  # Aggregate from each table
+    database_row_count = 0  # Aggregate from each table
     table_count = 0  # Count each table
     if crawler_last_run_status == GlueCrawlerState.SUCCEEDED.value:
 
@@ -148,6 +211,8 @@ def sync_crawler_result(
             tables_response = client.get_tables(
                 DatabaseName=glue_database_name, NextToken=next_token
             )
+            table_size_response = __query_job_result_table_size_by_athena(account_id, region, database_type,
+                                                                          database_name)
             for table in tables_response["TableList"]:
                 table_name = table["Name"].strip()
                 # If the file is end of .csv or .json, but the content of the file is not csv/json
@@ -186,6 +251,7 @@ def sync_crawler_result(
                 database_size += table_size_key
 
                 column_order_num = 0
+                table_size = table_size_response[table_name]
                 for column in column_list:
                     column_order_num += 1
                     column_name = column["Name"].strip()
@@ -223,6 +289,7 @@ def sync_crawler_result(
                     "object_count": table_object_count,
                     "size_key": table_size_key,
                     "column_count": column_order_num,
+                    "row_count": table_size,
                     "storage_location": table_location,
                     "classification": table_classification,
                 }
@@ -233,7 +300,8 @@ def sync_crawler_result(
                     # Keep the latest modify if it is a specfic user
                     catalog_table_dict['modify_by'] = original_table.modify_by
                     crud.update_catalog_table_level_classification_by_id(original_table.id, catalog_table_dict)
-
+                database_column_count += column_order_num
+                database_row_count += table_size
 
             next_token = tables_response.get("NextToken")
             if next_token is None:
@@ -253,6 +321,8 @@ def sync_crawler_result(
             "object_count": database_object_count,
             "size_key": database_size,
             "table_count": table_count,
+            "column_count": database_column_count,
+            "row_count": database_row_count,
             # Store location for s3 and engine type for rds
             "storage_location": "s3://" + database_name + "/"
             if database_type == DatabaseType.S3.value
@@ -494,6 +564,8 @@ def sync_job_detection_result(
 
     table_privacy_dict = {}
     table_identifier_dict = {}
+    table_size_dict = {}
+    row_count = 0
     if "ResultSet" in job_result and "Rows" in job_result["ResultSet"]:
         i = 0
         for row in job_result["ResultSet"]["Rows"]:
@@ -503,7 +575,8 @@ def sync_job_detection_result(
                 identifier = __get_athena_column_value(row["Data"][2], "str")
                 column_sample_data = __get_athena_column_value(row["Data"][3], "str")
                 privacy = int(__get_athena_column_value(row["Data"][4], "int"))
-
+                table_size = int(__get_athena_column_value(row["Data"][5], "int"))
+                table_size_dict[table_name] = table_size
                 column_privacy = privacy
                 
                 catalog_column = crud.get_catalog_column_level_classification_by_name(
@@ -542,28 +615,64 @@ def sync_job_detection_result(
     # Initialize database privacy with NON-PII
     database_privacy = Privacy.NON_PII.value
     # The two dict has all tables as key.
-    for table_name in table_privacy_dict:
-        privacy = table_privacy_dict[table_name]
-        # If a table contains PII, the database contains PII too.
-        if privacy == Privacy.PII.value:
-            database_privacy = privacy
-
-        # A table identifiers come from all columns distinct identifer values
-        identifier_set = table_identifier_dict[table_name]
-        identifiers = "|".join(list(map(str, identifier_set)))
+    for table_name in table_size_dict:
+        table_size = table_size_dict[table_name]
+        row_count += table_size
         catalog_table = crud.get_catalog_table_level_classification_by_name(
             account_id, region, database_type, database_name, table_name
         )
+        if table_name not in table_privacy_dict:
+            if catalog_table is not None and (
+                    overwrite == True or (overwrite == False and catalog_table.modify_by == const.USER_DEFAULT_NAME)):
+                table_dict = {
+                    "table_size": table_size,
+                }
+                crud.update_catalog_table_level_classification_by_id(
+                    catalog_table.id, table_dict
+                )
+            continue
+        else:
+            privacy = table_privacy_dict[table_name]
+            # If a table contains PII, the database contains PII too.
+            if privacy == Privacy.PII.value:
+                database_privacy = privacy
 
-        if catalog_table is not None and (overwrite == True or (overwrite == False and catalog_table.modify_by == const.USER_DEFAULT_NAME)):
-            table_dict = {
-                "privacy": privacy,
-                "identifiers": identifiers,
-                "state": CatalogState.DETECTED.value,
-            }
-            crud.update_catalog_table_level_classification_by_id(
-                catalog_table.id, table_dict
-            )
+            # A table identifiers come from all columns distinct identifer values
+            identifier_set = table_identifier_dict[table_name]
+            identifiers = "|".join(list(map(str, identifier_set)))
+            if catalog_table is not None and (
+                    overwrite == True or (overwrite == False and catalog_table.modify_by == const.USER_DEFAULT_NAME)):
+                table_dict = {
+                    "privacy": privacy,
+                    "identifiers": identifiers,
+                    "state": CatalogState.DETECTED.value,
+                    "table_size": table_size,
+                }
+                crud.update_catalog_table_level_classification_by_id(
+                    catalog_table.id, table_dict
+                )
+    # for table_name in table_privacy_dict:
+    #     privacy = table_privacy_dict[table_name]
+    #     # If a table contains PII, the database contains PII too.
+    #     if privacy == Privacy.PII.value:
+    #         database_privacy = privacy
+    #
+    #     # A table identifiers come from all columns distinct identifer values
+    #     identifier_set = table_identifier_dict[table_name]
+    #     identifiers = "|".join(list(map(str, identifier_set)))
+    #     catalog_table = crud.get_catalog_table_level_classification_by_name(
+    #         account_id, region, database_type, database_name, table_name
+    #     )
+    #
+    #     if catalog_table is not None and (overwrite == True or (overwrite == False and catalog_table.modify_by == const.USER_DEFAULT_NAME)):
+    #         table_dict = {
+    #             "privacy": privacy,
+    #             "identifiers": identifiers,
+    #             "state": CatalogState.DETECTED.value,
+    #         }
+    #         crud.update_catalog_table_level_classification_by_id(
+    #             catalog_table.id, table_dict
+    #         )
 
     catalog_database = crud.get_catalog_database_level_classification_by_name(
         account_id, region, database_type, database_name
@@ -572,6 +681,7 @@ def sync_job_detection_result(
         database_dict = {
             "privacy": database_privacy,
             "state": CatalogState.DETECTED.value,
+            "row_count": row_count,
         }
         crud.update_catalog_database_level_classification_by_id(
             catalog_database.id, database_dict
@@ -612,9 +722,9 @@ def get_database_prorpery(account_id: str,
         client = get_boto3_client(account_id, region, database_type)
         if database_type == DatabaseType.S3.value:
             response = client.get_bucket_location(Bucket = database_name)
-            result_list.append(["region", response["LocationConstraint"]])
+            result_list.append(["Region", response["LocationConstraint"]])
             response = client.get_bucket_acl(Bucket = database_name)
-            result_list.append(["Public access", __get_s3_public_access(response)])
+            result_list.append(["PublicAccess", __get_s3_public_access(response)])
             response = client.list_buckets()
             for b in response["Buckets"]:
                 if b["Name"] == database_name:
