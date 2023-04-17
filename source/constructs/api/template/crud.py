@@ -4,7 +4,7 @@ from common.query_condition import QueryCondition, query_with_condition, query_w
 from tools.pydantic_tool import parse_pydantic_schema
 from template import schemas
 from db import models_template as models
-from db.database import get_session
+from db.database import get_session, gen_session
 import logging
 from common.constant import const
 
@@ -139,10 +139,12 @@ def get_identify_by_name(name: str):
 
 
 def update_template_snapshot_no(id: int, no: str):
+    gen_session()
     session = get_session()
     size = session.query(models.Template).filter(models.Template.id == id).update({"snapshot_no": no})
     if size <= 0:
         raise BizException(MessageEnum.BIZ_ITEM_NOT_EXISTS.get_code(), MessageEnum.BIZ_ITEM_NOT_EXISTS.get_msg())
+    session.commit()
     return get_template(id)
 
 
