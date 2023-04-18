@@ -1,1 +1,1 @@
-insert into version (value,description,create_by,create_time,modify_by,modify_time) values ('1.0.0','whole install','System',now(),'System',now());
+insert into version (value,description,create_by,create_time,modify_by,modify_time) values ('0.9.0','whole install','System',now(),'System',now());

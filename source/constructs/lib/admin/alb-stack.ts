@@ -33,6 +33,7 @@ import {
   Peer,
   Port,
   SubnetType,
+  Vpc,
 } from 'aws-cdk-lib/aws-ec2';
 import { Repository } from 'aws-cdk-lib/aws-ecr';
 import { Platform } from 'aws-cdk-lib/aws-ecr-assets';
@@ -57,9 +58,23 @@ import { BuildConfig } from '../common/build-config';
 import { Constants } from '../common/constants';
 import { SolutionInfo } from '../common/solution-info';
 
+export interface VpcProps {
+  readonly vpcId: string;
+  readonly privateSubnet1: string;
+  readonly privateSubnet2: string;
+  readonly privateSubnet3: string;
+  readonly publicSubnet1: string;
+  readonly publicSubnet2: string;
+  readonly publicSubnet3: string;
+}
+
 
 export interface AlbProps {
-  readonly vpc: IVpc;
+  readonly vpc?: IVpc;
+  // Value of property Parameters must be an object with String (or simple type) properties in NestedStack.
+  readonly vpcInfo?: VpcProps;
+  readonly publicSubnets?: string;
+  readonly privateSubnets?: string;
   readonly bucket: IBucket;
   readonly apiFunction: Function;
   readonly port: number;
@@ -77,6 +92,7 @@ export class AlbStack extends NestedStack {
   private readonly portalConfigPriority = 10;
   private readonly apiPriority = 20;
   private readonly identifier: string;
+  private readonly vpc: IVpc;
 
   constructor(scope: Construct, id: string, props: AlbProps) {
     super(scope, id);
@@ -87,11 +103,22 @@ export class AlbStack extends NestedStack {
       this.identifier = ApplicationProtocol.HTTPS.toString();
     }
 
-    const albSecurityGroup = this.createSecurityGroup(props.port, props);
+    if (props.vpc) {
+      this.vpc = props.vpc;
+    } else {
+      this.vpc = Vpc.fromVpcAttributes(this, 'AlbVpc', {
+        vpcId: props.vpcInfo!.vpcId,
+        availabilityZones: [0, 1, 2].map(i => Fn.select(i, Fn.getAzs())),
+        publicSubnetIds: [props.vpcInfo!.publicSubnet1, props.vpcInfo!.publicSubnet2, props.vpcInfo!.publicSubnet3],
+        privateSubnetIds: [props.vpcInfo!.privateSubnet1, props.vpcInfo!.privateSubnet2, props.vpcInfo!.privateSubnet3],
+      });
+    }
+
+    const albSecurityGroup = this.createSecurityGroup(props.port);
 
     const alb = new ApplicationLoadBalancer(this, 'ApplicationLoadBalancer', {
       loadBalancerName: `${SolutionInfo.SOLUTION_NAME_ABBR}-ALB-${this.identifier}`,
-      vpc: props.vpc,
+      vpc: this.vpc,
       internetFacing: true,
       securityGroup: albSecurityGroup,
       http2Enabled: true,
@@ -129,7 +156,7 @@ export class AlbStack extends NestedStack {
 
     this.createApi(listener, props);
     this.createProtalConfig(listener, props);
-    this.createPortal(listener, props);
+    this.createPortal(listener);
   };
 
   private setUrl(scope: Construct, dnsName: string, props: AlbProps, defaultPort: number, isHttps: CfnCondition) {
@@ -188,10 +215,10 @@ export class AlbStack extends NestedStack {
     alb.setAttribute('access_logs.s3.prefix', albLogPrefix);
   }
 
-  private createSecurityGroup(port: number, props: AlbProps) {
+  private createSecurityGroup(port: number) {
     const albSecurityGroup = new SecurityGroup(this, 'AlbSecurityGroup', {
       securityGroupName: `ALB-${this.identifier}`,
-      vpc: props.vpc,
+      vpc: this.vpc,
     });
     albSecurityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(port), 'rule of allow inbound traffic from servier port');
     albSecurityGroup.addIngressRule(Peer.anyIpv6(), Port.tcp(port), 'rule of allow inbound traffic from servier port');
@@ -217,8 +244,8 @@ export class AlbStack extends NestedStack {
       code: Code.fromAsset(path.join(__dirname, '../../api/lambda')),
       memorySize: 1024,
       timeout: Duration.seconds(10),
-      vpc: props.vpc,
-      vpcSubnets: props.vpc.selectSubnets({
+      vpc: this.vpc,
+      vpcSubnets: this.vpc.selectSubnets({
         subnetType: SubnetType.PRIVATE_WITH_EGRESS,
       }),
       environment: {
@@ -238,7 +265,7 @@ export class AlbStack extends NestedStack {
     });
   }
 
-  private createPortal(listener: ApplicationListener, props: AlbProps) {
+  private createPortal(listener: ApplicationListener) {
     let portalFunction;
     if (BuildConfig.PortalTag) {
       portalFunction = new DockerImageFunction(this, 'PortalFunction', {
@@ -247,8 +274,8 @@ export class AlbStack extends NestedStack {
         code: DockerImageCode.fromEcr(Repository.fromRepositoryArn(this, 'PortalRepository', BuildConfig.PortalRepository),
           { tagOrDigest: BuildConfig.PortalTag }),
         architecture: Architecture.X86_64,
-        vpc: props.vpc,
-        vpcSubnets: props.vpc.selectSubnets({
+        vpc: this.vpc,
+        vpcSubnets: this.vpc.selectSubnets({
           subnetType: SubnetType.PRIVATE_WITH_EGRESS,
         }),
       });
@@ -262,8 +289,8 @@ export class AlbStack extends NestedStack {
           platform: Platform.LINUX_AMD64,
         }),
         architecture: Architecture.X86_64,
-        vpc: props.vpc,
-        vpcSubnets: props.vpc.selectSubnets({
+        vpc: this.vpc,
+        vpcSubnets: this.vpc.selectSubnets({
           subnetType: SubnetType.PRIVATE_WITH_EGRESS,
         }),
       });
