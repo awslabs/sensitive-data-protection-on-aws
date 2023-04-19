@@ -202,40 +202,76 @@ export class VpcStack extends Construct {
       ],
     });
 
-
     new CfnRule(scope, 'SubnetsNoRepeat', {
       assertions: [
         {
-          assert: Fn.conditionNot(Fn.conditionEquals(publicSubnet1.valueAsString, publicSubnet2.valueAsString)),
-          assertDescription:
-            'All subnets must NOT Repeat',
+          assert: Fn.conditionNot(Fn.conditionContains([
+            publicSubnet2.valueAsString,
+            publicSubnet3.valueAsString,
+            privateSubnet1.valueAsString,
+            privateSubnet2.valueAsString,
+            privateSubnet3.valueAsString,
+          ],
+          publicSubnet1.valueAsString)),
+          assertDescription: 'All subnets must NOT Repeat',
         },
         {
-          assert: Fn.conditionNot(Fn.conditionEquals(publicSubnet1.valueAsString, publicSubnet3.valueAsString)),
-          assertDescription:
-            'All subnets must NOT Repeat',
+          assert: Fn.conditionNot(Fn.conditionContains([
+            publicSubnet1.valueAsString,
+            publicSubnet3.valueAsString,
+            privateSubnet1.valueAsString,
+            privateSubnet2.valueAsString,
+            privateSubnet3.valueAsString,
+          ],
+          publicSubnet2.valueAsString)),
+          assertDescription: 'All subnets must NOT Repeat',
         },
         {
-          assert: Fn.conditionNot(Fn.conditionEquals(publicSubnet2.valueAsString, publicSubnet3.valueAsString)),
-          assertDescription:
-            'All subnets must NOT Repeat',
+          assert: Fn.conditionNot(Fn.conditionContains([
+            publicSubnet1.valueAsString,
+            publicSubnet2.valueAsString,
+            privateSubnet1.valueAsString,
+            privateSubnet2.valueAsString,
+            privateSubnet3.valueAsString,
+          ],
+          publicSubnet3.valueAsString)),
+          assertDescription: 'All subnets must NOT Repeat',
         },
         {
-          assert: Fn.conditionNot(Fn.conditionEquals(privateSubnet1.valueAsString, privateSubnet2.valueAsString)),
-          assertDescription:
-            'All subnets must NOT Repeat',
+          assert: Fn.conditionNot(Fn.conditionContains([
+            publicSubnet1.valueAsString,
+            publicSubnet2.valueAsString,
+            publicSubnet3.valueAsString,
+            privateSubnet2.valueAsString,
+            privateSubnet3.valueAsString,
+          ],
+          privateSubnet1.valueAsString)),
+          assertDescription: 'All subnets must NOT Repeat',
         },
         {
-          assert: Fn.conditionNot(Fn.conditionEquals(privateSubnet1.valueAsString, privateSubnet3.valueAsString)),
-          assertDescription:
-            'All subnets must NOT Repeat',
+          assert: Fn.conditionNot(Fn.conditionContains([
+            publicSubnet1.valueAsString,
+            publicSubnet2.valueAsString,
+            publicSubnet3.valueAsString,
+            privateSubnet1.valueAsString,
+            privateSubnet3.valueAsString,
+          ],
+          privateSubnet2.valueAsString)),
+          assertDescription: 'All subnets must NOT Repeat',
         },
         {
-          assert: Fn.conditionNot(Fn.conditionEquals(privateSubnet2.valueAsString, privateSubnet3.valueAsString)),
-          assertDescription:
-            'All subnets must NOT Repeat',
+          assert: Fn.conditionNot(Fn.conditionContains([
+            publicSubnet1.valueAsString,
+            publicSubnet2.valueAsString,
+            publicSubnet3.valueAsString,
+            privateSubnet1.valueAsString,
+            privateSubnet2.valueAsString,
+          ],
+          privateSubnet3.valueAsString)),
+          assertDescription: 'All subnets must NOT Repeat',
         },
       ],
     });
+
   }
 }
