@@ -38,6 +38,10 @@ import json
 import re
 import sdps_ner
 import math
+import copy
+
+from awsglueml.transforms import EntityDetector
+from awsglue.dynamicframe import DynamicFrame
 
 
 def get_template(s3, bucket_name, object_name):
@@ -84,6 +88,10 @@ class ColumnDetector:
         ml_result = sdps_ner.predict(str(col_val)).get(str(col_val), [])
 
         for identifier in identifiers:
+            identifier_type = identifier.get('type', -1)
+            if identifier_type == 2:
+                continue
+
             header_keywords = identifier.get('header_keywords', [])
             
             score = 0
@@ -172,24 +180,71 @@ def get_table_info(table, args):
         rds_instance_id = args["DatabaseName"]
     return s3_location, s3_bucket, rds_instance_id
 
-def detect_df(df, detect_column_udf, mask_data_udf, table, region, args):
-    """
-    detect_table is the main function to perform PII detection in a crawler table.
-    """
+def summarize_glue_result_udf(classifications, column_name):
+    result = []
+    if classifications.get(column_name):
+        for attr in classifications[column_name]:
+            result.append({'identifier': attr['entityType'], 'score': 1.0})
 
-    depth = int(args['Depth'])
-    threshold = float(args['DetectionThreshold'])
-    table_size = df.count()
+    return result
 
-    df = df.limit(depth*10)
-    # df = df.withColumn('full_name', sf.concat_ws(' ', 'first_name', 'last_name'))
+def create_summarize_glue_result_udf():
+    summarize_result_udf = sf.udf(summarize_glue_result_udf, ArrayType(StructType([StructField('identifier', StringType()), StructField('score', FloatType())])))
+    return summarize_result_udf
+
+def classifyColumnsAfterRowLevel(nonEmptySampledDf: DataFrame,
+                                 summarize_glue_result_udf,
+                                 outputColumnName: str,
+                                 thresholdFraction: float):
+    
+    clsDataCol = sf.col(outputColumnName)
+    identity_columns = {}
+
+    for column in nonEmptySampledDf.columns:
+        if column == "DetectedEntities":
+            continue
+        identity_columns[column] = column+'_identity_types'
+        nonEmptySampledDf = nonEmptySampledDf.withColumn(column+'_identity_types', summarize_glue_result_udf(clsDataCol, sf.lit(column)))
+
+    rows = nonEmptySampledDf.count()
+    expr_str = ', '.join([f"'{k}', `{v}`"for k, v in identity_columns.items()])
+    expr_str = f"stack({len(identity_columns)}, {expr_str}) as (column_name,identity_types)"
+    nonEmptySampledDf = nonEmptySampledDf.select(sf.expr(expr_str))\
+        .select('column_name', sf.explode('identity_types'))\
+        .select('col.*', '*').groupBy('column_name', 'identifier').agg(sf.sum('score').alias('score'))\
+        .withColumn('score', sf.col('score')/rows)\
+        .where(f'score > 0.1')\
+        .withColumn('identifier', sf.struct('identifier', 'score'))\
+        .groupBy('column_name').agg(sf.collect_list('identifier').alias('identifiers'))
+
+    return nonEmptySampledDf
+
+def glue_entity_detection(glueContext, df, summarize_glue_result_udf, broadcast_template):
+
+    glue_identifiers = []
+    identifiers = broadcast_template.value.get('identifiers')
+    for identifier in identifiers:
+        identifier_type = identifier.get('type', -1)
+        if identifier_type == 2:
+            glue_identifiers.append(identifier['name'])
+
+    dynamic_df = DynamicFrame.fromDF(df, glueContext, "dynamic_df")
+
+    entity_detector = EntityDetector()
+    DetectSensitiveData_node1 = entity_detector.detect(
+        dynamic_df,
+        glue_identifiers,
+        "DetectedEntities",
+    )
+
+    glue_detector_result = classifyColumnsAfterRowLevel(DetectSensitiveData_node1.toDF(), summarize_glue_result_udf, "DetectedEntities", 0.1)
+
+    return glue_detector_result
+
+def sdps_entity_detection(df, threshold, detect_column_udf):
+
     rows = df.count()
-    sample_rate = 1.0 if rows <= depth else depth/rows
-    df = df.sample(sample_rate)
-    rows = df.count()
-    # print(rows)
-    sample_df = df.limit(10)
-    # sample_df.show()
+
     identity_columns = {}
     for column in df.columns:
         identity_columns[column] = column+'_identity_types'
@@ -204,6 +259,40 @@ def detect_df(df, detect_column_udf, mask_data_udf, table, region, args):
         .where(f'score > {threshold}')\
         .withColumn('identifier', sf.struct('identifier', 'score'))\
         .groupBy('column_name').agg(sf.collect_list('identifier').alias('identifiers'))
+    
+    return result_df
+
+def detect_df(df, glueContext, udf_dict, broadcast_template, table, region, args):
+    """
+    detect_table is the main function to perform PII detection in a crawler table.
+    """
+
+    threshold = float(args['DetectionThreshold'])
+    detect_column_udf, mask_data_udf = udf_dict['detect_column_udf'], udf_dict['mask_data_udf']
+    summarize_glue_result_udf = udf_dict['summarize_glue_result_udf']
+    
+    table_size = df.count()
+
+    if args['Depth'].isdigit():
+        depth = int(args['Depth'])
+        df = df.limit(depth*10)
+        rows = df.count()
+        sample_rate = 1.0 if rows <= depth else depth/rows
+    else:
+        sample_rate = float(args['Depth'])
+
+    df = df.sample(sample_rate)
+    # print(rows)
+    sample_df = df.limit(10)
+    # sample_df.show()
+
+    glue_result_df = glue_entity_detection(glueContext, df, summarize_glue_result_udf, broadcast_template)
+    sdps_result_df = sdps_entity_detection(df, threshold, detect_column_udf)
+
+    union_result_df = glue_result_df.union(sdps_result_df)
+    result_df = union_result_df.groupBy('column_name').agg(sf.collect_list('identifiers').alias('identifiers'))
+    result_df = result_df.select('column_name', sf.flatten('identifiers').alias('identifiers'))
+    # result_df.show(truncate=False)
     
     expr_str = ', '.join([f"'{c}', cast(`{c}` as string)"for c in sample_df.columns])
     expr_str = f"stack({len(sample_df.columns)}, {expr_str}) as (column_name,sample_data)"
@@ -236,7 +325,6 @@ def detect_df(df, detect_column_udf, mask_data_udf, table, region, args):
     
     # data_frame.show(100, truncate=False)
     return data_frame
-    # output.append(data_frame)
     
 
 def get_tables(_database_name, _base_time, region):
@@ -301,6 +389,11 @@ if __name__ == "__main__":
     column_detector = ColumnDetector(broadcast_template)
     detect_column_udf = column_detector.create_detect_column_udf()
     mask_data_udf = create_mask_data_udf()
+    summarize_glue_result_udf = create_summarize_glue_result_udf()
+    udf_dict = dict()
+    udf_dict['detect_column_udf'] = detect_column_udf
+    udf_dict['mask_data_udf'] = mask_data_udf
+    udf_dict['summarize_glue_result_udf'] = summarize_glue_result_udf
 
     # crawler_tables = [{'Name': 'sakila_customer'}]
     for table in crawler_tables:
@@ -310,7 +403,8 @@ if __name__ == "__main__":
                 database=full_database_name,
                 table_name=table['Name']
             )
-            summarized_result = detect_df(raw_df, detect_column_udf, mask_data_udf, table, region, args)
+            summarized_result = detect_df(raw_df, glueContext, udf_dict, broadcast_template, table, region, args)
+            # glue_detector_result = glue_entity_detection(glueContext, raw_df, summarize_glue_result_udf)
             output.append(summarized_result)
         except Exception as e:
             # Report error if failed
