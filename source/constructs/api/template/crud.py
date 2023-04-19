@@ -6,6 +6,7 @@ from template import schemas
 from db import models_template as models
 from db.database import get_session, gen_session
 import logging
+import time
 from common.constant import const
 
 logger = logging.getLogger(const.LOGGER_API)
@@ -43,13 +44,16 @@ def delete_identifier(id: int):
 
 
 def update_identifier(id: int, identifier: schemas.TemplateIdentifier):
+    snapshot_no = None
     session = get_session()
     size = session.query(models.TemplateIdentifier).filter(models.TemplateIdentifier.id == id).update(
         identifier.dict(exclude_unset=True))
     if size <= 0:
         raise BizException(MessageEnum.BIZ_ITEM_NOT_EXISTS.get_code(), MessageEnum.BIZ_ITEM_NOT_EXISTS.get_msg())
+    if get_mappings_by_identifier(id):
+        snapshot_no = update_template_snapshot_no(1)
     session.commit()
-    return get_identifier(id)
+    return snapshot_no, get_identifier(id)
 
 
 def get_template(id: int):
@@ -69,10 +73,11 @@ def create_mapping(mapping: schemas.TemplateMapping) -> models.TemplateMapping:
         raise BizException(MessageEnum.BIZ_IDENTIFIER_NOT_EXISTS.get_code(),
                            MessageEnum.BIZ_IDENTIFIER_NOT_EXISTS.get_msg())
     db_mapping = models.TemplateMapping(**(parse_pydantic_schema(mapping)))
+    snapshot_no = update_template_snapshot_no(mapping.template_id)
     session.add(db_mapping)
     session.commit()
     session.refresh(db_mapping)
-    return db_mapping
+    return snapshot_no, db_mapping
 
 
 def update_mapping(id: int, mapping: schemas.TemplateMapping):
@@ -82,25 +87,28 @@ def update_mapping(id: int, mapping: schemas.TemplateMapping):
     if size <= 0:
         logger.error("The item is not exsits!")
         raise BizException(MessageEnum.BIZ_ITEM_NOT_EXISTS.get_code(), MessageEnum.BIZ_ITEM_NOT_EXISTS.get_msg())
+    snapshot_no = update_template_snapshot_no(mapping.template_id)
     session.commit()
-    return get_mapping(id)
+    return snapshot_no, get_mapping(id)
 
 
 def delete_mapping(id: int):
     session = get_session()
+    template_id = session.query(models.TemplateMapping.template_id).filter(models.TemplateMapping.id == id).first()[0]
     del_data = session.query(models.TemplateMapping).filter(models.TemplateMapping.id == id).delete()
     if not del_data:
         logger.error("The item is not exsits!")
-        # raise BizException(MessageEnum.BIZ_ITEM_NOT_EXISTS.get_code(), MessageEnum.BIZ_ITEM_NOT_EXISTS.get_msg())
-        raise BizException(MessageEnum.BIZ_ITEM_NOT_EXISTS)
+        raise BizException(MessageEnum.BIZ_ITEM_NOT_EXISTS.get_code(), MessageEnum.BIZ_ITEM_NOT_EXISTS.get_msg())
+    snapshot_no = update_template_snapshot_no(template_id)
     session.commit()
+    return snapshot_no
 
 
 def get_mappings_by_identifier(id: int):
     return get_session().query(models.TemplateMapping).filter(models.TemplateMapping.identifier_id == id).all()
 
 
-def get_mappings(condition: QueryCondition):
+def get_mappings(id: int, condition: QueryCondition):
     ignoreProperties = ['template_id']
     mappings = {'name': models.TemplateIdentifier.name,
                 'description': models.TemplateIdentifier.description}
@@ -111,7 +119,7 @@ def get_mappings(condition: QueryCondition):
                                             models.TemplateIdentifier.type,
                                             models.TemplateIdentifier.name,
                                             models.TemplateIdentifier.description).filter(
-        models.TemplateMapping.template_id == 1).join(
+        models.TemplateMapping.template_id == id).join(
             models.TemplateMapping,
             models.TemplateMapping.identifier_id == models.TemplateIdentifier.id),
         condition, mappings, ignoreProperties)
@@ -138,14 +146,10 @@ def get_identify_by_name(name: str):
     return get_session().query(models.TemplateIdentifier).filter(models.TemplateIdentifier.name == name).all()
 
 
-def update_template_snapshot_no(id: int, no: str):
-    gen_session()
-    session = get_session()
-    size = session.query(models.Template).filter(models.Template.id == id).update({"snapshot_no": no})
-    if size <= 0:
-        raise BizException(MessageEnum.BIZ_ITEM_NOT_EXISTS.get_code(), MessageEnum.BIZ_ITEM_NOT_EXISTS.get_msg())
-    session.commit()
-    return get_template(id)
+def update_template_snapshot_no(id: int):
+    snapshot_no = time.strftime("%Y%m%d%H%M%S")
+    get_session().query(models.Template).filter(models.Template.id == id).update({"snapshot_no": snapshot_no})
+    return snapshot_no
 
 
 def get_template_snapshot_no(id: int):
