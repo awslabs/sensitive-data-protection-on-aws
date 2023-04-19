@@ -42,3 +42,4 @@ const.JOB_INTERVAL_WAIT = 10
 const.RDS_SUPPORTED_ENGINES = ['aurora-mysql', 'mysql', 'aurora-postgres', 'postgres']
 const.PARTITION_CN = 'aws-cn'
 const.URL_SUFFIX_CN = '.cn'
+const.DEFAULT_TEMPLATE_ID = 1

@@ -53,51 +53,50 @@ def delete_identifier(id: int):
 
 
 def update_identifier(id: int, identifier: schemas.TemplateIdentifier):
-    res = crud.update_identifier(id, identifier)
-    used_by_template = crud.get_mappings_by_identifier(id)
-    if used_by_template:
-        async_s3()
+    snapshot_no, res = crud.update_identifier(id, identifier)
+    # used_by_template = crud.get_mappings_by_identifier(id)
+    if snapshot_no:
+        async_s3(snapshot_no)
     return res
 
 
 def get_template(id: int):
     # MVP：single template, and the template with id 1 is returned by default
-    return crud.get_template(1)
+    return crud.get_template(const.DEFAULT_TEMPLATE_ID)
 
 
 def create_mapping(mapping: schemas.TemplateMapping):
-    res = crud.create_mapping(mapping)
-    async_s3()
+    snapshot_no, res = crud.create_mapping(mapping)
+    async_s3(snapshot_no)
     return res
 
 
 def update_mapping(id: int, mapping: schemas.TemplateMapping):
-    res = crud.update_mapping(id, mapping)
-    async_s3()
+    snapshot_no, res = crud.update_mapping(id, mapping)
+    async_s3(snapshot_no)
     return res
 
 
 def delete_mapping(id: int):
-    crud.delete_mapping(id)
-    async_s3()
+    snapshot_no = crud.delete_mapping(id)
+    async_s3(snapshot_no)
 
 
 def get_mappings(condition: QueryCondition):
     # MVP：single template, and the template with id 1 is returned by default
-    return crud.get_mappings(condition)
+    return crud.get_mappings(const.DEFAULT_TEMPLATE_ID, condition)
 
 
 def get_template_snapshot_no(id: int):
     return crud.get_template_snapshot_no(id)
 
 
-def async_s3():
+def async_s3(snapshot_no):
     res_json = {}
     identifiers = []
     # generate new version
-    snapshot_no = time.strftime("%Y%m%d%H%M%S")
-    template = crud.update_template_snapshot_no(1, snapshot_no)
-    res = crud.get_ref_identifiers(1)
+    template = crud.get_template(const.DEFAULT_TEMPLATE_ID)
+    res = crud.get_ref_identifiers(const.DEFAULT_TEMPLATE_ID)
     for item in res:
         item_json = {}
         item_json['name'] = item[4]
