@@ -277,7 +277,7 @@ if __name__ == "__main__":
     result_table = 'job_detection_output_table'
 
     args = getResolvedOptions(sys.argv, ["AccountId", "JOB_NAME", 'DatabaseName', 'BaseTime', 'DatabaseType', 'BucketName',
-    'Depth', 'DetectionThreshold', 'JobId', 'RunId', 'RunDatabaseId', 'TemplateId', 'AdminAccountId'])
+    'Depth', 'DetectionThreshold', 'JobId', 'RunId', 'RunDatabaseId', 'TemplateId', 'TemplateSnapshotNo', 'AdminAccountId'])
 
     base_time = parse(args['BaseTime']).replace(tzinfo=pytz.timezone('Asia/Shanghai'))
     full_database_name = f"{args['DatabaseType']}-{args['DatabaseName']}-database"
@@ -293,7 +293,7 @@ if __name__ == "__main__":
     output = []
     error = []
 
-    template = get_template(s3, args['BucketName'], f"template/template-{args['TemplateId']}.json")
+    template = get_template(s3, args['BucketName'], f"template/template-{args['TemplateId']}-{args['TemplateSnapshotNo']}.json")
     broadcast_template = sc.broadcast(template)
 
     crawler_tables = get_tables(full_database_name, base_time, region)
