@@ -253,7 +253,9 @@ def sync_crawler_result(
                 database_size += table_size_key
 
                 column_order_num = 0
-                table_size = table_size_response[table_name]
+                table_size = 0
+                if table_size_response.get(table_name) is not None:
+                    table_size = table_size_response[table_name]
                 for column in column_list:
                     column_order_num += 1
                     column_name = column["Name"].strip()
