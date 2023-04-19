@@ -7,11 +7,14 @@ from time import sleep
 import boto3
 
 from catalog.service import delete_catalog_by_account_region as delete_catalog_by_account
+from catalog.service import delete_catalog_by_database_region as delete_catalog_by_database_region
 from common.constant import const
 from common.enum import MessageEnum, ConnectionState
 from common.exception_handler import BizException
 from common.query_condition import QueryCondition
 from discovery_job.service import delete_account as delete_job_by_account
+from discovery_job.service import can_delete_database as can_delete_job_database
+from discovery_job.service import delete_database as delete_job_database
 from . import s3_detector, rds_detector, crud
 from . import schemas
 
@@ -506,33 +509,55 @@ def create_rds_connection(account: str, region: str, instance_name: str, rds_use
                            str(err))
 
 
-def delete_rds_connection(account: str, region: str, instance: str):
-    # if crud.get_rds_instance_source_glue_state(account, region, instance) != ConnectionState.ACTIVE.value:
-    #     raise BizException(MessageEnum.SOURCE_CONNECTION_NOT_EXIST.get_code(),
-    #                       MessageEnum.SOURCE_CONNECTION_NOT_EXIST.get_msg())
-
-    iam_role_name = crud.get_iam_role(account)
-
-    assumed_role = sts.assume_role(
-        RoleArn=f"{iam_role_name}",
-        RoleSessionName="glue-rds-connection"
-    )
-    credentials = assumed_role['Credentials']
-
-    glue = boto3.client('glue',
-                        aws_access_key_id=credentials['AccessKeyId'],
-                        aws_secret_access_key=credentials['SecretAccessKey'],
-                        aws_session_token=credentials['SessionToken'],
-                        region_name=region
-                        )
-    """ :type : pyboto3.glue """
+# raise error if cannot delete data source for rds
+def before_delete_rds_connection(account: str, region: str, instance: str):
     rds_instance = crud.get_rds_instance_source(account, region, instance)
-
     if rds_instance is None:
-        raise BizException(MessageEnum.SOURCE_CONNECTION_NOT_EXIST.get_code(),
-                           MessageEnum.SOURCE_CONNECTION_NOT_EXIST.get_msg())
+        raise BizException(MessageEnum.SOURCE_RDS_NO_INSTANCE.get_code(),
+                           MessageEnum.SOURCE_RDS_NO_INSTANCE.get_msg())
+    if rds_instance.glue_crawler is None:
+        raise BizException(MessageEnum.SOURCE_RDS_NO_CRAWLER.get_code(),
+                           MessageEnum.SOURCE_RDS_NO_CRAWLER.get_msg())
+    if rds_instance.glue_database is None:
+        raise BizException(MessageEnum.SOURCE_RDS_NO_DATABASE.get_code(),
+                           MessageEnum.SOURCE_RDS_NO_DATABASE.get_msg())
+    # crawler, if crawling try to stop and raise, if pending raise directly
+    state = crud.get_rds_instance_source_glue_state(account, region, instance)
+    if state == ConnectionState.PENDING.value:
+        raise BizException(MessageEnum.SOURCE_DELETE_WHEN_CONNECTING.get_code(),
+                           MessageEnum.SOURCE_DELETE_WHEN_CONNECTING.get_msg())
+    elif state == ConnectionState.CRAWLING.value:
+        try:
+            # Stop the crawler
+            __glue(account=account, region=region).stop_crawler(Name=rds_instance.glue_crawler)
+        except Exception as e:
+            logger.error(traceback.format_exc())
+        raise BizException(MessageEnum.SOURCE_DELETE_WHEN_CONNECTING.get_code(),
+                           MessageEnum.SOURCE_DELETE_WHEN_CONNECTING.get_msg())
+    elif state == ConnectionState.ACTIVE.value:
+        # if job running, do not stop but raising
+        if not can_delete_job_database(account_id=account, region=region, database_type='rds',
+                                       database_name=instance):
+            raise BizException(MessageEnum.DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE.get_code(),
+                               MessageEnum.DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE.get_msg())
 
+
+def delete_rds_connection(account: str, region: str, instance: str):
+    before_delete_rds_connection(account, region, instance)
+    glue = __glue(account, region)
+    rds_instance = crud.get_rds_instance_source(account, region, instance)
     err = []
+    # 1/3 delete job database
+    try:
+        delete_job_database(account_id=account, region=region, database_type='rds', database_name=instance)
+    except Exception as e:
+        err.append(str(e))
+    # 2/3 delete catalog
+    try:
+        delete_catalog_by_database_region(database=instance, region=region, type='rds')
+    except Exception as e:
+        err.append(str(e))
+    # 3/3 delete source
     try:
         glue.delete_crawler(Name=rds_instance.glue_crawler)
     except Exception as e:
@@ -557,39 +582,55 @@ def list_s3_bucket_source(condition: QueryCondition):
     return crud.list_s3_bucket_source(condition)
 
 
-def delete_s3_connection(account: str, region: str, bucket: str):
-    # TODO if crawler does not run, can delete
-    # if crud.get_s3_bucket_source_glue_state(account, region, bucket) != ConnectionState.ACTIVE.value:
-    #     raise BizException(MessageEnum.SOURCE_CONNECTION_NOT_EXIST.get_code(),
-    #                        MessageEnum.SOURCE_CONNECTION_NOT_EXIST.get_msg())
-
-    iam_role_name = crud.get_iam_role(account)
-
-    assumed_role = sts.assume_role(
-        RoleArn=f"{iam_role_name}",
-        RoleSessionName="glue-s3-connection"
-    )
-    credentials = assumed_role['Credentials']
-
-    glue = boto3.client('glue',
-                        aws_access_key_id=credentials['AccessKeyId'],
-                        aws_secret_access_key=credentials['SecretAccessKey'],
-                        aws_session_token=credentials['SessionToken'],
-                        region_name=region
-                        )
-    """ :type : pyboto3.glue """
+# raise error if cannot delete data source for s3
+def before_delete_s3_connection(account: str, region: str, bucket: str):
     s3_bucket = crud.get_s3_bucket_source(account, region, bucket)
     if s3_bucket is None:
         raise BizException(MessageEnum.SOURCE_S3_NO_BUCKET.get_code(),
                            MessageEnum.SOURCE_S3_NO_BUCKET.get_msg())
     if s3_bucket.glue_crawler is None:
-        raise BizException(MessageEnum.SOURCE_S3_CONNECTION_DELETE_ERROR.get_code(),
-                           'Crawler name is empty')
+        raise BizException(MessageEnum.SOURCE_S3_NO_CRAWLER.get_code(),
+                           MessageEnum.SOURCE_S3_NO_CRAWLER.get_msg())
     if s3_bucket.glue_database is None:
-        raise BizException(MessageEnum.SOURCE_S3_CONNECTION_DELETE_ERROR.get_code(),
-                           'Database name is empty')
+        raise BizException(MessageEnum.SOURCE_S3_NO_DATABASE.get_code(),
+                           MessageEnum.SOURCE_S3_NO_DATABASE.get_msg())
+    # crawler, if crawling try to stop and raise, if pending raise directly
+    state = crud.get_s3_bucket_source_glue_state(account, region, bucket)
+    if state == ConnectionState.PENDING.value:
+        raise BizException(MessageEnum.SOURCE_DELETE_WHEN_CONNECTING.get_code(),
+                           MessageEnum.SOURCE_DELETE_WHEN_CONNECTING.get_msg())
+    elif state == ConnectionState.CRAWLING.value:
+        try:
+            # Stop the crawler
+            __glue(account=account, region=region).stop_crawler(Name=s3_bucket.glue_crawler)
+        except Exception as e:
+            logger.error(traceback.format_exc())
+        raise BizException(MessageEnum.SOURCE_DELETE_WHEN_CONNECTING.get_code(),
+                           MessageEnum.SOURCE_DELETE_WHEN_CONNECTING.get_msg())
+    elif state == ConnectionState.ACTIVE.value:
+        # if job running, do not stop but raising
+        if not can_delete_job_database(account_id=account, region=region, database_type='s3',
+                                       database_name=bucket):
+            raise BizException(MessageEnum.DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE.get_code(),
+                               MessageEnum.DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE.get_msg())
 
+
+def delete_s3_connection(account: str, region: str, bucket: str):
+    before_delete_s3_connection(account, region, bucket)
     err = []
+    # 1/3 delete job database
+    try:
+        delete_job_database(account_id=account, region=region, database_type='s3', database_name=bucket)
+    except Exception as e:
+        err.append(str(e))
+    # 2/3 delete catalog
+    try:
+        delete_catalog_by_database_region(database=bucket, region=region, type='s3')
+    except Exception as e:
+        err.append(str(e))
+    # 3/3 delete source
+    s3_bucket = crud.get_s3_bucket_source(account, region, bucket)
+    glue = __glue(account=account, region=region)
     try:
         glue.delete_crawler(Name=s3_bucket.glue_crawler)
     except Exception as e:
@@ -764,7 +805,7 @@ def delete_account(account_id: str):
         else:
             logger.debug(MessageEnum.SOURCE_ASSUME_ROLE_FAILED.get_msg())
     if not assumed_role:
-        # account agent is undeployed, delete permanently
+        # account agent is undeployed, delete permanently, only infra
         del_error = False
         try:
             # delete jobs in db
@@ -836,6 +877,23 @@ def get_secrets(account: str, region: str):
     return secrets
 
 
+def __glue(account: str, region: str):
+    iam_role_name = crud.get_iam_role(account)
+    assumed_role = sts.assume_role(
+        RoleArn=f"{iam_role_name}",
+        RoleSessionName="glue-s3-connection"
+    )
+    credentials = assumed_role['Credentials']
+    glue = boto3.client('glue',
+                        aws_access_key_id=credentials['AccessKeyId'],
+                        aws_secret_access_key=credentials['SecretAccessKey'],
+                        aws_session_token=credentials['SessionToken'],
+                        region_name=region
+                        )
+    """ :type : pyboto3.glue """
+    return glue
+
+
 def __create_jdbc_url(engine: str, host: str, port: str):
     # see https://docs.aws.amazon.com/glue/latest/dg/connection-properties.html#connection-properties-jdbc
     if engine == 'aurora-postgres' or engine == "postgres":
@@ -883,7 +941,8 @@ def __update_access_policy_for_account():
         sqs_crawler_trigger_principals = []
         for account in accounts:
 
-            role_arn = __gen_role_arn(account_id=account.aws_account_id, region=account.region, role_name=_agent_role_name)
+            role_arn = __gen_role_arn(account_id=account.aws_account_id, region=account.region,
+                                      role_name=_agent_role_name)
             # validate assumed
             if __assume_role(account.aws_account_id, role_arn):
                 s3_access_role_arn = f"arn:{partition}:iam::{account.aws_account_id}:role/{const.SOLUTION_NAME}GlueDetectionJobRole-{account.region}"

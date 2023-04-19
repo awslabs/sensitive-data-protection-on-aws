@@ -380,6 +380,39 @@ def delete_catalog_column_level_classification_by_account_region(account_id: str
     session.commit()
 
 
+def delete_catalog_table_level_classification_by_database_region(database: str, region: str, type: str):
+    session = get_session()
+    session.query(models.CatalogTableLevelClassification).filter(
+        models.CatalogTableLevelClassification.database_name == database,
+        models.CatalogTableLevelClassification.database_type == type
+    ).filter(
+        models.CatalogTableLevelClassification.region == region
+    ).delete()
+    session.commit()
+
+
+def delete_catalog_database_level_classification_by_database_region(database: str, region: str, type: str):
+    session = get_session()
+    session.query(models.CatalogDatabaseLevelClassification).filter(
+        models.CatalogDatabaseLevelClassification.database_name == database,
+        models.CatalogDatabaseLevelClassification.database_type == type
+    ).filter(
+        models.CatalogDatabaseLevelClassification.region == region
+    ).delete()
+    session.commit()
+
+
+def delete_catalog_column_level_classification_by_database_region(database: str, region: str, type: str):
+    session = get_session()
+    session.query(models.CatalogColumnLevelClassification).filter(
+        models.CatalogColumnLevelClassification.database_name == database,
+        models.CatalogDatabaseLevelClassification.database_type == type
+    ).filter(
+        models.CatalogColumnLevelClassification.region == region
+    ).delete()
+    session.commit()
+
+
 def get_s3_database_summary():
     return (get_session()
     .query(func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label("database_total"), 
