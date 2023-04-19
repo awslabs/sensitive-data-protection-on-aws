@@ -629,7 +629,7 @@ def sync_job_detection_result(
             if catalog_table is not None and (
                     overwrite == True or (overwrite == False and catalog_table.modify_by == const.USER_DEFAULT_NAME)):
                 table_dict = {
-                    "table_size": table_size,
+                    "row_count": table_size,
                 }
                 crud.update_catalog_table_level_classification_by_id(
                     catalog_table.id, table_dict
@@ -650,7 +650,7 @@ def sync_job_detection_result(
                     "privacy": privacy,
                     "identifiers": identifiers,
                     "state": CatalogState.DETECTED.value,
-                    "table_size": table_size,
+                    "row_count": table_size,
                 }
                 crud.update_catalog_table_level_classification_by_id(
                     catalog_table.id, table_dict
