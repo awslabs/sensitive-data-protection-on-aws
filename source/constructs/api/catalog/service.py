@@ -481,7 +481,7 @@ def __query_job_result_by_athena(
     # Select result
     select_sql = (
         (
-            """SELECT table_name,column_name,cast(identifiers as json) as identifiers_str,array_join(sample_data, \'|\') as sample_str, privacy
+            """SELECT table_name,column_name,cast(identifiers as json) as identifiers_str,array_join(sample_data, \'|\') as sample_str, privacy, table_size
             FROM %s 
             WHERE account_id='%s'
                 AND region='%s' 
