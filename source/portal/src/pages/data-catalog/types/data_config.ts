@@ -17,6 +17,8 @@ export const COLUMN_OBJECT_STR = {
   LastModifyAt: 'modify_time',
   Objects: 'objects',
   TableCount: 'table_count',
+  ColumnCount: 'column_count',
+  RowCount: 'row_count',
   IdentifierScore: 'identifier_score',
   BucketProperties: 'bucketProperties',
   AccountId: 'account_id',
@@ -158,6 +160,11 @@ export const FOLDERS_COLUMN = [
   {
     id: COLUMN_OBJECT_STR.ObjectCount,
     label: 'Objects',
+    filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.RowCount,
+    label: 'Items',
     filter: true,
   },
   {
@@ -331,6 +338,11 @@ export const TABLES_COLUMN = [
   {
     id: 'column_count',
     label: 'Columns',
+    filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.RowCount,
+    label: 'Rows',
     filter: true,
   },
   {

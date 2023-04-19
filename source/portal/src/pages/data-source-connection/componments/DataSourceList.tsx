@@ -96,6 +96,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
 
   useEffect(() => {
     setCurrentPage(1);
+    getPageData();
   }, [query, selectedCrawler]);
 
   useEffect(() => {

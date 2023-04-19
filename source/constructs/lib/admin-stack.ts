@@ -151,31 +151,75 @@ export class AdminStack extends Stack {
     const isHttp = new CfnCondition(this, 'IsHttp', { expression: Fn.conditionEquals(certificate.valueAsString, '') });
     const isHttps = new CfnCondition(this, 'IsHttps', { expression: Fn.conditionNot(isHttp) });
 
-    const httpAlbStack = new AlbStack(this, 'HttpALB', {
-      vpc: vpcStack.vpc,
-      bucket: bucketStack.bucket,
-      apiFunction: apiStack.apiFunction,
-      port: port.valueAsNumber,
-      internetFacing: internetFacing.valueAsString,
-      certificateArn: '',
-      oidcProvider: oidcProvider.valueAsString,
-      oidcClientId: oidcClientId.valueAsString,
-      domainName: domainName.valueAsString,
-    });
-    (httpAlbStack.nestedStackResource as CfnStack).cfnOptions.condition = isHttp;
+    if (props?.existingVpc) {
+      const httpAlbStack = new AlbStack(this, 'HttpALB', {
+        vpcInfo: {
+          vpcId: vpcStack.vpcId,
+          publicSubnet1: vpcStack.publicSubnet1,
+          publicSubnet2: vpcStack.publicSubnet2,
+          publicSubnet3: vpcStack.publicSubnet3,
+          privateSubnet1: vpcStack.privateSubnet1,
+          privateSubnet2: vpcStack.privateSubnet2,
+          privateSubnet3: vpcStack.privateSubnet3,
+        },
+        bucket: bucketStack.bucket,
+        apiFunction: apiStack.apiFunction,
+        port: port.valueAsNumber,
+        internetFacing: internetFacing.valueAsString,
+        certificateArn: '',
+        oidcProvider: oidcProvider.valueAsString,
+        oidcClientId: oidcClientId.valueAsString,
+        domainName: domainName.valueAsString,
+      });
+      (httpAlbStack.nestedStackResource as CfnStack).cfnOptions.condition = isHttp;
 
-    const httpsAlbStack = new AlbStack(this, 'HttpsALB', {
-      vpc: vpcStack.vpc,
-      bucket: bucketStack.bucket,
-      apiFunction: apiStack.apiFunction,
-      port: port.valueAsNumber,
-      internetFacing: internetFacing.valueAsString,
-      certificateArn: certificate.valueAsString,
-      oidcProvider: oidcProvider.valueAsString,
-      oidcClientId: oidcClientId.valueAsString,
-      domainName: domainName.valueAsString,
-    });
-    (httpsAlbStack.nestedStackResource as CfnStack).cfnOptions.condition = isHttps;
+      const httpsAlbStack = new AlbStack(this, 'HttpsALB', {
+        vpcInfo: {
+          vpcId: vpcStack.vpcId,
+          publicSubnet1: vpcStack.publicSubnet1,
+          publicSubnet2: vpcStack.publicSubnet2,
+          publicSubnet3: vpcStack.publicSubnet3,
+          privateSubnet1: vpcStack.privateSubnet1,
+          privateSubnet2: vpcStack.privateSubnet2,
+          privateSubnet3: vpcStack.privateSubnet3,
+        },
+        bucket: bucketStack.bucket,
+        apiFunction: apiStack.apiFunction,
+        port: port.valueAsNumber,
+        internetFacing: internetFacing.valueAsString,
+        certificateArn: certificate.valueAsString,
+        oidcProvider: oidcProvider.valueAsString,
+        oidcClientId: oidcClientId.valueAsString,
+        domainName: domainName.valueAsString,
+      });
+      (httpsAlbStack.nestedStackResource as CfnStack).cfnOptions.condition = isHttps;
+    } else {
+      const httpAlbStack = new AlbStack(this, 'HttpALB', {
+        vpc: vpcStack.vpc,
+        bucket: bucketStack.bucket,
+        apiFunction: apiStack.apiFunction,
+        port: port.valueAsNumber,
+        internetFacing: internetFacing.valueAsString,
+        certificateArn: '',
+        oidcProvider: oidcProvider.valueAsString,
+        oidcClientId: oidcClientId.valueAsString,
+        domainName: domainName.valueAsString,
+      });
+      (httpAlbStack.nestedStackResource as CfnStack).cfnOptions.condition = isHttp;
+
+      const httpsAlbStack = new AlbStack(this, 'HttpsALB', {
+        vpc: vpcStack.vpc,
+        bucket: bucketStack.bucket,
+        apiFunction: apiStack.apiFunction,
+        port: port.valueAsNumber,
+        internetFacing: internetFacing.valueAsString,
+        certificateArn: certificate.valueAsString,
+        oidcProvider: oidcProvider.valueAsString,
+        oidcClientId: oidcClientId.valueAsString,
+        domainName: domainName.valueAsString,
+      });
+      (httpsAlbStack.nestedStackResource as CfnStack).cfnOptions.condition = isHttps;
+    }
 
 
     new DeleteResourcesStack(this, 'DeleteResources');
