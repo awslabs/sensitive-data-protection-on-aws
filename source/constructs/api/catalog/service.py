@@ -545,7 +545,9 @@ def __convert_identifiers_to_dict(identifiers: str):
         return result_dict
     json_list = json.loads(identifiers)
     for i in json_list:
-        if len(i) == 2:
+        if isinstance(i, dict) and "identifier" in i and "score" in i:
+            result_dict[i["identifier"]] = i["score"]
+        elif len(i) == 2:
             result_dict[i[0]] = i[1]
     return result_dict
 
