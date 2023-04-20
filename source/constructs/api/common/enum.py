@@ -52,6 +52,11 @@ class MessageEnum(Enum):
     SOURCE_RDS_CREATE_FAILED = {1202: "Database connection created failed"}
     SOURCE_RDS_ALREADY_CREATED = {1203: "Database connection already created"}
     SOURCE_S3_NO_BUCKET = {1204: "S3 bucket does not exist"}
+    SOURCE_S3_NO_CRAWLER = {1227: "S3 bucket has not been connected"}
+    SOURCE_S3_NO_DATABASE = {1228: "Catalog has not been created"}
+    SOURCE_RDS_NO_INSTANCE = {1229: "Database instance does not exist"}
+    SOURCE_RDS_NO_CRAWLER = {1230: "Database has not been connected"}
+    SOURCE_RDS_NO_DATABASE = {1231: "Catalog has not been created"}
     SOURCE_S3_CONNECTION_DELETE_ERROR = {1205: "Failed to delete S3 bucket connection"}
     SOURCE_RDS_CONNECTION_DELETE_ERROR = {1206: "Failed to delete RDS instance connection"}
     SOURCE_CONNECTION_NOT_FINISHED = {1207: "Connection being created"}
@@ -73,6 +78,7 @@ class MessageEnum(Enum):
     SOURCE_ACCOUNT_AGENT_EXIST = {1223: "Could not delete account, please delete agent CloudFromation stack first"}
     SOURCE_ACCOUNT_DELETE_FAILED = {1224: "Account cleanup with error"}
     SOURCE_SOURCE_USED_BY_JOB = {1225: "Could not disconnect data source connection, the data source is used by discovery job"}
+    SOURCE_DELETE_WHEN_CONNECTING = {1226: "Could not disconnect data source while connection is creating"}
 
     def get_code(self):
         return list(self.value.keys())[0]
