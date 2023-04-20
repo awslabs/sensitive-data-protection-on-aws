@@ -17,7 +17,7 @@ create table template_identifier
     id              int auto_increment
         primary key,
     description     varchar(255)                null,
-    type            smallint                    null comment '0: built 1:custom',
+    type            smallint                    null comment '0: built 1:custom 2:glue',
     version         int                         null,
     name            varchar(255)                not null,
     category        smallint                    null comment '0: ML 1:REGEX',
