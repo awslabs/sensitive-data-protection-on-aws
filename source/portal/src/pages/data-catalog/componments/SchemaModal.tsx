@@ -115,6 +115,7 @@ const SchemaModal: React.FC<any> = (props: any) => {
       needByPage: true,
       setSaveLoading,
       setUpdateData,
+      setSaveDisabled,
     };
     tabsContent = [
       {
