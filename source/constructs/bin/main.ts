@@ -15,7 +15,6 @@ import { App, Aspects, Stack } from 'aws-cdk-lib';
 import { BootstraplessStackSynthesizer, CompositeECRRepositoryAspect } from 'cdk-bootstrapless-synthesizer';
 import { AwsSolutionsChecks, NagPackSuppression, NagSuppressions } from 'cdk-nag';
 import { AdminStack } from '../lib/admin-stack';
-// import { AdminRegionStack } from '../lib/admin-region-stack';
 import { AgentStack } from '../lib/agent-stack';
 import { ITStack } from '../lib/it-stack';
 
@@ -32,13 +31,10 @@ stackSuppressions(
     new AdminStack(app, 'Admin', {
       synthesizer: synthesizer(),
     }),
-    new AdminStack(app, 'Admin-exist-vpc', {
+    new AdminStack(app, 'AdminExistVpc', {
       synthesizer: synthesizer(),
       existingVpc: true,
     }),
-    // new AdminRegionStack(app, 'AdminRegion', {
-    //   synthesizer: synthesizer(),
-    // }),
     new ITStack(app, 'IT', {
       synthesizer: synthesizer(),
     }),

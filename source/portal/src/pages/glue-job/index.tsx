@@ -94,7 +94,7 @@ const GlueJobContent = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { jobDetailData, jobData } = location.state;
-  
+
   const [downloading, setDownloading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
@@ -261,6 +261,24 @@ const GlueJobContent = () => {
     );
   };
 
+  const clkDownloadTemplate = async (runId: any, jobId: any) => {
+    setDownloading(true);
+    try {
+      const result: any = await getJobTemplateUrl({
+        id: jobId,
+        runId,
+      });
+      if (result) {
+        window.open(result, '_blank');
+      } else {
+        alertMsg('No template file', 'error');
+      }
+    } catch {
+      alertMsg('No template file', 'error');
+    }
+    setDownloading(false);
+  };
+
   return (
     <>
       <SpaceBetween direction="vertical" size="xl">
@@ -290,6 +308,28 @@ const GlueJobContent = () => {
                 {moment(jobDetailData.start_time)
                   .add(8, 'h')
                   .format('YYYY-MM-DD HH:mm')}
+              </p>
+              <p className="p-title">Template</p>
+              <p>
+                {downloading ? (
+                  <Spinner />
+                ) : (
+                  <>
+                    <Icon name="download" />
+                    &nbsp;&nbsp;
+                    <span
+                      className="job-name"
+                      onClick={() =>
+                        clkDownloadTemplate(
+                          jobDetailData.id,
+                          jobDetailData.job_id
+                        )
+                      }
+                    >
+                      Download report
+                    </span>
+                  </>
+                )}
               </p>
             </div>
             <div className="job-header-run">
