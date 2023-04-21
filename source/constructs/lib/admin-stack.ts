@@ -20,6 +20,7 @@ import {
   CfnCondition,
   Fn,
   CfnStack,
+  Tags,
 } from 'aws-cdk-lib';
 import { ApplicationProtocol } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { Construct } from 'constructs';
@@ -157,10 +158,8 @@ export class AdminStack extends Stack {
           vpcId: vpcStack.vpcId,
           publicSubnet1: vpcStack.publicSubnet1,
           publicSubnet2: vpcStack.publicSubnet2,
-          publicSubnet3: vpcStack.publicSubnet3,
           privateSubnet1: vpcStack.privateSubnet1,
           privateSubnet2: vpcStack.privateSubnet2,
-          privateSubnet3: vpcStack.privateSubnet3,
         },
         bucket: bucketStack.bucket,
         apiFunction: apiStack.apiFunction,
@@ -178,10 +177,8 @@ export class AdminStack extends Stack {
           vpcId: vpcStack.vpcId,
           publicSubnet1: vpcStack.publicSubnet1,
           publicSubnet2: vpcStack.publicSubnet2,
-          publicSubnet3: vpcStack.publicSubnet3,
           privateSubnet1: vpcStack.privateSubnet1,
           privateSubnet2: vpcStack.privateSubnet2,
-          privateSubnet3: vpcStack.privateSubnet3,
         },
         bucket: bucketStack.bucket,
         apiFunction: apiStack.apiFunction,
@@ -237,6 +234,8 @@ export class AdminStack extends Stack {
       description: 'VPC Id',
       value: vpcStack.vpc.vpcId,
     });
+
+    Tags.of(this).add(SolutionInfo.TAG_KEY, SolutionInfo.TAG_VALUE);
   }
 
   private setBuildConfig() {

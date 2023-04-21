@@ -43,3 +43,6 @@ const.RDS_SUPPORTED_ENGINES = ['aurora-mysql', 'mysql', 'aurora-postgres', 'post
 const.PARTITION_CN = 'aws-cn'
 const.URL_SUFFIX_CN = '.cn'
 const.DEFAULT_TEMPLATE_ID = 1
+const.VERSION = 'Version'
+const.PROJECT_TAG_KEY = 'CreatedBy'
+const.PROJECT_TAG_VALUE = const.SOLUTION_NAME

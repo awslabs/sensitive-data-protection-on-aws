@@ -99,7 +99,10 @@ export class ApiStack extends Construct {
         subnetType: SubnetType.PRIVATE_WITH_EGRESS,
       }),
       securityGroups: [props.rdsClientSecurityGroup],
-      environment: { ProjectBucketName: props.bucketName },
+      environment: {
+        ProjectBucketName: props.bucketName,
+        Version: SolutionInfo.SOLUTION_VERSION,
+      },
       role: this.apiRole,
       layers: [this.apiLayer],
     });

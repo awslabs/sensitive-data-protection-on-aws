@@ -23,6 +23,7 @@ admin_account_id = caller_identity.get('Account')
 url_suffix = const.URL_SUFFIX_CN if partition == const.PARTITION_CN else ''
 admin_region = boto3.session.Session().region_name
 project_bucket_name = os.getenv(const.PROJECT_BUCKET_NAME, const.PROJECT_BUCKET_DEFAULT_NAME)
+version = os.getenv(const.VERSION, '')
 
 sql_result = "SELECT database_type,account_id,region,s3_bucket,s3_location,rds_instance_id,table_name,column_name,identifiers,sample_data FROM job_detection_output_table where run_id='%d' and privacy = 1"
 sql_error = "SELECT account_id,region,database_type,database_name,table_name,error_message FROM job_detection_error_table where run_id='%d'"
@@ -196,7 +197,7 @@ def __start_run(job_id: int, run_id: int):
               "flatbuffers-23.3.3-py2.py3-none-any.whl",
               "coloredlogs-15.0.1-py2.py3-none-any.whl",
               "onnxruntime-1.13.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
-              "sdps_ner-0.5.0-py3-none-any.whl",
+              "sdps_ner-0.9.0-py3-none-any.whl",
               ]
 
     account_loop_wait = {}
@@ -286,7 +287,9 @@ def __create_job(database_type, account_id, region, database_name, job_name):
                                    GlueVersion='4.0',
                                    Command={'Name': 'glueetl',
                                             'ScriptLocation': f's3://{project_bucket_name}/job/script/glue-job.py'},
-                                   Tags={'AdminAccountId': admin_account_id},
+                                   Tags={const.PROJECT_TAG_KEY: const.PROJECT_TAG_VALUE,
+                                         'AdminAccountId': admin_account_id,
+                                         const.VERSION: version},
                                    Connections={'Connections': [f'rds-{database_name}-connection']},
                                    ExecutionProperty={'MaxConcurrentRuns': 3},
                                    )
@@ -296,7 +299,9 @@ def __create_job(database_type, account_id, region, database_name, job_name):
                                    GlueVersion='4.0',
                                    Command={'Name': 'glueetl',
                                             'ScriptLocation': f's3://{project_bucket_name}/job/script/glue-job.py'},
-                                   Tags={'AdminAccountId': admin_account_id},
+                                   Tags={const.PROJECT_TAG_KEY: const.PROJECT_TAG_VALUE,
+                                         'AdminAccountId': admin_account_id,
+                                         const.VERSION: version},
                                    ExecutionProperty={'MaxConcurrentRuns': 100},
                                    )
 
@@ -429,23 +434,30 @@ def change_run_state(run_id: int):
 
 
 def complete_run_database(input_event):
+    state = input_event["Result"]["State"]
     message = ""
     if "Message" in input_event["Result"]:
         message = input_event["Result"]["Message"]
-    crud.complete_run_database(input_event["RunDatabaseId"], input_event["Result"]["State"], message)
-    sync_job_detection_result(input_event["AccountId"],
-                              input_event["Region"],
-                              input_event["DatabaseType"],
-                              input_event["DatabaseName"],
-                              input_event["RunId"],
-                              input_event["OverWrite"] == "1",
-                              )
+    if state == RunDatabaseState.SUCCEEDED.value:
+        try:
+            sync_job_detection_result(input_event["AccountId"],
+                                      input_event["Region"],
+                                      input_event["DatabaseType"],
+                                      input_event["DatabaseName"],
+                                      input_event["RunId"],
+                                      input_event["OverWrite"] == "1",
+                                      )
+        except Exception:
+            state = RunDatabaseState.FAILED.value
+            message = traceback.format_exc()
+            logger.exception("sync_job_detection_result exception:%s" % message)
+    crud.complete_run_database(input_event["RunDatabaseId"], state, message)
 
 
 def check_running_run():
     run_databases = crud.get_running_run_databases()
     for run_database in run_databases:
-        run_database_state = __get_run_database_state(run_database)
+        run_database_state = __get_run_database_state_from_agent(run_database)
         if run_database_state == RunDatabaseState.RUNNING.value.upper():
             continue
         if run_database_state == RunDatabaseState.NOT_EXIST.value:
@@ -457,9 +469,6 @@ def check_running_run():
             error_log = __get_run_error_log(run_database)
             run_database.state = RunDatabaseState.FAILED.value
             run_database.log = error_log
-        run_database.end_time = mytime.get_time()
-        crud.save_run_database(run_database)
-        change_run_state(run_database.run_id)
         try:
             if run_database_state == RunDatabaseState.SUCCEEDED.value.upper():
                 job = crud.get_job_by_run_id(run_database.run_id)
@@ -471,11 +480,16 @@ def check_running_run():
                                           job.overwrite == 1,
                                           )
         except Exception:
-            msg = traceback.format_exc()
-            logger.exception("sync_job_detection_result exception:%s" % msg)
+            run_database.state = RunDatabaseState.FAILED.value
+            message = traceback.format_exc()
+            logger.exception("sync_job_detection_result exception:%s" % message)
+            run_database.log = message
+        run_database.end_time = mytime.get_time()
+        crud.save_run_database(run_database)
+        change_run_state(run_database.run_id)
 
 
-def __get_run_database_state(run_database: models.DiscoveryJobRunDatabase) -> str:
+def __get_run_database_state_from_agent(run_database: models.DiscoveryJobRunDatabase) -> str:
     client_sts = boto3.client('sts')
     assumed_role_object = client_sts.assume_role(
         RoleArn=f'arn:{partition}:iam::{run_database.account_id}:role/{const.SOLUTION_NAME}RoleForAdmin-{run_database.region}',
