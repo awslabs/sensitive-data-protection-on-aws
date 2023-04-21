@@ -164,6 +164,7 @@ export class DiscoveryJobStack extends Construct {
           includeExecutionData: true,
           level: 'ALL',
         },
+        tags: [{ key: 'Version', value: SolutionInfo.SOLUTION_VERSION }],
       },
     );
 

@@ -57,10 +57,8 @@ export class VpcStack extends Construct {
   public vpcId = '';
   public publicSubnet1 = '';
   public publicSubnet2 = '';
-  public publicSubnet3 = '';
   public privateSubnet1 = '';
   public privateSubnet2 = '';
-  public privateSubnet3 = '';
 
   constructor(scope: Construct, id: string, props?: VpcProps) {
     super(scope, id);
@@ -147,11 +145,6 @@ export class VpcStack extends Construct {
       type: 'AWS::EC2::Subnet::Id',
     });
 
-    const publicSubnet3 = new CfnParameter(scope, 'PublicSubnet3', {
-      description: 'Select one public subnet in Availability Zone 3.',
-      type: 'AWS::EC2::Subnet::Id',
-    });
-
     const privateSubnet1 = new CfnParameter(scope, 'PrivateSubnet1', {
       description: 'The private subnets must have a route to NatGateway.Select one private subnet in Availability Zone 1.',
       type: 'AWS::EC2::Subnet::Id',
@@ -162,35 +155,26 @@ export class VpcStack extends Construct {
       type: 'AWS::EC2::Subnet::Id',
     });
 
-    const privateSubnet3 = new CfnParameter(scope, 'PrivateSubnet3', {
-      description: 'The private subnets must have a route to NatGateway.Select one private subnet in Availability Zone 3.',
-      type: 'AWS::EC2::Subnet::Id',
-    });
-
     Parameter.addToParamGroups(
       'VPC Settings',
       vpcId.logicalId,
       publicSubnet1.logicalId,
       publicSubnet2.logicalId,
-      publicSubnet3.logicalId,
       privateSubnet1.logicalId,
       privateSubnet2.logicalId,
-      privateSubnet3.logicalId,
     );
 
     this.vpc = Vpc.fromVpcAttributes(scope, 'ExistingVpc', {
       vpcId: vpcId.valueAsString,
-      availabilityZones: [0, 1, 2].map(i => Fn.select(i, Fn.getAzs())),
-      privateSubnetIds: [privateSubnet1.valueAsString, privateSubnet2.valueAsString, privateSubnet3.valueAsString],
-      publicSubnetIds: [publicSubnet1.valueAsString, publicSubnet2.valueAsString, publicSubnet3.valueAsString],
+      availabilityZones: [0, 1].map(i => Fn.select(i, Fn.getAzs())),
+      privateSubnetIds: [privateSubnet1.valueAsString, privateSubnet2.valueAsString],
+      publicSubnetIds: [publicSubnet1.valueAsString, publicSubnet2.valueAsString],
     });
     this.vpcId = vpcId.valueAsString;
     this.publicSubnet1 = publicSubnet1.valueAsString;
     this.publicSubnet2 = publicSubnet2.valueAsString;
-    this.publicSubnet3 = publicSubnet3.valueAsString;
     this.privateSubnet1 = privateSubnet1.valueAsString;
     this.privateSubnet2 = privateSubnet2.valueAsString;
-    this.privateSubnet3 = privateSubnet3.valueAsString;
 
     new CfnRule(scope, 'SubnetsInVpc', {
       assertions: [
@@ -207,10 +191,8 @@ export class VpcStack extends Construct {
         {
           assert: Fn.conditionNot(Fn.conditionContains([
             publicSubnet2.valueAsString,
-            publicSubnet3.valueAsString,
             privateSubnet1.valueAsString,
             privateSubnet2.valueAsString,
-            privateSubnet3.valueAsString,
           ],
           publicSubnet1.valueAsString)),
           assertDescription: 'All subnets must NOT Repeat',
@@ -218,10 +200,8 @@ export class VpcStack extends Construct {
         {
           assert: Fn.conditionNot(Fn.conditionContains([
             publicSubnet1.valueAsString,
-            publicSubnet3.valueAsString,
             privateSubnet1.valueAsString,
             privateSubnet2.valueAsString,
-            privateSubnet3.valueAsString,
           ],
           publicSubnet2.valueAsString)),
           assertDescription: 'All subnets must NOT Repeat',
@@ -230,20 +210,7 @@ export class VpcStack extends Construct {
           assert: Fn.conditionNot(Fn.conditionContains([
             publicSubnet1.valueAsString,
             publicSubnet2.valueAsString,
-            privateSubnet1.valueAsString,
             privateSubnet2.valueAsString,
-            privateSubnet3.valueAsString,
-          ],
-          publicSubnet3.valueAsString)),
-          assertDescription: 'All subnets must NOT Repeat',
-        },
-        {
-          assert: Fn.conditionNot(Fn.conditionContains([
-            publicSubnet1.valueAsString,
-            publicSubnet2.valueAsString,
-            publicSubnet3.valueAsString,
-            privateSubnet2.valueAsString,
-            privateSubnet3.valueAsString,
           ],
           privateSubnet1.valueAsString)),
           assertDescription: 'All subnets must NOT Repeat',
@@ -252,22 +219,9 @@ export class VpcStack extends Construct {
           assert: Fn.conditionNot(Fn.conditionContains([
             publicSubnet1.valueAsString,
             publicSubnet2.valueAsString,
-            publicSubnet3.valueAsString,
             privateSubnet1.valueAsString,
-            privateSubnet3.valueAsString,
           ],
           privateSubnet2.valueAsString)),
-          assertDescription: 'All subnets must NOT Repeat',
-        },
-        {
-          assert: Fn.conditionNot(Fn.conditionContains([
-            publicSubnet1.valueAsString,
-            publicSubnet2.valueAsString,
-            publicSubnet3.valueAsString,
-            privateSubnet1.valueAsString,
-            privateSubnet2.valueAsString,
-          ],
-          privateSubnet3.valueAsString)),
           assertDescription: 'All subnets must NOT Repeat',
         },
       ],

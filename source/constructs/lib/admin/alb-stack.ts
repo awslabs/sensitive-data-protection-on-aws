@@ -62,10 +62,8 @@ export interface VpcProps {
   readonly vpcId: string;
   readonly privateSubnet1: string;
   readonly privateSubnet2: string;
-  readonly privateSubnet3: string;
   readonly publicSubnet1: string;
   readonly publicSubnet2: string;
-  readonly publicSubnet3: string;
 }
 
 
@@ -108,9 +106,9 @@ export class AlbStack extends NestedStack {
     } else {
       this.vpc = Vpc.fromVpcAttributes(this, 'AlbVpc', {
         vpcId: props.vpcInfo!.vpcId,
-        availabilityZones: [0, 1, 2].map(i => Fn.select(i, Fn.getAzs())),
-        publicSubnetIds: [props.vpcInfo!.publicSubnet1, props.vpcInfo!.publicSubnet2, props.vpcInfo!.publicSubnet3],
-        privateSubnetIds: [props.vpcInfo!.privateSubnet1, props.vpcInfo!.privateSubnet2, props.vpcInfo!.privateSubnet3],
+        availabilityZones: [0, 1].map(i => Fn.select(i, Fn.getAzs())),
+        publicSubnetIds: [props.vpcInfo!.publicSubnet1, props.vpcInfo!.publicSubnet2],
+        privateSubnetIds: [props.vpcInfo!.privateSubnet1, props.vpcInfo!.privateSubnet2],
       });
     }
 

@@ -11,7 +11,7 @@
  *  and limitations under the License.
  */
 
-import { Stack, StackProps, Aws, CfnParameter, aws_s3 as s3 } from 'aws-cdk-lib';
+import { Stack, StackProps, Aws, CfnParameter, aws_s3 as s3, Tags } from 'aws-cdk-lib';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 import { CrawlerEventbridgeStack } from './agent/CrawlerEventbridge-stack';
@@ -421,5 +421,7 @@ export class AgentStack extends Stack {
     new DeleteAgentResourcesStack(this, 'DeleteAgentResources', {
       adminAccountId: adminAccountId,
     });
+
+    Tags.of(this).add(SolutionInfo.TAG_KEY, SolutionInfo.TAG_VALUE);
   }
 }
