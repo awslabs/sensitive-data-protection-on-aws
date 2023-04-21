@@ -38,7 +38,6 @@ import json
 import re
 import sdps_ner
 import math
-import copy
 
 from awsglueml.transforms import EntityDetector
 from awsglue.dynamicframe import DynamicFrame
@@ -98,7 +97,7 @@ class ColumnDetector:
             valid_column_header = False
 
             # column header is valid when no specific column header required for this identifier.
-            if len(header_keywords) == 0:
+            if not header_keywords or len(header_keywords) == 0:
                 valid_column_header = True
             else:
                 for keyword in header_keywords:
@@ -108,8 +107,11 @@ class ColumnDetector:
 
             # Only perform regex matching when this column has valid column header.
             if valid_column_header:
-                if identifier['category'] == 1 and identifier['rule']:
-                    if re.search(identifier['rule'], str(col_val)):
+                if identifier['category'] == 1:
+                    if identifier['rule']:
+                        if re.search(identifier['rule'], str(col_val)):
+                            score = 1
+                    else:
                         score = 1
                 elif identifier['category'] == 0:
                     for r in ml_result:
@@ -228,16 +230,19 @@ def glue_entity_detection(glueContext, df, summarize_glue_result_udf, broadcast_
         if identifier_type == 2:
             glue_identifiers.append(identifier['name'])
 
-    dynamic_df = DynamicFrame.fromDF(df, glueContext, "dynamic_df")
+    if len(glue_identifiers) != 0:
+        dynamic_df = DynamicFrame.fromDF(df, glueContext, "dynamic_df")
 
-    entity_detector = EntityDetector()
-    DetectSensitiveData_node1 = entity_detector.detect(
-        dynamic_df,
-        glue_identifiers,
-        "DetectedEntities",
-    )
+        entity_detector = EntityDetector()
+        DetectSensitiveData_node1 = entity_detector.detect(
+            dynamic_df,
+            glue_identifiers,
+            "DetectedEntities",
+        )
 
-    glue_detector_result = classifyColumnsAfterRowLevel(DetectSensitiveData_node1.toDF(), summarize_glue_result_udf, "DetectedEntities", 0.1)
+        glue_detector_result = classifyColumnsAfterRowLevel(DetectSensitiveData_node1.toDF(), summarize_glue_result_udf, "DetectedEntities", 0.1)
+    else:
+        glue_detector_result = None
 
     return glue_detector_result
 
@@ -262,7 +267,7 @@ def sdps_entity_detection(df, threshold, detect_column_udf):
     
     return result_df
 
-def detect_df(df, glueContext, udf_dict, broadcast_template, table, region, args):
+def detect_df(df, spark, glueContext, udf_dict, broadcast_template, table, region, args):
     """
     detect_table is the main function to perform PII detection in a crawler table.
     """
@@ -273,37 +278,50 @@ def detect_df(df, glueContext, udf_dict, broadcast_template, table, region, args
     
     table_size = df.count()
 
-    if args['Depth'].isdigit():
-        depth = int(args['Depth'])
-        df = df.limit(depth*10)
-        rows = df.count()
-        sample_rate = 1.0 if rows <= depth else depth/rows
-    else:
-        sample_rate = float(args['Depth'])
+    if table_size > 0:
+        if args['Depth'].isdigit() and args['Depth'] != '1':
+            depth = int(args['Depth'])
+            df = df.limit(depth*10)
+            rows = df.count()
+            sample_rate = 1.0 if rows <= depth else depth/rows
+        else:
+            sample_rate = float(args['Depth'])
 
-    df = df.sample(sample_rate)
-    # print(rows)
-    sample_df = df.limit(10)
-    # sample_df.show()
+        df = df.sample(sample_rate)
+        # print(rows)
+        sample_df = df.limit(10)
+        # sample_df.show()
 
-    glue_result_df = glue_entity_detection(glueContext, df, summarize_glue_result_udf, broadcast_template)
-    sdps_result_df = sdps_entity_detection(df, threshold, detect_column_udf)
+        glue_result_df = glue_entity_detection(glueContext, df, summarize_glue_result_udf, broadcast_template)
+        sdps_result_df = sdps_entity_detection(df, threshold, detect_column_udf)
 
-    union_result_df = glue_result_df.union(sdps_result_df)
-    result_df = union_result_df.groupBy('column_name').agg(sf.collect_list('identifiers').alias('identifiers'))
-    result_df = result_df.select('column_name', sf.flatten('identifiers').alias('identifiers'))
-    # result_df.show(truncate=False)
+        if glue_result_df != None:
+            union_result_df = glue_result_df.union(sdps_result_df)
+            result_df = union_result_df.groupBy('column_name').agg(sf.collect_list('identifiers').alias('identifiers'))
+            result_df = result_df.select('column_name', sf.flatten('identifiers').alias('identifiers'))
+        else:
+            result_df = sdps_result_df
+        # result_df.show(truncate=False)
     
-    expr_str = ', '.join([f"'{c}', cast(`{c}` as string)"for c in sample_df.columns])
-    expr_str = f"stack({len(sample_df.columns)}, {expr_str}) as (column_name,sample_data)"
-    sample_df = sample_df.select(sf.expr(expr_str)).groupBy('column_name').agg(sf.collect_list('sample_data').alias('sample_data'))
+        expr_str = ', '.join([f"'{c}', cast(`{c}` as string)"for c in sample_df.columns])
+        expr_str = f"stack({len(sample_df.columns)}, {expr_str}) as (column_name,sample_data)"
+        sample_df = sample_df.select(sf.expr(expr_str)).groupBy('column_name').agg(sf.collect_list('sample_data').alias('sample_data'))
+
+        data_frame = result_df
+        data_frame = data_frame.join(sample_df, data_frame.column_name == sample_df.column_name, 'right')\
+            .select(data_frame['identifiers'], sample_df['*'])
+    elif table_size == 0:
+        empty_df_schema = StructType([
+            StructField("identifiers", StringType(), True),
+            StructField("column_name", StringType(), True),
+            StructField("sample_data", StringType(), True),
+        ])
+
+        data_frame = spark.createDataFrame([(None, "", "")], empty_df_schema)
 
     s3_location, s3_bucket, rds_instance_id = get_table_info(table, args)
     # data_frame = spark.createDataFrame(data=items, schema=schema)
-    data_frame = result_df
 
-    data_frame = data_frame.join(sample_df, data_frame.column_name == sample_df.column_name, 'right')\
-        .select(data_frame['identifiers'], sample_df['*'])
     data_frame = data_frame.withColumn('account_id', sf.lit(args['AccountId']))    
     data_frame = data_frame.withColumn('job_id', sf.lit(args['JobId']))
     data_frame = data_frame.withColumn('run_id', sf.lit(args['RunId']))
@@ -403,8 +421,9 @@ if __name__ == "__main__":
                 database=full_database_name,
                 table_name=table['Name']
             )
-            summarized_result = detect_df(raw_df, glueContext, udf_dict, broadcast_template, table, region, args)
-            # glue_detector_result = glue_entity_detection(glueContext, raw_df, summarize_glue_result_udf)
+            # transformation_ctx = full_database_name + table['Name'] + 'df'
+            summarized_result = detect_df(raw_df, spark, glueContext, udf_dict, broadcast_template, table, region, args)
+            
             output.append(summarized_result)
         except Exception as e:
             # Report error if failed
