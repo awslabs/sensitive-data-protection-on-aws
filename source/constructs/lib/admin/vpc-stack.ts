@@ -146,12 +146,12 @@ export class VpcStack extends Construct {
     });
 
     const privateSubnet1 = new CfnParameter(scope, 'PrivateSubnet1', {
-      description: 'The private subnets must have a route to NatGateway.Select one private subnet in Availability Zone 1.',
+      description: 'The private subnet must have a route to NatGateway.Select one private subnet in Availability Zone 1.',
       type: 'AWS::EC2::Subnet::Id',
     });
 
     const privateSubnet2 = new CfnParameter(scope, 'PrivateSubnet2', {
-      description: 'The private subnets must have a route to NatGateway.Select one private subnet in Availability Zone 2.',
+      description: 'The private subnet must have a route to NatGateway.Select one private subnet in Availability Zone 2.',
       type: 'AWS::EC2::Subnet::Id',
     });
 
