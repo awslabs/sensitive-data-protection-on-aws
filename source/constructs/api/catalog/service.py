@@ -140,7 +140,6 @@ def __query_job_result_table_size_by_athena(
     result = client.get_query_results(QueryExecutionId=query_id)
     # Remove Athena query result to save cost.
     __remove_query_result_from_s3(query_id)
-    print(result)
     table_size_dict = {}
     if "ResultSet" in result and "Rows" in result["ResultSet"]:
         i = 0
@@ -151,7 +150,6 @@ def __query_job_result_table_size_by_athena(
                 table_size = int(__get_athena_column_value(row["Data"][8], "int"))
                 table_size_dict[table_name] = table_size
             i += 1
-    print(table_size_dict)
     # Initialize database privacy with NON-PII
     return table_size_dict
 
@@ -306,7 +304,11 @@ def sync_crawler_result(
                     crud.update_catalog_table_level_classification_by_id(original_table.id, catalog_table_dict)
                 database_column_count += column_order_num
                 database_row_count += table_size
-
+                update_catalog_table_and_database_level_privacy(account_id,
+                                                                region,
+                                                                database_type,
+                                                                database_name,
+                                                                table_name)
             next_token = tables_response.get("NextToken")
             if next_token is None:
                 break
@@ -778,6 +780,7 @@ def update_catalog_column_level_classification(new_column: schemas.CatalogColumn
             MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_msg(),
         )
     original_column_identifier = original_column.identifier
+    original_column_privacy = original_column.privacy
     crud.update_catalog_column_level_classification(new_column)
 
     if original_column_identifier != new_column.identifier and new_column.identifier != '{"N/A": 0}':
@@ -807,7 +810,15 @@ def update_catalog_column_level_classification(new_column: schemas.CatalogColumn
         table.identifiers = table_identifiers
         crud.update_catalog_table_level_classification_by_id(table.id, {"identifiers": table_identifiers})
 
-    return "Update catalog column sucessfully!"
+    # update privacy to table and database level
+    if original_column_privacy != new_column.privacy:
+        update_catalog_table_and_database_level_privacy(new_column.account_id,
+                                                        new_column.region,
+                                                        new_column.database_type,
+                                                        new_column.database_name,
+                                                        new_column.table_name)
+
+    return "Update catalog column successfully!"
 
 
 def delete_catalog_by_account_region(account_id: str, region: str):
@@ -858,3 +869,52 @@ def delete_catalog_by_database_region(database: str, region: str, type: str):
             MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_msg(),
         )
     return True
+
+
+def update_catalog_table_and_database_level_privacy(account_id, region, database_type, database_name, table_name):
+    column_rows = crud.get_catalog_column_level_classification_by_table(account_id,
+                                                                        region,
+                                                                        database_type,
+                                                                        database_name,
+                                                                        table_name)
+
+    table = crud.get_catalog_table_level_classification_by_name(account_id,
+                                                                region,
+                                                                database_type,
+                                                                database_name,
+                                                                table_name)
+
+    database = crud.get_catalog_database_level_classification_by_name(account_id,
+                                                                      region,
+                                                                      database_type,
+                                                                      database_name)
+    if database is None:
+        raise BizException(
+            MessageEnum.CATALOG_UPDATE_FAILED.get_code(),
+            MessageEnum.CATALOG_UPDATE_FAILED.get_msg(),
+        )
+    table_rows = crud.get_catalog_table_level_classification_by_database(account_id,
+                                                                         region,
+                                                                         database_type,
+                                                                         database_name)
+    # Reset table privacy
+    origin_table_privacy = table.privacy
+    default_table_privacy = Privacy.NA.value
+    for column in column_rows:
+        column_privacy = column.privacy
+        if column_privacy > default_table_privacy:
+            default_table_privacy = column_privacy
+    if origin_table_privacy != default_table_privacy:
+        table.privacy = default_table_privacy
+        crud.update_catalog_table_level_classification_by_id(table.id, {"privacy": default_table_privacy})
+
+    # Reset database privacy
+    origin_database_privacy = database.privacy
+    default_database_privacy = Privacy.NA.value
+    for table in table_rows:
+        table_privacy = table.privacy
+        if table_privacy > default_database_privacy:
+            default_database_privacy = table_privacy
+    if origin_database_privacy != default_database_privacy:
+        database.privacy = default_database_privacy
+        crud.update_catalog_table_level_classification_by_id(database.id, {"privacy": default_database_privacy})

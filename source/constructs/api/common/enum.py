@@ -45,6 +45,7 @@ class MessageEnum(Enum):
     CATALOG_DATABASE_DELETE_FAILED = {1305: "Delete catalog database failed"}
     CATALOG_TABLE_DELETE_FAILED = {1306: "Delete catalog table failed"}
     CATALOG_COLUMN_DELETE_FAILED = {1307: "Delete catalog column failed"}
+    CATALOG_UPDATE_FAILED = {1308: "Update catalog column failed"}
 
     # data source
     SOURCE_RDS_NO_SCHEMA = {1200: "There is no user created schema found in the database"}
@@ -174,6 +175,7 @@ class ConnectionState(Enum):
     ACTIVE = "ACTIVE"
     UNSUPPORTED = "UNSUPPORTED FILE TYPES"
     ERROR = "ERROR"
+    STOPPING = "STOPPING"
 
 
 @unique
