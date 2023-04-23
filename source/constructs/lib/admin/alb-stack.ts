@@ -139,7 +139,7 @@ export class AlbStack extends NestedStack {
         port: props.port,
       });
 
-      this.url = this.setUrl(scope, alb.loadBalancerDnsName, props, this.httpDefaultPort, isHttps);
+      this.url = this.setUrl(scope, alb.loadBalancerDnsName, props, this.httpDefaultPort);
       this.setOutput(scope, alb.loadBalancerDnsName, isHttp);
     } else {
       listener = alb.addListener('HttpsListener', {
@@ -148,7 +148,7 @@ export class AlbStack extends NestedStack {
         certificates: [ListenerCertificate.fromArn(props.certificateArn)],
       });
 
-      this.url = this.setUrl(scope, alb.loadBalancerDnsName, props, this.httpsDefaultPort, isHttps);
+      this.url = this.setUrl(scope, alb.loadBalancerDnsName, props, this.httpsDefaultPort);
       this.setOutput(scope, alb.loadBalancerDnsName, isHttps);
     }
 
@@ -157,19 +157,13 @@ export class AlbStack extends NestedStack {
     this.createPortal(listener);
   };
 
-  private setUrl(scope: Construct, dnsName: string, props: AlbProps, defaultPort: number, isHttps: CfnCondition) {
+  private setUrl(scope: Construct, dnsName: string, props: AlbProps, defaultPort: number) {
     // Both the main stack and this stack require these conditions
     const isDefaultPort = new CfnCondition(this, `IsDefaultPort${this.identifier}`, { expression: Fn.conditionEquals(props.port, defaultPort) });
     new CfnCondition(scope, `IsDefaultPort${this.identifier}`, { expression: isDefaultPort.expression });
     const isCustomdomainName = new CfnCondition(this, `IsCustomdomainName${this.identifier}`, { expression: Fn.conditionNot(Fn.conditionEquals(props.domainName, '')) });
     new CfnCondition(scope, `IsCustomdomainName${this.identifier}`, { expression: isCustomdomainName.expression });
-    const isHttpsProtocol = new CfnCondition(this, `isHttpsProtocol${this.identifier}`, { expression: Fn.conditionAnd(isCustomdomainName.expression!, isHttps.expression!) });
-    new CfnCondition(scope, `isHttpsProtocol${this.identifier}`, { expression: isHttpsProtocol.expression });
-    const protocolShow = Fn.conditionIf(
-      `isHttpsProtocol${this.identifier}`,
-      'https',
-      'http',
-    ).toString();
+    const protocolShow = this.identifier.toLowerCase();
     const domainNameShow = Fn.conditionIf(
       `IsCustomdomainName${this.identifier}`,
       props.domainName,
