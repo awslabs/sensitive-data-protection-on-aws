@@ -21,7 +21,7 @@ def list_identifiers(condition: QueryCondition):
     ))
 
 
-@router.get("/list-identifiers_by_template/{tid}",
+@router.get("/list-identifiers-by-template/{tid}",
             response_model=BaseResponse[list])
 @inject_session
 def list_identifiers_by_template(tid: int):
