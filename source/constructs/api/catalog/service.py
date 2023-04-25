@@ -884,15 +884,6 @@ def update_catalog_table_and_database_level_privacy(account_id, region, database
                                                                 database_name,
                                                                 table_name)
 
-    database = crud.get_catalog_database_level_classification_by_name(account_id,
-                                                                      region,
-                                                                      database_type,
-                                                                      database_name)
-    if database is None:
-        raise BizException(
-            MessageEnum.CATALOG_UPDATE_FAILED.get_code(),
-            MessageEnum.CATALOG_UPDATE_FAILED.get_msg(),
-        )
     table_rows = crud.get_catalog_table_level_classification_by_database(account_id,
                                                                          region,
                                                                          database_type,
@@ -909,12 +900,17 @@ def update_catalog_table_and_database_level_privacy(account_id, region, database
         crud.update_catalog_table_level_classification_by_id(table.id, {"privacy": default_table_privacy})
 
     # Reset database privacy
-    origin_database_privacy = database.privacy
-    default_database_privacy = Privacy.NA.value
-    for table in table_rows:
-        table_privacy = table.privacy
-        if table_privacy > default_database_privacy:
-            default_database_privacy = table_privacy
-    if origin_database_privacy != default_database_privacy:
-        database.privacy = default_database_privacy
-        crud.update_catalog_table_level_classification_by_id(database.id, {"privacy": default_database_privacy})
+    database = crud.get_catalog_database_level_classification_by_name(account_id,
+                                                                      region,
+                                                                      database_type,
+                                                                      database_name)
+    if database is not None:
+        origin_database_privacy = database.privacy
+        default_database_privacy = Privacy.NA.value
+        for table in table_rows:
+            table_privacy = table.privacy
+            if table_privacy > default_database_privacy:
+                default_database_privacy = table_privacy
+        if origin_database_privacy != default_database_privacy:
+            database.privacy = default_database_privacy
+            crud.update_catalog_table_level_classification_by_id(database.id, {"privacy": default_database_privacy})
