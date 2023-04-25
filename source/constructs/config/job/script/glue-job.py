@@ -85,6 +85,9 @@ class ColumnDetector:
         result = []
         identifiers = self.broadcast_template.value.get('identifiers')
         ml_result = sdps_ner.predict(str(col_val)).get(str(col_val), [])
+        ml_label_mapping = {'CHINESE-NAME': 'CN_CHINESE_NAME',
+                            'ENGLISH-NAME': 'CN_ENGLISH_NAME',
+                            'ADDRESS': 'CN_ADDRESS'}
 
         for identifier in identifiers:
             identifier_type = identifier.get('type', -1)
@@ -115,8 +118,9 @@ class ColumnDetector:
                         score = 1
                 elif identifier['category'] == 0:
                     for r in ml_result:
-                        if r['Identifier'] == identifier['name']:
-                            score = r['Score']
+                        if r['Identifier'] in ml_label_mapping.keys():
+                            if ml_label_mapping[r['Identifier']] == identifier['name']:
+                                score = r['Score']
             result.append({'identifier': identifier['name'], 'score': float(score)})
 
         return result
