@@ -181,3 +181,26 @@ class IdentifierDependency(Enum):
     TEMPLATE = "template"
     RDS = "rds"
     S3 = "s3"
+
+
+@unique
+class LabelState(Enum):
+    ONLINE = "online"
+    OFFLINE = "offline"
+
+
+@unique
+class LabelClassification(Enum):
+    CATALOG = "catalog"
+
+
+@unique
+class LabelType(Enum):
+    DATABASE = "database"
+    TABLE = "table"
+
+
+@unique
+class LabelStyleType(Enum):
+    DEFAULT = "default"
+    COLOR = "color"
