@@ -44,45 +44,48 @@ const TableData: React.FC<TableDataProps> = (props: TableDataProps) => {
   return (
     <div>
       <Header variant="h3">{title}</Header>
-      <Table
-        variant="embedded"
-        columnDefinitions={[
-          {
-            id: 'name',
-            header: keyLable,
-            cell: (item) => item.name || '-',
-            sortingField: 'name',
-          },
-          {
-            id: 'data_source_count',
-            header: valueLable,
-            cell: (item) => {
-              return (
-                (
-                  <span
-                    onClick={() => clkCount(item.name)}
-                    className="source-count"
-                  >
-                    {item.data_source_count || '-'}
-                  </span>
-                ) || '-'
-              );
+      <div className="max-table-height">
+        <Table
+          variant="embedded"
+          columnDefinitions={[
+            {
+              id: 'name',
+              header: keyLable,
+              cell: (item) => item.name || '-',
+              sortingField: 'name',
             },
-            sortingField: 'data_source_count',
-          },
-        ]}
-        items={dataList}
-        loadingText="Loading resources"
-        sortingDisabled
-        empty={
-          <Box textAlign="center" color="inherit">
-            <b>No resources</b>
-            <Box padding={{ bottom: 's' }} variant="p" color="inherit">
-              No resources to display.
+            {
+              id: 'data_source_count',
+              header: valueLable,
+              cell: (item) => {
+                return (
+                  (
+                    <span
+                      onClick={() => clkCount(item.name)}
+                      className="source-count"
+                    >
+                      {item.data_source_count || '-'}
+                    </span>
+                  ) || '-'
+                );
+              },
+              sortingField: 'data_source_count',
+            },
+          ]}
+          items={dataList}
+          loadingText="Loading resources"
+          sortingDisabled
+          // stickyHeader
+          empty={
+            <Box textAlign="center" color="inherit">
+              <b>No resources</b>
+              <Box padding={{ bottom: 's' }} variant="p" color="inherit">
+                No resources to display.
+              </Box>
             </Box>
-          </Box>
-        }
-      />
+          }
+        />
+      </div>
     </div>
   );
 };

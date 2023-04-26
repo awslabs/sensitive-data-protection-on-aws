@@ -92,7 +92,7 @@ const SchemaModal: React.FC<any> = (props: any) => {
       },
       {
         id: COLUMN_OBJECT_STR.SampleObjects,
-        label: 'Sample Objects',
+        label: 'Sample objects',
         content: <CatalogDetailList {...objectsProps} />,
       },
     ];
