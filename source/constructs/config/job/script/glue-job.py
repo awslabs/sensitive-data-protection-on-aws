@@ -148,14 +148,14 @@ def mask_data(col_val):
     """
     This mask_data is used to created a udf for masking data.
     The input is a list of strings. The column to be detected is a column of lists.
-    If a string is longer than 100, we display the first 30 characters,
-    and display the following characters using * (at most 70 *)
+    If a string is longer than 100, we display the first 70 characters,
+    and display the following characters using * (at most 30 *)
     """
     def mask_string(s):
         length = len(s)
-        first_30_percent = math.ceil(length * 0.3)
-        display_length = min(first_30_percent, 30)
-        masked_length = min(70, length - display_length)
+        first_70_percent = math.floor(length * 0.7)
+        display_length = min(first_70_percent, 70)
+        masked_length = min(30, length - display_length)
         return s[:display_length] + '*' * (masked_length)
     return [mask_string(s) for s in col_val]
 
