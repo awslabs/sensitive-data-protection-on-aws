@@ -87,3 +87,9 @@ def update_mapping(id: int, mapping: schemas.TemplateMapping):
 @inject_session
 def delete_mapping(id: int):
     service.delete_mapping(id)
+
+
+@router.get("/template-time/{tid}", response_model=BaseResponse[str])
+@inject_session
+def get_template_time(tid: int):
+    return service.get_template_snapshot_no(tid)
