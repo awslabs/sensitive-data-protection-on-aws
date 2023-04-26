@@ -515,12 +515,12 @@ def before_delete_rds_connection(account: str, region: str, instance: str):
     if rds_instance is None:
         raise BizException(MessageEnum.SOURCE_RDS_NO_INSTANCE.get_code(),
                            MessageEnum.SOURCE_RDS_NO_INSTANCE.get_msg())
-    if rds_instance.glue_crawler is None:
-        raise BizException(MessageEnum.SOURCE_RDS_NO_CRAWLER.get_code(),
-                           MessageEnum.SOURCE_RDS_NO_CRAWLER.get_msg())
-    if rds_instance.glue_database is None:
-        raise BizException(MessageEnum.SOURCE_RDS_NO_DATABASE.get_code(),
-                           MessageEnum.SOURCE_RDS_NO_DATABASE.get_msg())
+    # if rds_instance.glue_crawler is None:
+    #     raise BizException(MessageEnum.SOURCE_RDS_NO_CRAWLER.get_code(),
+    #                        MessageEnum.SOURCE_RDS_NO_CRAWLER.get_msg())
+    # if rds_instance.glue_database is None:
+    #     raise BizException(MessageEnum.SOURCE_RDS_NO_DATABASE.get_code(),
+    #                        MessageEnum.SOURCE_RDS_NO_DATABASE.get_msg())
     # crawler, if crawling try to stop and raise, if pending raise directly
     state = crud.get_rds_instance_source_glue_state(account, region, instance)
     if state == ConnectionState.PENDING.value:
@@ -588,12 +588,12 @@ def before_delete_s3_connection(account: str, region: str, bucket: str):
     if s3_bucket is None:
         raise BizException(MessageEnum.SOURCE_S3_NO_BUCKET.get_code(),
                            MessageEnum.SOURCE_S3_NO_BUCKET.get_msg())
-    if s3_bucket.glue_crawler is None:
-        raise BizException(MessageEnum.SOURCE_S3_NO_CRAWLER.get_code(),
-                           MessageEnum.SOURCE_S3_NO_CRAWLER.get_msg())
-    if s3_bucket.glue_database is None:
-        raise BizException(MessageEnum.SOURCE_S3_NO_DATABASE.get_code(),
-                           MessageEnum.SOURCE_S3_NO_DATABASE.get_msg())
+    # if s3_bucket.glue_crawler is None:
+    #     raise BizException(MessageEnum.SOURCE_S3_NO_CRAWLER.get_code(),
+    #                        MessageEnum.SOURCE_S3_NO_CRAWLER.get_msg())
+    # if s3_bucket.glue_database is None:
+    #     raise BizException(MessageEnum.SOURCE_S3_NO_DATABASE.get_code(),
+    #                        MessageEnum.SOURCE_S3_NO_DATABASE.get_msg())
     # crawler, if crawling try to stop and raise, if pending raise directly
     state = crud.get_s3_bucket_source_glue_state(account, region, bucket)
     if state == ConnectionState.PENDING.value:

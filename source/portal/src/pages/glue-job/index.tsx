@@ -326,7 +326,7 @@ const GlueJobContent = () => {
                         )
                       }
                     >
-                      Download report
+                      Download template snapshot
                     </span>
                   </>
                 )}

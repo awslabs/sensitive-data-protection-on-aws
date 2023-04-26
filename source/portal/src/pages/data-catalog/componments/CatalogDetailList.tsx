@@ -205,8 +205,14 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       );
       setOptList.push({
         label: '',
-        value: 'N/A',
-        labelTag: 'N/A',
+        value: '',
+        iconSvg: (
+          <CommonBadge
+            badgeType={BADGE_TYPE.DataIndf}
+            badgeLabel='N/A'
+            className="fit-select"
+          />
+        ),
       });
       setIdentifierOptions(setOptList);
     };
