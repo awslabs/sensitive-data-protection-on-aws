@@ -1252,17 +1252,14 @@ const CreateJobContent = () => {
                           placeholder="10% (recommended)"
                         ></Select>
                       </FormField>
-                      <FormField label="Overwrite">
+                      <FormField label="Override privacy label that are updated manually">
                         <Select
                           selectedOption={overwrite}
                           onChange={(select) => {
                             setOverwrite(select.detail.selectedOption);
                           }}
                           triggerVariant="option"
-                          options={[
-                            { label: 'Yes', value: '1' },
-                            { label: 'No', value: '0' },
-                          ]}
+                          options={OVERRIDE_OPTIONS}
                           selectedAriaLabel="Selected"
                         ></Select>
                       </FormField>

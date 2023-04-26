@@ -60,9 +60,10 @@ const CircleChart: React.FC<CircleChartType> = (props: CircleChartType) => {
         });
       });
       const total = res.reduce((accumulator: number, item) => {
-        return accumulator + sourceType === 's3'
-          ? item.database_total
-          : item.instance_total;
+        return (
+          accumulator +
+          (sourceType === 's3' ? item.database_total : item.instance_total)
+        );
       }, 0);
       setSourceTotal(total);
     }

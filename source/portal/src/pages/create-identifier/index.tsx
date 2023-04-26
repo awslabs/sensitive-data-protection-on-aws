@@ -217,7 +217,7 @@ const CreateIdentifierContent = () => {
           header={
             <Header
               variant="h2"
-              description="Only if all rules are met, then the platform will auto-label the data as sensitive data (e.g. contains PII)."
+              description="Only if all rules are met, then the platform will auto-label the data as sensitive data (e.g. contain PII)."
             >
               Identification rules
             </Header>
