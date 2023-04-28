@@ -49,11 +49,11 @@ export class AgentStack extends Stack {
     const trustedRoleARN = `arn:${Aws.PARTITION}:iam::${adminAccountId}:role/${trustedRoleName}*`;
     const roleForAdmin = new iam.Role(this, 'RoleForAdmin', {
       assumedBy: new iam.PrincipalWithConditions(new iam.AccountPrincipal(adminAccountId), { StringLike: { 'aws:PrincipalArn': trustedRoleARN } }),
-      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}RoleForAdmin-${Aws.REGION}`,
+      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}RoleForAdmin-${Aws.REGION}`, //Name must be specified
     });
 
     roleForAdmin.attachInlinePolicy(new iam.Policy(this, 'PolicyForAdmin', {
-      policyName: `${SolutionInfo.SOLUTION_NAME_ABBR}PolicyForAdmin`,
+      // policyName: `${SolutionInfo.SOLUTION_NAME_ABBR}PolicyForAdmin`,
       statements: [new iam.PolicyStatement({
         actions: [
           'glue:CreateJob',
@@ -96,7 +96,7 @@ export class AgentStack extends Stack {
 
     //attach necessary policy to the role
     roleForAdmin.attachInlinePolicy(new iam.Policy(this, 'AmazonS3ReadOnlyAccessPolicy', {
-      policyName: 'AmazonS3ReadOnlyAccessPolicy',
+      // policyName: 'AmazonS3ReadOnlyAccessPolicy',
       statements: [
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
@@ -111,7 +111,7 @@ export class AgentStack extends Stack {
       ],
     }));
     roleForAdmin.attachInlinePolicy(new iam.Policy(this, 'AmazonRDSReadOnlyAccessPolicy', {
-      policyName: 'AmazonRDSReadOnlyAccessPolicy',
+      // policyName: 'AmazonRDSReadOnlyAccessPolicy',
       statements: [
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
@@ -140,7 +140,7 @@ export class AgentStack extends Stack {
       ],
     }));
     roleForAdmin.attachInlinePolicy(new iam.Policy(this, 'AWSLakeFormationDataAdminPolicy', {
-      policyName: 'AWSLakeFormationDataAdmin',
+      // policyName: 'AWSLakeFormationDataAdmin',
       statements: [
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
@@ -190,7 +190,7 @@ export class AgentStack extends Stack {
       ],
     }));
     const policy = new iam.Policy(this, 'senstive-data-glue-policy', {
-      policyName: 'senstive-data-glue-policy',
+      // policyName: 'senstive-data-glue-policy',
       statements: [
         new iam.PolicyStatement({
           actions: [
@@ -335,10 +335,10 @@ export class AgentStack extends Stack {
 
     const glueDetectionJobRole = new iam.Role(this, 'GlueDetectionJobRole', {
       assumedBy: new iam.ServicePrincipal('glue.amazonaws.com'),
-      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}GlueDetectionJobRole-${Aws.REGION}`,
+      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}GlueDetectionJobRole-${Aws.REGION}`, //Name must be specified
     });
     glueDetectionJobRole.attachInlinePolicy(new iam.Policy(this, 'GlueDetectionJobPolicy', {
-      policyName: `${SolutionInfo.SOLUTION_NAME_ABBR}GlueDetectionJobPolicy`,
+      // policyName: `${SolutionInfo.SOLUTION_NAME_ABBR}GlueDetectionJobPolicy`,
       statements: [new iam.PolicyStatement({
         actions: [
           'lakeformation:*',
@@ -399,10 +399,10 @@ export class AgentStack extends Stack {
 
     const lambdaRdsRole = new iam.Role(this, 'LambdaRdsRole', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
-      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}LambdaRdsRole-${Aws.REGION}`,
+      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}LambdaRdsRole-${Aws.REGION}`, //Name must be specified
     });
     lambdaRdsRole.attachInlinePolicy(new iam.Policy(this, 'lambdaRdsPolicy', {
-      policyName: `${SolutionInfo.SOLUTION_NAME_ABBR}lambdaRdsPolicy`,
+      // policyName: `${SolutionInfo.SOLUTION_NAME_ABBR}lambdaRdsPolicy`,
       statements: [new iam.PolicyStatement({
         actions: [
           'logs:CreateLogGroup',
