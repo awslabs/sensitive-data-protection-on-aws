@@ -16,6 +16,7 @@ import {
   CfnRule,
   Fn,
   RemovalPolicy,
+  Tags,
 } from 'aws-cdk-lib';
 import {
   IpAddresses,

@@ -67,12 +67,12 @@ export class RdsStack extends Construct {
     super(scope, id);
 
     this.clientSecurityGroup = new SecurityGroup(this, 'RDSClientSecurityGroup', {
-      securityGroupName: 'RDSClient',
+      // securityGroupName: 'RDSClient',
       vpc: props.vpc,
       description: 'connet to RDS',
     });
     const rdsSecurityGroup = new SecurityGroup(this, 'RDSSecurityGroup', {
-      securityGroupName: 'RDS',
+      // securityGroupName: 'RDS',
       vpc: props.vpc,
       description: 'RDS',
     });
@@ -146,13 +146,13 @@ export class RdsStack extends Construct {
           ],
         },
       }),
-      layerVersionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-InitDatabase`,
+      // layerVersionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-InitDatabase`,
       compatibleRuntimes: [Runtime.PYTHON_3_9],
       description: `${SolutionInfo.SOLUTION_NAME} - init database layer`,
     });
 
     const initDatabaseFunction = new Function(this, 'InitDatabaseFunction', {
-      functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-InitDatabase`,
+      functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-InitDatabase`, //Name must be specified
       description: `${SolutionInfo.SOLUTION_NAME} - init database`,
       runtime: Runtime.PYTHON_3_9,
       handler: 'init_db.lambda_handler',

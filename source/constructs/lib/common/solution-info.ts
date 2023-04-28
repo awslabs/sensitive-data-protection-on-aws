@@ -23,6 +23,7 @@ export class SolutionInfo {
   static SOLUTION_GLUE_TABLE = 'job_detection_output_table';
   static SOLUTION_GLUE_ERROR_TABLE = 'job_detection_error_table';
   static SOLUTION_ADMIN_S3_BUCKET = 'sdps-admin';
+  static TAG_NAME = 'Name';
   static TAG_KEY = 'CreatedBy';
   static TAG_VALUE = SolutionInfo.SOLUTION_NAME_ABBR;
 }
