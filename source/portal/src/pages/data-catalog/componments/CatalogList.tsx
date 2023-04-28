@@ -33,6 +33,7 @@ import '../style.scss';
 import { formatSize, useDidUpdateEffect } from 'tools/tools';
 import { useSearchParams } from 'react-router-dom';
 import IdentifierFilterTag from './IdentifierFilterTag';
+import { nFormatter } from 'ts/common';
 
 /**
  * S3/RDS CatalogList componment
@@ -212,6 +213,7 @@ const CatalogList: React.FC<any> = memo((props: any) => {
       <Table
         variant="embedded"
         className="no-shadow-list"
+        // resizableColumns
         selectedItems={selectedItems}
         onSelectionChange={({ detail }) =>
           setSelectedItems(detail.selectedItems)
@@ -249,6 +251,10 @@ const CatalogList: React.FC<any> = memo((props: any) => {
                       {(e as any)[item.id]}
                     </div>
                   );
+                }
+                // console.info('item.id:', item.id);
+                if (item.id === COLUMN_OBJECT_STR.ObjectCount) {
+                  return <div> {nFormatter((e as any)[item.id], 2)}</div>;
                 }
                 if (item.id === COLUMN_OBJECT_STR.Privacy) {
                   if (

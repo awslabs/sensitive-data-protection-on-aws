@@ -71,6 +71,9 @@ const TemplateIdentifiersContent = () => {
     filteringPlaceholder: 'Filter data identifiers',
   };
 
+  const [curSortColumn, setCurSortColumn] = useState<any>('');
+  const [isDescending, setIsDescending] = useState(false);
+
   const confirmDelete = async () => {
     const requestParam = {
       id: selectedItems[0].id,
@@ -135,15 +138,15 @@ const TemplateIdentifiersContent = () => {
   useDidUpdateEffect(() => {
     setCurrentPage(1);
     getPageData();
-  }, [query]);
+  }, [query, isDescending, curSortColumn]);
 
   const getPageData = async () => {
     setIsLoading(true);
     const requestParam = {
       page: currentPage,
       size: preferences.pageSize,
-      sort_column: '',
-      asc: false,
+      sort_column: curSortColumn.id,
+      asc: !isDescending,
       conditions: [] as any,
     };
     query.tokens &&
@@ -202,6 +205,7 @@ const TemplateIdentifiersContent = () => {
             id: item.id,
             header: item.label,
             maxWidth: '45%',
+            sortingField: item.sortingField,
             cell: (e: any) => {
               if (item.id === 'name') {
                 return (
@@ -218,6 +222,12 @@ const TemplateIdentifiersContent = () => {
             },
           };
         })}
+        sortingColumn={curSortColumn}
+        sortingDescending={isDescending}
+        onSortingChange={(e) => {
+          setCurSortColumn(e.detail.sortingColumn);
+          setIsDescending(e.detail.isDescending || false);
+        }}
         header={
           <>
             <Header

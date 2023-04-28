@@ -4,9 +4,9 @@ import './style.scss';
 const ErrorBadge = (props: any) => {
   const { badgeLabel = '' } = props;
   return (
-    <div className="error-badge">
-      <Icon name="status-negative" />
-      <span className="error-badge-span">{badgeLabel}</span>
+    <div className="info-badge">
+      <Icon name="status-info" />
+      <span className="info-badge-span">{badgeLabel}</span>
     </div>
   );
 };

@@ -21,6 +21,7 @@ import {
   getTemplateMappingList,
   deleteTemplateMapping,
   updateTemplateMapping,
+  getTemplateUpdateTime,
 } from 'apis/data-template/api';
 import {
   alertMsg,
@@ -61,6 +62,16 @@ const DEFAULT_QUERY = {
   operation: 'and',
 };
 
+const buildTimeFormat = (dateString: string) => {
+  const year = dateString.substring(0, 4);
+  const month = dateString.substring(4, 6);
+  const day = dateString.substring(6, 8);
+  const hour = dateString.substring(8, 10);
+  const minute = dateString.substring(10, 12);
+  const second = dateString.substring(12, 14);
+  return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+};
+
 const DataTemplateContent: React.FC<any> = (props: any) => {
   const columnList = TEMPLATE_COLUMN_LIST;
 
@@ -87,6 +98,10 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
     filteringPlaceholder: 'Filter data identifiers',
   };
 
+  const [lastUpdateTime, setLastUpdateTime] = useState('');
+  const [curSortColumn, setCurSortColumn] = useState<any>('');
+  const [isDescending, setIsDescending] = useState(false);
+
   useEffect(() => {
     getPageData();
   }, []);
@@ -98,15 +113,16 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
   useDidUpdateEffect(() => {
     setCurrentPage(1);
     getPageData();
-  }, [query]);
+  }, [query, isDescending, curSortColumn]);
 
   const getPageData = async () => {
     setIsLoading(true);
+    getUpdateTime();
     const requestParam = {
       page: currentPage,
       size: preferences.pageSize,
-      sort_column: 'name',
-      asc: false,
+      sort_column: curSortColumn.id,
+      asc: !isDescending,
       conditions: [
         {
           column: 'template_id',
@@ -133,6 +149,14 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
     setToggleEnable(tempTogData);
     setTotalCount(result.total);
     setIsLoading(false);
+  };
+
+  const getUpdateTime = async () => {
+    const result: any = await getTemplateUpdateTime();
+    console.info('result:', result);
+    if (result && result.length > 10) {
+      setLastUpdateTime(buildTimeFormat(result));
+    }
   };
 
   const setToggleChecked = async (checked: boolean, rowData: any) => {
@@ -245,10 +269,17 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
           },
         }}
         items={pageData}
+        sortingColumn={curSortColumn}
+        sortingDescending={isDescending}
+        onSortingChange={(e) => {
+          setCurSortColumn(e.detail.sortingColumn);
+          setIsDescending(e.detail.isDescending || false);
+        }}
         columnDefinitions={columnList.map((item) => {
           return {
             id: item.id,
             header: item.label,
+            sortingField: item.sortingField,
             cell: (e: any) => {
               if (item.id === 'type') {
                 if ((e as any)[item.id] === 0) {
@@ -279,6 +310,12 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
               counter={`(${totalCount})`}
               actions={
                 <SpaceBetween direction="horizontal" size="xs">
+                  <span className="description">
+                    <b>
+                      Last updated <br />
+                      {lastUpdateTime}
+                    </b>
+                  </span>
                   <Button
                     onClick={getPageData}
                     loading={isLoading}
@@ -289,7 +326,7 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
                     loading={isLoading}
                     disabled={selectedItems.length === 0}
                   >
-                    Delete
+                    Remove
                   </Button>
                   <Button onClick={clkAddDataIdentifier}>
                     Add data identifier
@@ -297,7 +334,7 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
                 </SpaceBetween>
               }
             >
-              Data identifiers
+              Data identifiers in this template
             </Header>
           </>
         }

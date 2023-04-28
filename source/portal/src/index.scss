@@ -49,8 +49,16 @@ code {
   margin-top: 20px;
 }
 
+.mb-5 {
+  margin-bottom: 5px;
+}
+
 .mb-20 {
   margin-bottom: 20px;
+}
+
+.mr-5 {
+  margin-right: 5px;
 }
 
 .ml-10 {
@@ -304,7 +312,7 @@ code {
     // Close button
 
     .popover {
-      .popover-title>.close {
+      .popover-title > .close {
         position: relative;
         top: -5px;
         right: -5px;
@@ -357,4 +365,49 @@ code {
 .no-link {
   text-decoration: none !important;
   cursor: default !important;
+}
+
+.max-table-height {
+  max-height: 465px;
+  overflow-y: auto;
+}
+
+.pagination {
+  display: none;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.pagination li {
+  list-style: none;
+  margin: 0 0.2rem;
+}
+
+.pagination li span {
+  display: block;
+  padding: 0px 8px;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  border: 1px solid #ccc;
+}
+
+.pagination li a:hover {
+  text-decoration: none;
+  background-color: #007bff;
+  color: #fff;
+}
+
+.pagination li.active span {
+  background-color: #007bff;
+  color: #fff;
+  pointer-events: none;
+}
+
+.pagination li.disabled span {
+  color: #ccc;
+  pointer-events: none;
+}
+
+.description {
+  color: #666;
 }

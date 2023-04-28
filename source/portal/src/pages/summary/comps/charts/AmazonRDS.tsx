@@ -30,7 +30,7 @@ export const AmazonRDS: React.FC<any> = memo(() => {
     setLoadingTableData(true);
     const tableData = (await getCatalogTopNData({
       database_type: 'rds',
-      top_n: 10,
+      top_n: 99999,
     })) as ITableDataType;
     setConatainsPIIData(tableData.account_top_n);
     setIdentifierData(tableData.identifier_top_n);
@@ -88,7 +88,7 @@ export const AmazonRDS: React.FC<any> = memo(() => {
               dataList={conatainsPIIData}
               keyLable="AWS account"
               valueLable="RDS instances"
-              title="Top 10 AWS accounts contains PII"
+              title="Top AWS accounts contain PII"
             />
           )}
         </div>
@@ -100,7 +100,7 @@ export const AmazonRDS: React.FC<any> = memo(() => {
               dataList={identifierData}
               keyLable="Data identifier"
               valueLable="RDS instances"
-              title="Top 10 data identifiers"
+              title="Top data identifiers"
             />
           )}
         </div>

@@ -9,6 +9,7 @@ import {
   SelectProps,
   Popover,
   StatusIndicator,
+  Badge,
 } from '@cloudscape-design/components';
 import CommonBadge from 'pages/common-badge';
 import SchemaModal from './SchemaModal';
@@ -38,6 +39,7 @@ import {
 import { deepClone } from 'tools/tools';
 import { TABLE_NAME } from 'enum/common_types';
 import { getIdentifiersList } from 'apis/data-template/api';
+import { nFormatter } from 'ts/common';
 
 const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
   (props: CatalogDetailListProps) => {
@@ -235,6 +237,12 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                 ? moment(item[1]).add(8, 'h').format('YYYY-MM-DD HH:mm')
                 : item[1],
             });
+          } else if (item[0] === 'Tags') {
+            tempPropertiesData.push({
+              property: item[0],
+              isTag: true,
+              value: item[1],
+            });
           } else {
             tempPropertiesData.push({
               property: item[0],
@@ -388,6 +396,26 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                 header: item.label,
                 // different column tag
                 cell: (e: any) => {
+                  if (e.property === 'Tags' && e.isTag && item.id === 'value') {
+                    // const tmpTags = [
+                    //   { key: 'abc', value: 'hello' },
+                    //   { key: 'abc', value: 'hello' },
+                    //   { key: 'abc', value: 'hello' },
+                    //   { key: 'abc', value: 'hello' },
+                    // ];
+                    if (e.value !== 'N/A') {
+                      const tags = JSON.parse(JSON.stringify(e.value));
+                      return tags.map((element: any, index: number) => {
+                        return (
+                          <div key={index} className="mb-5">
+                            <Badge>{JSON.stringify(element)}</Badge>
+                          </div>
+                        );
+                      });
+                    } else {
+                      return 'N/A';
+                    }
+                  }
                   if (item.id === 's3objects') {
                     if (!(e as any)['s3_full_path']) {
                       return '';
@@ -558,6 +586,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                       </span>
                     );
                   }
+
                   if (item.id === COLUMN_OBJECT_STR.Classifiedby) {
                     return (
                       <CommonBadge
@@ -572,6 +601,12 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                         }
                       />
                     );
+                  }
+                  if (item.id === COLUMN_OBJECT_STR.ObjectCount) {
+                    return nFormatter((e as any)[item.id], 2);
+                  }
+                  if (item.id === COLUMN_OBJECT_STR.RowCount) {
+                    return nFormatter((e as any)[item.id], 2);
                   }
                   if (
                     item.id === COLUMN_OBJECT_STR.LastModifyBy &&
@@ -620,7 +655,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
               };
             }) as any
           }
-          // resizableColumns
+          resizableColumns
           items={dataList}
           loadingText="Loading resources"
           visibleColumns={preferences.visibleContent}
