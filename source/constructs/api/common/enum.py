@@ -193,11 +193,13 @@ class LabelState(Enum):
 
 @unique
 class LabelClassification(Enum):
+    DEFAULT = "default"
     CATALOG = "catalog"
 
 
 @unique
 class LabelType(Enum):
+    DEFAULT = "default"
     DATABASE = "database"
     TABLE = "table"
 

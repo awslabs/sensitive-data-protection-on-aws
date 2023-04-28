@@ -12,6 +12,7 @@ create table label
     create_time      datetime      null,
     modify_by        varchar(255)  null,
     modify_time      datetime      null,
-    UNIQUE KEY(label_name)
+    UNIQUE KEY unq_idx(classification,type,label_name),
+    key sort_idx(modify_time)
 );
 

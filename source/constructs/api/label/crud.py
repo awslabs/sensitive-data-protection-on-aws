@@ -1,127 +1,125 @@
 import db.models_label as models
 from tools.pydantic_tool import parse_pydantic_schema
-import tools.mytime as mytime
 from db.database import get_session
 from . import schemas
-from common.constant import const
-from common.enum import (
-    LabelState,
-    LabelClassification,
-    LabelType,
-    LabelStyleType
-)
-from common.query_condition import QueryCondition, query_with_condition
-from itertools import count
-from sqlalchemy import func, distinct
+from common.exception_handler import BizException
+from common.enum import MessageEnum
+import datetime
+from typing import List
 
 
-def get_label_by_name(
-    account_id: str,
-    region: str,
-    database_type: str,
-    database_name: str,
-    table_name: str,
-):
-    result = (
-        get_session()
-        .query(models.Label)
-        .filter(models.CatalogColumnLevelClassification.account_id == account_id)
-        .filter(models.CatalogColumnLevelClassification.region == region)
-        .filter(models.CatalogColumnLevelClassification.database_type == database_type)
-        .filter(models.CatalogColumnLevelClassification.database_name == database_name)
-        .filter(models.CatalogColumnLevelClassification.table_name == table_name)
-        .order_by(models.CatalogColumnLevelClassification.column_order_num)
-    )
-    return result
+def get_labels_by_id_list(id_list: List[int]) -> List[models.Label]:
+    session = get_session()
+    query = session.query(models.Label).filter(models.Label.id.in_(id_list))
+    labels = query.all()
+    return labels
 
 
-def get_catalog_labels(
+def search_labels_by_name(label_name: str) -> List[models.Label]:
+    session = get_session()
+    query = session.query(models.Label).filter(models.Label.label_name.ilike("%" + label_name + "%"))
+    labels = query.all()
+    return labels
+
+
+def search_detail_labels_by_page(
+    id: int,
     label_name: str,
+    classification: str,
+    type: str,
+    style_type: str,
+    style_value: str,
+    state: str,
 ):
-    result = (
-        get_session()
-        .query(models.Label)
-        .filter(models.Label.classification == LabelClassification.CATALOG)
-        .filter(models.Label.state == LabelState.ONLINE)
-        .filter(
-            models.Label.label_name.ilike(
-                "%" + label_name + "%"
-            )
+    query = get_session().query(models.Label)
+    if id is not None and id > 0:
+        query = query.filter(models.Label.id == id)
+    if label_name is not None:
+        query = query.filter(models.Label.label_name.ilike(
+            "%" + label_name + "%"
+        ))
+    if classification is not None and classification.strip():
+        query = query.filter(
+            models.Label.classification == classification
         )
+    if type is not None and type.strip():
+        query = query.filter(
+            models.Label.type == type
+        )
+    if style_type is not None and style_type.strip():
+        query = query.filter(
+            models.Label.style_type == style_type
+        )
+    if style_value is not None and style_value.strip():
+        query = query.filter(
+            models.Label.style_value == style_value
+        )
+    if state is not None and state.strip():
+        query = query.filter(
+            models.Label.state == state
+        )
+    result = query.order_by(
+        models.Label.modify_time
     )
     return result
 
 
-def get_catalog_labels_by_page(
-    label_name: str,
+def create_label(label: schemas.LabelCreate) -> models.Label:
+    session = get_session()
+    parsed_schema = parse_pydantic_schema(label)
+    now = datetime.datetime.now()
+    # 将时间转换为 SQLite DateTime 格式
+    formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+
+    db_label = models.Label(**parsed_schema,
+                            create_time=formatted_date,
+                            modify_time=formatted_date
+                            )
+    session.add(db_label)
+    session.commit()
+    db_label.databases
+    return db_label
+
+
+def update_label(
+        id: int,
+        label: schemas.LabelUpdate
 ):
-    result = (
-        get_session()
-        .query(models.Label)
-        .filter(models.Label.classification == LabelClassification.CATALOG)
-        .filter(models.Label.state == LabelState.ONLINE)
-        .filter(
-            models.Label.label_name.ilike(
-                "%" + label_name + "%"
-            )
+    session = get_session()
+    db_label = session.query(models.Label).filter(models.Label.id == id).first()
+    if not db_label:
+        raise BizException(
+            MessageEnum.BIZ_ITEM_NOT_EXISTS.get_code(),
+            MessageEnum.BIZ_ITEM_NOT_EXISTS.get_msg()
         )
-    )
-    return result
 
-def get_labels_by_name(
-    label_name: str,
-):
-    result = (
-        get_session()
-        .query(models.Label)
-        .filter(
-            models.Label.label_name.ilike(
-                "%" + label_name + "%"
-            )
+    # 将version字段+1
+    db_label.version += 1
+
+    now = datetime.datetime.now()
+    # 将时间转换为 SQLite DateTime 格式
+    formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+    label.modify_time = formatted_date
+
+    session.query(models.Label).filter(models.Label.id == id).update(label.dict(exclude_unset=True))
+    session.commit()
+
+
+def delete_label(
+        id: int
+    ):
+    try:
+        session = get_session()
+        session.query(models.Label).filter(
+            models.Label.id == id
+        ).delete()
+        session.commit()
+        return True
+    except Exception:
+        raise BizException(
+            MessageEnum.BIZ_ITEM_NOT_EXISTS.get_code(),
+            MessageEnum.BIZ_ITEM_NOT_EXISTS.get_msg()
         )
-    )
-    return result
-
-
-def get_catalog_table_level_classification_by_database_identifier(
-    account_id: str,
-    region: str,
-    database_type: str,
-    database_name: str,
-    identifier: str,
-):
-    result = (
-        get_session()
-        .query(models.CatalogTableLevelClassification)
-        .filter(models.CatalogTableLevelClassification.account_id == account_id)
-        .filter(models.CatalogTableLevelClassification.region == region)
-        .filter(models.CatalogTableLevelClassification.database_type == database_type)
-        .filter(models.CatalogTableLevelClassification.database_name == database_name)
-        .filter(
-            models.CatalogTableLevelClassification.identifiers.ilike(
-                "%" + identifier + "%"
-            )
-        )
-    )
-    return result
 
 
 
-def get_catalog_table_count_by_type(database_type: str):
-    return (get_session()
-    .query(models.CatalogTableLevelClassification.classification, func.count(models.CatalogTableLevelClassification.table_name).label("table_total"))
-    .filter(models.CatalogTableLevelClassification.database_type == database_type)
-    .group_by(models.CatalogTableLevelClassification.classification)
-    .all()
-    )
-
-def get_rds_database_summary_with_attr(attribute: str):
-    return (get_session()
-    .query(getattr(models.CatalogDatabaseLevelClassification, attribute),
-        func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label("instance_total"),
-        func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label("database_total"),
-        func.sum(models.CatalogDatabaseLevelClassification.table_count).label("table_total"))
-    .filter(models.CatalogDatabaseLevelClassification.database_type == DatabaseType.RDS.value)
-    .group_by(getattr(models.CatalogDatabaseLevelClassification, attribute))
-    .all()
-    )
