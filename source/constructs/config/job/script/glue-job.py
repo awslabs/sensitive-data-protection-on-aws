@@ -324,7 +324,7 @@ def detect_df(df, spark, glueContext, udf_dict, broadcast_template, table, regio
             StructField("sample_data", ArrayType(StringType()), True),
         ])
 
-        data_frame = spark.createDataFrame([(None, "", "")], empty_df_schema)
+        data_frame = spark.createDataFrame([(None, "", ["Table size is 0"])], empty_df_schema)
 
     s3_location, s3_bucket, rds_instance_id = get_table_info(table, args)
     # data_frame = spark.createDataFrame(data=items, schema=schema)
