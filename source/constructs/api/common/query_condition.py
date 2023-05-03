@@ -26,9 +26,9 @@ class QueryCondition(BaseModel):
 
 
 def query_with_condition(query: Query, condition: QueryCondition):
-    if condition is not None:
+    if condition:
         searchable = query.column_descriptions[0]["type"]
-        if condition.conditions is not None:
+        if condition.conditions:
             and_filters = []
             or_filters = []
             for c in condition.conditions:
@@ -42,22 +42,29 @@ def query_with_condition(query: Query, condition: QueryCondition):
                 query = query.filter(and_(*and_filters))
             if len(or_filters) > 0:
                 query = query.filter(or_(*or_filters))
-        if condition.sort_column is not None and condition.sort_column != '':
+        if condition.sort_column:
             sort_column = getattr(searchable, condition.sort_column)
             if condition.asc:
                 query = query.order_by(sort_column)
             else:
                 query = query.order_by(sort_column.desc())
+        else:
+            query = query.order_by(getattr(searchable, 'modify_time').desc())
     return query
 
 
 def query_with_condition_multi_table(query: Query, condition: QueryCondition, mappings: dict, ignoreProperties: list[str]):
-    if condition is not None:
-        if condition.conditions is not None:
+    if condition:
+        if condition.conditions:
             for c in condition.conditions:
                 if c.column:
                     if c.column in ignoreProperties:
                         pass
                     else:
-                        query = query.filter(mappings[c.column] == c.values)            
+                        query = query.filter(mappings[c.column] == c.values)
+        if condition.sort_column:
+            if condition.asc:
+                query = query.order_by(mappings[condition.sort_column])
+            else:
+                query = query.order_by(mappings[condition.sort_column].desc())
     return query

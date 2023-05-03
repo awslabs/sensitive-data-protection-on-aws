@@ -1,5 +1,6 @@
 from typing import Optional
 from pydantic import BaseModel, Field
+
 from common.request_wrapper import BaseColumn
 
 
@@ -20,21 +21,28 @@ class TemplateFullInfo(BaseColumn, Template):
         orm_mode = True
 
 
+class TemplateIdentifierProp(BaseModel):
+    id: Optional[int]
+    prop_name: Optional[str]
+    prop_type: Optional[int]
+
+
 class TemplateIdentifier(BaseModel):
     description: Optional[str]
     type: Optional[int]
-    name: str
-    category: Optional[int] = Field(None)
+    name: Optional[str]
+    classification: Optional[int] = Field(None)
     privacy: Optional[int]
     rule: Optional[str]
     header_keywords: Optional[str]
+    props: Optional[list]
 
     class Config:
         orm_mode = True
 
 
 class TemplateIdentifierFullInfo(BaseColumn, TemplateIdentifier):
-    id: int
+    id: Optional[int]
 
     class Config:
         orm_mode = True
@@ -62,3 +70,10 @@ class TemplateMappingRes(BaseModel):
     type: Optional[int]
     name: str
     description: Optional[str]
+    props: Optional[list[TemplateIdentifierProp]]
+
+
+# class TemplateIdentifierPropRef(BaseModel):
+#     id: int
+#     identifier_id: int
+#     prop_id: int

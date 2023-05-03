@@ -21,7 +21,7 @@ def list_identifiers(condition: QueryCondition):
     ))
 
 
-@router.get("/list-identifiers_by_template/{tid}",
+@router.get("/list-identifiers-by-template/{tid}",
             response_model=BaseResponse[list])
 @inject_session
 def list_identifiers_by_template(tid: int):
@@ -87,3 +87,30 @@ def update_mapping(id: int, mapping: schemas.TemplateMapping):
 @inject_session
 def delete_mapping(id: int):
     service.delete_mapping(id)
+
+
+@router.get("/list-props-by-type/{tid}",
+            response_model=BaseResponse[list])
+@inject_session
+def list_props_by_type(tid: int):
+    return service.get_props_by_type(tid)
+
+
+@router.post("/props", response_model=BaseResponse[schemas.TemplateIdentifierProp])
+@inject_session
+def create_prop(prop: schemas.TemplateIdentifierProp):
+    return service.create_prop(prop)
+
+
+@router.patch("/props/{id}", response_model=BaseResponse[schemas.TemplateIdentifierProp])
+@inject_session
+def update_prop(id: int, prop: schemas.TemplateIdentifierProp):
+    return service.update_prop(id, prop)
+
+
+@router.delete("/props/{id}", response_model=BaseResponse[bool])
+@inject_session
+def delete_prop(id: int):
+    service.delete_prop(id)
+
+
