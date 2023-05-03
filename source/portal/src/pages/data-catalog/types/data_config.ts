@@ -63,7 +63,7 @@ export const S3_COLUMN_LIST = [
 // catalog data type
 export const DATA_TYPE = {
   s3: 'S3 bucket',
-  rds: 'RDS instances',
+  rds: 'RDS instance',
 };
 
 // RDS MODAL TABS

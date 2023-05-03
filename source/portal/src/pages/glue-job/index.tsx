@@ -279,6 +279,40 @@ const GlueJobContent = () => {
     setDownloading(false);
   };
 
+  const getTimeDiff = (startTime: string, endTime: string) => {
+    if (!startTime || !endTime) {
+      return '-';
+    }
+    const start = new Date(startTime).getTime();
+    const end = new Date(endTime).getTime();
+    const diff = end - start;
+
+    if (diff < 0) {
+      return null; // 结束时间早于开始时间，返回 null
+    }
+
+    const seconds = Math.floor(diff / 1000);
+    if (seconds < 60) {
+      return seconds + ' Sec ';
+    }
+
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    if (minutes < 60) {
+      return minutes + ' Min ' + remainingSeconds + ' Sec ';
+    }
+
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    if (hours < 24) {
+      return hours + ' Hours ' + remainingMinutes + 'Min';
+    }
+
+    const days = Math.floor(hours / 24);
+    const remainingHours = hours % 24;
+    return days + 'Days' + remainingHours + 'Hours';
+  };
+
   return (
     <>
       <SpaceBetween direction="vertical" size="xl">
@@ -309,7 +343,17 @@ const GlueJobContent = () => {
                   .add(8, 'h')
                   .format('YYYY-MM-DD HH:mm')}
               </p>
-              <p className="p-title">Template</p>
+              <p className="p-title">Job finished at (Durantion)</p>
+              <p>
+                {moment(jobDetailData.end_time)
+                  .add(8, 'h')
+                  .format('YYYY-MM-DD HH:mm')}{' '}
+                ({getTimeDiff(jobDetailData.start_time, jobDetailData.end_time)}
+                )
+              </p>
+            </div>
+            <div className="job-header-run">
+              <p className="p-title">Classification template snapshot</p>
               <p>
                 {downloading ? (
                   <Spinner />
@@ -326,13 +370,11 @@ const GlueJobContent = () => {
                         )
                       }
                     >
-                      Download report
+                      Download snapshot
                     </span>
                   </>
                 )}
               </p>
-            </div>
-            <div className="job-header-run">
               <p className="p-title">Glue job status</p>
               <HorizontalBarChart chartData={processData} />
             </div>

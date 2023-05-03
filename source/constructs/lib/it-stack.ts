@@ -56,5 +56,8 @@ export class ITStack extends cdk.Stack {
         }),
       ],
     }));
+
+
+    cdk.Tags.of(this).add(SolutionInfo.TAG_KEY, SolutionInfo.TAG_VALUE);
   }
 }

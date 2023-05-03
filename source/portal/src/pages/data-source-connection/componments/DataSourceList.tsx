@@ -14,6 +14,7 @@ import {
   Input,
   FormField,
   Tiles,
+  StatusIndicator,
 } from '@cloudscape-design/components';
 import { DATA_TYPE_ENUM, TABLE_NAME } from 'enum/common_types';
 import {
@@ -406,6 +407,9 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                   );
                 }
                 if (item.id === COLUMN_OBJECT_STR.DataCatalog) {
+                  if (e.glue_state !== 'ACTIVE') {
+                    return '-';
+                  }
                   return (
                     <a
                       href={`/catalog?catalogId=${
@@ -438,7 +442,6 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
           <>
             <Header
               counter={`(${totalCount})`}
-              description={(TABLE_HEADER as any)[tagType]['info']}
               actions={
                 <SpaceBetween direction="horizontal" size="xs">
                   <Button
@@ -473,6 +476,9 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
             >
               {(TABLE_HEADER as any)[tagType]['header']}
             </Header>
+            <div className="description">
+              {(TABLE_HEADER as any)[tagType]['info']}
+            </div>
           </>
         }
         items={pageData}
@@ -493,7 +499,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
               {...resFilterProps}
               className="source-filter-input"
             />
-            {tagType === DATA_TYPE_ENUM.rds && (
+            {/* {tagType === DATA_TYPE_ENUM.rds && (
               <Select
                 className="source-filter-select"
                 selectedOption={selectedCrawler}
@@ -512,7 +518,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                 selectedAriaLabel="Crawler status"
                 placeholder="Crawler status"
               />
-            )}
+            )} */}
           </div>
         }
         pagination={

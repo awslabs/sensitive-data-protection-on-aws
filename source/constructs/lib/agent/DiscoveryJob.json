@@ -124,10 +124,9 @@
           "--TemplateSnapshotNo.$": "$.TemplateSnapshotNo",
           "--Depth.$": "$.Depth",
           "--DetectionThreshold.$": "$.DetectionThreshold",
-          "--Range.$": "$.JobRange",
-          "--BaseTime.$": "$.BaseTime",
           "--AdminAccountId.$": "$.AdminAccountId",
           "--BucketName.$": "$.BucketName",
+          "--job-bookmark-option.$": "$.JobBookmarkOption",
           "--additional-python-modules.$": "$.AdditionalPythonModules"
         }
       },

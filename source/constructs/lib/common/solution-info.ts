@@ -15,7 +15,7 @@ export class SolutionInfo {
   static SOLUTION_ID = 'SO8031';
   static SOLUTION_NAME = 'Sensitive Data Protection on AWS';
   static SOLUTION_NAME_ABBR = 'SDPS';
-  static SOLUTION_VERSION = '<TEMPLATE_BUILD_VERSION>';
+  static SOLUTION_VERSION = '@TEMPLATE_BUILD_VERSION@';
   static DESCRIPTION = `(${SolutionInfo.SOLUTION_ID}) ${SolutionInfo.SOLUTION_NAME} (Version ${SolutionInfo.SOLUTION_VERSION})`;
   static AGENT_DESCRIPTION = `(${SolutionInfo.SOLUTION_ID}-sub) ${SolutionInfo.SOLUTION_NAME} (Version ${SolutionInfo.SOLUTION_VERSION})`;
   static IT_DESCRIPTION = `(${SolutionInfo.SOLUTION_ID}-org) ${SolutionInfo.SOLUTION_NAME} (Version ${SolutionInfo.SOLUTION_VERSION})`;
@@ -23,4 +23,7 @@ export class SolutionInfo {
   static SOLUTION_GLUE_TABLE = 'job_detection_output_table';
   static SOLUTION_GLUE_ERROR_TABLE = 'job_detection_error_table';
   static SOLUTION_ADMIN_S3_BUCKET = 'sdps-admin';
+  static TAG_NAME = 'Name';
+  static TAG_KEY = 'CreatedBy';
+  static TAG_VALUE = SolutionInfo.SOLUTION_NAME_ABBR;
 }

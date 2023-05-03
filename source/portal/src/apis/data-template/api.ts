@@ -71,9 +71,14 @@ const addMappingsToTemplate = async (params: any) => {
 const getIndentifierInTemplate = async () => {
   const result = await apiRequest(
     'get',
-    'template/list-identifiers_by_template/1',
+    'template/list-identifiers-by-template/1',
     ''
   );
+  return result;
+};
+
+const getTemplateUpdateTime = async () => {
+  const result = await apiRequest('get', 'template/template-time/1', '');
   return result;
 };
 
@@ -87,4 +92,5 @@ export {
   addMappingsToTemplate,
   updateIdentifiers,
   getIndentifierInTemplate,
+  getTemplateUpdateTime,
 };

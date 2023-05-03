@@ -114,3 +114,7 @@ def delete_prop(id: int):
     service.delete_prop(id)
 
 
+@router.get("/template-time/{tid}", response_model=BaseResponse[str])
+@inject_session
+def get_template_time(tid: int):
+    return service.get_template_snapshot_no(tid)
