@@ -8,28 +8,8 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 router = APIRouter(prefix="/labels", tags=["labels"])
 
 
-# @router.get(
-#     "/category/get-database-labels",
-#     response_model=BaseResponse[schemas.LabelSimple],
-#     description="获取Category下database级别的标签列表"
-# )
-# @inject_session
-# def get_category_database_labels(
-#     #     required
-#     account_id: str,
-#     #     required
-#     region: str,
-#     #     optional
-#     database_type: str,
-#     #     optional
-#     database_name: str,
-# ):
-#     return None
-
 @router.get(
-    "/category/get-labels-by-one-database",
-    # response_model=BaseResponse,
-    description="获取Category下某database级别的标签列表"
+    "/category/get-labels-by-one-database"
 )
 @inject_session
 def get_category_labels_by_database(
@@ -49,55 +29,19 @@ def get_category_labels_by_database(
     )
 
 
-# @router.get(
-#     "/category/get-labels-by-one-table",
-#     response_model=BaseResponse[schemas.LabelSimple],
-#     description="获取Category下某database下某table级别的标签列表"
-# )
-# @inject_session
-# def get_category_labels_by_table(
-#     #     required
-#     account_id: str,
-#     #     required
-#     region: str,
-#     #     required
-#     database_type: str,
-#     #     required
-#     database_name: str,
-#     #     required
-#     table_name: str,
-# ):
-#     return None
-
-
 @router.get(
     "/search-labels",
-    response_model=BaseResponse,
-    description="全量搜索简要标签列表"
+    response_model=BaseResponse
 )
 @inject_session
-def search_category_labels(
+def search_labels(
     label_name: str,
 ):
-    return service.search_category_labels(label_name)
-
-
-# @router.get(
-#     "/category/search-labels-by-page",
-#     response_model=BaseResponse[Page[schemas.LabelSimple]],
-#     description="分页搜索Category下的标签列表"
-# )
-# @inject_session
-# def search_category_labels_by_page(
-#     label_name: str,
-#     params: Params = Depends(),
-# ):
-#     return None
+    return service.search_labels(label_name)
 
 
 @router.post(
-    "/search-detail-labels-by-page",
-    description="分页搜索标签列表"
+    "/search-detail-labels-by-page"
 )
 @inject_session
 def search_detail_labels_by_page(
@@ -112,8 +56,7 @@ def search_detail_labels_by_page(
 
 @router.post(
     "/create-label",
-    response_model=BaseResponse,
-    description="创建标签"
+    response_model=BaseResponse
 )
 @inject_session
 def create_label(label: schemas.LabelCreate):
@@ -123,8 +66,7 @@ def create_label(label: schemas.LabelCreate):
 
 @router.post(
     "/update-label",
-    response_model=BaseResponse[bool],
-    description="编辑标签"
+    response_model=BaseResponse[bool]
 )
 @inject_session
 def update_label(
@@ -136,8 +78,7 @@ def update_label(
 
 @router.delete(
     "/delete-label",
-    response_model=BaseResponse[bool],
-    description="删除标签"
+    response_model=BaseResponse[bool]
 )
 @inject_session
 def delete_label(

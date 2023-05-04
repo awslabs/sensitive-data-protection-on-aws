@@ -121,7 +121,7 @@ def get_category_labels_by_database(
     )
 
 
-def search_category_labels(
+def search_labels(
         label_name: str
 ):
     return convert_labels(search_labels_by_name(label_name))
