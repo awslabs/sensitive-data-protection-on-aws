@@ -22,7 +22,7 @@ from pyspark.context import SparkContext
 from awsglue.context import GlueContext
 from awsglue.job import Job
 # from awsglueml.transforms import EntityDetector
-from pyspark.sql.types import ArrayType, StringType, FloatType, StructType, StructField
+from pyspark.sql.types import ArrayType, StringType, FloatType, DoubleType, StructType, StructField
 # from awsglue.dynamicframe import DynamicFrame
 import boto3
 from dateutil.parser import parse
@@ -316,12 +316,15 @@ def detect_df(df, spark, glueContext, udf_dict, broadcast_template, table, regio
             .select(data_frame['identifiers'], sample_df['*'])
     elif table_size == 0:
         empty_df_schema = StructType([
-            StructField("identifiers", StringType(), True),
+            StructField("identifiers", ArrayType(StructType(
+                            [StructField("identifier",StringType(),True),
+                             StructField("score",DoubleType(),True)]
+                             ),True), True),
             StructField("column_name", StringType(), True),
-            StructField("sample_data", StringType(), True),
+            StructField("sample_data", ArrayType(StringType()), True),
         ])
 
-        data_frame = spark.createDataFrame([(None, "", "")], empty_df_schema)
+        data_frame = spark.createDataFrame([(None, "", ["Table size is 0"])], empty_df_schema)
 
     s3_location, s3_bucket, rds_instance_id = get_table_info(table, args)
     # data_frame = spark.createDataFrame(data=items, schema=schema)
