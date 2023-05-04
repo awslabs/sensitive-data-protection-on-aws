@@ -46,3 +46,4 @@ const.DEFAULT_TEMPLATE_ID = 1
 const.VERSION = 'Version'
 const.PROJECT_TAG_KEY = 'CreatedBy'
 const.PROJECT_TAG_VALUE = const.SOLUTION_NAME
+const.EMPTY_STR = ''

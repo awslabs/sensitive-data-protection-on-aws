@@ -1,11 +1,10 @@
 import json
-import time
 import boto3
 import os
 from common.constant import const
 from common.response_wrapper import S3WrapEncoder
 from common.exception_handler import BizException
-from common.enum import MessageEnum, DatabaseType, IdentifierDependency
+from common.enum import MessageEnum, DatabaseType, IdentifierDependency, IdentifierType
 from common.query_condition import QueryCondition
 from catalog.service_dashboard import get_database_by_identifier
 from template import schemas, crud
@@ -32,7 +31,7 @@ def create_identifier(identifier: schemas.TemplateIdentifier):
     if res_list:
         raise BizException(MessageEnum.TEMPLATE_IDENTIFIER_EXISTS.get_code(),
                            MessageEnum.TEMPLATE_IDENTIFIER_EXISTS.get_msg())
-    
+    check_rule(identifier)
     return crud.create_identifier(identifier)
 
 
@@ -55,6 +54,7 @@ def delete_identifier(id: int):
 
 
 def update_identifier(id: int, identifier: schemas.TemplateIdentifier):
+    check_rule(identifier)
     snapshot_no, res = crud.update_identifier(id, identifier)
     # used_by_template = crud.get_mappings_by_identifier(id)
     if snapshot_no:
@@ -145,3 +145,9 @@ def sync_s3(snapshot_no):
         Bucket=os.getenv(const.PROJECT_BUCKET_NAME, const.PROJECT_BUCKET_DEFAULT_NAME),
         Key='template/template-{}-{}.json'.format(res_json['template_id'], snapshot_no),
     )
+
+
+def check_rule(identifier):
+    if identifier.type == IdentifierType.CUSTOM.value and identifier.rule == const.EMPTY_STR:
+        raise BizException(MessageEnum.TEMPLATE_IDENTIFIER_RULES_EMPTY.get_code(),
+                           MessageEnum.TEMPLATE_IDENTIFIER_RULES_EMPTY.get_msg())

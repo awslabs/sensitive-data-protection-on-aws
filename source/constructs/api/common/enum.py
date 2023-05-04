@@ -25,6 +25,7 @@ class MessageEnum(Enum):
     TEMPLATE_IDENTIFIER_USED = {1404: "The data identifier is being used"}
     TEMPLATE_PROPS_USED = {1405: "The item is being used"}
     TEMPLATE_PROPS_NOT_EXISTS = {1405: "The category/regulation does not exist"}
+    TEMPLATE_IDENTIFIER_RULES_EMPTY = {1406: "Identifier rules can not be empty"}
 
     # discovery job
     DISCOVERY_JOB_NON_EXIST = {1510: "The discovery job does non exist"}
@@ -88,6 +89,12 @@ class MessageEnum(Enum):
 
     def get_msg(self):
         return list(self.value.values())[0]
+
+
+@unique
+class IdentifierType(Enum):
+    BUILT_IN = 0
+    CUSTOM = 1
 
 
 @unique
