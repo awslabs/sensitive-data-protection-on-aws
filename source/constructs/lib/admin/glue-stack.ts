@@ -37,7 +37,7 @@ export class GlueStack extends Construct {
     new S3Deployment.BucketDeployment(this, 'DeploymentMlAsset', {
       memoryLimit: 512,
       ephemeralStorageSize: Size.gibibytes(1),
-      sources: [S3Deployment.Source.bucket(gcr_solution_bucket, 'aws-sensitive-data-protection/0.9.0/resource/python-module.zip')],
+      sources: [S3Deployment.Source.bucket(gcr_solution_bucket, 'aws-sensitive-data-protection/0.10.0/resource/python-module.zip')],
       destinationBucket: props.bucket,
       destinationKeyPrefix: 'job/ml-asset/python-module',
     });
