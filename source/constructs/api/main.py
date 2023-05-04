@@ -17,6 +17,7 @@ from template.main import router as template_router
 from common.exception_handler import biz_exception
 from okta_jwt_verifier import BaseJWTVerifier
 from organization.organization import router as organization_router
+from label.main import router as label_router
 from fastapi_pagination import add_pagination
 
 logging.config.fileConfig('logging.conf', disable_existing_loggers=False)
@@ -112,6 +113,7 @@ app.include_router(catalog_router)
 app.include_router(template_router)
 app.include_router(organization_router)
 app.include_router(search)
+app.include_router(label_router)
 
 handler = Mangum(app)
 add_pagination(app)
