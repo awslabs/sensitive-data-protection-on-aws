@@ -19,6 +19,7 @@ class CatalogColumnLevelClassification(BaseModel):
     identifier_score: Optional[float]
     privacy: Optional[int]
     sensitivity: str
+    comments: Optional[str]
     state: Optional[str]
     version: Optional[int]
     create_by: Optional[str]
@@ -46,6 +47,7 @@ class CatalogTableLevelClassification(BaseModel):
     row_count: Optional[int]
     storage_location: Optional[str]
     identifiers: Optional[str]
+    label_ids: Optional[str]
     state: Optional[str]
     classification: Optional[str]
     version: Optional[int]
@@ -73,6 +75,7 @@ class CatalogDatabaseLevelClassification(BaseModel):
     column_count: Optional[int]
     row_count: Optional[int]
     storage_location: Optional[str]
+    label_ids: Optional[str]
     state: Optional[str]
     version: Optional[int]
     create_by: Optional[str]

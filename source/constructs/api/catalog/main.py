@@ -162,6 +162,36 @@ def update_catalog_table_level_classification(
     return crud.update_catalog_table_level_classification(table)
 
 
+@router.patch("/update-catalog-database-labels", response_model=BaseResponse)
+@inject_session
+def update_catalog_database_labels(
+    id: int,
+    labels: list,
+    modify_by: str,
+):
+    return crud.update_catalog_database_labels(id, labels, modify_by)
+
+
+@router.patch("/update-catalog-tabel-labels", response_model=BaseResponse)
+@inject_session
+def update_catalog_tabel_labels(
+    id: int,
+    labels: list,
+    modify_by: str,
+):
+    return crud.update_catalog_tabel_labels(id, labels, modify_by)
+
+
+@router.patch("/update-catalog-column-comments", response_model=BaseResponse)
+@inject_session
+def update_catalog_column_comments(
+    id: int,
+    comments: str,
+    modify_by: str,
+):
+    return crud.update_catalog_column_comments(id, comments, modify_by)
+
+
 @router.patch("/update-catalog-column", response_model=BaseResponse)
 @inject_session
 def update_catalog_column_level_classification(
