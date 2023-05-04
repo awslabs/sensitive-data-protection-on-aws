@@ -19,10 +19,12 @@ class MessageEnum(Enum):
     BIZ_ITEM_NOT_EXISTS = {1005: "The item does not exist"}
 
     # template
-    BIZ_TEMPLATE_NOT_EXISTS = {1401: "The classification template does not exist"}
-    BIZ_IDENTIFIER_NOT_EXISTS = {1402: "The data identifier does not exist"}
-    BIZ_IDENTIFIER_EXISTS = {1403: "A data identifier with the same name already exists"}
-    BIZ_IDENTIFIER_USED = {1404: "The data identifier is being used"}
+    TEMPLATE_NOT_EXISTS = {1401: "The classification template does not exist"}
+    TEMPLATE_IDENTIFIER_NOT_EXISTS = {1402: "The data identifier does not exist"}
+    TEMPLATE_IDENTIFIER_EXISTS = {1403: "A data identifier with the same name already exists"}
+    TEMPLATE_IDENTIFIER_USED = {1404: "The data identifier is being used"}
+    TEMPLATE_PROPS_USED = {1405: "The item is being used"}
+    TEMPLATE_PROPS_NOT_EXISTS = {1405: "The category/regulation does not exist"}
 
     # discovery job
     DISCOVERY_JOB_NON_EXIST = {1510: "The discovery job does non exist"}

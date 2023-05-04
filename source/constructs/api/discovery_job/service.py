@@ -16,7 +16,7 @@ from tempfile import NamedTemporaryFile
 from catalog.service import sync_job_detection_result
 
 logger = logging.getLogger(const.LOGGER_API)
-controller_function_name = f"{const.SOLUTION_NAME}-Controller"
+controller_function_name = os.getenv("ControllerFunctionName", f"{const.SOLUTION_NAME}-Controller")
 caller_identity = boto3.client('sts').get_caller_identity()
 partition = caller_identity['Arn'].split(':')[1]
 admin_account_id = caller_identity.get('Account')
@@ -220,17 +220,13 @@ def __start_run(job_id: int, run_id: int):
                 account_first_wait[account_id] = tmp
             else:
                 account_first_wait[account_id] = 0
-            base_time = str(datetime.datetime.min)
-            if job.range == 1 and job.base_time is not None:
-                base_time = mytime.format_time(job.base_time)
+            job_bookmark_option = "job-bookmark-enable" if job.range == 1 else "job-bookmark-disable"
             crawler_name = run_database.database_type + "-" + run_database.database_name + "-crawler"
             job_name = f"{const.SOLUTION_NAME}-Detection-Job-S3"
             if run_database.database_type == DatabaseType.RDS.value:
                 job_name = f"{const.SOLUTION_NAME}-Detection-Job-RDS-" + run_database.database_name
             execution_input = {
                 "JobId": str(job.id),
-                "JobRange": str(job.range),
-                "BaseTime": base_time,
                 "Depth": str(job.depth),
                 "RunId": str(run_id),
                 "RunDatabaseId": str(run_database.id),
@@ -245,6 +241,7 @@ def __start_run(job_id: int, run_id: int):
                 "DetectionThreshold": str(job.detection_threshold),
                 "AdminAccountId": admin_account_id,
                 "BucketName": project_bucket_name,
+                "JobBookmarkOption": job_bookmark_option,
                 "AdditionalPythonModules": ','.join([module_path + w for w in wheels]),
                 "FirstWait": str(account_first_wait[account_id]),
                 "LoopWait": str(account_loop_wait[account_id]),
