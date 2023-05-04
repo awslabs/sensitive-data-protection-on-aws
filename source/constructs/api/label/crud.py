@@ -71,6 +71,7 @@ def create_label(label: schemas.LabelCreate) -> models.Label:
                             )
     session.add(db_label)
     session.commit()
+    print(db_label.id)
     return db_label
 
 

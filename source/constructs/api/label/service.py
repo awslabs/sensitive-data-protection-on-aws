@@ -90,7 +90,8 @@ def get_category_labels_by_database(
     database_label_ids = database.label_ids
     database_labels = {}
     if database_label_ids is not None:
-        database_labels = get_labels_by_id_list(database_label_ids.split(','))
+        database_label_id_list = list(map(int, database_label_ids.split(',')))
+        database_labels = get_labels_by_id_list(database_label_id_list)
     if need_tabel_labels is False:
         return build_result(database_name, convert_labels(database_labels), None, None)
     tables = get_catalog_table_level_classification_by_database(
@@ -108,7 +109,7 @@ def get_category_labels_by_database(
             continue
         label_list = table.label_ids.split(',')
         label_id_list = list(map(int, label_list))
-        table_label_ids.append(label_id_list)
+        table_label_ids.extend(label_id_list)
         table_label_names[table.table_name] = label_id_list
     table_labels = get_labels_by_id_list(table_label_ids)
 

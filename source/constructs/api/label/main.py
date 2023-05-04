@@ -28,7 +28,7 @@ router = APIRouter(prefix="/labels", tags=["labels"])
 
 @router.get(
     "/category/get-labels-by-one-database",
-    response_model=BaseResponse,
+    # response_model=BaseResponse,
     description="获取Category下某database级别的标签列表"
 )
 @inject_session
