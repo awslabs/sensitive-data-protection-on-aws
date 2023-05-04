@@ -42,7 +42,7 @@ def get_category_labels_by_database(
     #     required
     database_name: str,
     #     required
-    need_tabel_labels: str,
+    need_tabel_labels: bool,
 ):
     return service.get_category_labels_by_database(
         account_id, region, database_type, database_name, need_tabel_labels
@@ -72,7 +72,7 @@ def get_category_labels_by_database(
 
 @router.get(
     "/search-labels",
-    response_model=BaseResponse[schemas.LabelSimple],
+    response_model=BaseResponse,
     description="全量搜索简要标签列表"
 )
 @inject_session
@@ -95,26 +95,17 @@ def search_category_labels(
 #     return None
 
 
-@router.get(
+@router.post(
     "/search-detail-labels-by-page",
-    response_model=BaseResponse[Page[schemas.Label]],
     description="分页搜索标签列表"
 )
 @inject_session
 def search_detail_labels_by_page(
-    id: str,
-    classification: str,
-    type: str,
-    style_type: str,
-    style_value: str,
-    state: str,
-    label_name: str,
+    label_search: schemas.LabelSearch,
     params: Params = Depends(),
 ):
     return paginate(
-        crud.search_detail_labels_by_page(
-            id, label_name, classification, type, style_type, style_value, state
-        ),
+        crud.search_detail_labels_by_page(label_search),
         params
     )
 
@@ -122,48 +113,35 @@ def search_detail_labels_by_page(
 @router.post(
     "/create-label",
     response_model=BaseResponse,
-    description="保存标签"
+    description="创建标签"
 )
 @inject_session
-def create_label(
-    classification: str,
-    type: str,
-    style_type: str,
-    style_value: str,
-    label_name: str,
-):
-    return crud.create_label(
-        label_name, classification, type, style_type, style_value
-    )
+def create_label(label: schemas.LabelCreate):
+    label_create = crud.create_label(label)
+    return label_create
 
 
 @router.post(
     "/update-label",
-    response_model=BaseResponse,
-    description="保存标签"
+    response_model=BaseResponse[bool],
+    description="编辑标签"
 )
 @inject_session
 def update_label(
-    id: str,
-    classification: str,
-    type: str,
-    style_type: str,
-    style_value: str,
-    label_name: str,
+    id: int,
+    label: schemas.LabelUpdate
 ):
-    return crud.update_label(
-        id, label_name, classification, type, style_type, style_value
-    )
+    return crud.update_label(id, label)
 
 
 @router.delete(
     "/delete-label",
-    response_model=BaseResponse,
-    description="保存标签"
+    response_model=BaseResponse[bool],
+    description="删除标签"
 )
 @inject_session
 def delete_label(
-    id: str,
+    id: int,
 ):
     return crud.delete_label(id)
 

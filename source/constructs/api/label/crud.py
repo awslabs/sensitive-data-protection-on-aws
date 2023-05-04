@@ -23,40 +23,34 @@ def search_labels_by_name(label_name: str) -> List[models.Label]:
 
 
 def search_detail_labels_by_page(
-    id: int,
-    label_name: str,
-    classification: str,
-    type: str,
-    style_type: str,
-    style_value: str,
-    state: str,
+    label_search: schemas.LabelSearch,
 ):
     query = get_session().query(models.Label)
-    if id is not None and id > 0:
-        query = query.filter(models.Label.id == id)
-    if label_name is not None:
+    if label_search.id is not None and label_search.id > 0:
+        query = query.filter(models.Label.id == label_search.id)
+    if label_search.label_name is not None:
         query = query.filter(models.Label.label_name.ilike(
-            "%" + label_name + "%"
+            "%" + label_search.label_name + "%"
         ))
-    if classification is not None and classification.strip():
+    if label_search.classification is not None and label_search.classification.strip():
         query = query.filter(
-            models.Label.classification == classification
+            models.Label.classification == label_search.classification
         )
-    if type is not None and type.strip():
+    if label_search.type is not None and label_search.type.strip():
         query = query.filter(
-            models.Label.type == type
+            models.Label.type == label_search.type
         )
-    if style_type is not None and style_type.strip():
+    if label_search.style_type is not None and label_search.style_type.strip():
         query = query.filter(
-            models.Label.style_type == style_type
+            models.Label.style_type == label_search.style_type
         )
-    if style_value is not None and style_value.strip():
+    if label_search.style_value is not None and label_search.style_value.strip():
         query = query.filter(
-            models.Label.style_value == style_value
+            models.Label.style_value == label_search.style_value
         )
-    if state is not None and state.strip():
+    if label_search.state is not None and label_search.state.strip():
         query = query.filter(
-            models.Label.state == state
+            models.Label.state == label_search.state
         )
     result = query.order_by(
         models.Label.modify_time
@@ -77,7 +71,6 @@ def create_label(label: schemas.LabelCreate) -> models.Label:
                             )
     session.add(db_label)
     session.commit()
-    db_label.databases
     return db_label
 
 
@@ -94,7 +87,8 @@ def update_label(
         )
 
     # 将version字段+1
-    db_label.version += 1
+    if db_label.version is not None and db_label.version.isdigit():
+        db_label.version += 1
 
     now = datetime.datetime.now()
     # 将时间转换为 SQLite DateTime 格式
@@ -103,6 +97,7 @@ def update_label(
 
     session.query(models.Label).filter(models.Label.id == id).update(label.dict(exclude_unset=True))
     session.commit()
+    return True
 
 
 def delete_label(

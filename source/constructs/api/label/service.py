@@ -1,14 +1,14 @@
 from common.enum import (
     LabelClassification
 )
-from ..catalog.crud import get_catalog_database_level_classification_by_name, get_catalog_table_level_classification_by_database
+from catalog.crud import get_catalog_database_level_classification_by_name, get_catalog_table_level_classification_by_database
 from .crud import get_labels_by_id_list, search_labels_by_name
 
 
 def convert_labels(labels):
     if labels is None:
         return None
-    return [{"id": label["id"], "name": label["name"]} for label in labels]
+    return [{"id": label.id, "name": label.label_name} for label in labels]
 
 
 # {
@@ -77,7 +77,7 @@ def get_category_labels_by_database(
     region: str,
     database_type: str,
     database_name: str,
-    need_tabel_labels: str
+    need_tabel_labels: bool
 ):
     database = get_catalog_database_level_classification_by_name(
         account_id,
@@ -88,9 +88,11 @@ def get_category_labels_by_database(
     if database is None:
         return None
     database_label_ids = database.label_ids
-    database_labels = get_labels_by_id_list(database_label_ids)
+    database_labels = {}
+    if database_label_ids is not None:
+        database_labels = get_labels_by_id_list(database_label_ids.split(','))
     if need_tabel_labels is False:
-        return build_result(database_name, database_labels, None, None)
+        return build_result(database_name, convert_labels(database_labels), None, None)
     tables = get_catalog_table_level_classification_by_database(
         account_id,
         region,
@@ -98,14 +100,16 @@ def get_category_labels_by_database(
         database_name
     )
     if tables is None:
-        return build_result(database_name, database_labels, None, None)
+        return build_result(database_name, convert_labels(database_labels), None, None)
     table_label_ids = []
     table_label_names = {}
     for table in tables:
         if table.label_ids is None:
             continue
-        table_label_ids.append(table.label_ids)
-        table_label_names[table.table_name] = table.label_ids
+        label_list = table.label_ids.split(',')
+        label_id_list = list(map(int, label_list))
+        table_label_ids.append(label_id_list)
+        table_label_names[table.table_name] = label_id_list
     table_labels = get_labels_by_id_list(table_label_ids)
 
     return build_result(
