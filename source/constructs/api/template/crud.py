@@ -50,17 +50,18 @@ def create_identifier(identifier: schemas.TemplateIdentifier) -> models.Template
 
     db_identifier = models.TemplateIdentifier()
     prop_ids = get_props_ids()
-    for item in identifier.props:
-        if item not in prop_ids:
-            raise BizException(MessageEnum.TEMPLATE_PROPS_NOT_EXISTS.get_code(), MessageEnum.TEMPLATE_PROPS_NOT_EXISTS.get_msg())
-        else:
-            db_identifier.props.append(get_prop_by_id(item))
+    if identifier.props:
+        for item in identifier.props:
+            if item not in prop_ids:
+                raise BizException(MessageEnum.TEMPLATE_PROPS_NOT_EXISTS.get_code(), MessageEnum.TEMPLATE_PROPS_NOT_EXISTS.get_msg())
+            else:
+                db_identifier.props.append(get_prop_by_id(item))
 
     for key, value in dict(identifier).items():
         if not key.startswith('__') and key != 'props':
-            logger.info('{} is {}'.format(key, value))
             setattr(db_identifier, key, value)
 
+    session.add(db_identifier)
     session.commit()
     session.refresh(db_identifier)
 
@@ -88,10 +89,12 @@ def update_identifier(id: int, identifier: schemas.TemplateIdentifier):
         identifier.dict(exclude={'props'}, exclude_unset=True))
 
     session.query(models.TemplateIdentifierPropRef).filter(models.TemplateIdentifierPropRef.identifier_id == id).delete()
-    for item in identifier.props:
-        session.add(models.TemplateIdentifierPropRef(identifier_id=id, prop_id=item))
+    if identifier.props:
+        for item in identifier.props:
+            session.add(models.TemplateIdentifierPropRef(identifier_id=id, prop_id=item))
     if get_mappings_by_identifier(id):
         snapshot_no = update_template_snapshot_no(1)
+
     session.commit()
     return snapshot_no, get_identifier(id)
 
