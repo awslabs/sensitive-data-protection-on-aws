@@ -30,33 +30,35 @@ def get_identifier(id: int):
 def create_identifier(identifier: schemas.TemplateIdentifier):
     res_list = crud.get_identify_by_name(identifier.name)
     if res_list:
-        raise BizException(MessageEnum.BIZ_IDENTIFIER_EXISTS.get_code(), MessageEnum.BIZ_IDENTIFIER_EXISTS.get_msg())
+        raise BizException(MessageEnum.TEMPLATE_IDENTIFIER_EXISTS.get_code(),
+                           MessageEnum.TEMPLATE_IDENTIFIER_EXISTS.get_msg())
+    
     return crud.create_identifier(identifier)
 
 
 def delete_identifier(id: int):
     ref = []
     identifier = crud.get_identifier(id)
-    used_by_template = crud.get_mappings_by_identifier(id)
-    used_by_bucket = get_database_by_identifier(identifier.name, DatabaseType.S3.value)
-    uesd_by_rds = get_database_by_identifier(identifier.name, DatabaseType.RDS.value)
-    if used_by_template:
+    ref_templates = crud.get_mappings_by_identifier(id)
+    ref_buckets = get_database_by_identifier(identifier.name, DatabaseType.S3.value)
+    ref_rds = get_database_by_identifier(identifier.name, DatabaseType.RDS.value)
+    if ref_templates:
         ref.append(IdentifierDependency.TEMPLATE.value)
-    if used_by_bucket:
+    if ref_buckets:
         ref.append(IdentifierDependency.S3.value)
-    if uesd_by_rds:
+    if ref_rds:
         ref.append(IdentifierDependency.RDS.value)
     if not ref:
         crud.delete_identifier(id)
     else:
-        raise BizException(MessageEnum.BIZ_IDENTIFIER_USED.get_code(), MessageEnum.BIZ_IDENTIFIER_USED.get_msg(), ref)
+        raise BizException(MessageEnum.TEMPLATE_IDENTIFIER_USED.get_code(), MessageEnum.TEMPLATE_IDENTIFIER_USED.get_msg(), ref)
 
 
 def update_identifier(id: int, identifier: schemas.TemplateIdentifier):
     snapshot_no, res = crud.update_identifier(id, identifier)
     # used_by_template = crud.get_mappings_by_identifier(id)
     if snapshot_no:
-        async_s3(snapshot_no)
+        sync_s3(snapshot_no)
     return res
 
 
@@ -67,19 +69,19 @@ def get_template(id: int):
 
 def create_mapping(mapping: schemas.TemplateMapping):
     snapshot_no, res = crud.create_mapping(mapping)
-    async_s3(snapshot_no)
+    sync_s3(snapshot_no)
     return res
 
 
 def update_mapping(id: int, mapping: schemas.TemplateMapping):
     snapshot_no, res = crud.update_mapping(id, mapping)
-    async_s3(snapshot_no)
+    sync_s3(snapshot_no)
     return res
 
 
 def delete_mapping(id: int):
     snapshot_no = crud.delete_mapping(id)
-    async_s3(snapshot_no)
+    sync_s3(snapshot_no)
 
 
 def get_mappings(condition: QueryCondition):
@@ -91,7 +93,32 @@ def get_template_snapshot_no(id: int):
     return crud.get_template_snapshot_no(id)
 
 
-def async_s3(snapshot_no):
+def get_props_by_type(tid: int):
+    return crud.get_props_by_type(tid)
+
+
+def create_prop(prop: schemas.TemplateIdentifierProp):
+    res_list = crud.get_props_by_name_and_type(prop)
+    if res_list:
+        raise BizException(MessageEnum.TEMPLATE_IDENTIFIER_EXISTS.get_code(), MessageEnum.TEMPLATE_IDENTIFIER_EXISTS.get_msg())
+    return crud.create_pop(prop)
+
+
+def delete_prop(id: int):
+    refs = crud.get_refs_by_prop(id)
+    if refs:
+        raise BizException(MessageEnum.TEMPLATE_PROPS_USED.get_code(), MessageEnum.TEMPLATE_PROPS_USED.get_msg())
+    crud.delete_prop(id)
+
+
+def update_prop(id: int, prop: schemas.TemplateIdentifierProp):
+    snapshot_no, res = crud.update_prop(id, prop)
+    if snapshot_no:
+        sync_s3(snapshot_no)
+    return res
+
+
+def sync_s3(snapshot_no):
     res_json = {}
     identifiers = []
     # generate new version
@@ -100,7 +127,7 @@ def async_s3(snapshot_no):
     for item in res:
         item_json = {}
         item_json['name'] = item[4]
-        item_json['category'] = item[5]
+        item_json['classification'] = item[5]
         item_json['rule'] = item[6]
         item_json['type'] = item[7]
         item_json['privacy'] = item[8]

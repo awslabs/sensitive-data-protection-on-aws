@@ -89,6 +89,31 @@ def delete_mapping(id: int):
     service.delete_mapping(id)
 
 
+@router.get("/list-props-by-type/{tid}",
+            response_model=BaseResponse[list])
+@inject_session
+def list_props_by_type(tid: int):
+    return service.get_props_by_type(tid)
+
+
+@router.post("/props", response_model=BaseResponse[schemas.TemplateIdentifierProp])
+@inject_session
+def create_prop(prop: schemas.TemplateIdentifierProp):
+    return service.create_prop(prop)
+
+
+@router.patch("/props/{id}", response_model=BaseResponse[schemas.TemplateIdentifierProp])
+@inject_session
+def update_prop(id: int, prop: schemas.TemplateIdentifierProp):
+    return service.update_prop(id, prop)
+
+
+@router.delete("/props/{id}", response_model=BaseResponse[bool])
+@inject_session
+def delete_prop(id: int):
+    service.delete_prop(id)
+
+
 @router.get("/template-time/{tid}", response_model=BaseResponse[str])
 @inject_session
 def get_template_time(tid: int):
