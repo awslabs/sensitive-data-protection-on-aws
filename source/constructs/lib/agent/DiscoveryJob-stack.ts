@@ -46,7 +46,7 @@ export class DiscoveryJobStack extends Construct {
 
     const discoveryJobRole = new Role(this, 'DiscoveryJobRole', {
       assumedBy: new ServicePrincipal('states.amazonaws.com'),
-      // roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}DiscoveryJobRole-${Aws.REGION}`,
+      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}DiscoveryJobRole-${Aws.REGION}`, //Name must be specified
     });
     discoveryJobRole.attachInlinePolicy(new Policy(this, 'AWSGlueServicePolicy', {
       // policyName: 'AWSGlueServicePolicy',

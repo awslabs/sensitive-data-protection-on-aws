@@ -314,7 +314,7 @@ def sync_crawler_result(
                 break
     if table_count == 0:
         if database_type == DatabaseType.RDS.value:
-            data_source_crud.set_s3_bucket_source_glue_state(account_id, region, database_name, ConnectionState.UNSUPPORTED.value)
+            data_source_crud.set_rds_instance_source_glue_state(account_id, region, database_name, ConnectionState.UNSUPPORTED.value)
         elif database_type == DatabaseType.S3.value:
             data_source_crud.set_s3_bucket_source_glue_state(account_id, region, database_name, ConnectionState.UNSUPPORTED.value)
     # create database
@@ -483,7 +483,7 @@ def __query_job_result_by_athena(
     # Select result
     select_sql = (
         (
-            """SELECT table_name,column_name,cast(identifiers as json) as identifiers_str,array_join(sample_data, \'|\') as sample_str, privacy, table_size
+            """SELECT table_name,column_name,cast(identifiers as json) as identifiers_str,CASE WHEN sample_data is NULL then '' else array_join(sample_data, \'|\') end as sample_str, privacy, table_size
             FROM %s 
             WHERE account_id='%s'
                 AND region='%s' 
@@ -517,7 +517,7 @@ def __query_job_result_by_athena(
             break
 
         if query_execution_status == AthenaQueryState.FAILED.value:
-            raise Exception("Query Asset STATUS:" + query_execution_status)
+            raise Exception("Query Asset STATUS:" + response["QueryExecution"]["Status"]["StateChangeReason"])
 
         else:
             time.sleep(1)
