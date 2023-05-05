@@ -19,6 +19,7 @@ from common.enum import (
 import logging
 from common.exception_handler import BizException
 import traceback
+from discovery_job.crud import get_last_run_database,get_job_by_run_id
 
 
 logger = logging.getLogger("api")
@@ -308,7 +309,8 @@ def sync_crawler_result(
                                                                 region,
                                                                 database_type,
                                                                 database_name,
-                                                                table_name)
+                                                                table_name,
+                                                                False)
             next_token = tables_response.get("NextToken")
             if next_token is None:
                 break
@@ -560,7 +562,7 @@ def sync_job_detection_result(
     database_type: str,
     database_name: str,
     job_run_id: str,
-    overwrite = True
+    overwrite=True
 ):
     job_result = __query_job_result_by_athena(
         account_id,
@@ -685,7 +687,7 @@ def sync_job_detection_result(
     catalog_database = crud.get_catalog_database_level_classification_by_name(
         account_id, region, database_type, database_name
     )
-    if catalog_database is not None and  (overwrite == True or (overwrite == False and catalog_database.modify_by == const.USER_DEFAULT_NAME)):
+    if catalog_database is not None and overwrite:
         database_dict = {
             "privacy": database_privacy,
             "state": CatalogState.DETECTED.value,
@@ -816,7 +818,8 @@ def update_catalog_column_level_classification(new_column: schemas.CatalogColumn
                                                         new_column.region,
                                                         new_column.database_type,
                                                         new_column.database_name,
-                                                        new_column.table_name)
+                                                        new_column.table_name,
+                                                        True)
 
     return "Update catalog column successfully!"
 
@@ -871,7 +874,7 @@ def delete_catalog_by_database_region(database: str, region: str, type: str):
     return True
 
 
-def update_catalog_table_and_database_level_privacy(account_id, region, database_type, database_name, table_name):
+def update_catalog_table_and_database_level_privacy(account_id, region, database_type, database_name, table_name, is_manual):
     column_rows = crud.get_catalog_column_level_classification_by_table(account_id,
                                                                         region,
                                                                         database_type,
@@ -899,18 +902,29 @@ def update_catalog_table_and_database_level_privacy(account_id, region, database
         table.privacy = default_table_privacy
         crud.update_catalog_table_level_classification_by_id(table.id, {"privacy": default_table_privacy})
 
-    # Reset database privacy
-    database = crud.get_catalog_database_level_classification_by_name(account_id,
-                                                                      region,
-                                                                      database_type,
-                                                                      database_name)
-    if database is not None:
-        origin_database_privacy = database.privacy
-        default_database_privacy = Privacy.NA.value
-        for table in table_rows:
-            table_privacy = table.privacy
-            if table_privacy > default_database_privacy:
-                default_database_privacy = table_privacy
-        if origin_database_privacy != default_database_privacy:
-            database.privacy = default_database_privacy
-            crud.update_catalog_table_level_classification_by_id(database.id, {"privacy": default_database_privacy})
+    overwrite = True
+    if is_manual is False:
+        last_run_database = get_last_run_database(account_id, region, database_type, database_name)
+        if last_run_database is not None:
+            job = get_job_by_run_id(last_run_database.run_id)
+            if job is not None:
+                overwrite = job.overwrite == 1
+                print("need to overwrite the privacy?")
+                print(overwrite)
+    if overwrite is True:
+        print("need to overwrite the privacy!!!")
+        # Reset database privacy
+        database = crud.get_catalog_database_level_classification_by_name(account_id,
+                                                                          region,
+                                                                          database_type,
+                                                                          database_name)
+        if database is not None:
+            origin_database_privacy = database.privacy
+            default_database_privacy = Privacy.NA.value
+            for table in table_rows:
+                table_privacy = table.privacy
+                if table_privacy > default_database_privacy:
+                    default_database_privacy = table_privacy
+            if origin_database_privacy != default_database_privacy:
+                database.privacy = default_database_privacy
+                crud.update_catalog_database_level_classification_by_id(database.id, {"privacy": default_database_privacy})
