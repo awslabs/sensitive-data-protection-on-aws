@@ -54,7 +54,7 @@ export class CrawlerEventbridgeStack extends Construct {
     });
 
     const lamdbaRole = new Role(this, `${SolutionInfo.SOLUTION_NAME_ABBR}RoleForCrawlerEvent`, {
-      // roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}RoleForCrawlerEvent-${Aws.REGION}`,
+      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}RoleForCrawlerEvent-${Aws.REGION}`, //Name must be specified
       assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
     });
     lamdbaRole.attachInlinePolicy(new Policy(this, 'CrawlerAWSLambdaBasicExecutionPolicy', {
