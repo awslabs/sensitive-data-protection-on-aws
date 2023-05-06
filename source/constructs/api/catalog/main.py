@@ -57,6 +57,28 @@ def get_catalog_tables_by_database(
 
 
 @router.get(
+    "/search-tables-by-database",
+    response_model=BaseResponse[Page[schemas.CatalogTableLevelClassification]],
+)
+@inject_session
+def search_catalog_tables_by_database(
+    account_id: str,
+    region: str,
+    database_type: str,
+    database_name: str,
+    table_name: str,
+    params: Params = Depends(),
+):
+    catalog = paginate(
+        crud.search_catalog_table_level_classification_by_database(
+            account_id, region, database_type, database_name, table_name
+        ),
+        params,
+    )
+    return catalog
+
+
+@router.get(
     "/get-databases-by-account-region-type",
     response_model=BaseResponse[Page[schemas.CatalogDatabaseLevelClassification]],
 )
