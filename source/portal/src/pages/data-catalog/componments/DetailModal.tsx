@@ -188,6 +188,8 @@ const DetailModal: React.FC<any> = (props: any) => {
         detailDesInfo: item.detailDesInfo,
         detailDesHeader: item.detailDesHeader,
         selectRowData,
+        needByPage: true,
+        clickIdentifiers,
       };
     }
     if (item.id === 'bucketProperties') {
