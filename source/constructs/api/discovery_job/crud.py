@@ -11,6 +11,7 @@ from common.constant import const
 import uuid
 from catalog.crud import get_catalog_database_level_classification_by_type_all
 from template.service import get_template_snapshot_no
+from sqlalchemy import desc
 
 
 def get_job(id: int) -> models.DiscoveryJob:
@@ -286,3 +287,14 @@ def delete_database(account_id: str, regin: str, database_type: str, database_na
         .filter(models.DiscoveryJobDatabase.database_name == database_name)\
         .delete()
     session.commit()
+
+
+def get_last_run_database(account_id: str, regin: str, database_type: str, database_name: str):
+    session = get_session()
+    db_run_databases = session.query(models.DiscoveryJobRunDatabase) \
+        .filter(models.DiscoveryJobRunDatabase.account_id == account_id) \
+        .filter(models.DiscoveryJobRunDatabase.region == regin) \
+        .filter(models.DiscoveryJobRunDatabase.database_type == database_type) \
+        .filter(models.DiscoveryJobRunDatabase.database_name == database_name)\
+        .order_by(desc(models.DiscoveryJobRunDatabase.id)).first()
+    return db_run_databases

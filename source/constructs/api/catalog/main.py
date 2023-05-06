@@ -172,14 +172,14 @@ def update_catalog_database_labels(
     return crud.update_catalog_database_labels(id, labels, modify_by)
 
 
-@router.patch("/update-catalog-tabel-labels", response_model=BaseResponse)
+@router.patch("/update-catalog-table-labels", response_model=BaseResponse)
 @inject_session
-def update_catalog_tabel_labels(
+def update_catalog_table_labels(
     id: int,
     labels: list,
     modify_by: str,
 ):
-    return crud.update_catalog_tabel_labels(id, labels, modify_by)
+    return crud.update_catalog_table_labels(id, labels, modify_by)
 
 
 @router.patch("/update-catalog-column-comments", response_model=BaseResponse)

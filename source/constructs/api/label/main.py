@@ -22,10 +22,10 @@ def get_category_labels_by_database(
     #     required
     database_name: str,
     #     required
-    need_tabel_labels: bool,
+    need_table_labels: bool,
 ):
     return service.get_category_labels_by_database(
-        account_id, region, database_type, database_name, need_tabel_labels
+        account_id, region, database_type, database_name, need_table_labels
     )
 
 

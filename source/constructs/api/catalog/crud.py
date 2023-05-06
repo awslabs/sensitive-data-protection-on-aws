@@ -572,7 +572,7 @@ def update_catalog_database_labels(
     return size > 0
 
 
-def update_catalog_tabel_labels(
+def update_catalog_table_labels(
         id: int,
         labels: list,
         modify_by: str,
