@@ -183,3 +183,9 @@ class IdentifierDependency(Enum):
     TEMPLATE = "template"
     RDS = "rds"
     S3 = "s3"
+
+
+@unique
+class AutoSyncDataAction(Enum):
+    DELETE_ACCOUNT = "DeleteAccount"
+

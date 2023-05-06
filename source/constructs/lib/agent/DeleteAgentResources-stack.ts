@@ -13,6 +13,7 @@
 
 import * as path from 'path';
 import {
+  Aws,
   CustomResource,
   Duration,
 } from 'aws-cdk-lib';
@@ -98,7 +99,12 @@ export class DeleteAgentResourcesStack extends Construct {
       timeout: Duration.minutes(15),
       layers: [deleteAgentResourcesLayer],
       role: deleteAgentResourcesRole,
-      environment: { AdminAccountId: props.adminAccountId },
+      environment: {
+        AdminAccountId: props.adminAccountId,
+        QueueName: `${SolutionInfo.SOLUTION_NAME_ABBR}-AutoSyncData`,
+        AgentAccountID: Aws.ACCOUNT_ID,
+        RegionName: Aws.REGION,
+      },
     });
     deleteAgentResourcesFunction.node.addDependency(deleteAgentResourcesRole);
 

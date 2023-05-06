@@ -4,6 +4,7 @@ import json
 import traceback
 import requests
 import os
+import time
 
 glue = boto3.client('glue')
 admin_account_id = os.getenv('AdminAccountId')
@@ -64,8 +65,25 @@ def on_update(event):
     logger.info("Got Update")
 
 
+def notify_admin_to_delete_resources():
+    sqs = boto3.client('sqs')
+    caller_identity = boto3.client('sts').get_caller_identity()
+    partition = caller_identity['Arn'].split(':')[1]
+
+    message = {
+        "AccountID": os.getenv('AgentAccountID'), # Agent account Id
+        "Action": "DeleteAccount", # Valid action: AddAccount/DeleteAccount/AddDataSource/DeleteDataSource
+        "Timestamp": str(int(time.time())), # Timestamp in seconds
+        "Region": os.getenv('RegionName')
+    }
+    url_suffix = '.cn' if partition == 'aws-cn' else ''
+    sqs.send_message(
+        QueueUrl=f"https://sqs.{os.getenv('AWS_REGION')}.amazonaws.com{url_suffix}/{os.getenv('AdminAccountId')}/{os.getenv('QueueName')}",
+        MessageBody=json.dumps(message))
+
 def on_delete(event):
     logger.info("Got Delete")
+    notify_admin_to_delete_resources()
     solution_name = event["ResourceProperties"]["SolutionNameAbbr"]
     crawlers = cleanup_crawlers()
     for crawler in crawlers:
