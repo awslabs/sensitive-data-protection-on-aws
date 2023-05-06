@@ -57,6 +57,28 @@ def get_catalog_tables_by_database(
 
 
 @router.get(
+    "/search-tables-by-database",
+    response_model=BaseResponse[Page[schemas.CatalogTableLevelClassification]],
+)
+@inject_session
+def search_catalog_tables_by_database(
+    account_id: str,
+    region: str,
+    database_type: str,
+    database_name: str,
+    table_name: str,
+    params: Params = Depends(),
+):
+    catalog = paginate(
+        crud.search_catalog_table_level_classification_by_database(
+            account_id, region, database_type, database_name, table_name
+        ),
+        params,
+    )
+    return catalog
+
+
+@router.get(
     "/get-databases-by-account-region-type",
     response_model=BaseResponse[Page[schemas.CatalogDatabaseLevelClassification]],
 )
@@ -172,14 +194,14 @@ def update_catalog_database_labels(
     return crud.update_catalog_database_labels(id, labels, modify_by)
 
 
-@router.patch("/update-catalog-tabel-labels", response_model=BaseResponse)
+@router.patch("/update-catalog-table-labels", response_model=BaseResponse)
 @inject_session
-def update_catalog_tabel_labels(
+def update_catalog_table_labels(
     id: int,
     labels: list,
     modify_by: str,
 ):
-    return crud.update_catalog_tabel_labels(id, labels, modify_by)
+    return crud.update_catalog_table_labels(id, labels, modify_by)
 
 
 @router.patch("/update-catalog-column-comments", response_model=BaseResponse)

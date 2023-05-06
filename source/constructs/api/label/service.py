@@ -77,7 +77,7 @@ def get_category_labels_by_database(
     region: str,
     database_type: str,
     database_name: str,
-    need_tabel_labels: bool
+    need_table_labels: bool
 ):
     database = get_catalog_database_level_classification_by_name(
         account_id,
@@ -92,7 +92,7 @@ def get_category_labels_by_database(
     if database_label_ids is not None:
         database_label_id_list = list(map(int, database_label_ids.split(',')))
         database_labels = get_labels_by_id_list(database_label_id_list)
-    if need_tabel_labels is False:
+    if need_table_labels is False:
         return build_result(database_name, convert_labels(database_labels), None, None)
     tables = get_catalog_table_level_classification_by_database(
         account_id,

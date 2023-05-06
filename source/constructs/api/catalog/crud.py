@@ -120,6 +120,25 @@ def get_catalog_table_level_classification_by_database(
     return result
 
 
+def search_catalog_table_level_classification_by_database(
+    account_id: str,
+    region: str,
+    database_type: str,
+    database_name: str,
+    table_name: str,
+):
+    result = (
+        get_session()
+        .query(models.CatalogTableLevelClassification)
+        .filter(models.CatalogTableLevelClassification.account_id == account_id)
+        .filter(models.CatalogTableLevelClassification.region == region)
+        .filter(models.CatalogTableLevelClassification.database_type == database_type)
+        .filter(models.CatalogTableLevelClassification.database_name == database_name)
+        .filter(models.CatalogTableLevelClassification.table_name.ilike("%" + table_name + "%"))
+    )
+    return result
+
+
 def get_catalog_table_level_classification_by_name(
     account_id: str,
     region: str,
@@ -572,7 +591,7 @@ def update_catalog_database_labels(
     return size > 0
 
 
-def update_catalog_tabel_labels(
+def update_catalog_table_labels(
         id: int,
         labels: list,
         modify_by: str,
