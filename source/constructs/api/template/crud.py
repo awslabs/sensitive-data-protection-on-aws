@@ -67,7 +67,7 @@ def create_identifier(identifier: schemas.TemplateIdentifier) -> models.Template
     return db_identifier
 
 
-def get_prop_by_id(id: int)
+def get_prop_by_id(id: int):
     return get_session().query(
         models.TemplateIdentifierProp).filter(models.TemplateIdentifierProp.id == id).first()
 
