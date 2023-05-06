@@ -38,6 +38,16 @@ jobs:
             1) contains only alphanumeric characters,'_','-',' '.
             2) length between 5 and 100.
           requireScope: true
+  pyflakes:
+    needs: semantic-validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: pyflakes
+        uses: reviewdog/action-pyflakes@master
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
   git-secrets:
     needs: semantic-validate
     runs-on: ubuntu-latest
