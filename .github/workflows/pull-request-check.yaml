@@ -41,6 +41,10 @@ jobs:
   pyflakes:
     needs: semantic-validate
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: read
+      pull-requests: read
     steps:
       - name: Checkout
         uses: actions/checkout@v2
