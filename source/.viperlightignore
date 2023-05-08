@@ -9,23 +9,23 @@ CONTRIBUTING.md:51
 .typescript/lambda/layers/aws-nodesdk-custom-config/coverage
 .typescript/package-lock.json
 portal/node_modules
-; constructs/lib/common/constants.ts
+constructs/lib/common/constants.ts
 
-; constructs/lib/admin/database/whole/
-; portal/package-lock.json:10
-; constructs/api/README.md:24
-; constructs/api/catalog/service.py:45
-; constructs/api/catalog/service.py:46
-; constructs/api/data_source/rds_detector.py:34
-; constructs/api/data_source/rds_detector.py:35
-; constructs/api/data_source/s3_detector.py:36
-; constructs/api/data_source/s3_detector.py:41
-; constructs/api/data_source/s3_detector.py:37
-; constructs/api/data_source/s3_detector.py:42
-; constructs/api/data_source/schemas.py:148
-; constructs/api/data_source/service.py:220
-; constructs/api/data_source/service.py:365
-; constructs/api/data_source/service.py:372
+constructs/lib/admin/database/whole/
+portal/package-lock.json:10
+constructs/api/README.md:24
+constructs/api/catalog/service.py:45
+constructs/api/catalog/service.py:46
+constructs/api/data_source/rds_detector.py:34
+constructs/api/data_source/rds_detector.py:35
+constructs/api/data_source/s3_detector.py:36
+constructs/api/data_source/s3_detector.py:41
+constructs/api/data_source/s3_detector.py:37
+constructs/api/data_source/s3_detector.py:42
+constructs/api/data_source/schemas.py:148
+constructs/api/data_source/service.py:220
+constructs/api/data_source/service.py:365
+constructs/api/data_source/service.py:372
 
 
 [python-pipoutdated]
