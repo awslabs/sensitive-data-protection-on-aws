@@ -87,7 +87,7 @@ export class ApiStack extends Construct {
     const crawlerEventSource = new SqsEventSource(crawlerSqsStack.queue);
     updateCatalogFunction.addEventSource(crawlerEventSource);
 
-    const autoSyncDataFunction = this.createFunction('AutoSyncData', 'lambda.auto_sync_data.lambda_handler', props, 900);
+    const autoSyncDataFunction = this.createFunction('AutoSyncData', 'lambda.auto_sync_data.lambda_handler', props, controllerFunctionName, 900);
     const autoSyncDataSqsStack = new SqsStack(this, 'AutoSyncDataQueue', { name: 'AutoSyncData', visibilityTimeout: 900 });
     const autoSyncDataEventSource = new SqsEventSource(autoSyncDataSqsStack.queue);
     autoSyncDataFunction.addEventSource(autoSyncDataEventSource);
