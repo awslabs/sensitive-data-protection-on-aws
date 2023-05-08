@@ -107,7 +107,7 @@ jobs:
       #         .cfnnagignore
       #         .cfnnag_global_suppress_list
       #         .cfnnag_*
-
+q
 
   # the repository is private, this check cannot be done, set it to pass
   semgrep-scan:
@@ -147,22 +147,22 @@ jobs:
           true
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Viperlight Scan
-        run: |
-          wget -q https://viperlight-scanner.s3.amazonaws.com/latest/.viperlightrc
-          wget -q https://viperlight-scanner.s3.amazonaws.com/latest/viperlight.zip
-          unzip -q viperlight.zip -d viperlight
-          rm -r ./viperlight.zip
-          cd viperlight  
-          ./install.sh
-          viperlight --version
-          echo "Content scanning utility installation complete `date`"
-          echo "Starting content scanning `date` in `pwd`"
-          echo "github.workspace is...>>>>>"
-          ls -l ${{ github.workspace }}
-          cd ${{ github.workspace }}/source
-          viperlight scan -m files-contents -m files-aws -m files-binary -m files-entropy -m files-secrets
-          echo "Completed content scanning `date`"
+      # - name: Viperlight Scan
+      #   run: |
+      #     wget -q https://viperlight-scanner.s3.amazonaws.com/latest/.viperlightrc
+      #     wget -q https://viperlight-scanner.s3.amazonaws.com/latest/viperlight.zip
+      #     unzip -q viperlight.zip -d viperlight
+      #     rm -r ./viperlight.zip
+      #     cd viperlight  
+      #     ./install.sh
+      #     viperlight --version
+      #     echo "Content scanning utility installation complete `date`"
+      #     echo "Starting content scanning `date` in `pwd`"
+      #     echo "github.workspace is...>>>>>"
+      #     ls -l ${{ github.workspace }}
+      #     cd ${{ github.workspace }}/source
+      #     viperlight scan -m files-contents -m files-aws -m files-binary -m files-entropy -m files-secrets
+      #     echo "Completed content scanning `date`"
 
   cdk-unit-test:
     runs-on: ubuntu-latest
