@@ -159,9 +159,8 @@ jobs:
           echo "Content scanning utility installation complete `date`"
           echo "Starting content scanning `date` in `pwd`"
           echo "github.workspace is...>>>>>"
-          ls -l ${{ github.workspace }}
+          ls -l ${{ github.workspace }}/source
           cd ${{ github.workspace }}/source
-          pwd
           viperlight scan -m files-contents -m files-aws -m files-binary -m files-entropy -m files-secrets
           echo "Completed content scanning `date`"
 
