@@ -17,6 +17,7 @@ import { Construct } from 'constructs';
 import { CrawlerEventbridgeStack } from './agent/CrawlerEventbridge-stack';
 import { DeleteAgentResourcesStack } from './agent/DeleteAgentResources-stack';
 import { DiscoveryJobStack } from './agent/DiscoveryJob-stack';
+import { AutoSyncDataStack } from './agent/AutoSyncData-stack';
 import { SolutionInfo } from './common/solution-info';
 
 // Operator agent stack
@@ -43,6 +44,11 @@ export class AgentStack extends Stack {
     new CrawlerEventbridgeStack(this, 'CrawlerEventbridge', {
       adminAccountId: adminAccountId,
       queueName: `${SolutionInfo.SOLUTION_NAME_ABBR}-Crawler`,
+    });
+
+    new AutoSyncDataStack(this, 'AutoSyncData', {
+      adminAccountId: adminAccountId,
+      queueName: `${SolutionInfo.SOLUTION_NAME_ABBR}-AutoSyncData`,
     });
 
     //update the trusted entities to trusted role from user input

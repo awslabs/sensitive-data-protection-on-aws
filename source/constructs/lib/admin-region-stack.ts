@@ -45,6 +45,7 @@ export class AdminRegionStack extends Stack {
 
     const crawlerSqsStack = new SqsStack(this, 'CrawlerQueue', { name: 'Crawler' });
     const discoveryJobSqsStack = new SqsStack(this, 'DiscoveryJobQueue', { name: 'DiscoveryJob' });
+    const autoSyncDataSqsStack = new SqsStack(this, 'AutoSyncDataQueue', { name: 'AutoSyncData' });
 
     const forwardMessageFunction = new Function(this, 'ForwardMessageFunction', {
       functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-Forward-Message`,
