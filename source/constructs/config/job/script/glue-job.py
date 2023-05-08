@@ -22,7 +22,7 @@ from pyspark.context import SparkContext
 from awsglue.context import GlueContext
 from awsglue.job import Job
 # from awsglueml.transforms import EntityDetector
-from pyspark.sql.types import ArrayType, StringType, FloatType, StructType, StructField
+from pyspark.sql.types import ArrayType, StringType, FloatType, DoubleType, StructType, StructField
 # from awsglue.dynamicframe import DynamicFrame
 import boto3
 from dateutil.parser import parse
@@ -110,13 +110,13 @@ class ColumnDetector:
 
             # Only perform regex matching when this column has valid column header.
             if valid_column_header:
-                if identifier['category'] == 1:
+                if identifier['classification'] == 1:
                     if identifier['rule']:
                         if re.search(identifier['rule'], str(col_val)):
                             score = 1
                     else:
                         score = 1
-                elif identifier['category'] == 0:
+                elif identifier['classification'] == 0:
                     for r in ml_result:
                         if r['Identifier'] in ml_label_mapping.keys():
                             if ml_label_mapping[r['Identifier']] == identifier['name']:
@@ -316,12 +316,15 @@ def detect_df(df, spark, glueContext, udf_dict, broadcast_template, table, regio
             .select(data_frame['identifiers'], sample_df['*'])
     elif table_size == 0:
         empty_df_schema = StructType([
-            StructField("identifiers", StringType(), True),
+            StructField("identifiers", ArrayType(StructType(
+                            [StructField("identifier",StringType(),True),
+                             StructField("score",DoubleType(),True)]
+                             ),True), True),
             StructField("column_name", StringType(), True),
-            StructField("sample_data", StringType(), True),
+            StructField("sample_data", ArrayType(StringType()), True),
         ])
 
-        data_frame = spark.createDataFrame([(None, "", "")], empty_df_schema)
+        data_frame = spark.createDataFrame([(None, "", ["Table size is 0"])], empty_df_schema)
 
     s3_location, s3_bucket, rds_instance_id = get_table_info(table, args)
     # data_frame = spark.createDataFrame(data=items, schema=schema)
@@ -349,16 +352,15 @@ def detect_df(df, spark, glueContext, udf_dict, broadcast_template, table, regio
     return data_frame
     
 
-def get_tables(_database_name, _base_time, region):
+def get_tables(_database_name, region):
     """
     get_tables detects all the crawler tables in one specified database.
 
     Args:
         _database_name: The database to store all crawler tables.
-        _base_time: Only table updated after _base_time is detected.
     
     Returns:
-        tables: All the crawler tables after _base_time.
+        tables: All the crawler tables.
     """
     next_token = ""
     glue = boto3.client(service_name='glue', region_name=region)
@@ -369,8 +371,7 @@ def get_tables(_database_name, _base_time, region):
             DatabaseName=_database_name, 
             NextToken=next_token)
         for table in response['TableList']:
-            if table['UpdateTime'] > _base_time:
-                tables.append(table)
+            tables.append(table)
         next_token = response.get('NextToken')
         if next_token is None:
             break
@@ -386,10 +387,9 @@ if __name__ == "__main__":
     result_database = 'sdps_database'
     result_table = 'job_detection_output_table'
 
-    args = getResolvedOptions(sys.argv, ["AccountId", "JOB_NAME", 'DatabaseName', 'BaseTime', 'DatabaseType', 'BucketName',
+    args = getResolvedOptions(sys.argv, ["AccountId", "JOB_NAME", 'DatabaseName', 'DatabaseType', 'BucketName',
     'Depth', 'DetectionThreshold', 'JobId', 'RunId', 'RunDatabaseId', 'TemplateId', 'TemplateSnapshotNo', 'AdminAccountId'])
 
-    base_time = parse(args['BaseTime']).replace(tzinfo=pytz.timezone('Asia/Shanghai'))
     full_database_name = f"{args['DatabaseType']}-{args['DatabaseName']}-database"
     output_path = f"s3://{args['BucketName']}/glue-database/{result_table}/"
     error_path = f"s3://{args['BucketName']}/glue-database/job_detection_error_table/"
@@ -406,7 +406,7 @@ if __name__ == "__main__":
     template = get_template(s3, args['BucketName'], f"template/template-{args['TemplateId']}-{args['TemplateSnapshotNo']}.json")
     broadcast_template = sc.broadcast(template)
 
-    crawler_tables = get_tables(full_database_name, base_time, region)
+    crawler_tables = get_tables(full_database_name, region)
 
     column_detector = ColumnDetector(broadcast_template)
     detect_column_udf = column_detector.create_detect_column_udf()
@@ -423,7 +423,8 @@ if __name__ == "__main__":
             # call detect_table to perform PII detection 
             raw_df = glueContext.create_data_frame_from_catalog(
                 database=full_database_name,
-                table_name=table['Name']
+                table_name=table['Name'],
+                transformation_ctx = full_database_name + table['Name'] + 'df'
             )
             # transformation_ctx = full_database_name + table['Name'] + 'df'
             summarized_result = detect_df(raw_df, spark, glueContext, udf_dict, broadcast_template, table, region, args)

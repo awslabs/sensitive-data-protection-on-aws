@@ -120,6 +120,25 @@ def get_catalog_table_level_classification_by_database(
     return result
 
 
+def search_catalog_table_level_classification_by_database(
+    account_id: str,
+    region: str,
+    database_type: str,
+    database_name: str,
+    table_name: str,
+):
+    result = (
+        get_session()
+        .query(models.CatalogTableLevelClassification)
+        .filter(models.CatalogTableLevelClassification.account_id == account_id)
+        .filter(models.CatalogTableLevelClassification.region == region)
+        .filter(models.CatalogTableLevelClassification.database_type == database_type)
+        .filter(models.CatalogTableLevelClassification.database_name == database_name)
+        .filter(models.CatalogTableLevelClassification.table_name.ilike("%" + table_name + "%"))
+    )
+    return result
+
+
 def get_catalog_table_level_classification_by_name(
     account_id: str,
     region: str,
@@ -415,8 +434,8 @@ def delete_catalog_column_level_classification_by_database_region(database: str,
 
 def get_s3_database_summary():
     return (get_session()
-    .query(func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label("database_total"), 
-        func.sum(models.CatalogDatabaseLevelClassification.object_count).label("object_total"), 
+    .query(func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label("database_total"),
+        func.sum(models.CatalogDatabaseLevelClassification.object_count).label("object_total"),
         func.sum(models.CatalogDatabaseLevelClassification.size_key).label("size_total"))
     .filter(models.CatalogDatabaseLevelClassification.database_type == DatabaseType.S3.value)
     .all()
@@ -536,3 +555,55 @@ def delete_catalog_database_level_classification_by_name(account_id: str,
         ).delete()
     
     session.commit()
+
+
+def update_catalog_column_comments(
+        id: int,
+        comments: str,
+        modify_by: str,
+):
+    modify_time = mytime.get_time()
+    update_dict = {"comments": (comments,), "modify_time": (modify_time,), "modify_by": (modify_by,)}
+    size = (
+        get_session()
+        .query(models.CatalogColumnLevelClassification)
+        .filter(models.CatalogColumnLevelClassification.id == id)
+        .update(update_dict)
+    )
+    get_session().commit()
+    return size > 0
+
+
+def update_catalog_database_labels(
+        id: int,
+        labels: list,
+        modify_by: str,
+):
+    labels_str = ','.join(str(i) for i in labels)
+    update_dict = {"label_ids": (labels_str,), "modify_time": (mytime.get_time(),), "modify_by": (modify_by,)}
+    size = (
+        get_session()
+        .query(models.CatalogDatabaseLevelClassification)
+        .filter(models.CatalogDatabaseLevelClassification.id == id)
+        .update(update_dict)
+    )
+    get_session().commit()
+    return size > 0
+
+
+def update_catalog_table_labels(
+        id: int,
+        labels: list,
+        modify_by: str,
+):
+    modify_time = mytime.get_time()
+    labels_str = ','.join(str(i) for i in labels)
+    update_dict = {"label_ids": (labels_str,), "modify_time": (modify_time,), "modify_by": (modify_by,)}
+    size = (
+        get_session()
+        .query(models.CatalogTableLevelClassification)
+        .filter(models.CatalogTableLevelClassification.id == id)
+        .update(update_dict)
+    )
+    get_session().commit()
+    return size > 0

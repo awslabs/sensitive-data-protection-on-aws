@@ -26,6 +26,7 @@ import {
   Token,
   CfnStack,
   NestedStack,
+  Tags,
 } from 'aws-cdk-lib';
 import {
   IVpc,
@@ -115,7 +116,7 @@ export class AlbStack extends NestedStack {
     const albSecurityGroup = this.createSecurityGroup(props.port);
 
     const alb = new ApplicationLoadBalancer(this, 'ApplicationLoadBalancer', {
-      loadBalancerName: `${SolutionInfo.SOLUTION_NAME_ABBR}-ALB-${this.identifier}`,
+      // loadBalancerName: `${SolutionInfo.SOLUTION_NAME_ABBR}-ALB-${this.identifier}`,
       vpc: this.vpc,
       internetFacing: true,
       securityGroup: albSecurityGroup,
@@ -209,7 +210,7 @@ export class AlbStack extends NestedStack {
 
   private createSecurityGroup(port: number) {
     const albSecurityGroup = new SecurityGroup(this, 'AlbSecurityGroup', {
-      securityGroupName: `ALB-${this.identifier}`,
+      // securityGroupName: `ALB-${this.identifier}`,
       vpc: this.vpc,
     });
     albSecurityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(port), 'rule of allow inbound traffic from servier port');
@@ -219,17 +220,18 @@ export class AlbStack extends NestedStack {
 
   private createApi(listener: ApplicationListener, props: AlbProps) {
     const apiTarget = [new LambdaTarget(props.apiFunction)];
-    listener.addTargets('ApiTarget', {
-      targetGroupName: `${SolutionInfo.SOLUTION_NAME_ABBR}-API-Target-${this.identifier}`,
+    const apiTargetGroup = listener.addTargets('ApiTarget', {
+      // targetGroupName: `${SolutionInfo.SOLUTION_NAME_ABBR}-API-Target-${this.identifier}`,
       priority: this.apiPriority,
       targets: apiTarget,
       conditions: [ListenerCondition.httpHeader('authorization', ['*'])],
     });
+    Tags.of(apiTargetGroup).add(SolutionInfo.TAG_NAME, 'API');
   }
 
   private createProtalConfig(listener: ApplicationListener, props: AlbProps) {
     const portalConfigFunction = new Function(this, 'PortalConfigFunction', {
-      functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-PortalConfig-${this.identifier}`,
+      // functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-PortalConfig-${this.identifier}`,
       description: `${SolutionInfo.SOLUTION_NAME} - set the configration to Lambda environment and portal will read it through ALB.`,
       runtime: Runtime.PYTHON_3_9,
       handler: 'portal_config.lambda_handler',
@@ -249,19 +251,20 @@ export class AlbStack extends NestedStack {
       },
     });
     const portalConfigTarget = [new LambdaTarget(portalConfigFunction)];
-    listener.addTargets('PortalConfigTarget', {
-      targetGroupName: `${SolutionInfo.SOLUTION_NAME_ABBR}-PortalConfig-Target-${this.identifier}`,
+    const portalConfigTargetGroup = listener.addTargets('PortalConfigTarget', {
+      // targetGroupName: `${SolutionInfo.SOLUTION_NAME_ABBR}-PortalConfig-Target-${this.identifier}`,
       priority: this.portalConfigPriority,
       targets: portalConfigTarget,
       conditions: [ListenerCondition.pathPatterns(['/config/getConfig'])],
     });
+    Tags.of(portalConfigTargetGroup).add(SolutionInfo.TAG_NAME, 'PortalConfig');
   }
 
   private createPortal(listener: ApplicationListener) {
     let portalFunction;
     if (BuildConfig.PortalTag) {
       portalFunction = new DockerImageFunction(this, 'PortalFunction', {
-        functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-Portal-${this.identifier}`,
+        // functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-Portal-${this.identifier}`,
         description: `${SolutionInfo.SOLUTION_NAME} - portal Lambda function`,
         code: DockerImageCode.fromEcr(Repository.fromRepositoryArn(this, 'PortalRepository', BuildConfig.PortalRepository),
           { tagOrDigest: BuildConfig.PortalTag }),
@@ -273,7 +276,7 @@ export class AlbStack extends NestedStack {
       });
     } else {
       portalFunction = new DockerImageFunction(this, 'PortalFunction', {
-        functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-Portal-${this.identifier}`,
+        // functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-Portal-${this.identifier}`,
         description: `${SolutionInfo.SOLUTION_NAME} - portal Lambda function`,
         code: DockerImageCode.fromImageAsset(path.join(__dirname, '../../../portal'), {
           file: 'Dockerfile',
@@ -288,10 +291,11 @@ export class AlbStack extends NestedStack {
       });
     }
     const portalTarget = [new LambdaTarget(portalFunction)];
-    listener.addTargets('PortalTarget', {
-      targetGroupName: `${SolutionInfo.SOLUTION_NAME_ABBR}-Portal-Target-${this.identifier}`,
+    const protalTargetGroup = listener.addTargets('PortalTarget', {
+      // targetGroupName: `${SolutionInfo.SOLUTION_NAME_ABBR}-Portal-Target-${this.identifier}`,
       targets: portalTarget,
     });
+    Tags.of(protalTargetGroup).add(SolutionInfo.TAG_NAME, 'Portal');
   }
 }
 

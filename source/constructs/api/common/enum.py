@@ -19,10 +19,13 @@ class MessageEnum(Enum):
     BIZ_ITEM_NOT_EXISTS = {1005: "The item does not exist"}
 
     # template
-    BIZ_TEMPLATE_NOT_EXISTS = {1401: "The classification template does not exist"}
-    BIZ_IDENTIFIER_NOT_EXISTS = {1402: "The data identifier does not exist"}
-    BIZ_IDENTIFIER_EXISTS = {1403: "A data identifier with the same name already exists"}
-    BIZ_IDENTIFIER_USED = {1404: "The data identifier is being used"}
+    TEMPLATE_NOT_EXISTS = {1401: "The classification template does not exist"}
+    TEMPLATE_IDENTIFIER_NOT_EXISTS = {1402: "The data identifier does not exist"}
+    TEMPLATE_IDENTIFIER_EXISTS = {1403: "A data identifier with the same name already exists"}
+    TEMPLATE_IDENTIFIER_USED = {1404: "The data identifier is being used"}
+    TEMPLATE_PROPS_USED = {1405: "The item is being used"}
+    TEMPLATE_PROPS_NOT_EXISTS = {1405: "The category/regulation does not exist"}
+    TEMPLATE_IDENTIFIER_RULES_EMPTY = {1406: "Identifier rules can not be empty"}
 
     # discovery job
     DISCOVERY_JOB_NON_EXIST = {1510: "The discovery job does non exist"}
@@ -86,6 +89,12 @@ class MessageEnum(Enum):
 
     def get_msg(self):
         return list(self.value.values())[0]
+
+
+@unique
+class IdentifierType(Enum):
+    BUILT_IN = 0
+    CUSTOM = 1
 
 
 @unique
@@ -186,6 +195,25 @@ class IdentifierDependency(Enum):
 
 
 @unique
-class AutoSyncDataAction(Enum):
-    DELETE_ACCOUNT = "DeleteAccount"
+class LabelState(Enum):
+    ONLINE = "online"
+    OFFLINE = "offline"
 
+
+@unique
+class LabelClassification(Enum):
+    DEFAULT = "default"
+    CATALOG = "catalog"
+
+
+@unique
+class LabelType(Enum):
+    DEFAULT = "default"
+    DATABASE = "database"
+    TABLE = "table"
+
+
+@unique
+class LabelStyleType(Enum):
+    DEFAULT = "default"
+    COLOR = "color"

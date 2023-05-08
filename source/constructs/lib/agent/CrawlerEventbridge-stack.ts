@@ -54,11 +54,11 @@ export class CrawlerEventbridgeStack extends Construct {
     });
 
     const lamdbaRole = new Role(this, `${SolutionInfo.SOLUTION_NAME_ABBR}RoleForCrawlerEvent`, {
-      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}RoleForCrawlerEvent-${Aws.REGION}`,
+      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}RoleForCrawlerEvent-${Aws.REGION}`, //Name must be specified
       assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
     });
     lamdbaRole.attachInlinePolicy(new Policy(this, 'CrawlerAWSLambdaBasicExecutionPolicy', {
-      policyName: 'AWSLambdaBasicExecutionPolicy',
+      // policyName: 'AWSLambdaBasicExecutionPolicy',
       statements: [
         new PolicyStatement({
           effect: Effect.ALLOW,
@@ -85,7 +85,7 @@ export class CrawlerEventbridgeStack extends Construct {
       role: lamdbaRole,
       code: Code.fromAsset(path.join(__dirname, '../../api/lambda')),
       handler: 'crawler_event.lambda_handler',
-      functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-CrawlerTrigger`,
+      // functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-CrawlerTrigger`,
       description: `${SolutionInfo.SOLUTION_NAME} - CrawlerTrigger`,
       runtime: Runtime.PYTHON_3_9,
       memorySize: 128,

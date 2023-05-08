@@ -15,6 +15,7 @@ import * as path from 'path';
 import {
   Aws,
   Duration,
+  Tags,
 } from 'aws-cdk-lib';
 import {
   IVpc,
@@ -35,6 +36,7 @@ import {
   Code,
   AssetCode,
   LayerVersion,
+  FunctionOptions,
 } from 'aws-cdk-lib/aws-lambda';
 import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import { Construct } from 'constructs';
@@ -63,23 +65,24 @@ export class ApiStack extends Construct {
     this.apiLayer = this.createLayer();
     this.code = Code.fromAsset(path.join(__dirname, '../../api'), { exclude: ['venv'] });
 
-    this.apiFunction = this.createFunction('API', 'main.handler', props, 720);
+    const controllerFunction = this.createFunction('Controller', 'lambda.controller.lambda_handler', props, '');
+    const controllerFunctionName = controllerFunction.functionName;
 
-    this.createFunction('Controller', 'lambda.controller.lambda_handler', props);
+    this.apiFunction = this.createFunction('API', 'main.handler', props, controllerFunctionName, 720);
 
-    const checkRunFunction = this.createFunction('CheckRun', 'lambda.check_run.lambda_handler', props, 600);
+    const checkRunFunction = this.createFunction('CheckRun', 'lambda.check_run.lambda_handler', props, controllerFunctionName, 600);
     const checkRunRule = new events.Rule(this, 'CheckRunRule', {
-      ruleName: `${SolutionInfo.SOLUTION_NAME_ABBR}-CheckRun`,
+      // ruleName: `${SolutionInfo.SOLUTION_NAME_ABBR}-CheckRun`,
       schedule: events.Schedule.cron({ minute: '0/30' }),
     });
     checkRunRule.addTarget(new targets.LambdaFunction(checkRunFunction));
 
-    const receiveJobInfoFunction = this.createFunction('ReceiveJobInfo', 'lambda.receive_job_info.lambda_handler', props, 900);
+    const receiveJobInfoFunction = this.createFunction('ReceiveJobInfo', 'lambda.receive_job_info.lambda_handler', props, controllerFunctionName, 900);
     const discoveryJobSqsStack = new SqsStack(this, 'DiscoveryJobQueue', { name: 'DiscoveryJob', visibilityTimeout: 900 });
     const discoveryJobEventSource = new SqsEventSource(discoveryJobSqsStack.queue);
     receiveJobInfoFunction.addEventSource(discoveryJobEventSource);
 
-    const updateCatalogFunction = this.createFunction('UpdateCatalog', 'lambda.sync_crawler_results.lambda_handler', props, 900);
+    const updateCatalogFunction = this.createFunction('UpdateCatalog', 'lambda.sync_crawler_results.lambda_handler', props, controllerFunctionName, 900);
     const crawlerSqsStack = new SqsStack(this, 'CrawlerQueue', { name: 'Crawler', visibilityTimeout: 900 });
     const crawlerEventSource = new SqsEventSource(crawlerSqsStack.queue);
     updateCatalogFunction.addEventSource(crawlerEventSource);
@@ -90,9 +93,9 @@ export class ApiStack extends Construct {
     autoSyncDataFunction.addEventSource(autoSyncDataEventSource);
   }
 
-  private createFunction(name: string, handler: string, props: ApiProps, timeout?: number) {
+  private createFunction(name: string, handler: string, props: ApiProps, controllerFunctionName: string, timeout?: number) {
     const myFunction = new Function(this, `${name}Function`, {
-      functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-${name}`,
+      // functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-${name}`,
       description: `${SolutionInfo.SOLUTION_NAME} - ${name}`,
       runtime: Runtime.PYTHON_3_9,
       handler: handler,
@@ -107,16 +110,18 @@ export class ApiStack extends Construct {
       environment: {
         ProjectBucketName: props.bucketName,
         Version: SolutionInfo.SOLUTION_VERSION,
+        ControllerFunctionName: controllerFunctionName,
       },
       role: this.apiRole,
       layers: [this.apiLayer],
     });
+    Tags.of(myFunction).add(SolutionInfo.TAG_NAME, name);
     return myFunction;
   }
 
   private createRole(bucketName: string) {
     const apiRole = new Role(this, 'APIRole', {
-      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}APIRole-${Aws.REGION}`,
+      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}APIRole-${Aws.REGION}`, //Name must be specified
       assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
     });
 
@@ -213,7 +218,7 @@ export class ApiStack extends Construct {
           ],
         },
       }),
-      layerVersionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-API`,
+      // layerVersionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-API`,
       compatibleRuntimes: [Runtime.PYTHON_3_9],
       description: `${SolutionInfo.SOLUTION_NAME} - API layer`,
     });

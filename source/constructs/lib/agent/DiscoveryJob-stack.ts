@@ -46,10 +46,10 @@ export class DiscoveryJobStack extends Construct {
 
     const discoveryJobRole = new Role(this, 'DiscoveryJobRole', {
       assumedBy: new ServicePrincipal('states.amazonaws.com'),
-      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}DiscoveryJobRole-${Aws.REGION}`,
+      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}DiscoveryJobRole-${Aws.REGION}`, //Name must be specified
     });
     discoveryJobRole.attachInlinePolicy(new Policy(this, 'AWSGlueServicePolicy', {
-      policyName: 'AWSGlueServicePolicy',
+      // policyName: 'AWSGlueServicePolicy',
       statements: [
         new PolicyStatement({
           effect: Effect.ALLOW,
@@ -154,7 +154,7 @@ export class DiscoveryJobStack extends Construct {
       {
         roleArn: discoveryJobRole.roleArn,
         definitionString: jsonDiscoveryJob,
-        stateMachineName: `${SolutionInfo.SOLUTION_NAME_ABBR}-DiscoveryJob`,
+        stateMachineName: `${SolutionInfo.SOLUTION_NAME_ABBR}-DiscoveryJob`, //Name must be specified
         loggingConfiguration: {
           destinations: [{
             cloudWatchLogsLogGroup: {
