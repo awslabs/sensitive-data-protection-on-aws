@@ -108,33 +108,6 @@ jobs:
       #         .cfnnag_global_suppress_list
       #         .cfnnag_*
 
-  # cfn-nag-scan:
-  #   needs: build
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     CI: "false"
-  #   steps:
-  #     - name: Download all workflow run artifacts
-  #       uses: actions/download-artifact@v3
-      # - name: Setup Ruby 2.6
-      #   uses: ruby/setup-ruby@477b21f02be01bcb8030d50f37cfec92bfa615b6
-      #   with:
-      #     ruby-version: 2.6
-      # - name: cfn_nag
-      #   run: |
-      #     # install Ruby
-      #     # sudo apt-get install ruby-full
-      #     # ls -R
-      #     gem install cfn-nag
-      #     cfn_nag -v
-      #     echo "CloudFormation template scanning utility installation complete `date`"
-      #     echo "Starting CloudFormation template scanning `date` in `pwd`"
-      #     cd build-artifacts/
-      #     export CFN_NAG_OPTS="--template-pattern ..*.template.json --print-suppression --fail-on-warnings"
-      #     if [ -f ".cfnnag_global_suppress_list" ]; then export CFN_NAG_OPTS="$CFN_NAG_OPTS -b .cfnnag_global_suppress_list"; fi
-      #     set -x; cfn_nag_scan $CFN_NAG_OPTS --input-path templates/console/deployment/global-s3-assets/
-      #     # cfn_nag_scan --input-path .
-      #     # echo "Completed CloudFormation template scanning `date`"
 
   # the repository is private, this check cannot be done, set it to pass
   semgrep-scan:
@@ -172,24 +145,24 @@ jobs:
       - name: demo test
         run: |
           true
-      # - name: Checkout
-      #   uses: actions/checkout@v3
-      # - name: Viperlight Scan
-      #   run: |
-      #     wget -q https://viperlight-scanner.s3.amazonaws.com/latest/.viperlightrc
-      #     wget -q https://viperlight-scanner.s3.amazonaws.com/latest/viperlight.zip
-      #     unzip -q viperlight.zip -d viperlight
-      #     rm -r ./viperlight.zip
-      #     cd viperlight  
-      #     ./install.sh
-      #     viperlight --version
-      #     echo "Content scanning utility installation complete `date`"
-      #     echo "Starting content scanning `date` in `pwd`"
-      #     echo "github.workspace is...>>>>>"
-      #     ls -l ${{ github.workspace }}
-      #     cd ${{ github.workspace }}/source
-      #     viperlight scan -m files-contents -m files-aws -m files-binary -m files-entropy -m files-secrets
-      #     echo "Completed content scanning `date`"
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Viperlight Scan
+        run: |
+          wget -q https://viperlight-scanner.s3.amazonaws.com/latest/.viperlightrc
+          wget -q https://viperlight-scanner.s3.amazonaws.com/latest/viperlight.zip
+          unzip -q viperlight.zip -d viperlight
+          rm -r ./viperlight.zip
+          cd viperlight  
+          ./install.sh
+          viperlight --version
+          echo "Content scanning utility installation complete `date`"
+          echo "Starting content scanning `date` in `pwd`"
+          echo "github.workspace is...>>>>>"
+          ls -l ${{ github.workspace }}
+          cd ${{ github.workspace }}/source
+          viperlight scan -m files-contents -m files-aws -m files-binary -m files-entropy -m files-secrets
+          echo "Completed content scanning `date`"
 
   cdk-unit-test:
     runs-on: ubuntu-latest
@@ -297,19 +270,21 @@ jobs:
         uses: ruby/setup-ruby@477b21f02be01bcb8030d50f37cfec92bfa615b6
         with:
           ruby-version: 2.6
-      # - name: CFN-NAG Scan
-      #   run: |
-      #     gem install cfn-nag
-      #     cfn_nag -v
-      #     echo "CloudFormation template scanning utility installation complete `date`"
-      #     echo "Starting CloudFormation template scanning `date` in `pwd`"
-      #     cd ${{ github.workspace }}/source/constructs/cdk.out
-      #     export CFN_NAG_OPTS="--template-pattern ..*.template.json --print-suppression --fail-on-warnings"
-      #     if [ -f ".cfnnag_global_suppress_list" ]; then export CFN_NAG_OPTS="$CFN_NAG_OPTS -b .cfnnag_global_suppress_list"; fi
-      #     set -x; 
-      #     echo "<<<Admin.template.json>>>"
-      #     cfn_nag_scan $CFN_NAG_OPTS --input-path Admin.template.json
-      #     echo "<<<Agent.template.json>>>"
-      #     cfn_nag_scan $CFN_NAG_OPTS --input-path Agent.template.json
-      #     echo "<<<IT.template.json>>>"
-      #     cfn_nag_scan $CFN_NAG_OPTS --input-path IT.template.json
+      - name: CFN-NAG Scan
+        run: |
+          gem install cfn-nag
+          cfn_nag -v
+          echo "CloudFormation template scanning utility installation complete `date`"
+          echo "Starting CloudFormation template scanning `date` in `pwd`"
+          cd ${{ github.workspace }}/source/constructs/cdk.out
+          export CFN_NAG_OPTS="--template-pattern ..*.template.json --print-suppression --fail-on-warnings"
+          if [ -f ".cfnnag_global_suppress_list" ]; then export CFN_NAG_OPTS="$CFN_NAG_OPTS -b .cfnnag_global_suppress_list"; fi
+          set -x; 
+          echo "<<<Admin.template.json>>>"
+          cfn_nag_scan $CFN_NAG_OPTS --input-path Admin.template.json
+          echo "<<<AdminExistVpc.template.json>>>"
+          cfn_nag_scan $CFN_NAG_OPTS --input-path AdminExistVpc.template.json
+          echo "<<<Agent.template.json>>>"
+          cfn_nag_scan $CFN_NAG_OPTS --input-path Agent.template.json
+          echo "<<<IT.template.json>>>"
+          cfn_nag_scan $CFN_NAG_OPTS --input-path IT.template.json
