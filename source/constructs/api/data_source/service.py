@@ -960,7 +960,7 @@ def __update_access_policy_for_account():
                 job_trigger_role_arn = f"arn:{partition}:iam::{account.aws_account_id}:role/{const.SOLUTION_NAME}DiscoveryJobRole-{account.region}"
                 sqs_job_trigger_principals.append(job_trigger_role_arn)
 
-                auto_sync_data_role_arn = f"arn:{partition}:iam::{account.aws_account_id}:role/{const.SOLUTION_NAME}RoleForAutoSyncData-{account.region}"
+                auto_sync_data_role_arn = f"arn:{partition}:iam::{account.aws_account_id}:role/{const.SOLUTION_NAME}DeleteAgentResourcesRole-{account.region}"
                 auto_sync_data_trigger_principals.append(auto_sync_data_role_arn)
 
         # Bucket policies are limited to 20 KB in size.

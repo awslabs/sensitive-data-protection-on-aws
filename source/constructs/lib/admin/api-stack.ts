@@ -88,7 +88,8 @@ export class ApiStack extends Construct {
     updateCatalogFunction.addEventSource(crawlerEventSource);
 
     const autoSyncDataFunction = this.createFunction('AutoSyncData', 'lambda.auto_sync_data.lambda_handler', props, controllerFunctionName, 900);
-    const autoSyncDataSqsStack = new SqsStack(this, 'AutoSyncDataQueue', { name: 'AutoSyncData', visibilityTimeout: 900 });
+    // Set delivery delay to 10 minutes to wait for agent stack to be deleted
+    const autoSyncDataSqsStack = new SqsStack(this, 'AutoSyncDataQueue', { name: 'AutoSyncData', visibilityTimeout: 900, msgDeliveryDelay: 10 });
     const autoSyncDataEventSource = new SqsEventSource(autoSyncDataSqsStack.queue);
     autoSyncDataFunction.addEventSource(autoSyncDataEventSource);
   }

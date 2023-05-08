@@ -22,6 +22,7 @@ import { SolutionInfo } from '../common/solution-info';
 export interface SqsProps {
   name: string;
   visibilityTimeout?: number;
+  msgDeliveryDelay?: number;
 }
 
 export class SqsStack extends Construct {
@@ -39,6 +40,7 @@ export class SqsStack extends Construct {
       queueName: `${SolutionInfo.SOLUTION_NAME_ABBR}-${props.name}`, //Name must be specified
       visibilityTimeout: Duration.seconds(props.visibilityTimeout ?? 30),
       encryption: sqs.QueueEncryption.SQS_MANAGED,
+      deliveryDelay: Duration.minutes(props.msgDeliveryDelay ?? 0),
       deadLetterQueue: {
         queue: dlq,
         maxReceiveCount: 50,
