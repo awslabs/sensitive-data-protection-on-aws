@@ -107,7 +107,7 @@ jobs:
       #         .cfnnagignore
       #         .cfnnag_global_suppress_list
       #         .cfnnag_*
-q
+
 
   # the repository is private, this check cannot be done, set it to pass
   semgrep-scan:
