@@ -17,6 +17,7 @@ import { Construct } from 'constructs';
 import { CrawlerEventbridgeStack } from './agent/CrawlerEventbridge-stack';
 import { DeleteAgentResourcesStack } from './agent/DeleteAgentResources-stack';
 import { DiscoveryJobStack } from './agent/DiscoveryJob-stack';
+import { Parameter } from './common/parameter';
 import { SolutionInfo } from './common/solution-info';
 
 // Operator agent stack
@@ -25,6 +26,7 @@ export class AgentStack extends Stack {
     super(scope, id, props);
 
     this.templateOptions.description = SolutionInfo.AGENT_DESCRIPTION;
+    Parameter.init();
 
     const trustedRoleName = `${SolutionInfo.SOLUTION_NAME_ABBR}APIRole`;
 
@@ -34,6 +36,7 @@ export class AgentStack extends Stack {
       allowedPattern:
         '\\d{12}',
     });
+    Parameter.addToParamLabels('Admin Account ID', adminAccountIdParameter.logicalId);
     const adminAccountId = adminAccountIdParameter.valueAsString;
 
     new DiscoveryJobStack(this, 'DiscoveryJobStateMachine', {
@@ -422,6 +425,12 @@ export class AgentStack extends Stack {
       adminAccountId: adminAccountId,
       queueName: `${SolutionInfo.SOLUTION_NAME_ABBR}-AutoSyncData`,
     });
+
+    this.templateOptions.metadata = {
+      'AWS::CloudFormation::Interface': {
+        ParameterLabels: Parameter.paramLabels,
+      },
+    };
 
     Tags.of(this).add(SolutionInfo.TAG_KEY, SolutionInfo.TAG_VALUE);
   }

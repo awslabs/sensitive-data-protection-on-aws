@@ -49,7 +49,7 @@ axios.interceptors.request.use(
         ? ''
         : User.fromStorageString(
             localStorage.getItem(
-              `oidc.user:${configJSONObj.aws_oidc_provider}:${configJSONObj.aws_oidc_client_id}`
+              `oidc.user:${configJSONObj.aws_oidc_issuer}:${configJSONObj.aws_oidc_client_id}`
             ) || ''
           )?.access_token;
     config.data = JSON.stringify(config.data);

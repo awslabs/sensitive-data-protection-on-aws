@@ -220,33 +220,37 @@ def __start_run(job_id: int, run_id: int):
                 account_first_wait[account_id] = tmp
             else:
                 account_first_wait[account_id] = 0
-            job_bookmark_option = "job-bookmark-enable" if job.range == 1 else "job-bookmark-disable"
+            # job_bookmark_option = "job-bookmark-enable" if job.range == 1 else "job-bookmark-disable"
+            base_time = str(datetime.datetime.min)
+            if job.range == 1 and run_database.base_time is not None:
+                base_time = mytime.format_time(run_database.base_time)
             crawler_name = run_database.database_type + "-" + run_database.database_name + "-crawler"
             job_name = f"{const.SOLUTION_NAME}-Detection-Job-S3"
             if run_database.database_type == DatabaseType.RDS.value:
                 job_name = f"{const.SOLUTION_NAME}-Detection-Job-RDS-" + run_database.database_name
             execution_input = {
+                "JobName": job_name,
+                "CrawlerName": crawler_name,
                 "JobId": str(job.id),
-                "Depth": str(job.depth),
                 "RunId": str(run_id),
                 "RunDatabaseId": str(run_database.id),
                 "AccountId": run_database.account_id,
                 "Region": run_database.region,
-                "CrawlerName": crawler_name,
-                "JobName": job_name,
-                "DatabaseName": run_database.database_name,
                 "DatabaseType": run_database.database_type,
+                "DatabaseName": run_database.database_name,
                 "TemplateId": str(job.template_id),
                 "TemplateSnapshotNo": str(run.template_snapshot_no),
+                "Depth": str(job.depth),
+                "BaseTime": base_time,
+                # "JobBookmarkOption": job_bookmark_option,
                 "DetectionThreshold": str(job.detection_threshold),
+                "OverWrite": str(job.overwrite),
                 "AdminAccountId": admin_account_id,
                 "BucketName": project_bucket_name,
-                "JobBookmarkOption": job_bookmark_option,
                 "AdditionalPythonModules": ','.join([module_path + w for w in wheels]),
                 "FirstWait": str(account_first_wait[account_id]),
                 "LoopWait": str(account_loop_wait[account_id]),
                 "QueueUrl": f'https://sqs.{run_database.region}.amazonaws.com{url_suffix}/{admin_account_id}/{const.SOLUTION_NAME}-DiscoveryJob',
-                "OverWrite": str(job.overwrite),
             }
             run_database.start_time = mytime.get_time()
             __create_job(run_database.database_type, run_database.account_id, run_database.region, run_database.database_name, job_name)
@@ -448,7 +452,15 @@ def complete_run_database(input_event):
             state = RunDatabaseState.FAILED.value
             message = traceback.format_exc()
             logger.exception("sync_job_detection_result exception:%s" % message)
-    crud.complete_run_database(input_event["RunDatabaseId"], state, message)
+    run_database = crud.complete_run_database(input_event["RunDatabaseId"], state, message)
+    if run_database is not None:
+        crud.update_job_database_base_time(input_event["JobId"],
+                                           input_event["AccountId"],
+                                           input_event["Region"],
+                                           input_event["DatabaseType"],
+                                           input_event["DatabaseName"],
+                                           run_database.start_time
+                                            )
 
 
 def check_running_run():
@@ -484,6 +496,15 @@ def check_running_run():
         run_database.end_time = mytime.get_time()
         crud.save_run_database(run_database)
         change_run_state(run_database.run_id)
+        if run_database_state == RunDatabaseState.SUCCEEDED.value.upper():
+            job = crud.get_job_by_run_id(run_database.run_id)
+            crud.update_job_database_base_time(job.id,
+                                               run_database.account_id,
+                                               run_database.region,
+                                               run_database.database_type,
+                                               run_database.database_name,
+                                               run_database.start_time
+                                               )
 
 
 def __get_run_database_state_from_agent(run_database: models.DiscoveryJobRunDatabase) -> str:

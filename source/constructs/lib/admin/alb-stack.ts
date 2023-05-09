@@ -79,7 +79,7 @@ export interface AlbProps {
   readonly port: number;
   readonly internetFacing: string;
   readonly certificateArn: string;
-  readonly oidcProvider: string;
+  readonly oidcIssuer: string;
   readonly oidcClientId: string;
   readonly domainName: string;
 }
@@ -243,7 +243,7 @@ export class AlbStack extends NestedStack {
         subnetType: SubnetType.PRIVATE_WITH_EGRESS,
       }),
       environment: {
-        aws_oidc_provider: props.oidcProvider,
+        aws_oidc_issuer: props.oidcIssuer,
         aws_oidc_client_id: props.oidcClientId,
         aws_oidc_customer_domain: `${this.url}/logincallback`,
         backend_url: `${this.url}`,
