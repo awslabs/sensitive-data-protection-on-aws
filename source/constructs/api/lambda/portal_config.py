@@ -22,7 +22,7 @@ def lambda_handler(event, context):
 	aws_project_region = __get_env_with_defaults('aws_project_region', '')
 	aws_api_endpoint = __get_env_with_defaults('aws_api_endpoint', '/api')
 	aws_authenticationType = __get_env_with_defaults('aws_authenticationType', 'AUTH_TYPE.OPENID_CONNECT')
-	aws_oidc_provider = __get_env_with_defaults('aws_oidc_provider', '')
+	aws_oidc_issuer = __get_env_with_defaults('aws_oidc_issuer', '')
 	aws_oidc_client_id = __get_env_with_defaults('aws_oidc_client_id', '')
 	aws_oidc_customer_domain = __get_env_with_defaults('aws_oidc_customer_domain', '')
 	aws_alb_url = __get_env_with_defaults('aws_alb_url', '')
@@ -40,7 +40,7 @@ def lambda_handler(event, context):
 		"aws_project_region": aws_project_region,
 		"aws_api_endpoint": aws_api_endpoint,
 		"aws_authenticationType": aws_authenticationType,
-		"aws_oidc_provider": aws_oidc_provider,
+		"aws_oidc_issuer": aws_oidc_issuer,
 		"aws_oidc_client_id": aws_oidc_client_id,
 		"aws_oidc_customer_domain": aws_oidc_customer_domain,
 		"aws_alb_url": aws_alb_url,
