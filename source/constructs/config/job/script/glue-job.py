@@ -352,7 +352,7 @@ def detect_df(df, spark, glueContext, udf_dict, broadcast_template, table, regio
     return data_frame
     
 
-def get_tables(_database_name, region):
+def get_tables(_database_name, region, _base_time):
     """
     get_tables detects all the crawler tables in one specified database.
 
@@ -371,7 +371,8 @@ def get_tables(_database_name, region):
             DatabaseName=_database_name, 
             NextToken=next_token)
         for table in response['TableList']:
-            tables.append(table)
+            if table['UpdateTime'] > _base_time:
+                tables.append(table)
         next_token = response.get('NextToken')
         if next_token is None:
             break
@@ -388,11 +389,13 @@ if __name__ == "__main__":
     result_table = 'job_detection_output_table'
 
     args = getResolvedOptions(sys.argv, ["AccountId", "JOB_NAME", 'DatabaseName', 'DatabaseType', 'BucketName',
-    'Depth', 'DetectionThreshold', 'JobId', 'RunId', 'RunDatabaseId', 'TemplateId', 'TemplateSnapshotNo', 'AdminAccountId'])
+    'Depth', 'DetectionThreshold', 'JobId', 'RunId', 'RunDatabaseId', 'TemplateId', 'TemplateSnapshotNo', 
+    'AdminAccountId', 'BaseTime'])
 
     full_database_name = f"{args['DatabaseType']}-{args['DatabaseName']}-database"
     output_path = f"s3://{args['BucketName']}/glue-database/{result_table}/"
     error_path = f"s3://{args['BucketName']}/glue-database/job_detection_error_table/"
+    base_time = parse(args['BaseTime']).replace(tzinfo=pytz.timezone('Asia/Shanghai'))
 
     sc = SparkContext()
     glueContext = GlueContext(sc)
@@ -406,7 +409,7 @@ if __name__ == "__main__":
     template = get_template(s3, args['BucketName'], f"template/template-{args['TemplateId']}-{args['TemplateSnapshotNo']}.json")
     broadcast_template = sc.broadcast(template)
 
-    crawler_tables = get_tables(full_database_name, region)
+    crawler_tables = get_tables(full_database_name, region, base_time)
 
     column_detector = ColumnDetector(broadcast_template)
     detect_column_udf = column_detector.create_detect_column_udf()
@@ -417,14 +420,14 @@ if __name__ == "__main__":
     udf_dict['mask_data_udf'] = mask_data_udf
     udf_dict['summarize_glue_result_udf'] = summarize_glue_result_udf
 
-    # crawler_tables = [{'Name': 'sakila_customer'}]
-    for table in crawler_tables:
+    save_freq = 10
+    num_crawler_tables = len(crawler_tables)
+    for table_index, table in enumerate(crawler_tables):
         try:
             # call detect_table to perform PII detection 
             raw_df = glueContext.create_data_frame_from_catalog(
                 database=full_database_name,
-                table_name=table['Name'],
-                transformation_ctx = full_database_name + table['Name'] + 'df'
+                table_name=table['Name']
             )
             # transformation_ctx = full_database_name + table['Name'] + 'df'
             summarized_result = detect_df(raw_df, spark, glueContext, udf_dict, broadcast_template, table, region, args)
@@ -451,25 +454,22 @@ if __name__ == "__main__":
             print(f'Error occured detecting table {table}')
             print(e)
 
+        if (table_index + 1) % save_freq == 0 or (table_index + 1) == num_crawler_tables:
+            # Save detection result to s3.
+            if output:
+                df = reduce(DataFrame.unionAll, output)
+                df = df.repartition(1, 'year', 'month', 'day')
+                # df.show()
+                df.write.partitionBy('year', 'month', 'day').mode('append').parquet(output_path)
 
-    # Save detection result to s3.
-    if output:
-        df = reduce(DataFrame.unionAll, output)
-        df = df.repartition(1, 'year', 'month', 'day')
-        # glueContext.write_data_frame_from_catalog(
-        #     frame=df,
-        #     database=result_database,
-        #     table_name=result_table,
-        #     catalog_id=args['AdminAccountId']
-        # )
-        # df.show()
-        df.write.partitionBy('year', 'month', 'day').mode('append').parquet(output_path)
-
-    # If error in detect_table, save to error_path
-    if error:
-        df = spark.createDataFrame(error)
-        df.withColumn('update_time', sf.from_utc_timestamp(sf.current_timestamp(), 'Asia/Shanghai'))
-        df = df.repartition(1)
-        df.write.mode('append').parquet(error_path)
+            # If error in detect_table, save to error_path
+            if error:
+                df = spark.createDataFrame(error)
+                df.withColumn('update_time', sf.from_utc_timestamp(sf.current_timestamp(), 'Asia/Shanghai'))
+                df = df.repartition(1)
+                df.write.mode('append').parquet(error_path)
+            
+            output = []
+            error = []
 
     job.commit()
