@@ -22,7 +22,6 @@ import {
   CfnStack,
   Tags,
 } from 'aws-cdk-lib';
-import { ApplicationProtocol } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { Construct } from 'constructs';
 import { AlbStack } from './admin/alb-stack';
 import { ApiStack } from './admin/api-stack';
@@ -76,51 +75,55 @@ export class AdminStack extends Stack {
     this.setBuildConfig();
 
     // Oidc Paramter
-    const oidcProvider = new CfnParameter(this, 'OidcProvider', {
+    const oidcIssuer = new CfnParameter(this, 'OidcIssuer', {
       type: 'String',
-      description: 'Open Id Connector Provider Issuer',
+      description: 'Specify the secure OpenID Connect URL. Maximum 255 characters. URL must begin with "https://"',
       allowedPattern: '(https):\\/\\/[\\w\\-_]+(\\.[\\w\\-_]+)+([\\w\\-\\.,@?^=%&:/~\\+#]*[\\w\\-\\@?^=%&/~\\+#])?',
     });
+    Parameter.addToParamLabels('Issuer URL', oidcIssuer.logicalId);
     const oidcClientId = new CfnParameter(this, 'OidcClientId', {
       type: 'String',
-      description: 'OpenID Connector Client Id',
+      description: 'Specify the client ID issued by the identity provider. Maximum 255 characters. Use alphanumeric or ‘:_.-/’ characters',
       allowedPattern: '^[^ ]+$',
     });
+    Parameter.addToParamLabels('Client ID', oidcClientId.logicalId);
     Parameter.addToParamGroups(
-      'OpenID Connect (OIDC) Settings',
+      'OpenID Connect(OIDC) Identity Provider',
+      oidcIssuer.logicalId,
       oidcClientId.logicalId,
-      oidcProvider.logicalId,
     );
 
     // ALB Paramter
     const internetFacing = new CfnParameter(this, 'AlbInternetFacing', {
       type: 'String',
       default: 'Yes',
-      description: 'Set whether ALB faces the Internet',
+      description: 'If you choose No, the portal website can be accessed ONLY in the VPC. If you want to access the portal website over Internet, you need to choose Yes',
       allowedValues: ['Yes', 'No'],
     });
+    Parameter.addToParamLabels('Public Access', internetFacing.logicalId);
     const port = new CfnParameter(this, 'AlbPort', {
       type: 'Number',
       default: 80,
       minValue: 1,
       maxValue: 65535,
-      description: 'Set the port number of ALB',
+      description: 'If an ACM certificate ARN has been added, we recommend using port 443 as the default port for HTTPS protocol. Otherwise, port 80 can be set as an alternative option',
     });
+    Parameter.addToParamLabels('Port', port.logicalId);
     const certificate = new CfnParameter(this, 'AlbCertificate', {
       type: 'String',
       default: '',
       allowedPattern: '^(arn:(aws|aws-cn):acm:[a-zA-Z0-9-_:/]+)?$',
-      description: 'If you want to use the https feature, Please fill in the arn of the ACM certificate.',
+      description: 'To enable secure communication through encryption and enhancing the security of the solution, you can add a public certificate ARN from ACM to create the portal website URL based on the HTTPS protocol',
     });
-    Parameter.addToParamLabels('(optional)AlbCertificate', certificate.logicalId);
+    Parameter.addToParamLabels('ACM Certificate ARN (optional)', certificate.logicalId);
     const domainName = new CfnParameter(this, 'CustomDomainName', {
       type: 'String',
       default: '',
-      description: 'Only fill in the domain name, do not fill in http(s)://',
+      description: 'By adding your own domain name, such as sdps.example.com, you can directly access the portal website by adding a CNAME record to that domain name after deploying the stack.Only fill in the domain name, do not fill in http(s)://',
     });
-    Parameter.addToParamLabels('(optional)CustomDomainName', domainName.logicalId);
+    Parameter.addToParamLabels('Custom Domain Name (optional)', domainName.logicalId);
     Parameter.addToParamGroups(
-      'ALB Settings',
+      'Network Access',
       internetFacing.logicalId,
       port.logicalId,
       certificate.logicalId,
@@ -166,7 +169,7 @@ export class AdminStack extends Stack {
         port: port.valueAsNumber,
         internetFacing: internetFacing.valueAsString,
         certificateArn: '',
-        oidcProvider: oidcProvider.valueAsString,
+        oidcIssuer: oidcIssuer.valueAsString,
         oidcClientId: oidcClientId.valueAsString,
         domainName: domainName.valueAsString,
       });
@@ -185,7 +188,7 @@ export class AdminStack extends Stack {
         port: port.valueAsNumber,
         internetFacing: internetFacing.valueAsString,
         certificateArn: certificate.valueAsString,
-        oidcProvider: oidcProvider.valueAsString,
+        oidcIssuer: oidcIssuer.valueAsString,
         oidcClientId: oidcClientId.valueAsString,
         domainName: domainName.valueAsString,
       });
@@ -198,7 +201,7 @@ export class AdminStack extends Stack {
         port: port.valueAsNumber,
         internetFacing: internetFacing.valueAsString,
         certificateArn: '',
-        oidcProvider: oidcProvider.valueAsString,
+        oidcIssuer: oidcIssuer.valueAsString,
         oidcClientId: oidcClientId.valueAsString,
         domainName: domainName.valueAsString,
       });
@@ -211,7 +214,7 @@ export class AdminStack extends Stack {
         port: port.valueAsNumber,
         internetFacing: internetFacing.valueAsString,
         certificateArn: certificate.valueAsString,
-        oidcProvider: oidcProvider.valueAsString,
+        oidcIssuer: oidcIssuer.valueAsString,
         oidcClientId: oidcClientId.valueAsString,
         domainName: domainName.valueAsString,
       });
