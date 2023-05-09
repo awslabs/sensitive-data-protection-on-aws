@@ -10,6 +10,7 @@ class DiscoveryJobRunDatabaseBase(BaseModel):
     region: str
     database_type: Optional[str]
     database_name: Optional[str]
+    base_time: Optional[datetime.datetime]
     start_time: Optional[datetime.datetime]
     end_time: Optional[datetime.datetime]
     state: Optional[str]
@@ -17,7 +18,6 @@ class DiscoveryJobRunDatabaseBase(BaseModel):
 
 
 class DiscoveryJobRunDatabaseUpdate(BaseModel):
-    start_time: Optional[datetime.datetime]
     end_time: Optional[datetime.datetime]
     state: Optional[str]
     log: Optional[str]
@@ -93,6 +93,10 @@ class DiscoveryJobDatabase(DiscoveryJobDatabaseBase):
 
     class Config:
         orm_mode = True
+
+
+class DiscoveryJobDatabaseBaseTime(BaseModel):
+    base_time: datetime.datetime
 
 
 class DiscoveryJobState(BaseModel):

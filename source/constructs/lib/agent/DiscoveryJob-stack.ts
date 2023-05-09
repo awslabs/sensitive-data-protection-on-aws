@@ -54,16 +54,6 @@ export class DiscoveryJobStack extends Construct {
         new PolicyStatement({
           effect: Effect.ALLOW,
           actions: [
-            's3:GetObject',
-            's3:PutObject',
-            's3:CreateBucket',
-            's3:DeleteObject',
-          ],
-          resources: [`arn:${Aws.PARTITION}:s3:::*`],
-        }),
-        new PolicyStatement({
-          effect: Effect.ALLOW,
-          actions: [
             'glue:*',
             's3:GetBucketLocation',
             's3:ListBucket',
@@ -83,6 +73,35 @@ export class DiscoveryJobStack extends Construct {
             'cloudwatch:PutMetricData',
           ],
           resources: ['*'],
+        }),
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: ['s3:CreateBucket'],
+          resources: [
+            `arn:${Aws.PARTITION}:s3:::aws-glue-*`,
+          ],
+        }),
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: [
+            's3:GetObject',
+            's3:PutObject',
+            's3:DeleteObject',
+          ],
+          resources: [
+            `arn:${Aws.PARTITION}:s3:::aws-glue-*/*`,
+            `arn:${Aws.PARTITION}:s3:::*/*aws-glue-*/*`,
+          ],
+        }),
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: [
+            's3:GetObject',
+          ],
+          resources: [
+            `arn:${Aws.PARTITION}:s3:::crawler-public*`,
+            `arn:${Aws.PARTITION}:s3:::aws-glue-*`,
+          ],
         }),
         new PolicyStatement({
           effect: Effect.ALLOW,
