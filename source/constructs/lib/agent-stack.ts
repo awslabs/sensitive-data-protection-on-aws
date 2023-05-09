@@ -34,6 +34,22 @@ export class AgentStack extends Stack {
       allowedPattern:
         '\\d{12}',
     });
+
+    this.templateOptions.metadata = {
+      'AWS::CloudFormation::Interface': {
+        ParameterGroups: [
+          {
+            Label: { default: 'Admin Account' },
+            Parameters: [adminAccountIdParameter.logicalId],
+          },
+        ],
+        ParameterLabels: {
+          [adminAccountIdParameter.logicalId]: {
+            default: 'Account ID',
+          },
+        },
+      },
+    };
     const adminAccountId = adminAccountIdParameter.valueAsString;
 
     new DiscoveryJobStack(this, 'DiscoveryJobStateMachine', {
