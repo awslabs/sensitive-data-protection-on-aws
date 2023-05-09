@@ -130,7 +130,7 @@ const App: React.FC = () => {
     if (configData.aws_authenticationType === AppSyncAuthType.OPEN_ID) {
       const settings = {
         userStore: new WebStorageStateStore({ store: window.localStorage }),
-        authority: configData.aws_oidc_provider,
+        authority: configData.aws_oidc_issuer,
         scope: 'openid email profile',
         automaticSilentRenew: true,
         client_id: configData.aws_oidc_client_id,
@@ -167,7 +167,7 @@ const App: React.FC = () => {
     // Get oidc logout url from openid configuration
     if (configData.aws_authenticationType === AppSyncAuthType.OPEN_ID) {
       Axios.get(
-        `${configData.aws_oidc_provider}/.well-known/openid-configuration`
+        `${configData.aws_oidc_issuer}/.well-known/openid-configuration`
       ).then((res) => {
         configData.aws_oidc_logout_endpoint = res.data.end_session_endpoint;
         localStorage.setItem(AMPLIFY_CONFIG_JSON, JSON.stringify(configData));

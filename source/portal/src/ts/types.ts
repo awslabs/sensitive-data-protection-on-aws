@@ -7,7 +7,7 @@ export interface AmplifyConfigType {
   aws_project_region: string;
   aws_api_endpoint: string;
   aws_authenticationType: AppSyncAuthType;
-  aws_oidc_provider: string;
+  aws_oidc_issuer: string;
   aws_oidc_client_id: string;
   aws_oidc_customer_domain: string;
   aws_oidc_logout_endpoint: string;

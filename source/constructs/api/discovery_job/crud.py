@@ -9,6 +9,7 @@ from common.enum import MessageEnum, JobState, RunState, RunDatabaseState, Datab
 from sqlalchemy import func
 from common.constant import const
 import uuid
+import datetime
 from catalog.crud import get_catalog_database_level_classification_by_type_all
 from template.service import get_template_snapshot_no
 from sqlalchemy import desc
@@ -102,17 +103,26 @@ def get_running_run(job_id: int) -> models.DiscoveryJobRun:
     return db_run
 
 
-def __add_job_databases(run: models.DiscoveryJobRun, database_type: DatabaseType):
+def __add_job_databases(run: models.DiscoveryJobRun, database_type: DatabaseType, base_time_dict: dict):
     databases = get_catalog_database_level_classification_by_type_all(database_type.value).all()
     for database in databases:
+        base_time = base_time_dict.get(f'{database.account_id}-{database.region}-{database_type.value}-{database.database_name}')
         run_database = models.DiscoveryJobRunDatabase(run_id=run.id,
                                                       account_id=database.account_id,
                                                       region=database.region,
                                                       database_type=database_type.value,
                                                       database_name=database.database_name,
+                                                      base_name=base_time,
                                                       state=RunDatabaseState.READY.value,
                                                       uuid=uuid.uuid4().hex)
         run.databases.append(run_database)
+
+
+def __build_base_time(job_databases: list[models.DiscoveryJobDatabase]) -> dict:
+    base_time_dict = {}
+    for job_database in job_databases:
+        base_time_dict[f'{job_database.account_id}-{job_database.region}-{job_database.database_type}-{job_database.database_name}'] = job_database.base_time
+    return base_time_dict
 
 
 def init_run(job_id: int) -> int:
@@ -129,6 +139,7 @@ def init_run(job_id: int) -> int:
     job.last_end_time = None
     job_databases = session.query(models.DiscoveryJobDatabase).filter(
         models.DiscoveryJobDatabase.job_id == job_id).all()
+    base_time_dict = __build_base_time(job_databases)
     template_snapshot_no = get_template_snapshot_no(job.template_id)
     run = models.DiscoveryJobRun(job_id=job_id,
                                  template_id=job.template_id,
@@ -137,19 +148,20 @@ def init_run(job_id: int) -> int:
                                  state=RunState.RUNNING.value)
     run.databases = []
     if job.all_rds == 1:
-        __add_job_databases(run, DatabaseType.RDS)
+        __add_job_databases(run, DatabaseType.RDS, base_time_dict)
     if job.all_s3 == 1:
-        __add_job_databases(run, DatabaseType.S3)
+        __add_job_databases(run, DatabaseType.S3, base_time_dict)
     if job.all_ddb == 1:
-        __add_job_databases(run, DatabaseType.DDB)
+        __add_job_databases(run, DatabaseType.DDB, base_time_dict)
     if job.all_emr == 1:
-        __add_job_databases(run, DatabaseType.EMR)
+        __add_job_databases(run, DatabaseType.EMR, base_time_dict)
     for job_database in job_databases:
         run_database = models.DiscoveryJobRunDatabase(run_id=run.id,
                                                       account_id=job_database.account_id,
                                                       region=job_database.region,
                                                       database_type=job_database.database_type,
                                                       database_name=job_database.database_name,
+                                                      base_time=job_database.base_time,
                                                       state=RunDatabaseState.READY.value,
                                                       uuid=uuid.uuid4().hex)
         run.databases.append(run_database)
@@ -235,14 +247,26 @@ def complete_run(run_id: int):
     session.commit()
 
 
-def complete_run_database(run_database_id: int, state: str, message: str):
+def complete_run_database(run_database_id: int, state: str, message: str) -> models.DiscoveryJobRunDatabase:
     session = get_session()
     run_database: models.DiscoveryJobRunDatabase = session.query(models.DiscoveryJobRunDatabase).get(run_database_id)
     if run_database is None:
-        return
+        return None
     run_database.state = state
     run_database.log = message
     run_database.end_time = mytime.get_time()
+    session.commit()
+    return run_database
+
+
+def update_job_database_base_time(job_id: int, account_id: str, region: str, database_type: str, database_name: str, base_time: datetime.datetime):
+    session = get_session()
+    job_database = schemas.DiscoveryJobDatabaseBaseTime(base_time=base_time)
+    session.query(models.DiscoveryJobDatabase).filter(models.DiscoveryJobDatabase.job_id == job_id,
+        models.DiscoveryJobDatabase.account_id == account_id,
+        models.DiscoveryJobDatabase.region == region,
+        models.DiscoveryJobDatabase.database_type == database_type,
+        models.DiscoveryJobDatabase.database_name == database_name).update(job_database.dict(exclude_unset=True))
     session.commit()
 
 
