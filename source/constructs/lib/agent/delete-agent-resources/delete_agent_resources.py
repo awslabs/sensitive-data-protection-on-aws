@@ -65,18 +65,30 @@ def on_update(event):
     logger.info("Got Update")
 
 
+def delete_role():
+    # Delete admin assumed role
+    iam = boto3.client("iam")
+    role_name = os.getenv("RoleName")
+    logger.info(f"Deleting role {role_name}")
+    try:
+        iam.delete_role(RoleName=role_name)
+    except Exception as e:
+        logger.info(f"""Error occurred while deleting role {role_name}, 
+                    this may be due to the agent stack has been deleted: {e}""")
+
+
 def notify_admin_to_delete_resources():
-    sqs = boto3.client('sqs')
-    caller_identity = boto3.client('sts').get_caller_identity()
-    partition = caller_identity['Arn'].split(':')[1]
+    sqs = boto3.client("sqs")
+    caller_identity = boto3.client("sts").get_caller_identity()
+    partition = caller_identity["Arn"].split(":")[1]
 
     message = {
-        "AccountID": os.getenv('AgentAccountID'), # Agent account Id
+        "AccountID": os.getenv("AgentAccountID"), # Agent account Id
         "Action": "DeleteAccount", # Valid action: AddAccount/DeleteAccount/AddDataSource/DeleteDataSource
         "Timestamp": str(int(time.time())), # Timestamp in seconds
-        "Region": os.getenv('RegionName')
+        "Region": os.getenv("RegionName")
     }
-    url_suffix = '.cn' if partition == 'aws-cn' else ''
+    url_suffix = ".cn" if partition == "aws-cn" else ""
     response = sqs.send_message(
         QueueUrl=f"https://sqs.{os.getenv('AWS_REGION')}.amazonaws.com{url_suffix}/{os.getenv('AdminAccountId')}/{os.getenv('QueueName')}",
         MessageBody=json.dumps(message))
@@ -86,6 +98,7 @@ def notify_admin_to_delete_resources():
 def on_delete(event):
     logger.info("Got Delete")
     notify_admin_to_delete_resources()
+    delete_role()
     solution_name = event["ResourceProperties"]["SolutionNameAbbr"]
     crawlers = cleanup_crawlers()
     for crawler in crawlers:

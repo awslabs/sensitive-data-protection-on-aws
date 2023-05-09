@@ -86,6 +86,10 @@ export class DeleteAgentResourcesStack extends Construct {
             'glue:DeleteCrawler',
             'glue:ListJobs',
             'glue:DeleteJob',
+            'iam:DeleteRole',
+            'iam:DeleteRolePolicy',
+            'iam:ListAttachedRolePolicies',
+            'iam:DetachRolePolicy',
           ],
           resources: ['*'],
         }),
@@ -129,6 +133,7 @@ export class DeleteAgentResourcesStack extends Construct {
         QueueName: `${SolutionInfo.SOLUTION_NAME_ABBR}-AutoSyncData`,
         AgentAccountID: Aws.ACCOUNT_ID,
         RegionName: Aws.REGION,
+        RoleName: `${SolutionInfo.SOLUTION_NAME_ABBR}RoleForAdmin-${Aws.REGION}`,
       },
     });
     deleteAgentResourcesFunction.node.addDependency(deleteAgentResourcesRole);
