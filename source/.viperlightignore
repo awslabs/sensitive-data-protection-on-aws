@@ -69,6 +69,16 @@ constructs/api/discovery_job/service.py:316
 constructs/api/discovery_job/service.py:348
 constructs/api/discovery_job/service.py:499
 constructs/api/discovery_job/service.py:523
+constructs/api/discovery_job/service.py:277
+constructs/api/discovery_job/service.py:319
+constructs/api/discovery_job/service.py:351
+constructs/api/discovery_job/service.py:519
+constructs/api/discovery_job/service.py:543
+constructs/api/discovery_job/service.py:278
+constructs/api/discovery_job/service.py:320
+constructs/api/discovery_job/service.py:352
+constructs/api/discovery_job/service.py:520
+constructs/api/discovery_job/service.py:544
 constructs/api/organization/organization.py:24
 constructs/api/organization/organization.py:25
 constructs/lib/admin/database/init_db.py:99
