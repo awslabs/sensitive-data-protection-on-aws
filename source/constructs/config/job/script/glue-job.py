@@ -395,7 +395,7 @@ if __name__ == "__main__":
     full_database_name = f"{args['DatabaseType']}-{args['DatabaseName']}-database"
     output_path = f"s3://{args['BucketName']}/glue-database/{result_table}/"
     error_path = f"s3://{args['BucketName']}/glue-database/job_detection_error_table/"
-    base_time = parse(args['BaseTime']).replace(tzinfo=pytz.timezone('Asia/Shanghai'))
+    base_time = parse(args['BaseTime']).replace(tzinfo=pytz.timezone('UTC'))
 
     sc = SparkContext()
     glueContext = GlueContext(sc)
@@ -465,7 +465,7 @@ if __name__ == "__main__":
             # If error in detect_table, save to error_path
             if error:
                 df = spark.createDataFrame(error)
-                df.withColumn('update_time', sf.from_utc_timestamp(sf.current_timestamp(), 'Asia/Shanghai'))
+                df.withColumn('update_time', sf.from_utc_timestamp(sf.current_timestamp(), 'UTC'))
                 df = df.repartition(1)
                 df.write.mode('append').parquet(error_path)
             
