@@ -208,6 +208,7 @@ def sync_crawler_result(
 
         # Next token is a continuation token, present if the current list segment is not the last.
         next_token = ""
+        table_name_list = []
         while True:
             tables_response = client.get_tables(
                 DatabaseName=glue_database_name, NextToken=next_token
@@ -216,6 +217,7 @@ def sync_crawler_result(
                                                                           database_name)
             for table in tables_response["TableList"]:
                 table_name = table["Name"].strip()
+                table_name_list.append(table_name)
                 # If the file is end of .csv or .json, but the content of the file is not csv/json
                 # glue can't crawl them correctly
                 # So there is no sizeKey in Parameters, we set the default value is 0
@@ -314,6 +316,13 @@ def sync_crawler_result(
             next_token = tables_response.get("NextToken")
             if next_token is None:
                 break
+        catalog_table_list = crud.get_catalog_table_level_classification_by_database(account_id, region,
+                                                                                     database_type, database_name)
+        for catalog in catalog_table_list:
+            if catalog.table_name not in table_name_list:
+                logger.info("sync_crawler_result DELETE TABLE WHEN NOT IN GLUE TABLES" + json.dumps(catalog))
+                crud.delete_catalog_table_level_classification(catalog.id)
+
     if table_count == 0:
         if database_type == DatabaseType.RDS.value:
             data_source_crud.set_rds_instance_source_glue_state(account_id, region, database_name, ConnectionState.UNSUPPORTED.value)
@@ -588,7 +597,6 @@ def sync_job_detection_result(
                 table_size = int(__get_athena_column_value(row["Data"][5], "int"))
                 table_size_dict[table_name] = table_size
                 column_privacy = privacy
-                
                 catalog_column = crud.get_catalog_column_level_classification_by_name(
                     account_id,
                     region,
@@ -597,6 +605,13 @@ def sync_job_detection_result(
                     table_name,
                     column_name,
                 )
+
+                if table_size <= 0:
+                    logger.info("sync_job_detection_result - DELETE COLUMN WHEN TABLE_SIZE IS ZERO : " + json.dumps(catalog_column))
+                    print(
+                        "sync_job_detection_result - DELETE COLUMN WHEN TABLE_SIZE IS ZERO : " + json.dumps(catalog_column))
+                    crud.delete_catalog_column_level_classification(catalog_column.id)
+                    continue
 
                 identifier_dict = __convert_identifiers_to_dict(identifier)
                 if catalog_column is not None and  (overwrite == True or (overwrite == False and catalog_column.modify_by == const.USER_DEFAULT_NAME)):
@@ -631,6 +646,13 @@ def sync_job_detection_result(
         catalog_table = crud.get_catalog_table_level_classification_by_name(
             account_id, region, database_type, database_name, table_name
         )
+        if table_size <= 0:
+            # 注意数据的删除！！！！
+            logger.info("sync_job_detection_result - DELETE TABLE WHEN TABLE_SIZE IS ZERO : " + json.dumps(catalog_table))
+            print("sync_job_detection_result - DELETE TABLE WHEN TABLE_SIZE IS ZERO : " + json.dumps(catalog_table))
+            crud.delete_catalog_table_level_classification(catalog_table.id)
+            continue
+
         if table_name not in table_privacy_dict:
             if catalog_table is not None and (
                     overwrite == True or (overwrite == False and catalog_table.modify_by == const.USER_DEFAULT_NAME)):
