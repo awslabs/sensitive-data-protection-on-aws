@@ -18,9 +18,9 @@ def get_labels_by_id_list(id_list: List[int]) -> List[models.Label]:
 def search_labels_by_name(label_name: str) -> List[models.Label]:
     session = get_session()
     if not label_name:  # 检查 label_name 是否为空
-        labels = session.query(models.Label).all()
+        labels = session.query(models.Label).order_by(models.Label.label_name).all()
     else:
-        query = session.query(models.Label).filter(models.Label.label_name.ilike("%" + label_name + "%"))
+        query = session.query(models.Label).filter(models.Label.label_name.ilike("%" + label_name + "%")).order_by(models.Label.label_name)
         labels = query.all()
 
     return labels
