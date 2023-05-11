@@ -63,11 +63,9 @@ def create_label(label: schemas.LabelCreate):
 
 @router.post(
     "/update-label",
-    response_model=BaseResponse[bool]
 )
 @inject_session
 def update_label(
-    id: int,
     label: schemas.LabelUpdate
 ):
     return crud.update_label(id, label)

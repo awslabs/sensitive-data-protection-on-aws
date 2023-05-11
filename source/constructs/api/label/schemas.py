@@ -49,15 +49,13 @@ class LabelCreate(BaseModel):
 
 
 class LabelUpdate(BaseModel):
+    id: int
     label_name: Optional[str]
     classification: Optional[str]
     type: Optional[str]
     style_type: Optional[str]
     style_value: Optional[str]
     state: Optional[str]
-
-    class Config:
-        orm_mode = True
 
 
 class LabelDelete(BaseModel):

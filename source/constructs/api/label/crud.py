@@ -83,32 +83,35 @@ def update_label(
         id: int,
         label: schemas.LabelUpdate
 ):
-    session = get_session()
-    db_label = session.query(models.Label).filter(models.Label.id == id).first()
-    if not db_label:
-        raise BizException(
-            MessageEnum.BIZ_ITEM_NOT_EXISTS.get_code(),
-            MessageEnum.BIZ_ITEM_NOT_EXISTS.get_msg()
-        )
+    size = (
+        get_session()
+        .query(models.Label)
+        .filter(models.Label.id == id)
+        .update(label.dict(exclude_unset=True))
+    )
+    get_session().commit()
+    return size > 0
+    #
+    # session = get_session()
+    # db_label = session.query(models.Label).filter(models.Label.id == id).first()
+    # if not db_label:
+    #     raise BizException(
+    #         MessageEnum.BIZ_ITEM_NOT_EXISTS.get_code(),
+    #         MessageEnum.BIZ_ITEM_NOT_EXISTS.get_msg()
+    #     )
+    # print(db_label)
+    # # # 将version字段+1
+    # # if db_label.version is not None and db_label.version.isdigit():
+    # #     db_label.version += 1
+    # session.query(models.Label).filter(models.Label.id == id).update(label.dict(exclude_unset=True))
+    # print(label.dict(exclude_unset=True))
+    # session.commit()
+    # return True
 
-    # 将version字段+1
-    if db_label.version is not None and db_label.version.isdigit():
-        db_label.version += 1
 
-    now = datetime.datetime.now()
-    # 将时间转换为 SQLite DateTime 格式
-    formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
-    label.modify_time = formatted_date
-
-    session.query(models.Label).filter(models.Label.id == id).update(label.dict(exclude_unset=True))
-    session.commit()
-    return True
-
-
-def delete_labels_by_ids(ids: str):
+def delete_labels_by_ids(ids: list):
     try:
-        label_ids = ids.split(',')
-        label_id_list = list(map(int, label_ids))
+        label_id_list = list(map(int, ids))
         session = get_session()
         session.query(models.Label).filter(
             models.Label.id.in_(label_id_list)
