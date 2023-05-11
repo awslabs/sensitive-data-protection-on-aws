@@ -976,6 +976,6 @@ def fill_catalog_labels(catalogs):
         labels = get_labels_by_id_list(label_id_list)
         if labels is None:
             continue
-        labels_str = [{"id": label.id, "name": label.label_name} for label in labels]
+        labels_str = [{"id": label.id, "label_name": label.label_name} for label in labels]
         catalog.labels = labels_str
     return catalogs
