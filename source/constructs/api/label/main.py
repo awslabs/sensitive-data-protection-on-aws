@@ -68,7 +68,7 @@ def create_label(label: schemas.LabelCreate):
 def update_label(
     label: schemas.LabelUpdate
 ):
-    return crud.update_label(id, label)
+    return crud.update_label(label)
 
 
 @router.post(

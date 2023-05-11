@@ -79,34 +79,25 @@ def create_label(label: schemas.LabelCreate) -> models.Label:
     return db_label
 
 
-def update_label(
-        id: int,
-        label: schemas.LabelUpdate
-):
-    size = (
-        get_session()
-        .query(models.Label)
-        .filter(models.Label.id == id)
-        .update(label.dict(exclude_unset=True))
-    )
-    get_session().commit()
-    return size > 0
-    #
-    # session = get_session()
-    # db_label = session.query(models.Label).filter(models.Label.id == id).first()
-    # if not db_label:
-    #     raise BizException(
-    #         MessageEnum.BIZ_ITEM_NOT_EXISTS.get_code(),
-    #         MessageEnum.BIZ_ITEM_NOT_EXISTS.get_msg()
-    #     )
-    # print(db_label)
-    # # # 将version字段+1
-    # # if db_label.version is not None and db_label.version.isdigit():
-    # #     db_label.version += 1
-    # session.query(models.Label).filter(models.Label.id == id).update(label.dict(exclude_unset=True))
-    # print(label.dict(exclude_unset=True))
-    # session.commit()
-    # return True
+def update_label(label: schemas.LabelUpdate):
+    print(label.id)
+    print(label)
+    session = get_session()
+    db_label = session.query(models.Label).filter(models.Label.id == label.id).first()
+    print(db_label)
+    if not db_label:
+        raise BizException(
+            MessageEnum.BIZ_ITEM_NOT_EXISTS.get_code(),
+            MessageEnum.BIZ_ITEM_NOT_EXISTS.get_msg()
+        )
+    print(db_label)
+    # # 将version字段+1
+    if db_label.version is not None:
+        db_label.version += 1
+    session.query(models.Label).filter(models.Label.id == id).update(label.dict(exclude_unset=True))
+    print(label.dict(exclude_unset=True))
+    session.commit()
+    return True
 
 
 def delete_labels_by_ids(ids: list):
