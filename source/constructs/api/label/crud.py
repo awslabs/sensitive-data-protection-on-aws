@@ -106,12 +106,14 @@ def update_label(
 
 
 def delete_label(
-        id: int
+        ids: str
     ):
     try:
+        label_ids = ids.split(',')
+        label_id_list = list(map(int, label_ids))
         session = get_session()
         session.query(models.Label).filter(
-            models.Label.id == id
+            models.Label.id.in_(label_id_list)
         ).delete()
         session.commit()
         return True
