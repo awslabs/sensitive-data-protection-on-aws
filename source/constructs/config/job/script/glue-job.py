@@ -148,14 +148,14 @@ def mask_data(col_val):
     """
     This mask_data is used to created a udf for masking data.
     The input is a list of strings. The column to be detected is a column of lists.
-    If a string is longer than 100, we display the first 70 characters,
-    and display the following characters using * (at most 30 *)
+    If a string is longer than 100, we display the first 80 characters,
+    and display the following characters using * (at most 20 *)
     """
     def mask_string(s):
         length = len(s)
-        first_70_percent = math.floor(length * 0.7)
-        display_length = min(first_70_percent, 70)
-        masked_length = min(30, length - display_length)
+        first_80_percent = math.floor(length * 0.8)
+        display_length = min(first_80_percent, 80)
+        masked_length = min(20, length - display_length)
         return s[:display_length] + '*' * (masked_length)
     return [mask_string(s) for s in col_val]
 
@@ -219,13 +219,13 @@ def classifyColumnsAfterRowLevel(nonEmptySampledDf: DataFrame,
         .select('column_name', sf.explode('identity_types'))\
         .select('col.*', '*').groupBy('column_name', 'identifier').agg(sf.sum('score').alias('score'))\
         .withColumn('score', sf.col('score')/rows)\
-        .where(f'score > 0.1')\
+        .where(f'score > {thresholdFraction}')\
         .withColumn('identifier', sf.struct('identifier', 'score'))\
         .groupBy('column_name').agg(sf.collect_list('identifier').alias('identifiers'))
 
     return nonEmptySampledDf
 
-def glue_entity_detection(glueContext, df, summarize_glue_result_udf, broadcast_template):
+def glue_entity_detection(glueContext, df, summarize_glue_result_udf, broadcast_template, threshold):
 
     glue_identifiers = []
     identifiers = broadcast_template.value.get('identifiers')
@@ -244,7 +244,7 @@ def glue_entity_detection(glueContext, df, summarize_glue_result_udf, broadcast_
             "DetectedEntities",
         )
 
-        glue_detector_result = classifyColumnsAfterRowLevel(DetectSensitiveData_node1.toDF(), summarize_glue_result_udf, "DetectedEntities", 0.1)
+        glue_detector_result = classifyColumnsAfterRowLevel(DetectSensitiveData_node1.toDF(), summarize_glue_result_udf, "DetectedEntities", threshold)
     else:
         glue_detector_result = None
 
@@ -296,7 +296,7 @@ def detect_df(df, spark, glueContext, udf_dict, broadcast_template, table, regio
         sample_df = df.limit(10)
         # sample_df.show()
 
-        glue_result_df = glue_entity_detection(glueContext, df, summarize_glue_result_udf, broadcast_template)
+        glue_result_df = glue_entity_detection(glueContext, df, summarize_glue_result_udf, broadcast_template, threshold)
         sdps_result_df = sdps_entity_detection(df, threshold, detect_column_udf)
 
         if glue_result_df != None:
