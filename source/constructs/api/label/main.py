@@ -82,7 +82,7 @@ def update_label(
 )
 @inject_session
 def delete_label(
-    id: int,
+    ids: str,
 ):
-    return crud.delete_label(id)
+    return crud.delete_label(ids)
 
