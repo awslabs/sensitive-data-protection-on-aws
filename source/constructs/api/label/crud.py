@@ -17,8 +17,12 @@ def get_labels_by_id_list(id_list: List[int]) -> List[models.Label]:
 
 def search_labels_by_name(label_name: str) -> List[models.Label]:
     session = get_session()
-    query = session.query(models.Label).filter(models.Label.label_name.ilike("%" + label_name + "%"))
-    labels = query.all()
+    if not label_name:  # 检查 label_name 是否为空
+        labels = session.query(models.Label).all()
+    else:
+        query = session.query(models.Label).filter(models.Label.label_name.ilike("%" + label_name + "%"))
+        labels = query.all()
+
     return labels
 
 
@@ -53,7 +57,7 @@ def search_detail_labels_by_page(
             models.Label.state == label_search.state
         )
     result = query.order_by(
-        models.Label.modify_time
+        models.Label.label_name
     )
     return result
 
