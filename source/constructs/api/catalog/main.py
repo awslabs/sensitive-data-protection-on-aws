@@ -37,7 +37,7 @@ def get_catalog_column_by_params(
 
 @router.get(
     "/get-tables-by-database",
-    response_model=BaseResponse[Page[schemas.CatalogTableLevelClassification]],
+    # response_model=BaseResponse[Page[schemas.CatalogTableLevelClassification]],
 )
 @inject_session
 def get_catalog_tables_by_database(
@@ -47,18 +47,17 @@ def get_catalog_tables_by_database(
     database_name: str,
     params: Params = Depends(),
 ):
-    catalog = paginate(
-        crud.get_catalog_table_level_classification_by_database(
+    catalogs = crud.get_catalog_table_level_classification_by_database(
             account_id, region, database_type, database_name
-        ),
-        params,
-    )
-    return catalog
+        )
+    rlt = paginate(catalogs, params)
+    service.fill_catalog_labels(rlt.items)
+    return rlt
 
 
 @router.get(
     "/search-tables-by-database",
-    response_model=BaseResponse[Page[schemas.CatalogTableLevelClassification]],
+    # response_model=BaseResponse[Page[schemas.CatalogTableLevelClassification]],
 )
 @inject_session
 def search_catalog_tables_by_database(
@@ -69,48 +68,49 @@ def search_catalog_tables_by_database(
     table_name: str,
     params: Params = Depends(),
 ):
-    catalog = paginate(
-        crud.search_catalog_table_level_classification_by_database(
+    catalogs = crud.search_catalog_table_level_classification_by_database(
             account_id, region, database_type, database_name, table_name
-        ),
-        params,
-    )
-    return catalog
+        )
+    rlt = paginate(catalogs, params, )
+    service.fill_catalog_labels(rlt.items)
+    return rlt
 
 
 @router.get(
     "/get-databases-by-account-region-type",
-    response_model=BaseResponse[Page[schemas.CatalogDatabaseLevelClassification]],
+    # response_model=BaseResponse[Page[schemas.CatalogDatabaseLevelClassification]],
 )
 @inject_session
 def get_catalog_database_by_params(
     account_id: str, region: str, database_type: str, params: Params = Depends()
 ):
-    catalog = paginate(
-        crud.get_catalog_database_level_classification_by_params(
+    catalogs = crud.get_catalog_database_level_classification_by_params(
             account_id, region, database_type
-        ),
-        params,
-    )
-    return catalog
+        )
+
+    rlt = paginate(catalogs, params, )
+    service.fill_catalog_labels(rlt.items)
+    return rlt
 
 
 @router.post(
     "/list-databases-by-type",
-    response_model=BaseResponse[Page[schemas.CatalogDatabaseLevelClassification]],
+    # response_model=BaseResponse[Page[schemas.CatalogDatabaseLevelClassification]],
 )
 @inject_session
 # Removed database_type param because of it can be added in query condition
 def get_catalog_database_by_type(condition: QueryCondition):
-    catalog = crud.get_catalog_database_level_classification_by_type(condition)
-    return paginate(catalog, Params(
+    catalogs = crud.get_catalog_database_level_classification_by_type(condition)
+    rlt = paginate(catalogs, Params(
         size=condition.size,
         page=condition.page,
     ))
+    service.fill_catalog_labels(rlt.items)
+    return rlt
 
 @router.get(
     "/get-tables-by-database-identifier",
-    response_model=BaseResponse[Page[schemas.CatalogTableLevelClassification]],
+    # response_model=BaseResponse[Page[schemas.CatalogTableLevelClassification]],
 )
 @inject_session
 def get_catalog_table_by_database_identifier(
@@ -121,13 +121,13 @@ def get_catalog_table_by_database_identifier(
     identifier: str,
     params: Params = Depends(),
 ):
-    catalog = paginate(
-        crud.get_catalog_table_level_classification_by_database_identifier(
+    catalogs = crud.get_catalog_table_level_classification_by_database_identifier(
             account_id, region, database_type, database_name, identifier
-        ),
-        params,
-    )
-    return catalog
+        )
+
+    rlt = paginate(catalogs, params, )
+    service.fill_catalog_labels(rlt.items)
+    return rlt
 
 
 @router.get("/get-database-identifiers", response_model=BaseResponse)
@@ -141,7 +141,6 @@ def get_database_identifiers(
     return service.get_database_identifiers_from_tables(
         account_id, region, database_type, database_name
     )
-
 
 @router.get("/get-s3-sample-objects", response_model=BaseResponse)
 @inject_session
