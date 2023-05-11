@@ -37,11 +37,11 @@ class LabelSearch(BaseModel):
 
 class LabelCreate(BaseModel):
     label_name: str
-    classification: Optional[str] = LabelClassification.DEFAULT
-    type: Optional[str] = LabelType.DEFAULT
-    style_type: Optional[str] = LabelStyleType.DEFAULT
+    classification: Optional[str] = "default"
+    type: Optional[str] = "default"
+    style_type: Optional[str] = "default"
     style_value: Optional[str] = ''
-    state: Optional[str] = LabelState.ONLINE
+    state: Optional[str] = "online"
     version: Optional[int] = 0
 
     class Config:
