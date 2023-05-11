@@ -1,4 +1,4 @@
-import datetime
+
 from typing import Optional
 from pydantic import BaseModel
 from common.enum import (
@@ -15,10 +15,9 @@ class Label(BaseModel):
     style_value: str
     state: Optional[str]
     version: Optional[int]
-    create_by: Optional[str]
-    create_time: Optional[datetime.datetime]
-    modify_by: Optional[str]
-    modify_time: Optional[datetime.datetime]
+
+    class Config:
+        orm_mode = True
 
 
 class LabelSearch(BaseModel):
@@ -29,6 +28,11 @@ class LabelSearch(BaseModel):
     style_type: Optional[str]
     style_value: Optional[str]
     state: Optional[str]
+    size: Optional[int] = 20
+    page: Optional[int] = 1
+
+    class Config:
+        orm_mode = True
 
 
 class LabelCreate(BaseModel):
@@ -39,7 +43,9 @@ class LabelCreate(BaseModel):
     style_value: Optional[str] = ''
     state: Optional[str] = LabelState.ONLINE
     version: Optional[int] = 0
-    create_by: Optional[str]
+
+    class Config:
+        orm_mode = True
 
 
 class LabelUpdate(BaseModel):
@@ -49,16 +55,18 @@ class LabelUpdate(BaseModel):
     style_type: Optional[str]
     style_value: Optional[str]
     state: Optional[str]
-    modify_by: Optional[str]
-    modify_time: Optional[datetime.datetime]
+
+    class Config:
+        orm_mode = True
+
+
+class LabelDelete(BaseModel):
+    ids: list
 
 
 class LabelSimple(BaseModel):
     id: int
     label_name: str
-
-
-
 
     class Config:
         orm_mode = True

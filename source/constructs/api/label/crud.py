@@ -105,9 +105,7 @@ def update_label(
     return True
 
 
-def delete_label(
-        ids: str
-    ):
+def delete_labels_by_ids(ids: str):
     try:
         label_ids = ids.split(',')
         label_id_list = list(map(int, label_ids))

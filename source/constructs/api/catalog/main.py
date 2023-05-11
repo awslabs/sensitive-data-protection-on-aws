@@ -188,9 +188,8 @@ def update_catalog_table_level_classification(
 def update_catalog_database_labels(
     id: int,
     labels: list,
-    modify_by: str,
 ):
-    return crud.update_catalog_database_labels(id, labels, modify_by)
+    return crud.update_catalog_database_labels(id, labels)
 
 
 @router.patch("/update-catalog-table-labels", response_model=BaseResponse)
@@ -198,9 +197,8 @@ def update_catalog_database_labels(
 def update_catalog_table_labels(
     id: int,
     labels: list,
-    modify_by: str,
 ):
-    return crud.update_catalog_table_labels(id, labels, modify_by)
+    return crud.update_catalog_table_labels(id, labels)
 
 
 @router.patch("/update-catalog-column-comments", response_model=BaseResponse)
@@ -208,9 +206,8 @@ def update_catalog_table_labels(
 def update_catalog_column_comments(
     id: int,
     comments: str,
-    modify_by: str,
 ):
-    return crud.update_catalog_column_comments(id, comments, modify_by)
+    return crud.update_catalog_column_comments(id, comments)
 
 
 @router.patch("/update-catalog-column", response_model=BaseResponse)
