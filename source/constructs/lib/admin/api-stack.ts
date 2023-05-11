@@ -86,6 +86,12 @@ export class ApiStack extends Construct {
     const crawlerSqsStack = new SqsStack(this, 'CrawlerQueue', { name: 'Crawler', visibilityTimeout: 900 });
     const crawlerEventSource = new SqsEventSource(crawlerSqsStack.queue);
     updateCatalogFunction.addEventSource(crawlerEventSource);
+
+    const autoSyncDataFunction = this.createFunction('AutoSyncData', 'lambda.auto_sync_data.lambda_handler', props, controllerFunctionName, 900);
+    // Set delivery delay to 10 minutes to wait for agent stack to be deleted
+    const autoSyncDataSqsStack = new SqsStack(this, 'AutoSyncDataQueue', { name: 'AutoSyncData', visibilityTimeout: 900 });
+    const autoSyncDataEventSource = new SqsEventSource(autoSyncDataSqsStack.queue);
+    autoSyncDataFunction.addEventSource(autoSyncDataEventSource);
   }
 
   private createFunction(name: string, handler: string, props: ApiProps, controllerFunctionName: string, timeout?: number) {
@@ -176,6 +182,7 @@ export class ApiStack extends Construct {
       resources: [`arn:${Aws.PARTITION}:lambda:*:${Aws.ACCOUNT_ID}:function:${SolutionInfo.SOLUTION_NAME_ABBR}-Controller`,
         `arn:${Aws.PARTITION}:sqs:${Aws.REGION}:${Aws.ACCOUNT_ID}:${SolutionInfo.SOLUTION_NAME_ABBR}-DiscoveryJob`,
         `arn:${Aws.PARTITION}:sqs:${Aws.REGION}:${Aws.ACCOUNT_ID}:${SolutionInfo.SOLUTION_NAME_ABBR}-Crawler`,
+        `arn:${Aws.PARTITION}:sqs:${Aws.REGION}:${Aws.ACCOUNT_ID}:${SolutionInfo.SOLUTION_NAME_ABBR}-AutoSyncData`,
         `arn:${Aws.PARTITION}:secretsmanager:${Aws.REGION}:${Aws.ACCOUNT_ID}:secret:${SolutionInfo.SOLUTION_NAME_ABBR}-*`,
         `arn:${Aws.PARTITION}:s3:::${bucketName}/*`,
         `arn:${Aws.PARTITION}:s3:::${bucketName}`,

@@ -423,6 +423,7 @@ export class AgentStack extends Stack {
 
     new DeleteAgentResourcesStack(this, 'DeleteAgentResources', {
       adminAccountId: adminAccountId,
+      queueName: `${SolutionInfo.SOLUTION_NAME_ABBR}-AutoSyncData`,
     });
 
     this.templateOptions.metadata = {

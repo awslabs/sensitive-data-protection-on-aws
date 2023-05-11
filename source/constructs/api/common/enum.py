@@ -217,3 +217,8 @@ class LabelType(Enum):
 class LabelStyleType(Enum):
     DEFAULT = "default"
     COLOR = "color"
+
+
+@unique
+class AutoSyncDataAction(Enum):
+    DELETE_ACCOUNT = "DeleteAccount"

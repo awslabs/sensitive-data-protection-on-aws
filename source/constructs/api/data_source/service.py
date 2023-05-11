@@ -930,6 +930,11 @@ def __update_access_policy_for_account():
             QueueName=f"{const.SOLUTION_NAME}-DiscoveryJob",
             QueueOwnerAWSAccountId=_admin_account_id
         )
+        missing_resource = f"{const.SOLUTION_NAME}-AutoSyncData"
+        sqs.get_queue_url(
+            QueueName=f"{const.SOLUTION_NAME}-AutoSyncData",
+            QueueOwnerAWSAccountId=_admin_account_id
+        )
     except Exception as err:
         logger.error(f"Required resource {missing_resource} is missing, skipping region: {_admin_account_region}")
         return
@@ -939,6 +944,7 @@ def __update_access_policy_for_account():
         bucket_access_principals = []
         sqs_job_trigger_principals = []
         sqs_crawler_trigger_principals = []
+        auto_sync_data_trigger_principals = []
         for account in accounts:
 
             role_arn = __gen_role_arn(account_id=account.aws_account_id, region=account.region,
@@ -953,6 +959,9 @@ def __update_access_policy_for_account():
 
                 job_trigger_role_arn = f"arn:{partition}:iam::{account.aws_account_id}:role/{const.SOLUTION_NAME}DiscoveryJobRole-{account.region}"
                 sqs_job_trigger_principals.append(job_trigger_role_arn)
+
+                auto_sync_data_role_arn = f"arn:{partition}:iam::{account.aws_account_id}:role/{const.SOLUTION_NAME}DeleteAgentResourcesRole-{account.region}"
+                auto_sync_data_trigger_principals.append(auto_sync_data_role_arn)
 
         # Bucket policies are limited to 20 KB in size.
         read_statement = {
@@ -1064,6 +1073,27 @@ def __update_access_policy_for_account():
                 }
             ]
         }
+        auto_sync_data_trigger_policy = {
+            "Version": "2008-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Principal": {
+                        "AWS": f"arn:{partition}:iam::{_admin_account_id}:root"
+                    },
+                    "Action": "SQS:*",
+                    "Resource": f"arn:{partition}:sqs:{_admin_account_region}:{_admin_account_id}:{const.SOLUTION_NAME}-AutoSyncData"
+                },
+                {
+                    "Effect": "Allow",
+                    "Principal": {
+                        "AWS": auto_sync_data_trigger_principals
+                    },
+                    "Action": "SQS:SendMessage",
+                    "Resource": f"arn:{partition}:sqs:{_admin_account_region}:{_admin_account_id}:{const.SOLUTION_NAME}-AutoSyncData"
+                }
+            ]
+        }
         try:
             sqs.set_queue_attributes(
                 QueueUrl=sqs.get_queue_url(QueueName=f"{const.SOLUTION_NAME}-DiscoveryJob")['QueueUrl'],
@@ -1078,6 +1108,15 @@ def __update_access_policy_for_account():
                 QueueUrl=sqs.get_queue_url(QueueName=f"{const.SOLUTION_NAME}-Crawler")['QueueUrl'],
                 Attributes={
                     "Policy": json.dumps(sqs_crawler_trigger_policy)
+                }
+            )
+        except Exception as err:
+            logger.error(traceback.format_exc())
+        try:
+            sqs.set_queue_attributes(
+                QueueUrl=sqs.get_queue_url(QueueName=f"{const.SOLUTION_NAME}-AutoSyncData")["QueueUrl"],
+                Attributes={
+                    "Policy": json.dumps(auto_sync_data_trigger_policy)
                 }
             )
         except Exception as err:
