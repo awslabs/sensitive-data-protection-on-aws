@@ -75,13 +75,10 @@ def create_label(label: schemas.LabelCreate) -> models.Label:
                             )
     session.add(db_label)
     session.commit()
-    print(db_label.id)
     return db_label
 
 
 def update_label(label: schemas.LabelUpdate):
-    print(label.id)
-    print(label)
     session = get_session()
     db_label = session.query(models.Label).filter(models.Label.id == label.id).first()
     print(db_label)
