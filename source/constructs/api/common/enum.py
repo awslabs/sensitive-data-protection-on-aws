@@ -83,6 +83,7 @@ class MessageEnum(Enum):
     SOURCE_ACCOUNT_DELETE_FAILED = {1224: "Account cleanup with error"}
     SOURCE_SOURCE_USED_BY_JOB = {1225: "Could not disconnect data source connection, the data source is used by discovery job"}
     SOURCE_DELETE_WHEN_CONNECTING = {1226: "Could not disconnect data source while connection is creating"}
+    SOURCE_ORG_ADD_ACCOUNT_FAILED = {1227: "Add account by Organizations failed"}
 
     def get_code(self):
         return list(self.value.keys())[0]

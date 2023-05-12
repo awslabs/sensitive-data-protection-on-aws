@@ -681,76 +681,75 @@ def get_data_source_coverage():
 
 # Update account list by stackset state
 # It will clean up accounts which stack_id is not null
-def reload_organization_account(it_account: str, stack_name: str):
+def reload_organization_account(it_account: str):
+    stack_instances = []
+    member_accounts = []
     delegated_role_arn = __gen_role_arn(
         account_id=it_account,
         region=_admin_account_region,
         role_name=_delegated_role_name)
-
-    stack_sets = []
     if __assume_role(it_account, delegated_role_arn):
-        crud.cleanup_delegated_account(
-            delegated_account_id=it_account,
-            service_managed_stack_name=stack_name
-        )
+        # do not clean up for autosync
+        # crud.cleanup_delegated_account(delegated_account_id=it_account)
         assumed_role = sts.assume_role(
             RoleArn=delegated_role_arn,
             RoleSessionName='get_organization'
         )
         credentials = assumed_role['Credentials']
-        # for region in const.CN_REGIONS:
         try:
+            # check if it is delegated admin
+            orgs = boto3.client('organizations',
+                                aws_access_key_id=credentials['AccessKeyId'],
+                                aws_secret_access_key=credentials['SecretAccessKey'],
+                                aws_session_token=credentials['SessionToken'],
+                                region_name=_admin_account_region
+                                )
+            delegated = orgs.list_delegated_administrators()
+            call_as = 'DELEGATED_ADMIN' if any(
+                admin['Id'] == it_account for admin in delegated['DelegatedAdministrators']) else 'SELF'
             cloudformation = boto3.client('cloudformation',
                                           aws_access_key_id=credentials['AccessKeyId'],
                                           aws_secret_access_key=credentials['SecretAccessKey'],
                                           aws_session_token=credentials['SessionToken'],
                                           region_name=_admin_account_region
                                           )
-            """ :type : pyboto3.cloudformation """
-
-            response = cloudformation.list_stack_instances(
-                StackSetName=stack_name,
-                MaxResults=30,
-                CallAs='DELEGATED_ADMIN'
-            )
-
-            stack_sets.extend(response['Summaries'])
-
-            while 'NextToken' in response:
-                response = cloudformation.list_stack_instances(
-                    StackSetName=stack_name,
-                    MaxResults=30,
-                    NextToken=response['NextToken'],
-                    CallAs='DELEGATED_ADMIN'
+            active_stack_sets = cloudformation.list_stack_sets(
+                Status='ACTIVE',
+                CallAs=call_as
+            )['Summaries']
+            for stack_set in active_stack_sets:
+                stack = cloudformation.describe_stack_set(
+                    StackSetName=stack_set['StackSetName'],
+                    CallAs=call_as
                 )
-                stack_sets.extend(response['Summaries'])
+                if '(SO8031-sub)' in stack['StackSet']['TemplateBody']:
+                    response = cloudformation.list_stack_instances(
+                        StackSetName=stack_set['StackSetName'],
+                        MaxResults=30,
+                        CallAs=call_as
+                    )
+                    stack_instances.extend(response['Summaries'])
 
-            for stackset in stack_sets:
-                crud.add_account(
-                    aws_account_id=stackset['Account'],
-                    aws_account_alias=None,
-                    aws_account_email=None,
-                    delegated_aws_account_id=it_account,
-                    region=_admin_account_region,
-                    organization_unit_id=stackset['OrganizationalUnitId'],
-                    stack_id=stackset['StackId'],
-                    stackset_id=stackset['StackSetId'],
-                    stackset_name=stack_name,
-                    status=1,
-                    stack_status=stackset['Status'],
-                    stack_instance_status=stackset['StackInstanceStatus']['DetailedStatus'],
-                    # detection_role_name=delegated_role_arn,
-                    detection_role_name='data-source-admin-role',
-                    # TODO assume role test, validate the role has been created
-                    detection_role_status='',
-                )
-                __update_access_policy_for_account()
-        except Exception as error:
-            pass
+                    while 'NextToken' in response:
+                        response = cloudformation.list_stack_instances(
+                            StackSetName=stack_set['StackSetName'],
+                            MaxResults=30,
+                            NextToken=response['NextToken'],
+                            CallAs=call_as
+                        )
+                        stack_instances.extend(response['Summaries'])
+            logger.debug(stack_instances)
+            # convert to unique account list
+            member_accounts = list(set(item['Account'] for item in stack_instances))
+            for account in member_accounts:
+                add_account(account)
+        except Exception as e:
+            logger.error(traceback.format_exc())
+            raise BizException(MessageEnum.SOURCE_ORG_ADD_ACCOUNT_FAILED.get_code(), str(e))
     else:
         raise BizException(MessageEnum.SOURCE_ASSUME_DELEGATED_ROLE_FAILED.get_code(),
                            MessageEnum.SOURCE_ASSUME_DELEGATED_ROLE_FAILED.get_msg())
-    return stack_sets
+    return member_accounts
 
 
 def add_account(account_id: str):

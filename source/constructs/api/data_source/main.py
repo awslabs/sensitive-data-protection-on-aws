@@ -114,8 +114,8 @@ def list_accounts(condition: QueryCondition):
 @router.get("/reload_organization_account", response_model=BaseResponse,
             description="Retrieve stacksets in the delegate account, and refresh account list by stackset status")
 @inject_session
-def reload_organization_account(organization_managed_account_id='', service_managed_stack_name=''):
-    return service.reload_organization_account(organization_managed_account_id, service_managed_stack_name)
+def reload_organization_account(organization_management_account_id=''):
+    return service.reload_organization_account(organization_management_account_id)
 
 
 @router.post("/add_account", response_model=BaseResponse,
