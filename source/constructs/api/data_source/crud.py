@@ -342,6 +342,16 @@ def delete_s3_bucket_source_by_account(account_id: str, region: str):
     session.commit()
 
 
+def delete_s3_bucket_source_by_name(account_id: str, region: str, bucket_name: str):
+    session = get_session()
+    session.query(S3BucketSource).filter(
+        S3BucketSource.aws_account == account_id,
+        S3BucketSource.region == region,
+        S3BucketSource.bucket_name == bucket_name
+    ).delete()
+    session.commit()
+
+
 def delete_rds_instance_source_by_account(account_id: str, region: str):
     session = get_session()
     session.query(RdsInstanceSource).filter(
