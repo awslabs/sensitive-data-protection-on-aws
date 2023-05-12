@@ -123,7 +123,7 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
     try {
       setLoadingDelete(true);
       const result: boolean = await requestDeleteLabel({
-        ids: selectedItems.map((e) => e.id).join(','),
+        ids: selectedItems.map((e) => e.id),
       });
       setLoadingDelete(false);
       if (result) {

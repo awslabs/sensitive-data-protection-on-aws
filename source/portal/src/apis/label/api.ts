@@ -27,8 +27,12 @@ const requestCreateLabel = async (params: { label_name: string }) => {
 };
 
 // 删除 Label
-const requestDeleteLabel = async (params: { ids: string }) => {
-  const result: any = await apiRequest('delete', `labels/delete-label`, params);
+const requestDeleteLabel = async (params: { ids: string[] }) => {
+  const result: any = await apiRequest(
+    'post',
+    `labels/delete-labels-by-ids`,
+    params
+  );
   return result;
 };
 
