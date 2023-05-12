@@ -969,9 +969,11 @@ def update_catalog_table_and_database_level_privacy(account_id, region, database
 def fill_catalog_labels(catalogs):
     for catalog in catalogs:
         catalog.labels = []
-        if catalog is None or catalog.label_ids is None:
+        if catalog is None or catalog.label_ids is None or len(catalog.labels) <= 0:
             continue
+        print(catalog.label_ids)
         label_list = catalog.label_ids.split(',')
+        print(label_list)
         label_id_list = list(map(int, label_list))
         labels = get_labels_by_id_list(label_id_list)
         if labels is None:
