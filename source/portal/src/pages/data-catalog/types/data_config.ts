@@ -22,6 +22,7 @@ export const COLUMN_OBJECT_STR = {
   IdentifierScore: 'identifier_score',
   BucketProperties: 'bucketProperties',
   AccountId: 'account_id',
+  Labels: 'labels',
 };
 
 // S3 catalog column
@@ -49,6 +50,10 @@ export const S3_COLUMN_LIST = [
   {
     id: 'region',
     label: 'AWS region',
+  },
+  {
+    id: 'labels',
+    label: 'Catalog labels',
   },
   {
     id: COLUMN_OBJECT_STR.LastModifyAt,
@@ -176,6 +181,11 @@ export const FOLDERS_COLUMN = [
     id: COLUMN_OBJECT_STR.Privacy,
     label: 'Privacy',
     filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.Labels,
+    label: 'Label',
+    filter: false,
   },
   {
     id: 'modify_by',
@@ -318,6 +328,10 @@ export const RDS_COLUMN_LIST = [
   {
     id: 'region',
     label: 'AWS region',
+  },
+  {
+    id: 'labels',
+    label: 'Catalog labels',
   },
   {
     id: COLUMN_OBJECT_STR.LastModifyAt,

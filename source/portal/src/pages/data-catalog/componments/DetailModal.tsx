@@ -5,6 +5,7 @@ import {
   Select,
   SelectProps,
   Button,
+  Badge,
 } from '@cloudscape-design/components';
 import CommonBadge from 'pages/common-badge';
 import CatalogDetailList from './CatalogDetailList';
@@ -24,9 +25,12 @@ import {
   PRIVARY_TYPE_DATA,
   PRIVARY_TYPE_INT_DATA,
 } from 'pages/common-badge/types/badge_type';
-import { CatalogDetailListProps } from '../../../ts/data-catalog/types';
+import { CatalogDetailListProps, Label } from '../../../ts/data-catalog/types';
 import { DATA_TYPE_ENUM } from 'enum/common_types';
-import { updateCatalogDatabase } from 'apis/data-catalog/api';
+import {
+  updateCatalogDatabase,
+  updateCatalogLabels,
+} from 'apis/data-catalog/api';
 import '../style.scss';
 import { alertMsg } from 'tools/tools';
 import {
@@ -34,6 +38,7 @@ import {
   CONTAINS_PII_OPTION,
   NON_PII_OPTION,
 } from 'pages/common-badge/componments/Options';
+import LabelModal from 'common/LabelModal';
 
 const DetailModal: React.FC<any> = (props: any) => {
   const {
@@ -51,10 +56,15 @@ const DetailModal: React.FC<any> = (props: any) => {
   const [clickIdentifiers, setClickIdentifiers] = useState('');
   const [activeTabId, setActiveTabId] = useState(modalTabs[0].id);
   const [isShowEditSelect, setIsShowEditSelect] = useState(false);
+
+  const [showLabelModal, setShowLabelModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedOption, setSelectedOption] = useState(
     null as SelectProps.Option | null
   );
+
+  const [saveLabelLoading, setSaveLabelLoading] = useState(false);
+
   useEffect(() => {
     if (
       typeof selectRowData.privacy !== 'number' &&
@@ -100,6 +110,30 @@ const DetailModal: React.FC<any> = (props: any) => {
       updateFatherPage();
     } else {
       alertMsg('Update Error', 'error');
+    }
+  };
+
+  const saveLabelsToCatelog = async (labels: Label[]) => {
+    try {
+      setSaveLabelLoading(true);
+      const result = await updateCatalogLabels({
+        id: selectRowData.id,
+        labels: labels.map((label) => label.id),
+      });
+
+      setSaveLabelLoading(false);
+      if (result) {
+        setShowLabelModal(false);
+        setSelectRowData((prev: any) => {
+          return {
+            ...prev,
+            labels: labels,
+          };
+        });
+        updateFatherPage();
+      }
+    } catch (error) {
+      setSaveLabelLoading(false);
     }
   };
 
@@ -190,41 +224,65 @@ const DetailModal: React.FC<any> = (props: any) => {
     >
       <div className="modal-body-header">
         <span className="modal-body-span">{selectRowData.name}</span>
-        {!isShowEditSelect && (
-          <CommonBadge
-            badgeType={BADGE_TYPE.Privacy}
-            badgeLabel={selectRowData[BADGE_TYPE.Privacy]}
-          />
-        )}
-        {(selectRowData[BADGE_TYPE.Privacy] ||
-          selectRowData[BADGE_TYPE.Privacy] >= -1) &&
-          !isShowEditSelect && (
+        <div>
+          {!isShowEditSelect && (
+            <span>
+              <b>Privacy: </b>
+              <CommonBadge
+                badgeType={BADGE_TYPE.Privacy}
+                badgeLabel={selectRowData[BADGE_TYPE.Privacy]}
+              />
+            </span>
+          )}
+          {(selectRowData[BADGE_TYPE.Privacy] ||
+            selectRowData[BADGE_TYPE.Privacy] >= -1) &&
+            !isShowEditSelect && (
+              <div
+                onClick={() => setIsShowEditSelect(true)}
+                className="modal-badge-edit"
+              >
+                <Icon name="edit" />
+              </div>
+            )}
+          {isShowEditSelect && (
+            <div className="edit-privary">
+              <div className="edit-privary-select">
+                <Select
+                  onChange={(e) => {
+                    setSelectedOption(e.detail.selectedOption as any);
+                  }}
+                  selectedOption={selectedOption}
+                  triggerVariant="option"
+                  options={[CONTAINS_PII_OPTION, NON_PII_OPTION, NA_OPTION]}
+                  selectedAriaLabel="Selected"
+                ></Select>
+              </div>
+              <div className="check-icon">
+                {/* <Icon name="check" size="medium" /> */}
+                <Button onClick={clkCheckIcon} iconName="check"></Button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-5">
+          <span>
+            <b>Custom labels: </b>
+            {selectRowData[COLUMN_OBJECT_STR.Labels].map((label: any) => {
+              return (
+                <span key={label.id} className="mr-5">
+                  <Badge color="blue">{label.label_name}</Badge>
+                </span>
+              );
+            })}
             <div
-              onClick={() => setIsShowEditSelect(true)}
+              onClick={() => setShowLabelModal(true)}
               className="modal-badge-edit"
             >
               <Icon name="edit" />
             </div>
-          )}
-        {isShowEditSelect && (
-          <div className="edit-privary">
-            <div className="edit-privary-select">
-              <Select
-                onChange={(e) => {
-                  setSelectedOption(e.detail.selectedOption as any);
-                }}
-                selectedOption={selectedOption}
-                triggerVariant="option"
-                options={[CONTAINS_PII_OPTION, NON_PII_OPTION, NA_OPTION]}
-                selectedAriaLabel="Selected"
-              ></Select>
-            </div>
-            <div className="check-icon">
-              {/* <Icon name="check" size="medium" /> */}
-              <Button onClick={clkCheckIcon} iconName="check"></Button>
-            </div>
-          </div>
-        )}
+          </span>
+        </div>
       </div>
       <Tabs
         className="modal-body-tabs"
@@ -234,6 +292,17 @@ const DetailModal: React.FC<any> = (props: any) => {
           setClickIdentifiers('');
         }}
         activeTabId={activeTabId}
+      />
+      <LabelModal
+        showModal={showLabelModal}
+        defaultSelectLabels={selectRowData[COLUMN_OBJECT_STR.Labels]}
+        clickHideModal={() => {
+          setShowLabelModal(false);
+        }}
+        saveLoading={saveLabelLoading}
+        saveLabelToResource={(labelIds) => {
+          saveLabelsToCatelog(labelIds);
+        }}
       />
     </RightModal>
   );

@@ -6,6 +6,7 @@ import {
   Header,
   Pagination,
   CollectionPreferences,
+  Badge,
 } from '@cloudscape-design/components';
 import CommonBadge from 'pages/common-badge';
 import DetailModal from './DetailModal';
@@ -252,7 +253,6 @@ const CatalogList: React.FC<any> = memo((props: any) => {
                     </div>
                   );
                 }
-                // console.info('item.id:', item.id);
                 if (item.id === COLUMN_OBJECT_STR.ObjectCount) {
                   return <div> {nFormatter((e as any)[item.id], 2)}</div>;
                 }
@@ -273,6 +273,21 @@ const CatalogList: React.FC<any> = memo((props: any) => {
                     />
                   );
                 }
+
+                if (item.id === COLUMN_OBJECT_STR.Labels) {
+                  return (
+                    <div>
+                      {e.labels.map((label: any) => {
+                        return (
+                          <span className="mr-5" key={label.id}>
+                            <Badge color="blue">{label.label_name}</Badge>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  );
+                }
+
                 if (item.id === COLUMN_OBJECT_STR.LastModifyBy) {
                   if ((e as any)[item.id] === 'SDPS') {
                     return 'System';
