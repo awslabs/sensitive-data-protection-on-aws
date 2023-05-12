@@ -138,6 +138,7 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
 
   useEffect(() => {
     if (showModal) {
+      setSearchLabelName('');
       getLabelsList();
     }
   }, [showModal]);
