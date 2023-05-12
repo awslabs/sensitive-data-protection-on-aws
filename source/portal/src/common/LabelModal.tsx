@@ -25,7 +25,7 @@ export interface LabelModalProps {
   defaultSelectLabels: Label[];
   clickHideModal: () => void;
   saveLoading: boolean;
-  saveLabelToResource: (labelIds: Label[]) => void;
+  saveLabelToResource: (labelIds: Label[], callback: () => void) => void;
   addButtonText?: string;
 }
 
@@ -138,7 +138,6 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
 
   useEffect(() => {
     if (showModal) {
-      setSearchLabelName('');
       getLabelsList();
     }
   }, [showModal]);
@@ -178,7 +177,9 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
                 loading={saveLoading}
                 variant="primary"
                 onClick={() => {
-                  saveLabelToResource(selectedItems);
+                  saveLabelToResource(selectedItems, () => {
+                    setSearchLabelName('');
+                  });
                 }}
               >
                 {addButtonText || 'Add to catalog'}

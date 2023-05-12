@@ -113,7 +113,7 @@ const DetailModal: React.FC<any> = (props: any) => {
     }
   };
 
-  const saveLabelsToCatelog = async (labels: Label[]) => {
+  const saveLabelsToCatelog = async (labels: Label[], callback: () => void) => {
     try {
       setSaveLabelLoading(true);
       const result = await updateCatalogLabels({
@@ -130,6 +130,9 @@ const DetailModal: React.FC<any> = (props: any) => {
             labels: labels,
           };
         });
+        if (callback) {
+          callback();
+        }
         updateFatherPage();
       }
     } catch (error) {
@@ -300,8 +303,8 @@ const DetailModal: React.FC<any> = (props: any) => {
           setShowLabelModal(false);
         }}
         saveLoading={saveLabelLoading}
-        saveLabelToResource={(labelIds) => {
-          saveLabelsToCatelog(labelIds);
+        saveLabelToResource={(labelIds, callback) => {
+          saveLabelsToCatelog(labelIds, callback);
         }}
       />
     </RightModal>
