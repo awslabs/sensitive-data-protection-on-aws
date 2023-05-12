@@ -2,7 +2,7 @@
   "aws_project_region": "",
   "aws_api_endpoint": "/api",
   "aws_authenticationType": "AUTH_TYPE.OPENID_CONNECT",
-  "aws_oidc_provider": "https://dev-43241832.okta.com",
+  "aws_oidc_issuer": "https://dev-43241832.okta.com",
   "aws_oidc_client_id": "0oa7liej6xUztllZL5d7",
   "aws_oidc_customer_domain": "https://sdps.nowfox.com/logincallback",
   "aws_alb_url": "",

@@ -32,9 +32,9 @@ const AmazonS3: React.FC<any> = memo(() => {
   const [allConatainsPIIDataData, setAllConatainsPIIDataData] = useState<
     ITableListKeyValue[]
   >([]);
-  const piiStart = (currentPagePII - 1) * pageSizePII;
-  const piiEnd = piiStart + pageSizePII;
-  const containsPIIDataToShow = allConatainsPIIDataData.slice(piiStart, piiEnd);
+  // const piiStart = (currentPagePII - 1) * pageSizePII;
+  // const piiEnd = piiStart + pageSizePII;
+  // const containsPIIDataToShow = allConatainsPIIDataData.slice(piiStart, piiEnd);
   const handlePageChangePII = (page: number) => {
     setCurrentPagePII(page);
   };
@@ -44,9 +44,9 @@ const AmazonS3: React.FC<any> = memo(() => {
   const [allIdentifierData, setAllIdentifierData] = useState<
     ITableListKeyValue[]
   >([]);
-  const idfStart = (currentPageIDF - 1) * pageSizeIDF;
-  const idfEnd = idfStart + pageSizeIDF;
-  const containsIDFDataToShow = allIdentifierData.slice(idfStart, idfEnd);
+  // const idfStart = (currentPageIDF - 1) * pageSizeIDF;
+  // const idfEnd = idfStart + pageSizeIDF;
+  // const containsIDFDataToShow = allIdentifierData.slice(idfStart, idfEnd);
 
   const handlePageChangeIDF = (page: number) => {
     setCurrentPageIDF(page);

@@ -19,3 +19,8 @@ export interface CatalogDetailListProps {
   previewDataList?: Array<any>;
   setSaveDisabled?: any;
 }
+
+export interface Label {
+  id: string;
+  label_name: string;
+}

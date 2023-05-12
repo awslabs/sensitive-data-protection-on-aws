@@ -211,7 +211,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
         iconSvg: (
           <CommonBadge
             badgeType={BADGE_TYPE.DataIndf}
-            badgeLabel='N/A'
+            badgeLabel="N/A"
             className="fit-select"
           />
         ),

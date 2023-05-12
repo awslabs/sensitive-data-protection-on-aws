@@ -22,6 +22,7 @@ export const COLUMN_OBJECT_STR = {
   IdentifierScore: 'identifier_score',
   BucketProperties: 'bucketProperties',
   AccountId: 'account_id',
+  Labels: 'labels',
 };
 
 // S3 catalog column
@@ -49,6 +50,10 @@ export const S3_COLUMN_LIST = [
   {
     id: 'region',
     label: 'AWS region',
+  },
+  {
+    id: 'labels',
+    label: 'Catalog labels',
   },
   {
     id: COLUMN_OBJECT_STR.LastModifyAt,
@@ -318,6 +323,10 @@ export const RDS_COLUMN_LIST = [
   {
     id: 'region',
     label: 'AWS region',
+  },
+  {
+    id: 'labels',
+    label: 'Catalog labels',
   },
   {
     id: COLUMN_OBJECT_STR.LastModifyAt,
