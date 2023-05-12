@@ -1,5 +1,5 @@
 # Data classification template
-A template is a collection of [data identifiers](data-identifiers.md). On the **Define classification template** page, You can define sensitive data in template which will be used in sensitive data discovery job. 
+A template is a collection of [data identifiers](data-identifiers.md). On the **Define classification template** page, You can define sensitive data in the template by adding data identifiers. The template will be used in sensitive data discovery job. 
 
 ## Add data identifier to template
 Click **Add data identifier** button, you will see a list of data identifiers in side window. You can select one or multiple data identifers and click **Add to template** button. 

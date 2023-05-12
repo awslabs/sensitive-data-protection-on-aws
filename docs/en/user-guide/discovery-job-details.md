@@ -11,7 +11,7 @@ In the job details webpage, you can see a list of Glue jobs.
 
 > Tips: In case a Glue job is failed, you can cilck into the FAILED status to view more failure logs.
 
-## Download template snapshot
+## Download snapshot of classification template used in job 
 You can download the template of the moment of the job start. This gave you a clue of what the job is using as data identifiers in this particular job run. 
 
 On job details page, click **Download snapshot** link. You can download the template in JSON format(.json).

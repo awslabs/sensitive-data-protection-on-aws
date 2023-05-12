@@ -3,7 +3,7 @@
 ## Summary
 The cost for main AWS account running this solution with the default settings:
 
-- China region (e.g. Ningxia Region) is approximately ¥901.82 CNY a month
+- China (Ningxia) Region Operated by NWCD is approximately ¥901.82 CNY a month
   
 ## Cost breakdown
 Based on typical usage patterns, we have indicated a few scenarios to provide an estimation of monthly costs. The AWS services listed in the example cost tables below are billed on a monthly basis.

@@ -1,4 +1,4 @@
-# Sensitive Data Discovery Job
+# Run Sensitive Data Discovery Jobs
 You can create and manage jobs for discovering sensitive data. A discovery job consists of one or many AWS Glue jobs for actual data inspection. For more information, refer to [View job details](discovery-job-details.md).
 
 ## Create a discovery job

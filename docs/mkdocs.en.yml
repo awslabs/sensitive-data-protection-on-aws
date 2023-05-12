@@ -8,7 +8,7 @@ nav:
     - Solution Overview:
         - Overview: solution-overview/index.md
         - Features and benefits: solution-overview/features-and-benefits.md
-        - Terminology: solution-overview/terminology.md
+        - Concepts and definitions: solution-overview/concepts-and-definitions.md
     - Architecture Overview:
         - Architecture diagram: architecture-overview/architecture.md
         - Architecture details: architecture-overview/architecture-details.md
@@ -30,12 +30,12 @@ nav:
         - Define classification template: 
             - Define classification template: user-guide/data-classification-template.md
             - Manage data identifiers: user-guide/data-identifiers.md
-        - Sensitive data discovery jobs: 
+        - Run Sensitive data discovery jobs: 
             - Create job: user-guide/discovery-job-create.md
-            - Re-run/Duplicate job: user-guide/discovery-job-rerun-and-duplicate.md
-            - Pause/Conitnue job: user-guide/discovery-job-pause-and-cancel.md
             - View job details: user-guide/discovery-job-details.md
             - Download job report: user-guide/discovery-job-report.md
+            - Re-run/Duplicate job: user-guide/discovery-job-rerun-and-duplicate.md
+            - Pause/Conitnue job: user-guide/discovery-job-pause-and-cancel.md
         - Browse data catalogs: 
             - Sync data catalogs: user-guide/data-catalog-sync.md
             - Export data catalogs: user-guide/data-catalog-export.md
