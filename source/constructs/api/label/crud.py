@@ -79,22 +79,14 @@ def create_label(label: schemas.LabelCreate) -> models.Label:
 
 
 def update_label(label: schemas.LabelUpdate):
-    session = get_session()
-    db_label = session.query(models.Label).filter(models.Label.id == label.id).first()
-    print(db_label)
-    if not db_label:
-        raise BizException(
-            MessageEnum.BIZ_ITEM_NOT_EXISTS.get_code(),
-            MessageEnum.BIZ_ITEM_NOT_EXISTS.get_msg()
-        )
-    print(db_label)
-    # # 将version字段+1
-    if db_label.version is not None:
-        db_label.version += 1
-    session.query(models.Label).filter(models.Label.id == id).update(label.dict(exclude_unset=True))
-    print(label.dict(exclude_unset=True))
-    session.commit()
-    return True
+    size = (
+        get_session()
+        .query(models.Label)
+        .filter(models.Label.id == label.id)
+        .update(label.dict(exclude_unset=True))  # column.dict(exclude_unset=True)
+    )
+    get_session().commit()
+    return size > 0
 
 
 def delete_labels_by_ids(ids: list):
