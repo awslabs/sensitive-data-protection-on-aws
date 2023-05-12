@@ -26,6 +26,7 @@ export interface LabelModalProps {
   clickHideModal: () => void;
   saveLoading: boolean;
   saveLabelToResource: (labelIds: Label[]) => void;
+  addButtonText?: string;
 }
 
 const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
@@ -35,6 +36,7 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
     clickHideModal,
     saveLabelToResource,
     saveLoading,
+    addButtonText,
   } = props;
   const [showCreateLabel, setShowCreateLabel] = useState(false);
 
@@ -178,7 +180,7 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
                   saveLabelToResource(selectedItems);
                 }}
               >
-                Add to catalog
+                {addButtonText || 'Add to catalog'}
               </Button>
             </SpaceBetween>
           </Box>

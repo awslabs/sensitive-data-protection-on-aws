@@ -183,6 +183,11 @@ export const FOLDERS_COLUMN = [
     filter: true,
   },
   {
+    id: COLUMN_OBJECT_STR.Labels,
+    label: 'Label',
+    filter: false,
+  },
+  {
     id: 'modify_by',
     label: 'Last updated by',
     filter: true,

@@ -131,6 +131,19 @@ const updateCatalogLabels = async (params: {
   return result;
 };
 
+// updadate table data labels
+const updateCatalogTableLabels = async (params: {
+  id: string | number;
+  labels: string[];
+}) => {
+  const result = await apiRequest(
+    'patch',
+    'catalog/update-catalog-table-labels',
+    params
+  );
+  return result;
+};
+
 export {
   getTablesByDatabase,
   getDatabaseIdentifiers,
@@ -145,4 +158,5 @@ export {
   getBucketProperties,
   getDataBaseByIdentifier,
   updateCatalogLabels,
+  updateCatalogTableLabels,
 };
