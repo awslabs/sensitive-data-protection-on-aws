@@ -229,7 +229,7 @@ const SchemaModal: React.FC<any> = (props: any) => {
     setPreviewDataList(result);
   };
 
-  const saveLabelsToTable = async (labels: Label[]) => {
+  const saveLabelsToTable = async (labels: Label[], callback: () => void) => {
     try {
       setSaveLabelLoading(true);
       const result = await updateCatalogTableLabels({
@@ -246,6 +246,9 @@ const SchemaModal: React.FC<any> = (props: any) => {
             labels: labels,
           };
         });
+        if (callback) {
+          callback();
+        }
         updateFatherPage();
       }
     } catch (error) {
@@ -383,8 +386,8 @@ const SchemaModal: React.FC<any> = (props: any) => {
           setShowLabelModal(false);
         }}
         saveLoading={saveLabelLoading}
-        saveLabelToResource={(labelIds) => {
-          saveLabelsToTable(labelIds);
+        saveLabelToResource={(labelIds, callback) => {
+          saveLabelsToTable(labelIds, callback);
         }}
         addButtonText="Add to Table"
       />
