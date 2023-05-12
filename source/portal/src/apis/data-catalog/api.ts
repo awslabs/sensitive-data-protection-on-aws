@@ -118,6 +118,32 @@ const getBucketProperties = async (params: any) => {
   return result;
 };
 
+// updadate catalog labels
+const updateCatalogLabels = async (params: {
+  id: string | number;
+  labels: string[];
+}) => {
+  const result = await apiRequest(
+    'patch',
+    'catalog/update-catalog-database-labels',
+    params
+  );
+  return result;
+};
+
+// updadate table data labels
+const updateCatalogTableLabels = async (params: {
+  id: string | number;
+  labels: string[];
+}) => {
+  const result = await apiRequest(
+    'patch',
+    'catalog/update-catalog-table-labels',
+    params
+  );
+  return result;
+};
+
 export {
   getTablesByDatabase,
   getDatabaseIdentifiers,
@@ -131,4 +157,6 @@ export {
   getRdsTableSampleRecords,
   getBucketProperties,
   getDataBaseByIdentifier,
+  updateCatalogLabels,
+  updateCatalogTableLabels,
 };

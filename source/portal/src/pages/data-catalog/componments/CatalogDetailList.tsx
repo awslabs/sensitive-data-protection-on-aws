@@ -211,7 +211,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
         iconSvg: (
           <CommonBadge
             badgeType={BADGE_TYPE.DataIndf}
-            badgeLabel='N/A'
+            badgeLabel="N/A"
             className="fit-select"
           />
         ),
@@ -397,12 +397,6 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                 // different column tag
                 cell: (e: any) => {
                   if (e.property === 'Tags' && e.isTag && item.id === 'value') {
-                    // const tmpTags = [
-                    //   { key: 'abc', value: 'hello' },
-                    //   { key: 'abc', value: 'hello' },
-                    //   { key: 'abc', value: 'hello' },
-                    //   { key: 'abc', value: 'hello' },
-                    // ];
                     if (e.value !== 'N/A') {
                       const tags = JSON.parse(JSON.stringify(e.value));
                       return tags.map((element: any, index: number) => {
@@ -600,6 +594,19 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                             : CLSAAIFIED_TYPE.SystemMark
                         }
                       />
+                    );
+                  }
+                  if (item.id === COLUMN_OBJECT_STR.Labels) {
+                    return (
+                      <div>
+                        {e.labels.map((label: any) => {
+                          return (
+                            <span className="mr-5" key={label.id}>
+                              <Badge color="blue">{label.label_name}</Badge>
+                            </span>
+                          );
+                        })}
+                      </div>
                     );
                   }
                   if (item.id === COLUMN_OBJECT_STR.ObjectCount) {
