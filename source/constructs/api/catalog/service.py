@@ -19,8 +19,8 @@ from common.enum import (
 import logging
 from common.exception_handler import BizException
 import traceback
-from discovery_job.crud import get_last_run_database,get_job_by_run_id
-
+from discovery_job.crud import get_last_run_database, get_job_by_run_id
+from label.crud import get_labels_by_id_list
 
 logger = logging.getLogger("api")
 caller_identity = boto3.client('sts').get_caller_identity()
@@ -28,7 +28,6 @@ partition = caller_identity['Arn'].split(':')[1]
 
 
 def get_boto3_client(account_id: str, region: str, service: str):
-
     sts_connection = boto3.client("sts")
     monitored_account = sts_connection.assume_role(
         RoleArn=f"arn:{partition}:iam::{account_id}:role/{const.SOLUTION_NAME}RoleForAdmin-{region}",
@@ -50,10 +49,10 @@ def get_boto3_client(account_id: str, region: str, service: str):
 
 
 def get_database_identifiers_from_tables(
-    account_id: str,
-    region: str,
-    database_type: str,
-    database_name: str,
+        account_id: str,
+        region: str,
+        database_type: str,
+        database_name: str,
 ):
     if database_type not in [DatabaseType.RDS.value, DatabaseType.S3.value]:
         raise BizException(
@@ -69,7 +68,7 @@ def get_database_identifiers_from_tables(
     for table in table_list:
         identifier_list = table.identifiers.split("|")
         for identifier in identifier_list:
-            if identifier == "" or  identifier == const.NA:
+            if identifier == "" or identifier == const.NA:
                 continue
             if identifier not in identifier_dict:
                 identifier_dict[identifier] = {
@@ -156,10 +155,10 @@ def __query_job_result_table_size_by_athena(
 
 
 def sync_crawler_result(
-    account_id: str,
-    region: str,
-    database_type: str,
-    database_name: str,
+        account_id: str,
+        region: str,
+        database_type: str,
+        database_name: str,
 ):
     if database_type not in [DatabaseType.RDS.value, DatabaseType.S3.value]:
         raise BizException(
@@ -177,14 +176,14 @@ def sync_crawler_result(
 
     client = get_boto3_client(account_id, region, "glue")
     glue_database_name = (
-        database_type
-        + "-"
-        + database_name
-        + "-"
-        + GlueResourceNameSuffix.DATABASE.value
+            database_type
+            + "-"
+            + database_name
+            + "-"
+            + GlueResourceNameSuffix.DATABASE.value
     )
     glue_crawler_name = (
-        database_type + "-" + database_name + "-" + GlueResourceNameSuffix.CRAWLER.value
+            database_type + "-" + database_name + "-" + GlueResourceNameSuffix.CRAWLER.value
     )
 
     crawler_response = client.get_crawler(Name=glue_crawler_name)
@@ -208,6 +207,7 @@ def sync_crawler_result(
 
         # Next token is a continuation token, present if the current list segment is not the last.
         next_token = ""
+        table_name_list = []
         while True:
             tables_response = client.get_tables(
                 DatabaseName=glue_database_name, NextToken=next_token
@@ -216,6 +216,7 @@ def sync_crawler_result(
                                                                           database_name)
             for table in tables_response["TableList"]:
                 table_name = table["Name"].strip()
+                table_name_list.append(table_name)
                 # If the file is end of .csv or .json, but the content of the file is not csv/json
                 # glue can't crawl them correctly
                 # So there is no sizeKey in Parameters, we set the default value is 0
@@ -274,7 +275,9 @@ def sync_crawler_result(
                         "column_order_num": column_order_num,
                         "column_type": column_type,
                     }
-                    original_column = crud.get_catalog_column_level_classification_by_name(account_id, region, database_type, database_name, table_name, column_name)
+                    original_column = crud.get_catalog_column_level_classification_by_name(account_id, region,
+                                                                                           database_type, database_name,
+                                                                                           table_name, column_name)
                     if original_column == None:
                         crud.create_catalog_column_level_classification(catalog_column_dict)
                     else:
@@ -296,7 +299,8 @@ def sync_crawler_result(
                     "storage_location": table_location,
                     "classification": table_classification,
                 }
-                original_table = crud.get_catalog_table_level_classification_by_name(account_id, region, database_type, database_name, table_name)
+                original_table = crud.get_catalog_table_level_classification_by_name(account_id, region, database_type,
+                                                                                     database_name, table_name)
                 if original_table == None:
                     crud.create_catalog_table_level_classification(catalog_table_dict)
                 else:
@@ -314,11 +318,20 @@ def sync_crawler_result(
             next_token = tables_response.get("NextToken")
             if next_token is None:
                 break
+        catalog_table_list = crud.get_catalog_table_level_classification_by_database(account_id, region,
+                                                                                     database_type, database_name)
+        for catalog in catalog_table_list:
+            if catalog.table_name not in table_name_list:
+                logger.info("sync_crawler_result DELETE TABLE WHEN NOT IN GLUE TABLES" + json.dumps(catalog))
+                crud.delete_catalog_table_level_classification(catalog.id)
+
     if table_count == 0:
         if database_type == DatabaseType.RDS.value:
-            data_source_crud.set_rds_instance_source_glue_state(account_id, region, database_name, ConnectionState.UNSUPPORTED.value)
+            data_source_crud.set_rds_instance_source_glue_state(account_id, region, database_name,
+                                                                ConnectionState.UNSUPPORTED.value)
         elif database_type == DatabaseType.S3.value:
-            data_source_crud.set_s3_bucket_source_glue_state(account_id, region, database_name, ConnectionState.UNSUPPORTED.value)
+            data_source_crud.set_s3_bucket_source_glue_state(account_id, region, database_name,
+                                                             ConnectionState.UNSUPPORTED.value)
     # create database
     if table_count > 0:
         catalog_database_dict = {
@@ -336,7 +349,8 @@ def sync_crawler_result(
             if database_type == DatabaseType.S3.value
             else rds_engine_type,
         }
-        original_database = crud.get_catalog_database_level_classification_by_name(account_id, region, database_type, database_name)
+        original_database = crud.get_catalog_database_level_classification_by_name(account_id, region, database_type,
+                                                                                   database_name)
         if original_database == None:
             crud.create_catalog_database_level_classification(catalog_database_dict)
         else:
@@ -390,11 +404,11 @@ def list_s3_sample_objects(account_id: str, region: str, s3_location: str, limit
 
 
 def get_rds_table_sample_records(
-    account_id: str,
-    region: str,
-    database_type: str,
-    database_name: str,
-    table_name: str,
+        account_id: str,
+        region: str,
+        database_type: str,
+        database_name: str,
+        table_name: str,
 ):
     # order by column_order_num asc
     column_list = crud.get_catalog_column_level_classification_by_table(
@@ -444,11 +458,11 @@ def __remove_query_result_from_s3(query_id):
 
 
 def __query_job_result_by_athena(
-    account_id: str,
-    region: str,
-    database_type: str,
-    database_name: str,
-    run_id: str,
+        account_id: str,
+        region: str,
+        database_type: str,
+        database_name: str,
+        run_id: str,
 ):
     project_bucket_name = os.getenv(
         const.PROJECT_BUCKET_NAME, const.PROJECT_BUCKET_DEFAULT_NAME
@@ -484,16 +498,16 @@ def __query_job_result_by_athena(
 
     # Select result
     select_sql = (
-        (
-            """SELECT table_name,column_name,cast(identifiers as json) as identifiers_str,CASE WHEN sample_data is NULL then '' else array_join(sample_data, \'|\') end as sample_str, privacy, table_size
+            (
+                """SELECT table_name,column_name,cast(identifiers as json) as identifiers_str,CASE WHEN sample_data is NULL then '' else array_join(sample_data, \'|\') end as sample_str, privacy, table_size
             FROM %s 
             WHERE account_id='%s'
                 AND region='%s' 
                 AND database_type='%s' 
                 AND database_name='%s' 
                 AND run_id='%s' """
-        )
-        % (const.JOB_RESULT_TABLE_NAME, account_id, region, database_type, database_name, run_id)
+            )
+            % (const.JOB_RESULT_TABLE_NAME, account_id, region, database_type, database_name, run_id)
     )
     logger.debug("Athena SELECT SQL : " + select_sql)
 
@@ -530,6 +544,7 @@ def __query_job_result_by_athena(
 
     return result
 
+
 def __get_athena_column_value(value_dict: dict, type: str):
     if "VarCharValue" in value_dict:
         return value_dict["VarCharValue"]
@@ -557,12 +572,12 @@ def __convert_identifiers_to_dict(identifiers: str):
 
 
 def sync_job_detection_result(
-    account_id: str,
-    region: str,
-    database_type: str,
-    database_name: str,
-    job_run_id: str,
-    overwrite=True
+        account_id: str,
+        region: str,
+        database_type: str,
+        database_name: str,
+        job_run_id: str,
+        overwrite=True
 ):
     job_result = __query_job_result_by_athena(
         account_id,
@@ -588,7 +603,6 @@ def sync_job_detection_result(
                 table_size = int(__get_athena_column_value(row["Data"][5], "int"))
                 table_size_dict[table_name] = table_size
                 column_privacy = privacy
-                
                 catalog_column = crud.get_catalog_column_level_classification_by_name(
                     account_id,
                     region,
@@ -598,8 +612,17 @@ def sync_job_detection_result(
                     column_name,
                 )
 
+                if table_size <= 0:
+                    logger.info("sync_job_detection_result - DELETE COLUMN WHEN TABLE_SIZE IS ZERO : " + json.dumps(
+                        catalog_column))
+                    print(
+                        "sync_job_detection_result - DELETE COLUMN WHEN TABLE_SIZE IS ZERO : " + json.dumps(
+                            catalog_column))
+                    crud.delete_catalog_column_level_classification(catalog_column.id)
+                    continue
+
                 identifier_dict = __convert_identifiers_to_dict(identifier)
-                if catalog_column is not None and  (overwrite == True or (overwrite == False and catalog_column.modify_by == const.USER_DEFAULT_NAME)):
+                if catalog_column is not None and overwrite:
                     column_dict = {
                         "identifier": json.dumps(identifier_dict),
                         "column_value_example": column_sample_data,
@@ -631,9 +654,16 @@ def sync_job_detection_result(
         catalog_table = crud.get_catalog_table_level_classification_by_name(
             account_id, region, database_type, database_name, table_name
         )
+        if table_size <= 0:
+            # 注意数据的删除！！！！
+            logger.info(
+                "sync_job_detection_result - DELETE TABLE WHEN TABLE_SIZE IS ZERO : " + json.dumps(catalog_table))
+            print("sync_job_detection_result - DELETE TABLE WHEN TABLE_SIZE IS ZERO : " + json.dumps(catalog_table))
+            crud.delete_catalog_table_level_classification(catalog_table.id)
+            continue
+
         if table_name not in table_privacy_dict:
-            if catalog_table is not None and (
-                    overwrite == True or (overwrite == False and catalog_table.modify_by == const.USER_DEFAULT_NAME)):
+            if catalog_table is not None:
                 table_dict = {
                     "row_count": table_size,
                 }
@@ -650,8 +680,7 @@ def sync_job_detection_result(
             # A table identifiers come from all columns distinct identifer values
             identifier_set = table_identifier_dict[table_name]
             identifiers = "|".join(list(map(str, identifier_set)))
-            if catalog_table is not None and (
-                    overwrite == True or (overwrite == False and catalog_table.modify_by == const.USER_DEFAULT_NAME)):
+            if catalog_table is not None and overwrite:
                 table_dict = {
                     "privacy": privacy,
                     "identifiers": identifiers,
@@ -705,9 +734,9 @@ def __get_s3_public_access(response: dict):
     try:
         for grant in d["Grants"]:
             if (
-                "URI" in grant["Grantee"]
-                and grant["Grantee"]["URI"].endswith("AllUsers")
-                and grant["Permission"] in ["READ", "FULL_CONTROL"]
+                    "URI" in grant["Grantee"]
+                    and grant["Grantee"]["URI"].endswith("AllUsers")
+                    and grant["Permission"] in ["READ", "FULL_CONTROL"]
             ):
                 return "Yes"
         return "No"
@@ -715,18 +744,20 @@ def __get_s3_public_access(response: dict):
         # Cannot determine if s3 object is public.
         return "No"
 
+
 def __get_s3_tagging(database_name, client):
     try:
-        response = client.get_bucket_tagging(Bucket = database_name)
+        response = client.get_bucket_tagging(Bucket=database_name)
         return str(response['TagSet'])
     except Exception:
         # Have no tag.
         return const.NA
 
+
 def get_database_prorpery(account_id: str,
-    region: str,
-    database_type: str,
-    database_name: str):
+                          region: str,
+                          database_type: str,
+                          database_name: str):
     result_list = []
     try:
         client = get_boto3_client(account_id, region, database_type)
@@ -741,7 +772,7 @@ def get_database_prorpery(account_id: str,
                     result_list.append(["CreationDate", b["CreationDate"]])
             result_list.append(["Tags", __get_s3_tagging(database_name, client)])
         elif database_type == DatabaseType.RDS.value:
-            response = client.describe_db_instances(DBInstanceIdentifier = database_name)
+            response = client.describe_db_instances(DBInstanceIdentifier=database_name)
             if "DBInstances" in response and len(response["DBInstances"]) > 0:
                 instance_info = response["DBInstances"][0]
                 result_list.append(["Engine", instance_info["Engine"]])
@@ -769,7 +800,7 @@ def get_database_prorpery(account_id: str,
 
 
 def update_catalog_column_level_classification(new_column: schemas.CatalogColumnLevelClassification):
-    original_column = crud.get_catalog_column_level_classification_by_name(new_column.account_id, 
+    original_column = crud.get_catalog_column_level_classification_by_name(new_column.account_id,
                                                                            new_column.region,
                                                                            new_column.database_type,
                                                                            new_column.database_name,
@@ -786,17 +817,17 @@ def update_catalog_column_level_classification(new_column: schemas.CatalogColumn
     crud.update_catalog_column_level_classification(new_column)
 
     if original_column_identifier != new_column.identifier and new_column.identifier != '{"N/A": 0}':
-        column_rows = crud.get_catalog_column_level_classification_by_table(new_column.account_id, 
-                                                                           new_column.region,
-                                                                           new_column.database_type,
-                                                                           new_column.database_name,
-                                                                           new_column.table_name)
-        
-        table = crud.get_catalog_table_level_classification_by_name(new_column.account_id, 
-                                                                        new_column.region,
-                                                                        new_column.database_type,
-                                                                        new_column.database_name,
-                                                                        new_column.table_name
+        column_rows = crud.get_catalog_column_level_classification_by_table(new_column.account_id,
+                                                                            new_column.region,
+                                                                            new_column.database_type,
+                                                                            new_column.database_name,
+                                                                            new_column.table_name)
+
+        table = crud.get_catalog_table_level_classification_by_name(new_column.account_id,
+                                                                    new_column.region,
+                                                                    new_column.database_type,
+                                                                    new_column.database_name,
+                                                                    new_column.table_name
                                                                     )
         # Reset table identifiers
         table_identifiers = ""
@@ -808,7 +839,7 @@ def update_catalog_column_level_classification(new_column: schemas.CatalogColumn
                         table_identifiers = (table_identifiers + "|" + key)
             else:
                 if column.identifier != const.NA and column.identifier not in table_identifiers:
-                        table_identifiers = (table_identifiers + "|" + column.identifier)
+                    table_identifiers = (table_identifiers + "|" + column.identifier)
         table.identifiers = table_identifiers
         crud.update_catalog_table_level_classification_by_id(table.id, {"identifiers": table_identifiers})
 
@@ -874,7 +905,20 @@ def delete_catalog_by_database_region(database: str, region: str, type: str):
     return True
 
 
-def update_catalog_table_and_database_level_privacy(account_id, region, database_type, database_name, table_name, is_manual):
+def update_catalog_table_and_database_level_privacy(account_id, region, database_type, database_name, table_name,
+                                                    is_manual):
+    overwrite = True
+    if is_manual is False:
+        last_run_database = get_last_run_database(account_id, region, database_type, database_name)
+        if last_run_database is not None:
+            job = get_job_by_run_id(last_run_database.run_id)
+            if job is not None:
+                overwrite = job.overwrite == 1
+                print("need to overwrite the privacy?")
+                print(overwrite)
+    if overwrite is False:
+        return
+
     column_rows = crud.get_catalog_column_level_classification_by_table(account_id,
                                                                         region,
                                                                         database_type,
@@ -891,6 +935,7 @@ def update_catalog_table_and_database_level_privacy(account_id, region, database
                                                                          region,
                                                                          database_type,
                                                                          database_name)
+
     # Reset table privacy
     origin_table_privacy = table.privacy
     default_table_privacy = Privacy.NA.value
@@ -902,29 +947,35 @@ def update_catalog_table_and_database_level_privacy(account_id, region, database
         table.privacy = default_table_privacy
         crud.update_catalog_table_level_classification_by_id(table.id, {"privacy": default_table_privacy})
 
-    overwrite = True
-    if is_manual is False:
-        last_run_database = get_last_run_database(account_id, region, database_type, database_name)
-        if last_run_database is not None:
-            job = get_job_by_run_id(last_run_database.run_id)
-            if job is not None:
-                overwrite = job.overwrite == 1
-                print("need to overwrite the privacy?")
-                print(overwrite)
-    if overwrite is True:
-        print("need to overwrite the privacy!!!")
-        # Reset database privacy
-        database = crud.get_catalog_database_level_classification_by_name(account_id,
-                                                                          region,
-                                                                          database_type,
-                                                                          database_name)
-        if database is not None:
-            origin_database_privacy = database.privacy
-            default_database_privacy = Privacy.NA.value
-            for table in table_rows:
-                table_privacy = table.privacy
-                if table_privacy > default_database_privacy:
-                    default_database_privacy = table_privacy
-            if origin_database_privacy != default_database_privacy:
-                database.privacy = default_database_privacy
-                crud.update_catalog_database_level_classification_by_id(database.id, {"privacy": default_database_privacy})
+    print("need to overwrite the privacy!!!")
+    # Reset database privacy
+    database = crud.get_catalog_database_level_classification_by_name(account_id,
+                                                                      region,
+                                                                      database_type,
+                                                                      database_name)
+    if database is not None:
+        origin_database_privacy = database.privacy
+        default_database_privacy = Privacy.NA.value
+        for table in table_rows:
+            table_privacy = table.privacy
+            if table_privacy > default_database_privacy:
+                default_database_privacy = table_privacy
+        if origin_database_privacy != default_database_privacy:
+            database.privacy = default_database_privacy
+            crud.update_catalog_database_level_classification_by_id(database.id,
+                                                                    {"privacy": default_database_privacy})
+
+
+def fill_catalog_labels(catalogs):
+    for catalog in catalogs:
+        catalog.labels = []
+        if catalog is None or catalog.label_ids is None:
+            continue
+        label_list = catalog.label_ids.split(',')
+        label_id_list = list(map(int, label_list))
+        labels = get_labels_by_id_list(label_id_list)
+        if labels is None:
+            continue
+        labels_str = [{"id": label.id, "label_name": label.label_name} for label in labels]
+        catalog.labels = labels_str
+    return catalogs

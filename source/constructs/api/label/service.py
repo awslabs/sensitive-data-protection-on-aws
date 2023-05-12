@@ -8,7 +8,7 @@ from .crud import get_labels_by_id_list, search_labels_by_name
 def convert_labels(labels):
     if labels is None:
         return None
-    return [{"id": label.id, "name": label.label_name} for label in labels]
+    return [{"id": label.id, "label_name": label.label_name} for label in labels]
 
 
 # {

@@ -1,9 +1,9 @@
-from fastapi import Depends, APIRouter
+from fastapi import APIRouter
 from . import crud, schemas, service
 from common.request_wrapper import inject_session
 from common.response_wrapper import BaseResponse
-from fastapi_pagination import Page, Params
 from fastapi_pagination.ext.sqlalchemy import paginate
+from fastapi_pagination import Params
 
 router = APIRouter(prefix="/labels", tags=["labels"])
 
@@ -44,14 +44,11 @@ def search_labels(
     "/search-detail-labels-by-page"
 )
 @inject_session
-def search_detail_labels_by_page(
-    label_search: schemas.LabelSearch,
-    params: Params = Depends(),
-):
-    return paginate(
-        crud.search_detail_labels_by_page(label_search),
-        params
-    )
+def search_detail_labels_by_page(label_search: schemas.LabelSearch,):
+    return paginate(crud.search_detail_labels_by_page(label_search), Params(
+        size=label_search.size,
+        page=label_search.page,
+    ))
 
 
 @router.post(
@@ -66,23 +63,21 @@ def create_label(label: schemas.LabelCreate):
 
 @router.post(
     "/update-label",
-    response_model=BaseResponse[bool]
 )
 @inject_session
 def update_label(
-    id: int,
     label: schemas.LabelUpdate
 ):
-    return crud.update_label(id, label)
+    return crud.update_label(label)
 
 
-@router.delete(
-    "/delete-label",
+@router.post(
+    "/delete-labels-by-ids",
     response_model=BaseResponse[bool]
 )
 @inject_session
-def delete_label(
-    id: int,
+def delete_labels_by_ids(
+    delete_param: schemas.LabelDelete,
 ):
-    return crud.delete_label(id)
+    return crud.delete_labels_by_ids(delete_param.ids)
 
