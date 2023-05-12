@@ -185,20 +185,14 @@ def update_catalog_table_level_classification(
 
 @router.patch("/update-catalog-database-labels", response_model=BaseResponse)
 @inject_session
-def update_catalog_database_labels(
-    id: int,
-    labels: list,
-):
-    return crud.update_catalog_database_labels(id, labels)
+def update_catalog_database_labels(update_param: schemas.CatalogUpdateLabels):
+    return crud.update_catalog_database_labels(update_param.id, update_param.labels)
 
 
 @router.patch("/update-catalog-table-labels", response_model=BaseResponse)
 @inject_session
-def update_catalog_table_labels(
-    id: int,
-    labels: list,
-):
-    return crud.update_catalog_table_labels(id, labels)
+def update_catalog_table_labels(update_param: schemas.CatalogUpdateLabels):
+    return crud.update_catalog_table_labels(update_param.id, update_param.labels)
 
 
 @router.patch("/update-catalog-column-comments", response_model=BaseResponse)
