@@ -12,10 +12,16 @@ const addAccount = async (params: any) => {
   return result;
 };
 
+// 添加成员账号
+const addOrgAccount = async (params: any) => {
+  const result = await apiRequest('post', 'data-source/reload_organization_account', params);
+  return result;
+};
+
 // 添加账号
 const deleteAccount = async (params: any) => {
   const result = await apiRequest('post', 'data-source/delete_account', params);
   return result;
 };
 
-export { getAccountList, addAccount, deleteAccount };
+export { getAccountList, addAccount, deleteAccount, addOrgAccount };

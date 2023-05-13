@@ -111,7 +111,7 @@ def list_accounts(condition: QueryCondition):
     ))
 
 
-@router.get("/reload_organization_account", response_model=BaseResponse,
+@router.post("/reload_organization_account", response_model=BaseResponse,
             description="Retrieve stacksets in the delegate account, and refresh account list by stackset status")
 @inject_session
 def reload_organization_account(organization_management_account_id=''):
