@@ -6,7 +6,7 @@ import {
   Header,
   Pagination,
   CollectionPreferences,
-  Badge,
+  Popover,
 } from '@cloudscape-design/components';
 import CommonBadge from 'pages/common-badge';
 import DetailModal from './DetailModal';
@@ -275,16 +275,44 @@ const CatalogList: React.FC<any> = memo((props: any) => {
                 }
 
                 if (item.id === COLUMN_OBJECT_STR.Labels) {
-                  return (
-                    <div>
-                      {e.labels.map((label: any) => {
-                        return (
-                          <span className="mr-5" key={label.id}>
-                            <Badge color="blue">{label.label_name}</Badge>
-                          </span>
-                        );
-                      })}
+                  let hasMore = false;
+                  if (e.labels?.length > 1) {
+                    hasMore = true;
+                  }
+                  return e.labels?.length > 0 ? (
+                    <div className="flex">
+                      <span className="custom-badge label mr-5">
+                        {e.labels?.[0]?.label_name}
+                      </span>
+                      {hasMore && (
+                        <Popover
+                          dismissButton={false}
+                          position="top"
+                          size="small"
+                          triggerType="custom"
+                          content={
+                            <div>
+                              {e.labels.map((label: any) => {
+                                return (
+                                  <span
+                                    key={label.id}
+                                    className="custom-badge label mr-5 mb-2"
+                                  >
+                                    {label.label_name}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          }
+                        >
+                          <span className="custom-badge more">{`+${
+                            e.labels?.length - 1
+                          }`}</span>
+                        </Popover>
+                      )}
                     </div>
+                  ) : (
+                    ''
                   );
                 }
 
