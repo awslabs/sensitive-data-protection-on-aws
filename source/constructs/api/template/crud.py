@@ -5,14 +5,7 @@ from tools.pydantic_tool import parse_pydantic_schema
 from template import schemas
 from db import models_template as models
 from db.database import get_session
-from sqlalchemy.orm import joinedload
-import logging
 import time
-from common.constant import const
-from copy import copy
-
-
-logger = logging.getLogger(const.LOGGER_API)
 
 
 def get_identifiers(condition: QueryCondition):
@@ -20,9 +13,11 @@ def get_identifiers(condition: QueryCondition):
 
 
 def get_mappings(id: int, condition: QueryCondition):
+    template_mappings = {
+        'name': (models.TemplateIdentifier.name, True),
+        'description': (models.TemplateIdentifier.description, False)
+    }
     ignoreProperties = ['template_id']
-    mappings = {'name': models.TemplateIdentifier.name,
-                'description': models.TemplateIdentifier.description}
     return query_with_condition_multi_table(get_session().query(models.TemplateMapping.id,
                                             models.TemplateMapping.template_id,
                                             models.TemplateMapping.identifier_id,
@@ -33,7 +28,7 @@ def get_mappings(id: int, condition: QueryCondition):
         models.TemplateMapping.template_id == id).join(
             models.TemplateMapping,
             models.TemplateMapping.identifier_id == models.TemplateIdentifier.id),
-        condition, mappings, ignoreProperties)
+        condition, template_mappings, ignoreProperties)
 
 
 def get_identifiers_by_template(tid: int):
@@ -52,7 +47,8 @@ def create_identifier(identifier: schemas.TemplateIdentifier) -> models.Template
     prop_ids = get_props_ids()
     for item in (identifier.props or []):
         if item not in prop_ids:
-            raise BizException(MessageEnum.TEMPLATE_PROPS_NOT_EXISTS.get_code(), MessageEnum.TEMPLATE_PROPS_NOT_EXISTS.get_msg())
+            raise BizException(MessageEnum.TEMPLATE_PROPS_NOT_EXISTS.get_code(),
+                               MessageEnum.TEMPLATE_PROPS_NOT_EXISTS.get_msg())
         else:
             db_identifier.props.append(get_prop_by_id(item))
 
@@ -77,7 +73,8 @@ def delete_identifier(id: int):
     del_data = session.query(models.TemplateIdentifier).filter(models.TemplateIdentifier.id == id).delete()
     if not del_data:
         raise BizException(MessageEnum.BIZ_ITEM_NOT_EXISTS.get_code(), MessageEnum.BIZ_ITEM_NOT_EXISTS.get_msg())
-    session.query(models.TemplateIdentifierPropRef).filter(models.TemplateIdentifierPropRef.identifier_id == id).delete()
+    session.query(models.TemplateIdentifierPropRef).filter(
+        models.TemplateIdentifierPropRef.identifier_id == id).delete()
     session.commit()
 
 
@@ -87,7 +84,8 @@ def update_identifier(id: int, identifier: schemas.TemplateIdentifier):
     session.query(models.TemplateIdentifier).filter(models.TemplateIdentifier.id == id).update(
         identifier.dict(exclude={'props'}, exclude_unset=True))
 
-    session.query(models.TemplateIdentifierPropRef).filter(models.TemplateIdentifierPropRef.identifier_id == id).delete()
+    session.query(models.TemplateIdentifierPropRef).filter(
+        models.TemplateIdentifierPropRef.identifier_id == id).delete()
     for item in (identifier.props or []):
         session.add(models.TemplateIdentifierPropRef(identifier_id=id, prop_id=item))
     if get_mappings_by_identifier(id):
@@ -148,8 +146,13 @@ def get_mappings_by_identifier(id: int):
 
 
 def get_used_prop_ids():
-    return get_session().query(models.TemplateIdentifierPropRef.prop_id).join(
-        models.TemplateIdentifierPropRef.identifier_id == models.TemplateMapping.identifier_id).all()
+    res = []
+    tmp = get_session().query(models.TemplateIdentifierPropRef.prop_id, models.TemplateMapping.identifier_id).join(
+        models.TemplateIdentifierPropRef, models.TemplateIdentifierPropRef.identifier_id == models
+        .TemplateMapping.identifier_id).all()
+    for e in tmp:
+        res.append(e[0])
+    return res
 
 
 def get_ref_identifiers(id: int):
@@ -230,3 +233,8 @@ def update_prop(id: int, prop: schemas.TemplateIdentifierProp):
         snapshot_no = update_template_snapshot_no(1)
     session.commit()
     return snapshot_no, get_identifier(id)
+
+
+def get_refs_by_prop(id: int):
+    return get_session().query(models.TemplateIdentifierPropRef).filter(
+        models.TemplateIdentifierPropRef.prop_id == id).all()
