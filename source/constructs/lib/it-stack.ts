@@ -11,43 +11,47 @@
  *  and limitations under the License.
  */
 
-import * as cdk from 'aws-cdk-lib';
-import { CfnParameter } from 'aws-cdk-lib';
-import * as iam from 'aws-cdk-lib/aws-iam';
+import { Aws, CfnParameter, Stack, StackProps, Tags } from 'aws-cdk-lib';
+import { ArnPrincipal, Policy, PolicyStatement, Role } from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
+import { Parameter } from './common/parameter';
 import { SolutionInfo } from './common/solution-info';
 
 
-export class ITStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+export class ITStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     this.templateOptions.description = SolutionInfo.IT_DESCRIPTION;
 
-    const trustedRoleName = `${SolutionInfo.SOLUTION_NAME_ABBR}GetStacksetInstanceLambdaRole`;
+    const trustedRoleName = `${SolutionInfo.SOLUTION_NAME_ABBR}APIRole-${Aws.REGION}`;
+    const listOrganizationRoleName = `${SolutionInfo.SOLUTION_NAME_ABBR}ListOrganizationRole-${Aws.REGION}`;
 
-    const adminAccountId = new CfnParameter(this, 'AdminAccountId', {
+    const adminAccountIdParameter = new CfnParameter(this, 'AdminAccountId', {
       type: 'String',
       description: 'The account id of Admin',
       allowedPattern:
         '\\d{12}',
     });
+    Parameter.addToParamLabels('Admin Account ID', adminAccountIdParameter.logicalId);
+    const adminAccountId = adminAccountIdParameter.valueAsString;
 
-    const trustedRoleARN = `arn:${cdk.Aws.PARTITION}:iam::${adminAccountId.valueAsString}:role/${trustedRoleName}`;
+    const trustedRoleARN = `arn:${Aws.PARTITION}:iam::${adminAccountId}:role/${trustedRoleName}`;
 
-    const listOrganizationRole = new iam.Role(this, 'ListOrganizationRole', {
-      assumedBy: new iam.ArnPrincipal(trustedRoleARN),
-      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}ListOrganizationRole`,
+    const listOrganizationRole = new Role(this, 'ListOrganizationRole', {
+      assumedBy: new ArnPrincipal(trustedRoleARN),
+      roleName: listOrganizationRoleName,
     });
 
-    listOrganizationRole.attachInlinePolicy(new iam.Policy(this, 'ListOrganizationPolicy', {
-      policyName: `${SolutionInfo.SOLUTION_NAME_ABBR}ListOrganizationPolicy`,
+    listOrganizationRole.attachInlinePolicy(new Policy(this, 'ListOrganizationPolicy', {
       statements: [
-        new iam.PolicyStatement({
+        new PolicyStatement({
           actions: [
             'organizations:ListDelegatedAdministrators',
             'organizations:DescribeOrganization',
             'cloudformation:ListStackInstances',
+            'cloudformation:ListStackSets',
+            'cloudformation:DescribeStackSet',
             'organizations:DescribeAccount',
           ],
           resources: [
@@ -57,7 +61,6 @@ export class ITStack extends cdk.Stack {
       ],
     }));
 
-
-    cdk.Tags.of(this).add(SolutionInfo.TAG_KEY, SolutionInfo.TAG_VALUE);
+    Tags.of(this).add(SolutionInfo.TAG_KEY, SolutionInfo.TAG_VALUE);
   }
 }

@@ -8,6 +8,7 @@ import {
   Button,
   Select,
   SelectProps,
+  Badge,
 } from '@cloudscape-design/components';
 import CommonBadge from 'pages/common-badge';
 import CatalogDetailList from './CatalogDetailList';
@@ -27,6 +28,7 @@ import {
   getRdsTableSampleRecords,
   updateCatalogColumn,
   updateCatalogTable,
+  updateCatalogTableLabels,
 } from 'apis/data-catalog/api';
 import '../style.scss';
 import { alertMsg, deepClone, toJSON } from 'tools/tools';
@@ -35,6 +37,8 @@ import {
   NA_OPTION,
   NON_PII_OPTION,
 } from 'pages/common-badge/componments/Options';
+import LabelModal from 'common/LabelModal';
+import { Label } from 'ts/data-catalog/types';
 
 const SchemaModal: React.FC<any> = (props: any) => {
   const {
@@ -57,6 +61,8 @@ const SchemaModal: React.FC<any> = (props: any) => {
   const [rdsColumnList, setRDSColumnList] = useState([]);
   const [previewDataList, setPreviewDataList] = useState([]);
   const [saveDisabled, setSaveDisabled] = useState(true);
+  const [showLabelModal, setShowLabelModal] = useState(false);
+  const [saveLabelLoading, setSaveLabelLoading] = useState(false);
 
   let tabsContent = [];
 
@@ -223,6 +229,33 @@ const SchemaModal: React.FC<any> = (props: any) => {
     setPreviewDataList(result);
   };
 
+  const saveLabelsToTable = async (labels: Label[], callback: () => void) => {
+    try {
+      setSaveLabelLoading(true);
+      const result = await updateCatalogTableLabels({
+        id: selectRowData.id,
+        labels: labels.map((label) => label.id),
+      });
+
+      setSaveLabelLoading(false);
+      if (result) {
+        setShowLabelModal(false);
+        setSelectRowData((prev: any) => {
+          return {
+            ...prev,
+            labels: labels,
+          };
+        });
+        if (callback) {
+          callback();
+        }
+        updateFatherPage();
+      }
+    } catch (error) {
+      setSaveLabelLoading(false);
+    }
+  };
+
   useEffect(() => {
     getDataPreview();
     if (
@@ -281,42 +314,63 @@ const SchemaModal: React.FC<any> = (props: any) => {
     >
       <div className="schema-modal-header">
         <span className="schema-body-span">{selectRowData.table_name}</span>
-
-        {(selectRowData[BADGE_TYPE.Privacy] ||
-          selectRowData[BADGE_TYPE.Privacy] === 0) &&
-          !isShowEditSelect && (
-            <>
-              <CommonBadge
-                badgeType={BADGE_TYPE.Privacy}
-                badgeLabel={selectRowData[BADGE_TYPE.Privacy]}
-              />
+        <div>
+          <div>
+            {(selectRowData[BADGE_TYPE.Privacy] ||
+              selectRowData[BADGE_TYPE.Privacy] === 0) &&
+              !isShowEditSelect && (
+                <span>
+                  <b>Privacy: </b>
+                  <CommonBadge
+                    badgeType={BADGE_TYPE.Privacy}
+                    badgeLabel={selectRowData[BADGE_TYPE.Privacy]}
+                  />
+                  <div
+                    onClick={() => setIsShowEditSelect(true)}
+                    className="modal-badge-edit"
+                  >
+                    <Icon name="edit" />
+                  </div>
+                </span>
+              )}
+            {isShowEditSelect && (
+              <div className="edit-privary">
+                <div className="edit-privary-select">
+                  <Select
+                    onChange={(e) => {
+                      setSelectedOption(e.detail.selectedOption as any);
+                    }}
+                    selectedOption={selectedOption}
+                    triggerVariant="option"
+                    options={[CONTAINS_PII_OPTION, NON_PII_OPTION, NA_OPTION]}
+                    selectedAriaLabel="Selected"
+                  ></Select>
+                </div>
+                <div className="check-icon">
+                  <Button onClick={clkCheckIcon} iconName="check"></Button>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="mt-5">
+            <span>
+              <b>Custom labels: </b>
+              {selectRowData[COLUMN_OBJECT_STR.Labels].map((label: any) => {
+                return (
+                  <span key={label.id} className="mr-5">
+                    <Badge color="blue">{label.label_name}</Badge>
+                  </span>
+                );
+              })}
               <div
-                onClick={() => setIsShowEditSelect(true)}
+                onClick={() => setShowLabelModal(true)}
                 className="modal-badge-edit"
               >
                 <Icon name="edit" />
               </div>
-            </>
-          )}
-        {isShowEditSelect && (
-          <div className="edit-privary">
-            <div className="edit-privary-select">
-              <Select
-                onChange={(e) => {
-                  setSelectedOption(e.detail.selectedOption as any);
-                }}
-                selectedOption={selectedOption}
-                triggerVariant="option"
-                options={[CONTAINS_PII_OPTION, NON_PII_OPTION, NA_OPTION]}
-                selectedAriaLabel="Selected"
-              ></Select>
-            </div>
-            <div className="check-icon">
-              {/* <Icon name="check" size="medium" /> */}
-              <Button onClick={clkCheckIcon} iconName="check"></Button>
-            </div>
+            </span>
           </div>
-        )}
+        </div>
       </div>
       <Tabs
         className="modal-body-tabs"
@@ -324,6 +378,18 @@ const SchemaModal: React.FC<any> = (props: any) => {
         onChange={(e) => {
           setActiveTabId(e.detail.activeTabId);
         }}
+      />
+      <LabelModal
+        showModal={showLabelModal}
+        defaultSelectLabels={selectRowData[COLUMN_OBJECT_STR.Labels]}
+        clickHideModal={() => {
+          setShowLabelModal(false);
+        }}
+        saveLoading={saveLabelLoading}
+        saveLabelToResource={(labelIds, callback) => {
+          saveLabelsToTable(labelIds, callback);
+        }}
+        addButtonText="Add to Table"
       />
     </Modal>
   );

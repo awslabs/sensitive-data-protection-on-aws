@@ -681,76 +681,75 @@ def get_data_source_coverage():
 
 # Update account list by stackset state
 # It will clean up accounts which stack_id is not null
-def reload_organization_account(it_account: str, stack_name: str):
+def reload_organization_account(it_account: str):
+    stack_instances = []
+    member_accounts = []
     delegated_role_arn = __gen_role_arn(
         account_id=it_account,
         region=_admin_account_region,
         role_name=_delegated_role_name)
-
-    stack_sets = []
     if __assume_role(it_account, delegated_role_arn):
-        crud.cleanup_delegated_account(
-            delegated_account_id=it_account,
-            service_managed_stack_name=stack_name
-        )
+        # do not clean up for autosync
+        # crud.cleanup_delegated_account(delegated_account_id=it_account)
         assumed_role = sts.assume_role(
             RoleArn=delegated_role_arn,
             RoleSessionName='get_organization'
         )
         credentials = assumed_role['Credentials']
-        # for region in const.CN_REGIONS:
         try:
+            # check if it is delegated admin
+            orgs = boto3.client('organizations',
+                                aws_access_key_id=credentials['AccessKeyId'],
+                                aws_secret_access_key=credentials['SecretAccessKey'],
+                                aws_session_token=credentials['SessionToken'],
+                                region_name=_admin_account_region
+                                )
+            delegated = orgs.list_delegated_administrators()
+            call_as = 'DELEGATED_ADMIN' if any(
+                admin['Id'] == it_account for admin in delegated['DelegatedAdministrators']) else 'SELF'
             cloudformation = boto3.client('cloudformation',
                                           aws_access_key_id=credentials['AccessKeyId'],
                                           aws_secret_access_key=credentials['SecretAccessKey'],
                                           aws_session_token=credentials['SessionToken'],
                                           region_name=_admin_account_region
                                           )
-            """ :type : pyboto3.cloudformation """
-
-            response = cloudformation.list_stack_instances(
-                StackSetName=stack_name,
-                MaxResults=30,
-                CallAs='DELEGATED_ADMIN'
-            )
-
-            stack_sets.extend(response['Summaries'])
-
-            while 'NextToken' in response:
-                response = cloudformation.list_stack_instances(
-                    StackSetName=stack_name,
-                    MaxResults=30,
-                    NextToken=response['NextToken'],
-                    CallAs='DELEGATED_ADMIN'
+            active_stack_sets = cloudformation.list_stack_sets(
+                Status='ACTIVE',
+                CallAs=call_as
+            )['Summaries']
+            for stack_set in active_stack_sets:
+                stack = cloudformation.describe_stack_set(
+                    StackSetName=stack_set['StackSetName'],
+                    CallAs=call_as
                 )
-                stack_sets.extend(response['Summaries'])
+                if '(SO8031-sub)' in stack['StackSet']['TemplateBody']:
+                    response = cloudformation.list_stack_instances(
+                        StackSetName=stack_set['StackSetName'],
+                        MaxResults=30,
+                        CallAs=call_as
+                    )
+                    stack_instances.extend(response['Summaries'])
 
-            for stackset in stack_sets:
-                crud.add_account(
-                    aws_account_id=stackset['Account'],
-                    aws_account_alias=None,
-                    aws_account_email=None,
-                    delegated_aws_account_id=it_account,
-                    region=_admin_account_region,
-                    organization_unit_id=stackset['OrganizationalUnitId'],
-                    stack_id=stackset['StackId'],
-                    stackset_id=stackset['StackSetId'],
-                    stackset_name=stack_name,
-                    status=1,
-                    stack_status=stackset['Status'],
-                    stack_instance_status=stackset['StackInstanceStatus']['DetailedStatus'],
-                    # detection_role_name=delegated_role_arn,
-                    detection_role_name='data-source-admin-role',
-                    # TODO assume role test, validate the role has been created
-                    detection_role_status='',
-                )
-                __update_access_policy_for_account()
-        except Exception as error:
-            pass
+                    while 'NextToken' in response:
+                        response = cloudformation.list_stack_instances(
+                            StackSetName=stack_set['StackSetName'],
+                            MaxResults=30,
+                            NextToken=response['NextToken'],
+                            CallAs=call_as
+                        )
+                        stack_instances.extend(response['Summaries'])
+            logger.debug(stack_instances)
+            # convert to unique account list
+            member_accounts = list(set(item['Account'] for item in stack_instances))
+            for account in member_accounts:
+                add_account(account)
+        except Exception as e:
+            logger.error(traceback.format_exc())
+            raise BizException(MessageEnum.SOURCE_ORG_ADD_ACCOUNT_FAILED.get_code(), str(e))
     else:
         raise BizException(MessageEnum.SOURCE_ASSUME_DELEGATED_ROLE_FAILED.get_code(),
                            MessageEnum.SOURCE_ASSUME_DELEGATED_ROLE_FAILED.get_msg())
-    return stack_sets
+    return member_accounts
 
 
 def add_account(account_id: str):
@@ -930,6 +929,11 @@ def __update_access_policy_for_account():
             QueueName=f"{const.SOLUTION_NAME}-DiscoveryJob",
             QueueOwnerAWSAccountId=_admin_account_id
         )
+        missing_resource = f"{const.SOLUTION_NAME}-AutoSyncData"
+        sqs.get_queue_url(
+            QueueName=f"{const.SOLUTION_NAME}-AutoSyncData",
+            QueueOwnerAWSAccountId=_admin_account_id
+        )
     except Exception as err:
         logger.error(f"Required resource {missing_resource} is missing, skipping region: {_admin_account_region}")
         return
@@ -939,6 +943,7 @@ def __update_access_policy_for_account():
         bucket_access_principals = []
         sqs_job_trigger_principals = []
         sqs_crawler_trigger_principals = []
+        auto_sync_data_trigger_principals = []
         for account in accounts:
 
             role_arn = __gen_role_arn(account_id=account.aws_account_id, region=account.region,
@@ -953,6 +958,9 @@ def __update_access_policy_for_account():
 
                 job_trigger_role_arn = f"arn:{partition}:iam::{account.aws_account_id}:role/{const.SOLUTION_NAME}DiscoveryJobRole-{account.region}"
                 sqs_job_trigger_principals.append(job_trigger_role_arn)
+
+                auto_sync_data_role_arn = f"arn:{partition}:iam::{account.aws_account_id}:role/{const.SOLUTION_NAME}DeleteAgentResourcesRole-{account.region}"
+                auto_sync_data_trigger_principals.append(auto_sync_data_role_arn)
 
         # Bucket policies are limited to 20 KB in size.
         read_statement = {
@@ -1064,6 +1072,27 @@ def __update_access_policy_for_account():
                 }
             ]
         }
+        auto_sync_data_trigger_policy = {
+            "Version": "2008-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Principal": {
+                        "AWS": f"arn:{partition}:iam::{_admin_account_id}:root"
+                    },
+                    "Action": "SQS:*",
+                    "Resource": f"arn:{partition}:sqs:{_admin_account_region}:{_admin_account_id}:{const.SOLUTION_NAME}-AutoSyncData"
+                },
+                {
+                    "Effect": "Allow",
+                    "Principal": {
+                        "AWS": auto_sync_data_trigger_principals
+                    },
+                    "Action": "SQS:SendMessage",
+                    "Resource": f"arn:{partition}:sqs:{_admin_account_region}:{_admin_account_id}:{const.SOLUTION_NAME}-AutoSyncData"
+                }
+            ]
+        }
         try:
             sqs.set_queue_attributes(
                 QueueUrl=sqs.get_queue_url(QueueName=f"{const.SOLUTION_NAME}-DiscoveryJob")['QueueUrl'],
@@ -1078,6 +1107,15 @@ def __update_access_policy_for_account():
                 QueueUrl=sqs.get_queue_url(QueueName=f"{const.SOLUTION_NAME}-Crawler")['QueueUrl'],
                 Attributes={
                     "Policy": json.dumps(sqs_crawler_trigger_policy)
+                }
+            )
+        except Exception as err:
+            logger.error(traceback.format_exc())
+        try:
+            sqs.set_queue_attributes(
+                QueueUrl=sqs.get_queue_url(QueueName=f"{const.SOLUTION_NAME}-AutoSyncData")["QueueUrl"],
+                Attributes={
+                    "Policy": json.dumps(auto_sync_data_trigger_policy)
                 }
             )
         except Exception as err:

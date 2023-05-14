@@ -17,8 +17,12 @@ def get_labels_by_id_list(id_list: List[int]) -> List[models.Label]:
 
 def search_labels_by_name(label_name: str) -> List[models.Label]:
     session = get_session()
-    query = session.query(models.Label).filter(models.Label.label_name.ilike("%" + label_name + "%"))
-    labels = query.all()
+    if not label_name:  # 检查 label_name 是否为空
+        labels = session.query(models.Label).order_by(models.Label.label_name).all()
+    else:
+        query = session.query(models.Label).filter(models.Label.label_name.ilike("%" + label_name + "%")).order_by(models.Label.label_name)
+        labels = query.all()
+
     return labels
 
 
@@ -53,7 +57,7 @@ def search_detail_labels_by_page(
             models.Label.state == label_search.state
         )
     result = query.order_by(
-        models.Label.modify_time
+        models.Label.label_name
     )
     return result
 
@@ -71,43 +75,34 @@ def create_label(label: schemas.LabelCreate) -> models.Label:
                             )
     session.add(db_label)
     session.commit()
-    print(db_label.id)
     return db_label
 
 
-def update_label(
-        id: int,
-        label: schemas.LabelUpdate
-):
+def update_label(label: schemas.LabelUpdate):
     session = get_session()
-    db_label = session.query(models.Label).filter(models.Label.id == id).first()
+    db_label = session.query(models.Label).filter(models.Label.id == label.id).first()
+    print(db_label)
     if not db_label:
         raise BizException(
             MessageEnum.BIZ_ITEM_NOT_EXISTS.get_code(),
             MessageEnum.BIZ_ITEM_NOT_EXISTS.get_msg()
         )
-
-    # 将version字段+1
-    if db_label.version is not None and db_label.version.isdigit():
+    print(db_label)
+    # # 将version字段+1
+    if db_label.version is not None:
         db_label.version += 1
-
-    now = datetime.datetime.now()
-    # 将时间转换为 SQLite DateTime 格式
-    formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
-    label.modify_time = formatted_date
-
     session.query(models.Label).filter(models.Label.id == id).update(label.dict(exclude_unset=True))
+    print(label.dict(exclude_unset=True))
     session.commit()
     return True
 
 
-def delete_label(
-        id: int
-    ):
+def delete_labels_by_ids(ids: list):
     try:
+        label_id_list = list(map(int, ids))
         session = get_session()
         session.query(models.Label).filter(
-            models.Label.id == id
+            models.Label.id.in_(label_id_list)
         ).delete()
         session.commit()
         return True

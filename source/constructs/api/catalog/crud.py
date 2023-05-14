@@ -560,10 +560,8 @@ def delete_catalog_database_level_classification_by_name(account_id: str,
 def update_catalog_column_comments(
         id: int,
         comments: str,
-        modify_by: str,
 ):
-    modify_time = mytime.get_time()
-    update_dict = {"comments": (comments,), "modify_time": (modify_time,), "modify_by": (modify_by,)}
+    update_dict = {"comments": (comments,)}
     size = (
         get_session()
         .query(models.CatalogColumnLevelClassification)
@@ -577,10 +575,9 @@ def update_catalog_column_comments(
 def update_catalog_database_labels(
         id: int,
         labels: list,
-        modify_by: str,
 ):
     labels_str = ','.join(str(i) for i in labels)
-    update_dict = {"label_ids": (labels_str,), "modify_time": (mytime.get_time(),), "modify_by": (modify_by,)}
+    update_dict = {"label_ids": (labels_str,)}
     size = (
         get_session()
         .query(models.CatalogDatabaseLevelClassification)
@@ -594,11 +591,9 @@ def update_catalog_database_labels(
 def update_catalog_table_labels(
         id: int,
         labels: list,
-        modify_by: str,
 ):
-    modify_time = mytime.get_time()
     labels_str = ','.join(str(i) for i in labels)
-    update_dict = {"label_ids": (labels_str,), "modify_time": (modify_time,), "modify_by": (modify_by,)}
+    update_dict = {"label_ids": (labels_str,)}
     size = (
         get_session()
         .query(models.CatalogTableLevelClassification)

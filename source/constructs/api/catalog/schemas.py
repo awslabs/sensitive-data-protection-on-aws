@@ -55,6 +55,7 @@ class CatalogTableLevelClassification(BaseModel):
     create_time: Optional[datetime.datetime]
     modify_by: Optional[str]
     modify_time: Optional[datetime.datetime]
+    labels: Optional[list]
 
     class Config:
         orm_mode = True
@@ -82,6 +83,7 @@ class CatalogDatabaseLevelClassification(BaseModel):
     create_time: Optional[datetime.datetime]
     modify_by: Optional[str]
     modify_time: Optional[datetime.datetime]
+    labels: Optional[list]
 
     class Config:
         orm_mode = True
