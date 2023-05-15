@@ -52,7 +52,7 @@ def create_s3_connection(s3: schemas.SourceS3Connection):
 
 @router.post("/sync-s3", response_model=BaseResponse)
 @inject_session
-def create_s3_connection(s3: schemas.SourceS3Connection):
+def sync_s3_connection(s3: schemas.SourceS3Connection):
     if s3.bucket == '*':
         return service.sync_s3_connection_by_region(
             s3.account_id,
@@ -90,6 +90,19 @@ def delete_rds_connection(rds: schemas.SourceDeteteRdsConnection):
 @inject_session
 def create_rds_connection(rds: schemas.SourceRdsConnection):
     return service.create_rds_connection(
+        rds.account_id,
+        rds.region,
+        rds.instance,
+        rds.rds_user,
+        rds.rds_password,
+        rds.rds_secret
+    )
+
+
+@router.post("/sync-rds", response_model=BaseResponse)
+@inject_session
+def sync_rds_connection(rds: schemas.SourceRdsConnection):
+    return service.sync_rds_connection(
         rds.account_id,
         rds.region,
         rds.instance,
