@@ -1,6 +1,3 @@
-from common.enum import (
-    LabelClassification
-)
 from catalog.crud import get_catalog_database_level_classification_by_name, get_catalog_table_level_classification_by_database
 from .crud import get_labels_by_id_list, search_labels_by_name
 

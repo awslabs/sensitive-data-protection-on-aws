@@ -121,22 +121,9 @@ def get_catalog_table_level_classification_by_database(
 
 
 def search_catalog_table_level_classification_by_database(
-    account_id: str,
-    region: str,
-    database_type: str,
-    database_name: str,
-    table_name: str,
+    condition: QueryCondition
 ):
-    result = (
-        get_session()
-        .query(models.CatalogTableLevelClassification)
-        .filter(models.CatalogTableLevelClassification.account_id == account_id)
-        .filter(models.CatalogTableLevelClassification.region == region)
-        .filter(models.CatalogTableLevelClassification.database_type == database_type)
-        .filter(models.CatalogTableLevelClassification.database_name == database_name)
-        .filter(models.CatalogTableLevelClassification.table_name.ilike("%" + table_name + "%"))
-    )
-    return result
+    return query_with_condition(get_session().query(models.CatalogTableLevelClassification, condition))
 
 
 def get_catalog_table_level_classification_by_name(

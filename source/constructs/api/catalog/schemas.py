@@ -104,3 +104,8 @@ class CatalogJobResultDetection(BaseModel):
     database_type: str
     database_name: str
     job_run_id: str
+
+
+class CatalogUpdateLabels(BaseModel):
+    id: int
+    labels: list

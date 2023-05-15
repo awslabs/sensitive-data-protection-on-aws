@@ -41,17 +41,6 @@ def search_labels(
 
 
 @router.post(
-    "/search-detail-labels-by-page"
-)
-@inject_session
-def search_detail_labels_by_page(label_search: schemas.LabelSearch,):
-    return paginate(crud.search_detail_labels_by_page(label_search), Params(
-        size=label_search.size,
-        page=label_search.page,
-    ))
-
-
-@router.post(
     "/create-label",
     response_model=BaseResponse
 )
