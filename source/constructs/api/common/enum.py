@@ -233,3 +233,7 @@ class OperationType(Enum):
     NOT_EQUAL = "!="
     CONTAIN = ":"
     NOT_CONTAIN = "!="
+
+@unique
+class AutoSyncDataAction(Enum):
+    DELETE_ACCOUNT = "DeleteAccount"
