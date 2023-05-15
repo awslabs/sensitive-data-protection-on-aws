@@ -31,14 +31,15 @@ def query_with_condition(query: Query, condition: QueryCondition):
     if condition and condition.conditions:
         for c in condition.conditions:
             if c.column:
+                table_value = getattr(table_obj, c.column)
                 if c.operation == OperationType.EQUAL.value:
-                    query = query.filter(getattr(table_obj, c.column) == c.values)
+                    query = query.filter(table_value == c.values)
                 elif c.operation == OperationType.NOT_EQUAL.value:
-                    query = query.filter(getattr(table_obj, c.column) != c.values)
+                    query = query.filter(table_value != c.values)
                 elif c.operation == OperationType.CONTAIN.value:
-                    query = query.filter(getattr(table_obj, c.column).contains(c.values))
+                    query = query.filter(table_value.contains(c.values))
                 else:
-                    query = query.filter(not_(getattr(table_obj, c.column).contains(c.values)))
+                    query = query.filter(or_(table_value == None, not_(table_value.contains(c.values))))
             elif free_search_columns:
                 for column in (free_search_columns or []):
                     free_search_conditions.append(getattr(table_obj, column).contains(c.values))
@@ -64,14 +65,15 @@ def query_with_condition_multi_table(query: Query, condition: QueryCondition, ma
     if condition and condition.conditions:
         for c in condition.conditions:
             if c.column and c.column not in ignoreProperties:
+                table_value = mappings[c.column][0]
                 if c.operation == OperationType.EQUAL.value:
-                    query = query.filter(mappings[c.column][0] == c.values)
+                    query = query.filter(table_value == c.values)
                 elif c.operation == OperationType.NOT_EQUAL.value:
-                    query = query.filter(mappings[c.column][0] != c.values)
+                    query = query.filter(table_value != c.values)
                 elif c.operation == OperationType.CONTAIN.value:
-                    query = query.filter(mappings[c.column][0].contains(c.values))
+                    query = query.filter(table_value.contains(c.values))
                 else:
-                    query = query.filter(not_(mappings[c.column][0].contains(c.values)))
+                    query = query.filter(or_(table_value == None, not_(table_value.contains(c.values))))
             elif not c.column and free_search_columns:
                 for column in (free_search_columns or []):
                     free_search_conditions.append(mappings[column][0].contains(c.values))
@@ -79,7 +81,7 @@ def query_with_condition_multi_table(query: Query, condition: QueryCondition, ma
             else:
                 pass
         if condition.sort_column:
-            sort_column = mappings[condition.sort_column]
+            sort_column = mappings[condition.sort_column][0]
             if condition.asc:
                 query = query.order_by(sort_column)
             else:

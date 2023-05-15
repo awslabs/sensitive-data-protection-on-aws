@@ -15,7 +15,7 @@ def get_identifiers(condition: QueryCondition):
 def get_mappings(id: int, condition: QueryCondition):
     template_mappings = {
         'name': (models.TemplateIdentifier.name, True),
-        'description': (models.TemplateIdentifier.description, False)
+        'description': (models.TemplateIdentifier.description, True)
     }
     ignoreProperties = ['template_id']
     return query_with_condition_multi_table(get_session().query(models.TemplateMapping.id,
