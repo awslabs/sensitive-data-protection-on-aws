@@ -232,7 +232,7 @@ class OperationType(Enum):
     EQUAL = "="
     NOT_EQUAL = "!="
     CONTAIN = ":"
-    NOT_CONTAIN = "!="
+    NOT_CONTAIN = "!:"
 
 
 @unique
