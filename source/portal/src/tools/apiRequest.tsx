@@ -37,7 +37,7 @@ const NO_ACCESS_CODE = 1003;
  * http request 拦截器
  */
 axios.interceptors.request.use(
-  (config) => {
+  (config: any) => {
     const configJSONObj: AmplifyConfigType = localStorage.getItem(
       AMPLIFY_CONFIG_JSON
     )

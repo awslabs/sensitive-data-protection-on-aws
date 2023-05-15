@@ -23,6 +23,7 @@ export const COLUMN_OBJECT_STR = {
   BucketProperties: 'bucketProperties',
   AccountId: 'account_id',
   Labels: 'labels',
+  Comments: 'comments',
 };
 
 // S3 catalog column
@@ -260,6 +261,11 @@ export const SCHEMA_COLUMN = [
     id: COLUMN_OBJECT_STR.Privacy,
     label: 'Privacy',
     filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.Comments,
+    label: 'Comment',
+    filter: false,
   },
   {
     id: COLUMN_OBJECT_STR.LastModifyBy,

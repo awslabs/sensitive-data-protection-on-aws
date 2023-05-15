@@ -61,6 +61,10 @@ code {
   margin-top: 20px;
 }
 
+.mb-2 {
+  margin-bottom: 5px;
+}
+
 .mb-5 {
   margin-bottom: 5px;
 }
@@ -111,6 +115,15 @@ code {
 .page-loading {
   text-align: center;
   padding: 20px;
+}
+
+.wrap-line {
+  word-break: break-all !important;
+  white-space: break-spaces;
+}
+
+.edit-min-width {
+  min-width: 150px !important;
 }
 
 .oidc-login {
@@ -422,4 +435,26 @@ code {
 
 .description {
   color: #666;
+}
+
+.custom-badge {
+  background-color: #d1d5db;
+  color: #fff;
+  font-family: "Open Sans", "Helvetica Neue", Roboto, Arial, sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.005em;
+  line-height: 22px;
+  display: inline-block;
+  border-radius: 4px;
+  padding: 0 8px;
+  &.more {
+    background-color: #888;
+    color: #fff;
+    cursor: pointer;
+  }
+  &.label {
+    background-color: #7aa4e3;
+    color: #fff;
+  }
 }

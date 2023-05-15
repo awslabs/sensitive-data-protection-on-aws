@@ -5,6 +5,7 @@ import {
 import React from 'react';
 import { RouterEnum } from 'routers/routerEnum';
 import './style.scss';
+import { useTranslation } from 'react-i18next';
 
 interface INavigationProps {
   activeHref: string;
@@ -12,36 +13,37 @@ interface INavigationProps {
 
 const Navigation: React.FC<INavigationProps> = (props: INavigationProps) => {
   const { activeHref } = props;
-  const navHeader = { text: 'AWS Solution', href: RouterEnum.Home.path };
+  const { t } = useTranslation();
+  const navHeader = { text: t('solution.title'), href: RouterEnum.Home.path };
   const navItems: SideNavigationProps.Item[] = [
-    { type: 'link', text: 'Summary', href: RouterEnum.Home.path },
+    { type: 'link', text: t('nav.summary'), href: RouterEnum.Home.path },
     {
       type: 'link',
-      text: 'Connect to data source',
+      text: t('nav.connectDataSource'),
       href: RouterEnum.AccountManagement.path,
     },
     {
       type: 'link',
-      text: 'Browse data catalogs',
+      text: t('nav.browserCatalog'),
       href: RouterEnum.Catalog.path,
     },
     {
       type: 'link',
-      text: 'Run sensitive data discovery jobs',
+      text: t('nav.runJob'),
       href: RouterEnum.Datajob.path,
     },
     {
       type: 'section',
-      text: '     Classification settings',
+      text: t('nav.classifiySetting'),
       items: [
         {
           type: 'link',
-          text: 'Define classification template',
+          text: t('nav.defineTemplate'),
           href: RouterEnum.Datatemplate.path,
         },
         {
           type: 'link',
-          text: 'Manage data identifiers',
+          text: t('nav.manageIdentifier'),
           href: RouterEnum.TemplateIdentifiers.path,
         },
       ],
@@ -49,7 +51,7 @@ const Navigation: React.FC<INavigationProps> = (props: INavigationProps) => {
     { type: 'divider' },
     {
       type: 'link',
-      text: 'Documentation',
+      text: t('nav.doc'),
       href: 'https://github.com/awslabs/sensitive-data-protection-on-aws',
       external: true,
     },
