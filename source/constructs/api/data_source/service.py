@@ -193,6 +193,161 @@ def create_s3_connection_by_region(account: str, region: str):
             logger.error(traceback.format_exc())
 
 
+def sync_s3_connection(account: str, region: str, bucket: str):
+    glue_connection_name = f"s3-{bucket}-connection"
+    glue_database_name = f"s3-{bucket}-database"
+    crawler_name = f"s3-{bucket}-crawler"
+    if region != _admin_account_region:
+        raise BizException(MessageEnum.SOURCE_DO_NOT_SUPPORT_CROSS_REGION.get_code(),
+                           MessageEnum.SOURCE_DO_NOT_SUPPORT_CROSS_REGION.get_msg())
+
+    state = crud.get_s3_bucket_source_glue_state(account, region, bucket)
+    if state == ConnectionState.PENDING.value:
+        raise BizException(MessageEnum.SOURCE_CONNECTION_NOT_FINISHED.get_code(),
+                           MessageEnum.SOURCE_CONNECTION_NOT_FINISHED.get_msg())
+    elif state == ConnectionState.CRAWLING.value:
+        raise BizException(MessageEnum.SOURCE_CONNECTION_CRAWLING.get_code(),
+                           MessageEnum.SOURCE_CONNECTION_CRAWLING.get_msg())
+    if state == ConnectionState.ACTIVE.value:
+        # TODO double check！
+        delete_glue_connection(account, region, crawler_name, glue_database_name,
+                               glue_connection_name)
+    try:
+        iam_role_name = crud.get_iam_role(account)
+        assumed_role = sts.assume_role(
+            RoleArn=f"{iam_role_name}",
+            RoleSessionName="glue-s3-connection"
+        )
+        credentials = assumed_role['Credentials']
+        # PENDING｜ACTIVE｜ERROR with message
+        crud.set_s3_bucket_source_glue_state(account, region, bucket, ConnectionState.PENDING.value)
+        s3 = boto3.client('s3',
+                          aws_access_key_id=credentials['AccessKeyId'],
+                          aws_secret_access_key=credentials['SecretAccessKey'],
+                          aws_session_token=credentials['SessionToken'],
+                          region_name=region)
+        """ :type : pyboto3.s3 """
+        response = s3.list_objects(Bucket=bucket, Delimiter='/')
+        if 'Contents' not in response and 'CommonPrefixes' not in response:
+            raise BizException(MessageEnum.SOURCE_S3_EMPTY_BUCKET.get_code(),
+                               MessageEnum.SOURCE_S3_EMPTY_BUCKET.get_msg())
+        s3_targets = []
+        if 'CommonPrefixes' in response:
+            for common_prefix in response['CommonPrefixes']:
+                s3_targets.append(
+                    {
+                        "Path": f"s3://{bucket}/{common_prefix['Prefix']}",
+                        "Exclusions": []
+                    }
+                )
+        if 'Contents' in response:
+            s3_targets.append(
+                {
+                    "Path": f"s3://{bucket}",
+                    "SampleSize": 20,
+                    "Exclusions": []
+                }
+            )
+        glue = boto3.client('glue',
+                            aws_access_key_id=credentials['AccessKeyId'],
+                            aws_secret_access_key=credentials['SecretAccessKey'],
+                            aws_session_token=credentials['SessionToken'],
+                            region_name=region
+                            )
+        """ :type : pyboto3.glue """
+
+        try:
+            glue.get_database(Name=glue_database_name)
+        except Exception as e:
+            glue.create_database(DatabaseInput={'Name': glue_database_name})
+        # wait for database creation, several seconds
+        lakeformation = boto3.client('lakeformation',
+                                     aws_access_key_id=credentials['AccessKeyId'],
+                                     aws_secret_access_key=credentials['SecretAccessKey'],
+                                     aws_session_token=credentials['SessionToken'],
+                                     region_name=region)
+        """ :type : pyboto3.lakeformation """
+        crawler_role_arn = __gen_role_arn(account_id=account,
+                                          region=region,
+                                          role_name='GlueDetectionJobRole')
+        response = lakeformation.grant_permissions(
+            Principal={
+                'DataLakePrincipalIdentifier': f"{crawler_role_arn}"
+            },
+            Resource={
+                'Database': {
+                    'Name': glue_database_name
+                }
+            },
+            Permissions=['ALL'],
+            PermissionsWithGrantOption=['ALL']
+        )
+
+        try:
+            glue.get_crawler(Name=crawler_name)
+        except Exception as e:
+            response = glue.create_crawler(
+                Name=crawler_name,
+                Role=crawler_role_arn,
+                DatabaseName=glue_database_name,
+                Targets={
+                    "S3Targets": s3_targets
+                },
+                Tags={
+                    'AdminAccountId': _admin_account_id
+                }
+            )
+            logger.info(response)
+            response = glue.start_crawler(
+                Name=crawler_name
+            )
+            logger.info(response)
+
+        crud.create_s3_connection(account, region, bucket, glue_connection_name, glue_database_name, crawler_name)
+    except Exception as err:
+        crud.set_s3_bucket_source_glue_state(account, region, bucket, str(err))
+        glue = boto3.client('glue',
+                            aws_access_key_id=credentials['AccessKeyId'],
+                            aws_secret_access_key=credentials['SecretAccessKey'],
+                            aws_session_token=credentials['SessionToken'],
+                            region_name=region
+                            )
+        """ :type : pyboto3.glue """
+
+        try:
+            glue.delete_crawler(crawler_name)
+        except Exception as e:
+            pass
+        try:
+            glue.delete_database(Name=glue_database_name)
+        except Exception as e:
+            pass
+        try:
+            glue.delete_connection(ConnectionName=glue_connection_name)
+        except Exception as e:
+            pass
+
+        logger.error(traceback.format_exc())
+        raise BizException(MessageEnum.SOURCE_CONNECTION_FAILED.get_code(),
+                           str(err))
+
+
+def sync_s3_connection_by_region(account: str, region: str):
+    buckets = crud.list_s3_bucket_source_by_account(
+        account_id=account,
+        region=region,
+        state=None
+    )
+    for bucket in buckets:
+        try:
+            sync_s3_connection(
+                account=account,
+                region=region,
+                bucket=bucket
+            )
+        except Exception as err:
+            logger.error(traceback.format_exc())
+
 # The routing of the RDS subnet is not checked
 def check_link(credentials, region_name: str, vpc_id: str):
     ec2 = boto3.client('ec2',
@@ -650,6 +805,25 @@ def delete_s3_connection(account: str, region: str, bucket: str):
         logger.error(traceback.format_exc())
         # raise BizException(MessageEnum.SOURCE_S3_CONNECTION_DELETE_ERROR.get_code(), err)
 
+    return True
+
+
+def delete_glue_connection(account: str, region: str, glue_crawler: str,
+                           glue_database: str, glue_connection: str):
+
+    glue = __glue(account=account, region=region)
+    try:
+        glue.delete_crawler(Name=glue_crawler)
+    except Exception as e:
+        logger.info("delete_glue_crawler" + str(e))
+    try:
+        glue.delete_database(Name=glue_database)
+    except Exception as e:
+        logger.info("delete_glue_database" + str(e))
+    try:
+        glue.delete_connection(ConnectionName=glue_connection)
+    except Exception as e:
+        logger.info("delete_glue_connection" + str(e))
     return True
 
 

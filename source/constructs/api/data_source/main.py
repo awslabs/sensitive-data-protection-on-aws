@@ -50,6 +50,22 @@ def create_s3_connection(s3: schemas.SourceS3Connection):
         )
 
 
+@router.post("/sync-s3", response_model=BaseResponse)
+@inject_session
+def create_s3_connection(s3: schemas.SourceS3Connection):
+    if s3.bucket == '*':
+        return service.sync_s3_connection_by_region(
+            s3.account_id,
+            s3.region
+        )
+    else:
+        return service.sync_s3_connection_by_region(
+            s3.account_id,
+            s3.region,
+            s3.bucket
+        )
+
+
 @router.post("/delete_s3", response_model=BaseResponse)
 @inject_session
 def delete_s3_connection(s3: schemas.SourceDeteteS3Connection):
