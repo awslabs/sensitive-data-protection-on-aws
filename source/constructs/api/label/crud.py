@@ -26,42 +26,6 @@ def search_labels_by_name(label_name: str) -> List[models.Label]:
     return labels
 
 
-def search_detail_labels_by_page(
-    label_search: schemas.LabelSearch,
-):
-    query = get_session().query(models.Label)
-    if label_search.id is not None and label_search.id > 0:
-        query = query.filter(models.Label.id == label_search.id)
-    if label_search.label_name is not None:
-        query = query.filter(models.Label.label_name.ilike(
-            "%" + label_search.label_name + "%"
-        ))
-    if label_search.classification is not None and label_search.classification.strip():
-        query = query.filter(
-            models.Label.classification == label_search.classification
-        )
-    if label_search.type is not None and label_search.type.strip():
-        query = query.filter(
-            models.Label.type == label_search.type
-        )
-    if label_search.style_type is not None and label_search.style_type.strip():
-        query = query.filter(
-            models.Label.style_type == label_search.style_type
-        )
-    if label_search.style_value is not None and label_search.style_value.strip():
-        query = query.filter(
-            models.Label.style_value == label_search.style_value
-        )
-    if label_search.state is not None and label_search.state.strip():
-        query = query.filter(
-            models.Label.state == label_search.state
-        )
-    result = query.order_by(
-        models.Label.label_name
-    )
-    return result
-
-
 def create_label(label: schemas.LabelCreate) -> models.Label:
     session = get_session()
     parsed_schema = parse_pydantic_schema(label)
