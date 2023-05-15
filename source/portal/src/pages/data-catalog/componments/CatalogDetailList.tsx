@@ -10,6 +10,7 @@ import {
   Popover,
   StatusIndicator,
   Badge,
+  Textarea,
 } from '@cloudscape-design/components';
 import CommonBadge from 'pages/common-badge';
 import SchemaModal from './SchemaModal';
@@ -98,6 +99,8 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       filteringPlaceholder: 'Filter catalogs',
     };
 
+    const [editComments, setEditComments] = useState(null as any);
+
     // click Forder or database name to schema
     const clickFolderName = (data: any) => {
       const rowData = {
@@ -128,12 +131,21 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       if (type === COLUMN_OBJECT_STR.Identifier) {
         setEditIndentifier(rowData);
         setEditPrivacy(null);
+        setEditComments(null);
         setSelectIndentOption(null);
       }
       if (type === COLUMN_OBJECT_STR.Privacy) {
         setEditPrivacy(rowData);
         setEditIndentifier(null);
+        setEditComments(null);
         setSelectPrivacyOption(null);
+      }
+      if (type === COLUMN_OBJECT_STR.Comments) {
+        setEditComments(rowData);
+        setEditIndentifier(null);
+        setEditPrivacy(null);
+        setSelectPrivacyOption(null);
+        setSelectIndentOption(null);
       }
       return;
     };
@@ -345,31 +357,32 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       tempRowData: any,
       editType: string
     ) => {
-      let tempDataList;
+      const tempDataList = deepClone(dataList);
+      const tempData = tempDataList.filter(
+        (item: { id: any }) => item.id === tempRowData.id
+      );
       if (editType === COLUMN_OBJECT_STR.Privacy) {
         setSelectPrivacyOption(tempOption);
-        tempDataList = deepClone(dataList);
-        const tempData = tempDataList.filter(
-          (item: { id: any }) => item.id === tempRowData.id
-        );
         if (tempData && tempData.length > 0) {
           tempData[0][COLUMN_OBJECT_STR.Privacy] = tempOption?.value;
           tempData[0][UPDATE_FLAG] = true;
         }
-        setDataList(tempDataList);
-      } else {
+      } else if (editType === COLUMN_OBJECT_STR.Identifier) {
         setSelectIndentOption(tempOption);
-        tempDataList = deepClone(dataList);
-        const tempData = tempDataList.filter(
-          (item: { id: any }) => item.id === tempRowData.id
-        );
         if (tempData && tempData.length > 0) {
           tempData[0][COLUMN_OBJECT_STR.Identifier] =
             tempOption?.iconSvg.props.badgeLabel;
           tempData[0][UPDATE_FLAG] = true;
         }
-        setDataList(tempDataList);
+      } else {
+        console.info('tempData:', tempData);
+        if (tempData && tempData.length > 0) {
+          tempData[0][COLUMN_OBJECT_STR.Comments] = tempOption;
+          tempData[0][UPDATE_FLAG] = true;
+        }
       }
+      console.info('tempDataList:', tempDataList);
+      setDataList(tempDataList);
       setUpdateData(tempDataList);
     };
 
@@ -385,352 +398,437 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
             </div>
           </div>
         )}
-        <Table
-          className="no-shadow"
-          variant="embedded"
-          loading={isLoading}
-          columnDefinitions={
-            columnList.map((item) => {
-              return {
-                id: item.id,
-                header: item.label,
-                // different column tag
-                cell: (e: any) => {
-                  if (e.property === 'Tags' && e.isTag && item.id === 'value') {
-                    if (e.value !== 'N/A') {
-                      const tags = JSON.parse(JSON.stringify(e.value));
-                      return tags.map((element: any, index: number) => {
-                        return (
-                          <div key={index} className="mb-5">
-                            <Badge>{JSON.stringify(element)}</Badge>
-                          </div>
-                        );
-                      });
-                    } else {
-                      return 'N/A';
-                    }
-                  }
-                  if (item.id === 's3objects') {
-                    if (!(e as any)['s3_full_path']) {
-                      return '';
-                    }
-                    const pathList = (e as any)['s3_full_path'].split('/');
-                    return pathList[pathList.length - 1];
-                  }
-                  if (
-                    item.id === 'size' ||
-                    item.id === COLUMN_OBJECT_STR.Size ||
-                    item.id === 'file_size'
-                  ) {
-                    return formatSize((e as any)[item.id]);
-                  }
-                  if (item.id === COLUMN_OBJECT_STR.DataIdent) {
-                    return (
-                      <CommonBadge
-                        badgeType={BADGE_TYPE.DataIndf}
-                        badgeLabel={(e as any)[item.id]}
-                      />
-                    );
-                  }
-                  if (item.id === COLUMN_OBJECT_STR.TableCount) {
-                    return (
-                      <span
-                        className="catalog-detail-row-folders hander"
-                        onClick={() => clickTableCount(e)}
-                      >
-                        {(e as any)[item.id]}
-                      </span>
-                    );
-                  }
-                  if (item.id === COLUMN_OBJECT_STR.FolderName) {
-                    return (
-                      <span
-                        className="catalog-detail-row-folders hander"
-                        onClick={() => clickFolderName(e as any)}
-                      >
-                        {(e as any)[item.id]}
-                      </span>
-                    );
-                  }
-                  if (item.id === COLUMN_OBJECT_STR.Privacy) {
-                    if (editPrivacy && editPrivacy.id === (e as any).id) {
-                      return (
-                        <div className="detail-edit-icon-width">
-                          <div>
-                            <Select
-                              selectedOption={selectPrivacyOption}
-                              onChange={(select) => {
-                                updateSelectChange(
-                                  select.detail.selectedOption,
-                                  e as any,
-                                  COLUMN_OBJECT_STR.Privacy
-                                );
-                              }}
-                              triggerVariant="option"
-                              options={[
-                                CONTAINS_PII_OPTION,
-                                NON_PII_OPTION,
-                                NA_OPTION,
-                              ]}
-                              selectedAriaLabel="Selected"
-                              onBlur={() => {
-                                setEditPrivacy(null);
-                              }}
-                            ></Select>
-                          </div>
-                        </div>
-                      );
-                    } else {
-                      return (
-                        <div className="detail-edit-icon">
-                          <CommonBadge
-                            badgeType={BADGE_TYPE.Privacy}
-                            badgeLabel={(e as any)[item.id]}
-                          />
-                          {tagId === COLUMN_OBJECT_STR.Schema && (
-                            <div
-                              onClick={() =>
-                                clickEditIcon(
-                                  e as any,
-                                  COLUMN_OBJECT_STR.Privacy
-                                )
-                              }
-                            >
-                              <Icon name="edit" className="modal-badge-edit" />
-                            </div>
-                          )}
-                        </div>
-                      );
-                    }
-                  }
-                  if (item.id === COLUMN_OBJECT_STR.Identifier) {
+        <div className="pd-10">
+          <Table
+            variant="embedded"
+            loading={isLoading}
+            // wrapLines
+            columnDefinitions={
+              columnList.map((item) => {
+                return {
+                  id: item.id,
+                  header: item.label,
+                  // different column tag
+                  cell: (e: any) => {
                     if (
-                      editIndentifier &&
-                      editIndentifier.id === (e as any).id
+                      e.property === 'Tags' &&
+                      e.isTag &&
+                      item.id === 'value'
                     ) {
-                      return (
-                        <div className="detail-edit-icon-max-width">
-                          <div className="detail-edit-icon-max-height">
-                            <Select
-                              selectedOption={selectIndentOption}
-                              onChange={(select) => {
-                                updateSelectChange(
-                                  select.detail.selectedOption,
-                                  e as any,
-                                  COLUMN_OBJECT_STR.Identifier
-                                );
-                              }}
-                              triggerVariant="option"
-                              options={identifierOptions}
-                              selectedAriaLabel="Selected"
-                              onBlur={() => {
-                                setEditIndentifier(null);
-                              }}
-                            ></Select>
-                          </div>
-                        </div>
-                      );
-                    } else {
-                      if (tagId === COLUMN_OBJECT_STR.Schema) {
-                        const showIdentifierObj = toJSON(
-                          (e as any)[item.id]
-                        ) || { 'N/A': 1 };
-                        const identifierList = Object.keys(showIdentifierObj);
-                        const showTxt = showIdentifierObj[identifierList[0]]
-                          ? identifierList[0]
-                          : 'N/A';
-                        return (
-                          <div className="detail-edit-icon">
-                            <CommonBadge
-                              badgeType={BADGE_TYPE.DataIndf}
-                              badgeLabel={showTxt}
-                            />
-                            <div
-                              onClick={() =>
-                                clickEditIcon(
-                                  e as any,
-                                  COLUMN_OBJECT_STR.Identifier
-                                )
-                              }
-                            >
-                              <Icon name="edit" className="modal-badge-edit" />
+                      if (e.value !== 'N/A') {
+                        const tags = JSON.parse(JSON.stringify(e.value));
+                        return tags.map((element: any, index: number) => {
+                          return (
+                            <div key={index} className="mb-5">
+                              <Badge>{JSON.stringify(element)}</Badge>
                             </div>
-                          </div>
-                        );
+                          );
+                        });
+                      } else {
+                        return 'N/A';
                       }
-                      const showIdentifier =
-                        !(e as any)[item.id] ||
-                        (e as any)[item.id].indexOf('N/A') > -1
-                          ? 'N/A'
-                          : (e as any)[item.id];
+                    }
+                    if (item.id === 's3objects') {
+                      if (!(e as any)['s3_full_path']) {
+                        return '';
+                      }
+                      const pathList = (e as any)['s3_full_path'].split('/');
+                      return pathList[pathList.length - 1];
+                    }
+                    if (
+                      item.id === 'size' ||
+                      item.id === COLUMN_OBJECT_STR.Size ||
+                      item.id === 'file_size'
+                    ) {
+                      return formatSize((e as any)[item.id]);
+                    }
+                    if (item.id === COLUMN_OBJECT_STR.DataIdent) {
                       return (
                         <CommonBadge
                           badgeType={BADGE_TYPE.DataIndf}
-                          badgeLabel={showIdentifier}
+                          badgeLabel={(e as any)[item.id]}
                         />
                       );
                     }
-                  }
-                  if (item.id === COLUMN_OBJECT_STR.IdentifierScore) {
-                    return (
-                      <span>
-                        {parseFloat((e as any)[item.id]) > 0
-                          ? `${parseFloat((e as any)[item.id]) * 100}%`
-                          : '0'}
-                      </span>
-                    );
-                  }
-
-                  if (item.id === COLUMN_OBJECT_STR.Classifiedby) {
-                    return (
-                      <CommonBadge
-                        badgeType={BADGE_TYPE.Classified}
-                        badgeLabel={
-                          (e as any)[COLUMN_OBJECT_STR.LastModifyBy]
-                            ? (e as any)[COLUMN_OBJECT_STR.LastModifyBy] ===
-                              CLSAAIFIED_TYPE.System
-                              ? CLSAAIFIED_TYPE.System
-                              : CLSAAIFIED_TYPE.Manual
-                            : CLSAAIFIED_TYPE.SystemMark
-                        }
-                      />
-                    );
-                  }
-                  if (item.id === COLUMN_OBJECT_STR.Labels) {
-                    return (
-                      <div>
-                        {e.labels.map((label: any) => {
-                          return (
-                            <span className="mr-5" key={label.id}>
-                              <Badge color="blue">{label.label_name}</Badge>
-                            </span>
-                          );
-                        })}
-                      </div>
-                    );
-                  }
-                  if (item.id === COLUMN_OBJECT_STR.ObjectCount) {
-                    return nFormatter((e as any)[item.id], 2);
-                  }
-                  if (item.id === COLUMN_OBJECT_STR.RowCount) {
-                    return nFormatter((e as any)[item.id], 2);
-                  }
-                  if (
-                    item.id === COLUMN_OBJECT_STR.LastModifyBy &&
-                    (e as any)[item.id] === 'SDPS'
-                  ) {
-                    return 'System';
-                  }
-                  if (item.id === COLUMN_OBJECT_STR.LastModifyAt) {
-                    return moment((e as any)[item.id])
-                      .add(8, 'h')
-                      .format('YYYY-MM-DD HH:mm');
-                  }
-                  if (
-                    item.id === 'column_value_example' ||
-                    item.id === 'column_type'
-                  ) {
-                    if (!(e as any)[item.id]) {
-                      return '';
-                    }
-                    if ((e as any)[item.id].length > 90) {
+                    if (item.id === COLUMN_OBJECT_STR.TableCount) {
                       return (
-                        <Popover
-                          dismissButton={false}
-                          position="top"
-                          size={
-                            item.id === 'column_value_example'
-                              ? 'large'
-                              : 'small'
-                          }
-                          content={
-                            <StatusIndicator type="info">
-                              {(e as any)[item.id]}
-                            </StatusIndicator>
-                          }
+                        <span
+                          className="catalog-detail-row-folders hander"
+                          onClick={() => clickTableCount(e)}
                         >
-                          {(e as any)[item.id].substr(0, 90)}...
-                        </Popover>
+                          {(e as any)[item.id]}
+                        </span>
                       );
                     }
-                    return (e as any)[item.id];
-                  }
-                  return (e as any)[item.id];
-                },
-                sortingField: item.sortingField,
-                minWidth: item.id === 'column_value_example' ? 300 : undefined,
-              };
-            }) as any
-          }
-          resizableColumns
-          items={dataList}
-          loadingText="Loading resources"
-          visibleColumns={preferences.visibleContent}
-          empty={
-            <Box textAlign="center" color="inherit">
-              <b>No data identfiers</b>
-              <Box padding={{ bottom: 's' }} variant="p" color="inherit">
-                No data in this catalog was identfied as sensitive data.
+                    if (item.id === COLUMN_OBJECT_STR.FolderName) {
+                      return (
+                        <span
+                          className="catalog-detail-row-folders hander"
+                          onClick={() => clickFolderName(e as any)}
+                        >
+                          {(e as any)[item.id]}
+                        </span>
+                      );
+                    }
+                    if (item.id === COLUMN_OBJECT_STR.Privacy) {
+                      if (editPrivacy && editPrivacy.id === (e as any).id) {
+                        return (
+                          <div className="detail-edit-icon-width">
+                            <div>
+                              <Select
+                                selectedOption={selectPrivacyOption}
+                                onChange={(select) => {
+                                  updateSelectChange(
+                                    select.detail.selectedOption,
+                                    e as any,
+                                    COLUMN_OBJECT_STR.Privacy
+                                  );
+                                }}
+                                triggerVariant="option"
+                                options={[
+                                  CONTAINS_PII_OPTION,
+                                  NON_PII_OPTION,
+                                  NA_OPTION,
+                                ]}
+                                selectedAriaLabel="Selected"
+                                onBlur={() => {
+                                  setEditPrivacy(null);
+                                }}
+                              ></Select>
+                            </div>
+                          </div>
+                        );
+                      } else {
+                        return (
+                          <div className="detail-edit-icon">
+                            <CommonBadge
+                              badgeType={BADGE_TYPE.Privacy}
+                              badgeLabel={(e as any)[item.id]}
+                            />
+                            {tagId === COLUMN_OBJECT_STR.Schema && (
+                              <div
+                                onClick={() =>
+                                  clickEditIcon(
+                                    e as any,
+                                    COLUMN_OBJECT_STR.Privacy
+                                  )
+                                }
+                              >
+                                <Icon
+                                  name="edit"
+                                  className="modal-badge-edit"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        );
+                      }
+                    }
+                    if (item.id === COLUMN_OBJECT_STR.Identifier) {
+                      if (
+                        editIndentifier &&
+                        editIndentifier.id === (e as any).id
+                      ) {
+                        return (
+                          <div className="detail-edit-icon-max-width">
+                            <div className="detail-edit-icon-max-height">
+                              <Select
+                                selectedOption={selectIndentOption}
+                                onChange={(select) => {
+                                  updateSelectChange(
+                                    select.detail.selectedOption,
+                                    e as any,
+                                    COLUMN_OBJECT_STR.Identifier
+                                  );
+                                }}
+                                triggerVariant="option"
+                                options={identifierOptions}
+                                selectedAriaLabel="Selected"
+                                onBlur={() => {
+                                  setEditIndentifier(null);
+                                }}
+                              ></Select>
+                            </div>
+                          </div>
+                        );
+                      } else {
+                        if (tagId === COLUMN_OBJECT_STR.Schema) {
+                          const showIdentifierObj = toJSON(
+                            (e as any)[item.id]
+                          ) || { 'N/A': 1 };
+                          const identifierList = Object.keys(showIdentifierObj);
+                          const showTxt = showIdentifierObj[identifierList[0]]
+                            ? identifierList[0]
+                            : 'N/A';
+                          return (
+                            <div className="detail-edit-icon">
+                              <CommonBadge
+                                badgeType={BADGE_TYPE.DataIndf}
+                                badgeLabel={showTxt}
+                              />
+                              <div
+                                onClick={() =>
+                                  clickEditIcon(
+                                    e as any,
+                                    COLUMN_OBJECT_STR.Identifier
+                                  )
+                                }
+                              >
+                                <Icon
+                                  name="edit"
+                                  className="modal-badge-edit"
+                                />
+                              </div>
+                            </div>
+                          );
+                        }
+                        const showIdentifier =
+                          !(e as any)[item.id] ||
+                          (e as any)[item.id].indexOf('N/A') > -1
+                            ? 'N/A'
+                            : (e as any)[item.id];
+                        return (
+                          <CommonBadge
+                            badgeType={BADGE_TYPE.DataIndf}
+                            badgeLabel={showIdentifier}
+                          />
+                        );
+                      }
+                    }
+
+                    if (item.id === COLUMN_OBJECT_STR.Comments) {
+                      if (editComments && editComments.id === (e as any).id) {
+                        return (
+                          <div className="wrap-line">
+                            <Textarea
+                              value={e[item.id]}
+                              onChange={({ detail }) => {
+                                updateSelectChange(
+                                  detail.value,
+                                  e as any,
+                                  COLUMN_OBJECT_STR.Comments
+                                );
+                              }}
+                              onBlur={() => {
+                                setEditComments(null);
+                              }}
+                            />
+                          </div>
+                        );
+                      } else {
+                        return (
+                          <div className="detail-edit-icon">
+                            <div className="wrap-line">{e[item.id]}</div>
+                            <div
+                              onClick={() =>
+                                clickEditIcon(
+                                  e as any,
+                                  COLUMN_OBJECT_STR.Comments
+                                )
+                              }
+                            >
+                              <Icon name="edit" className="modal-badge-edit" />
+                            </div>
+                          </div>
+                        );
+                        // return <div className="wrap-line">{e[item.id]}</div>;
+                      }
+                    }
+                    if (item.id === COLUMN_OBJECT_STR.IdentifierScore) {
+                      return (
+                        <span>
+                          {parseFloat((e as any)[item.id]) > 0
+                            ? `${parseFloat((e as any)[item.id]) * 100}%`
+                            : '0'}
+                        </span>
+                      );
+                    }
+
+                    if (item.id === COLUMN_OBJECT_STR.Classifiedby) {
+                      return (
+                        <CommonBadge
+                          badgeType={BADGE_TYPE.Classified}
+                          badgeLabel={
+                            (e as any)[COLUMN_OBJECT_STR.LastModifyBy]
+                              ? (e as any)[COLUMN_OBJECT_STR.LastModifyBy] ===
+                                CLSAAIFIED_TYPE.System
+                                ? CLSAAIFIED_TYPE.System
+                                : CLSAAIFIED_TYPE.Manual
+                              : CLSAAIFIED_TYPE.SystemMark
+                          }
+                        />
+                      );
+                    }
+                    if (item.id === COLUMN_OBJECT_STR.Labels) {
+                      let hasMore = false;
+                      if (e.labels?.length > 1) {
+                        hasMore = true;
+                      }
+                      return e.labels?.length > 0 ? (
+                        <div className="flex">
+                          <span className="custom-badge label mr-5">
+                            {e.labels?.[0]?.label_name}
+                          </span>
+                          {hasMore && (
+                            <Popover
+                              dismissButton={false}
+                              position="top"
+                              size="small"
+                              triggerType="custom"
+                              content={
+                                <div>
+                                  {e.labels.map((label: any) => {
+                                    return (
+                                      <span
+                                        key={label.id}
+                                        className="custom-badge label mr-5 mb-2"
+                                      >
+                                        {label.label_name}
+                                      </span>
+                                    );
+                                  })}
+                                </div>
+                              }
+                            >
+                              <span className="custom-badge more">{`+${
+                                e.labels?.length - 1
+                              }`}</span>
+                            </Popover>
+                          )}
+                        </div>
+                      ) : (
+                        ''
+                      );
+                    }
+                    if (item.id === COLUMN_OBJECT_STR.ObjectCount) {
+                      return nFormatter((e as any)[item.id], 2);
+                    }
+                    if (item.id === COLUMN_OBJECT_STR.RowCount) {
+                      return nFormatter((e as any)[item.id], 2);
+                    }
+                    if (
+                      item.id === COLUMN_OBJECT_STR.LastModifyBy &&
+                      (e as any)[item.id] === 'SDPS'
+                    ) {
+                      return 'System';
+                    }
+                    if (item.id === COLUMN_OBJECT_STR.LastModifyAt) {
+                      return moment((e as any)[item.id])
+                        .add(8, 'h')
+                        .format('YYYY-MM-DD HH:mm');
+                    }
+                    if (
+                      item.id === 'column_value_example' ||
+                      item.id === 'column_type'
+                    ) {
+                      if (!(e as any)[item.id]) {
+                        return '';
+                      }
+                      if ((e as any)[item.id].length > 90) {
+                        return (
+                          <Popover
+                            dismissButton={false}
+                            position="top"
+                            size={
+                              item.id === 'column_value_example'
+                                ? 'large'
+                                : 'small'
+                            }
+                            content={
+                              <StatusIndicator type="info">
+                                {(e as any)[item.id]}
+                              </StatusIndicator>
+                            }
+                          >
+                            {(e as any)[item.id].substr(0, 90)}...
+                          </Popover>
+                        );
+                      }
+                      return (
+                        <div className="wrap-line">{(e as any)[item.id]}</div>
+                      );
+                    }
+                    return (
+                      <div className="wrap-line">{(e as any)[item.id]}</div>
+                    );
+                  },
+                  sortingField: item.sortingField,
+                  minWidth:
+                    item.id === 'column_value_example' ? 300 : undefined,
+                };
+              }) as any
+            }
+            resizableColumns
+            items={dataList}
+            loadingText="Loading resources"
+            visibleColumns={preferences.visibleContent}
+            empty={
+              <Box textAlign="center" color="inherit">
+                <b>No data identfiers</b>
+                <Box padding={{ bottom: 's' }} variant="p" color="inherit">
+                  No data in this catalog was identfied as sensitive data.
+                </Box>
               </Box>
-            </Box>
-          }
-          filter={needFilter && <ResourcesFilter {...resourcesFilterProps} />}
-          header={
-            detailDesHeader && (
-              <div className="deatil-desc-body">
-                <span className="deatil-desc-header">{detailDesHeader}</span>
-                {detailDesInfo && (
-                  <span className="deatil-desc-info">{detailDesInfo}</span>
-                )}
-              </div>
-            )
-          }
-          pagination={
-            needByPage && (
-              <Pagination
-                currentPageIndex={currentPage}
-                onChange={({ detail }) =>
-                  setCurrentPage(detail.currentPageIndex)
-                }
-                pagesCount={Math.ceil(totalCount / preferences.pageSize)}
-                ariaLabels={{
-                  nextPageLabel: 'Next page',
-                  previousPageLabel: 'Previous page',
-                  pageLabel: (pageNumber) => `Page ${pageNumber} of all pages`,
-                }}
-              />
-            )
-          }
-          preferences={
-            needByPage && (
-              <CollectionPreferences
-                onConfirm={({ detail }) => setPreferences(detail)}
-                preferences={preferences}
-                title="Preferences"
-                confirmLabel="Confirm"
-                cancelLabel="Cancel"
-                pageSizePreference={{
-                  title: 'Select page size',
-                  options: [
-                    { value: 10, label: '10 resources' },
-                    { value: 20, label: '20 resources' },
-                    { value: 50, label: '50 resources' },
-                    { value: 100, label: '100 resources' },
-                  ],
-                }}
-                visibleContentPreference={{
-                  title: 'Select visible content',
-                  options: [
-                    {
-                      label: 'Main distribution properties',
-                      options: columnList,
-                    },
-                  ],
-                }}
-              />
-            )
-          }
-        />
+            }
+            filter={needFilter && <ResourcesFilter {...resourcesFilterProps} />}
+            header={
+              detailDesHeader && (
+                <div className="deatil-desc-body">
+                  <span className="deatil-desc-header">{detailDesHeader}</span>
+                  {detailDesInfo && (
+                    <span className="deatil-desc-info">{detailDesInfo}</span>
+                  )}
+                </div>
+              )
+            }
+            pagination={
+              needByPage && (
+                <Pagination
+                  currentPageIndex={currentPage}
+                  onChange={({ detail }) =>
+                    setCurrentPage(detail.currentPageIndex)
+                  }
+                  pagesCount={Math.ceil(totalCount / preferences.pageSize)}
+                  ariaLabels={{
+                    nextPageLabel: 'Next page',
+                    previousPageLabel: 'Previous page',
+                    pageLabel: (pageNumber) =>
+                      `Page ${pageNumber} of all pages`,
+                  }}
+                />
+              )
+            }
+            preferences={
+              needByPage && (
+                <CollectionPreferences
+                  onConfirm={({ detail }) => setPreferences(detail)}
+                  preferences={preferences}
+                  title="Preferences"
+                  confirmLabel="Confirm"
+                  cancelLabel="Cancel"
+                  pageSizePreference={{
+                    title: 'Select page size',
+                    options: [
+                      { value: 10, label: '10 resources' },
+                      { value: 20, label: '20 resources' },
+                      { value: 50, label: '50 resources' },
+                      { value: 100, label: '100 resources' },
+                    ],
+                  }}
+                  visibleContentPreference={{
+                    title: 'Select visible content',
+                    options: [
+                      {
+                        label: 'Main distribution properties',
+                        options: columnList,
+                      },
+                    ],
+                  }}
+                />
+              )
+            }
+          />
+        </div>
         {needSchemaModal && showSchemaModal && (
           <SchemaModal {...schemaModalProps} />
         )}
