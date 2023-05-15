@@ -1,4 +1,4 @@
-import sqlalchemy as sa
+from sqlalchemy import (Column, Integer, String, TIMESTAMP, SmallInteger)
 from sqlalchemy.orm import relationship
 from db.database import Base
 
@@ -7,44 +7,44 @@ class TemplateIdentifierPropRef(Base):
 
     __tablename__ = 'template_identifier_prop_ref'
 
-    id = sa.Column(sa.Integer(), autoincrement=True, primary_key=True)
-    identifier_id = sa.Column(sa.Integer())
-    prop_id = sa.Column(sa.Integer())
-    version = sa.Column(sa.Integer())
-    create_by = sa.Column(sa.String(255))
-    create_time = sa.Column(sa.TIMESTAMP())
-    modify_by = sa.Column(sa.String(255))
-    modify_time = sa.Column(sa.TIMESTAMP())
+    id = Column(Integer(), autoincrement=True, primary_key=True)
+    identifier_id = Column(Integer())
+    prop_id = Column(Integer())
+    version = Column(Integer())
+    create_by = Column(String(255))
+    create_time = Column(TIMESTAMP())
+    modify_by = Column(String(255))
+    modify_time = Column(TIMESTAMP())
 
 
 class Template(Base):
 
     __tablename__ = 'template'
 
-    id = sa.Column(sa.Integer(), autoincrement=True, primary_key=True)
-    name = sa.Column(sa.String(255))
-    snapshot_no = sa.Column(sa.String(32))
-    status = sa.Column(sa.SmallInteger())
-    version = sa.Column(sa.Integer())
-    create_by = sa.Column(sa.String(255))
-    create_time = sa.Column(sa.TIMESTAMP())
-    modify_by = sa.Column(sa.String(255))
-    modify_time = sa.Column(sa.TIMESTAMP())
+    id = Column(Integer(), autoincrement=True, primary_key=True)
+    name = Column(String(255))
+    snapshot_no = Column(String(32))
+    status = Column(SmallInteger())
+    version = Column(Integer())
+    create_by = Column(String(255))
+    create_time = Column(TIMESTAMP())
+    modify_by = Column(String(255))
+    modify_time = Column(TIMESTAMP())
 
 
 class TemplateIdentifier(Base):
 
     __tablename__ = 'template_identifier'
 
-    id = sa.Column(sa.Integer(), autoincrement=True, primary_key=True)
-    description = sa.Column(sa.String(255))
-    type = sa.Column(sa.SmallInteger())
-    version = sa.Column(sa.Integer())
-    name = sa.Column(sa.String(255), nullable=False)
-    classification = sa.Column(sa.SmallInteger())
-    privacy = sa.Column(sa.SmallInteger())
-    rule = sa.Column(sa.String(1024))
-    header_keywords = sa.Column(sa.String(255))
+    id = Column(Integer(), autoincrement=True, primary_key=True)
+    description = Column(String(255), info={'searchable': True})
+    type = Column(SmallInteger())
+    version = Column(Integer())
+    name = Column(String(255), nullable=False, info={'searchable': True})
+    classification = Column(SmallInteger())
+    privacy = Column(SmallInteger())
+    rule = Column(String(1024))
+    header_keywords = Column(String(255))
     props = relationship(
         'TemplateIdentifierProp',
         secondary='template_identifier_prop_ref',
@@ -53,19 +53,19 @@ class TemplateIdentifier(Base):
         lazy="joined",
         back_populates='identifiers',
     )
-    create_by = sa.Column(sa.String(255))
-    modify_by = sa.Column(sa.String(255))
-    modify_time = sa.Column(sa.TIMESTAMP())
-    create_time = sa.Column(sa.TIMESTAMP())
+    create_by = Column(String(255))
+    modify_by = Column(String(255))
+    modify_time = Column(TIMESTAMP())
+    create_time = Column(TIMESTAMP())
 
 
 class TemplateIdentifierProp(Base):
 
     __tablename__ = 'template_identifier_prop'
 
-    id = sa.Column(sa.Integer(), autoincrement=True, primary_key=True)
-    prop_name = sa.Column(sa.String(32))
-    prop_type = sa.Column(sa.Integer())
+    id = Column(Integer(), autoincrement=True, primary_key=True)
+    prop_name = Column(String(32))
+    prop_type = Column(Integer())
     identifiers = relationship(
         'TemplateIdentifier',
         secondary='template_identifier_prop_ref',
@@ -73,23 +73,23 @@ class TemplateIdentifierProp(Base):
         secondaryjoin='template_identifier_prop_ref.c.identifier_id == TemplateIdentifier.id',
         back_populates='props'
     )
-    version = sa.Column(sa.Integer())
-    create_by = sa.Column(sa.String(255))
-    create_time = sa.Column(sa.TIMESTAMP())
-    modify_by = sa.Column(sa.String(255))
-    modify_time = sa.Column(sa.TIMESTAMP())
+    version = Column(Integer())
+    create_by = Column(String(255))
+    create_time = Column(TIMESTAMP())
+    modify_by = Column(String(255))
+    modify_time = Column(TIMESTAMP())
 
 
 class TemplateMapping(Base):
 
     __tablename__ = 'template_mapping'
 
-    id = sa.Column(sa.Integer(), autoincrement=True, primary_key=True)
-    template_id = sa.Column(sa.Integer())
-    identifier_id = sa.Column(sa.Integer())
-    status = sa.Column(sa.SmallInteger())
-    version = sa.Column(sa.Integer())
-    create_by = sa.Column(sa.String(255))
-    create_time = sa.Column(sa.TIMESTAMP())
-    modify_by = sa.Column(sa.String(255))
-    modify_time = sa.Column(sa.TIMESTAMP())
+    id = Column(Integer(), autoincrement=True, primary_key=True)
+    template_id = Column(Integer())
+    identifier_id = Column(Integer())
+    status = Column(SmallInteger())
+    version = Column(Integer())
+    create_by = Column(String(255))
+    create_time = Column(TIMESTAMP())
+    modify_by = Column(String(255))
+    modify_time = Column(TIMESTAMP())

@@ -100,7 +100,7 @@ def get_props_by_type(tid: int):
 def create_prop(prop: schemas.TemplateIdentifierProp):
     res_list = crud.get_props_by_name_and_type(prop)
     if res_list:
-        raise BizException(MessageEnum.TEMPLATE_IDENTIFIER_EXISTS.get_code(), MessageEnum.TEMPLATE_IDENTIFIER_EXISTS.get_msg())
+        raise BizException(MessageEnum.TEMPLATE_PROPS_EXISTS.get_code(), MessageEnum.TEMPLATE_PROPS_EXISTS.get_msg())
     return crud.create_pop(prop)
 
 
@@ -112,6 +112,9 @@ def delete_prop(id: int):
 
 
 def update_prop(id: int, prop: schemas.TemplateIdentifierProp):
+    res_list = crud.get_props_by_name_and_type(prop)
+    if res_list:
+        raise BizException(MessageEnum.TEMPLATE_PROPS_EXISTS.get_code(), MessageEnum.TEMPLATE_PROPS_EXISTS.get_msg())
     snapshot_no, res = crud.update_prop(id, prop)
     if snapshot_no:
         sync_s3(snapshot_no)

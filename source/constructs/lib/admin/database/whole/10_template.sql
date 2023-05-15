@@ -51,7 +51,7 @@ create table template_identifier_prop
     id            int auto_increment
         primary key,
     prop_name   varchar(32)          null,
-    prop_type int          null  comment '1: category 1:regulation',
+    prop_type int          null  comment '1: category 2:regulation',
     version       int          null,
     create_by     varchar(255) null,
     create_time   timestamp    null,

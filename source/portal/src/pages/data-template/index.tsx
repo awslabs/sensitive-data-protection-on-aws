@@ -136,7 +136,8 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
         requestParam.conditions.push({
           column: item.propertyKey,
           values: [`${item.value}`],
-          condition: 'and',
+          operation: item.operator,
+          condition: 'and'
         });
       });
     const result: any = await getTemplateMappingList(requestParam);

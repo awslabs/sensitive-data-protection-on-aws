@@ -24,8 +24,9 @@ class MessageEnum(Enum):
     TEMPLATE_IDENTIFIER_EXISTS = {1403: "A data identifier with the same name already exists"}
     TEMPLATE_IDENTIFIER_USED = {1404: "The data identifier is being used"}
     TEMPLATE_PROPS_USED = {1405: "The item is being used"}
-    TEMPLATE_PROPS_NOT_EXISTS = {1405: "The category/regulation does not exist"}
-    TEMPLATE_IDENTIFIER_RULES_EMPTY = {1406: "Identifier rules can not be empty"}
+    TEMPLATE_PROPS_EXISTS = {1406: "A category/regulation with the same name already exists"}
+    TEMPLATE_PROPS_NOT_EXISTS = {1407: "The category/regulation does not exist"}
+    TEMPLATE_IDENTIFIER_RULES_EMPTY = {1408: "Identifier rules can not be empty"}
 
     # discovery job
     DISCOVERY_JOB_NON_EXIST = {1510: "The discovery job does non exist"}
@@ -218,6 +219,20 @@ class LabelType(Enum):
 class LabelStyleType(Enum):
     DEFAULT = "default"
     COLOR = "color"
+
+
+@unique
+class ConditionType(Enum):
+    AND = "and"
+    OR = "or"
+
+
+@unique
+class OperationType(Enum):
+    EQUAL = "="
+    NOT_EQUAL = "!="
+    CONTAIN = ":"
+    NOT_CONTAIN = "!="
 
 
 @unique
