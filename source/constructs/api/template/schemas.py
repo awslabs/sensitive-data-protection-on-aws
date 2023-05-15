@@ -22,9 +22,18 @@ class TemplateFullInfo(BaseColumn, Template):
 
 
 class TemplateIdentifierProp(BaseModel):
-    id: Optional[int]
     prop_name: Optional[str]
     prop_type: Optional[int]
+
+    class Config:
+        orm_mode = True
+
+
+class TemplateIdentifierPropFullInfo(BaseColumn, TemplateIdentifierProp):
+    id: Optional[int]
+
+    class Config:
+        orm_mode = True
 
 
 class TemplateIdentifier(BaseModel):
