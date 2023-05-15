@@ -16,13 +16,14 @@ import {
 } from '../types/add_account_type';
 import { useNavigate } from 'react-router-dom';
 import { alertMsg } from 'tools/tools';
-import { addAccount } from 'apis/account-manager/api';
+import { addAccount, addOrgAccount } from 'apis/account-manager/api';
 import { RouterEnum } from 'routers/routerEnum';
 
 const AddAccountInfo: React.FC<any> = memo((props: any) => {
   const { tagType } = props;
   const navigate = useNavigate();
   const [inputAccount, setInputAccount] = useState('');
+  const [inputOrgAccount, setInputOrgAccount] = useState('');
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -56,6 +57,23 @@ const AddAccountInfo: React.FC<any> = memo((props: any) => {
       setIsLoading(false);
       alertMsg('Add Success', 'success');
       setInputAccount('');
+      navigate(RouterEnum.AccountManagement.path);
+    } catch {
+      setIsLoading(false);
+    }
+  };
+
+  const addAwsOrgAccount = async () => {
+    if (!inputOrgAccount) {
+      alertMsg('Please Input AccountId', 'error');
+      return;
+    }
+    setIsLoading(true);
+    try {
+      await addOrgAccount({ organization_management_account_id: inputOrgAccount });
+      setIsLoading(false);
+      alertMsg('Add Success', 'success');
+      setInputOrgAccount('');
       navigate(RouterEnum.AccountManagement.path);
     } catch {
       setIsLoading(false);
@@ -184,6 +202,21 @@ const AddAccountInfo: React.FC<any> = memo((props: any) => {
               </span>
             </div>
           </Container>
+          <Container
+            header={
+              <Header variant="h2">
+                Step5: Fill in the Organization management account id
+              </Header>
+            }
+          >
+            <FormField label="AWS account id">
+              <Input
+                value={inputOrgAccount}
+                placeholder="AWS account id"
+                onChange={(e) => setInputOrgAccount(e.detail.value)}
+              />
+            </FormField>
+          </Container>
         </>
       )}
       {tagType === TAB_LIST.individual.id && (
@@ -278,6 +311,18 @@ const AddAccountInfo: React.FC<any> = memo((props: any) => {
               disabled={!inputAccount}
             >
               Add this account
+            </Button>
+          </>
+        )}
+        {tagType === TAB_LIST.via.id && (
+          <>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <Button
+              onClick={addAwsOrgAccount}
+              loading={isLoading}
+              disabled={!inputOrgAccount}
+            >
+              Add Organization members
             </Button>
           </>
         )}
