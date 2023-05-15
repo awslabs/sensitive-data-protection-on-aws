@@ -60,9 +60,12 @@ def get_catalog_tables_by_database(
     # response_model=BaseResponse[Page[schemas.CatalogTableLevelClassification]],
 )
 @inject_session
-def search_catalog_tables_by_database(condition: QueryCondition, params: Params = Depends(),):
+def search_catalog_tables_by_database(condition: QueryCondition):
     catalogs = crud.search_catalog_table_level_classification_by_database(condition)
-    rlt = paginate(catalogs, params, )
+    rlt = paginate(catalogs, Params(
+        size=condition.size,
+        page=condition.page,
+    ))
     service.fill_catalog_labels(rlt.items)
     return rlt
 
