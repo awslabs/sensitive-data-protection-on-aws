@@ -14,7 +14,6 @@ import {
   Input,
   FormField,
   Tiles,
-  StatusIndicator,
 } from '@cloudscape-design/components';
 import { DATA_TYPE_ENUM, TABLE_NAME } from 'enum/common_types';
 import {

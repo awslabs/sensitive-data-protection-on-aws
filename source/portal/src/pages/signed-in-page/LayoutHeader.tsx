@@ -5,20 +5,42 @@ import { AmplifyConfigType, AppSyncAuthType } from 'ts/types';
 import { AMPLIFY_CONFIG_JSON } from 'ts/common';
 import { User } from 'oidc-client-ts';
 import { RouterEnum } from 'routers/routerEnum';
+import { useTranslation } from 'react-i18next';
 
 interface LayoutHeaderProps {
   user: any;
   signOut: any;
 }
 
+const ZH_TEXT = '简体中文';
+const EN_TEXT = 'English(US)';
+const ZH_LANGUAGE_LIST = ['zh', 'zh-cn', 'zh_CN'];
+const EN_LANGUAGE_LIST = ['en', 'en-US', 'en_UK'];
+const LANGUAGE_ITEMS = [
+  { id: 'en', text: EN_TEXT },
+  { id: 'zh', text: ZH_TEXT },
+];
+
 const LayoutHeader: React.FC<LayoutHeaderProps> = ({
   user,
   signOut,
 }: LayoutHeaderProps) => {
+  const { t, i18n } = useTranslation();
   const [fullLogoutUrl, setFullLogoutUrl] = useState('');
   const [oidcStorageId, setOidcStorageId] = useState('');
 
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+  };
+
   useEffect(() => {
+    if (ZH_LANGUAGE_LIST.includes(i18n.language)) {
+      changeLanguage('zh');
+    }
+    if (EN_LANGUAGE_LIST.includes(i18n.language)) {
+      changeLanguage('en');
+    }
+
     const configJSONObj: AmplifyConfigType = localStorage.getItem(
       AMPLIFY_CONFIG_JSON
     )
@@ -53,9 +75,20 @@ const LayoutHeader: React.FC<LayoutHeaderProps> = ({
       className="top-navigation"
       identity={{
         href: RouterEnum.Home.path,
-        title: 'Sensitive Data Protection Solution',
+        title: t('solution.name') || '',
       }}
       utilities={[
+        {
+          type: 'menu-dropdown',
+          text: ZH_LANGUAGE_LIST.includes(i18n.language) ? ZH_TEXT : EN_TEXT,
+          title: 'Language',
+          ariaLabel: 'settings',
+          onItemClick: (item) => {
+            changeLanguage(item.detail.id);
+          },
+          items:
+            i18n.language === 'zh' ? LANGUAGE_ITEMS.reverse() : LANGUAGE_ITEMS,
+        },
         {
           type: 'menu-dropdown',
           text: user?.profile?.email,

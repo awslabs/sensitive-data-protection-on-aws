@@ -1,0 +1,16 @@
+{
+  "solution": {
+    "title": "AWS Solution",
+    "name": "Sensitive Data Protection Solution"
+  },
+  "nav": {
+    "summary": "Summary",
+    "connectDataSource": "Connect to data source",
+    "browserCatalog": "Browse data catalogs",
+    "runJob": "Run sensitive data discovery jobs",
+    "classifiySetting": "Classification settings",
+    "defineTemplate": "Define classification template",
+    "manageIdentifier": "Manage data identifiers",
+    "doc": "Documentation"
+  }
+}

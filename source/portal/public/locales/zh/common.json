@@ -1,0 +1,16 @@
+{
+  "solution": {
+    "title": "AWS 解决方案",
+    "name": "敏感数据保护解决方案"
+  },
+  "nav": {
+    "summary": "总览",
+    "connectDataSource": "连接数据源",
+    "browserCatalog": "浏览数据目录",
+    "runJob": "执行敏感数据发现任务",
+    "classifiySetting": "分类设置",
+    "defineTemplate": "定义分类模版",
+    "manageIdentifier": "管理数据标签",
+    "doc": "文档"
+  }
+}
