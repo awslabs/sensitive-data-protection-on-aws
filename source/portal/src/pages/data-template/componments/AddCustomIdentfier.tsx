@@ -17,11 +17,12 @@ import {
 } from 'apis/data-template/api';
 import { TABLE_NAME } from 'enum/common_types';
 import { alertMsg, useDidUpdateEffect } from 'tools/tools';
+import { useTranslation } from 'react-i18next';
 
 const AddCustomIdentfier = (props: any) => {
   const { addCallBack } = props;
   const columnList = IDENTIFIER_COLUMN_LIST;
-
+  const { t } = useTranslation();
   const [totalCount, setTotalCount] = useState(0);
   const [pageData, setPageData] = useState([] as any);
   const [preferences, setPreferences] = useState({
@@ -156,7 +157,7 @@ const AddCustomIdentfier = (props: any) => {
             variant="h2"
             actions={
               <Button onClick={clkAdd} disabled={isLoading}>
-                Add to template
+                {t('button.addToTemplate')}
               </Button>
             }
           >

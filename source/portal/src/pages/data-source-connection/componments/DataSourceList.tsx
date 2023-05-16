@@ -44,9 +44,11 @@ import { alertMsg, showHideSpinner } from 'tools/tools';
 import { OptionDefinition } from '@cloudscape-design/components/internal/components/option/interfaces';
 import SourceBadge from './SourceBadge';
 import ErrorBadge from 'pages/error-badge';
+import { useTranslation } from 'react-i18next';
 
 const DataSourceList: React.FC<any> = memo((props: any) => {
   const { tagType, accountData } = props;
+  const { t } = useTranslation();
   const columnList =
     tagType === DATA_TYPE_ENUM.s3 ? S3_COLUMN_LIST : RDS_COLUMN_LIST;
   const [totalCount, setTotalCount] = useState(0);
@@ -451,7 +453,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                   {tagType === DATA_TYPE_ENUM.s3 && accountData && (
                     <Button disabled={isLoading} onClick={clkAllS3Connected}>
                       <Icon name="view-full" className="btn-icon" />
-                      Connect All
+                      {t('button.connectAll')}
                     </Button>
                   )}
                   <Button
@@ -459,7 +461,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                     onClick={clkConnected}
                   >
                     <Icon name="share" className="btn-icon" />
-                    Connect
+                    {t('button.connect')}
                   </Button>
                   <Select
                     className="ations-select"
@@ -570,14 +572,14 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
           <Box float="right">
             <SpaceBetween direction="horizontal" size="xs">
               <Button variant="link" onClick={() => setShowRdsPwdModal(false)}>
-                Cancel
+                {t('button.cancel')}
               </Button>
               <Button
                 variant="primary"
                 onClick={connectRDS}
                 loading={btnDisabled}
               >
-                Connect
+                {t('button.connect')}
               </Button>
             </SpaceBetween>
           </Box>

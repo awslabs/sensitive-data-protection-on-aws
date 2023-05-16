@@ -8,4 +8,5 @@ export interface ResourcesFilterProps {
   query: any;
   setQuery: any;
   filteringPlaceholder?: string;
+  isFreeText?: boolean;
 }

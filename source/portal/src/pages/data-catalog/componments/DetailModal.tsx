@@ -5,7 +5,6 @@ import {
   Select,
   SelectProps,
   Button,
-  Badge,
 } from '@cloudscape-design/components';
 import CommonBadge from 'pages/common-badge';
 import CatalogDetailList from './CatalogDetailList';
@@ -180,6 +179,8 @@ const DetailModal: React.FC<any> = (props: any) => {
         selectRowData,
         needByPage: true,
         clickIdentifiers,
+        needFilter: true,
+        isFreeText: true,
       };
     }
     if (item.id === COLUMN_OBJECT_STR.Tables) {
@@ -193,6 +194,8 @@ const DetailModal: React.FC<any> = (props: any) => {
         selectRowData,
         needByPage: true,
         clickIdentifiers,
+        needFilter: true,
+        isFreeText: true,
       };
     }
     if (item.id === 'bucketProperties') {
@@ -273,8 +276,8 @@ const DetailModal: React.FC<any> = (props: any) => {
             <b>Custom labels: </b>
             {selectRowData[COLUMN_OBJECT_STR.Labels].map((label: any) => {
               return (
-                <span key={label.id} className="mr-5">
-                  <Badge color="blue">{label.label_name}</Badge>
+                <span key={label.id} className="custom-badge label mr-5">
+                  {label.label_name}
                 </span>
               );
             })}

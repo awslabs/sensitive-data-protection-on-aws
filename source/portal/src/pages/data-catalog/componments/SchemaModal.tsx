@@ -8,7 +8,6 @@ import {
   Button,
   Select,
   SelectProps,
-  Badge,
 } from '@cloudscape-design/components';
 import CommonBadge from 'pages/common-badge';
 import CatalogDetailList from './CatalogDetailList';
@@ -39,6 +38,7 @@ import {
 } from 'pages/common-badge/componments/Options';
 import LabelModal from 'common/LabelModal';
 import { Label } from 'ts/data-catalog/types';
+import { useTranslation } from 'react-i18next';
 
 const SchemaModal: React.FC<any> = (props: any) => {
   const {
@@ -50,6 +50,7 @@ const SchemaModal: React.FC<any> = (props: any) => {
     setSelectRowData,
     updateFatherPage,
   } = props;
+  const { t } = useTranslation();
   const [saveLoading, setSaveLoading] = useState(false);
 
   const [updateData, setUpdateData] = useState(null as any);
@@ -294,7 +295,7 @@ const SchemaModal: React.FC<any> = (props: any) => {
                   setShowSchemaModal(false);
                 }}
               >
-                Cancel
+                {t('button.cancel')}
               </Button>
               <Button
                 variant="primary"
@@ -302,7 +303,7 @@ const SchemaModal: React.FC<any> = (props: any) => {
                 onClick={saveData}
                 disabled={saveDisabled}
               >
-                Save
+                {t('button.save')}
               </Button>
             </SpaceBetween>
           </Box>
@@ -357,8 +358,8 @@ const SchemaModal: React.FC<any> = (props: any) => {
               <b>Custom labels: </b>
               {selectRowData[COLUMN_OBJECT_STR.Labels].map((label: any) => {
                 return (
-                  <span key={label.id} className="mr-5">
-                    <Badge color="blue">{label.label_name}</Badge>
+                  <span key={label.id} className="custom-badge label mr-5">
+                    {label.label_name}
                   </span>
                 );
               })}

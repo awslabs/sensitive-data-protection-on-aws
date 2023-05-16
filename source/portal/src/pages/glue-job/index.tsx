@@ -32,6 +32,7 @@ import { ColumnChartData } from 'ts/dashboard/types';
 import HorizontalBarChart from 'pages/summary/comps/charts/items/HorizontalBarChart';
 import ResourcesFilter from 'pages/resources-filter';
 import { alertMsg, useDidUpdateEffect } from 'tools/tools';
+import { useTranslation } from 'react-i18next';
 
 const GULE_JOB_COLUMN = [
   {
@@ -73,6 +74,7 @@ const GULE_JOB_COLUMN = [
 
 const HomeHeader: React.FC = () => {
   const location = useLocation();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { jobData } = location.state;
   return (
@@ -81,7 +83,7 @@ const HomeHeader: React.FC = () => {
       description="Sensitive data discovery job consists of Glue jobs that run in AWS accounts. "
       actions={
         <Button onClick={() => navigate(RouterEnum.Datajob.path)}>
-          Back to job list
+          {t('button.backToJobList')}
         </Button>
       }
     >
@@ -486,9 +488,10 @@ const GlueJobContent = () => {
 };
 
 const GlueJob: React.FC = () => {
+  const { t } = useTranslation();
   const breadcrumbItems = [
-    { text: 'Sensitive Data Protection Solution', href: RouterEnum.Home.path },
-    { text: 'Sensitive data discovery jobs', href: RouterEnum.Datajob.path },
+    { text: t('breadcrumb.home'), href: RouterEnum.Home.path },
+    { text: t('breadcrumb.sensitiveJobs'), href: RouterEnum.Datajob.path },
   ];
   return (
     <AppLayout

@@ -11,6 +11,7 @@ import React, { useEffect, useState } from 'react';
 import { alertMsg } from 'tools/tools';
 import './style.scss';
 import { RouterEnum } from 'routers/routerEnum';
+import { useTranslation } from 'react-i18next';
 
 const TemplateDelete = (props: any) => {
   const {
@@ -19,6 +20,7 @@ const TemplateDelete = (props: any) => {
     confirmDelete,
     showErrorTips = {},
   } = props;
+  const { t } = useTranslation();
   const [confirmInput, setConfirmInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const clkConfirmDelete = async () => {
@@ -53,11 +55,11 @@ const TemplateDelete = (props: any) => {
               onClick={() => setIsShowDelete(false)}
               loading={isLoading}
             >
-              Cancel
+              {t('button.cancel')}
             </Button>
             {!showErrorTips.template && !showErrorTips.catalog && (
               <Button onClick={clkConfirmDelete} loading={isLoading}>
-                Delete
+                {t('button.delete')}
               </Button>
             )}
           </SpaceBetween>

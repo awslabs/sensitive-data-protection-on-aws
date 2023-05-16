@@ -15,11 +15,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Navigation from 'pages/left-menu/Navigation';
 import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import { RouterEnum } from 'routers/routerEnum';
+import { useTranslation } from 'react-i18next';
 
 const DataSourceConnectionHeader: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-
+  const { t } = useTranslation();
   const {
     accountData = {
       aws_account_id: '',
@@ -31,7 +32,7 @@ const DataSourceConnectionHeader: React.FC = () => {
       description="You can create data catalogs by connecting data source."
       actions={
         <Button onClick={() => navigate(RouterEnum.AccountManagement.path)}>
-          Back to AWS accounts view
+          {t('button.backToAWSAccount')}
         </Button>
       }
     >
@@ -91,10 +92,11 @@ const DataSourceConnectionContent: React.FC = () => {
 };
 
 const DataSourceConnection: React.FC = () => {
+  const { t } = useTranslation();
   const breadcrumbItems = [
-    { text: 'Sensitive Data Protection Solution', href: RouterEnum.Home.path },
+    { text: t('breadcrumb.home'), href: RouterEnum.Home.path },
     {
-      text: 'Data Source Connection',
+      text: t('breadcrumb.dataSourceConnection'),
       href: RouterEnum.DataSourceConnection.path,
     },
   ];

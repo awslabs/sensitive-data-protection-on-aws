@@ -1,6 +1,8 @@
 export const AMPLIFY_CONFIG_JSON = '__sdps_solution_amplify_config_json__';
 export const BACKEND_URL_KEY = 'BACKEND_URL';
 
+export const GIHUB_REPO_LINK =
+  'https://github.com/awslabs/sensitive-data-protection-on-aws';
 export interface ColumnList {
   id: string;
   label: string;

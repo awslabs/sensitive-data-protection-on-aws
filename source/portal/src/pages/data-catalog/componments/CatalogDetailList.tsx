@@ -24,11 +24,12 @@ import '../style.scss';
 import ResourcesFilter from 'pages/resources-filter';
 import {
   getDatabaseIdentifiers,
-  getTablesByDatabase,
+  // getTablesByDatabase,
   getTablesByDatabaseIdentifier,
   getColumnsByTable,
   getS3SampleObjects,
   getBucketProperties,
+  searchTablesByDatabase,
 } from 'apis/data-catalog/api';
 import { alertMsg, formatSize, toJSON } from 'tools/tools';
 import moment from 'moment';
@@ -61,6 +62,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       previewDataList,
       setSaveLoading,
       setSaveDisabled,
+      isFreeText,
     } = props;
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -156,7 +158,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
 
     useEffect(() => {
       getPageData();
-    }, [currentPage, preferences.pageSize]);
+    }, [query, currentPage, preferences.pageSize]);
 
     const getPageData = async () => {
       setIsLoading(true);
@@ -312,24 +314,67 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
     };
 
     const getDataFolders = async () => {
-      const requestParam: any = {
-        account_id: selectRowData.account_id,
-        region: selectRowData.region,
-        database_type: selectRowData.database_type,
-        database_name: selectRowData.database_name,
-        page: currentPage,
-        size: preferences.pageSize,
-      };
-      let result: any;
-      if (identifiersFilter) {
-        requestParam.identifier = identifiersFilter;
-        result = await getTablesByDatabaseIdentifier(requestParam);
-      } else {
-        result = await getTablesByDatabase(requestParam);
-      }
-      if (result && result.items) {
-        setDataList(result.items);
-        setTotalCount(result.total);
+      try {
+        const requestParam: any = {
+          account_id: selectRowData.account_id,
+          region: selectRowData.region,
+          database_type: selectRowData.database_type,
+          database_name: selectRowData.database_name,
+          page: currentPage,
+          size: preferences.pageSize,
+        };
+
+        let result: any;
+        if (identifiersFilter) {
+          requestParam.identifier = identifiersFilter;
+          result = await getTablesByDatabaseIdentifier(requestParam);
+        } else {
+          const requestBody: any = {
+            page: currentPage,
+            size: preferences.pageSize,
+            sort_column: '',
+            asc: true,
+            conditions: [
+              {
+                column: 'account_id',
+                values: [`${selectRowData.account_id}`],
+                condition: 'and',
+              },
+              {
+                column: 'region',
+                values: [`${selectRowData.region}`],
+                condition: 'and',
+              },
+              {
+                column: 'database_type',
+                values: [`${selectRowData.database_type}`],
+                condition: 'and',
+              },
+              {
+                column: 'database_name',
+                values: [`${selectRowData.database_name}`],
+                condition: 'and',
+              },
+            ],
+          };
+          // account_id region database_type database_name table_name
+          query.tokens &&
+            query.tokens.forEach((item: any) => {
+              requestBody.conditions.push({
+                column: 'table_name',
+                values: [`${item.value}`],
+                condition: 'and',
+                operation: ':',
+              });
+            });
+          result = await searchTablesByDatabase(requestBody);
+        }
+        if (result && result.items) {
+          setDataList(result.items);
+          setTotalCount(result.total);
+        }
+      } catch (e) {
+        console.error(e);
       }
     };
 
@@ -375,13 +420,11 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
           tempData[0][UPDATE_FLAG] = true;
         }
       } else {
-        console.info('tempData:', tempData);
         if (tempData && tempData.length > 0) {
           tempData[0][COLUMN_OBJECT_STR.Comments] = tempOption;
           tempData[0][UPDATE_FLAG] = true;
         }
       }
-      console.info('tempDataList:', tempDataList);
       setDataList(tempDataList);
       setUpdateData(tempDataList);
     };
@@ -770,7 +813,14 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                 </Box>
               </Box>
             }
-            filter={needFilter && <ResourcesFilter {...resourcesFilterProps} />}
+            filter={
+              needFilter && (
+                <ResourcesFilter
+                  isFreeText={isFreeText}
+                  {...resourcesFilterProps}
+                />
+              )
+            }
             header={
               detailDesHeader && (
                 <div className="deatil-desc-body">

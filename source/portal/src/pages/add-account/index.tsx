@@ -6,6 +6,7 @@ import './style.scss';
 import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import Navigation from 'pages/left-menu/Navigation';
 import { RouterEnum } from 'routers/routerEnum';
+import { useTranslation } from 'react-i18next';
 
 const AddAccountHeader: React.FC = () => {
   return (
@@ -40,9 +41,13 @@ const AddAccountContent = () => {
 };
 
 const AddAccount: React.FC = () => {
+  const { t } = useTranslation();
   const breadcrumbItems = [
-    { text: 'Sensitive Data Protection Solution', href: RouterEnum.Home.path },
-    { text: 'AWS account management', href: RouterEnum.AccountManagement.path },
+    { text: t('breadcrumb.home'), href: RouterEnum.Home.path },
+    {
+      text: t('breadcrumb.awsAccount'),
+      href: RouterEnum.AccountManagement.path,
+    },
   ];
   return (
     <AppLayout
