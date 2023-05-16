@@ -650,10 +650,6 @@ def sync_job_detection_result(
     # The two dict has all tables as key.
     for table_name in table_size_dict:
         table_size = table_size_dict[table_name]
-        row_count += table_size
-        catalog_table = crud.get_catalog_table_level_classification_by_name(
-            account_id, region, database_type, database_name, table_name
-        )
         if table_size <= 0:
             # 注意数据的删除！！！！
             logger.info(
@@ -661,7 +657,10 @@ def sync_job_detection_result(
             print("sync_job_detection_result - DELETE TABLE WHEN TABLE_SIZE IS ZERO : " + json.dumps(catalog_table))
             crud.delete_catalog_table_level_classification(catalog_table.id)
             continue
-
+        row_count += table_size
+        catalog_table = crud.get_catalog_table_level_classification_by_name(
+            account_id, region, database_type, database_name, table_name
+        )
         if table_name not in table_privacy_dict:
             if catalog_table is not None:
                 table_dict = {
