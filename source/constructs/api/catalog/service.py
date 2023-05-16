@@ -310,11 +310,11 @@ def sync_crawler_result(
                     crud.update_catalog_table_level_classification_by_id(original_table.id, catalog_table_dict)
                 database_column_count += column_order_num
                 database_row_count += table_size
-                update_catalog_table_and_database_level_privacy(account_id,
-                                                                region,
-                                                                database_type,
-                                                                database_name,
-                                                                table_name)
+                # update_catalog_table_and_database_level_privacy(account_id,
+                #                                                 region,
+                #                                                 database_type,
+                #                                                 database_name,
+                #                                                 table_name)
             next_token = tables_response.get("NextToken")
             if next_token is None:
                 break
@@ -695,7 +695,6 @@ def sync_job_detection_result(
         crud.update_catalog_database_level_classification_by_id(
             catalog_database.id, database_dict
         )
-
     logger.info("Sync detection result sucessfully!")
     return True
 
