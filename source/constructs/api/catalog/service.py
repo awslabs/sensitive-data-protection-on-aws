@@ -649,7 +649,7 @@ def sync_job_detection_result(
             identifier_set = table_identifier_dict[table_name]
             identifiers = "|".join(list(map(str, identifier_set)))
             if catalog_table is not None and (overwrite or (
-                        not overwrite and catalog_column.manual_pii != "manual")):
+                        not overwrite and catalog_table.manual_pii != "manual")):
                 table_dict = {
                     "privacy": privacy,
                     "identifiers": identifiers,
@@ -686,7 +686,7 @@ def sync_job_detection_result(
         account_id, region, database_type, database_name
     )
     if catalog_database is not None and (overwrite or (
-                        not overwrite and catalog_column.manual_pii != "manual")):
+                        not overwrite and catalog_database.manual_pii != "manual")):
         database_dict = {
             "privacy": database_privacy,
             "state": CatalogState.DETECTED.value,
