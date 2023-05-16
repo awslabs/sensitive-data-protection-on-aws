@@ -47,3 +47,5 @@ const.VERSION = 'Version'
 const.PROJECT_TAG_KEY = 'CreatedBy'
 const.PROJECT_TAG_VALUE = const.SOLUTION_NAME
 const.EMPTY_STR = ''
+const.MSCK_REPAIR_DATE = 'MsckRepairDate'
+const.MSCK_REPAIR_START_TIME = 'MsckRepairStartTime'

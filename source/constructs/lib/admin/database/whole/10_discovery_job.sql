@@ -79,6 +79,7 @@ create table discovery_job_run_database
     state         varchar(10)   null,
     log           varchar(8000) null,
     uuid          varchar(32)   null,
+    table_count   int           null,
     version       int           null,
     create_by     varchar(255)  null,
     create_time   datetime      null,
