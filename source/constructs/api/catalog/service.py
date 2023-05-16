@@ -21,6 +21,7 @@ from common.exception_handler import BizException
 import traceback
 from discovery_job.crud import get_last_run_database, get_job_by_run_id
 from label.crud import get_labels_by_id_list
+from athena.service import repair
 
 logger = logging.getLogger("api")
 caller_identity = boto3.client('sts').get_caller_identity()
@@ -464,38 +465,10 @@ def __query_job_result_by_athena(
         database_name: str,
         run_id: str,
 ):
-    project_bucket_name = os.getenv(
-        const.PROJECT_BUCKET_NAME, const.PROJECT_BUCKET_DEFAULT_NAME
-    )
-    client = boto3.client("athena")
     # MSCK
-    msck_sql = """MSCK REPAIR TABLE %s;""" % (const.JOB_RESULT_TABLE_NAME)
-    queryStart = client.start_query_execution(
-        QueryString=msck_sql,
-        QueryExecutionContext={
-            "Database": const.JOB_RESULT_DATABASE_NAME,
-            "Catalog": "AwsDataCatalog",
-        },
-        ResultConfiguration={"OutputLocation": f"s3://{project_bucket_name}/athena-output/"},
-    )
-    msck_query_id = queryStart["QueryExecutionId"]
+    repair()
 
-    while True:
-        response = client.get_query_execution(QueryExecutionId=msck_query_id)
-
-        query_execution_status = response["QueryExecution"]["Status"]["State"]
-
-        if query_execution_status == AthenaQueryState.SUCCEEDED.value:
-            break
-
-        if query_execution_status == AthenaQueryState.FAILED.value:
-            logger.exception(response)
-            raise Exception("Query Asset STATUS:" + query_execution_status)
-
-        else:
-            time.sleep(1)
-    logger.debug("Athena MSCK SQL : " + msck_sql)
-
+    client = boto3.client("athena")
     # Select result
     select_sql = (
             (
