@@ -314,8 +314,7 @@ def sync_crawler_result(
                                                                 region,
                                                                 database_type,
                                                                 database_name,
-                                                                table_name,
-                                                                False)
+                                                                table_name)
             next_token = tables_response.get("NextToken")
             if next_token is None:
                 break
@@ -821,8 +820,7 @@ def update_catalog_column_level_classification(new_column: schemas.CatalogColumn
                                                         new_column.region,
                                                         new_column.database_type,
                                                         new_column.database_name,
-                                                        new_column.table_name,
-                                                        True)
+                                                        new_column.table_name)
 
     return "Update catalog column successfully!"
 
@@ -877,19 +875,7 @@ def delete_catalog_by_database_region(database: str, region: str, type: str):
     return True
 
 
-def update_catalog_table_and_database_level_privacy(account_id, region, database_type, database_name, table_name,
-                                                    is_manual):
-    overwrite = True
-    if is_manual is False:
-        last_run_database = get_last_run_database(account_id, region, database_type, database_name)
-        if last_run_database is not None:
-            job = get_job_by_run_id(last_run_database.run_id)
-            if job is not None:
-                overwrite = job.overwrite == 1
-                print("need to overwrite the privacy?")
-                print(overwrite)
-    if overwrite is False:
-        return
+def update_catalog_table_and_database_level_privacy(account_id, region, database_type, database_name, table_name):
 
     column_rows = crud.get_catalog_column_level_classification_by_table(account_id,
                                                                         region,
