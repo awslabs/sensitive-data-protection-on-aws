@@ -55,7 +55,7 @@ def get_catalog_tables_by_database(
     return rlt
 
 
-@router.get(
+@router.post(
     "/search-tables-by-database",
     # response_model=BaseResponse[Page[schemas.CatalogTableLevelClassification]],
 )
