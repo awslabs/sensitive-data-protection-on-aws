@@ -19,7 +19,7 @@ from common.enum import (
 import logging
 from common.exception_handler import BizException
 import traceback
-from discovery_job.crud import get_last_run_database, get_job_by_run_id
+from discovery_job.crud import get_job_by_run_id
 from label.crud import get_labels_by_id_list
 from athena.service import repair
 
