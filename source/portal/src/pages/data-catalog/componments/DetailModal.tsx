@@ -211,7 +211,11 @@ const DetailModal: React.FC<any> = (props: any) => {
 
     return {
       id: item.id,
-      label: item.label,
+      label:
+        item.id === COLUMN_OBJECT_STR.Folders ||
+        item.id === COLUMN_OBJECT_STR.Tables
+          ? `${item.label} (${selectRowData.table_count})`
+          : `${item.label}`,
       content: <CatalogDetailList {...tempProps} />,
     };
   });
