@@ -75,8 +75,8 @@ export class VpcStack extends Construct {
     const cidr = props?.cidr ?? '10.0.0.0/16';
 
     const vpcLogGroup = new LogGroup(this, 'VPCLogGroup', {
-      retention: RetentionDays.TWO_WEEKS,
-      removalPolicy: RemovalPolicy.RETAIN,
+      retention: RetentionDays.ONE_MONTH,
+      removalPolicy: RemovalPolicy.DESTROY,
     });
 
     const cfnVpcLG = vpcLogGroup.node.defaultChild as CfnLogGroup;
