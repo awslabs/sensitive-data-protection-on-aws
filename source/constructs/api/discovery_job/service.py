@@ -5,7 +5,7 @@ import logging
 import db.models_discovery_job as models
 from . import crud, schemas
 from common.exception_handler import BizException
-from common.enum import MessageEnum, JobState, RunDatabaseState, DatabaseType
+from common.enum import MessageEnum, JobState, RunDatabaseState, DatabaseType, AthenaQueryState
 from common.constant import const
 from common.query_condition import QueryCondition
 import traceback
@@ -14,6 +14,7 @@ import datetime, time
 from openpyxl import Workbook
 from tempfile import NamedTemporaryFile
 from catalog.service import sync_job_detection_result
+from config.service import set_config, get_config
 
 logger = logging.getLogger(const.LOGGER_API)
 controller_function_name = os.getenv("ControllerFunctionName", f"{const.SOLUTION_NAME}-Controller")
@@ -373,12 +374,8 @@ def list_run_databases_pagination(run_id: int, condition: QueryCondition):
     return crud.list_run_databases_pagination(run_id, condition)
 
 
-def list_run_databases(run_id: int):
-    return crud.list_run_databases(run_id)
-
-
 def get_run_status(job_id: int, run_id: int) -> schemas.DiscoveryJobRunDatabaseStatus:
-    run_list = list_run_databases(run_id)
+    run_list = crud.list_run_databases(run_id)
     total_count = success_count = fail_count = ready_count = running_count = stopped_count = not_existed_count = 0
     success_per = fail_per = ready_per = running_per = stopped_per = not_existed_per = 0
 
@@ -422,6 +419,62 @@ def get_run_status(job_id: int, run_id: int) -> schemas.DiscoveryJobRunDatabaseS
         not_existed_per=not_existed_per
     )
     return status
+
+
+def get_run_database_progress(job_id: int, run_id: int, run_database_id: int) -> schemas.DiscoveryJobRunDatabaseProgress:
+    run_database = crud.get_run_database(run_database_id)
+    if run_database.table_count is None:
+        run_database.table_count = __get_table_count_from_agent(run_database)
+        crud.save_run_database(run_database)
+    current_table_count = -1
+    if run_database.state == RunDatabaseState.READY.value:
+        current_table_count = 0
+    elif run_database.state == RunDatabaseState.SUCCEEDED.value or run_database.state == RunDatabaseState.FAILED.value or run_database.state == RunDatabaseState.STOPPED.value:
+        current_table_count = run_database.table_count
+    elif run_database.state == RunDatabaseState.RUNNING.value:
+        current_table_count = __get_current_table_count(run_database)
+    progress = schemas.DiscoveryJobRunDatabaseProgress(current_table_count=current_table_count,
+                                                       table_count=run_database.table_count)
+    return progress
+
+
+def __get_current_table_count(run_database: models.DiscoveryJobRunDatabase):
+    sql = "select count(distinct table_name) from sdps_database.job_detection_output_table" \
+          f" where run_id='{run_database.run_id}'" \
+          f" and account_id='{run_database.account_id}'" \
+          f" and region='{run_database.region}'" \
+          f" and database_type='{run_database.database_type}'" \
+          f" and database_name='{run_database.database_name}'"
+    current_table_count = __query_athena(sql)
+    logger.debug(current_table_count)
+    return int(current_table_count[1][0]["VarCharValue"])
+
+
+def __get_table_count_from_agent(run_database: models.DiscoveryJobRunDatabase):
+    client_sts = boto3.client('sts')
+    assumed_role_object = client_sts.assume_role(
+        RoleArn=f'arn:{partition}:iam::{run_database.account_id}:role/{const.SOLUTION_NAME}RoleForAdmin-{run_database.region}',
+        RoleSessionName="AssumeRoleSession1"
+    )
+    credentials = assumed_role_object['Credentials']
+
+    glue = boto3.client(service_name='glue',
+                        aws_access_key_id=credentials['AccessKeyId'],
+                        aws_secret_access_key=credentials['SecretAccessKey'],
+                        aws_session_token=credentials['SessionToken'],
+                        region_name=run_database.region,
+                        )
+    next_token = ""
+    count = 0
+    while True:
+        response = glue.get_tables(
+            DatabaseName=f'{run_database.database_type}-{run_database.database_name}-database',
+            NextToken=next_token)
+        count += len(response['TableList'])
+        next_token = response.get('NextToken')
+        if next_token is None:
+            break
+    return count
 
 
 def change_run_state(run_id: int):
@@ -611,11 +664,12 @@ def get_report_url(run_id: int):
 
 
 def __query_athena(sql: str):
+    logger.debug(sql)
     client = boto3.client("athena")
     queryStart = client.start_query_execution(
         QueryString=sql,
         QueryExecutionContext={
-            "Database": "sdps_database",
+            "Database": const.JOB_RESULT_DATABASE_NAME,
             "Catalog": "AwsDataCatalog",
         },
         ResultConfiguration={"OutputLocation": f"s3://{project_bucket_name}/athena-output/"},
@@ -625,9 +679,9 @@ def __query_athena(sql: str):
     while True:
         response = client.get_query_execution(QueryExecutionId=query_id)
         query_execution_status = response["QueryExecution"]["Status"]["State"]
-        if query_execution_status == "SUCCEEDED":
+        if query_execution_status == AthenaQueryState.SUCCEEDED.value:
             break
-        if query_execution_status == "FAILED":
+        if query_execution_status == AthenaQueryState.FAILED.value:
             logger.exception(response)
             raise Exception("Query Asset STATUS:" + response["QueryExecution"]["Status"]["StateChangeReason"])
         else:

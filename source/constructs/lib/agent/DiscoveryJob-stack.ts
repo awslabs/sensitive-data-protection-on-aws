@@ -17,6 +17,7 @@ import {
   aws_logs as logs,
   Aws,
   Fn,
+  RemovalPolicy,
 } from 'aws-cdk-lib';
 import {
   PolicyStatement,
@@ -166,6 +167,7 @@ export class DiscoveryJobStack extends Construct {
     // State machine log group
     const logGroup = new logs.LogGroup(this, 'SFNLogGroup', {
       retention: logs.RetentionDays.ONE_MONTH,
+      removalPolicy: RemovalPolicy.DESTROY,
     });
     const stepFunction = new sfn.CfnStateMachine(
       this,
