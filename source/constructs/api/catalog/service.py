@@ -587,14 +587,12 @@ def sync_job_detection_result(
                 if table_size <= 0:
                     logger.info("sync_job_detection_result - DELETE COLUMN WHEN TABLE_SIZE IS ZERO : " + json.dumps(
                         catalog_column))
-                    print(
-                        "sync_job_detection_result - DELETE COLUMN WHEN TABLE_SIZE IS ZERO : " + json.dumps(
-                            catalog_column))
                     crud.delete_catalog_column_level_classification(catalog_column.id)
                     continue
 
                 identifier_dict = __convert_identifiers_to_dict(identifier)
-                if catalog_column is not None and overwrite:
+                if catalog_column is not None and (overwrite or (
+                        not overwrite and catalog_column.manual_pii != "manual")):
                     column_dict = {
                         "identifier": json.dumps(identifier_dict),
                         "column_value_example": column_sample_data,
@@ -626,7 +624,6 @@ def sync_job_detection_result(
             # 注意数据的删除！！！！
             logger.info(
                 "sync_job_detection_result - DELETE TABLE WHEN TABLE_SIZE IS ZERO : " + json.dumps(catalog_table))
-            print("sync_job_detection_result - DELETE TABLE WHEN TABLE_SIZE IS ZERO : " + json.dumps(catalog_table))
             crud.delete_catalog_table_level_classification(catalog_table.id)
             continue
         row_count += table_size
@@ -651,7 +648,8 @@ def sync_job_detection_result(
             # A table identifiers come from all columns distinct identifer values
             identifier_set = table_identifier_dict[table_name]
             identifiers = "|".join(list(map(str, identifier_set)))
-            if catalog_table is not None and overwrite:
+            if catalog_table is not None and (overwrite or (
+                        not overwrite and catalog_column.manual_pii != "manual")):
                 table_dict = {
                     "privacy": privacy,
                     "identifiers": identifiers,
@@ -687,7 +685,8 @@ def sync_job_detection_result(
     catalog_database = crud.get_catalog_database_level_classification_by_name(
         account_id, region, database_type, database_name
     )
-    if catalog_database is not None and overwrite:
+    if catalog_database is not None and (overwrite or (
+                        not overwrite and catalog_column.manual_pii != "manual")):
         database_dict = {
             "privacy": database_privacy,
             "state": CatalogState.DETECTED.value,

@@ -20,6 +20,7 @@ class CatalogColumnLevelClassification(BaseModel):
     privacy: Optional[int]
     sensitivity: str
     comments: Optional[str]
+    manual_pii: Optional[str]
     state: Optional[str]
     version: Optional[int]
     create_by: Optional[str]
@@ -48,6 +49,7 @@ class CatalogTableLevelClassification(BaseModel):
     storage_location: Optional[str]
     identifiers: Optional[str]
     label_ids: Optional[str]
+    manual_pii: Optional[str]
     state: Optional[str]
     classification: Optional[str]
     version: Optional[int]
@@ -57,8 +59,6 @@ class CatalogTableLevelClassification(BaseModel):
     modify_time: Optional[datetime.datetime]
     labels: Optional[list]
 
-    class Config:
-        orm_mode = True
 
 
 class CatalogDatabaseLevelClassification(BaseModel):
@@ -77,6 +77,7 @@ class CatalogDatabaseLevelClassification(BaseModel):
     row_count: Optional[int]
     storage_location: Optional[str]
     label_ids: Optional[str]
+    manual_pii: Optional[str]
     state: Optional[str]
     version: Optional[int]
     create_by: Optional[str]

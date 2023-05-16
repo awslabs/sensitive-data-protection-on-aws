@@ -177,6 +177,7 @@ def get_rds_table_sample_records(
 def update_catalog_database_level_classification(
     database: schemas.CatalogDatabaseLevelClassification,
 ):
+    database.manual_pii = "manual"
     return crud.update_catalog_database_level_classification(database)
 
 
@@ -185,6 +186,7 @@ def update_catalog_database_level_classification(
 def update_catalog_table_level_classification(
     table: schemas.CatalogTableLevelClassification,
 ):
+    table.manual_pii = "manual"
     return crud.update_catalog_table_level_classification(table)
 
 
@@ -214,6 +216,7 @@ def update_catalog_column_comments(
 def update_catalog_column_level_classification(
     column: schemas.CatalogColumnLevelClassification,
 ):
+    column.manual_pii = "manual"
     return service.update_catalog_column_level_classification(column)
 
 
