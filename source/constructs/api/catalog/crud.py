@@ -123,7 +123,7 @@ def get_catalog_table_level_classification_by_database(
 def search_catalog_table_level_classification_by_database(
     condition: QueryCondition
 ):
-    return query_with_condition(get_session().query(models.CatalogTableLevelClassification, condition))
+    return query_with_condition(get_session().query(models.CatalogTableLevelClassification), condition)
 
 
 def get_catalog_table_level_classification_by_name(
