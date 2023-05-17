@@ -204,6 +204,7 @@ def sync_crawler_result(
     database_column_count = 0  # Aggregate from each table
     database_row_count = 0  # Aggregate from each table
     table_count = 0  # Count each table
+    need_clean_database = False
     if crawler_last_run_status == GlueCrawlerState.SUCCEEDED.value:
 
         # Next token is a continuation token, present if the current list segment is not the last.
@@ -285,7 +286,11 @@ def sync_crawler_result(
                         # Keep the latest modify if it is a specfic user
                         catalog_column_dict['modify_by'] = original_column.modify_by
                         crud.update_catalog_column_level_classification_by_id(original_column.id, catalog_column_dict)
-                    table_column_dict.setdefault(table_column_dict[table_name], []).append(column_name)
+                    # table_column_dict.setdefault(table_column_dict[table_name], []).append(column_name)
+                    if table_name in table_column_dict:
+                        table_column_dict[table_name].append(column_name)
+                    else:
+                        table_column_dict[table_name] = [column_name]
                 # Create  table
                 catalog_table_dict = {
                     "account_id": account_id,
@@ -324,11 +329,11 @@ def sync_crawler_result(
         for catalog in catalog_table_list:
             if catalog.table_name not in table_name_list:
                 logger.info("sync_crawler_result DELETE TABLE AND COLUMN WHEN NOT IN GLUE TABLES" + json.dumps(catalog))
-                # TODO  database update 0 N/A
+                need_clean_database = True
                 crud.delete_catalog_table_level_classification(catalog.id)
                 crud.delete_catalog_column_level_classification_by_table_name(account_id, region, database_type, database_name, catalog.table_name)
             column_list = table_column_dict[catalog.table_name]
-            logger.info("sync_crawler_result DELETE COLUMN WHEN NOT IN GLUE TABLES" + table_column_dict[catalog.table_name])
+            logger.info("sync_crawler_result DELETE COLUMN WHEN NOT IN GLUE TABLES" + json.dumps(table_column_dict[catalog.table_name]))
             crud.delete_additional_catalog_column_level_classification_by_table_name(account_id, region, database_type, database_name, catalog.table_name, column_list)
 
     if table_count == 0:
@@ -347,7 +352,7 @@ def sync_crawler_result(
             "database_name": database_name,
             "object_count": database_object_count,
             "size_key": database_size,
-            "table_count": table_count,
+            "table_count": 0 if need_clean_database else table_count,
             "column_count": database_column_count,
             "row_count": database_row_count,
             # Store location for s3 and engine type for rds
@@ -581,7 +586,11 @@ def sync_job_detection_result(
                 privacy = int(__get_athena_column_value(row["Data"][4], "int"))
                 table_size = int(__get_athena_column_value(row["Data"][5], "int"))
                 table_size_dict[table_name] = table_size
-                table_column_dict.setdefault(table_column_dict[table_name], []).append(column_name)
+                # table_column_dict.setdefault(table_column_dict[table_name], []).append(column_name)
+                if table_name in table_column_dict:
+                    table_column_dict[table_name].append(column_name)
+                else:
+                    table_column_dict[table_name] = [column_name]
                 column_privacy = privacy
                 catalog_column = crud.get_catalog_column_level_classification_by_name(
                     account_id,
@@ -616,12 +625,11 @@ def sync_job_detection_result(
                 for key in identifier_dict:
                     table_identifier_dict[table_name].add(key)
             i += 1
-    if not table_size_dict:
-        logger.info(
-            "sync_job_detection_result - DELETE TABLE AND COLUMNS WHEN TABLE_SIZE IS ZERO ")
-        # TODO  database update 0 N/A
-        crud.delete_catalog_table_level_classification_by_database_name(account_id, region, database_type, database_name)
-        crud.delete_catalog_column_level_classification_by_database_name(account_id, region, database_type, database_name)
+    # if not table_size_dict:
+    #     logger.info(
+    #         "sync_job_detection_result - DELETE TABLE AND COLUMNS WHEN TABLE_SIZE IS ZERO ")
+    #     crud.delete_catalog_table_level_classification_by_database_name(account_id, region, database_type, database_name)
+    #     crud.delete_catalog_column_level_classification_by_database_name(account_id, region, database_type, database_name)
 
     # Initialize database privacy with NON-PII
     database_privacy = Privacy.NON_PII.value
@@ -638,10 +646,10 @@ def sync_job_detection_result(
         catalog_table = crud.get_catalog_table_level_classification_by_name(
             account_id, region, database_type, database_name, table_name
         )
-        columns = table_column_dict[table_name]
-        logger.info(
-            "sync_job_detection_result - DELETE ADDITIONAL COLUMNS : " + table_column_dict[table_name])
-        crud.delete_additional_catalog_column_level_classification_by_table_name(account_id, region, database_type, database_name, table_name, columns)
+        # columns = table_column_dict[table_name]
+        # logger.info(
+        #     "sync_job_detection_result - DELETE ADDITIONAL COLUMNS : " + table_column_dict[table_name])
+        # crud.delete_additional_catalog_column_level_classification_by_table_name(account_id, region, database_type, database_name, table_name, columns)
 
         if table_name not in table_privacy_dict:
             if catalog_table is not None:

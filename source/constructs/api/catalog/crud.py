@@ -542,7 +542,7 @@ def delete_additional_catalog_column_level_classification_by_table_name(
     ).filter(
         models.CatalogColumnLevelClassification.table_name == table_name
     ).filter(
-        models.CatalogColumnLevelClassification.column_name.notin_(column_names)
+        ~models.CatalogColumnLevelClassification.column_name.in_(column_names)
     ).delete()
 
     session.commit()
