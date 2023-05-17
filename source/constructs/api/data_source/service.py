@@ -137,6 +137,13 @@ def create_s3_connection(account: str, region: str, bucket: str):
                 Targets={
                     "S3Targets": s3_targets
                 },
+                SchemaChangePolicy={
+                    "UpdateBehavior": "UPDATE_IN_DATABASE",
+                    "DeleteBehavior": "DELETE_FROM_DATABASE"
+                },
+                RecrawlPolicy={
+                    "RecrawlBehavior": "CRAWL_EVERYTHING"
+                },
                 Tags={
                     'AdminAccountId': _admin_account_id
                 }
@@ -622,6 +629,13 @@ def create_rds_connection(account: str, region: str, instance_name: str, rds_use
                     DatabaseName=glue_database_name,
                     Targets={
                         'JdbcTargets': jdbc_targets,
+                    },
+                    SchemaChangePolicy={
+                        "UpdateBehavior": "UPDATE_IN_DATABASE",
+                        "DeleteBehavior": "DELETE_FROM_DATABASE"
+                    },
+                    RecrawlPolicy={
+                        "RecrawlBehavior": "CRAWL_EVERYTHING"
                     },
                     Tags={
                         'AdminAccountId': _admin_account_id
