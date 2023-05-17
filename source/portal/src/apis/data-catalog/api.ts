@@ -10,6 +10,16 @@ const getTablesByDatabase = async (params: any) => {
   return result;
 };
 
+// 根据条件查询 catalog 弹窗, Folders/Tables 列表
+const searchTablesByDatabase = async (params: any) => {
+  const result = await apiRequest(
+    'post',
+    'catalog/search-tables-by-database',
+    params
+  );
+  return result;
+};
+
 // 获取一个bucket/database 的Identifiers
 const getDatabaseIdentifiers = async (params: any) => {
   const result = await apiRequest(
@@ -146,6 +156,7 @@ const updateCatalogTableLabels = async (params: {
 
 export {
   getTablesByDatabase,
+  searchTablesByDatabase,
   getDatabaseIdentifiers,
   getTablesByDatabaseIdentifier,
   updateCatalogDatabase,

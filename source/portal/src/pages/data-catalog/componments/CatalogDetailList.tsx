@@ -11,6 +11,7 @@ import {
   StatusIndicator,
   Badge,
   Textarea,
+  Multiselect,
 } from '@cloudscape-design/components';
 import CommonBadge from 'pages/common-badge';
 import SchemaModal from './SchemaModal';
@@ -24,11 +25,12 @@ import '../style.scss';
 import ResourcesFilter from 'pages/resources-filter';
 import {
   getDatabaseIdentifiers,
-  getTablesByDatabase,
+  // getTablesByDatabase,
   getTablesByDatabaseIdentifier,
   getColumnsByTable,
   getS3SampleObjects,
   getBucketProperties,
+  searchTablesByDatabase,
 } from 'apis/data-catalog/api';
 import { alertMsg, formatSize, toJSON } from 'tools/tools';
 import moment from 'moment';
@@ -61,6 +63,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       previewDataList,
       setSaveLoading,
       setSaveDisabled,
+      isFreeText,
     } = props;
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -74,9 +77,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       useState(clickIdentifiers);
     const [editIndentifier, setEditIndentifier] = useState(null as any);
     const [editPrivacy, setEditPrivacy] = useState(null as any);
-    const [selectIndentOption, setSelectIndentOption] = useState(
-      null as SelectProps.Option | null
-    );
+    const [selectIndentOption, setSelectIndentOption] = useState<any>([]);
     const [selectPrivacyOption, setSelectPrivacyOption] = useState(
       null as SelectProps.Option | null
     );
@@ -132,7 +133,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
         setEditIndentifier(rowData);
         setEditPrivacy(null);
         setEditComments(null);
-        setSelectIndentOption(null);
+        setSelectIndentOption([]);
       }
       if (type === COLUMN_OBJECT_STR.Privacy) {
         setEditPrivacy(rowData);
@@ -145,7 +146,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
         setEditIndentifier(null);
         setEditPrivacy(null);
         setSelectPrivacyOption(null);
-        setSelectIndentOption(null);
+        setSelectIndentOption([]);
       }
       return;
     };
@@ -156,7 +157,15 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
 
     useEffect(() => {
       getPageData();
-    }, [currentPage, preferences.pageSize]);
+    }, [query, currentPage]);
+
+    useEffect(() => {
+      if (currentPage !== 1) {
+        setCurrentPage(1);
+      } else {
+        getPageData();
+      }
+    }, [preferences.pageSize]);
 
     const getPageData = async () => {
       setIsLoading(true);
@@ -193,7 +202,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
     const getIdentifierOptions = async () => {
       const requestParam = {
         page: currentPage,
-        size: preferences.pageSize,
+        size: 100,
         sort_column: '',
         asc: false,
         conditions: [] as any,
@@ -205,28 +214,14 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       const setOptList = optList.items.map(
         (item: { id: any; name: string }) => {
           return {
-            label: '',
-            value: '',
-            iconSvg: (
-              <CommonBadge
-                badgeType={BADGE_TYPE.DataIndf}
-                badgeLabel={item.name}
-                className="fit-select"
-              />
-            ),
+            label: item.name,
+            value: item.name,
           };
         }
       );
       setOptList.push({
-        label: '',
-        value: '',
-        iconSvg: (
-          <CommonBadge
-            badgeType={BADGE_TYPE.DataIndf}
-            badgeLabel="N/A"
-            className="fit-select"
-          />
-        ),
+        label: 'N/A',
+        value: 'N/A',
       });
       setIdentifierOptions(setOptList);
     };
@@ -298,12 +293,15 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
         page: currentPage,
         size: preferences.pageSize,
       };
-      const result = await getDatabaseIdentifiers(requestParam);
+      const result: any = await getDatabaseIdentifiers(requestParam);
       if (typeof result !== 'object') {
         alertMsg(result as any, 'error');
         return;
       }
-      setDataList(result);
+      // frontend pagination
+      const start = (currentPage - 1) * preferences.pageSize;
+      setDataList(result.slice(start, start + preferences.pageSize));
+      setTotalCount(result.length);
     };
 
     const clearIdentifiersFilter = () => {
@@ -312,24 +310,67 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
     };
 
     const getDataFolders = async () => {
-      const requestParam: any = {
-        account_id: selectRowData.account_id,
-        region: selectRowData.region,
-        database_type: selectRowData.database_type,
-        database_name: selectRowData.database_name,
-        page: currentPage,
-        size: preferences.pageSize,
-      };
-      let result: any;
-      if (identifiersFilter) {
-        requestParam.identifier = identifiersFilter;
-        result = await getTablesByDatabaseIdentifier(requestParam);
-      } else {
-        result = await getTablesByDatabase(requestParam);
-      }
-      if (result && result.items) {
-        setDataList(result.items);
-        setTotalCount(result.total);
+      try {
+        const requestParam: any = {
+          account_id: selectRowData.account_id,
+          region: selectRowData.region,
+          database_type: selectRowData.database_type,
+          database_name: selectRowData.database_name,
+          page: currentPage,
+          size: preferences.pageSize,
+        };
+
+        let result: any;
+        if (identifiersFilter) {
+          requestParam.identifier = identifiersFilter;
+          result = await getTablesByDatabaseIdentifier(requestParam);
+        } else {
+          const requestBody: any = {
+            page: currentPage,
+            size: preferences.pageSize,
+            sort_column: '',
+            asc: true,
+            conditions: [
+              {
+                column: 'account_id',
+                values: [`${selectRowData.account_id}`],
+                condition: 'and',
+              },
+              {
+                column: 'region',
+                values: [`${selectRowData.region}`],
+                condition: 'and',
+              },
+              {
+                column: 'database_type',
+                values: [`${selectRowData.database_type}`],
+                condition: 'and',
+              },
+              {
+                column: 'database_name',
+                values: [`${selectRowData.database_name}`],
+                condition: 'and',
+              },
+            ],
+          };
+          // account_id region database_type database_name table_name
+          query.tokens &&
+            query.tokens.forEach((item: any) => {
+              requestBody.conditions.push({
+                column: 'table_name',
+                values: [`${item.value}`],
+                condition: 'and',
+                operation: ':',
+              });
+            });
+          result = await searchTablesByDatabase(requestBody);
+        }
+        if (result && result.items) {
+          setDataList(result.items);
+          setTotalCount(result.total);
+        }
+      } catch (e) {
+        console.error(e);
       }
     };
 
@@ -368,20 +409,30 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
           tempData[0][UPDATE_FLAG] = true;
         }
       } else if (editType === COLUMN_OBJECT_STR.Identifier) {
-        setSelectIndentOption(tempOption);
         if (tempData && tempData.length > 0) {
-          tempData[0][COLUMN_OBJECT_STR.Identifier] =
-            tempOption?.iconSvg.props.badgeLabel;
+          console.info('tempOption:', tempOption);
+          const selectedIdentifiers = tempOption.map(
+            (element: any) => element.value
+          );
+          // tempData[0][COLUMN_OBJECT_STR.Identifier] = selectedIdentifiers;
+          const parseObj = selectedIdentifiers.reduce(
+            (acc: any, curr: string) => {
+              acc[curr] = '1';
+              return acc;
+            },
+            {}
+          );
+          tempData[0][COLUMN_OBJECT_STR.Identifier] = JSON.stringify(parseObj);
+          //   tempData[0][COLUMN_OBJECT_STR.Identifier] =
+          //     tempOption?.iconSvg.props.badgeLabel;
           tempData[0][UPDATE_FLAG] = true;
         }
       } else {
-        console.info('tempData:', tempData);
         if (tempData && tempData.length > 0) {
           tempData[0][COLUMN_OBJECT_STR.Comments] = tempOption;
           tempData[0][UPDATE_FLAG] = true;
         }
       }
-      console.info('tempDataList:', tempDataList);
       setDataList(tempDataList);
       setUpdateData(tempDataList);
     };
@@ -531,24 +582,26 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                       ) {
                         return (
                           <div className="detail-edit-icon-max-width">
-                            <div className="detail-edit-icon-max-height">
-                              <Select
-                                selectedOption={selectIndentOption}
-                                onChange={(select) => {
-                                  updateSelectChange(
-                                    select.detail.selectedOption,
-                                    e as any,
-                                    COLUMN_OBJECT_STR.Identifier
-                                  );
-                                }}
-                                triggerVariant="option"
-                                options={identifierOptions}
-                                selectedAriaLabel="Selected"
-                                onBlur={() => {
-                                  setEditIndentifier(null);
-                                }}
-                              ></Select>
-                            </div>
+                            <Multiselect
+                              placeholder="Please select identifier"
+                              selectedOptions={selectIndentOption}
+                              onChange={(event) => {
+                                setSelectIndentOption(
+                                  event.detail.selectedOptions
+                                );
+                                updateSelectChange(
+                                  event.detail.selectedOptions,
+                                  e as any,
+                                  COLUMN_OBJECT_STR.Identifier
+                                );
+                              }}
+                              // triggerVariant="option"
+                              options={identifierOptions}
+                              selectedAriaLabel="Selected"
+                              onBlur={() => {
+                                setEditIndentifier(null);
+                              }}
+                            ></Multiselect>
                           </div>
                         );
                       } else {
@@ -556,16 +609,56 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                           const showIdentifierObj = toJSON(
                             (e as any)[item.id]
                           ) || { 'N/A': 1 };
+
                           const identifierList = Object.keys(showIdentifierObj);
-                          const showTxt = showIdentifierObj[identifierList[0]]
-                            ? identifierList[0]
-                            : 'N/A';
-                          return (
-                            <div className="detail-edit-icon">
-                              <CommonBadge
-                                badgeType={BADGE_TYPE.DataIndf}
-                                badgeLabel={showTxt}
-                              />
+                          let hasMore = false;
+                          if (identifierList.length > 1) {
+                            hasMore = true;
+                          }
+                          return identifierList.length > 0 ? (
+                            <div className="flex">
+                              <span className="mr-5" title={identifierList[0]}>
+                                <CommonBadge
+                                  badgeType={BADGE_TYPE.DataIndf}
+                                  badgeLabel={
+                                    identifierList[0].length > 10
+                                      ? identifierList[0]?.substring(0, 9) +
+                                        '...'
+                                      : identifierList[0]
+                                  }
+                                />
+                              </span>
+                              {hasMore && (
+                                <Popover
+                                  dismissButton={false}
+                                  position="top"
+                                  size="small"
+                                  triggerType="custom"
+                                  content={
+                                    <div>
+                                      {identifierList.map(
+                                        (ident: any, index) => {
+                                          return (
+                                            <span
+                                              key={index}
+                                              className="inline-block mr-5 mb-2"
+                                            >
+                                              <CommonBadge
+                                                badgeType={BADGE_TYPE.DataIndf}
+                                                badgeLabel={ident}
+                                              />
+                                            </span>
+                                          );
+                                        }
+                                      )}
+                                    </div>
+                                  }
+                                >
+                                  <span className="custom-badge more">{`+${
+                                    identifierList?.length - 1
+                                  }`}</span>
+                                </Popover>
+                              )}
                               <div
                                 onClick={() =>
                                   clickEditIcon(
@@ -580,6 +673,8 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                                 />
                               </div>
                             </div>
+                          ) : (
+                            ''
                           );
                         }
                         const showIdentifier =
@@ -631,7 +726,6 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                             </div>
                           </div>
                         );
-                        // return <div className="wrap-line">{e[item.id]}</div>;
                       }
                     }
                     if (item.id === COLUMN_OBJECT_STR.IdentifierScore) {
@@ -677,7 +771,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                               triggerType="custom"
                               content={
                                 <div>
-                                  {e.labels.map((label: any) => {
+                                  {e.labels?.map((label: any) => {
                                     return (
                                       <span
                                         key={label.id}
@@ -770,7 +864,14 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                 </Box>
               </Box>
             }
-            filter={needFilter && <ResourcesFilter {...resourcesFilterProps} />}
+            filter={
+              needFilter && (
+                <ResourcesFilter
+                  isFreeText={isFreeText}
+                  {...resourcesFilterProps}
+                />
+              )
+            }
             header={
               detailDesHeader && (
                 <div className="deatil-desc-body">

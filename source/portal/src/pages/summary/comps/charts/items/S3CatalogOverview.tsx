@@ -18,28 +18,32 @@ const S3CatalogOverview = () => {
   const [columChartData, setColumChartData] = useState<ColumnChartData[]>([]);
 
   const getS3DatacatalogSummary = async () => {
-    const res = await getDatacatalogSummary({
-      database_type: 's3',
-    });
-    setCatalogSummaryData(res as ICatalogSummary);
-    const tmpData = res as ICatalogSummary;
-    const tmpColumnChartData: ColumnChartData[] = [];
-    tmpData.column_chart.forEach((element) => {
-      element.total_count = tmpData.column_chart.reduce(
-        (accumulator: number, item: any) => {
-          return accumulator + item.table_total;
-        },
-        0
-      );
-      tmpColumnChartData.push({
-        title: element.classification,
-        type: 'bar',
-        valueFormatter: (e: any) => `${(100 * e).toFixed(0)}%`,
-        data: [{ x: '', y: element.table_total / element.total_count }],
+    try {
+      const res = await getDatacatalogSummary({
+        database_type: 's3',
       });
-    });
-    setColumChartData(tmpColumnChartData);
-    setLoadingData(false);
+      setCatalogSummaryData(res as ICatalogSummary);
+      const tmpData = res as ICatalogSummary;
+      const tmpColumnChartData: ColumnChartData[] = [];
+      tmpData.column_chart.forEach((element) => {
+        element.total_count = tmpData.column_chart.reduce(
+          (accumulator: number, item: any) => {
+            return accumulator + item.table_total;
+          },
+          0
+        );
+        tmpColumnChartData.push({
+          title: element.classification,
+          type: 'bar',
+          valueFormatter: (e: any) => `${(100 * e).toFixed(0)}%`,
+          data: [{ x: '', y: element.table_total / element.total_count }],
+        });
+      });
+      setColumChartData(tmpColumnChartData);
+      setLoadingData(false);
+    } catch (error) {
+      setLoadingData(false);
+    }
   };
 
   useEffect(() => {

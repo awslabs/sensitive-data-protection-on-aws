@@ -13,6 +13,7 @@ import {
 import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import Navigation from 'pages/left-menu/Navigation';
 import { RouterEnum } from 'routers/routerEnum';
+import { useTranslation } from 'react-i18next';
 
 const CatalogListHeader: React.FC = () => {
   return (
@@ -27,14 +28,15 @@ const CatalogListHeader: React.FC = () => {
 
 const DataCatalogList: React.FC = () => {
   const [searchParams] = useSearchParams();
+  const { t } = useTranslation();
 
   const [activeTabId, setActiveTabId] = useState(
     searchParams.get('tagType') || TAB_LIST.S3.id
   );
 
   const breadcrumbItems = [
-    { text: 'Sensitive Data Protection Solution', href: RouterEnum.Home.path },
-    { text: 'Browse data catalogs', href: RouterEnum.Catalog.path },
+    { text: t('breadcrumb.home'), href: RouterEnum.Home.path },
+    { text: t('breadcrumb.browserCatalog'), href: RouterEnum.Catalog.path },
   ];
 
   return (

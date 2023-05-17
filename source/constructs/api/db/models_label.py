@@ -6,7 +6,7 @@ class Label(Base):
     __tablename__ = 'label'
 
     id = sa.Column(sa.Integer(), primary_key=True)
-    label_name = sa.Column(sa.String(40), nullable=False)
+    label_name = sa.Column(sa.String(40), nullable=False, info={'searchable': True})
     classification = sa.Column(sa.String(20), nullable=False)
     type = sa.Column(sa.String(20), nullable=False)
     style_type = sa.Column(sa.String(20), nullable=False)

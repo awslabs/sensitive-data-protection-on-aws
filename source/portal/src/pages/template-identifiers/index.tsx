@@ -20,16 +20,18 @@ import TemplateDelete from 'pages/template-delete';
 import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import Navigation from 'pages/left-menu/Navigation';
 import { TABLE_NAME } from 'enum/common_types';
+import { useTranslation } from 'react-i18next';
 
 const TemplateIdentifiersHeader: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   return (
     <Header
       variant="h1"
       description="Data identifiers are the rules to discover sensitive data. "
       actions={
         <Button onClick={() => navigate(RouterEnum.Datatemplate.path)}>
-          Define classification template
+          {t('button.defineTemplate')}
         </Button>
       }
     >
@@ -40,7 +42,7 @@ const TemplateIdentifiersHeader: React.FC = () => {
 
 const TemplateIdentifiersContent = () => {
   const navigate = useNavigate();
-
+  const { t } = useTranslation();
   const columnList = IDENTIFIER_COLUMN_LIST;
 
   const [totalCount, setTotalCount] = useState(0);
@@ -142,26 +144,30 @@ const TemplateIdentifiersContent = () => {
 
   const getPageData = async () => {
     setIsLoading(true);
-    const requestParam = {
-      page: currentPage,
-      size: preferences.pageSize,
-      sort_column: curSortColumn.id,
-      asc: !isDescending,
-      conditions: [] as any,
-    };
-    query.tokens &&
-      query.tokens.forEach((item: any) => {
-        requestParam.conditions.push({
-          column: item.propertyKey,
-          values: [`${item.value}`],
-          condition: 'and',
-          operation: item.operator
+    try {
+      const requestParam = {
+        page: currentPage,
+        size: preferences.pageSize,
+        sort_column: curSortColumn.id,
+        asc: !isDescending,
+        conditions: [] as any,
+      };
+      query.tokens &&
+        query.tokens.forEach((item: any) => {
+          requestParam.conditions.push({
+            column: item.propertyKey,
+            values: [`${item.value}`],
+            condition: 'and',
+            operation: item.operator,
+          });
         });
-      });
-    const result: any = await getIdentifiersList(requestParam);
-    setPageData(result.items);
-    setTotalCount(result.total);
-    setIsLoading(false);
+      const result: any = await getIdentifiersList(requestParam);
+      setPageData(result.items);
+      setTotalCount(result.total);
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+    }
   };
   const clkIdentifier = (rowData: any) => {
     navigate(RouterEnum.CreateIdentifiers.path, {
@@ -240,10 +246,10 @@ const TemplateIdentifiersContent = () => {
                     disabled={selectedItems.length === 0}
                     loading={isLoading}
                   >
-                    Delete
+                    {t('button.delete')}
                   </Button>
                   <Button onClick={clkCreate} disabled={isLoading}>
-                    Create data identifier
+                    {t('button.createIdentifier')}
                   </Button>
                 </SpaceBetween>
               }
@@ -311,10 +317,11 @@ const TemplateIdentifiersContent = () => {
 };
 
 const TemplateIdentifiers: React.FC = () => {
+  const { t } = useTranslation();
   const breadcrumbItems = [
-    { text: 'Sensitive Data Protection Solution', href: RouterEnum.Home.path },
+    { text: t('breadcrumb.home'), href: RouterEnum.Home.path },
     {
-      text: 'Manage data identifiers',
+      text: t('breadcrumb.manageIdentifier'),
       href: RouterEnum.TemplateIdentifiers.path,
     },
   ];

@@ -38,17 +38,18 @@ import AddCustomIdentfier from './componments/AddCustomIdentfier';
 import { TABLE_NAME } from 'enum/common_types';
 import { useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
+import { useTranslation } from 'react-i18next';
 
 const DataTemplateHeader: React.FC = () => {
   const navigate = useNavigate();
-
+  const { t } = useTranslation();
   return (
     <Header
       variant="h1"
       description="A classification template contains a set of data identifiers. Sensitive data discovery job uses a classification template to identify sensitive data. "
       actions={
         <Button onClick={() => navigate(RouterEnum.TemplateIdentifiers.path)}>
-          Manage data identfiers
+          {t('button.manageDataIdentifiers')}
         </Button>
       }
     >
@@ -74,7 +75,7 @@ const buildTimeFormat = (dateString: string) => {
 
 const DataTemplateContent: React.FC<any> = (props: any) => {
   const columnList = TEMPLATE_COLUMN_LIST;
-
+  const { t } = useTranslation();
   const [totalCount, setTotalCount] = useState(0);
   const [pageData, setPageData] = useState([] as any);
   const [preferences, setPreferences] = useState({
@@ -117,46 +118,54 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
 
   const getPageData = async () => {
     setIsLoading(true);
-    getUpdateTime();
-    const requestParam = {
-      page: currentPage,
-      size: preferences.pageSize,
-      sort_column: curSortColumn.id,
-      asc: !isDescending,
-      conditions: [
-        {
-          column: 'template_id',
-          values: ['1'],
-          condition: 'and',
-        },
-      ] as any,
-    };
-    query.tokens &&
-      query.tokens.forEach((item: any) => {
-        requestParam.conditions.push({
-          column: item.propertyKey,
-          values: [`${item.value}`],
-          operation: item.operator,
-          condition: 'and'
+    try {
+      getUpdateTime();
+      const requestParam = {
+        page: currentPage,
+        size: preferences.pageSize,
+        sort_column: curSortColumn.id,
+        asc: !isDescending,
+        conditions: [
+          {
+            column: 'template_id',
+            values: ['1'],
+            condition: 'and',
+          },
+        ] as any,
+      };
+      query.tokens &&
+        query.tokens.forEach((item: any) => {
+          requestParam.conditions.push({
+            column: item.propertyKey,
+            values: [`${item.value}`],
+            operation: item.operator,
+            condition: 'and',
+          });
         });
+      const result: any = await getTemplateMappingList(requestParam);
+      setPageData(result.items);
+      const tempTogData: any = {};
+      result.items.forEach((itemData: { id: string | number; status: any }) => {
+        tempTogData[itemData.id] = !!itemData.status;
       });
-    const result: any = await getTemplateMappingList(requestParam);
-    setPageData(result.items);
-    const tempTogData: any = {};
-    result.items.forEach((itemData: { id: string | number; status: any }) => {
-      tempTogData[itemData.id] = !!itemData.status;
-    });
-    setSelectedItems([]);
-    setToggleEnable(tempTogData);
-    setTotalCount(result.total);
-    setIsLoading(false);
+      setSelectedItems([]);
+      setToggleEnable(tempTogData);
+      setTotalCount(result.total);
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+    }
   };
 
   const getUpdateTime = async () => {
-    const result: any = await getTemplateUpdateTime();
-    console.info('result:', result);
-    if (result && result.length > 10) {
-      setLastUpdateTime(buildTimeFormat(result));
+    try {
+      const result: any = await getTemplateUpdateTime();
+      console.info('result:', result);
+      if (result && result.length > 10) {
+        setLastUpdateTime(buildTimeFormat(result));
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -327,10 +336,10 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
                     loading={isLoading}
                     disabled={selectedItems.length === 0}
                   >
-                    Remove
+                    {t('button.remove')}
                   </Button>
                   <Button onClick={clkAddDataIdentifier}>
-                    Add data identifier
+                    {t('button.addDataIdentifier')}
                   </Button>
                 </SpaceBetween>
               }
@@ -407,10 +416,11 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
 };
 
 const DataTemplate: React.FC = () => {
+  const { t } = useTranslation();
   const breadcrumbItems = [
-    { text: 'Sensitive Data Protection Solution', href: RouterEnum.Home.path },
+    { text: t('breadcrumb.home'), href: RouterEnum.Home.path },
     {
-      text: 'Define classification template',
+      text: t('breadcrumb.defineTemplate'),
       href: RouterEnum.Datatemplate.path,
     },
   ];

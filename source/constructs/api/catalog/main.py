@@ -8,9 +8,20 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from common.enum import (
     CatalogDashboardAttribute
 )
+from athena.service import repair
 
 
 router = APIRouter(prefix="/catalog", tags=["catalog"])
+
+
+@router.post(
+    "/repair-msck",
+    response_model=BaseResponse[str],
+)
+@inject_session
+def repair_msck():
+    repair()
+    return "OK"
 
 
 @router.get(
@@ -60,18 +71,12 @@ def get_catalog_tables_by_database(
     # response_model=BaseResponse[Page[schemas.CatalogTableLevelClassification]],
 )
 @inject_session
-def search_catalog_tables_by_database(
-    account_id: str,
-    region: str,
-    database_type: str,
-    database_name: str,
-    table_name: str,
-    params: Params = Depends(),
-):
-    catalogs = crud.search_catalog_table_level_classification_by_database(
-            account_id, region, database_type, database_name, table_name
-        )
-    rlt = paginate(catalogs, params, )
+def search_catalog_tables_by_database(condition: QueryCondition):
+    catalogs = crud.search_catalog_table_level_classification_by_database(condition)
+    rlt = paginate(catalogs, Params(
+        size=condition.size,
+        page=condition.page,
+    ))
     service.fill_catalog_labels(rlt.items)
     return rlt
 
@@ -185,20 +190,14 @@ def update_catalog_table_level_classification(
 
 @router.patch("/update-catalog-database-labels", response_model=BaseResponse)
 @inject_session
-def update_catalog_database_labels(
-    id: int,
-    labels: list,
-):
-    return crud.update_catalog_database_labels(id, labels)
+def update_catalog_database_labels(update_param: schemas.CatalogUpdateLabels):
+    return crud.update_catalog_database_labels(update_param.id, update_param.labels)
 
 
 @router.patch("/update-catalog-table-labels", response_model=BaseResponse)
 @inject_session
-def update_catalog_table_labels(
-    id: int,
-    labels: list,
-):
-    return crud.update_catalog_table_labels(id, labels)
+def update_catalog_table_labels(update_param: schemas.CatalogUpdateLabels):
+    return crud.update_catalog_table_labels(update_param.id, update_param.labels)
 
 
 @router.patch("/update-catalog-column-comments", response_model=BaseResponse)

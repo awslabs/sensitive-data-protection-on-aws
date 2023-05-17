@@ -19,6 +19,7 @@ import {
   requestUpdateLabel,
 } from 'apis/label/api';
 import { Label } from 'ts/data-catalog/types';
+import { useTranslation } from 'react-i18next';
 
 export interface LabelModalProps {
   showModal: boolean;
@@ -38,6 +39,7 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
     saveLoading,
     addButtonText,
   } = props;
+  const { t } = useTranslation();
   const [showCreateLabel, setShowCreateLabel] = useState(false);
 
   const [allLabelList, setAllLabelList] = useState<Label[]>([]);
@@ -161,7 +163,6 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
       <Modal
         onDismiss={() => clickHideModal()}
         visible={showModal}
-        closeAriaLabel="Close modal"
         footer={
           <Box float="right">
             <SpaceBetween direction="horizontal" size="xs">
@@ -171,7 +172,7 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
                   clickHideModal();
                 }}
               >
-                Cancel
+                {t('button.cancel')}
               </Button>
               <Button
                 loading={saveLoading}
@@ -182,22 +183,21 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
                   });
                 }}
               >
-                {addButtonText || 'Add to catalog'}
+                {addButtonText || t('button.addToCatalog')}
               </Button>
             </SpaceBetween>
           </Box>
         }
-        header="Custom label"
+        header={t('label.customLabel')}
       >
         <Table
           selectionType="multi"
           columnDefinitions={[
             {
               id: 'label',
-              header: 'label',
+              header: t('label.label'),
               cell: (item: Label) => item.label_name || '-',
               sortingField: 'label_name',
-              // isRowHeader: true,
             },
           ]}
           selectedItems={selectedItems}
@@ -209,20 +209,20 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
           }}
           items={tableDisplayData}
           loading={loadingLabel}
-          loadingText="Loading labels"
+          loadingText={t('label.loadingLabel') || ''}
           sortingDisabled
           variant="embedded"
           empty={
             <Box textAlign="center" color="inherit">
               <div>
-                <p>No labels</p>
+                <p>{t('label.noLabel')}</p>
               </div>
               <Button
                 onClick={() => {
                   setShowCreateLabel(true);
                 }}
               >
-                Create label
+                {t('button.createLabel')}
               </Button>
             </Box>
           }
@@ -238,7 +238,7 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
                       setShowDeleteModal(true);
                     }}
                   >
-                    Delete
+                    {t('button.delete')}
                   </Button>
                   <Button
                     disabled={selectedItems.length !== 1}
@@ -247,7 +247,7 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
                       setShowCreateLabel(true);
                     }}
                   >
-                    Edit
+                    {t('button.edit')}
                   </Button>
                   <Button
                     iconName="add-plus"
@@ -260,12 +260,12 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
                       setShowCreateLabel(true);
                     }}
                   >
-                    Create
+                    {t('button.create')}
                   </Button>
                 </SpaceBetween>
               }
             >
-              Labels
+              {t('label.labels')}
             </Header>
           }
           filter={
@@ -273,25 +273,25 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
               onChange={(e) => {
                 setSearchLabelName(e.detail.filteringText);
               }}
-              filteringPlaceholder="Find labels"
+              filteringPlaceholder={t('label.findLabels') || ''}
               filteringText={searchLabelName}
             />
           }
           preferences={
             <CollectionPreferences
-              title="Preferences"
-              confirmLabel="Confirm"
-              cancelLabel="Cancel"
+              title={t('table.preferences')}
+              confirmLabel={t('table.confirm')}
+              cancelLabel={t('table.cancel')}
               preferences={{
                 pageSize: pageSize,
               }}
               pageSizePreference={{
-                title: 'Page size',
+                title: t('table.pageSize'),
                 options: [
-                  { value: 10, label: '10 labels' },
-                  { value: 20, label: '20 labels' },
-                  { value: 50, label: '50 labels' },
-                  { value: 100, label: '100 labels' },
+                  { value: 10, label: `10 ${'label.labels'}` },
+                  { value: 20, label: `20 ${'label.labels'}` },
+                  { value: 50, label: `50 ${'label.labels'}` },
+                  { value: 100, label: `100 ${'label.labels'}` },
                 ],
               }}
               onConfirm={(e) => {
@@ -325,7 +325,7 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
                   setShowCreateLabel(false);
                 }}
               >
-                Cancel
+                {t('button.cancel')}
               </Button>
               <Button
                 loading={loadingUpdate}
@@ -338,12 +338,18 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
                   }
                 }}
               >
-                {createOrUpdate === 'create' ? 'Create' : 'Update'}
+                {createOrUpdate === 'create'
+                  ? t('button.create')
+                  : t('button.update')}
               </Button>
             </SpaceBetween>
           </Box>
         }
-        header={createOrUpdate === 'create' ? 'Create Label' : 'Update Label'}
+        header={
+          createOrUpdate === 'create'
+            ? t('label.createLabel')
+            : t('label.updateLabel')
+        }
       >
         <FormField>
           <Input
@@ -372,7 +378,7 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
                   setShowDeleteModal(false);
                 }}
               >
-                Cancel
+                {t('button.cancel')}
               </Button>
               <Button
                 loading={loadingDelete}
@@ -381,15 +387,15 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
                   deleteLabel();
                 }}
               >
-                Delete
+                {t('button.delete')}
               </Button>
             </SpaceBetween>
           </Box>
         }
-        header="Delete Label"
+        header={t('label.deleteLabel')}
       >
         <FormField>
-          Are you sure you want to delete label(s){' '}
+          {t('label.deleteTips')}
           <b>{selectedItems.map((element) => element.label_name).join(', ')}</b>
           .
         </FormField>

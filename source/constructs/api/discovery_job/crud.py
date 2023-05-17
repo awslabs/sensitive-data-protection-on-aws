@@ -259,6 +259,11 @@ def complete_run_database(run_database_id: int, state: str, message: str) -> mod
     return run_database
 
 
+def get_run_database(run_database_id: int) -> models.DiscoveryJobRunDatabase:
+    session = get_session()
+    return session.query(models.DiscoveryJobRunDatabase).get(run_database_id)
+
+
 def update_job_database_base_time(job_id: int, account_id: str, region: str, database_type: str, database_name: str, base_time: datetime.datetime):
     session = get_session()
     job_database = schemas.DiscoveryJobDatabaseBaseTime(base_time=base_time)

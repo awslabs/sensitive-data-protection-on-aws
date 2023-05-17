@@ -35,6 +35,7 @@ import JobDetailModal from './componments/JobDetailModal';
 import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import Navigation from 'pages/left-menu/Navigation';
 import { TABLE_NAME } from 'enum/common_types';
+import { useTranslation } from 'react-i18next';
 
 const DataJobHeader: React.FC = () => {
   return (
@@ -47,6 +48,7 @@ const DataJobHeader: React.FC = () => {
 const DataJobContent: React.FC<any> = (props: any) => {
   const columnList = JOB_LIST_COLUMN_LIST;
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [totalCount, setTotalCount] = useState(0);
   const [pageData, setPageData] = useState([] as any);
   const [preferences, setPreferences] = useState({
@@ -128,27 +130,31 @@ const DataJobContent: React.FC<any> = (props: any) => {
 
   const getPageData = async () => {
     setIsLoading(true);
-    const requestParam = {
-      page: currentPage,
-      size: preferences.pageSize,
-      sort_column: 'create_time',
-      asc: false,
-      conditions: [] as any,
-    };
-    query.tokens &&
-      query.tokens.forEach((item: any) => {
-        requestParam.conditions.push({
-          column: item.propertyKey,
-          values: [`${item.value}`],
-          condition: query.operation,
+    try {
+      const requestParam = {
+        page: currentPage,
+        size: preferences.pageSize,
+        sort_column: 'create_time',
+        asc: false,
+        conditions: [] as any,
+      };
+      query.tokens &&
+        query.tokens.forEach((item: any) => {
+          requestParam.conditions.push({
+            column: item.propertyKey,
+            values: [`${item.value}`],
+            condition: query.operation,
+          });
         });
-      });
-    const result: any = await getDiscoveryJobs(requestParam);
-    if (result && result.items) {
-      setPageData(result.items);
-      setTotalCount(result.total);
+      const result: any = await getDiscoveryJobs(requestParam);
+      if (result && result.items) {
+        setPageData(result.items);
+        setTotalCount(result.total);
+      }
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const clkJobName = (rowData: any) => {
@@ -279,7 +285,7 @@ const DataJobContent: React.FC<any> = (props: any) => {
                     }}
                     options={[
                       {
-                        label: 'Cancel',
+                        label: t('button.cancel') || '',
                         value: 'cancel',
                         disabled:
                           selectedItems.length === 0 ||
@@ -290,7 +296,7 @@ const DataJobContent: React.FC<any> = (props: any) => {
                           ).length === 0,
                       },
                       {
-                        label: 'Pause',
+                        label: t('button.pause') || '',
                         value: 'pause',
                         disabled:
                           selectedItems.length === 0 ||
@@ -301,7 +307,7 @@ const DataJobContent: React.FC<any> = (props: any) => {
                           ).length === 0,
                       },
                       {
-                        label: 'Continue',
+                        label: t('button.continue') || '',
                         value: 'continue',
                         disabled:
                           selectedItems.length === 0 ||
@@ -310,7 +316,7 @@ const DataJobContent: React.FC<any> = (props: any) => {
                           ).length === 0,
                       },
                       {
-                        label: 'Execute once',
+                        label: t('button.exeOnce') || '',
                         value: 'execute_once',
                         disabled:
                           selectedItems.length === 0 ||
@@ -319,7 +325,7 @@ const DataJobContent: React.FC<any> = (props: any) => {
                           ).length > 0,
                       },
                       {
-                        label: 'Copy to new',
+                        label: t('button.copyToNew') || '',
                         value: 'copyNew',
                         disabled: selectedItems.length === 0,
                       },
@@ -327,7 +333,7 @@ const DataJobContent: React.FC<any> = (props: any) => {
                     selectedAriaLabel="Actions"
                   ></Select>
                   <Button onClick={clkAddJob} disabled={isLoading}>
-                    Create sensitive data discovery job
+                    {t('button.createJob')}
                   </Button>
                 </SpaceBetween>
               }
@@ -397,10 +403,11 @@ const DataJobContent: React.FC<any> = (props: any) => {
 };
 
 const DataJob: React.FC = () => {
+  const { t } = useTranslation();
   const breadcrumbItems = [
-    { text: 'Sensitive Data Protection Solution', href: RouterEnum.Home.path },
+    { text: t('breadcrumb.home'), href: RouterEnum.Home.path },
     {
-      text: 'Run sensitive data discovery jobs',
+      text: t('breadcrumb.runJobs'),
       href: RouterEnum.Datajob.path,
     },
   ];

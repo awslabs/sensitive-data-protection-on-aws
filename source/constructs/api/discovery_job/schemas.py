@@ -53,6 +53,11 @@ class DiscoveryJobRunDatabaseStatus(BaseModel):
     not_existed_per: int
 
 
+class DiscoveryJobRunDatabaseProgress(BaseModel):
+    current_table_count: int
+    table_count: int
+
+
 class DiscoveryJobRunList(BaseModel):
     id: int
     job_id: int

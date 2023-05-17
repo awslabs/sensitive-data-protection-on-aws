@@ -7,6 +7,7 @@ import {
   CLSAAIFIED_TYPE,
 } from 'pages/common-badge/types/badge_type';
 import React, { memo, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
 import { alertMsg } from 'tools/tools';
@@ -22,7 +23,7 @@ const HISTORY_COLUMN_LIST = [
 const JobHistory: React.FC<any> = memo((props: any) => {
   const { detailRow } = props;
   const navigate = useNavigate();
-
+  const { t } = useTranslation();
   const [isLoading, setIsloading] = useState(false);
   const [dataList, setDataList] = useState([] as any[]);
   const [hasMoreData, setHasMoreData] = useState(dataList.length > 0);
@@ -177,7 +178,7 @@ const JobHistory: React.FC<any> = memo((props: any) => {
                 setCurrentPage(currentPage + 1);
               }}
             >
-              View more
+              {t('button.viewMore')}
             </Button>
           </Box>
         )

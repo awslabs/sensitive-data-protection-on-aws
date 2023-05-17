@@ -158,24 +158,15 @@ def update_rds_instance_count(account: str, region: str):
 
 
 def get_rds_instance_source(account: str, region: str, instance_id: str):
-    latest = get_session().query(DetectionHistory).filter(
-        DetectionHistory.source_type == 'rds', DetectionHistory.aws_account == account).order_by(
-        desc(DetectionHistory.detection_time)).first()
-    return get_session().query(RdsInstanceSource).filter(RdsInstanceSource.detection_history_id == latest.id,
-                                                         RdsInstanceSource.aws_account == account,
+    return get_session().query(RdsInstanceSource).filter(RdsInstanceSource.aws_account == account,
                                                          RdsInstanceSource.region == region,
                                                          RdsInstanceSource.instance_id == instance_id).scalar()
 
 
 def get_s3_bucket_source(account: str, region: str, bucket_name: str):
-    latest = get_session().query(DetectionHistory).filter(
-        DetectionHistory.source_type == 's3', DetectionHistory.aws_account == account).order_by(
-        desc(DetectionHistory.detection_time)).first()
-    return get_session().query(S3BucketSource).filter(S3BucketSource.detection_history_id == latest.id,
-                                                      S3BucketSource.aws_account == account,
+    return get_session().query(S3BucketSource).filter(S3BucketSource.aws_account == account,
                                                       S3BucketSource.region == region,
                                                       S3BucketSource.bucket_name == bucket_name).scalar()
-
 
 def get_iam_role(account: str):
     return get_session().query(Account).filter(Account.aws_account_id == account,
@@ -342,11 +333,31 @@ def delete_s3_bucket_source_by_account(account_id: str, region: str):
     session.commit()
 
 
+def delete_s3_bucket_source_by_name(account_id: str, region: str, bucket_name: str):
+    session = get_session()
+    session.query(S3BucketSource).filter(
+        S3BucketSource.aws_account == account_id,
+        S3BucketSource.region == region,
+        S3BucketSource.bucket_name == bucket_name
+    ).delete()
+    session.commit()
+
+
 def delete_rds_instance_source_by_account(account_id: str, region: str):
     session = get_session()
     session.query(RdsInstanceSource).filter(
         RdsInstanceSource.aws_account == account_id,
         RdsInstanceSource.region == region
+    ).delete()
+    session.commit()
+
+
+def delete_rds_instance_source_by_instance_id(account_id: str, region: str, rds_instance_id: str):
+    session = get_session()
+    session.query(RdsInstanceSource).filter(
+        RdsInstanceSource.aws_account == account_id,
+        RdsInstanceSource.region == region,
+        RdsInstanceSource.instance_id == rds_instance_id
     ).delete()
     session.commit()
 

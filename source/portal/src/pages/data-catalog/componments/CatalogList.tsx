@@ -145,47 +145,51 @@ const CatalogList: React.FC<any> = memo((props: any) => {
 
   const getPageData = async () => {
     setIsLoading(true);
-    const requestParam = {
-      page: currentPage,
-      size: preferences.pageSize,
-      sort_column: '',
-      asc: true,
-      conditions: [
-        {
-          column: 'database_type',
-          values: [catalogType],
-          condition: 'and',
-        },
-      ] as any,
-    };
-    query.tokens &&
-      query.tokens.forEach((item: any) => {
-        const searchValues =
-          item.propertyKey === COLUMN_OBJECT_STR.Privacy
-            ? PRIVARY_TYPE_INT_DATA[item.value]
-            : item.value;
-        requestParam.conditions.push({
-          column: item.propertyKey,
-          values: [`${searchValues}`],
-          condition: query.operation,
+    try {
+      const requestParam = {
+        page: currentPage,
+        size: preferences.pageSize,
+        sort_column: '',
+        asc: true,
+        conditions: [
+          {
+            column: 'database_type',
+            values: [catalogType],
+            condition: 'and',
+          },
+        ] as any,
+      };
+      query.tokens &&
+        query.tokens.forEach((item: any) => {
+          const searchValues =
+            item.propertyKey === COLUMN_OBJECT_STR.Privacy
+              ? PRIVARY_TYPE_INT_DATA[item.value]
+              : item.value;
+          requestParam.conditions.push({
+            column: item.propertyKey,
+            values: [`${searchValues}`],
+            condition: query.operation,
+          });
         });
-      });
 
-    if (urlIdentifiers && !showFilter) {
-      requestParam.conditions.push({
-        column: COLUMN_OBJECT_STR.Identifiers,
-        values: [urlIdentifiers],
-        condition: 'and',
-      });
+      if (urlIdentifiers && !showFilter) {
+        requestParam.conditions.push({
+          column: COLUMN_OBJECT_STR.Identifiers,
+          values: [urlIdentifiers],
+          condition: 'and',
+        });
+      }
+      const queryResult =
+        urlIdentifiers && !showFilter
+          ? await getDataBaseByIdentifier(requestParam)
+          : await getDataBaseByType(requestParam);
+
+      setPageData((queryResult as any)?.items);
+      setTotalCount(queryResult ? (queryResult as any).total : 0);
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
     }
-    const queryResult =
-      urlIdentifiers && !showFilter
-        ? await getDataBaseByIdentifier(requestParam)
-        : await getDataBaseByType(requestParam);
-
-    setPageData((queryResult as any)?.items);
-    setTotalCount(queryResult ? (queryResult as any).total : 0);
-    setIsLoading(false);
   };
 
   // show bucket detail dialog
