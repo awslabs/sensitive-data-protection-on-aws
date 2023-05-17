@@ -5,6 +5,7 @@ from common.response_wrapper import BaseResponse
 from common.query_condition import QueryCondition
 from fastapi_pagination import Page, Params
 from fastapi_pagination.ext.sqlalchemy import paginate
+from common.constant import const
 from common.enum import (
     CatalogDashboardAttribute
 )
@@ -66,7 +67,7 @@ def get_catalog_tables_by_database(
     return rlt
 
 
-@router.get(
+@router.post(
     "/search-tables-by-database",
     # response_model=BaseResponse[Page[schemas.CatalogTableLevelClassification]],
 )
@@ -177,6 +178,7 @@ def get_rds_table_sample_records(
 def update_catalog_database_level_classification(
     database: schemas.CatalogDatabaseLevelClassification,
 ):
+    database.manual_tag = const.MANUAL
     return crud.update_catalog_database_level_classification(database)
 
 
@@ -185,6 +187,7 @@ def update_catalog_database_level_classification(
 def update_catalog_table_level_classification(
     table: schemas.CatalogTableLevelClassification,
 ):
+    table.manual_tag = const.MANUAL
     return crud.update_catalog_table_level_classification(table)
 
 
@@ -214,6 +217,7 @@ def update_catalog_column_comments(
 def update_catalog_column_level_classification(
     column: schemas.CatalogColumnLevelClassification,
 ):
+    column.manual_tag = const.MANUAL
     return service.update_catalog_column_level_classification(column)
 
 

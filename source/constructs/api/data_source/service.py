@@ -1111,7 +1111,6 @@ def delete_s3_connection(account: str, region: str, bucket: str):
 
 def delete_glue_connection(account: str, region: str, glue_crawler: str,
                            glue_database: str, glue_connection: str):
-    # TODO double check！
     glue = __glue(account=account, region=region)
     try:
         glue.delete_crawler(Name=glue_crawler)
