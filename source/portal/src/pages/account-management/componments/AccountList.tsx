@@ -89,6 +89,7 @@ const AccountList: React.FC<any> = (props: any) => {
                   : 0
                 : `${item.value}`,
             ],
+            operation: item.operator,
             condition: query.operation,
           });
         });
