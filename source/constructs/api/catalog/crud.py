@@ -362,6 +362,7 @@ def update_catalog_column_none_privacy_by_table(account_id: str,
                                                 database_type: str,
                                                 database_name: str,
                                                 table_name: str,
+                                                column_names: list,
                                                 overwrite: False,
                                                 ):
     table = {"modify_time": mytime.get_time(), "identifier": '{"N/A": 0}', "column_value_example": const.NA,
@@ -374,37 +375,13 @@ def update_catalog_column_none_privacy_by_table(account_id: str,
     query = query.filter(models.CatalogColumnLevelClassification.database_name == database_name)
     if table_name is not None:
         query = query.filter(models.CatalogColumnLevelClassification.table_name == table_name)
+    if column_names is not None:
+        query = query.filter(~models.CatalogColumnLevelClassification.column_name.in_(column_names))
     if not overwrite:
         query = query.filter(models.CatalogColumnLevelClassification.manual_tag != const.MANUAL)
     size = query.update(table)
     session.commit()
     return size > 0
-
-
-def update_catalog_additional_column_none_privacy_by_table(account_id: str,
-                                                           region: str,
-                                                           database_type: str,
-                                                           database_name: str,
-                                                           table_name: str,
-                                                           column_names: list,
-                                                           overwrite: False,
-                                                           ):
-    table = {"modify_time": mytime.get_time(), "identifier": '{"N/A": 0}', "column_value_example": const.NA,
-             "privacy": Privacy.NA.value}
-    session = get_session()
-    query = session.query(models.CatalogColumnLevelClassification)
-    query = query.filter(models.CatalogColumnLevelClassification.account_id == account_id)
-    query = query.filter(models.CatalogColumnLevelClassification.region == region)
-    query = query.filter(models.CatalogColumnLevelClassification.database_type == database_type)
-    query = query.filter(models.CatalogColumnLevelClassification.database_name == database_name)
-    query = query.filter(models.CatalogColumnLevelClassification.table_name == table_name)
-    query = query.filter(~models.CatalogColumnLevelClassification.column_name.in_(column_names))
-    if not overwrite:
-        query = query.filter(models.CatalogColumnLevelClassification.manual_tag != const.MANUAL)
-    size = query.update(table)
-    session.commit()
-    return size > 0
-
 
 
 def delete_catalog_table_level_classification(id: int):
@@ -565,95 +542,29 @@ def get_s3_database_summary_with_attr(attribute: str):
     )
 
 
-def delete_catalog_column_level_classification_by_database_name(account_id: str,
-    region: str,
-    database_type: str,
-    database_name: str,):
-    session = get_session()
-    session.query(models.CatalogColumnLevelClassification).filter(
-            models.CatalogColumnLevelClassification.account_id == account_id
-        ).filter(
-            models.CatalogColumnLevelClassification.region == region
-        ).filter(
-            models.CatalogColumnLevelClassification.database_type == database_type
-        ).filter(
-            models.CatalogColumnLevelClassification.database_name == database_name
-        ).delete()
-    
-    session.commit()
-
-
 def delete_catalog_column_level_classification_by_table_name(
-        account_id: str, region: str, database_type: str, database_name: str, table_name: str):
-    session = get_session()
-    session.query(models.CatalogColumnLevelClassification).filter(
-        models.CatalogColumnLevelClassification.account_id == account_id
-    ).filter(
-        models.CatalogColumnLevelClassification.region == region
-    ).filter(
-        models.CatalogColumnLevelClassification.database_type == database_type
-    ).filter(
-        models.CatalogColumnLevelClassification.database_name == database_name
-    ).filter(
-        models.CatalogColumnLevelClassification.table_name == table_name
-    ).delete()
-
-    session.commit()
-
-
-def delete_additional_catalog_column_level_classification_by_table_name(
         account_id: str, region: str, database_type: str, database_name: str, table_name: str, column_names: list):
     session = get_session()
-    session.query(models.CatalogColumnLevelClassification).filter(
+    query = session.query(models.CatalogColumnLevelClassification).filter(
         models.CatalogColumnLevelClassification.account_id == account_id
-    ).filter(
+    )
+    query = query.filter(
         models.CatalogColumnLevelClassification.region == region
-    ).filter(
+    )
+    query = query.filter(
         models.CatalogColumnLevelClassification.database_type == database_type
-    ).filter(
+    )
+    query = query.filter(
         models.CatalogColumnLevelClassification.database_name == database_name
-    ).filter(
+    )
+    query = query.filter(
         models.CatalogColumnLevelClassification.table_name == table_name
-    ).filter(
-        ~models.CatalogColumnLevelClassification.column_name.in_(column_names)
-    ).delete()
-
-    session.commit()
-
-
-def delete_catalog_table_level_classification_by_database_name(account_id: str,
-    region: str,
-    database_type: str,
-    database_name: str,):
-    session = get_session()
-    session.query(models.CatalogTableLevelClassification).filter(
-            models.CatalogTableLevelClassification.account_id == account_id
-        ).filter(
-            models.CatalogTableLevelClassification.region == region
-        ).filter(
-            models.CatalogTableLevelClassification.database_type == database_type
-        ).filter(
-            models.CatalogTableLevelClassification.database_name == database_name
-        ).delete()
-    
-    session.commit()
-
-
-def delete_catalog_database_level_classification_by_name(account_id: str,
-    region: str,
-    database_type: str,
-    database_name: str,):
-    session = get_session()
-    session.query(models.CatalogDatabaseLevelClassification).filter(
-            models.CatalogDatabaseLevelClassification.account_id == account_id
-        ).filter(
-            models.CatalogDatabaseLevelClassification.region == region
-        ).filter(
-            models.CatalogDatabaseLevelClassification.database_type == database_type
-        ).filter(
-            models.CatalogDatabaseLevelClassification.database_name == database_name
-        ).delete()
-    
+    )
+    if column_names is not None:
+        query = query.filter(
+            ~models.CatalogColumnLevelClassification.column_name.in_(column_names)
+        )
+    query.delete()
     session.commit()
 
 

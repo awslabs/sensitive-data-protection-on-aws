@@ -331,10 +331,10 @@ def sync_crawler_result(
                 logger.info("sync_crawler_result DELETE TABLE AND COLUMN WHEN NOT IN GLUE TABLES！！！" + catalog.table_name)
                 need_clean_database = True
                 crud.delete_catalog_table_level_classification(catalog.id)
-                crud.delete_catalog_column_level_classification_by_table_name(account_id, region, database_type, database_name, catalog.table_name)
+                crud.delete_catalog_column_level_classification_by_table_name(account_id, region, database_type, database_name, catalog.table_name, None)
             column_list = table_column_dict[catalog.table_name]
             logger.info("sync_crawler_result DELETE COLUMN WHEN NOT IN GLUE TABLES" + catalog.table_name + json.dumps(table_column_dict[catalog.table_name]))
-            crud.delete_additional_catalog_column_level_classification_by_table_name(account_id, region, database_type, database_name, catalog.table_name, column_list)
+            crud.delete_catalog_column_level_classification_by_table_name(account_id, region, database_type, database_name, catalog.table_name, column_list)
 
     if table_count == 0:
         if database_type == DatabaseType.RDS.value:
@@ -633,7 +633,7 @@ def sync_job_detection_result(
         crud.update_catalog_table_none_privacy_by_name(account_id, region, database_type,
                                                        database_name, None, overwrite)
         crud.update_catalog_column_none_privacy_by_table(account_id, region, database_type,
-                                                            database_name, None, overwrite)
+                                                         database_name, None, None, overwrite)
     # Initialize database privacy with NON-PII
     database_privacy = Privacy.NON_PII.value
     # The two dict has all tables as key.
@@ -645,7 +645,7 @@ def sync_job_detection_result(
             crud.update_catalog_table_none_privacy_by_name(account_id, region, database_type, database_name, table_name,
                                                            overwrite)
             crud.update_catalog_column_none_privacy_by_table(account_id, region, database_type, database_name,
-                                                             table_name, overwrite)
+                                                             table_name, None, overwrite)
             continue
         row_count += table_size
         catalog_table = crud.get_catalog_table_level_classification_by_name(
@@ -654,8 +654,8 @@ def sync_job_detection_result(
         columns = table_column_dict[table_name]
         logger.info(
             "sync_job_detection_result - RESET ADDITIONAL COLUMNS : " + json.dumps(table_column_dict[table_name]))
-        crud.update_catalog_additional_column_none_privacy_by_table(account_id, region, database_type, database_name,
-                                                                    table_name, columns)
+        crud.update_catalog_column_none_privacy_by_table(account_id, region, database_type, database_name,
+                                                         table_name, columns, overwrite)
         if table_name not in table_privacy_dict:
             if catalog_table is not None:
                 table_dict = {
