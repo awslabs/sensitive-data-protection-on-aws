@@ -5,5 +5,6 @@ sqlalchemy==2.0.13
 fastapi-pagination==0.12.3
 pyjwt==2.7.0
 openpyxl==3.1.2
-pymysql==1.0.3
+pymysql==1.0.2
+sqlakeyset==2.0.1684285512
 okta-jwt-verifier==0.2.4
