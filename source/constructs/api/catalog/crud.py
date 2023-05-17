@@ -510,6 +510,44 @@ def delete_catalog_column_level_classification_by_database_name(account_id: str,
     session.commit()
 
 
+def delete_catalog_column_level_classification_by_table_name(
+        account_id: str, region: str, database_type: str, database_name: str, table_name: str):
+    session = get_session()
+    session.query(models.CatalogColumnLevelClassification).filter(
+        models.CatalogColumnLevelClassification.account_id == account_id
+    ).filter(
+        models.CatalogColumnLevelClassification.region == region
+    ).filter(
+        models.CatalogColumnLevelClassification.database_type == database_type
+    ).filter(
+        models.CatalogColumnLevelClassification.database_name == database_name
+    ).filter(
+        models.CatalogColumnLevelClassification.table_name == table_name
+    ).delete()
+
+    session.commit()
+
+
+def delete_additional_catalog_column_level_classification_by_table_name(
+        account_id: str, region: str, database_type: str, database_name: str, table_name: str, column_names: list):
+    session = get_session()
+    session.query(models.CatalogColumnLevelClassification).filter(
+        models.CatalogColumnLevelClassification.account_id == account_id
+    ).filter(
+        models.CatalogColumnLevelClassification.region == region
+    ).filter(
+        models.CatalogColumnLevelClassification.database_type == database_type
+    ).filter(
+        models.CatalogColumnLevelClassification.database_name == database_name
+    ).filter(
+        models.CatalogColumnLevelClassification.table_name == table_name
+    ).filter(
+        models.CatalogColumnLevelClassification.column_name.notin_(column_names)
+    ).delete()
+
+    session.commit()
+
+
 def delete_catalog_table_level_classification_by_database_name(account_id: str,
     region: str,
     database_type: str,
@@ -525,6 +563,23 @@ def delete_catalog_table_level_classification_by_database_name(account_id: str,
             models.CatalogTableLevelClassification.database_name == database_name
         ).delete()
     
+    session.commit()
+
+
+def delete_catalog_table_level_classification_by_name(account_id: str, region: str, database_type: str, database_name: str, table_name:str):
+    session = get_session()
+    session.query(models.CatalogTableLevelClassification).filter(
+        models.CatalogTableLevelClassification.account_id == account_id
+    ).filter(
+        models.CatalogTableLevelClassification.region == region
+    ).filter(
+        models.CatalogTableLevelClassification.database_type == database_type
+    ).filter(
+        models.CatalogTableLevelClassification.database_name == database_name
+    ).filter(
+        models.CatalogTableLevelClassification.table_name == table_name
+    ).delete()
+
     session.commit()
 
 

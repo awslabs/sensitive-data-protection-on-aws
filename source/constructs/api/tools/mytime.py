@@ -15,3 +15,7 @@ def format_time(in_time: datetime) -> str:
 
 def parse_time(in_str: str) -> datetime:
     return datetime.strptime(in_str, '%Y-%m-%d %H:%M:%S')
+
+
+def get_now() -> datetime:
+    return datetime.utcnow()
