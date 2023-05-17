@@ -167,6 +167,7 @@ export class DiscoveryJobStack extends Construct {
     // State machine log group
     const logGroup = new logs.LogGroup(this, 'SFNLogGroup', {
       retention: logs.RetentionDays.ONE_MONTH,
+      logGroupName: '/aws/vendedlogs/states/SDPSSFNLogGroup',
       removalPolicy: RemovalPolicy.DESTROY,
     });
     const stepFunction = new sfn.CfnStateMachine(
