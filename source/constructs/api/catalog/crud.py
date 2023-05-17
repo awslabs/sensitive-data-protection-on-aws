@@ -351,28 +351,7 @@ def update_catalog_table_none_privacy_by_name(account_id: str,
     if table_name is not None:
         query = query.filter(models.CatalogTableLevelClassification.table_name == table_name)
     if not overwrite:
-        query = query.filter(models.CatalogTableLevelClassification.manual_tag != 'manual')
-    size = query.update(table)
-    session.commit()
-    return size > 0
-
-
-def update_catalog_column_none_privacy_by_database(account_id: str,
-                                                   region: str,
-                                                   database_type: str,
-                                                   database_name: str,
-                                                   overwrite: False,
-                                                   ):
-    table = {"modify_time": mytime.get_time(), "identifier": '{"N/A": 0}', "column_value_example": const.NA,
-             "privacy": Privacy.NA.value}
-    session = get_session()
-    query = session.query(models.CatalogColumnLevelClassification)
-    query = query.filter(models.CatalogColumnLevelClassification.account_id == account_id)
-    query = query.filter(models.CatalogColumnLevelClassification.region == region)
-    query = query.filter(models.CatalogColumnLevelClassification.database_type == database_type)
-    query = query.filter(models.CatalogColumnLevelClassification.database_name == database_name)
-    if not overwrite:
-        query = query.filter(models.CatalogColumnLevelClassification.manual_tag != 'manual')
+        query = query.filter(models.CatalogTableLevelClassification.manual_tag != const.MANUAL)
     size = query.update(table)
     session.commit()
     return size > 0
@@ -393,9 +372,10 @@ def update_catalog_column_none_privacy_by_table(account_id: str,
     query = query.filter(models.CatalogColumnLevelClassification.region == region)
     query = query.filter(models.CatalogColumnLevelClassification.database_type == database_type)
     query = query.filter(models.CatalogColumnLevelClassification.database_name == database_name)
-    query = query.filter(models.CatalogColumnLevelClassification.table_name == table_name)
+    if table_name is not None:
+        query = query.filter(models.CatalogColumnLevelClassification.table_name == table_name)
     if not overwrite:
-        query = query.filter(models.CatalogColumnLevelClassification.manual_tag != 'manual')
+        query = query.filter(models.CatalogColumnLevelClassification.manual_tag != const.MANUAL)
     size = query.update(table)
     session.commit()
     return size > 0
@@ -420,7 +400,7 @@ def update_catalog_additional_column_none_privacy_by_table(account_id: str,
     query = query.filter(models.CatalogColumnLevelClassification.table_name == table_name)
     query = query.filter(~models.CatalogColumnLevelClassification.column_name.in_(column_names))
     if not overwrite:
-        query = query.filter(models.CatalogColumnLevelClassification.manual_tag != 'manual')
+        query = query.filter(models.CatalogColumnLevelClassification.manual_tag != const.MANUAL)
     size = query.update(table)
     session.commit()
     return size > 0

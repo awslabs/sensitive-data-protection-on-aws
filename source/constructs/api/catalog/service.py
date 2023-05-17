@@ -632,8 +632,8 @@ def sync_job_detection_result(
             "sync_job_detection_result - RESET NA TABLE AND COLUMNS WHEN TABLE_SIZE IS ZERO ")
         crud.update_catalog_table_none_privacy_by_name(account_id, region, database_type,
                                                        database_name, None, overwrite)
-        crud.update_catalog_column_none_privacy_by_database(account_id, region, database_type,
-                                                            database_name, overwrite)
+        crud.update_catalog_column_none_privacy_by_table(account_id, region, database_type,
+                                                            database_name, None, overwrite)
     # Initialize database privacy with NON-PII
     database_privacy = Privacy.NON_PII.value
     # The two dict has all tables as key.

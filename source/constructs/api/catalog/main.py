@@ -217,7 +217,7 @@ def update_catalog_column_comments(
 def update_catalog_column_level_classification(
     column: schemas.CatalogColumnLevelClassification,
 ):
-    column.manual_tag = "manual"
+    column.manual_tag = const.MANUAL
     return service.update_catalog_column_level_classification(column)
 
 
