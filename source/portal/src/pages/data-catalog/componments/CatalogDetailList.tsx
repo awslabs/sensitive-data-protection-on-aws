@@ -298,7 +298,6 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
         alertMsg(result as any, 'error');
         return;
       }
-      console.info('result:', result);
       // frontend pagination
       const start = (currentPage - 1) * preferences.pageSize;
       setDataList(result.slice(start, start + preferences.pageSize));
