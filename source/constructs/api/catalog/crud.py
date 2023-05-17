@@ -340,7 +340,7 @@ def update_catalog_table_none_privacy_by_database(account_id: str,
                                                   database_name: str,
                                                   overwrite: False,
                                                   ):
-    table = {"modify_time": mytime.get_time(), "identifiers": 'N/A', "privacy": '-1'}
+    table = {"modify_time": mytime.get_time(), "identifiers": const.NA, "privacy": Privacy.NA.value}
     session = get_session()
     query = session.query(models.CatalogTableLevelClassification)
     query = query.filter(models.CatalogTableLevelClassification.account_id == account_id)
@@ -361,7 +361,7 @@ def update_catalog_table_none_privacy_by_name(account_id: str,
                                               table_name: str,
                                               overwrite: False,
                                               ):
-    table = {"modify_time": mytime.get_time(), "identifiers": 'N/A', "privacy": '-1'}
+    table = {"modify_time": mytime.get_time(), "identifiers": const.NA, "privacy": Privacy.NA.value}
     session = get_session()
     query = session.query(models.CatalogTableLevelClassification)
     query = query.filter(models.CatalogTableLevelClassification.account_id == account_id)
@@ -382,7 +382,8 @@ def update_catalog_column_none_privacy_by_database(account_id: str,
                                                    database_name: str,
                                                    overwrite: False,
                                                    ):
-    table = {"modify_time": mytime.get_time(), "identifier": '{"N/A": 0}', "column_value_example": 'N/A', "privacy": '-1'}
+    table = {"modify_time": mytime.get_time(), "identifier": '{"N/A": 0}', "column_value_example": const.NA,
+             "privacy": Privacy.NA.value}
     session = get_session()
     query = session.query(models.CatalogColumnLevelClassification)
     query = query.filter(models.CatalogColumnLevelClassification.account_id == account_id)
@@ -403,7 +404,8 @@ def update_catalog_column_none_privacy_by_table(account_id: str,
                                                 table_name: str,
                                                 overwrite: False,
                                                 ):
-    table = {"modify_time": mytime.get_time(), "identifier": '{"N/A": 0}', "column_value_example": 'N/A', "privacy": '-1'}
+    table = {"modify_time": mytime.get_time(), "identifier": '{"N/A": 0}', "column_value_example": const.NA,
+             "privacy": Privacy.NA.value}
     session = get_session()
     query = session.query(models.CatalogColumnLevelClassification)
     query = query.filter(models.CatalogColumnLevelClassification.account_id == account_id)
@@ -426,7 +428,8 @@ def update_catalog_additional_column_none_privacy_by_table(account_id: str,
                                                            column_names: list,
                                                            overwrite: False,
                                                            ):
-    table = {"modify_time": mytime.get_time(), "identifier": '{"N/A": 0}', "column_value_example": 'N/A', "privacy": '-1'}
+    table = {"modify_time": mytime.get_time(), "identifier": '{"N/A": 0}', "column_value_example": const.NA,
+             "privacy": Privacy.NA.value}
     session = get_session()
     query = session.query(models.CatalogColumnLevelClassification)
     query = query.filter(models.CatalogColumnLevelClassification.account_id == account_id)
