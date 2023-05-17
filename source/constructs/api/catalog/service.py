@@ -513,8 +513,8 @@ def __query_job_result_by_athena(
         query_execution_status = response["QueryExecution"]["Status"]["State"]
 
         if query_execution_status == AthenaQueryState.SUCCEEDED.value:
-            print("__query_job_result_by_athena : " )
-            print(response)
+            logger.info("__query_job_result_by_athena : " )
+            logger.info(response)
             break
 
         if query_execution_status == AthenaQueryState.FAILED.value:
@@ -525,7 +525,7 @@ def __query_job_result_by_athena(
 
     result = client.get_query_results(QueryExecutionId=query_id)
     # Remove Athena query result to save cost.
-    print(result)
+    logger.info(result)
     __remove_query_result_from_s3(query_id)
 
     return result
@@ -906,7 +906,7 @@ def update_catalog_table_and_database_level_privacy(account_id, region, database
         table.privacy = default_table_privacy
         crud.update_catalog_table_level_classification_by_id(table.id, {"privacy": default_table_privacy})
 
-    print("need to overwrite the privacy!!!")
+    logger.info("need to overwrite the privacy!!!")
     # Reset database privacy
     database = crud.get_catalog_database_level_classification_by_name(account_id,
                                                                       region,
