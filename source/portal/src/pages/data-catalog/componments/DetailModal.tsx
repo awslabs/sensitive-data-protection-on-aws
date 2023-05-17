@@ -155,6 +155,7 @@ const DetailModal: React.FC<any> = (props: any) => {
         detailDesHeader: item.detailDesHeader,
         selectRowData,
         clickTableCountProp,
+        needByPage: true,
       };
     }
     if (item.id === 'dataIdentifiers' && catalogType === DATA_TYPE_ENUM.rds) {
@@ -166,6 +167,7 @@ const DetailModal: React.FC<any> = (props: any) => {
         detailDesHeader: item.detailDesHeader,
         selectRowData,
         clickTableCountProp,
+        needByPage: true,
       };
     }
     if (item.id === COLUMN_OBJECT_STR.Folders) {

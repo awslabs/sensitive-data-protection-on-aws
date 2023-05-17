@@ -11,6 +11,7 @@ import {
   StatusIndicator,
   Badge,
   Textarea,
+  Multiselect,
 } from '@cloudscape-design/components';
 import CommonBadge from 'pages/common-badge';
 import SchemaModal from './SchemaModal';
@@ -76,9 +77,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       useState(clickIdentifiers);
     const [editIndentifier, setEditIndentifier] = useState(null as any);
     const [editPrivacy, setEditPrivacy] = useState(null as any);
-    const [selectIndentOption, setSelectIndentOption] = useState(
-      null as SelectProps.Option | null
-    );
+    const [selectIndentOption, setSelectIndentOption] = useState<any>([]);
     const [selectPrivacyOption, setSelectPrivacyOption] = useState(
       null as SelectProps.Option | null
     );
@@ -134,7 +133,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
         setEditIndentifier(rowData);
         setEditPrivacy(null);
         setEditComments(null);
-        setSelectIndentOption(null);
+        setSelectIndentOption([]);
       }
       if (type === COLUMN_OBJECT_STR.Privacy) {
         setEditPrivacy(rowData);
@@ -147,7 +146,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
         setEditIndentifier(null);
         setEditPrivacy(null);
         setSelectPrivacyOption(null);
-        setSelectIndentOption(null);
+        setSelectIndentOption([]);
       }
       return;
     };
@@ -158,7 +157,15 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
 
     useEffect(() => {
       getPageData();
-    }, [query, currentPage, preferences.pageSize]);
+    }, [query, currentPage]);
+
+    useEffect(() => {
+      if (currentPage !== 1) {
+        setCurrentPage(1);
+      } else {
+        getPageData();
+      }
+    }, [preferences.pageSize]);
 
     const getPageData = async () => {
       setIsLoading(true);
@@ -195,7 +202,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
     const getIdentifierOptions = async () => {
       const requestParam = {
         page: currentPage,
-        size: preferences.pageSize,
+        size: 100,
         sort_column: '',
         asc: false,
         conditions: [] as any,
@@ -207,28 +214,14 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       const setOptList = optList.items.map(
         (item: { id: any; name: string }) => {
           return {
-            label: '',
-            value: '',
-            iconSvg: (
-              <CommonBadge
-                badgeType={BADGE_TYPE.DataIndf}
-                badgeLabel={item.name}
-                className="fit-select"
-              />
-            ),
+            label: item.name,
+            value: item.name,
           };
         }
       );
       setOptList.push({
-        label: '',
-        value: '',
-        iconSvg: (
-          <CommonBadge
-            badgeType={BADGE_TYPE.DataIndf}
-            badgeLabel="N/A"
-            className="fit-select"
-          />
-        ),
+        label: 'N/A',
+        value: 'N/A',
       });
       setIdentifierOptions(setOptList);
     };
@@ -300,12 +293,16 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
         page: currentPage,
         size: preferences.pageSize,
       };
-      const result = await getDatabaseIdentifiers(requestParam);
+      const result: any = await getDatabaseIdentifiers(requestParam);
       if (typeof result !== 'object') {
         alertMsg(result as any, 'error');
         return;
       }
-      setDataList(result);
+      console.info('result:', result);
+      // frontend pagination
+      const start = (currentPage - 1) * preferences.pageSize;
+      setDataList(result.slice(start, start + preferences.pageSize));
+      setTotalCount(result.length);
     };
 
     const clearIdentifiersFilter = () => {
@@ -413,10 +410,22 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
           tempData[0][UPDATE_FLAG] = true;
         }
       } else if (editType === COLUMN_OBJECT_STR.Identifier) {
-        setSelectIndentOption(tempOption);
         if (tempData && tempData.length > 0) {
-          tempData[0][COLUMN_OBJECT_STR.Identifier] =
-            tempOption?.iconSvg.props.badgeLabel;
+          console.info('tempOption:', tempOption);
+          const selectedIdentifiers = tempOption.map(
+            (element: any) => element.value
+          );
+          // tempData[0][COLUMN_OBJECT_STR.Identifier] = selectedIdentifiers;
+          const parseObj = selectedIdentifiers.reduce(
+            (acc: any, curr: string) => {
+              acc[curr] = '1';
+              return acc;
+            },
+            {}
+          );
+          tempData[0][COLUMN_OBJECT_STR.Identifier] = JSON.stringify(parseObj);
+          //   tempData[0][COLUMN_OBJECT_STR.Identifier] =
+          //     tempOption?.iconSvg.props.badgeLabel;
           tempData[0][UPDATE_FLAG] = true;
         }
       } else {
@@ -574,24 +583,26 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                       ) {
                         return (
                           <div className="detail-edit-icon-max-width">
-                            <div className="detail-edit-icon-max-height">
-                              <Select
-                                selectedOption={selectIndentOption}
-                                onChange={(select) => {
-                                  updateSelectChange(
-                                    select.detail.selectedOption,
-                                    e as any,
-                                    COLUMN_OBJECT_STR.Identifier
-                                  );
-                                }}
-                                triggerVariant="option"
-                                options={identifierOptions}
-                                selectedAriaLabel="Selected"
-                                onBlur={() => {
-                                  setEditIndentifier(null);
-                                }}
-                              ></Select>
-                            </div>
+                            <Multiselect
+                              placeholder="Please select identifier"
+                              selectedOptions={selectIndentOption}
+                              onChange={(event) => {
+                                setSelectIndentOption(
+                                  event.detail.selectedOptions
+                                );
+                                updateSelectChange(
+                                  event.detail.selectedOptions,
+                                  e as any,
+                                  COLUMN_OBJECT_STR.Identifier
+                                );
+                              }}
+                              // triggerVariant="option"
+                              options={identifierOptions}
+                              selectedAriaLabel="Selected"
+                              onBlur={() => {
+                                setEditIndentifier(null);
+                              }}
+                            ></Multiselect>
                           </div>
                         );
                       } else {
@@ -599,16 +610,56 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                           const showIdentifierObj = toJSON(
                             (e as any)[item.id]
                           ) || { 'N/A': 1 };
+
                           const identifierList = Object.keys(showIdentifierObj);
-                          const showTxt = showIdentifierObj[identifierList[0]]
-                            ? identifierList[0]
-                            : 'N/A';
-                          return (
-                            <div className="detail-edit-icon">
-                              <CommonBadge
-                                badgeType={BADGE_TYPE.DataIndf}
-                                badgeLabel={showTxt}
-                              />
+                          let hasMore = false;
+                          if (identifierList.length > 1) {
+                            hasMore = true;
+                          }
+                          return identifierList.length > 0 ? (
+                            <div className="flex">
+                              <span className="mr-5" title={identifierList[0]}>
+                                <CommonBadge
+                                  badgeType={BADGE_TYPE.DataIndf}
+                                  badgeLabel={
+                                    identifierList[0].length > 10
+                                      ? identifierList[0]?.substring(0, 9) +
+                                        '...'
+                                      : identifierList[0]
+                                  }
+                                />
+                              </span>
+                              {hasMore && (
+                                <Popover
+                                  dismissButton={false}
+                                  position="top"
+                                  size="small"
+                                  triggerType="custom"
+                                  content={
+                                    <div>
+                                      {identifierList.map(
+                                        (ident: any, index) => {
+                                          return (
+                                            <span
+                                              key={index}
+                                              className="inline-block mr-5 mb-2"
+                                            >
+                                              <CommonBadge
+                                                badgeType={BADGE_TYPE.DataIndf}
+                                                badgeLabel={ident}
+                                              />
+                                            </span>
+                                          );
+                                        }
+                                      )}
+                                    </div>
+                                  }
+                                >
+                                  <span className="custom-badge more">{`+${
+                                    identifierList?.length - 1
+                                  }`}</span>
+                                </Popover>
+                              )}
                               <div
                                 onClick={() =>
                                   clickEditIcon(
@@ -623,6 +674,8 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                                 />
                               </div>
                             </div>
+                          ) : (
+                            ''
                           );
                         }
                         const showIdentifier =
@@ -674,7 +727,6 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                             </div>
                           </div>
                         );
-                        // return <div className="wrap-line">{e[item.id]}</div>;
                       }
                     }
                     if (item.id === COLUMN_OBJECT_STR.IdentifierScore) {
@@ -720,7 +772,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                               triggerType="custom"
                               content={
                                 <div>
-                                  {e.labels.map((label: any) => {
+                                  {e.labels?.map((label: any) => {
                                     return (
                                       <span
                                         key={label.id}
