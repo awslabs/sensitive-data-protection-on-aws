@@ -24,11 +24,13 @@ import { TABLE_NAME } from 'enum/common_types';
 import '../style.scss';
 import { refreshDataSource } from 'apis/data-source/api';
 import { alertMsg, useDidUpdateEffect } from 'tools/tools';
+import { useTranslation } from 'react-i18next';
 
 const AccountList: React.FC<any> = (props: any) => {
   const { setTotalAccount } = props;
   const columnList = ACCOUNT_COLUMN_LIST;
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [totalCount, setTotalCount] = useState(0);
   const [preferences, setPreferences] = useState({
@@ -70,31 +72,35 @@ const AccountList: React.FC<any> = (props: any) => {
 
   const getPageData = async () => {
     setIsLoading(true);
-    const requestParam = {
-      page: currentPage,
-      size: preferences.pageSize,
-      conditions: [] as any,
-    };
-    query.tokens &&
-      query.tokens.forEach((item: any) => {
-        requestParam.conditions.push({
-          column: item.propertyKey,
-          values: [
-            item.propertyKey === 'status'
-              ? item.value === 'SUCCEEDED'
-                ? 1
-                : 0
-              : `${item.value}`,
-          ],
-          condition: query.operation,
+    try {
+      const requestParam = {
+        page: currentPage,
+        size: preferences.pageSize,
+        conditions: [] as any,
+      };
+      query.tokens &&
+        query.tokens.forEach((item: any) => {
+          requestParam.conditions.push({
+            column: item.propertyKey,
+            values: [
+              item.propertyKey === 'status'
+                ? item.value === 'SUCCEEDED'
+                  ? 1
+                  : 0
+                : `${item.value}`,
+            ],
+            condition: query.operation,
+          });
         });
-      });
-    const result: any = await getAccountList(requestParam);
-    setSelectedItems([]);
-    setPageData(result.items);
-    setTotalAccount(result.total);
-    setTotalCount(result.total);
-    setIsLoading(false);
+      const result: any = await getAccountList(requestParam);
+      setSelectedItems([]);
+      setPageData(result.items);
+      setTotalAccount(result.total);
+      setTotalCount(result.total);
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+    }
     return;
   };
 
@@ -342,9 +348,11 @@ const AccountList: React.FC<any> = (props: any) => {
                   loading={isLoading || deleteLoading}
                   disabled={selectedItems.length === 0}
                 >
-                  Delete
+                  {t('button.delete')}
                 </Button>
-                <Button onClick={clkAddNew}>Add new account(s)</Button>
+                <Button onClick={clkAddNew}>
+                  {t('button.addNewAccounts')}
+                </Button>
               </SpaceBetween>
             }
           >

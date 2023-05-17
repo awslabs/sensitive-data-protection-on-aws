@@ -16,9 +16,11 @@ import { ITableDataType, ITableListKeyValue } from 'ts/dashboard/types';
 import { useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
 import Pagination from './items/Pagination';
+import { useTranslation } from 'react-i18next';
 
 const AmazonS3: React.FC<any> = memo(() => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loadingTableData, setLoadingTableData] = useState(true);
   // const [conatainsPIIData, setConatainsPIIData] = useState<
   //   ITableListKeyValue[]
@@ -54,17 +56,21 @@ const AmazonS3: React.FC<any> = memo(() => {
 
   const getTopNTableData = async () => {
     setLoadingTableData(true);
-    const tableData = (await getCatalogTopNData({
-      database_type: 's3',
-      top_n: 99999,
-    })) as ITableDataType;
-    // setConatainsPIIData(tableData.account_top_n);
-    setAllConatainsPIIDataData(tableData.account_top_n);
-    // setIdentifierData(tableData.identifier_top_n);
-    setAllIdentifierData(tableData.identifier_top_n);
+    try {
+      const tableData = (await getCatalogTopNData({
+        database_type: 's3',
+        top_n: 99999,
+      })) as ITableDataType;
+      // setConatainsPIIData(tableData.account_top_n);
+      setAllConatainsPIIDataData(tableData.account_top_n);
+      // setIdentifierData(tableData.identifier_top_n);
+      setAllIdentifierData(tableData.identifier_top_n);
 
-    // setAllData(tableData.identifier_top_n);
-    setLoadingTableData(false);
+      // setAllData(tableData.identifier_top_n);
+      setLoadingTableData(false);
+    } catch (error) {
+      setLoadingTableData(false);
+    }
   };
 
   useEffect(() => {
@@ -78,7 +84,7 @@ const AmazonS3: React.FC<any> = memo(() => {
         actions={
           <SpaceBetween direction="horizontal" size="xs">
             <Button onClick={() => navigate(RouterEnum.Catalog.path)}>
-              Browse data catalogs
+              {t('button.browserCatalog')}
             </Button>
           </SpaceBetween>
         }

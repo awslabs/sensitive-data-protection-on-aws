@@ -1,7 +1,13 @@
 {
+  "welcome": "Welcome to Sensitive Data Protection Solution!",
   "solution": {
     "title": "AWS Solution",
     "name": "Sensitive Data Protection Solution"
+  },
+  "header": {
+    "doc": "Documentation",
+    "support": "Support",
+    "signout": "Sign out"
   },
   "nav": {
     "summary": "Summary",
@@ -12,5 +18,73 @@
     "defineTemplate": "Define classification template",
     "manageIdentifier": "Manage data identifiers",
     "doc": "Documentation"
+  },
+  "breadcrumb": {
+    "home": "Sensitive Data Protection Solution",
+    "summary": "Summary",
+    "connectSource": "Connect to data source",
+    "awsAccount": "AWS account management",
+    "dataIdentifiers": "Data identifiers",
+    "runJobs": "Run sensitive data discovery jobs",
+    "browserCatalog": "Browse data catalogs",
+    "dataSourceConnection": "Data Source Connection",
+    "defineTemplate": "Define classification template",
+    "sensitiveJobs": "Sensitive data discovery jobs",
+    "manageIdentifier": "Manage data identifiers"
+  },
+  "button": {
+    "signin": "Sign In",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "update": "Update",
+    "addToCatalog": "Add To Catalog",
+    "createLabel": "Create Label",
+    "addNewAccounts": "Add New Account(s)",
+    "back": "Back",
+    "addThisAccount": "Add This Account",
+    "addOrgMember": "Add Organization Members",
+    "validate": "Validate",
+    "remove": "Remove",
+    "addNewKeyword": "Add a new keyword",
+    "save": "Save",
+    "runTest": "Run test",
+    "backToJobList": "Back to job list",
+    "createJob": "Create sensitive data discovery job",
+    "pause": "Pause",
+    "continue": "Continue",
+    "exeOnce": "Execute once",
+    "copyToNew": "Copy to new",
+    "viewMore": "View more",
+    "backToAWSAccount": "Back to AWS accounts view",
+    "connectAll": "Connect All",
+    "connect": "Connect",
+    "manageDataIdentifiers": "Manage data identfiers",
+    "addDataIdentifier": "Add data identifier",
+    "addToTemplate": "Add to template",
+    "connectToDataSource": "Connect to data source",
+    "browserCatalog": "Browse data catalogs",
+    "defineTemplate": " Define classification template",
+    "runJob": "Run sensitive data discovery jobs",
+    "createIdentifier": "Create data identifier"
+  },
+  "label": {
+    "label": "label",
+    "labels": "Labels",
+    "noLabel": "No labels",
+    "findLabels": "Find labels",
+    "customLabel": "Custom label",
+    "loadingLabel": "Loading labels",
+    "createLabel": "Create label",
+    "updateLabel": "Update label",
+    "deleteLabel": "Delete label",
+    "deleteTips": "Are you sure you want to delete label(s) "
+  },
+  "table": {
+    "preferences": "Preferences",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "pageSize": "Page size"
   }
 }

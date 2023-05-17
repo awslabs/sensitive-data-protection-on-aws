@@ -1,12 +1,11 @@
 import React from 'react';
 import PropertyFilter from '@cloudscape-design/components/property-filter';
-import Flashbar from "@cloudscape-design/components/flashbar";
 import { deepClone } from 'tools/tools';
 import { ResourcesFilterProps } from 'ts/resources-filter/types';
 import { PROPERTY_FILTERING_I18N_CONSTANTS } from './config';
 import { useDistributionsPropertyFiltering } from './hook';
 
-const DEFAULT_FILTER = ['=','!=',':','!:'];
+const DEFAULT_FILTER = ['=', '!=', ':', '!:'];
 
 /**
  * Data text filter
@@ -23,6 +22,7 @@ const ResourcesFilter: React.FC<ResourcesFilterProps> = (
     query,
     setQuery,
     filteringPlaceholder,
+    isFreeText,
   } = props;
 
   const filterColumns = columnList?.map((item: { id: any; label: any }) => {
@@ -54,11 +54,11 @@ const ResourcesFilter: React.FC<ResourcesFilterProps> = (
       countText={
         totalCount || totalCount === 0 ? `${totalCount} matches` : undefined
       }
-      hideOperations = {true}
+      hideOperations={true}
       tokenLimit={3}
       expandToViewport
       filteringOptions={filteringOptions} // 待筛选项
-      filteringProperties={filterColumns as any}
+      filteringProperties={isFreeText ? [] : (filterColumns as any)}
       onLoadItems={handleLoadItems}
       filteringStatusType={filteringStatus as any}
     />

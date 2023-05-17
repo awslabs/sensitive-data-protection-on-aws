@@ -19,6 +19,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
 import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import Navigation from 'pages/left-menu/Navigation';
+import { useTranslation } from 'react-i18next';
 
 const CreateIdentifierHeader: React.FC = () => {
   const location = useLocation();
@@ -41,6 +42,7 @@ const CreateIdentifierContent = () => {
       id: 0,
     },
   } = location.state || {};
+  const { t } = useTranslation();
   const [identifierName, setIdentifierName] = useState(oldData.name);
   const [identifierDescription, setIdentifierDescription] = useState(
     oldData.description
@@ -245,7 +247,7 @@ const CreateIdentifierContent = () => {
                   className="run-test-btn"
                   onClick={() => clkValidate(true)}
                 >
-                  Validate
+                  {t('button.validate')}
                 </Button>
               </>
             )}
@@ -275,7 +277,7 @@ const CreateIdentifierContent = () => {
                           onClick={() => removeContextWord(index)}
                           disabled={keywordList.length <= 1}
                         >
-                          Remove
+                          {t('button.remove')}
                         </Button>
                       </Grid>
                     </div>
@@ -287,7 +289,7 @@ const CreateIdentifierContent = () => {
                     disabled={keywordList && keywordList.length >= 30}
                     onClick={addNewContextWord}
                   >
-                    Add a new keyword
+                    {t('button.addNewKeyword')}
                   </Button>
                 )}
                 {keywordList && keywordList.length >= 30 && (
@@ -303,7 +305,7 @@ const CreateIdentifierContent = () => {
 
         <div className="text-right">
           <Button className="identifier-opt-btn" onClick={backNavigate}>
-            Back
+            {t('button.back')}
           </Button>
           <Button
             className="ml-10"
@@ -312,7 +314,7 @@ const CreateIdentifierContent = () => {
             loading={isLoading}
             disabled={(!identifierName && !patternRex) || oldData.type === 0}
           >
-            Save
+            {t('button.save')}
           </Button>
         </div>
       </SpaceBetween>
@@ -335,7 +337,7 @@ const CreateIdentifierContent = () => {
             onClick={runTest}
             disabled={!patternRex && !simpleData}
           >
-            Run test
+            {t('button.runTest')}
           </Button>
         </SpaceBetween>
       </Container>
@@ -344,9 +346,13 @@ const CreateIdentifierContent = () => {
 };
 
 const CreateIdentifier: React.FC = () => {
+  const { t } = useTranslation();
   const breadcrumbItems = [
-    { text: 'Sensitive Data Protection Solution', href: RouterEnum.Home.path },
-    { text: 'Data identifiers', href: RouterEnum.CreateIdentifiers.path },
+    { text: t('breadcrumb.home'), href: RouterEnum.Home.path },
+    {
+      text: t('breadcrumb.dataIdentifiers'),
+      href: RouterEnum.CreateIdentifiers.path,
+    },
   ];
   return (
     <AppLayout

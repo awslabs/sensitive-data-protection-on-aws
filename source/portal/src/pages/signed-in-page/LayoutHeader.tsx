@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import TopNavigation from '@cloudscape-design/components/top-navigation';
 import './style.scss';
 import { AmplifyConfigType, AppSyncAuthType } from 'ts/types';
-import { AMPLIFY_CONFIG_JSON } from 'ts/common';
+import { AMPLIFY_CONFIG_JSON, GIHUB_REPO_LINK } from 'ts/common';
 import { User } from 'oidc-client-ts';
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
@@ -97,19 +97,18 @@ const LayoutHeader: React.FC<LayoutHeaderProps> = ({
           items: [
             {
               id: 'support-group',
-              text: 'Support',
+              text: t('header.support') || '',
               items: [
                 {
                   id: 'documentation',
-                  text: 'Documentation',
-                  href: 'https://github.com/awslabs/sensitive-data-protection-on-aws',
+                  text: t('header.doc') || '',
+                  href: GIHUB_REPO_LINK,
                   external: true,
-                  externalIconAriaLabel: ' (opens in new tab)',
                 },
-                { id: 'support', text: 'Support' },
+                { id: 'support', text: t('header.support') || '' },
               ],
             },
-            { id: 'signout', text: 'Sign out' },
+            { id: 'signout', text: t('header.signout') || '' },
           ],
           onItemClick: (item) => {
             if (item.detail.id === 'signout') {

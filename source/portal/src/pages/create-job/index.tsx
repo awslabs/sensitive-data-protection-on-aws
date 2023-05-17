@@ -51,6 +51,7 @@ import {
 import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import Navigation from 'pages/left-menu/Navigation';
 import { TABLE_NAME } from 'enum/common_types';
+import { useTranslation } from 'react-i18next';
 
 const DEFAULT_TEMPLATE = {
   label: 'Current data classification template',
@@ -84,13 +85,14 @@ const SCAN_FREQUENCY: any[] = [
 
 const CreateJobHeader: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   return (
     <Header
       variant="h1"
       description=""
       actions={
         <Button onClick={() => navigate(RouterEnum.Datajob.path)}>
-          Back to job list
+          {t('button.backToJobList')}
         </Button>
       }
     >
@@ -1390,10 +1392,11 @@ const CreateJobContent = () => {
 };
 
 const CreateJob: React.FC = () => {
+  const { t } = useTranslation();
   const breadcrumbItems = [
-    { text: 'Sensitive Data Protection Solution', href: RouterEnum.Home.path },
+    { text: t('breadcrumb.home'), href: RouterEnum.Home.path },
     {
-      text: 'Run sensitive data discovery jobs',
+      text: t('breadcrumb.runJobs'),
       href: RouterEnum.CreateJob.path,
     },
   ];
