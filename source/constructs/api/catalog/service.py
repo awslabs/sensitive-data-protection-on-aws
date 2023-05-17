@@ -600,7 +600,6 @@ def sync_job_detection_result(
                     table_name,
                     column_name,
                 )
-
                 identifier_dict = __convert_identifiers_to_dict(identifier)
                 if catalog_column is not None and (overwrite or (
                         not overwrite and catalog_column.manual_pii != "manual")):
@@ -625,12 +624,13 @@ def sync_job_detection_result(
                 for key in identifier_dict:
                     table_identifier_dict[table_name].add(key)
             i += 1
-    # if not table_size_dict:
-    #     logger.info(
-    #         "sync_job_detection_result - DELETE TABLE AND COLUMNS WHEN TABLE_SIZE IS ZERO ")
-    #     crud.delete_catalog_table_level_classification_by_database_name(account_id, region, database_type, database_name)
-    #     crud.delete_catalog_column_level_classification_by_database_name(account_id, region, database_type, database_name)
-
+    if not table_size_dict:
+        logger.info(
+            "sync_job_detection_result - RESET NA TABLE AND COLUMNS WHEN TABLE_SIZE IS ZERO ")
+        crud.update_catalog_table_none_privacy_by_database(account_id, region, database_type,
+                                                           database_name, overwrite)
+        crud.update_catalog_column_none_privacy_by_database(account_id, region, database_type,
+                                                            database_name, overwrite)
     # Initialize database privacy with NON-PII
     database_privacy = Privacy.NON_PII.value
     # The two dict has all tables as key.
@@ -638,19 +638,21 @@ def sync_job_detection_result(
         table_size = table_size_dict[table_name]
         if table_size <= 0:
             logger.info(
-                "sync_job_detection_result - DELETE TABLE AND COLUMNS WHEN TABLE_SIZE IS ZERO : " + json.dumps(catalog_table))
-            crud.delete_catalog_table_level_classification_by_name(account_id, region, database_type, database_name)
-            crud.delete_catalog_column_level_classification_by_table_name(account_id, region, database_type, database_name, table_name)
+                "sync_job_detection_result - RESET TABLE AND COLUMNS WHEN TABLE_SIZE IS ZERO : !")
+            crud.update_catalog_table_none_privacy_by_name(account_id, region, database_type, database_name, table_name,
+                                                           overwrite)
+            crud.update_catalog_column_none_privacy_by_table(account_id, region, database_type, database_name,
+                                                             table_name, overwrite)
             continue
         row_count += table_size
         catalog_table = crud.get_catalog_table_level_classification_by_name(
             account_id, region, database_type, database_name, table_name
         )
-        # columns = table_column_dict[table_name]
-        # logger.info(
-        #     "sync_job_detection_result - DELETE ADDITIONAL COLUMNS : " + table_column_dict[table_name])
-        # crud.delete_additional_catalog_column_level_classification_by_table_name(account_id, region, database_type, database_name, table_name, columns)
-
+        columns = table_column_dict[table_name]
+        logger.info(
+            "sync_job_detection_result - RESET ADDITIONAL COLUMNS : " + json.dumps(table_column_dict[table_name]))
+        crud.update_catalog_additional_column_none_privacy_by_table(account_id, region, database_type, database_name,
+                                                                    table_name, columns)
         if table_name not in table_privacy_dict:
             if catalog_table is not None:
                 table_dict = {
