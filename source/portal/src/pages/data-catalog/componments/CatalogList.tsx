@@ -169,6 +169,7 @@ const CatalogList: React.FC<any> = memo((props: any) => {
             column: item.propertyKey,
             values: [`${searchValues}`],
             condition: query.operation,
+            operation: item.operator,
           });
         });
 

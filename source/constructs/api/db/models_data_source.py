@@ -23,8 +23,8 @@ class Account(Base):
     __tablename__ = 'source_account'
 
     id = sa.Column(sa.Integer(), autoincrement=True, primary_key=True)
-    aws_account_id = sa.Column(sa.String(255))
-    aws_account_alias = sa.Column(sa.String(255))
+    aws_account_id = sa.Column(sa.String(255), info={'searchable': True})
+    aws_account_alias = sa.Column(sa.String(255), info={'searchable': True})
     aws_account_email = sa.Column(sa.String(255))
     delegated_aws_account_id = sa.Column(sa.String(64))
     region = sa.Column(sa.String(64))
