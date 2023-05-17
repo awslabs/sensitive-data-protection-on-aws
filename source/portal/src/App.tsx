@@ -15,6 +15,7 @@ import './index.scss';
 import { Button, Spinner } from '@cloudscape-design/components';
 import PageSpinner from 'pages/page-spinner';
 import NoAccess from 'pages/no-access';
+import { useTranslation } from 'react-i18next';
 
 interface SignedInPageProps {
   user: any;
@@ -48,6 +49,7 @@ const AppBody: React.FC<SignedInPageProps> = ({ signOut, user }) => {
 
 const OIDCAppRouter: React.FC = () => {
   const auth = useAuth();
+  const { t } = useTranslation();
   useEffect(() => {
     // the `return` is important - addAccessTokenExpiring() returns a cleanup function
     return auth?.events?.addAccessTokenExpiring((event) => {
@@ -102,9 +104,7 @@ const OIDCAppRouter: React.FC = () => {
   return (
     <div className="oidc-login">
       <div>
-        <div className="title">
-          Welcome to Sensitive Data Protection Solution!
-        </div>
+        <div className="title">{t('welcome')}</div>
       </div>
       {
         <div>
@@ -114,7 +114,7 @@ const OIDCAppRouter: React.FC = () => {
               auth.signinRedirect();
             }}
           >
-            Sign In
+            {t('button.signin')}
           </Button>
         </div>
       }

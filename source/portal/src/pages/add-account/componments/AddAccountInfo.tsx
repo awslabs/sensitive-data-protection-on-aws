@@ -18,10 +18,12 @@ import { useNavigate } from 'react-router-dom';
 import { alertMsg } from 'tools/tools';
 import { addAccount, addOrgAccount } from 'apis/account-manager/api';
 import { RouterEnum } from 'routers/routerEnum';
+import { useTranslation } from 'react-i18next';
 
 const AddAccountInfo: React.FC<any> = memo((props: any) => {
   const { tagType } = props;
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [inputAccount, setInputAccount] = useState('');
   const [inputOrgAccount, setInputOrgAccount] = useState('');
 
@@ -70,7 +72,9 @@ const AddAccountInfo: React.FC<any> = memo((props: any) => {
     }
     setIsLoading(true);
     try {
-      await addOrgAccount({ organization_management_account_id: inputOrgAccount });
+      await addOrgAccount({
+        organization_management_account_id: inputOrgAccount,
+      });
       setIsLoading(false);
       alertMsg('Add Success', 'success');
       setInputOrgAccount('');
@@ -300,7 +304,7 @@ const AddAccountInfo: React.FC<any> = memo((props: any) => {
       )}
       <div className="account-back-btn">
         <Button onClick={backNavigate} loading={isLoading}>
-          Back
+          {t('button.back')}
         </Button>
         {tagType === TAB_LIST.individual.id && (
           <>
@@ -310,7 +314,7 @@ const AddAccountInfo: React.FC<any> = memo((props: any) => {
               loading={isLoading}
               disabled={!inputAccount}
             >
-              Add this account
+              {t('button.addThisAccount')}
             </Button>
           </>
         )}
@@ -322,7 +326,7 @@ const AddAccountInfo: React.FC<any> = memo((props: any) => {
               loading={isLoading}
               disabled={!inputOrgAccount}
             >
-              Add Organization members
+              {t('button.addOrgMember')}
             </Button>
           </>
         )}

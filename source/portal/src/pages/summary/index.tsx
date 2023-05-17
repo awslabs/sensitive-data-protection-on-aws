@@ -12,6 +12,7 @@ import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import Navigation from 'pages/left-menu/Navigation';
 import { RouterEnum } from 'routers/routerEnum';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const HomeHeader: React.FC = () => {
   return (
@@ -23,7 +24,7 @@ const HomeHeader: React.FC = () => {
 
 const HomeContent: React.FC = () => {
   const navigate = useNavigate();
-
+  const { t } = useTranslation();
   return (
     <ContentLayout>
       <Container
@@ -43,7 +44,7 @@ const HomeContent: React.FC = () => {
               <Button
                 onClick={() => navigate(RouterEnum.AccountManagement.path)}
               >
-                Connect to data source
+                {t('button.connectToDataSource')}
               </Button>
             </div>
           </div>
@@ -57,7 +58,7 @@ const HomeContent: React.FC = () => {
             </div>
             <div className="mt-20">
               <Button onClick={() => navigate(RouterEnum.Catalog.path)}>
-                Browse data catalogs
+                {t('button.browserCatalog')}
               </Button>
             </div>
           </div>
@@ -71,7 +72,7 @@ const HomeContent: React.FC = () => {
             </div>
             <div className="mt-20">
               <Button onClick={() => navigate(RouterEnum.Datatemplate.path)}>
-                Define classification template
+                {t('button.defineTemplate')}
               </Button>
             </div>
           </div>
@@ -86,7 +87,7 @@ const HomeContent: React.FC = () => {
             </div>
             <div className="mt-20">
               <Button onClick={() => navigate(RouterEnum.Datajob.path)}>
-                Run sensitive data discovery jobs
+                {t('button.runJob')}
               </Button>
             </div>
           </div>
@@ -103,13 +104,14 @@ const HomeContent: React.FC = () => {
 };
 
 const Home: React.FC = () => {
+  const { t } = useTranslation();
   const breadcrumbItems = [
     {
-      text: 'Sensitive Data Protection Solution',
+      text: t('breadcrumb.home'),
       href: RouterEnum.Home.path,
     },
     {
-      text: 'Summary',
+      text: t('breadcrumb.summary'),
       href: RouterEnum.Home.path,
     },
   ];

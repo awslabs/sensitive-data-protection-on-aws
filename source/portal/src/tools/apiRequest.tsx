@@ -232,13 +232,16 @@ export const apiRequest = (
           .then((response) => {
             const result = response as ApiRequest;
             if (!checkAuth(result)) {
-              reject(result.message);
+              reject(result?.message);
             }
             if (result && result.status === SUCCESS_STATUS) {
               resolve(result.data);
             } else {
-              alertMsg(result.message, COMMON_ALERT_TYPE.Error as AlertType);
-              reject(result.message);
+              alertMsg(
+                result?.message || 'error',
+                COMMON_ALERT_TYPE.Error as AlertType
+              );
+              reject(result?.message);
             }
           })
           .catch(function (error) {
@@ -251,13 +254,16 @@ export const apiRequest = (
           .then((response: unknown) => {
             const result = response as ApiRequest;
             if (!checkAuth(result)) {
-              reject(result.message);
+              reject(result?.message);
             }
             if (result && result.status === SUCCESS_STATUS) {
               resolve(result.data);
             } else {
-              alertMsg(result.message, COMMON_ALERT_TYPE.Error as AlertType);
-              reject(result.message);
+              alertMsg(
+                result?.message || 'error',
+                COMMON_ALERT_TYPE.Error as AlertType
+              );
+              reject(result?.message);
             }
           })
           .catch(function (error) {
@@ -270,13 +276,16 @@ export const apiRequest = (
           .then((response) => {
             const result = response as ApiRequest;
             if (!checkAuth(result)) {
-              reject(result.message);
+              reject(result?.message);
             }
             if (result && result.status === SUCCESS_STATUS) {
               resolve(result.data);
             } else {
-              alertMsg(result.message, COMMON_ALERT_TYPE.Error as AlertType);
-              reject(result.message);
+              alertMsg(
+                result?.message || 'error',
+                COMMON_ALERT_TYPE.Error as AlertType
+              );
+              reject(result?.message);
             }
           })
           .catch(function (error) {
@@ -289,13 +298,16 @@ export const apiRequest = (
           .then((response) => {
             const result = response as ApiRequest;
             if (!checkAuth(result)) {
-              reject(result.message);
+              reject(result?.message);
             }
             if (result && result.status === SUCCESS_STATUS) {
               resolve(result.data);
             } else {
-              alertMsg(result.message, COMMON_ALERT_TYPE.Error as AlertType);
-              reject(result.message);
+              alertMsg(
+                result?.message || 'error',
+                COMMON_ALERT_TYPE.Error as AlertType
+              );
+              reject(result?.message);
             }
           })
           .catch(function (error) {
@@ -308,17 +320,20 @@ export const apiRequest = (
           .then((response) => {
             const result = response as ApiRequest;
             if (!checkAuth(result)) {
-              reject(result.message);
+              reject(result?.message);
             }
             if (result && result.status === SUCCESS_STATUS) {
               resolve(result.data);
             } else {
               const errorMsg = getDeleteErrorMsg(result);
               errorMsg &&
-                alertMsg(result?.message, COMMON_ALERT_TYPE.Error as AlertType);
+                alertMsg(
+                  result?.message || 'error',
+                  COMMON_ALERT_TYPE.Error as AlertType
+                );
               url.indexOf('template/identifiers/') > -1 && reject(result);
               url.indexOf('template/identifiers/') === -1 &&
-                reject(result.message);
+                reject(result?.message);
             }
           })
           .catch(function (error) {

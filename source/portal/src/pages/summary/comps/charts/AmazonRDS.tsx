@@ -15,9 +15,11 @@ import { getCatalogTopNData } from 'apis/dashboard/api';
 import { ITableListKeyValue, ITableDataType } from 'ts/dashboard/types';
 import { useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
+import { useTranslation } from 'react-i18next';
 
 export const AmazonRDS: React.FC<any> = memo(() => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loadingTableData, setLoadingTableData] = useState(true);
   const [conatainsPIIData, setConatainsPIIData] = useState<
     ITableListKeyValue[]
@@ -28,13 +30,17 @@ export const AmazonRDS: React.FC<any> = memo(() => {
 
   const getTopNTableData = async () => {
     setLoadingTableData(true);
-    const tableData = (await getCatalogTopNData({
-      database_type: 'rds',
-      top_n: 99999,
-    })) as ITableDataType;
-    setConatainsPIIData(tableData.account_top_n);
-    setIdentifierData(tableData.identifier_top_n);
-    setLoadingTableData(false);
+    try {
+      const tableData = (await getCatalogTopNData({
+        database_type: 'rds',
+        top_n: 99999,
+      })) as ITableDataType;
+      setConatainsPIIData(tableData.account_top_n);
+      setIdentifierData(tableData.identifier_top_n);
+      setLoadingTableData(false);
+    } catch (error) {
+      setLoadingTableData(false);
+    }
   };
 
   useEffect(() => {
@@ -50,7 +56,7 @@ export const AmazonRDS: React.FC<any> = memo(() => {
             <Button
               onClick={() => navigate(`${RouterEnum.Catalog.path}?tagType=rds`)}
             >
-              Browse data catalogs
+              {t('button.browserCatalog')}
             </Button>
           </SpaceBetween>
         }

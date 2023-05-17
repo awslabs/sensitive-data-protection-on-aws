@@ -8,7 +8,6 @@ import {
   Button,
   Select,
   SelectProps,
-  Badge,
 } from '@cloudscape-design/components';
 import CommonBadge from 'pages/common-badge';
 import CatalogDetailList from './CatalogDetailList';
@@ -31,7 +30,7 @@ import {
   updateCatalogTableLabels,
 } from 'apis/data-catalog/api';
 import '../style.scss';
-import { alertMsg, deepClone, toJSON } from 'tools/tools';
+import { alertMsg, deepClone } from 'tools/tools';
 import {
   CONTAINS_PII_OPTION,
   NA_OPTION,
@@ -39,6 +38,7 @@ import {
 } from 'pages/common-badge/componments/Options';
 import LabelModal from 'common/LabelModal';
 import { Label } from 'ts/data-catalog/types';
+import { useTranslation } from 'react-i18next';
 
 const SchemaModal: React.FC<any> = (props: any) => {
   const {
@@ -50,6 +50,7 @@ const SchemaModal: React.FC<any> = (props: any) => {
     setSelectRowData,
     updateFatherPage,
   } = props;
+  const { t } = useTranslation();
   const [saveLoading, setSaveLoading] = useState(false);
 
   const [updateData, setUpdateData] = useState(null as any);
@@ -150,12 +151,17 @@ const SchemaModal: React.FC<any> = (props: any) => {
       (item: { [x: string]: any }) => item[UPDATE_FLAG]
     );
     const promiseList = tempUpdateData.map((item: any) => {
-      if (item.identifier) {
-        const parseObj = toJSON(item.identifier);
-        item.identifier = parseObj
-          ? JSON.stringify(parseObj)
-          : JSON.stringify({ 'N/A': 1 });
-      }
+      // if (item.identifier && item.identifier.length > 0) {
+      //   // const parseObj = item.identifier.reduce((acc: any, curr: string) => {
+      //   //   acc[curr] = '1';
+      //   //   return acc;
+      //   // }, {});
+      //   // const parseObj = toJSON(item.identifier);
+      //   // const parseObj = JSON.stringify(item.identifier);
+      //   // item.identifier = parseObj
+      //   //   ? JSON.stringify(parseObj)
+      //   //   : JSON.stringify({ 'N/A': 1 });
+      // }
       delete item[UPDATE_FLAG];
       return updateCatalogColumn({ ...item });
     });
@@ -294,7 +300,7 @@ const SchemaModal: React.FC<any> = (props: any) => {
                   setShowSchemaModal(false);
                 }}
               >
-                Cancel
+                {t('button.cancel')}
               </Button>
               <Button
                 variant="primary"
@@ -302,7 +308,7 @@ const SchemaModal: React.FC<any> = (props: any) => {
                 onClick={saveData}
                 disabled={saveDisabled}
               >
-                Save
+                {t('button.save')}
               </Button>
             </SpaceBetween>
           </Box>
@@ -357,8 +363,8 @@ const SchemaModal: React.FC<any> = (props: any) => {
               <b>Custom labels: </b>
               {selectRowData[COLUMN_OBJECT_STR.Labels].map((label: any) => {
                 return (
-                  <span key={label.id} className="mr-5">
-                    <Badge color="blue">{label.label_name}</Badge>
+                  <span key={label.id} className="custom-badge label mr-5">
+                    {label.label_name}
                   </span>
                 );
               })}

@@ -13,6 +13,7 @@ import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import Navigation from 'pages/left-menu/Navigation';
 import { getAccountInfomation } from 'apis/dashboard/api';
 import { RouterEnum } from 'routers/routerEnum';
+import { useTranslation } from 'react-i18next';
 
 const AccountManagementHeader: React.FC = () => {
   return (
@@ -40,14 +41,18 @@ const AccountManagementContent: React.FC = () => {
   }, []);
 
   const getSourceCoverageData = async () => {
-    const result: any = await getSourceCoverage();
-    if (result) {
-      setCoverageData(result);
-    }
-    const accountData: any = await getAccountInfomation();
-    if (accountData) {
-      setTotalAccount(accountData.account_total);
-      setTotalRegion(accountData.region_total);
+    try {
+      const result: any = await getSourceCoverage();
+      if (result) {
+        setCoverageData(result);
+      }
+      const accountData: any = await getAccountInfomation();
+      if (accountData) {
+        setTotalAccount(accountData.account_total);
+        setTotalRegion(accountData.region_total);
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -89,9 +94,13 @@ const AccountManagementContent: React.FC = () => {
 };
 
 const AccountManagement: React.FC = () => {
+  const { t } = useTranslation();
   const breadcrumbItems = [
-    { text: 'Sensitive Data Protection Solution', href: RouterEnum.Home.path },
-    { text: 'Connect to data source', href: RouterEnum.AccountManagement.path },
+    { text: t('breadcrumb.home'), href: RouterEnum.Home.path },
+    {
+      text: t('breadcrumb.connectSource'),
+      href: RouterEnum.AccountManagement.path,
+    },
   ];
   return (
     <AppLayout
