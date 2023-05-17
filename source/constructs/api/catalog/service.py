@@ -328,12 +328,12 @@ def sync_crawler_result(
                                                                                      database_type, database_name)
         for catalog in catalog_table_list:
             if catalog.table_name not in table_name_list:
-                logger.info("sync_crawler_result DELETE TABLE AND COLUMN WHEN NOT IN GLUE TABLES" + json.dumps(catalog))
+                logger.info("sync_crawler_result DELETE TABLE AND COLUMN WHEN NOT IN GLUE TABLES！！！" + catalog.table_name)
                 need_clean_database = True
                 crud.delete_catalog_table_level_classification(catalog.id)
                 crud.delete_catalog_column_level_classification_by_table_name(account_id, region, database_type, database_name, catalog.table_name)
             column_list = table_column_dict[catalog.table_name]
-            logger.info("sync_crawler_result DELETE COLUMN WHEN NOT IN GLUE TABLES" + json.dumps(table_column_dict[catalog.table_name]))
+            logger.info("sync_crawler_result DELETE COLUMN WHEN NOT IN GLUE TABLES" + catalog.table_name + json.dumps(table_column_dict[catalog.table_name]))
             crud.delete_additional_catalog_column_level_classification_by_table_name(account_id, region, database_type, database_name, catalog.table_name, column_list)
 
     if table_count == 0:
@@ -513,6 +513,8 @@ def __query_job_result_by_athena(
         query_execution_status = response["QueryExecution"]["Status"]["State"]
 
         if query_execution_status == AthenaQueryState.SUCCEEDED.value:
+            print("__query_job_result_by_athena : " )
+            print(response)
             break
 
         if query_execution_status == AthenaQueryState.FAILED.value:
@@ -523,6 +525,7 @@ def __query_job_result_by_athena(
 
     result = client.get_query_results(QueryExecutionId=query_id)
     # Remove Athena query result to save cost.
+    print(result)
     __remove_query_result_from_s3(query_id)
 
     return result
@@ -602,7 +605,7 @@ def sync_job_detection_result(
                 )
                 identifier_dict = __convert_identifiers_to_dict(identifier)
                 if catalog_column is not None and (overwrite or (
-                        not overwrite and catalog_column.manual_pii != "manual")):
+                        not overwrite and catalog_column.manual_tag != "manual")):
                     column_dict = {
                         "identifier": json.dumps(identifier_dict),
                         "column_value_example": column_sample_data,
@@ -627,8 +630,8 @@ def sync_job_detection_result(
     if not table_size_dict:
         logger.info(
             "sync_job_detection_result - RESET NA TABLE AND COLUMNS WHEN TABLE_SIZE IS ZERO ")
-        crud.update_catalog_table_none_privacy_by_database(account_id, region, database_type,
-                                                           database_name, overwrite)
+        crud.update_catalog_table_none_privacy_by_name(account_id, region, database_type,
+                                                       database_name, None, overwrite)
         crud.update_catalog_column_none_privacy_by_database(account_id, region, database_type,
                                                             database_name, overwrite)
     # Initialize database privacy with NON-PII
@@ -672,7 +675,7 @@ def sync_job_detection_result(
             identifier_set = table_identifier_dict[table_name]
             identifiers = "|".join(list(map(str, identifier_set)))
             if catalog_table is not None and (overwrite or (
-                        not overwrite and catalog_table.manual_pii != "manual")):
+                        not overwrite and catalog_table.manual_tag != "manual")):
                 table_dict = {
                     "privacy": privacy,
                     "identifiers": identifiers,
@@ -686,7 +689,7 @@ def sync_job_detection_result(
         account_id, region, database_type, database_name
     )
     if catalog_database is not None and (overwrite or (
-                        not overwrite and catalog_database.manual_pii != "manual")):
+                        not overwrite and catalog_database.manual_tag != "manual")):
         database_dict = {
             "privacy": database_privacy,
             "state": CatalogState.DETECTED.value,
