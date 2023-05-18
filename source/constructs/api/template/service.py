@@ -20,8 +20,10 @@ def get_identifiers(condition: QueryCondition):
     #         props_filter_not.append(item)
     # condition.conditions = props_filter_not
     # res = crud.get_identifiers(condition)
-    # if props_filter:
-    #     res = filter_identifier_by_props(res, props_filter)
+    # if props_filter and res:
+    #     for item in res:
+    #         if item.props:
+    #             print(item.props[1])
     # return res
     return crud.get_identifiers(condition)
 
@@ -168,7 +170,10 @@ def check_rule(identifier):
                            MessageEnum.TEMPLATE_IDENTIFIER_RULES_EMPTY.get_msg())
 
 
-# def filter_identifier_by_props(identifiers, props):
+# def filter_identifier_by_props(identifiers, props: list):
 #     for item in props:
+#         print('++++++++++++++++++++++++++++')
+#         print(item.values)
+#         print('++++++++++++++++++++++++++++')
 #         if item.operation == OperationType.EQUAL:
-#             identifiers = [item for item in identifiers if item.]
+#             pass

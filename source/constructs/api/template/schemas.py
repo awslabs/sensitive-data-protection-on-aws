@@ -79,7 +79,10 @@ class TemplateMappingRes(BaseModel):
     type: Optional[int]
     name: str
     description: Optional[str]
-    props: Optional[list[TemplateIdentifierProp]]
+    props: Optional[list]
+
+    class Config:
+        orm_mode = True
 
 
 # class TemplateIdentifierPropRef(BaseModel):
