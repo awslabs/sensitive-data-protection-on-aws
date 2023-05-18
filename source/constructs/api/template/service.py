@@ -4,14 +4,26 @@ import os
 from common.constant import const
 from common.response_wrapper import S3WrapEncoder
 from common.exception_handler import BizException
-from common.enum import MessageEnum, DatabaseType, IdentifierDependency, IdentifierType
+from common.enum import MessageEnum, DatabaseType, IdentifierDependency, IdentifierType, OperationType
 from common.query_condition import QueryCondition
 from catalog.service_dashboard import get_database_by_identifier
 from template import schemas, crud
 
 
 def get_identifiers(condition: QueryCondition):
-    return crud.get_identifiers(condition)
+    props_filter = []
+    props_filter_not = []
+    for item in condition.conditions:
+        if item.column == 'props':
+            props_filter.append(item)
+        else:
+            props_filter_not.append(item)
+    condition.conditions = props_filter_not
+    res = crud.get_identifiers(condition)
+    if props_filter:
+        res = filter_identifier_by_props(res, props_filter)
+    return res
+    # return crud.get_identifiers(condition)
 
 
 def get_identifiers_by_template(tid: int):
@@ -154,3 +166,9 @@ def check_rule(identifier):
     if identifier.type == IdentifierType.CUSTOM.value and identifier.rule == const.EMPTY_STR:
         raise BizException(MessageEnum.TEMPLATE_IDENTIFIER_RULES_EMPTY.get_code(),
                            MessageEnum.TEMPLATE_IDENTIFIER_RULES_EMPTY.get_msg())
+
+
+# def filter_identifier_by_props(identifiers, props):
+#     for item in props:
+#         if item.operation == OperationType.EQUAL:
+#             identifiers = [item for item in identifiers if item.]
