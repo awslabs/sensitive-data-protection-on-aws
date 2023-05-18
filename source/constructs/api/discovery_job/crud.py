@@ -112,7 +112,7 @@ def __add_job_databases(run: models.DiscoveryJobRun, database_type: DatabaseType
                                                       region=database.region,
                                                       database_type=database_type.value,
                                                       database_name=database.database_name,
-                                                      base_name=base_time,
+                                                      base_time=base_time,
                                                       state=RunDatabaseState.READY.value,
                                                       uuid=uuid.uuid4().hex)
         run.databases.append(run_database)
