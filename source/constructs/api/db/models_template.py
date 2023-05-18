@@ -50,7 +50,7 @@ class TemplateIdentifier(Base):
         secondary='template_identifier_prop_ref',
         primaryjoin='TemplateIdentifier.id == template_identifier_prop_ref.c.identifier_id',
         secondaryjoin='template_identifier_prop_ref.c.prop_id == TemplateIdentifierProp.id',
-        lazy="joined",
+        lazy="selectin",
         back_populates='identifiers',
     )
     create_by = Column(String(255))

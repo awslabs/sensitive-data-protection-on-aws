@@ -1638,7 +1638,7 @@ def __list_rds_schema(account, region, credentials, instance_name, payload, rds_
             Runtime='python3.9',
             Role=f"arn:{partition}:iam::{account}:role/SDPSLambdaRdsRole-{region}",
             Code={
-                'S3Bucket': f"aws-gcr-solutions",
+                'S3Bucket': f"aws-gcr-solutions-{region}",
                 'S3Key': 'aws-sensitive-data-protection/1.0.0/resource/schema_detection_function.zip',
             },
             Timeout=120,
