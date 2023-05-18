@@ -87,7 +87,7 @@ def list_rds_instance_source(condition: QueryCondition):
     for account in accounts:
         account_ids.append(account.aws_account_id)
     instances = get_session().query(RdsInstanceSource).filter(
-        RdsInstanceSource.account_id.in_(account_ids))
+        RdsInstanceSource.aws_account.in_(account_ids))
     instances = query_with_condition(instances, condition)
     return instances
 
