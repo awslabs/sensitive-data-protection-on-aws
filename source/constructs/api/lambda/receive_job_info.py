@@ -1,9 +1,10 @@
 import discovery_job.service as service
 from db.database import gen_session, close_session
-import logging
 import json
+from common.constant import const
+import logging
 
-logger = logging.getLogger('receive_job_info')
+logger = logging.getLogger(const.LOGGER_API)
 logger.setLevel(logging.INFO)
 
 

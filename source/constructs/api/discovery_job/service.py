@@ -14,7 +14,6 @@ import datetime, time
 from openpyxl import Workbook
 from tempfile import NamedTemporaryFile
 from catalog.service import sync_job_detection_result
-from config.service import set_config, get_config
 
 logger = logging.getLogger(const.LOGGER_API)
 controller_function_name = os.getenv("ControllerFunctionName", f"{const.SOLUTION_NAME}-Controller")
@@ -429,22 +428,19 @@ def get_run_database_progress(job_id: int, run_id: int, run_database_id: int) ->
     current_table_count = -1
     if run_database.state == RunDatabaseState.READY.value:
         current_table_count = 0
-    elif run_database.state == RunDatabaseState.SUCCEEDED.value or run_database.state == RunDatabaseState.FAILED.value or run_database.state == RunDatabaseState.STOPPED.value:
+    elif run_database.state == RunDatabaseState.SUCCEEDED.value:
         current_table_count = run_database.table_count
-    elif run_database.state == RunDatabaseState.RUNNING.value:
-        current_table_count = __get_current_table_count(run_database)
+    elif run_database.state == RunDatabaseState.NOT_EXIST.value:
+        current_table_count = -1
+    else:
+        current_table_count = __get_current_table_count(run_database.id)
     progress = schemas.DiscoveryJobRunDatabaseProgress(current_table_count=current_table_count,
                                                        table_count=run_database.table_count)
     return progress
 
 
-def __get_current_table_count(run_database: models.DiscoveryJobRunDatabase):
-    sql = "select count(distinct table_name) from sdps_database.job_detection_output_table" \
-          f" where run_id='{run_database.run_id}'" \
-          f" and account_id='{run_database.account_id}'" \
-          f" and region='{run_database.region}'" \
-          f" and database_type='{run_database.database_type}'" \
-          f" and database_name='{run_database.database_name}'"
+def __get_current_table_count(run_database_id: int):
+    sql = f"select count(distinct table_name) from sdps_database.job_detection_output_table where run_database_id='{run_database_id}'"
     current_table_count = __query_athena(sql)
     logger.debug(current_table_count)
     return int(current_table_count[1][0]["VarCharValue"])
@@ -520,6 +516,10 @@ def check_running_run():
     run_databases = crud.get_running_run_databases()
     for run_database in run_databases:
         run_database_state = __get_run_database_state_from_agent(run_database)
+        logger.info(f"check running run,run database id:{run_database.id},run id:{run_database.run_id}"
+                    f",account id:{run_database.account_id},region:{run_database.region}"
+                    f",database type:{run_database.database_type},database name:{run_database.database_name}"
+                    f",state:{run_database_state}")
         if run_database_state == RunDatabaseState.RUNNING.value.upper():
             continue
         if run_database_state == RunDatabaseState.NOT_EXIST.value:
@@ -532,15 +532,14 @@ def check_running_run():
             run_database.state = RunDatabaseState.FAILED.value
             run_database.log = error_log
         try:
-            if run_database_state == RunDatabaseState.SUCCEEDED.value.upper():
-                job = crud.get_job_by_run_id(run_database.run_id)
-                sync_job_detection_result(run_database.account_id,
-                                          run_database.region,
-                                          run_database.database_type,
-                                          run_database.database_name,
-                                          run_database.run_id,
-                                          job.overwrite == 1,
-                                          )
+            job = crud.get_job_by_run_id(run_database.run_id)
+            sync_job_detection_result(run_database.account_id,
+                                      run_database.region,
+                                      run_database.database_type,
+                                      run_database.database_name,
+                                      run_database.run_id,
+                                      job.overwrite == 1,
+                                      )
         except Exception:
             run_database.state = RunDatabaseState.FAILED.value
             message = traceback.format_exc()

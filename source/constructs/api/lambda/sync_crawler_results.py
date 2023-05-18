@@ -1,12 +1,12 @@
-import logging
-
 import catalog.service as catalog_service
 import data_source.crud as data_source_crud
 from common.enum import DatabaseType, ConnectionState
 from db.database import gen_session, close_session
 import json
+from common.constant import const
+import logging
 
-logger = logging.getLogger('sync_crawler_results')
+logger = logging.getLogger(const.LOGGER_API)
 logger.setLevel(logging.INFO)
 
 

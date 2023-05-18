@@ -34,7 +34,7 @@ def __is_repairing():
     if start_time_str is None:
         return False
     start_time = mytime.parse_time(start_time_str)
-    now = mytime.get_time()
+    now = mytime.get_now()
     delta_seconds = (now - start_time).seconds
     return delta_seconds < 900
 
