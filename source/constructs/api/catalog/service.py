@@ -333,9 +333,15 @@ def sync_crawler_result(
                 need_clean_database = True
                 crud.delete_catalog_table_level_classification(catalog.id)
                 crud.delete_catalog_column_level_classification_by_table_name(account_id, region, database_type, database_name, catalog.table_name, None)
-            column_list = table_column_dict[catalog.table_name]
-            logger.info("sync_crawler_result DELETE COLUMN WHEN NOT IN GLUE TABLES" + catalog.table_name + json.dumps(table_column_dict[catalog.table_name]))
-            crud.delete_catalog_column_level_classification_by_table_name(account_id, region, database_type, database_name, catalog.table_name, column_list)
+            if catalog.table_name in table_column_dict:
+                column_list = table_column_dict[catalog.table_name]
+                logger.info(
+                    "sync_crawler_result DELETE COLUMN WHEN NOT IN GLUE TABLES" + catalog.table_name + json.dumps(
+                        table_column_dict[catalog.table_name]))
+                crud.delete_catalog_column_level_classification_by_table_name(account_id, region, database_type,
+                                                                              database_name, catalog.table_name,
+                                                                              column_list)
+
 
     if table_count == 0:
         if database_type == DatabaseType.RDS.value:

@@ -38,7 +38,7 @@ _admin_account_id = caller_identity.get('Account')
 _admin_account_region = boto3.session.Session().region_name
 
 
-def build_s3_targets(bucket, credentials, region):
+def build_s3_targets(bucket, credentials, region, is_init):
     s3 = boto3.client('s3',
                       aws_access_key_id=credentials['AccessKeyId'],
                       aws_secret_access_key=credentials['SecretAccessKey'],
@@ -49,6 +49,7 @@ def build_s3_targets(bucket, credentials, region):
     if 'Contents' not in response and 'CommonPrefixes' not in response:
         raise BizException(MessageEnum.SOURCE_S3_EMPTY_BUCKET.get_code(),
                            MessageEnum.SOURCE_S3_EMPTY_BUCKET.get_msg())
+    logger.info(response)
     s3_targets = []
     if 'CommonPrefixes' in response:
         for common_prefix in response['CommonPrefixes']:
@@ -59,13 +60,25 @@ def build_s3_targets(bucket, credentials, region):
                 }
             )
     if 'Contents' in response:
-        s3_targets.append(
-            {
-                "Path": f"s3://{bucket}",
-                "SampleSize": 20,
-                "Exclusions": []
-            }
-        )
+        if is_init:
+            s3_targets.append(
+                {
+                    "Path": f"s3://{bucket}",
+                    "SampleSize": 20,
+                    "Exclusions": []
+                }
+            )
+        else:
+            for content in response['Contents']:
+                s3_targets.append(
+                    {
+                        "Path": f"s3://{bucket}/{content['Key']}",
+                        "SampleSize": 20,
+                        "Exclusions": []
+                    }
+                )
+    logger.info("build_s3_targets")
+    logger.info(s3_targets)
     return s3_targets
 
 
@@ -96,7 +109,7 @@ def create_s3_connection(account: str, region: str, bucket: str):
         credentials = assumed_role['Credentials']
         # PENDING｜ACTIVE｜ERROR with message
         crud.set_s3_bucket_source_glue_state(account, region, bucket, ConnectionState.PENDING.value)
-        s3_targets = build_s3_targets(bucket, credentials, region)
+        s3_targets = build_s3_targets(bucket, credentials, region, True)
         glue = boto3.client('glue',
                             aws_access_key_id=credentials['AccessKeyId'],
                             aws_secret_access_key=credentials['SecretAccessKey'],
@@ -222,6 +235,8 @@ def sync_s3_connection(account: str, region: str, bucket: str):
     elif state == ConnectionState.CRAWLING.value:
         raise BizException(MessageEnum.SOURCE_CONNECTION_CRAWLING.get_code(),
                            MessageEnum.SOURCE_CONNECTION_CRAWLING.get_msg())
+    elif state == ConnectionState.ACTIVE.value:
+        delete_glue_connection(account, region, crawler_name, glue_database_name, glue_connection_name)
     try:
         # PENDING｜ACTIVE｜ERROR with message
         crud.set_s3_bucket_source_glue_state(account, region, bucket, ConnectionState.PENDING.value)
@@ -231,7 +246,7 @@ def sync_s3_connection(account: str, region: str, bucket: str):
             RoleSessionName="glue-s3-connection"
         )
         credentials = assumed_role['Credentials']
-        s3_targets = build_s3_targets(bucket, credentials, region)
+        s3_targets = build_s3_targets(bucket, credentials, region, True)
         logger.info("sync_s3_connection rebuild s3 targets:")
         logger.info(s3_targets)
         glue = boto3.client('glue',
@@ -272,26 +287,28 @@ def sync_s3_connection(account: str, region: str, bucket: str):
         )
 
         try:
-            try:
-                if state == ConnectionState.ACTIVE.value:
-                    up_cr_response = glue.update_crawler(
-                        Name=crawler_name,
-                        Role=crawler_role_arn,
-                        DatabaseName=glue_database_name,
-                        Targets={
-                            "S3Targets": s3_targets
-                        },
-                    )
-                    logger.info("update crawler:")
-                    logger.info(up_cr_response)
-                    st_cr_response = glue.start_crawler(
-                        Name=crawler_name
-                    )
-                    logger.info(st_cr_response)
-                gt_cr_response = glue.get_crawler(Name=crawler_name)
-                logger.info(gt_cr_response)
-            except Exception as e:
-                delete_glue_connection(account, region, crawler_name, glue_database_name, glue_connection_name)
+            gt_cr_response = glue.get_crawler(Name=crawler_name)
+            logger.info(gt_cr_response)
+            # try:
+            #     if state == ConnectionState.ACTIVE.value:
+            #         up_cr_response = glue.update_crawler(
+            #             Name=crawler_name,
+            #             Role=crawler_role_arn,
+            #             DatabaseName=glue_database_name,
+            #             Targets={
+            #                 "S3Targets": build_s3_targets(bucket, credentials, region, False)
+            #             },
+            #         )
+            #         logger.info("update crawler:")
+            #         logger.info(up_cr_response)
+            #         st_cr_response = glue.start_crawler(
+            #             Name=crawler_name
+            #         )
+            #         logger.info(st_cr_response)
+            #     gt_cr_response = glue.get_crawler(Name=crawler_name)
+            #     logger.info(gt_cr_response)
+            # except Exception as e:
+            #     delete_glue_connection(account, region, crawler_name, glue_database_name, glue_connection_name)
         except Exception as e:
             response = glue.create_crawler(
                 Name=crawler_name,
@@ -1117,10 +1134,10 @@ def delete_glue_connection(account: str, region: str, glue_crawler: str,
         glue.delete_crawler(Name=glue_crawler)
     except Exception as e:
         logger.info("delete_glue_crawler" + str(e))
-    # try:
-    #     glue.delete_database(Name=glue_database)
-    # except Exception as e:
-    #     logger.info("delete_glue_database" + str(e))
+    try:
+        glue.delete_database(Name=glue_database)
+    except Exception as e:
+        logger.info("delete_glue_database" + str(e))
     # try:
     #     glue.delete_connection(ConnectionName=glue_connection)
     # except Exception as e:
