@@ -214,7 +214,8 @@ def sync_s3_connection(account: str, region: str, bucket: str):
                            MessageEnum.SOURCE_DO_NOT_SUPPORT_CROSS_REGION.get_msg())
 
     state = crud.get_s3_bucket_source_glue_state(account, region, bucket)
-    logger.info("sync_s3_connection state is:" + state)
+    logger.info("sync_s3_connection state is:")
+    logger.info(state)
     if state == ConnectionState.PENDING.value:
         raise BizException(MessageEnum.SOURCE_CONNECTION_NOT_FINISHED.get_code(),
                            MessageEnum.SOURCE_CONNECTION_NOT_FINISHED.get_msg())
