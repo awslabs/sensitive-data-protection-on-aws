@@ -16,6 +16,7 @@ def list_s3_buckets(condition: QueryCondition):
     sources = crud.list_s3_bucket_source(condition)
     if sources is None:
         return None
+    print(sources)
     return paginate(sources, Params(
         size=condition.size,
         page=condition.page,

@@ -1,7 +1,6 @@
 import datetime
 
 from sqlalchemy import desc
-
 from common.enum import ConnectionState
 from common.query_condition import QueryCondition, query_with_condition
 from db.database import get_session
@@ -44,17 +43,12 @@ def get_account_agent_regions(account_id: str):
 def list_s3_bucket_source(condition: QueryCondition):
     # status = 0 : admin
     # status = 1 : monitored account
-    buckets = None
-    accounts = get_session().query(Account).filter(Account.status == 1)
+    accounts = get_session().query(Account).filter(Account.status == 1).all()
+    account_ids = []
     for account in accounts:
-        if buckets is None:
-            buckets = get_session().query(S3BucketSource).filter(S3BucketSource.aws_account == account.aws_account_id)
-            buckets = query_with_condition(buckets, condition)
-        else:
-            union = query_with_condition(
-                get_session().query(S3BucketSource).filter(S3BucketSource.aws_account == account.aws_account_id),
-                condition)
-            buckets = buckets.union(union)
+        account_ids.append(account.aws_account_id)
+    buckets = get_session().query(S3BucketSource).filter(S3BucketSource.aws_account.in_(account_ids))
+    buckets = query_with_condition(buckets, condition)
     return buckets
 
 
@@ -88,17 +82,13 @@ def list_rds_instance_source(condition: QueryCondition):
     # status = 0 : admin
     # status = 1 : monitored account
     instances = None
-    accounts = get_session().query(Account).filter(Account.status == 1)
+    accounts = get_session().query(Account).filter(Account.status == 1).all()
+    account_ids = []
     for account in accounts:
-        if instances is None:
-            instances = get_session().query(RdsInstanceSource).filter(
-                RdsInstanceSource.account_id == account.aws_account_id)
-            instances = query_with_condition(instances, condition)
-        else:
-            union = query_with_condition(
-                get_session().query(RdsInstanceSource).filter(RdsInstanceSource.account_id == account.aws_account_id),
-                condition)
-            instances = instances.union(union)
+        account_ids.append(account.aws_account_id)
+    instances = get_session().query(RdsInstanceSource).filter(
+        RdsInstanceSource.account_id.in_(account_ids))
+    instances = query_with_condition(instances, condition)
     return instances
 
 
