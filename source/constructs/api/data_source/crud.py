@@ -5,7 +5,7 @@ from sqlalchemy import desc
 from common.enum import ConnectionState
 from common.query_condition import QueryCondition, query_with_condition
 from db.database import get_session
-from db.models_data_source import S3BucketSource, Account, DetectionHistory, RdsInstanceSource
+from db.models_data_source import S3BucketSource, Account, RdsInstanceSource
 
 
 def list_accounts(condition: QueryCondition):
@@ -47,18 +47,14 @@ def list_s3_bucket_source(condition: QueryCondition):
     buckets = None
     accounts = get_session().query(Account).filter(Account.status == 1)
     for account in accounts:
-        latest = get_session().query(DetectionHistory).filter(
-            DetectionHistory.source_type == 's3', DetectionHistory.aws_account == account.aws_account_id).order_by(
-            desc(DetectionHistory.detection_time)).first()
-        if latest is not None:
-            if buckets is None:
-                buckets = get_session().query(S3BucketSource).filter(S3BucketSource.detection_history_id == latest.id)
-                buckets = query_with_condition(buckets, condition)
-            else:
-                union = query_with_condition(
-                    get_session().query(S3BucketSource).filter(S3BucketSource.detection_history_id == latest.id),
-                    condition)
-                buckets = buckets.union(union)
+        if buckets is None:
+            buckets = get_session().query(S3BucketSource).filter(S3BucketSource.aws_account == account.aws_account_id)
+            buckets = query_with_condition(buckets, condition)
+        else:
+            union = query_with_condition(
+                get_session().query(S3BucketSource).filter(S3BucketSource.aws_account == account.aws_account_id),
+                condition)
+            buckets = buckets.union(union)
     return buckets
 
 
@@ -66,29 +62,24 @@ def list_s3_bucket_source_by_account(account_id: str, region: str, state: str):
     # status = 0 : admin
     # status = 1 : monitored account
     bucket_names = []
-    accounts = get_session().query(Account).filter(Account.status == 1)
-    latest = get_session().query(DetectionHistory).filter(
-        DetectionHistory.source_type == 's3', DetectionHistory.aws_account == account_id).order_by(
-        desc(DetectionHistory.detection_time)).first()
-    if latest is not None:
-        buckets = get_session().query(S3BucketSource).filter(
-            S3BucketSource.detection_history_id == latest.id,
-            S3BucketSource.region == region,
-            S3BucketSource.glue_state != ConnectionState.PENDING.value,
-            S3BucketSource.glue_state != ConnectionState.ACTIVE.value,
-            S3BucketSource.glue_state != ConnectionState.CRAWLING.value
-        )
-        if buckets is not None:
-            for bucket in buckets:
-                bucket_names.append(bucket.bucket_name)
-        buckets = get_session().query(S3BucketSource).filter(
-            S3BucketSource.detection_history_id == latest.id,
-            S3BucketSource.region == region,
-            S3BucketSource.glue_state == state
-        )
-        if buckets is not None:
-            for bucket in buckets:
-                bucket_names.append(bucket.bucket_name)
+    buckets = get_session().query(S3BucketSource).filter(
+        S3BucketSource.aws_account == account_id,
+        S3BucketSource.region == region,
+        S3BucketSource.glue_state != ConnectionState.PENDING.value,
+        S3BucketSource.glue_state != ConnectionState.ACTIVE.value,
+        S3BucketSource.glue_state != ConnectionState.CRAWLING.value
+    )
+    if buckets is not None:
+        for bucket in buckets:
+            bucket_names.append(bucket.bucket_name)
+    buckets = get_session().query(S3BucketSource).filter(
+        S3BucketSource.aws_account == account_id,
+        S3BucketSource.region == region,
+        S3BucketSource.glue_state == state
+    )
+    if buckets is not None:
+        for bucket in buckets:
+            bucket_names.append(bucket.bucket_name)
 
     return bucket_names
 
@@ -99,19 +90,15 @@ def list_rds_instance_source(condition: QueryCondition):
     instances = None
     accounts = get_session().query(Account).filter(Account.status == 1)
     for account in accounts:
-        latest = get_session().query(DetectionHistory).filter(
-            DetectionHistory.source_type == 'rds', DetectionHistory.aws_account == account.aws_account_id).order_by(
-            desc(DetectionHistory.detection_time)).first()
-        if latest is not None:
-            if instances is None:
-                instances = get_session().query(RdsInstanceSource).filter(
-                    RdsInstanceSource.detection_history_id == latest.id)
-                instances = query_with_condition(instances, condition)
-            else:
-                union = query_with_condition(
-                    get_session().query(RdsInstanceSource).filter(RdsInstanceSource.detection_history_id == latest.id),
-                    condition)
-                instances = instances.union(union)
+        if instances is None:
+            instances = get_session().query(RdsInstanceSource).filter(
+                RdsInstanceSource.account_id == account.aws_account_id)
+            instances = query_with_condition(instances, condition)
+        else:
+            union = query_with_condition(
+                get_session().query(RdsInstanceSource).filter(RdsInstanceSource.account_id == account.aws_account_id),
+                condition)
+            instances = instances.union(union)
     return instances
 
 
