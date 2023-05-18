@@ -174,10 +174,12 @@ def set_s3_bucket_source_glue_state(account: str, region: str, bucket: str, stat
                                                             S3BucketSource.region == region,
                                                             S3BucketSource.aws_account == account).order_by(
         desc(S3BucketSource.detection_history_id)).first()
-
-    s3_bucket_source.glue_state = state
-    session.merge(s3_bucket_source)
-    session.commit()
+    if s3_bucket_source is not None:
+        s3_bucket_source.glue_state = state
+        session.merge(s3_bucket_source)
+        session.commit()
+    else:
+        return None
 
 
 def get_s3_bucket_source_glue_state(account: str, region: str, bucket: str):

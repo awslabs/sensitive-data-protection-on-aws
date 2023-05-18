@@ -135,7 +135,8 @@ def __query_job_result_table_size_by_athena(
         if query_execution_status == AthenaQueryState.SUCCEEDED.value:
             break
         if query_execution_status == AthenaQueryState.FAILED.value:
-            raise Exception("Query Asset STATUS:" + query_execution_status)
+            # raise Exception("Query Asset STATUS:" + query_execution_status)
+            return {}
         else:
             time.sleep(1)
     result = client.get_query_results(QueryExecutionId=query_id)
