@@ -11,20 +11,6 @@ from template import schemas, crud
 
 
 def get_identifiers(condition: QueryCondition):
-    # props_filter = []
-    # props_filter_not = []
-    # for item in condition.conditions:
-    #     if item.column == 'props':
-    #         props_filter.append(item)
-    #     else:
-    #         props_filter_not.append(item)
-    # condition.conditions = props_filter_not
-    # res = crud.get_identifiers(condition)
-    # if props_filter and res:
-    #     for item in res:
-    #         if item.props:
-    #             print(item.props[1])
-    # return res
     return crud.get_identifiers(condition)
 
 
