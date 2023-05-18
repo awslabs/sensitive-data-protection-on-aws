@@ -38,6 +38,37 @@ _admin_account_id = caller_identity.get('Account')
 _admin_account_region = boto3.session.Session().region_name
 
 
+def build_s3_targets(bucket, credentials, region):
+    s3 = boto3.client('s3',
+                      aws_access_key_id=credentials['AccessKeyId'],
+                      aws_secret_access_key=credentials['SecretAccessKey'],
+                      aws_session_token=credentials['SessionToken'],
+                      region_name=region)
+    """ :type : pyboto3.s3 """
+    response = s3.list_objects(Bucket=bucket, Delimiter='/')
+    if 'Contents' not in response and 'CommonPrefixes' not in response:
+        raise BizException(MessageEnum.SOURCE_S3_EMPTY_BUCKET.get_code(),
+                           MessageEnum.SOURCE_S3_EMPTY_BUCKET.get_msg())
+    s3_targets = []
+    if 'CommonPrefixes' in response:
+        for common_prefix in response['CommonPrefixes']:
+            s3_targets.append(
+                {
+                    "Path": f"s3://{bucket}/{common_prefix['Prefix']}",
+                    "Exclusions": []
+                }
+            )
+    if 'Contents' in response:
+        s3_targets.append(
+            {
+                "Path": f"s3://{bucket}",
+                "SampleSize": 20,
+                "Exclusions": []
+            }
+        )
+    return s3_targets
+
+
 def create_s3_connection(account: str, region: str, bucket: str):
     glue_connection_name = f"s3-{bucket}-connection"
     glue_database_name = f"s3-{bucket}-database"
@@ -65,33 +96,7 @@ def create_s3_connection(account: str, region: str, bucket: str):
         credentials = assumed_role['Credentials']
         # PENDING｜ACTIVE｜ERROR with message
         crud.set_s3_bucket_source_glue_state(account, region, bucket, ConnectionState.PENDING.value)
-        s3 = boto3.client('s3',
-                          aws_access_key_id=credentials['AccessKeyId'],
-                          aws_secret_access_key=credentials['SecretAccessKey'],
-                          aws_session_token=credentials['SessionToken'],
-                          region_name=region)
-        """ :type : pyboto3.s3 """
-        response = s3.list_objects(Bucket=bucket, Delimiter='/')
-        if 'Contents' not in response and 'CommonPrefixes' not in response:
-            raise BizException(MessageEnum.SOURCE_S3_EMPTY_BUCKET.get_code(),
-                               MessageEnum.SOURCE_S3_EMPTY_BUCKET.get_msg())
-        s3_targets = []
-        if 'CommonPrefixes' in response:
-            for common_prefix in response['CommonPrefixes']:
-                s3_targets.append(
-                    {
-                        "Path": f"s3://{bucket}/{common_prefix['Prefix']}",
-                        "Exclusions": []
-                    }
-                )
-        if 'Contents' in response:
-            s3_targets.append(
-                {
-                    "Path": f"s3://{bucket}",
-                    "SampleSize": 20,
-                    "Exclusions": []
-                }
-            )
+        s3_targets = build_s3_targets(bucket, credentials, region)
         glue = boto3.client('glue',
                             aws_access_key_id=credentials['AccessKeyId'],
                             aws_secret_access_key=credentials['SecretAccessKey'],
@@ -209,51 +214,25 @@ def sync_s3_connection(account: str, region: str, bucket: str):
                            MessageEnum.SOURCE_DO_NOT_SUPPORT_CROSS_REGION.get_msg())
 
     state = crud.get_s3_bucket_source_glue_state(account, region, bucket)
+    logger.info("sync_s3_connection state is:" + state)
     if state == ConnectionState.PENDING.value:
         raise BizException(MessageEnum.SOURCE_CONNECTION_NOT_FINISHED.get_code(),
                            MessageEnum.SOURCE_CONNECTION_NOT_FINISHED.get_msg())
     elif state == ConnectionState.CRAWLING.value:
         raise BizException(MessageEnum.SOURCE_CONNECTION_CRAWLING.get_code(),
                            MessageEnum.SOURCE_CONNECTION_CRAWLING.get_msg())
-    if state == ConnectionState.ACTIVE.value:
-        delete_glue_connection(account, region, crawler_name, glue_database_name,
-                               glue_connection_name)
     try:
+        # PENDING｜ACTIVE｜ERROR with message
+        crud.set_s3_bucket_source_glue_state(account, region, bucket, ConnectionState.PENDING.value)
         iam_role_name = crud.get_iam_role(account)
         assumed_role = sts.assume_role(
             RoleArn=f"{iam_role_name}",
             RoleSessionName="glue-s3-connection"
         )
         credentials = assumed_role['Credentials']
-        # PENDING｜ACTIVE｜ERROR with message
-        crud.set_s3_bucket_source_glue_state(account, region, bucket, ConnectionState.PENDING.value)
-        s3 = boto3.client('s3',
-                          aws_access_key_id=credentials['AccessKeyId'],
-                          aws_secret_access_key=credentials['SecretAccessKey'],
-                          aws_session_token=credentials['SessionToken'],
-                          region_name=region)
-        """ :type : pyboto3.s3 """
-        response = s3.list_objects(Bucket=bucket, Delimiter='/')
-        if 'Contents' not in response and 'CommonPrefixes' not in response:
-            raise BizException(MessageEnum.SOURCE_S3_EMPTY_BUCKET.get_code(),
-                               MessageEnum.SOURCE_S3_EMPTY_BUCKET.get_msg())
-        s3_targets = []
-        if 'CommonPrefixes' in response:
-            for common_prefix in response['CommonPrefixes']:
-                s3_targets.append(
-                    {
-                        "Path": f"s3://{bucket}/{common_prefix['Prefix']}",
-                        "Exclusions": []
-                    }
-                )
-        if 'Contents' in response:
-            s3_targets.append(
-                {
-                    "Path": f"s3://{bucket}",
-                    "SampleSize": 20,
-                    "Exclusions": []
-                }
-            )
+        s3_targets = build_s3_targets(bucket, credentials, region)
+        logger.info("sync_s3_connection rebuild s3 targets:")
+        logger.info(s3_targets)
         glue = boto3.client('glue',
                             aws_access_key_id=credentials['AccessKeyId'],
                             aws_secret_access_key=credentials['SecretAccessKey'],
@@ -290,7 +269,28 @@ def sync_s3_connection(account: str, region: str, bucket: str):
         )
 
         try:
-            glue.get_crawler(Name=crawler_name)
+            if state == ConnectionState.ACTIVE.value:
+                # delete_glue_connection(account, region, crawler_name, glue_database_name,
+                #                        glue_connection_name)
+                up_cr_response = glue.update_crawler(
+                    Name=crawler_name,
+                    Role=crawler_role_arn,
+                    DatabaseName=glue_database_name,
+                    Targets={
+                        "S3Targets": s3_targets
+                    },
+                    Tags={
+                        'AdminAccountId': _admin_account_id
+                    }
+                )
+                logger.info("update crawler:")
+                logger.info(up_cr_response)
+                st_cr_response = glue.start_crawler(
+                    Name=crawler_name
+                )
+                logger.info(st_cr_response)
+            gt_cr_response = glue.get_crawler(Name=crawler_name)
+            logger.info(gt_cr_response)
         except Exception as e:
             response = glue.create_crawler(
                 Name=crawler_name,
