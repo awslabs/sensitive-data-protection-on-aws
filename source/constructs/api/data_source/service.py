@@ -245,6 +245,8 @@ def sync_s3_connection(account: str, region: str, bucket: str):
         try:
             glue.get_database(Name=glue_database_name)
         except Exception as e:
+            logger.info("sync_s3_connection glue get_database error, and create database")
+            logger.info(e)
             glue.create_database(DatabaseInput={'Name': glue_database_name})
         # wait for database creation, several seconds
         lakeformation = boto3.client('lakeformation',
@@ -270,28 +272,26 @@ def sync_s3_connection(account: str, region: str, bucket: str):
         )
 
         try:
-            if state == ConnectionState.ACTIVE.value:
-                # delete_glue_connection(account, region, crawler_name, glue_database_name,
-                #                        glue_connection_name)
-                up_cr_response = glue.update_crawler(
-                    Name=crawler_name,
-                    Role=crawler_role_arn,
-                    DatabaseName=glue_database_name,
-                    Targets={
-                        "S3Targets": s3_targets
-                    },
-                    Tags={
-                        'AdminAccountId': _admin_account_id
-                    }
-                )
-                logger.info("update crawler:")
-                logger.info(up_cr_response)
-                st_cr_response = glue.start_crawler(
-                    Name=crawler_name
-                )
-                logger.info(st_cr_response)
-            gt_cr_response = glue.get_crawler(Name=crawler_name)
-            logger.info(gt_cr_response)
+            try:
+                if state == ConnectionState.ACTIVE.value:
+                    up_cr_response = glue.update_crawler(
+                        Name=crawler_name,
+                        Role=crawler_role_arn,
+                        DatabaseName=glue_database_name,
+                        Targets={
+                            "S3Targets": s3_targets
+                        },
+                    )
+                    logger.info("update crawler:")
+                    logger.info(up_cr_response)
+                    st_cr_response = glue.start_crawler(
+                        Name=crawler_name
+                    )
+                    logger.info(st_cr_response)
+                gt_cr_response = glue.get_crawler(Name=crawler_name)
+                logger.info(gt_cr_response)
+            except Exception as e:
+                delete_glue_connection(account, region, crawler_name, glue_database_name, glue_connection_name)
         except Exception as e:
             response = glue.create_crawler(
                 Name=crawler_name,
