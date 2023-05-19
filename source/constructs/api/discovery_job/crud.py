@@ -99,7 +99,7 @@ def last_job_time() -> str:
 def get_running_run(job_id: int) -> models.DiscoveryJobRun:
     session = get_session()
     db_run = session.query(models.DiscoveryJobRun).filter(models.DiscoveryJobRun.job_id == job_id)\
-                  .filter(models.DiscoveryJobRun.state == RunState.RUNNING.value).first()
+                  .filter(models.DiscoveryJobRun.state.in_([RunState.RUNNING.value, RunState.STOPPING.value])).first()
     return db_run
 
 
@@ -210,21 +210,23 @@ def count_run_databases(run_id: int):
     return db_count
 
 
-def stop_run(job_id: int, run_id: int):
+def stop_run(job_id: int, run_id: int, stopping=False):
     session = get_session()
     run_database_update = schemas.DiscoveryJobRunDatabaseUpdate()
     run_database_update.end_time = mytime.get_time()
-    run_database_update.state = RunDatabaseState.STOPPED.value
+    run_database_update.state = RunDatabaseState.STOPPING.value if stopping else RunDatabaseState.STOPPED.value
     session.query(models.DiscoveryJobRunDatabase).filter(models.DiscoveryJobRunDatabase.run_id == run_id).update(run_database_update.dict(exclude_unset=True))
     run_update = schemas.DiscoveryJobRunUpdate()
     run_update.end_time = mytime.get_time()
-    run_update.state = RunState.STOPPED.value
+    run_update.state = RunState.STOPPING.value if stopping else RunState.STOPPED.value
     session.query(models.DiscoveryJobRun).filter(models.DiscoveryJobRun.id == run_id).update(run_update.dict(exclude_unset=True))
     job: models.DiscoveryJob = session.query(models.DiscoveryJob).get(job_id)
-    job_state = JobState.IDLE.value
+    job_state = JobState.OD_STOPPING.value if stopping else JobState.IDLE.value
     if job.schedule == const.ON_DEMAND:
-        job_state = JobState.OD_COMPLETED.value
+        job_state = JobState.OD_STOPPING.value if stopping else JobState.OD_COMPLETED.value
     job.state = job_state
+    if not stopping:
+        job.last_end_time = mytime.get_time()
     session.commit()
 
 

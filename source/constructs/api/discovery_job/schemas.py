@@ -71,7 +71,6 @@ class DiscoveryJobRunList(BaseModel):
 
 class DiscoveryJobRunUpdate(BaseModel):
     state: Optional[str]
-    start_time: Optional[datetime.datetime]
     end_time: Optional[datetime.datetime]
 
 

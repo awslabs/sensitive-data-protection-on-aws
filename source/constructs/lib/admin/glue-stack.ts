@@ -11,13 +11,19 @@
  *  and limitations under the License.
  */
 
-import { Stack, aws_s3 as s3, Aws, Size } from 'aws-cdk-lib';
+import path from 'path';
+import { Stack, aws_s3 as s3, Aws, Size, Duration, CustomResource } from 'aws-cdk-lib';
+import * as events from 'aws-cdk-lib/aws-events';
+import * as targets from 'aws-cdk-lib/aws-events-targets';
 import {
   CfnDatabase, CfnTable,
 } from 'aws-cdk-lib/aws-glue';
+import { Effect, Policy, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { Code, LayerVersion, Runtime, Function } from 'aws-cdk-lib/aws-lambda';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import * as S3Deployment from 'aws-cdk-lib/aws-s3-deployment';
 import { Construct } from 'constructs';
+import { BuildConfig } from '../common/build-config';
 import { SolutionInfo } from '../common/solution-info';
 
 
@@ -86,23 +92,25 @@ export class GlueStack extends Construct {
         storageDescriptor: {
           location: `s3://${props.bucket.bucketName}/glue-database/${table_name}/`,
           compressed: true,
-          columns: [{ name: 'column_name', type: 'string' },
-            { name: 'identifiers', type: 'array<struct<identifier:string,score:double>>' },
-            { name: 'sample_data', type: 'array<string>' },
-            { name: 'account_id', type: 'string' },
+          columns: [
             { name: 'job_id', type: 'string' },
             { name: 'run_id', type: 'string' },
             { name: 'run_database_id', type: 'string' },
-            { name: 'database_name', type: 'string' },
-            { name: 'database_type', type: 'string' },
-            { name: 'table_name', type: 'string' },
-            { name: 'table_size', type: 'int' },
+            { name: 'account_id', type: 'string' },
             { name: 'region', type: 'string' },
-            { name: 'update_time', type: 'timestamp' },
+            { name: 'database_type', type: 'string' },
+            { name: 'database_name', type: 'string' },
+            { name: 'table_name', type: 'string' },
+            { name: 'column_name', type: 'string' },
+            { name: 'identifiers', type: 'array<struct<identifier:string,score:double>>' },
+            { name: 'sample_data', type: 'array<string>' },
+            { name: 'table_size', type: 'int' },
             { name: 's3_location', type: 'string' },
             { name: 's3_bucket', type: 'string' },
             { name: 'rds_instance_id', type: 'string' },
-            { name: 'privacy', type: 'int' }],
+            { name: 'privacy', type: 'int' },
+            { name: 'update_time', type: 'timestamp' },
+          ],
           inputFormat: 'org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat',
           outputFormat: 'org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat',
           serdeInfo: {
@@ -130,19 +138,21 @@ export class GlueStack extends Construct {
         storageDescriptor: {
           location: `s3://${props.bucket.bucketName}/glue-database/${detect_error_table_name}/`,
           compressed: true,
-          columns: [{ name: 'account_id', type: 'string' },
-            { name: 'region', type: 'string' },
+          columns: [
             { name: 'job_id', type: 'string' },
             { name: 'run_id', type: 'string' },
             { name: 'run_database_id', type: 'string' },
-            { name: 'database_name', type: 'string' },
+            { name: 'account_id', type: 'string' },
+            { name: 'region', type: 'string' },
             { name: 'database_type', type: 'string' },
+            { name: 'database_name', type: 'string' },
             { name: 'table_name', type: 'string' },
-            { name: 'update_time', type: 'timestamp' },
             { name: 's3_location', type: 'string' },
             { name: 's3_bucket', type: 'string' },
             { name: 'rds_instance_id', type: 'string' },
-            { name: 'error_message', type: 'string' }],
+            { name: 'error_message', type: 'string' },
+            { name: 'update_time', type: 'timestamp' },
+          ],
           inputFormat: 'org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat',
           outputFormat: 'org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat',
           serdeInfo: {
@@ -153,5 +163,84 @@ export class GlueStack extends Construct {
       },
     });
 
+    this.addPartition(props);
+  }
+
+  private addPartition(props: GlueProps) {
+    // Create a lambda layer with required python packages.
+    const addPartitionLayer = new LayerVersion(this, 'AddPartitionLayer', {
+      code: Code.fromAsset(path.join(__dirname, './glue'), {
+        bundling: {
+          image: Runtime.PYTHON_3_9.bundlingImage,
+          command: [
+            'bash',
+            '-c',
+            `pip install -r requirements.txt ${BuildConfig.PIP_MIRROR_PARAMETER} -t /asset-output/python`,
+          ],
+        },
+      }),
+      // layerVersionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-AddPartition`,
+      compatibleRuntimes: [Runtime.PYTHON_3_9],
+      description: `${SolutionInfo.SOLUTION_NAME} - add partition generated by the program layer`,
+    });
+
+    const addPartitionRole = new Role(this, 'AddPartitionRole', {
+      assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
+    });
+    addPartitionRole.attachInlinePolicy(new Policy(this, 'AWSLambdaBasicExecutionPolicy', {
+      policyName: 'AWSLambdaBasicExecutionPolicy',
+      statements: [
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: [
+            'logs:CreateLogGroup',
+            'logs:CreateLogStream',
+            'logs:PutLogEvents',
+          ],
+          resources: ['*'],
+        }),
+      ],
+    }));
+    const noramlStatement = new PolicyStatement({
+      effect: Effect.ALLOW,
+      actions: ['glue:GetTable',
+        'glue:BatchCreatePartition',
+        'glue:CreatePartition'],
+      resources: [`arn:${Aws.PARTITION}:glue:*:${Aws.ACCOUNT_ID}:table/${SolutionInfo.SOLUTION_GLUE_DATABASE}/*`,
+        `arn:${Aws.PARTITION}:glue:*:${Aws.ACCOUNT_ID}:database/${SolutionInfo.SOLUTION_GLUE_DATABASE}`,
+        `arn:${Aws.PARTITION}:glue:*:${Aws.ACCOUNT_ID}:catalog`],
+    });
+    addPartitionRole.addToPolicy(noramlStatement);
+
+    const addPartitionFunction = new Function(this, 'AddPartitionFunction', {
+      functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-AddPartition`, //Name must be specified
+      description: `${SolutionInfo.SOLUTION_NAME} - add partition generated by the program`,
+      runtime: Runtime.PYTHON_3_9,
+      handler: 'add_partition.lambda_handler',
+      code: Code.fromAsset(path.join(__dirname, './glue')),
+      memorySize: 1024,
+      timeout: Duration.minutes(1),
+      layers: [addPartitionLayer],
+      role: addPartitionRole,
+      environment: {
+        ProjectBucketName: props.bucket.bucketName,
+      },
+    });
+    addPartitionFunction.node.addDependency(addPartitionRole);
+
+    const addPartitionTrigger = new CustomResource(this, 'AddPartitionTrigger', {
+      serviceToken: addPartitionFunction.functionArn,
+      properties: {
+        SolutionNameAbbr: SolutionInfo.SOLUTION_NAME_ABBR,
+        Version: SolutionInfo.SOLUTION_VERSION,
+      },
+    });
+    addPartitionTrigger.node.addDependency(addPartitionFunction);
+
+    const addPartitionRule = new events.Rule(this, 'AddPartitionRule', {
+      // ruleName: `${SolutionInfo.SOLUTION_NAME_ABBR}-AddPartition`,
+      schedule: events.Schedule.cron({ minute: '1', hour: '0' }),
+    });
+    addPartitionRule.addTarget(new targets.LambdaFunction(addPartitionFunction));
   }
 }
