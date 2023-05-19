@@ -58,6 +58,7 @@ def lambda_handler(event, context):
             payload = record["body"]
             logger.info(payload)
             # main(payload)
+            payload = payload.replace("\"", "--")
             payload = payload.replace("\'", "\"")
             main(json.loads(payload))
     finally:
