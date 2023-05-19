@@ -5,7 +5,7 @@ import logging
 import db.models_discovery_job as models
 from . import crud, schemas
 from common.exception_handler import BizException
-from common.enum import MessageEnum, JobState, RunDatabaseState, DatabaseType, AthenaQueryState
+from common.enum import MessageEnum, JobState, RunState, RunDatabaseState, DatabaseType, AthenaQueryState
 from common.constant import const
 from common.query_condition import QueryCondition
 import traceback
@@ -45,7 +45,7 @@ def create_job(job: schemas.DiscoveryJobCreate):
 
 
 def create_event(job_id: int, schedule: str):
-    rule_name = f'{const.SOLUTION_NAME}-{job_id}'
+    rule_name = f'{const.SOLUTION_NAME}-Controller-{job_id}'
     client_events = boto3.client('events')
     response = client_events.put_rule(
         Name=rule_name,
@@ -96,7 +96,7 @@ def delete_job(id: int):
 
 
 def delete_event(job_id: int):
-    rule_name = f'{const.SOLUTION_NAME}-{job_id}'
+    rule_name = f'{const.SOLUTION_NAME}-Controller-{job_id}'
     client_events = boto3.client('events')
     try:
         response = client_events.remove_targets(
@@ -122,7 +122,7 @@ def delete_event(job_id: int):
 
 
 def update_event(job_id: int, schedule: str):
-    rule_name = f'{const.SOLUTION_NAME}-{job_id}'
+    rule_name = f'{const.SOLUTION_NAME}-Controller-{job_id}'
     client_events = boto3.client('events')
     response = client_events.put_rule(
         Name=rule_name,
@@ -161,7 +161,7 @@ def enable_job(id: int):
     if db_job.state != JobState.PAUSED.value:
         raise BizException(MessageEnum.DISCOVERY_JOB_CAN_ENABLE.get_code(),
                            MessageEnum.DISCOVERY_JOB_CAN_ENABLE.get_msg())
-    rule_name = f'{const.SOLUTION_NAME}-{id}'
+    rule_name = f'{const.SOLUTION_NAME}-Controller-{id}'
     client_events = boto3.client('events')
     client_events.enable_rule(Name=rule_name)
     crud.enable_job(id)
@@ -175,7 +175,7 @@ def disable_job(id: int):
     if db_job.state != JobState.IDLE.value:
         raise BizException(MessageEnum.DISCOVERY_JOB_CAN_DISABLE.get_code(),
                            MessageEnum.DISCOVERY_JOB_CAN_DISABLE.get_msg())
-    rule_name = f'{const.SOLUTION_NAME}-{id}'
+    rule_name = f'{const.SOLUTION_NAME}-Controller-{id}'
     client_events = boto3.client('events')
     client_events.disable_rule(Name=rule_name)
     crud.disable_job(id)
@@ -293,6 +293,7 @@ def __create_job(database_type, account_id, region, database_name, job_name):
                                          const.VERSION: version},
                                    Connections={'Connections': [f'rds-{database_name}-connection']},
                                    ExecutionProperty={'MaxConcurrentRuns': 3},
+                                   NumberOfWorkers=2,
                                    )
         else:
             client_glue.create_job(Name=job_name,
@@ -304,6 +305,7 @@ def __create_job(database_type, account_id, region, database_name, job_name):
                                          'AdminAccountId': admin_account_id,
                                          const.VERSION: version},
                                    ExecutionProperty={'MaxConcurrentRuns': 100},
+                                   NumberOfWorkers=2,
                                    )
 
 
@@ -328,15 +330,30 @@ def __exec_run(execution_input, current_uuid):
     )
 
 
-def stop_job(id: int):
-    db_run: models.DiscoveryJobRun = crud.get_running_run(id)
+def stop_job(job_id: int):
+    db_run: models.DiscoveryJobRun = crud.get_running_run(job_id)
     if db_run is None:
         raise BizException(MessageEnum.DISCOVERY_JOB_NON_RUNNING.get_code(),
                            MessageEnum.DISCOVERY_JOB_NON_RUNNING.get_msg())
+    if db_run.state == RunState.STOPPING.value:
+        delta_seconds = (mytime.get_now() - db_run.modify_time).seconds
+        if delta_seconds < 900:
+            raise BizException(MessageEnum.DISCOVERY_JOB_STOPPING.get_code(),
+                               MessageEnum.DISCOVERY_JOB_STOPPING.get_msg())
+
     run_databases: list[models.DiscoveryJobRunDatabase] = db_run.databases
+    crud.stop_run(job_id, db_run.id, True)
+    job = crud.get_job(job_id)
     for run_database in run_databases:
         __stop_run(run_database)
-    crud.stop_run(id, db_run.id)
+        sync_job_detection_result(run_database.account_id,
+                                  run_database.region,
+                                  run_database.database_type,
+                                  run_database.database_name,
+                                  run_database.run_id,
+                                  job.overwrite == 1,
+                                  )
+    crud.stop_run(job_id, db_run.id)
 
 
 def __stop_run(run_database: models.DiscoveryJobRunDatabase):
@@ -500,7 +517,7 @@ def complete_run_database(input_event):
         except Exception:
             state = RunDatabaseState.FAILED.value
             message = traceback.format_exc()
-            logger.exception("sync_job_detection_result exception:%s" % message)
+            logger.exception("sync job detection result exception:%s" % message)
     run_database = crud.complete_run_database(input_event["RunDatabaseId"], state, message)
     if run_database is not None:
         crud.update_job_database_base_time(input_event["JobId"],
@@ -543,7 +560,7 @@ def check_running_run():
         except Exception:
             run_database.state = RunDatabaseState.FAILED.value
             message = traceback.format_exc()
-            logger.exception("sync_job_detection_result exception:%s" % message)
+            logger.exception("sync job detection result exception:%s" % message)
             run_database.log = message
         run_database.end_time = mytime.get_time()
         crud.save_run_database(run_database)

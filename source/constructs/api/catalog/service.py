@@ -19,11 +19,9 @@ from common.enum import (
 import logging
 from common.exception_handler import BizException
 import traceback
-from discovery_job.crud import get_job_by_run_id
 from label.crud import get_labels_by_id_list
-from athena.service import repair
 
-logger = logging.getLogger("api")
+logger = logging.getLogger(const.LOGGER_API)
 caller_identity = boto3.client('sts').get_caller_identity()
 partition = caller_identity['Arn'].split(':')[1]
 
@@ -482,9 +480,6 @@ def __query_job_result_by_athena(
         database_name: str,
         run_id: str,
 ):
-    # MSCK
-    repair()
-
     client = boto3.client("athena")
     # Select result
     select_sql = (

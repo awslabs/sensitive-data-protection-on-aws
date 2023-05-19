@@ -87,15 +87,13 @@ def __do_delete_rule(rule_name):
 
 def __do_delete_rules(solution_name,response):
     for rule in response["Rules"]:
-        if rule["Name"] == f'{solution_name}-CheckRun':
-            continue
         logger.info(f'delete rule:{rule["Name"]}')
         __do_delete_rule(rule["Name"])
 
 
 def delete_event_rules(solution_name):
     response = events_client.list_rules(
-        NamePrefix=f'{solution_name}-',
+        NamePrefix=f'{solution_name}-Controller-',
         Limit=100,
     )
     __do_delete_rules(solution_name,response)
@@ -104,7 +102,7 @@ def delete_event_rules(solution_name):
             break
         next_token = response["NextToken"]
         response = events_client.list_rules(
-            NamePrefix=f'{solution_name}-',
+            NamePrefix=f'{solution_name}-Controller-',
             Limit=100,
             NextToken=next_token
         )

@@ -9,20 +9,9 @@ from common.constant import const
 from common.enum import (
     CatalogDashboardAttribute
 )
-from athena.service import repair
 
 
 router = APIRouter(prefix="/catalog", tags=["catalog"])
-
-
-@router.post(
-    "/repair-msck",
-    response_model=BaseResponse[str],
-)
-@inject_session
-def repair_msck():
-    repair()
-    return "OK"
 
 
 @router.get(
