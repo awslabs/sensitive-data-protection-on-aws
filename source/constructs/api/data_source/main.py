@@ -59,7 +59,7 @@ def sync_s3_connection(s3: schemas.SourceS3Connection):
             s3.region
         )
     else:
-        return service.sync_s3_connection_by_region(
+        return service.sync_s3_connection(
             s3.account_id,
             s3.region,
             s3.bucket
