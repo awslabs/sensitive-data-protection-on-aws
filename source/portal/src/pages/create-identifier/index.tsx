@@ -36,7 +36,7 @@ export interface PropsType {
 }
 
 const findCategoryLabelAndConvertOption = (type: string, props: Props[]) => {
-  const categoryLable = props.find(
+  const categoryLable = props?.find(
     (element) => element.prop_type.toString() === type
   );
   if (categoryLable) {
