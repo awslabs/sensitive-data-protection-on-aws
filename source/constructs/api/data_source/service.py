@@ -235,7 +235,7 @@ def sync_s3_connection(account: str, region: str, bucket: str):
     elif state == ConnectionState.CRAWLING.value:
         raise BizException(MessageEnum.SOURCE_CONNECTION_CRAWLING.get_code(),
                            MessageEnum.SOURCE_CONNECTION_CRAWLING.get_msg())
-    elif state == ConnectionState.ACTIVE.value:
+    else:
         delete_glue_connection(account, region, crawler_name, glue_database_name, glue_connection_name)
     try:
         # PENDING｜ACTIVE｜ERROR with message
@@ -262,7 +262,8 @@ def sync_s3_connection(account: str, region: str, bucket: str):
         except Exception as e:
             logger.info("sync_s3_connection glue get_database error, and create database")
             logger.info(e)
-            glue.create_database(DatabaseInput={'Name': glue_database_name})
+            response = glue.create_database(DatabaseInput={'Name': glue_database_name})
+            logger.info(response)
         # wait for database creation, several seconds
         lakeformation = boto3.client('lakeformation',
                                      aws_access_key_id=credentials['AccessKeyId'],
@@ -713,6 +714,8 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                            MessageEnum.SOURCE_DO_NOT_SUPPORT_CROSS_REGION.get_msg())
 
     state = crud.get_rds_instance_source_glue_state(account, region, instance_name)
+    logger.info("sync_rds_connection state is:")
+    logger.info(state)
     if state == ConnectionState.PENDING.value:
         raise BizException(MessageEnum.SOURCE_CONNECTION_NOT_FINISHED.get_code(),
                            MessageEnum.SOURCE_CONNECTION_NOT_FINISHED.get_msg())
@@ -721,7 +724,7 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
         raise BizException(MessageEnum.SOURCE_CONNECTION_CRAWLING.get_code(),
                            MessageEnum.SOURCE_CONNECTION_CRAWLING.get_msg())
 
-    if state == ConnectionState.ACTIVE.value:
+    else:
         delete_glue_connection(account, region, crawler_name, glue_database_name, glue_connection_name)
 
     crawler_role_arn = __gen_role_arn(account_id=account,
@@ -756,6 +759,8 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
         """ :type : pyboto3.rds """
 
         rds_instance = rds.describe_db_instances(DBInstanceIdentifier=instance_name)['DBInstances'][0]
+        logger.info("sync_rds_connection describe_db_instances ")
+        logger.info(rds_instance)
         public_access = rds_instance['PubliclyAccessible']
         engine = rds_instance['Engine']
         host = rds_instance['Endpoint']['Address']
@@ -816,6 +821,9 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
         #     )
         #     glue_vpc_endpoint_id = response['VpcEndpoint']['VpcEndpointId']
         link_result_s3, link_result_glue = check_link(credentials, region, rds_vpc_id)
+        logger.info("sync_rds_connection check_link :")
+        logger.info(link_result_s3)
+        logger.info(link_result_glue)
         if not link_result_s3:
             raise BizException(MessageEnum.SOURCE_RDS_NO_VPC_S3_ENDPOINT.get_code(),
                                MessageEnum.SOURCE_RDS_NO_VPC_S3_ENDPOINT.get_msg())
@@ -847,6 +855,7 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
         }
         schema_list = __list_rds_schema(account, region, credentials, instance_name, payload, rds_security_groups,
                                         rds_subnet_id)
+        logger.info("sync_rds_connection schema_list :")
         logger.info(schema_list)
         if len(schema_list) > 0:
             glue = boto3.client('glue',
@@ -861,6 +870,8 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
             try:
                 glue.get_connection(Name=glue_connection_name)
             except Exception as e:
+                logger.info("sync_rds_connection get_connection error and create:")
+                logger.info(str(e))
                 if rds_secret_id is None:
                     response = glue.create_connection(
                         ConnectionInput={
@@ -881,6 +892,7 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                             }
                         }
                     )
+                    logger.info(response)
                 else:
                     response = glue.create_connection(
                         ConnectionInput={
@@ -900,10 +912,14 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                             }
                         }
                     )
+                    logger.info(response)
             try:
                 glue.get_database(Name=glue_database_name)
             except Exception as e:
+                logger.info("sync_rds_connection get_database error and create:")
+                logger.info(str(e))
                 response = glue.create_database(DatabaseInput={'Name': glue_database_name})
+                logger.info(response)
             lakeformation = boto3.client('lakeformation',
                                          aws_access_key_id=credentials['AccessKeyId'],
                                          aws_secret_access_key=credentials['SecretAccessKey'],
@@ -931,10 +947,15 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                         'Path': f"{schema}/%",
                     }
                 )
-
+            logger.info("sync_rds_connection jdbc_targets:")
+            logger.info(jdbc_targets)
             try:
-                glue.get_crawler(Name=crawler_name)
+                response = glue.get_crawler(Name=crawler_name)
+                logger.info("sync_rds_connection get_crawler:")
+                logger.info(response)
             except Exception as e:
+                logger.info("sync_rds_connection get_crawler and create:")
+                logger.info(str(e))
                 response = glue.create_crawler(
                     Name=crawler_name,
                     Role=crawler_role_arn,
@@ -946,9 +967,11 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                         'AdminAccountId': _admin_account_id
                     }
                 )
-                glue.start_crawler(
+                logger.info(response)
+                start_response = glue.start_crawler(
                     Name=crawler_name
                 )
+                logger.info(start_response)
             crud.create_rds_connection(account, region, instance_name, glue_connection_name, glue_database_name,
                                        None, crawler_name)
         else:
@@ -1636,6 +1659,7 @@ def __assume_role(account_id: str, role_arn: str):
 
 
 def __list_rds_schema(account, region, credentials, instance_name, payload, rds_security_groups, rds_subnet_id):
+    logger.info("__list_rds_schema")
     function_name = f"func-{instance_name[0:50]}"
     schema_path = []
     lambda_ = boto3.client(
@@ -1645,10 +1669,13 @@ def __list_rds_schema(account, region, credentials, instance_name, payload, rds_
         aws_session_token=credentials['SessionToken'],
         region_name=region
     )
+    logger.info("__list_rds_schema get lambda")
     """ :type : pyboto3.lambda_ """
     try:
         lambda_.get_function(FunctionName=function_name)
     except Exception as e:
+        logger.info("__list_rds_schema get lambda error and create")
+        logger.info(str(e))
         lambda_.create_function(
             FunctionName=function_name,
             Handler='lambda_function.lambda_handler',
@@ -1672,19 +1699,24 @@ def __list_rds_schema(account, region, credentials, instance_name, payload, rds_
     timeout = 600
     while state != 'Active':
         response = lambda_.get_function(FunctionName=function_name)
+        logger.info("__list_rds_schema get lambda function:")
         state = response['Configuration']['State']
+        logger.info(state)
         sleep(SLEEP_TIME)
         time_elapsed += SLEEP_TIME
         if time_elapsed >= timeout:
             break
-
+    logger.info("__list_rds_schema get lambda function invoke:")
     response = lambda_.invoke(
         FunctionName=function_name,
         InvocationType='RequestResponse',
         Payload=json.dumps(payload),
     )
     body = response['Payload'].read().decode()
+    logger.info(body)
     # delete lambda
+    logger.info("__list_rds_schema get lambda function delete:")
+    logger.info(function_name)
     lambda_.delete_function(FunctionName=function_name)
     schemas = json.loads(body)
     if schemas['statusCode'] == 500:
@@ -1693,7 +1725,8 @@ def __list_rds_schema(account, region, credentials, instance_name, payload, rds_
         for schema in schemas['schema']:
             if schema['system'] == False:
                 schema_path.append(schema['name'])
-
+    logger.info("__list_rds_schema schema_path")
+    logger.info(schema_path)
     return schema_path
 
 
