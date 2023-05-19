@@ -9,7 +9,25 @@ import time
 
 
 def get_identifiers(condition: QueryCondition):
-    return query_with_condition(get_session().query(models.TemplateIdentifier), condition)
+    props_filter = []
+    props_filter_not = []
+    for item in condition.conditions:
+        if item.column == 'props':
+            props_filter.append(item)
+        else:
+            props_filter_not.append(item)
+    condition.conditions = props_filter_not
+    query = query_with_condition(get_session().query(models.TemplateIdentifier), condition)
+    if props_filter and query:
+        for filter in props_filter:
+            q_item = []
+            for item in query:
+                for prop in item.props:
+                    if str(prop.id) in filter.values:
+                        q_item.append(item.id)
+                        break
+            query = query.filter(models.TemplateIdentifier.id.in_(q_item))
+    return query
 
 
 def get_mappings(id: int, condition: QueryCondition):
