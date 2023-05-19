@@ -19,18 +19,14 @@ def get_identifiers(condition: QueryCondition):
     condition.conditions = props_filter_not
     query = query_with_condition(get_session().query(models.TemplateIdentifier), condition)
     if props_filter and query:
-        for item in query:
-            exist_prop = []
-            for prop in item.props:
-                exist = True
-                for filter in props_filter:
-                    if str(prop.id) not in filter.values:
-                        exist = False
+        for filter in props_filter:
+            q_item = []
+            for item in query:
+                for prop in item.props:
+                    if str(prop.id) in filter.values:
+                        q_item.append(item.id)
                         break
-                if exist:
-                    exist_prop.append(prop)
-            if not exist_prop:
-                query = query.filter(models.TemplateIdentifier.id != item.id)
+            query = query.filter(models.TemplateIdentifier.id.in_(q_item))
     return query
 
 
