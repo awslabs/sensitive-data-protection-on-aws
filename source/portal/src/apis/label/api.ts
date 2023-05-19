@@ -2,7 +2,7 @@ import { apiRequest } from 'tools/apiRequest';
 
 // 获取查询所有Labels
 const requestGetAllLabels = async (params: { label_name: string }) => {
-  const result: any = await apiRequest('get', `/labels/search-labels`, params);
+  const result: any = await apiRequest('get', `labels/search-labels`, params);
   return result;
 };
 

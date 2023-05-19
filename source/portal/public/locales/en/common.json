@@ -67,7 +67,10 @@
     "browserCatalog": "Browse data catalogs",
     "defineTemplate": " Define classification template",
     "runJob": "Run sensitive data discovery jobs",
-    "createIdentifier": "Create data identifier"
+    "createIdentifier": "Create data identifier",
+    "addToIdentifier": "Add to Identifier",
+    "createCategory": "Create category",
+    "createIdentifierLabel": "Create Label"
   },
   "label": {
     "label": "label",
@@ -79,7 +82,32 @@
     "createLabel": "Create label",
     "updateLabel": "Update label",
     "deleteLabel": "Delete label",
-    "deleteTips": "Are you sure you want to delete label(s) "
+    "deleteTips": "Are you sure you want to delete label(s) ",
+    "noLabelFound": "no label found."
+  },
+  "category": {
+    "category": "Categry",
+    "categories": "Categories",
+    "noCategories": "No Categories",
+    "findCategories": "Find Categories",
+    "loadingCategories": "Loading Categories",
+    "createCategory": "Create category",
+    "updateCategory": "Update category",
+    "deleteCategory": "Delete category",
+    "deleteTips": "Are you sure you want to delete category ",
+    "noLabelFound": "no category found."
+  },
+  "identLabel": {
+    "identLabel": "Label",
+    "identLabels": "Identifier Labels",
+    "noLabel": "No identifier labels",
+    "findLabels": "Find identifier labels",
+    "loadingLabel": "Loading labels",
+    "createLabel": "Create identifier label",
+    "updateLabel": "Update identifier label",
+    "deleteLabel": "Delete identifier label",
+    "deleteTips": "Are you sure you want to delete identifier label(s) ",
+    "noLabelFound": "no identifier label found."
   },
   "table": {
     "preferences": "Preferences",
