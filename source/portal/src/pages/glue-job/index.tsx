@@ -33,6 +33,7 @@ import HorizontalBarChart from 'pages/summary/comps/charts/items/HorizontalBarCh
 import ResourcesFilter from 'pages/resources-filter';
 import { alertMsg, useDidUpdateEffect } from 'tools/tools';
 import { useTranslation } from 'react-i18next';
+import GlueJobProgress from './componments/GlueJobProgress';
 
 const GULE_JOB_COLUMN = [
   {
@@ -59,6 +60,11 @@ const GULE_JOB_COLUMN = [
     id: 'database_name',
     label: 'Data catalog',
     filter: true,
+  },
+  {
+    id: 'progress',
+    label: 'Job Progress',
+    filter: false,
   },
   {
     id: 'start_time',
@@ -409,6 +415,14 @@ const GlueJobContent = () => {
                   }
                   if (item.id === 'id') {
                     return `${jobDetailData.id}-${(e as any)[item.id]}`;
+                  }
+                  if (item.id === 'progress') {
+                    return (
+                      <GlueJobProgress
+                        jobRowData={e}
+                        jobDetailData={jobDetailData}
+                      />
+                    );
                   }
                   if (item.id === 'database_name') {
                     return (
