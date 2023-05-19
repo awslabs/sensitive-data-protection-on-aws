@@ -108,6 +108,19 @@ const enableJob = async (params: any) => {
   return result;
 };
 
+const requestJobProgress = async (params: {
+  id: string;
+  run_id: string;
+  run_database_id: string;
+}) => {
+  const result = await apiRequest(
+    'get',
+    `/discovery-jobs/${params.id}/runs/${params.run_id}/${params.run_database_id}/progress`,
+    ''
+  );
+  return result as any;
+};
+
 export {
   getDiscoveryJobs,
   getJobDetail,
@@ -122,4 +135,5 @@ export {
   enableJob,
   getGuleJobStatus,
   getJobTemplateUrl,
+  requestJobProgress,
 };
