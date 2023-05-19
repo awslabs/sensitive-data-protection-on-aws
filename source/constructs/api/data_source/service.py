@@ -235,7 +235,7 @@ def sync_s3_connection(account: str, region: str, bucket: str):
     elif state == ConnectionState.CRAWLING.value:
         raise BizException(MessageEnum.SOURCE_CONNECTION_CRAWLING.get_code(),
                            MessageEnum.SOURCE_CONNECTION_CRAWLING.get_msg())
-    elif state == ConnectionState.ACTIVE.value:
+    else:
         delete_glue_connection(account, region, crawler_name, glue_database_name, glue_connection_name)
     try:
         # PENDING｜ACTIVE｜ERROR with message
@@ -262,7 +262,8 @@ def sync_s3_connection(account: str, region: str, bucket: str):
         except Exception as e:
             logger.info("sync_s3_connection glue get_database error, and create database")
             logger.info(e)
-            glue.create_database(DatabaseInput={'Name': glue_database_name})
+            response = glue.create_database(DatabaseInput={'Name': glue_database_name})
+            logger.info(response)
         # wait for database creation, several seconds
         lakeformation = boto3.client('lakeformation',
                                      aws_access_key_id=credentials['AccessKeyId'],
@@ -723,7 +724,7 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
         raise BizException(MessageEnum.SOURCE_CONNECTION_CRAWLING.get_code(),
                            MessageEnum.SOURCE_CONNECTION_CRAWLING.get_msg())
 
-    if state == ConnectionState.ACTIVE.value:
+    else:
         delete_glue_connection(account, region, crawler_name, glue_database_name, glue_connection_name)
 
     crawler_role_arn = __gen_role_arn(account_id=account,
@@ -869,6 +870,8 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
             try:
                 glue.get_connection(Name=glue_connection_name)
             except Exception as e:
+                logger.info("sync_rds_connection get_connection error and create:")
+                logger.info(str(e))
                 if rds_secret_id is None:
                     response = glue.create_connection(
                         ConnectionInput={
@@ -889,6 +892,7 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                             }
                         }
                     )
+                    logger.info(response)
                 else:
                     response = glue.create_connection(
                         ConnectionInput={
@@ -908,10 +912,14 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                             }
                         }
                     )
+                    logger.info(response)
             try:
                 glue.get_database(Name=glue_database_name)
             except Exception as e:
+                logger.info("sync_rds_connection get_database error and create:")
+                logger.info(str(e))
                 response = glue.create_database(DatabaseInput={'Name': glue_database_name})
+                logger.info(response)
             lakeformation = boto3.client('lakeformation',
                                          aws_access_key_id=credentials['AccessKeyId'],
                                          aws_secret_access_key=credentials['SecretAccessKey'],
@@ -939,10 +947,15 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                         'Path': f"{schema}/%",
                     }
                 )
-
+            logger.info("sync_rds_connection jdbc_targets:")
+            logger.info(jdbc_targets)
             try:
-                glue.get_crawler(Name=crawler_name)
+                response = glue.get_crawler(Name=crawler_name)
+                logger.info("sync_rds_connection get_crawler:")
+                logger.info(response)
             except Exception as e:
+                logger.info("sync_rds_connection get_crawler and create:")
+                logger.info(str(e))
                 response = glue.create_crawler(
                     Name=crawler_name,
                     Role=crawler_role_arn,
@@ -954,9 +967,11 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                         'AdminAccountId': _admin_account_id
                     }
                 )
-                glue.start_crawler(
+                logger.info(response)
+                start_response = glue.start_crawler(
                     Name=crawler_name
                 )
+                logger.info(start_response)
             crud.create_rds_connection(account, region, instance_name, glue_connection_name, glue_database_name,
                                        None, crawler_name)
         else:
