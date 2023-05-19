@@ -107,7 +107,9 @@ const AccountList: React.FC<any> = (props: any) => {
           });
         });
       const getAccountListresult: any = await getAccountList(requestParam);
-      await refreshAllAccountData(getAccountListresult.items);
+      if (getAccountListresult?.items?.length > 0) {
+        await refreshAllAccountData(getAccountListresult.items);
+      }
       const result: any = await getAccountList(requestParam);
       setSelectedItems([]);
       setPageData(result.items);
