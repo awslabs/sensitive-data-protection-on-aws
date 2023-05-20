@@ -7,6 +7,7 @@ import {
   Header,
   Icon,
   Input,
+  SelectProps,
   SpaceBetween,
   Textarea,
   Toggle,
@@ -20,6 +21,33 @@ import { RouterEnum } from 'routers/routerEnum';
 import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import Navigation from 'pages/left-menu/Navigation';
 import { useTranslation } from 'react-i18next';
+import PropsSelect from 'common/PropsSelect';
+import PropsModal, { Props } from 'common/PropsModal';
+
+export interface PropsType {
+  create_by: string;
+  create_time: string;
+  id: string;
+  modify_by: string;
+  modify_time: string;
+  prop_name: string;
+  prop_type: number;
+  version: null;
+}
+
+const findCategoryLabelAndConvertOption = (type: string, props: Props[]) => {
+  const categoryLable = props?.find(
+    (element) => element.prop_type.toString() === type
+  );
+  if (categoryLable) {
+    const { prop_name: label, id: value } = categoryLable;
+    return { label, value };
+  }
+  return {
+    label: 'N/A',
+    value: '',
+  };
+};
 
 const CreateIdentifierHeader: React.FC = () => {
   const location = useLocation();
@@ -62,6 +90,22 @@ const CreateIdentifierContent = () => {
   );
   const [patternRex, setPatternRex] = useState(oldData.rule || '');
   const [isLoading, setIsLoading] = useState(false);
+
+  const [selectedCategory, setSelectedCategory] = useState<SelectProps.Option>(
+    findCategoryLabelAndConvertOption('1', oldData.props)
+  );
+  const [selectedLabel, setSelectedLabel] = useState<SelectProps.Option>(
+    findCategoryLabelAndConvertOption('2', oldData.props)
+  );
+
+  const [showModal, setShowModal] = useState(false);
+  const [refreshCategoryLableList, setRefreshCategoryLableList] = useState(0);
+  const [modalType, setModalType] = useState('');
+  // const [loadingSave, setLoadingSave] = useState(false);
+  const showEditCategoryLabelModal = (curType: string, item: any) => {
+    setModalType(curType);
+    setShowModal(true);
+  };
 
   useEffect(() => {
     if (!patternToggle) {
@@ -135,6 +179,14 @@ const CreateIdentifierContent = () => {
       keywordList && Array.isArray(keywordList) && keywordList.length > 0
         ? JSON.stringify(keywordList)
         : '';
+
+    const newProps = [];
+    if (selectedCategory.value) {
+      newProps.push(selectedCategory.value);
+    }
+    if (selectedLabel.value) {
+      newProps.push(selectedLabel.value);
+    }
     const requestParam: any = {
       description: identifierDescription,
       type: 1,
@@ -143,6 +195,7 @@ const CreateIdentifierContent = () => {
       privacy: 0,
       rule: patternToggle ? patternRex : null,
       header_keywords: keywordToggle ? tempHeadList : null,
+      props: newProps,
     };
     if (oldData.id) {
       requestParam.id = oldData.id;
@@ -158,7 +211,13 @@ const CreateIdentifierContent = () => {
           'success'
         );
         setTimeout(() => {
-          navigate(RouterEnum.TemplateIdentifiers.path);
+          navigate(RouterEnum.TemplateIdentifiers.path, {
+            state: {
+              tabState: {
+                active: oldData.type.toString() === '1' ? 'custom' : 'builtIn',
+              },
+            },
+          });
         }, 800);
       } else {
         alertMsg('Create error', 'error');
@@ -303,6 +362,61 @@ const CreateIdentifierContent = () => {
           </SpaceBetween>
         </Container>
 
+        <Container
+          header={
+            <Header
+              variant="h2"
+              actions={
+                <SpaceBetween direction="horizontal" size="xs">
+                  <Button
+                    onClick={() => {
+                      showEditCategoryLabelModal('1', oldData);
+                    }}
+                  >
+                    Manage Category
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      showEditCategoryLabelModal('2', oldData);
+                    }}
+                  >
+                    Manage Label
+                  </Button>
+                </SpaceBetween>
+              }
+            >
+              Identifier properties
+            </Header>
+          }
+        >
+          <div className="flex gap-10">
+            <div className="flex-1">
+              <FormField label="Select a category">
+                <PropsSelect
+                  refresh={refreshCategoryLableList}
+                  type="1"
+                  selectOption={selectedCategory}
+                  changeSelectValue={(option) => {
+                    setSelectedCategory(option);
+                  }}
+                />
+              </FormField>
+            </div>
+            <div className="flex-1">
+              <FormField label="Select a label">
+                <PropsSelect
+                  refresh={refreshCategoryLableList}
+                  type="2"
+                  selectOption={selectedLabel}
+                  changeSelectValue={(option) => {
+                    setSelectedLabel(option);
+                  }}
+                />
+              </FormField>
+            </div>
+          </div>
+        </Container>
+
         <div className="text-right">
           <Button className="identifier-opt-btn" onClick={backNavigate}>
             {t('button.back')}
@@ -341,6 +455,23 @@ const CreateIdentifierContent = () => {
           </Button>
         </SpaceBetween>
       </Container>
+
+      <PropsModal
+        isManage
+        propsType={modalType}
+        showModal={showModal}
+        defaultSelectPropss={[]}
+        clickHideModal={() => {
+          setRefreshCategoryLableList((prev) => {
+            return prev + 1;
+          });
+          setShowModal(false);
+        }}
+        saveLoading={false}
+        savePropsToResource={(props) => {
+          console.info(props);
+        }}
+      />
     </Grid>
   );
 };

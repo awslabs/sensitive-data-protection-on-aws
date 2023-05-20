@@ -154,7 +154,7 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
     const afterFilterList = allLabelList.filter(
       (element) => element.label_name.indexOf(searchLabelName) >= 0
     );
-    setTableDisplayData(afterFilterList.slice(start, start + pageSize));
+    setTableDisplayData(afterFilterList.slice(start - 1, start + pageSize));
     setTotalCount(afterFilterList.length);
   }, [searchLabelName]);
 
@@ -215,15 +215,21 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
           empty={
             <Box textAlign="center" color="inherit">
               <div>
-                <p>{t('label.noLabel')}</p>
+                <p>
+                  {searchLabelName.trim()
+                    ? t('label.noLabelFound')
+                    : t('label.noLabel')}
+                </p>
               </div>
-              <Button
-                onClick={() => {
-                  setShowCreateLabel(true);
-                }}
-              >
-                {t('button.createLabel')}
-              </Button>
+              {!searchLabelName.trim() && (
+                <Button
+                  onClick={() => {
+                    setShowCreateLabel(true);
+                  }}
+                >
+                  {t('button.createLabel')}
+                </Button>
+              )}
             </Box>
           }
           header={
@@ -288,10 +294,10 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
               pageSizePreference={{
                 title: t('table.pageSize'),
                 options: [
-                  { value: 10, label: `10 ${'label.labels'}` },
-                  { value: 20, label: `20 ${'label.labels'}` },
-                  { value: 50, label: `50 ${'label.labels'}` },
-                  { value: 100, label: `100 ${'label.labels'}` },
+                  { value: 10, label: `10 ${t('label.labels')}` },
+                  { value: 20, label: `20 ${t('label.labels')}` },
+                  { value: 50, label: `50 ${t('label.labels')}` },
+                  { value: 100, label: `100 ${t('label.labels')}` },
                 ],
               }}
               onConfirm={(e) => {

@@ -40,6 +40,7 @@ class MessageEnum(Enum):
     DISCOVERY_JOB_CAN_NOT_DELETE_ACCOUNT = {1518: "This account cannot be deleted because it has running job(s)."}
     DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE = {1519: "This database cannot be deleted because it has running job(s)."}
     DISCOVERY_RUN_NON_EXIST_TEMPLATE_SNAPSHOT = {1520: "This running does not have a template snapshot."}
+    DISCOVERY_JOB_STOPPING = {1521: "The job is stopping"}
 
     # catalog
     CATALOG_RDS_TABLE_HAS_NO_COLUMNS = {1301: "RDS table columns does not exist"}
@@ -106,6 +107,7 @@ class JobState(Enum):
     PAUSED = "Paused"
     OD_READY = "Ready"
     OD_RUNNING = "Running"
+    OD_STOPPING = "Stopping"
     OD_COMPLETED = "Completed"
 
 
@@ -114,6 +116,7 @@ class RunState(Enum):
     READY = "Ready"
     RUNNING = "Running"
     COMPLETED = "Completed"
+    STOPPING = "Stopping"
     STOPPED = "Stopped"
 
 
@@ -123,6 +126,7 @@ class RunDatabaseState(Enum):
     RUNNING = "Running"
     SUCCEEDED = "Succeeded"
     FAILED = "Failed"
+    STOPPING = "Stopping"
     STOPPED = "Stopped"
     NOT_EXIST = "NotExist"
 

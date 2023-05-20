@@ -5,6 +5,7 @@ from db.database import gen_session, close_session
 import json
 from common.constant import const
 import logging
+import re
 
 logger = logging.getLogger(const.LOGGER_API)
 logger.setLevel(logging.INFO)
@@ -58,7 +59,8 @@ def lambda_handler(event, context):
             payload = record["body"]
             logger.info(payload)
             # main(payload)
-            payload = payload.replace("\'", "\"")
+            updated_string = re.sub(r'("[^"]*?)(\'.*?\')([^"]*?")', r'\1--\3', str(payload))
+            payload = updated_string.replace("\'", "\"")
             main(json.loads(payload))
     finally:
         close_session()

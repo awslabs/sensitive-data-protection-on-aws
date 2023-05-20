@@ -70,6 +70,19 @@ const AccountList: React.FC<any> = (props: any) => {
     getPageData();
   }, [query]);
 
+  const refreshAllAccountData = async (accountData: any) => {
+    try {
+      // call refresh all account api
+      const requestRefreshAccountParam = {
+        accounts: accountData?.map((element: any) => element.aws_account_id),
+        type: 'all',
+      };
+      await refreshDataSource(requestRefreshAccountParam);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const getPageData = async () => {
     setIsLoading(true);
     try {
@@ -93,6 +106,8 @@ const AccountList: React.FC<any> = (props: any) => {
             condition: query.operation,
           });
         });
+      const getAccountListresult: any = await getAccountList(requestParam);
+      await refreshAllAccountData(getAccountListresult.items);
       const result: any = await getAccountList(requestParam);
       setSelectedItems([]);
       setPageData(result.items);
