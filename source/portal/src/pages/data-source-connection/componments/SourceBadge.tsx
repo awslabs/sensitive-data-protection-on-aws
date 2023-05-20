@@ -21,6 +21,9 @@ const SourceBadge = (props: any) => {
     case 'PENDING':
       labelType = CLSAAIFIED_TYPE.Unconnected;
       break;
+    case 'UNCONNECTED':
+      labelType = CLSAAIFIED_TYPE.Unconnected;
+      break;
     case 'FAILED':
       labelType = CLSAAIFIED_TYPE.Failed;
       break;
