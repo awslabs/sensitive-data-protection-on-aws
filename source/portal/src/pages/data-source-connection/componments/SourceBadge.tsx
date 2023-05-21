@@ -41,19 +41,17 @@ const SourceBadge = (props: any) => {
         position="top"
         size="medium"
         content={
-          <StatusIndicator
-            type={instanceStatus.length > 10 ? 'error' : 'info'}
-            colorOverride={instanceStatus.length > 10 ? 'red' : 'grey'}
+          <div
           >
             {instanceStatus}
-          </StatusIndicator>
+          </div>
         }
       >
         <CommonBadge
           badgeType={BADGE_TYPE.Classified}
           badgeLabel={
             instanceStatus.length > 15
-              ? instanceStatus.substr(0, 15) + '.....'
+              ? 'ERROR'
               : instanceStatus
           }
           labelType={labelType}
