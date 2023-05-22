@@ -50,12 +50,12 @@ async def detect_rds_data_source(session: Session, aws_account_id: str):
             rds_instance_source = session.query(RdsInstanceSource).filter(
                 RdsInstanceSource.instance_id == instance['DBInstanceIdentifier'],
                 RdsInstanceSource.region == region,
-                RdsInstanceSource.instance_class == instance['DBInstanceClass'],
-                RdsInstanceSource.engine == instance['Engine'],
-                RdsInstanceSource.instance_status == instance['DBInstanceStatus'],
-                RdsInstanceSource.address == instance['Endpoint']['Address'] if 'Endpoint' in instance else '',
-                RdsInstanceSource.port == instance['Endpoint']['Port'] if 'Endpoint' in instance else '',
-                RdsInstanceSource.master_username == instance['MasterUsername'],
+                # RdsInstanceSource.instance_class == instance['DBInstanceClass'],
+                # RdsInstanceSource.engine == instance['Engine'],
+                # RdsInstanceSource.instance_status == instance['DBInstanceStatus'],
+                # RdsInstanceSource.address == instance['Endpoint']['Address'] if 'Endpoint' in instance else '',
+                # RdsInstanceSource.port == instance['Endpoint']['Port'] if 'Endpoint' in instance else '',
+                # RdsInstanceSource.master_username == instance['MasterUsername'],
                 RdsInstanceSource.aws_account == aws_account_id,
             ).scalar()
             if rds_instance_source is None:
