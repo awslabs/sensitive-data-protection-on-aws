@@ -152,7 +152,7 @@ const AccountList: React.FC<any> = (props: any) => {
 
   const clkDeleteAccount = async () => {
     if (!selectedItems || selectedItems.length === 0) {
-      alertMsg(t('account:selectOneItem'), 'error');
+      alertMsg(t('selectOneItem'), 'error');
       return;
     }
     setDeleteLoading(true);

@@ -73,7 +73,10 @@
     "createIdentifierLabel": "Create Label",
     "refreshDataSource": "Refresh data source",
     "manageCategory": "Manage Category",
-    "manageLabel": "Manage Label"
+    "manageLabel": "Manage Label",
+    "runAJob": "Run Job",
+    "next": "Next",
+    "previous": "Previous"
   },
   "label": {
     "label": "label",
@@ -136,13 +139,35 @@
     "pageSize50": "50 resources",
     "pageSize100": "100 resources",
     "selectVisibleContent": "Select visible content",
-    "mainDistributionProp": "Main distribution properties"
+    "mainDistributionProp": "Main distribution properties",
+    "label": {
+      "bucketName": "Bucket name",
+      "objects": "Objects",
+      "size": "Size",
+      "privacy": "Privacy",
+      "awsAccount": "AWS account",
+      "awsRegion": "AWS region",
+      "instanceName": "Instance name",
+      "tables": "Tables",
+      "operate": "Operate"
+    }
   },
+  "step": {
+    "step": "Step ",
+    "of": " of ",
+    "steps": "Steps",
+    "skipTo": "Skip to "
+  },
+  "info": "Info",
+  "optional": "optional",
+  "selectOneItem": "Please select one item",
   "copied": "Copied to clipboard",
   "updateSuccess": "Update success",
   "createSuccess": "Create success",
   "updateFailed": "Update failed",
   "createFailed": "Create failed",
+  "submitSuccess": "Submit success",
   "edit": "Edit",
-  "create": "Create"
+  "create": "Create",
+  "selected": "selected"
 }

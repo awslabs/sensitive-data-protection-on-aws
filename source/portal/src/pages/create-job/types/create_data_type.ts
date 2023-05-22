@@ -5,33 +5,33 @@ export const COLUMN_OBJECT_STR = {
 export const S3_CATALOG_COLUMS = [
   {
     id: COLUMN_OBJECT_STR.DatabaseName,
-    label: 'Bucket name',
+    label: 'table.label.bucketName',
     filter: true,
   },
   {
     id: 'object_count',
-    label: 'Objects',
+    label: 'table.label.objects',
     filter: true,
   },
   {
     id: 'size_key',
-    label: 'Size',
+    label: 'table.label.size',
     filter: false,
   },
   {
     id: 'privacy',
-    label: 'Privacy',
+    label: 'table.label.privacy',
     filter: true,
   },
   {
     id: 'account_id',
-    label: 'AWS account',
+    label: 'table.label.awsAccount',
     filter: true,
   },
 
   {
     id: 'region',
-    label: 'AWS region',
+    label: 'table.label.awsRegion',
     filter: true,
   },
 ];
@@ -39,27 +39,27 @@ export const S3_CATALOG_COLUMS = [
 export const RDS_CATALOG_COLUMS = [
   {
     id: COLUMN_OBJECT_STR.DatabaseName,
-    label: 'Instance name',
+    label: 'table.label.instanceName',
     filter: true,
   },
   {
     id: 'object_count',
-    label: 'Tables',
+    label: 'table.label.tables',
     filter: true,
   },
   {
     id: 'privacy',
-    label: 'Privacy',
+    label: 'table.label.privacy',
     filter: true,
   },
   {
     id: 'account_id',
-    label: 'AWS account',
+    label: 'table.label.awsAccount',
     filter: true,
   },
   {
     id: 'region',
-    label: 'AWS region',
+    label: 'table.label.awsRegion',
     filter: true,
   },
 ];
@@ -68,7 +68,7 @@ export const S3_CATALOG_COLUMS_OLDDATA = [
   ...S3_CATALOG_COLUMS,
   {
     id: 'operate',
-    label: 'Operate',
+    label: 'table.label.operate',
     filter: false,
   },
 ];
@@ -77,7 +77,7 @@ export const RDS_CATALOG_COLUMS_OLDDATA = [
   ...RDS_CATALOG_COLUMS,
   {
     id: 'operate',
-    label: 'Operate',
+    label: 'table.label.operate',
     filter: false,
   },
 ];

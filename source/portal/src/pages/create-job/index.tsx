@@ -96,7 +96,7 @@ const CreateJobHeader: React.FC = () => {
         </Button>
       }
     >
-      Create sensitive data discovery job
+      {t('job:create.title')}
     </Header>
   );
 };
@@ -104,6 +104,7 @@ const CreateJobHeader: React.FC = () => {
 const CreateJobContent = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
   const { oldData } = location.state || {};
   const [activeStepIndex, setActiveStepIndex] = useState(0);
   const [s3CatalogType, setS3CatalogType] = useState('');
@@ -168,7 +169,7 @@ const CreateJobContent = () => {
     setQuery: setS3Query,
     columnList: S3_CATALOG_COLUMS.filter((i) => i.filter),
     tableName: TABLE_NAME.CATALOG_DATABASE_LEVEL_CLASSIFICATION,
-    filteringPlaceholder: 'Filter buskets',
+    filteringPlaceholder: t('job:filterBuckets'),
   };
 
   const rdsFilterProps = {
@@ -177,7 +178,7 @@ const CreateJobContent = () => {
     setQuery: setRdsQuery,
     columnList: RDS_CATALOG_COLUMS.filter((i) => i.filter),
     tableName: TABLE_NAME.CATALOG_DATABASE_LEVEL_CLASSIFICATION,
-    filteringPlaceholder: 'Filter instances',
+    filteringPlaceholder: t('job:filterInstances'),
   };
 
   useEffect(() => {
@@ -372,7 +373,7 @@ const CreateJobContent = () => {
       selectedS3Items.length === 0 &&
       requestedStepIndex !== 0
     ) {
-      alertMsg('Please select one item!', 'error');
+      alertMsg(t('selectOneItem'), 'error');
       return false;
     }
     if (
@@ -380,7 +381,7 @@ const CreateJobContent = () => {
       selectedRdsItems.length === 0 &&
       requestedStepIndex !== 1
     ) {
-      alertMsg('Please select one item!', 'error');
+      alertMsg(t('selectOneItem'), 'error');
       return false;
     }
     if (
@@ -388,11 +389,11 @@ const CreateJobContent = () => {
       s3CatalogType === NONE_S3 &&
       requestedStepIndex >= 2
     ) {
-      alertMsg('You must selected one catalog at least!', 'error');
+      alertMsg(t('job:selectOnCatalog'), 'error');
       return false;
     }
     if (requestedStepIndex !== 0 && !s3CatalogType) {
-      alertMsg('Please select one item!', 'error');
+      alertMsg(t('selectOneItem'), 'error');
       return false;
     }
     if (
@@ -400,30 +401,30 @@ const CreateJobContent = () => {
       requestedStepIndex !== 0 &&
       !rdsCatalogType
     ) {
-      alertMsg('Please select one item!', 'error');
+      alertMsg(t('selectOneItem'), 'error');
       return false;
     }
     if (requestedStepIndex === 3) {
       if (!jobName) {
-        alertMsg('Please input job name', 'error');
+        alertMsg(t('job:inputJobName'), 'error');
         return false;
       }
       const trimFrequency: any = frequency ? frequency.trim() : frequency;
       if (!trimFrequency) {
-        alertMsg('Frequency type error', 'error');
+        alertMsg(t('job:freqTypeError'), 'error');
         return false;
       }
 
       if (!scanDepth) {
-        alertMsg('Please select scan depth', 'error');
+        alertMsg(t('job:selectScanDepth'), 'error');
         return false;
       }
       if (!scanRange) {
-        alertMsg('Please select scan range', 'error');
+        alertMsg(t('job:selectScanRange'), 'error');
         return false;
       }
       if (!detectionThreshold) {
-        alertMsg('Please select detection threshold', 'error');
+        alertMsg(t('job:selectDetection'), 'error');
         return false;
       }
     }
@@ -437,37 +438,37 @@ const CreateJobContent = () => {
     }
     if (tempType === 'daily') {
       if (!frequencyStart) {
-        alertMsg('Please select hour of day', 'error');
+        alertMsg(t('job:selectHourOfDay'), 'error');
         return;
       }
       setFrequency(`Daily, start time: ${frequencyStart.value}`);
     }
     if (tempType === 'weekly') {
       if (!frequencyStart) {
-        alertMsg('Please select day of week', 'error');
+        alertMsg(t('job:selectDayOfWeek'), 'error');
         return;
       }
-      setFrequency(`Weekly, start day: ${frequencyStart.value}`);
+      setFrequency(`${t('job:weeklyStartDay')} ${frequencyStart.value}`);
     }
     if (tempType === 'monthly') {
       if (!frequencyStart) {
-        alertMsg('Please select day of month', 'error');
+        alertMsg(t('job:selectDayOfMonth'), 'error');
         return;
       }
-      setFrequency(`Monthly, start day: ${frequencyStart.value}`);
+      setFrequency(`${t('job:monthlyStartDay')} ${frequencyStart.value}`);
     }
   };
 
   const submitCreateJob = async () => {
     if (rdsCatalogType === NONE_RDS && s3CatalogType === NONE_S3) {
-      alertMsg('You must selected one catalog at least!', 'error');
+      alertMsg(t('job:selectOnCatalog'), 'error');
       return;
     }
     if (
       (s3CatalogType === SELECT_S3 && selectedS3Items.length === 0) ||
       (rdsCatalogType === SELECT_RDS && selectedRdsItems.length === 0)
     ) {
-      alertMsg('You must selected one catalog at least!', 'error');
+      alertMsg(t('job:selectOnCatalog'), 'error');
       return;
     }
     setIsLoading(true);
@@ -541,7 +542,7 @@ const CreateJobContent = () => {
         await startJob(result);
       }
       setIsLoading(true);
-      alertMsg('Submit success', 'success');
+      alertMsg(t('submitSuccess'), 'success');
       navigate(RouterEnum.Datajob.path);
     } catch (error) {
       setIsLoading(false);
@@ -590,16 +591,17 @@ const CreateJobContent = () => {
       <Wizard
         className="job-wizard"
         i18nStrings={{
-          stepNumberLabel: (stepNumber) => `Step ${stepNumber}`,
+          stepNumberLabel: (stepNumber) => `${t('step.step')} ${stepNumber}`,
           collapsedStepsLabel: (stepNumber, stepsCount) =>
-            `Step ${stepNumber} of ${stepsCount}`,
-          skipToButtonLabel: (step, stepNumber) => `Skip to ${step.title}`,
-          navigationAriaLabel: 'Steps',
-          cancelButton: 'Cancel',
-          previousButton: 'Previous',
-          nextButton: 'Next',
-          submitButton: 'Run job',
-          optional: 'optional',
+            `${t('step.step')} ${stepNumber} ${t('step.of')} ${stepsCount}`,
+          skipToButtonLabel: (step, stepNumber) =>
+            `${t('step.skipTo')} ${step.title}`,
+          navigationAriaLabel: t('step.steps') || '',
+          cancelButton: t('button.cancel') || '',
+          previousButton: t('button.previous') || '',
+          nextButton: t('button.next') || '',
+          submitButton: t('button.runAJob') || '',
+          optional: t('optional') || '',
         }}
         isLoadingNextStep={isLoading}
         onSubmit={submitCreateJob}
@@ -612,11 +614,11 @@ const CreateJobContent = () => {
         allowSkipTo
         steps={[
           {
-            title: 'Select data catalogs (S3)',
+            title: t('job:create.seelctS3DataCatalog'),
             content: (
               <Container
                 header={
-                  <Header variant="h2">Select scan target for Amazon S3</Header>
+                  <Header variant="h2">{t('job:create.selectScanS3')}</Header>
                 }
               >
                 {!hasOldData && (
@@ -625,9 +627,15 @@ const CreateJobContent = () => {
                       onChange={({ detail }) => setS3CatalogType(detail.value)}
                       value={s3CatalogType}
                       items={[
-                        { label: 'All data catalogs', value: 'allS3' },
-                        { label: 'Specific data catalogs', value: SELECT_S3 },
-                        { label: 'Skip scan Amazon S3', value: NONE_S3 },
+                        { label: t('job:cataLogOption.all'), value: 'allS3' },
+                        {
+                          label: t('job:cataLogOption.specify'),
+                          value: SELECT_S3,
+                        },
+                        {
+                          label: t('job:cataLogOption.skipScanS3'),
+                          value: NONE_S3,
+                        },
                       ]}
                     />
                     {s3CatalogType === SELECT_S3 && (
@@ -641,11 +649,13 @@ const CreateJobContent = () => {
                         }
                         variant="embedded"
                         ariaLabels={{
-                          selectionGroupLabel: 'Items selection',
+                          selectionGroupLabel: t('table.itemsSelection') || '',
                           allItemsSelectionLabel: ({ selectedItems }) =>
                             `${selectedItems.length} ${
-                              selectedItems.length === 1 ? 'item' : 'items'
-                            } selected`,
+                              selectedItems.length === 1
+                                ? t('table.item')
+                                : t('table.items')
+                            } ${t('table.selected')}`,
                           itemSelectionLabel: ({ selectedItems }, item) => {
                             const isItemSelected = selectedItems.filter(
                               (i) =>
@@ -654,7 +664,9 @@ const CreateJobContent = () => {
                             ).length;
                             return `${
                               (item as any)[S3_CATALOG_COLUMS[0].id]
-                            } is ${isItemSelected ? '' : 'not'} selected`;
+                            } is ${isItemSelected ? '' : t('table.not')} ${t(
+                              'table.selected'
+                            )}`;
                           },
                         }}
                         items={s3CatalogData}
@@ -662,7 +674,7 @@ const CreateJobContent = () => {
                         columnDefinitions={S3_CATALOG_COLUMS.map((item) => {
                           return {
                             id: item.id,
-                            header: item.label,
+                            header: t(item.label),
                             cell: (e: any) => {
                               if (item.id === 'size_key') {
                                 return formatSize((e as any)[item.id]);
@@ -699,10 +711,12 @@ const CreateJobContent = () => {
                               s3Total / preferences.pageSize
                             )}
                             ariaLabels={{
-                              nextPageLabel: 'Next page',
-                              previousPageLabel: 'Previous page',
+                              nextPageLabel: t('table.nextPage') || '',
+                              previousPageLabel: t('table.previousPage') || '',
                               pageLabel: (pageNumber) =>
-                                `Page ${pageNumber} of all pages`,
+                                `${t('table.pageLabel', {
+                                  pageNumber: pageNumber,
+                                })}`,
                             }}
                           />
                         }
@@ -710,23 +724,23 @@ const CreateJobContent = () => {
                           <CollectionPreferences
                             onConfirm={({ detail }) => setPreferences(detail)}
                             preferences={preferences}
-                            title="Preferences"
-                            confirmLabel="Confirm"
-                            cancelLabel="Cancel"
+                            title={t('table.preferences')}
+                            confirmLabel={t('table.confirm')}
+                            cancelLabel={t('table.cancel')}
                             pageSizePreference={{
-                              title: 'Select page size',
+                              title: t('table.selectPageSize'),
                               options: [
-                                { value: 10, label: '10 resources' },
-                                { value: 20, label: '20 resources' },
-                                { value: 50, label: '50 resources' },
-                                { value: 100, label: '100 resources' },
+                                { value: 10, label: t('table.pageSize10') },
+                                { value: 20, label: t('table.pageSize20') },
+                                { value: 50, label: t('table.pageSize50') },
+                                { value: 100, label: t('table.pageSize100') },
                               ],
                             }}
                             visibleContentPreference={{
-                              title: 'Select visible content',
+                              title: t('table.selectVisibleContent'),
                               options: [
                                 {
-                                  label: 'Main distribution properties',
+                                  label: t('table.mainDistributionProp'),
                                   options: S3_CATALOG_COLUMS,
                                 },
                               ],
@@ -745,7 +759,7 @@ const CreateJobContent = () => {
                     columnDefinitions={S3_CATALOG_COLUMS_OLDDATA.map((item) => {
                       return {
                         id: item.id,
-                        header: item.label,
+                        header: t(item.label),
                         cell: (e: any) => {
                           if (item.id === 'size_key') {
                             return formatSize((e as any)[item.id]);
@@ -777,7 +791,7 @@ const CreateJobContent = () => {
                                   size="small"
                                   className="small-icon"
                                 ></Icon>{' '}
-                                Remove
+                                {t('button.remove')}
                               </span>
                             );
                           }
@@ -790,19 +804,19 @@ const CreateJobContent = () => {
                   />
                 )}
                 {!isLoading && hasOldData && selectedS3Items.length === 0 && (
-                  <span>Skip S3 catalog</span>
+                  <span>{t('job:create.skipS3Catalog')}</span>
                 )}
               </Container>
             ),
           },
           {
-            title: 'Select data catalogs (RDS)',
+            title: t('job:create.selectCatalogRDS'),
             content: (
               <>
                 <Container
                   header={
                     <Header variant="h2">
-                      Select scan target for Amazon RDS
+                      {t('job:create.selectScanRDS')}
                     </Header>
                   }
                 >
@@ -814,13 +828,16 @@ const CreateJobContent = () => {
                         }
                         value={rdsCatalogType}
                         items={[
-                          { label: 'All data catalogs', value: 'allRds' },
                           {
-                            label: 'Specific data catalogs',
+                            label: t('job:cataLogOption.all'),
+                            value: 'allRds',
+                          },
+                          {
+                            label: t('job:cataLogOption.specify'),
                             value: SELECT_RDS,
                           },
                           {
-                            label: 'Skip scan for Amazon RDS',
+                            label: t('job:cataLogOption.skipScanRDS'),
                             value: NONE_RDS,
                           },
                         ]}
@@ -836,11 +853,14 @@ const CreateJobContent = () => {
                             setSelectedRdsItems(detail.selectedItems)
                           }
                           ariaLabels={{
-                            selectionGroupLabel: 'Items selection',
+                            selectionGroupLabel:
+                              t('table.itemsSelection') || '',
                             allItemsSelectionLabel: ({ selectedItems }) =>
                               `${selectedItems.length} ${
-                                selectedItems.length === 1 ? 'item' : 'items'
-                              } selected`,
+                                selectedItems.length === 1
+                                  ? t('table.item')
+                                  : t('table.items')
+                              } ${t('table.selected')}`,
                             itemSelectionLabel: ({ selectedItems }, item) => {
                               const isItemSelected = selectedItems.filter(
                                 (i) =>
@@ -849,7 +869,9 @@ const CreateJobContent = () => {
                               ).length;
                               return `${
                                 (item as any)[S3_CATALOG_COLUMS[0].id]
-                              } is ${isItemSelected ? '' : 'not'} selected`;
+                              } is ${isItemSelected ? '' : t('table.not')} ${t(
+                                'table.selected'
+                              )}`;
                             },
                           }}
                           items={rdsCatalogData}
@@ -857,7 +879,7 @@ const CreateJobContent = () => {
                           columnDefinitions={RDS_CATALOG_COLUMS.map((item) => {
                             return {
                               id: item.id,
-                              header: item.label,
+                              header: t(item.label),
                               cell: (e: any) => {
                                 if (item.id === 'size_key') {
                                   return formatSize((e as any)[item.id]);
@@ -893,10 +915,13 @@ const CreateJobContent = () => {
                                 rdsTotal / preferences.pageSize
                               )}
                               ariaLabels={{
-                                nextPageLabel: 'Next page',
-                                previousPageLabel: 'Previous page',
+                                nextPageLabel: t('table.nextPage') || '',
+                                previousPageLabel:
+                                  t('table.previousPage') || '',
                                 pageLabel: (pageNumber) =>
-                                  `Page ${pageNumber} of all pages`,
+                                  `${t('table.pageLabel', {
+                                    pageNumber: pageNumber,
+                                  })}`,
                               }}
                             />
                           }
@@ -904,23 +929,23 @@ const CreateJobContent = () => {
                             <CollectionPreferences
                               onConfirm={({ detail }) => setPreferences(detail)}
                               preferences={preferences}
-                              title="Preferences"
-                              confirmLabel="Confirm"
-                              cancelLabel="Cancel"
+                              title={t('table.preferences')}
+                              confirmLabel={t('table.confirm')}
+                              cancelLabel={t('table.cancel')}
                               pageSizePreference={{
-                                title: 'Select page size',
+                                title: t('table.selectPageSize'),
                                 options: [
-                                  { value: 10, label: '10 resources' },
-                                  { value: 20, label: '20 resources' },
-                                  { value: 50, label: '50 resources' },
-                                  { value: 100, label: '100 resources' },
+                                  { value: 10, label: t('table.pageSize10') },
+                                  { value: 20, label: t('table.pageSize20') },
+                                  { value: 50, label: t('table.pageSize50') },
+                                  { value: 100, label: t('table.pageSize100') },
                                 ],
                               }}
                               visibleContentPreference={{
-                                title: 'Select visible content',
+                                title: t('table.selectVisibleContent'),
                                 options: [
                                   {
-                                    label: 'Main distribution properties',
+                                    label: t('table.mainDistributionProp'),
                                     options: S3_CATALOG_COLUMS,
                                   },
                                 ],
@@ -940,7 +965,7 @@ const CreateJobContent = () => {
                         (item) => {
                           return {
                             id: item.id,
-                            header: item.label,
+                            header: t(item.label),
                             cell: (e: any) => {
                               if (item.id === 'size_key') {
                                 return formatSize((e as any)[item.id]);
@@ -972,7 +997,7 @@ const CreateJobContent = () => {
                                       size="small"
                                       className="small-icon"
                                     ></Icon>{' '}
-                                    Remove
+                                    {t('button.remove')}
                                   </span>
                                 );
                               }
@@ -987,24 +1012,28 @@ const CreateJobContent = () => {
                   {!isLoading &&
                     hasOldData &&
                     selectedRdsItems.length === 0 && (
-                      <span>Skip RDS catalog</span>
+                      <span>{t('job:create.skipRDSCatalog')}</span>
                     )}
                 </Container>
               </>
             ),
           },
           {
-            title: 'Job settings',
+            title: t('job:create.jobSettings'),
             content: (
               <div>
                 <SpaceBetween direction="vertical" size="l">
                   <Container
-                    header={<Header variant="h2">Job basic information</Header>}
+                    header={
+                      <Header variant="h2">
+                        {t('job:create.jobBasicInfo')}
+                      </Header>
+                    }
                   >
                     <SpaceBetween direction="vertical" size="l">
                       <FormField
-                        label="Name"
-                        description="The name can be up to 60 characters long. Valid characters are a-z, A-Z, 0-9, _ / ' '"
+                        label={t('job:create.name')}
+                        description={t('job:create.nameDesc')}
                       >
                         <Input
                           value={jobName}
@@ -1013,28 +1042,30 @@ const CreateJobContent = () => {
                             checkChar(detail.value) &&
                             setJobName(detail.value)
                           }
-                          placeholder="Job name"
+                          placeholder={t('job:create.jobNamePlaceholder') || ''}
                         />
                       </FormField>
-                      <FormField label="Description - Optional">
+                      <FormField label={t('job:create.desc')}>
                         <Input
                           value={jobDescription}
                           onChange={({ detail }) =>
                             detail.value.length <= 60 &&
                             setJobDescriptio(detail.value)
                           }
-                          placeholder="Description"
+                          placeholder={t('job:create.descPlaceholder') || ''}
                         />
                       </FormField>
                     </SpaceBetween>
                   </Container>
                   <Container
                     header={
-                      <Header variant="h2">Data classification template</Header>
+                      <Header variant="h2">
+                        {t('job:create.dataClassfiyTmpl')}
+                      </Header>
                     }
                   >
                     <FormField
-                      label="Data classification template"
+                      label={t('job:create.dataClassfiyTmpl')}
                       info={
                         <Popover
                           dismissButton={false}
@@ -1042,25 +1073,13 @@ const CreateJobContent = () => {
                           size="large"
                           content={
                             <StatusIndicator type="info">
-                              Define data classification template used in this
-                              job. The job will use the data identifiers (rules)
-                              in the template to detect sensitive data.
-                              <p>
-                                If a data matches the rule, then it will be
-                                labeled as sensitive (e.g. Contains PII).{' '}
-                              </p>
-                              <p>
-                                The job will apply the latest template at the
-                                moment of each job run. For example, if you have
-                                a monthly job scheduled on 1st day of the month,
-                                you change the template during the month, when
-                                the job on the 1st of the next month, it will
-                                apply the updated template.
-                              </p>
+                              {t('job:create.dataClassfiyTmplPop1')}
+                              <p>{t('job:create.dataClassfiyTmplPop2')}</p>
+                              <p>{t('job:create.dataClassfiyTmplPop3')}</p>
                             </StatusIndicator>
                           }
                         >
-                          <b className="titel-info">Info</b>
+                          <b className="titel-info">{t('info')}</b>
                         </Popover>
                       }
                     >
@@ -1071,20 +1090,25 @@ const CreateJobContent = () => {
                         }}
                         triggerVariant="option"
                         options={[DEFAULT_TEMPLATE]}
-                        selectedAriaLabel="Selected"
-                        placeholder="Classification template for privacy"
+                        placeholder={
+                          t('job:create.classifyTmplForPrivacy') || ''
+                        }
                       ></Select>
                     </FormField>
                   </Container>
 
                   <Container
-                    header={<Header variant="h2">Job settings</Header>}
+                    header={
+                      <Header variant="h2">
+                        {t('job:create.jobSettings')}
+                      </Header>
+                    }
                   >
                     <SpaceBetween direction="vertical" size="l">
-                      <FormField label="Scan frequency">
+                      <FormField label={t('job:create.scanFreq')}>
                         <Select
                           triggerVariant="option"
-                          selectedAriaLabel="Selected"
+                          selectedAriaLabel={t('selected') || ''}
                           onChange={({ detail }) => {
                             setFrequencyType(
                               detail.selectedOption.value as any
@@ -1102,12 +1126,12 @@ const CreateJobContent = () => {
                       </FormField>
                       <div>
                         {frequencyType === 'daily' && (
-                          <FormField label="Start hour of day">
+                          <FormField label={t('job:create.startHourOfDay')}>
                             <Select
                               selectedOption={frequencyStart}
                               triggerVariant="option"
+                              selectedAriaLabel={t('selected') || ''}
                               options={HOUR_OPTIONS}
-                              selectedAriaLabel="Selected"
                               onChange={(select) => {
                                 setFrequencyStart(select.detail.selectedOption);
                               }}
@@ -1116,12 +1140,12 @@ const CreateJobContent = () => {
                           </FormField>
                         )}
                         {frequencyType === 'weekly' && (
-                          <FormField label="Start day of week">
+                          <FormField label={t('job:create.startDayOfWeek')}>
                             <Select
                               selectedOption={frequencyStart}
                               triggerVariant="option"
                               options={DAY_OPTIONS}
-                              selectedAriaLabel="Selected"
+                              selectedAriaLabel={t('selected') || ''}
                               onChange={(select) => {
                                 setFrequencyStart(select.detail.selectedOption);
                               }}
@@ -1131,15 +1155,14 @@ const CreateJobContent = () => {
                         )}
                         {frequencyType === 'monthly' && (
                           <FormField
-                            label="Start day of month"
-                            description="If a month has fewer than 30 days, this platform won’t run the job that month. ‘
-            To run the job every month, choose a value that’s less than 29."
+                            label={t('job:create.startDayOfMonth')}
+                            description={t('job:create.startDayOfMonthDesc')}
                           >
                             <Select
                               selectedOption={frequencyStart}
                               triggerVariant="option"
                               options={MONTH_OPTIONS}
-                              selectedAriaLabel="Selected"
+                              selectedAriaLabel={t('selected') || ''}
                               onChange={(select) => {
                                 setFrequencyStart(select.detail.selectedOption);
                               }}
@@ -1150,7 +1173,7 @@ const CreateJobContent = () => {
                       </div>
 
                       <FormField
-                        label="Scan depth"
+                        label={t('job:create.scanDepth')}
                         info={
                           <Popover
                             dismissButton={false}
@@ -1158,17 +1181,12 @@ const CreateJobContent = () => {
                             size="large"
                             content={
                               <StatusIndicator type="info">
-                                The sample rate for data scanning.
-                                <p>
-                                  1000 means 1000 rows, for instance, a RDS
-                                  table may contains 10000 rows, select 1000
-                                  means, the job will randomly pick 1000 rows
-                                  and examine these data with data identifiers.
-                                </p>
+                                {t('job:create.scanDepthPop1')}
+                                <p>{t('job:create.scanDepthPop2')}</p>
                               </StatusIndicator>
                             }
                           >
-                            <b className="titel-info">Info</b>
+                            <b className="titel-info">{t('info')}</b>
                           </Popover>
                         }
                       >
@@ -1179,12 +1197,14 @@ const CreateJobContent = () => {
                           }}
                           triggerVariant="option"
                           options={SCAN_DEPTH_OPTIONS}
-                          selectedAriaLabel="Selected"
-                          placeholder="Sample 1000 entries (recommended)"
+                          selectedAriaLabel={t('selected') || ''}
+                          placeholder={
+                            t('job:create.scanDepthPlaceholder') || ''
+                          }
                         ></Select>
                       </FormField>
                       <FormField
-                        label="Scan range"
+                        label={t('job:create.scanRange')}
                         info={
                           <Popover
                             dismissButton={false}
@@ -1192,18 +1212,12 @@ const CreateJobContent = () => {
                             size="large"
                             content={
                               <StatusIndicator type="info">
-                                The sample rate for data scanning.
-                                <p>
-                                  Full scan: Scan all selected data catalogs.
-                                  Incremental scan: Incremental scan means the
-                                  job will only crawl databases or S3 folders
-                                  that has schema added/changed since the last
-                                  run.
-                                </p>
+                                {t('job:create.scanRangePop1')}
+                                <p>{t('job:create.scanRangePop2')}</p>
                               </StatusIndicator>
                             }
                           >
-                            <b className="titel-info">Info</b>
+                            <b className="titel-info">{t('info')}</b>
                           </Popover>
                         }
                       >
@@ -1214,12 +1228,14 @@ const CreateJobContent = () => {
                           }}
                           triggerVariant="option"
                           options={SCAN_RANGE_OPTIONS}
-                          selectedAriaLabel="Selected"
-                          placeholder="Incremental (recommended)"
+                          selectedAriaLabel={t('selected') || ''}
+                          placeholder={
+                            t('job:create.scanRangePlaceholder') || ''
+                          }
                         ></Select>
                       </FormField>
                       <FormField
-                        label="Detection threshold"
+                        label={t('job:create.detectionThreshold')}
                         info={
                           <Popover
                             dismissButton={false}
@@ -1227,19 +1243,12 @@ const CreateJobContent = () => {
                             size="large"
                             content={
                               <StatusIndicator type="info">
-                                The detection threshold defines the sensitivity.
-                                <p>
-                                  If scan depth is 1000 (rows), 10% threshold
-                                  means, if over 100 rows (in 1000) matches the
-                                  identifier rule, then the column will be
-                                  labeled as sensitive. A lower threshold
-                                  percentage, means the job is more restrict
-                                  about data sensitivity.
-                                </p>
+                                {t('job:create.detectionThresholdPop1')}
+                                <p>{t('job:create.detectionThresholdPop2')}</p>
                               </StatusIndicator>
                             }
                           >
-                            <b className="titel-info">Info</b>
+                            <b className="titel-info">{t('info')}</b>
                           </Popover>
                         }
                       >
@@ -1250,11 +1259,13 @@ const CreateJobContent = () => {
                           }}
                           triggerVariant="option"
                           options={DETECTION_THRESHOLD_OPTIONS}
-                          selectedAriaLabel="Selected"
-                          placeholder="10% (recommended)"
+                          selectedAriaLabel={t('selected') || ''}
+                          placeholder={
+                            t('job:create.detectionThresholdPlaceholder') || ''
+                          }
                         ></Select>
                       </FormField>
-                      <FormField label="Override privacy label that are updated manually">
+                      <FormField label={t('job:create.override')}>
                         <Select
                           selectedOption={overwrite}
                           onChange={(select) => {
@@ -1262,7 +1273,7 @@ const CreateJobContent = () => {
                           }}
                           triggerVariant="option"
                           options={OVERRIDE_OPTIONS}
-                          selectedAriaLabel="Selected"
+                          selectedAriaLabel={t('selected') || ''}
                         ></Select>
                       </FormField>
                     </SpaceBetween>
@@ -1272,13 +1283,17 @@ const CreateJobContent = () => {
             ),
           },
           {
-            title: 'Job preview',
+            title: t('job:create.jobPreview'),
             content: (
-              <Container header={<Header variant="h2">Job preview</Header>}>
+              <Container
+                header={
+                  <Header variant="h2">{t('job:create.jobPreview')}</Header>
+                }
+              >
                 <SpaceBetween direction="vertical" size="l">
-                  <FormField label="Target data catalogs">
+                  <FormField label={t('job:create.targetDataCatalogs')}>
                     <span className="sources-title">
-                      S3 bucket: {S3_OPTION[s3CatalogType]}
+                      {t('job:create.s3Bucket')} {S3_OPTION[s3CatalogType]}
                     </span>
                     {s3CatalogType === SELECT_S3 && (
                       <ul>
@@ -1315,7 +1330,7 @@ const CreateJobContent = () => {
                     )}
                     <br></br>
                     <span className="sources-title">
-                      RDS instance: {RDS_OPTION[rdsCatalogType]}
+                      {t('job:create.rdsInstance')} {RDS_OPTION[rdsCatalogType]}
                     </span>
                     {rdsCatalogType === SELECT_RDS &&
                       selectedRdsItems.map(
@@ -1347,16 +1362,16 @@ const CreateJobContent = () => {
                         }
                       )}
                   </FormField>
-                  <FormField label="Job name">
+                  <FormField label={t('job:create.name')}>
                     <span>{jobName}</span>
                   </FormField>
-                  <FormField label="Description">
+                  <FormField label={t('job:create.desc')}>
                     <span>{jobDescription}</span>
                   </FormField>
-                  <FormField label="Data classification template">
+                  <FormField label={t('job:create.dataClassfiyTmpl')}>
                     <span>{selectTemplate ? selectTemplate.label : ''}</span>
                   </FormField>
-                  <FormField label="Scan frequency">
+                  <FormField label={t('job:create.scanFreq')}>
                     <span>
                       {frequencyType.toUpperCase()}{' '}
                       {frequencyStart && (
@@ -1367,18 +1382,18 @@ const CreateJobContent = () => {
                       )}
                     </span>
                   </FormField>
-                  <FormField label="Scan depth">
+                  <FormField label={t('job:create.scanDepth')}>
                     <span>{scanDepth ? scanDepth.label : ''}</span>
                   </FormField>
-                  <FormField label="Scan range">
+                  <FormField label={t('job:create.scanRange')}>
                     <span>{scanRange ? scanRange.label : ''}</span>
                   </FormField>
-                  <FormField label="Detection threshold">
+                  <FormField label={t('job:create.detectionThreshold')}>
                     <span>
                       {detectionThreshold ? detectionThreshold.label : ''}
                     </span>
                   </FormField>
-                  <FormField label="Overwrite">
+                  <FormField label={t('job:create.override')}>
                     <span>{overwrite ? overwrite.label : ''}</span>
                   </FormField>
                 </SpaceBetween>

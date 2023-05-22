@@ -3,7 +3,6 @@
   "awsAccountsDesc": "Only AWS accounts that have authroization status SUCCEEDED can be tracked by this platform.",
   "filterAWSAccounts": "Filter AWS accounts",
   "refreshSuccess": "Refresh success",
-  "selectOneItem": "Please select one item",
   "deleteSuccess": "Delete success",
   "awsAccount": "AWS Account",
   "region": "AWS Region",
