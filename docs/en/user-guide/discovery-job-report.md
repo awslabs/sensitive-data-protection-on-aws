@@ -1,18 +1,15 @@
-# Sensitive data discovery job
+On the **Run sensitive data discovery job** page, click into a specific job to open a window. In the **Job history** tab, choose a specific job, and choose **Download report** to download report in Excel format (.xlsx). 
 
-## Download job report
-On the **"Run sensitive data discovery job"** webpage, click into a specific job, you can see a side window.  In the **Job history** tab, choose a specific job run, click **Download report**, you can download report in Excel format(.xlsx). 
+In the report, each data source is in a separate sheet (tab). For example, a sensitive data discovery job runs for S3 and RDS:
 
-In the report, each data source is in a seperate sheet(tab). For example, a sensitive data discovery job run for S3 and RDS:
-
-In S3 sheet,
+The S3 sheet is:
 
 | account_id | region | s3_bucket | s3_location | column_name | identifiers | sample_data |
 | --- | --- | --- | --- | --- | --- | --- |
 | 177416885226 | cn-northwest-1 | sdps-beta-member | s3://sdps-beta-member/ | col1 | [{identifier=CHINESE-NAME, score=0.6680557137733704}] | [cn_****, 魏**, 梁*, , , , 尹**, 汉*, , 鲁**] |
 | 177416885226 | cn-northwest-1 | sdps-beta-member | s3://sdps-beta-member/ | col2 | [{identifier=ADDRESS, score=0.6929563446207209}] | [cn_*******, , 海南省省直辖县***************, 湖北省武汉市************, , 贵州省六盘***********, 湖北省随州市************, 上海市市辖区嘉***************, 山西省忻州**********, 贵州省铜仁市***********] |
 
-In RDS sheet,
+The RDS sheet is:
 
 | account_id | region | rds_instance_id | table_name | column_name | identifiers | sample_data |
 | --- | --- | --- | --- | --- | --- | --- |

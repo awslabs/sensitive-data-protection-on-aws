@@ -1,4 +1,4 @@
-To uninstall the XXX solution, you must delete the AWS CloudFormation stack. 
+To uninstall the solution, you must delete the AWS CloudFormation stack. 
 
 You can use either the AWS Management Console or the AWS Command Line Interface (AWS CLI) to delete the CloudFormation stack.
 

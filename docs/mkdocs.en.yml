@@ -11,8 +11,8 @@ nav:
         - Concepts and definitions: solution-overview/concepts-and-definitions.md
     - Architecture Overview:
         - Architecture diagram: architecture-overview/architecture.md
-        - Architecture details: architecture-overview/architecture-details.md
-        - AWS Well-Architected design considerations: architecture-overview/design-considerations.md
+        - AWS services in this solution: architecture-overview/services-in-the-solution.md
+        - How the solution works:  architecture-overview/architecture-details.md   
     - Plan your deployment:
         - Cost: plan-deployment/cost.md
         - Security: plan-deployment/security.md
@@ -22,7 +22,7 @@ nav:
         - AWS CloudFormation template: deployment/template.md
         - Deployment: deployment/deployment.md
     - Use the solution: 
-        - Get started: user-guide/get-started.md
+        - Overview: user-guide/get-started.md
         - Connect to data source:
             - Add AWS accounts: user-guide/data-source.md
             - Create data catalogs: user-guide/data-catalog-create.md
@@ -30,22 +30,21 @@ nav:
         - Define classification template: 
             - Define classification template: user-guide/data-classification-template.md
             - Manage data identifiers: user-guide/data-identifiers.md
-        - Run Sensitive data discovery jobs: 
+        - Run sensitive data discovery jobs: 
             - Create job: user-guide/discovery-job-create.md
             - View job details: user-guide/discovery-job-details.md
             - Download job report: user-guide/discovery-job-report.md
             - Re-run/Duplicate job: user-guide/discovery-job-rerun-and-duplicate.md
-            - Pause/Conitnue job: user-guide/discovery-job-pause-and-cancel.md
+            - Pause/Continue job: user-guide/discovery-job-pause-and-cancel.md
         - Browse data catalogs: 
-            - Sync data catalogs: user-guide/data-catalog-sync.md
+            - Synchronize data catalogs: user-guide/data-catalog-sync.md
             - Export data catalogs: user-guide/data-catalog-export.md
             - Label data catalogs: user-guide/data-catalog-labels.md
     - Appendix: 
-        - Built-in data identifers: user-guide/appendix-built-in-identifiers.md
-        - Supported data types: users-guilde/appendix-supported-data-types.md
+        - Built-in data identifiers: user-guide/appendix-built-in-identifiers.md
+        - Supported data types: user-guide/appendix-supported-data-types.md
         - Permissions of CloudFormation Stacks: user-guide/appendix-permissions.md
         - Add accounts via AWS Organization: user-guide/appendix-organization.md
-    - Update the solution: update.md
     - Uninstall the solution: uninstall.md
     - Developer guide:
         - Source code: developer-guide/source.md

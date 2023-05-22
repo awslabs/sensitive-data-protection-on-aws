@@ -1,8 +1,10 @@
-# Get started
-Once successfully deployed the solution, you can use the SDPS platform to find sensitive data. You can get started with the following steps:
+# Overview
+Once successfully [deployed the solution](../deployment/deployment.md), you can access the web portal to detect sensitive data. 
 
-- **STEP1**: [Connect to Data Source](data-source.md)
-- **STEP2**: [Define classification template](data-classification-template.md)
-- **STEP3**: [Sensitive data discovery jobs](discover-job-create.md)
-- **STEP4**: [Browse data catalogs](data-catalog-sync.md)
-- **STEP5**: Check result in dashboard
+## Steps
+
+- **Step 1**: [Connect to data source.](data-source.md) Add AWS accounts and create data catalogs.
+- **Step 2**: [Define classification template.](data-classification-template.md) Define sensitive data in templates by managing data identifiers.
+- **Step 3**: [Create and run sensitive data discovery jobs.](discover-job-create.md) Detect sensitive data by creating and managing data discovery jobs.
+- **Step 4**: [Browse data catalogs](data-catalog-sync.md)
+- **Step 5**: Check result in dashboard

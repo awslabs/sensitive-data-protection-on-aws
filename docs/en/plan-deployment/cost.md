@@ -1,14 +1,19 @@
-# Cost Estimation 
+# Cost 
 
-## Summary
-The cost for main AWS account running this solution with the default settings:
+You will be responsible for the cost of the AWS services used when running the solution. We recommend using the AWS Cost Explorer feature in the solution to help manage costs. Prices are subject to change. For full details, refer to the pricing webpage for each AWS service used in this solution.
 
-- China (Ningxia) Region Operated by NWCD is approximately ¥901.82 CNY a month
-  
+The cost for running the Sensitive Data Protection solution varies based on the following factors:
+
+- Number and size of datasets
+- Number and complexity of data structures
+- Frequency of discovery job updates
+
+For example, a large datasets that is running discovery job with fully scan range will result in higher costs than smaller datasets with increased scan range and limited scan depth that are run on demand.
+
 ## Cost breakdown
-Based on typical usage patterns, we have indicated a few scenarios to provide an estimation of monthly costs. The AWS services listed in the example cost tables below are billed on a monthly basis.
 
-> The cost for running the Sensitive Data Protection solution is based on variety of factors, such as the number and sizes of datasets, number and complexity of data structures, and frequency of discovery job updates. For example, a large datasets that is running discovery job with fully scan range will result in higher costs than smaller datasets with increased scan range and limited scan depth that are run on demand.
+
+As of June 2023, the cost for main AWS account running this solution with the default settings in China (Ningxia) Region Operated by NWCD is approximately ¥901.82 CNY a month.
 
 - **Base cost for Infra (in admin account)**
 
@@ -44,7 +49,10 @@ The AWS services listed in the example cost tables below are billed on a monthly
 | Step Functions | CNY 0.00 for first 4,000 state transitions, CNY 0.0002102 per state transition thereafter                                              | On Demand    |
 | CloudWatch     | First 5GB-mo per month of logs storage is free. CNY 0.244 per GB archived per month                                                  | On Demand    |
 
-## Example: 
+## Example 
+
+Based on typical usage patterns, we have indicated a few scenarios to provide an estimation of monthly costs. The AWS services listed in the example cost tables below are billed on a monthly basis.
+
 Here is a cost estimate with sample dataset:
 
 | Scenarios | Service | Running Cost (CNY) | Monthly Cost (CNY) |
@@ -55,4 +63,3 @@ Here is a cost estimate with sample dataset:
 | Total monthly cost in the above three accounts with different frequency (CNY) | | | 95.2622 |
 
 
-We recommend using the AWS Cost Explorer feature in the solution to help manage costs. Prices are subject to change. For full details, refer to the pricing webpage for each AWS service used in this solution.

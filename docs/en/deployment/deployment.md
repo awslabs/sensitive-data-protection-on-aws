@@ -1,6 +1,6 @@
 Before you launch the solution, review the architecture, supported regions, and other considerations discussed in this guide. Follow the step-by-step instructions in this section to configure and deploy the solution into your account.
 
-**Time to deploy**: Approximately [10] minutes
+**Time to deploy**: Approximately 10 minutes
 
 ## Deployment overview
 
@@ -27,6 +27,6 @@ This automated AWS CloudFormation template deploys the solution in the AWS Cloud
 8. On the **Review** page, review and confirm the settings. Check the box acknowledging that the template will create AWS Identity and Access Management (IAM) resources.
 9. Choose **Create stack** to deploy the stack.
 
-You can view the status of the stack in the AWS CloudFormation Console in the **Status** column. You should receive a CREATE_COMPLETE status in approximately [10] minutes.
+You can view the status of the stack in the AWS CloudFormation Console in the **Status** column. You should receive a CREATE_COMPLETE status in approximately 10 minutes.
 
 

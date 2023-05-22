@@ -3,13 +3,13 @@
 This section describes the components and AWS services that make up this solution and the high level system design.
 
 ![high-level-system-design](docs/../../images/system-design.png)
-*Figure 1: SDPS high level system design*
+**Sensitive Data Protection on AWS high level system design**
 
-In the diagram, the centralized sensitive data governance account is the admin account. Solution users, typically security auditors, can access the solution via a web portal. Users can browse the data catalog and execute sensitive data detection jobs in the monitored account(s) after logging into the web portal. 
+As shown in the diagram, the centralized sensitive data governance account is the admin account. Solution users, typically security auditors, can access the solution via a web portal. Users can browse the data catalog and execute sensitive data detection jobs in the monitored account(s) after logging into the web portal. 
 
 Multiple monitored accounts are connected to the admin account with data source access and job execution privileges, so that the admin account can invoke the Job Processor model in the specified monitored account for sensitive data detection.
 
-## Modules in Admin Account:
+## Modules in Admin Account
 
 - **Web Portal (UI)**: The solution administrator or normal users can access the solution through the web portal. It provides secure user access management and a web UI for the solution.
 
@@ -23,7 +23,7 @@ Multiple monitored accounts are connected to the admin account with data source 
 
 - **Account Management (AM)**: The monitored AWS account(s) are managed by the AM model.
 
-# Modules in Monitored Account(s):
+## Modules in Monitored Account(s)
 
 - **Job Processor**: The Job Processor is the running container for sensitive data detection, invoked by the Job Controller. The Job Processor reads the raw data to the detection engine for detection and sends the analysis results and running state to the Job Controller.
 

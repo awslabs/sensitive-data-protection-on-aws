@@ -1,11 +1,18 @@
 # Data classification template
-A template is a collection of [data identifiers](data-identifiers.md). On the **Define classification template** page, You can define sensitive data in the template by adding data identifiers. The template will be used in sensitive data discovery job. 
+A template is a collection of [data identifiers](data-identifiers.md). You can define sensitive data in the template by adding data identifiers. The template will be used in sensitive data discovery job. 
 
 ## Add data identifier to template
-Click **Add data identifier** button, you will see a list of data identifiers in side window. You can select one or multiple data identifers and click **Add to template** button. 
+
+1. Sign in to the solution's web portal.
+2. Choose **Define classification template** in the **Summary** area. Alternatively, from the left navigation pane, choose **Define classification template** under **Classification settings** to open the **Define classification template** page.
+3. Choose **Add data identifier**. You will see a list of data identifiers in window. 
+4. Select one or multiple data identifiers and choose **Add to template**. 
 
 ## Remove data identifier from template
-Select a data identifier in the template and click **Remove** button. 
+
+On the **Define classification template** page, select a data identifier in the template and choose **Remove**. 
 
 ## Enable/disable data identifier
-For each identifier in the template, you can **switch** to enable or disable it. If you disable a data identifier, the job will not inspect data against the identifier. Disabling an identifier is usually for testing purposes.
+
+On the **Define classification template** page, for each identifier in the template, you can choose to **enable** or disable it. If you disable a data identifier, the related job will not detect data against the identifier. Disabling an identifier is usually for testing purposes.
+
