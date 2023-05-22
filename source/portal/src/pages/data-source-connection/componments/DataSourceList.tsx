@@ -61,7 +61,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [pageData, setPageData] = useState([] as any);
-  const [selectedCrawler, setSelectedCrawler] = useState(null);
+  const [selectedCrawler] = useState(null);
   const [sortDetail, setSortDetail] = useState({});
   const [rdsUser, setRdsUser] = useState('');
   const [rdsUserPwd, setRdsUserPwd] = useState('');
@@ -345,7 +345,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
           columnList.map((item) => {
             return {
               id: item.id,
-              header: item.label,
+              header: t(item.label),
               // different column tag
               cell: (e: any) => {
                 if (
@@ -395,7 +395,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                         onClick={() => alertMsg((e as any)[item.id], 'error')}
                         style={{ cursor: 'pointer' }}
                       >
-                        <ErrorBadge badgeLabel='ERROR' />
+                        <ErrorBadge badgeLabel="ERROR" />
                       </div>
                     );
                   }

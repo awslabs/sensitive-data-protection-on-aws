@@ -30,39 +30,39 @@ export const COLUMN_OBJECT_STR = {
 export const S3_COLUMN_LIST = [
   {
     id: COLUMN_OBJECT_STR.DatabaseName,
-    label: 'Bucket name',
+    label: 'table.label.bucketName',
   },
   {
     id: COLUMN_OBJECT_STR.ObjectCount,
-    label: 'Object',
+    label: 'table.label.object',
   },
   {
     id: COLUMN_OBJECT_STR.Size,
-    label: 'Size',
+    label: 'table.label.size',
   },
   {
     id: COLUMN_OBJECT_STR.Privacy,
-    label: 'Privacy',
+    label: 'table.label.privacy',
   },
   {
     id: COLUMN_OBJECT_STR.AccountId,
-    label: 'AWS account',
+    label: 'table.label.awsAccount',
   },
   {
     id: 'region',
-    label: 'AWS region',
+    label: 'table.label.awsRegion',
   },
   {
     id: 'labels',
-    label: 'Catalog labels',
+    label: 'table.label.catalogLabels',
   },
   {
     id: COLUMN_OBJECT_STR.LastModifyAt,
-    label: 'Last updated at',
+    label: 'table.label.lastUpdateAt',
   },
   {
     id: COLUMN_OBJECT_STR.LastModifyBy,
-    label: 'Last updated by',
+    label: 'table.label.lastUpdateBy',
   },
 ];
 
@@ -76,19 +76,19 @@ export const DATA_TYPE = {
 export const RDS_MODAL_TABS = [
   {
     id: 'dataIdentifiers',
-    label: 'Data identifiers',
+    label: 'tab.dataIdentifiers',
     detailDesHeader: '',
     detailDesInfo: '',
   },
   {
     id: COLUMN_OBJECT_STR.Tables,
-    label: 'Tables',
+    label: 'tab.tables',
     detailDesHeader: '',
     detailDesInfo: '',
   },
   {
     id: COLUMN_OBJECT_STR.BucketProperties,
-    label: 'Instance properties',
+    label: 'tab.bucketProperties',
     detailDesHeader: '',
     detailDesInfo: '',
   },
@@ -98,19 +98,19 @@ export const RDS_MODAL_TABS = [
 export const S3_MODAL_TABS = [
   {
     id: 'dataIdentifiers',
-    label: 'Data identifiers',
+    label: 'tab.dataIdentifiers',
     detailDesHeader: '',
     detailDesInfo: '',
   },
   {
     id: COLUMN_OBJECT_STR.Folders,
-    label: 'Folders',
+    label: 'tab.foders',
     detailDesHeader: '',
     detailDesInfo: '',
   },
   {
     id: 'bucketProperties',
-    label: 'Bucket properties',
+    label: 'tab.foders',
     detailDesHeader: '',
     detailDesInfo: '',
   },
@@ -119,22 +119,22 @@ export const S3_MODAL_TABS = [
 export const DATA_IDENT_COLUMN = [
   {
     id: COLUMN_OBJECT_STR.Identifier,
-    label: 'Data identifier',
+    label: 'table.label.dataIdentifiers',
     filter: true,
   },
   {
     id: COLUMN_OBJECT_STR.TableCount,
-    label: 'Folders',
+    label: 'table.label.folders',
     filter: true,
   },
   {
     id: COLUMN_OBJECT_STR.Objects,
-    label: 'Objects',
+    label: 'table.label.objects',
     filter: true,
   },
   {
     id: 'size',
-    label: 'Size',
+    label: 'table.label.size',
     filter: false,
   },
 ];
@@ -142,17 +142,17 @@ export const DATA_IDENT_COLUMN = [
 export const RDS_DATA_IDENT_COLUMN = [
   {
     id: COLUMN_OBJECT_STR.Identifier,
-    label: 'Data identifier',
+    label: 'table.label.dataIdentifiers',
     filter: true,
   },
   {
     id: COLUMN_OBJECT_STR.TableCount,
-    label: 'Tables',
+    label: 'table.label.tables',
     filter: true,
   },
   {
     id: COLUMN_OBJECT_STR.Objects,
-    label: 'Columns',
+    label: 'table.label.columns',
     filter: true,
   },
 ];
@@ -160,42 +160,42 @@ export const RDS_DATA_IDENT_COLUMN = [
 export const FOLDERS_COLUMN = [
   {
     id: COLUMN_OBJECT_STR.FolderName,
-    label: 'Folder name',
+    label: 'table.label.folderName',
     filter: true,
   },
   {
     id: COLUMN_OBJECT_STR.ObjectCount,
-    label: 'Objects',
+    label: 'table.label.objects',
     filter: true,
   },
   {
     id: COLUMN_OBJECT_STR.RowCount,
-    label: 'Items',
+    label: 'table.label.items',
     filter: true,
   },
   {
     id: COLUMN_OBJECT_STR.Size,
-    label: 'Size',
+    label: 'table.label.size',
     filter: true,
   },
   {
     id: COLUMN_OBJECT_STR.Privacy,
-    label: 'Privacy',
+    label: 'table.label.privacy',
     filter: true,
   },
   {
     id: COLUMN_OBJECT_STR.Labels,
-    label: 'Label',
+    label: 'table.label.label',
     filter: false,
   },
   {
     id: 'modify_by',
-    label: 'Last updated by',
+    label: 'table.label.lastUpdateBy',
     filter: true,
   },
   {
     id: COLUMN_OBJECT_STR.LastModifyAt,
-    label: 'Last updated at',
+    label: 'table.label.lastUpdateAt',
     filter: false,
   },
 ];
@@ -203,12 +203,12 @@ export const FOLDERS_COLUMN = [
 export const BUCKET_PROPERTIES_COLUMN = [
   {
     id: 'property',
-    label: 'Property',
+    label: 'table.label.property',
     filter: false,
   },
   {
     id: 'value',
-    label: 'Value',
+    label: 'table.label.value',
     filter: false,
   },
 ];
@@ -216,22 +216,22 @@ export const BUCKET_PROPERTIES_COLUMN = [
 export const SAMPLE_OBJECT_COLUMN = [
   {
     id: 's3objects',
-    label: 'S3 objects',
+    label: 'table.label.s3Objects',
     filter: true,
   },
   {
     id: 'file_type',
-    label: 'File type',
+    label: 'table.label.fileType',
     filter: true,
   },
   {
     id: 'file_size',
-    label: 'File size',
+    label: 'table.label.fileSize',
     filter: false,
   },
   {
     id: 's3_full_path',
-    label: 'S3 full path',
+    label: 'table.label.s3FullPath',
     filter: false,
   },
 ];
@@ -239,42 +239,42 @@ export const SAMPLE_OBJECT_COLUMN = [
 export const SCHEMA_COLUMN = [
   {
     id: 'column_name',
-    label: 'Column name',
+    label: 'table.label.columnName',
     filter: true,
   },
   {
     id: 'column_type',
-    label: 'Type',
+    label: 'table.label.type',
     filter: true,
   },
   {
     id: COLUMN_OBJECT_STR.Identifier,
-    label: 'Identifier ',
+    label: 'table.label.identifier',
     filter: true,
   },
   {
     id: 'column_value_example',
-    label: 'Sample data',
+    label: 'table.label.sampleData',
     filter: false,
   },
   {
     id: COLUMN_OBJECT_STR.Privacy,
-    label: 'Privacy',
+    label: 'table.label.privacy',
     filter: true,
   },
   {
     id: COLUMN_OBJECT_STR.Comments,
-    label: 'Comment',
+    label: 'table.label.comments',
     filter: false,
   },
   {
     id: COLUMN_OBJECT_STR.LastModifyBy,
-    label: 'Last updated by',
+    label: 'table.label.lastUpdateBy',
     filter: false,
   },
   {
     id: COLUMN_OBJECT_STR.LastModifyAt,
-    label: 'Last updated at',
+    label: 'table.label.lastUpdateAt',
     filter: true,
   },
 ];
@@ -313,71 +313,71 @@ export const DATA_PERVIEW_COLUMN = [
 export const RDS_COLUMN_LIST = [
   {
     id: 'database_name',
-    label: 'Instance name',
+    label: 'table.label.instanceName',
   },
   {
     id: 'table_count',
-    label: 'Table',
+    label: 'table.label.table',
   },
   {
     id: COLUMN_OBJECT_STR.Privacy,
-    label: 'Privacy',
+    label: 'table.label.privacy',
   },
   {
     id: 'storage_location',
-    label: 'Engine type',
+    label: 'table.label.engineType',
   },
   {
     id: COLUMN_OBJECT_STR.AccountId,
-    label: 'AWS account',
+    label: 'table.label.awsAccount',
   },
   {
     id: 'region',
-    label: 'AWS region',
+    label: 'table.label.awsRegion',
   },
   {
     id: 'labels',
-    label: 'Catalog labels',
+    label: 'table.label.catalogLabels',
   },
   {
     id: COLUMN_OBJECT_STR.LastModifyAt,
-    label: 'Last updated at',
+    label: 'table.label.lastUpdateAt',
   },
   {
     id: COLUMN_OBJECT_STR.LastModifyBy,
-    label: 'Last updated by',
+    label: 'table.label.lastUpdateBy',
   },
 ];
 
 export const TABLES_COLUMN = [
   {
     id: COLUMN_OBJECT_STR.FolderName,
-    label: 'Tables',
+    label: 'table.label.tables',
     filter: true,
   },
   {
     id: 'column_count',
-    label: 'Columns',
+    label: 'table.label.columns',
     filter: true,
   },
   {
     id: COLUMN_OBJECT_STR.RowCount,
-    label: 'Rows',
+    label: 'table.label.rows',
     filter: true,
   },
   {
     id: COLUMN_OBJECT_STR.Privacy,
-    label: 'Privacy',
+    label: 'table.label.privacy',
     filter: true,
   },
   {
     id: COLUMN_OBJECT_STR.LastModifyBy,
-    label: 'Last updated by',
+    label: 'table.label.lastUpdateBy',
     filter: true,
   },
   {
     id: COLUMN_OBJECT_STR.LastModifyAt,
-    label: 'Last updated at',
+    label: 'table.label.lastUpdateAt',
     filter: false,
   },
 ];
@@ -385,27 +385,27 @@ export const TABLES_COLUMN = [
 export const S3_FILTER_COLUMN = [
   {
     id: COLUMN_OBJECT_STR.DatabaseName,
-    label: 'Bucket name',
+    label: 'table.label.bucketName',
     filter: true,
   },
   {
     id: COLUMN_OBJECT_STR.ObjectCount,
-    label: 'Object',
+    label: 'table.label.object',
     filter: false,
   },
   {
     id: COLUMN_OBJECT_STR.Privacy,
-    label: 'Privacy',
+    label: 'table.label.privacy',
     filter: true,
   },
   {
     id: COLUMN_OBJECT_STR.AccountId,
-    label: 'AWS account',
+    label: 'table.label.awsAccount',
     filter: true,
   },
   {
     id: 'region',
-    label: 'AWS region',
+    label: 'table.label.awsRegion',
     filter: true,
   },
 ];
@@ -413,32 +413,32 @@ export const S3_FILTER_COLUMN = [
 export const RDS_FILTER_COLUMN = [
   {
     id: 'database_name',
-    label: 'Instance name',
+    label: 'table.label.instanceName',
     filter: true,
   },
   {
     id: 'table_count',
-    label: 'Table',
+    label: 'table.label.table',
     filter: false,
   },
   {
     id: COLUMN_OBJECT_STR.Privacy,
-    label: 'Privacy',
+    label: 'table.label.privacy',
     filter: true,
   },
   {
     id: 'storage_location',
-    label: 'Engine type',
+    label: 'table.label.engineType',
     filter: true,
   },
   {
     id: COLUMN_OBJECT_STR.AccountId,
-    label: 'AWS account',
+    label: 'table.label.awsAccount',
     filter: true,
   },
   {
     id: 'region',
-    label: 'AWS region',
+    label: 'table.label.awsRegion',
     filter: true,
   },
 ];

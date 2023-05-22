@@ -149,8 +149,38 @@
       "awsRegion": "AWS region",
       "instanceName": "Instance name",
       "tables": "Tables",
-      "operate": "Operate"
+      "operate": "Operate",
+      "catalogLabels": "Catalog labels",
+      "lastUpdateAt": "Last updated at",
+      "lastUpdateBy": "Last updated by",
+      "dataIdentifiers": "Data identifiers",
+      "foders": "Folders",
+      "columns": "Columns",
+      "folderName": "Folder name",
+      "items": "items",
+      "property": "Property",
+      "value": "value",
+      "s3Objects": "S3 objects",
+      "fileType": "File type",
+      "fileSize": "File size",
+      "s3FullPath": "S3 full path",
+      "columnName": "Column name",
+      "type": "Type",
+      "identifier": "Identifier",
+      "sampleData": "Sample data",
+      "comments": "Comment",
+      "table": "Table",
+      "engineType": "Engine type",
+      "rows": "Rows",
+      "label": "Label"
     }
+  },
+  "tab": {
+    "dataIdentifiers": "Data identifiers",
+    "tables": "Tables",
+    "instanceProperties": "Instance properties",
+    "foders": "Folders",
+    "bucketProperties": "Bucket properties"
   },
   "step": {
     "step": "Step ",
@@ -169,5 +199,7 @@
   "submitSuccess": "Submit success",
   "edit": "Edit",
   "create": "Create",
-  "selected": "selected"
+  "selected": "selected",
+  "noSaveData": "No Save Data",
+  "saveSuccess": "Save Success"
 }
