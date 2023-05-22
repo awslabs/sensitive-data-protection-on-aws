@@ -519,7 +519,7 @@ def complete_run_database(input_event):
             message = traceback.format_exc()
             logger.exception("sync job detection result exception:%s" % message)
     run_database = crud.complete_run_database(input_event["RunDatabaseId"], state, message)
-    if run_database is not None:
+    if run_database is not None and state == RunDatabaseState.SUCCEEDED.value:
         crud.update_job_database_base_time(input_event["JobId"],
                                            input_event["AccountId"],
                                            input_event["Region"],
