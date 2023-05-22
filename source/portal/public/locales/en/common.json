@@ -70,7 +70,8 @@
     "createIdentifier": "Create data identifier",
     "addToIdentifier": "Add to Identifier",
     "createCategory": "Create category",
-    "createIdentifierLabel": "Create Label"
+    "createIdentifierLabel": "Create Label",
+    "refreshDataSource": "Refresh data source"
   },
   "label": {
     "label": "label",
@@ -113,6 +114,27 @@
     "preferences": "Preferences",
     "confirm": "Confirm",
     "cancel": "Cancel",
-    "pageSize": "Page size"
-  }
+    "pageSize": "Page size",
+    "itemsSelection": "Items selection",
+    "item": "item",
+    "items": "items",
+    "selected": "selected",
+    "is": "is",
+    "not": "not",
+    "ofTotal": "of total",
+    "loadingResources": "Loading resources",
+    "noResources": "No resources",
+    "noResourcesDisplay": "No resources to display.",
+    "nextPage": "Next Page",
+    "previousPage": "Previous page",
+    "pageLabel": "Page {{pageNumber}} of all pages",
+    "selectPageSize": "Select page size",
+    "pageSize10": "10 resources",
+    "pageSize20": "20 resources",
+    "pageSize50": "50 resources",
+    "pageSize100": "100 resources",
+    "selectVisibleContent": "Select visible content",
+    "mainDistributionProp": "Main distribution properties"
+  },
+  "copied": "Copied to clipboard"
 }

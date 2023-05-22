@@ -11,18 +11,18 @@ export const TYPE_COLUMN = {
   FRONT_OPERATE: 'front_operate',
 };
 export const ACCOUNT_COLUMN_LIST = [
-  { id: 'aws_account_id', label: 'AWS account', filter: true },
-  { id: 'region', label: 'AWS region', filter: true },
-  { id: TYPE_COLUMN.STATUS, label: 'Authorization', filter: true },
+  { id: 'aws_account_id', label: 'account:awsAccount', filter: true },
+  { id: 'region', label: 'account:region', filter: true },
+  { id: TYPE_COLUMN.STATUS, label: 'account:auth', filter: true },
   {
     id: TYPE_COLUMN.S3_CONNECTION,
-    label: 'S3 connected (of total) ',
+    label: 'account:s3OfTotal',
     filter: false,
   },
   {
     id: TYPE_COLUMN.RDS_CONNECTION,
-    label: 'RDS connected (of total)',
+    label: 'account:rdsOfTotal',
     filter: false,
   },
-  { id: TYPE_COLUMN.FRONT_OPERATE, label: 'Operate', filter: false },
+  { id: TYPE_COLUMN.FRONT_OPERATE, label: 'account:operate', filter: false },
 ];

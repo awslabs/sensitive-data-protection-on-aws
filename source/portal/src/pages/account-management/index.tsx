@@ -16,17 +16,16 @@ import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
 
 const AccountManagementHeader: React.FC = () => {
+  const { t } = useTranslation();
   return (
-    <Header
-      variant="h1"
-      description="Onboard AWS accounts to this platform. Connect/disconnect to the data source to create/remove data catalogs."
-    >
-      Connect to data source
+    <Header variant="h1" description={t('account:connectToDataSourceDesc')}>
+      {t('account:connectToDataSource')}
     </Header>
   );
 };
 
 const AccountManagementContent: React.FC = () => {
+  const { t } = useTranslation();
   const [coverageData, setCoverageData] = useState({
     rds_connected: 0,
     rds_total: 0,
@@ -57,26 +56,26 @@ const AccountManagementContent: React.FC = () => {
   };
 
   const topLeftCoverageData = {
-    header: 'AWS account information',
-    description: 'The AWS accounts tracked by this platform.',
-    leftChildHeader: 'Total AWS accounts',
+    header: t('account:awsAccountInfo'),
+    description: t('account:awsAccountInfoDesc'),
+    leftChildHeader: t('account:totalAWSAccount'),
     leftChildData: totalAccount.toString(),
-    rightChildHeader: 'AWS regions',
+    rightChildHeader: t('account:awsRegions'),
     rightChildData: totalRegion.toString(),
     isRowMore: false,
   };
 
   const topRightCoverageData = {
-    header: 'Data source connection',
+    header: t('account:dataSourceConnection'),
     description: (
       <span className="coverage-small">
-        Data source that discovered in AWS accounts.
+        {t('account:dataSourceDiscoverInAWSAccount')}
       </span>
     ),
-    leftChildHeader: 'Total S3 buckets',
+    leftChildHeader: t('account:totalS3Bucket'),
     leftChildData: `${coverageData?.s3_total || 0}`,
     // leftChildTotal: `${coverageData?.s3_total || 0}`,
-    rightChildHeader: 'Total RDS instances',
+    rightChildHeader: t('account:totalRDSInstance'),
     rightChildData: `${coverageData?.rds_total || 0}`,
     // rightChildTotal: `${coverageData?.rds_total || 0}`,
     isRowMore: true,
