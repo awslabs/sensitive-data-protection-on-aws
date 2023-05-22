@@ -71,7 +71,9 @@
     "addToIdentifier": "Add to Identifier",
     "createCategory": "Create category",
     "createIdentifierLabel": "Create Label",
-    "refreshDataSource": "Refresh data source"
+    "refreshDataSource": "Refresh data source",
+    "manageCategory": "Manage Category",
+    "manageLabel": "Manage Label"
   },
   "label": {
     "label": "label",
@@ -136,5 +138,11 @@
     "selectVisibleContent": "Select visible content",
     "mainDistributionProp": "Main distribution properties"
   },
-  "copied": "Copied to clipboard"
+  "copied": "Copied to clipboard",
+  "updateSuccess": "Update success",
+  "createSuccess": "Create success",
+  "updateFailed": "Update failed",
+  "createFailed": "Create failed",
+  "edit": "Edit",
+  "create": "Create"
 }
