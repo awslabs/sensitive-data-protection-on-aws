@@ -10,4 +10,14 @@ export const IDENTIFIER_COLUMN_LIST = [
     label: 'Description',
     filter: true,
   },
+  {
+    id: 'category',
+    label: 'Catagory',
+    filter: true,
+  },
+  {
+    id: 'label',
+    label: 'Identifier label',
+    filter: true,
+  },
 ];

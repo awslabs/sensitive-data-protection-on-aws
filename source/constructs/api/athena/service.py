@@ -13,8 +13,10 @@ project_bucket_name = os.getenv(const.PROJECT_BUCKET_NAME, const.PROJECT_BUCKET_
 
 def repair():
     if not __need_repair():
+        logger.info("No repair MSCK required")
         return
     if __is_repairing():
+        logger.info("Repairing MSCK,skip.")
         return
     __set_start()
     __do_repair()
@@ -45,6 +47,7 @@ def __set_start():
 
 def __do_repair():
     client = boto3.client("athena")
+    logger.info("begin repair MSCK")
     # MSCK
     msck_sql = """MSCK REPAIR TABLE %s;""" % (const.JOB_RESULT_TABLE_NAME)
     queryStart = client.start_query_execution(
@@ -66,7 +69,7 @@ def __do_repair():
             raise Exception("Query Asset STATUS:" + response["QueryExecution"]["Status"]["StateChangeReason"])
         else:
             time.sleep(1)
-    logger.debug("Athena MSCK SQL : " + msck_sql)
+    logger.info("Repaired MSCK:" + msck_sql)
 
 
 def __complete_repair():
