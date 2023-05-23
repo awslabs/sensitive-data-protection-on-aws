@@ -53,7 +53,7 @@ const AddIdentfierTable = (props: any) => {
     query,
     setQuery,
     tableName: TABLE_NAME.TEMPLATE_IDENTIFIER,
-    filteringPlaceholder: 'Filter by name or description',
+    filteringPlaceholder: t('template:filterByNameOrDesc'),
   };
 
   useEffect(() => {
@@ -116,7 +116,7 @@ const AddIdentfierTable = (props: any) => {
 
   const clkAdd = async () => {
     if (!selectedItems || selectedItems.length === 0) {
-      alertMsg('Please select one', 'error');
+      alertMsg(t('selectOneItem'), 'error');
       return;
     }
     setIsLoading(true);
@@ -132,9 +132,9 @@ const AddIdentfierTable = (props: any) => {
     Promise.all(promiseList)
       .then((res) => {
         if (res && res.length === promiseList.length) {
-          alertMsg('Add successful', 'success');
+          alertMsg(t('addSuccessful'), 'success');
         } else {
-          alertMsg('Not all succeeded', 'warning');
+          alertMsg(t('notAllSucceeded'), 'warning');
         }
 
         addCallBack();
@@ -159,19 +159,19 @@ const AddIdentfierTable = (props: any) => {
         inUseIdentifiers.filter((inUse: any) => inUse === item.id).length > 0
       }
       ariaLabels={{
-        selectionGroupLabel: 'Items selection',
+        selectionGroupLabel: t('table.itemsSelection') || '',
         allItemsSelectionLabel: ({ selectedItems }) =>
           `${selectedItems.length} ${
-            selectedItems.length === 1 ? 'item' : 'items'
-          } selected`,
+            selectedItems.length === 1 ? t('table.item') : t('table.items')
+          } ${t('table.selected')}`,
         itemSelectionLabel: ({ selectedItems }, item) => {
           const isItemSelected = selectedItems.filter(
             (i) =>
               (i as any)[columnList[0].id] === (item as any)[columnList[0].id]
           ).length;
           return `${(item as any)[columnList[0].id]} ${t('table.is')} ${
-            isItemSelected ? '' : 'not'
-          } selected`;
+            isItemSelected ? '' : t('table.not')
+          } ${t('table.selected')}`;
         },
       }}
       selectionType="multi"
@@ -213,7 +213,7 @@ const AddIdentfierTable = (props: any) => {
               </Button>
             }
           >
-            Data identifiers
+            {t('template:dataIdentifier')}
           </Header>
         </>
       }
@@ -221,9 +221,9 @@ const AddIdentfierTable = (props: any) => {
       visibleColumns={preferences.visibleContent}
       empty={
         <Box textAlign="center" color="inherit">
-          <b>No resources</b>
+          <b>{t('table.noResources')}</b>
           <Box padding={{ bottom: 's' }} variant="p" color="inherit">
-            No resources to display.
+            {t('table.noResourcesDisplay')}
           </Box>
         </Box>
       }
@@ -260,9 +260,10 @@ const AddIdentfierTable = (props: any) => {
           onChange={({ detail }) => setCurrentPage(detail.currentPageIndex)}
           pagesCount={Math.ceil(totalCount / preferences.pageSize)}
           ariaLabels={{
-            nextPageLabel: 'Next page',
-            previousPageLabel: 'Previous page',
-            pageLabel: (pageNumber) => `Page ${pageNumber} of all pages`,
+            nextPageLabel: t('table.nextPage') || '',
+            previousPageLabel: t('table.previousPage') || '',
+            pageLabel: (pageNumber) =>
+              `${t('table.pageLabel', { pageNumber: pageNumber })}`,
           }}
         />
       }
@@ -270,23 +271,23 @@ const AddIdentfierTable = (props: any) => {
         <CollectionPreferences
           onConfirm={({ detail }) => setPreferences(detail)}
           preferences={preferences}
-          title="Preferences"
-          confirmLabel="Confirm"
-          cancelLabel="Cancel"
+          title={t('table.preferences')}
+          confirmLabel={t('table.confirm')}
+          cancelLabel={t('table.cancel')}
           pageSizePreference={{
-            title: 'Select page size',
+            title: t('table.selectPageSize'),
             options: [
-              { value: 10, label: '10 resources' },
-              { value: 20, label: '20 resources' },
-              { value: 50, label: '50 resources' },
-              { value: 100, label: '100 resources' },
+              { value: 10, label: t('table.pageSize10') },
+              { value: 20, label: t('table.pageSize20') },
+              { value: 50, label: t('table.pageSize50') },
+              { value: 100, label: t('table.pageSize100') },
             ],
           }}
           visibleContentPreference={{
-            title: 'Select visible content',
+            title: t('table.selectVisibleContent'),
             options: [
               {
-                label: 'Main distribution properties',
+                label: t('table.mainDistributionProp'),
                 options: columnList,
               },
             ],

@@ -479,10 +479,10 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                 </SpaceBetween>
               }
             >
-              {(TABLE_HEADER as any)[tagType]['header']}
+              {t((TABLE_HEADER as any)[tagType]['header'])}
             </Header>
             <div className="description">
-              {(TABLE_HEADER as any)[tagType]['info']}
+              {t((TABLE_HEADER as any)[tagType]['info'])}
             </div>
           </>
         }

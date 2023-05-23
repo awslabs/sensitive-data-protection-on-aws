@@ -192,7 +192,10 @@
       "endpoint": "Endpoint",
       "catalogStatus": "Catalog status",
       "dataCatalog": "Data catalog",
-      "rdsInstanceName": "RDS instances name"
+      "rdsInstanceName": "RDS instances name",
+      "dataIdentifierName": "Data identifier name",
+      "source": "Source",
+      "enabled": "Enabled"
     }
   },
   "tab": {
@@ -237,5 +240,9 @@
   "selectSecretManage": "Please select sercret manager!",
   "connectFailed": "Connected failed",
   "disconnectSuccess": "Disconnect success",
-  "disconnect": "Disconnect"
+  "disconnect": "Disconnect",
+  "addSuccessful": "Add successful",
+  "notAllSucceeded": "Not all succeeded",
+  "deleteSuccess": "Delete success",
+  "changeEnableError": "Change enable error"
 }
