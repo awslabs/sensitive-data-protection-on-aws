@@ -41,7 +41,7 @@
     "edit": "Edit",
     "create": "Create",
     "update": "Update",
-    "addToCatalog": "Add To Catalog",
+    "addToCatalog": "Add To catalog",
     "createLabel": "Create Label",
     "addNewAccounts": "Add New Account(s)",
     "back": "Back",
@@ -70,7 +70,7 @@
     "defineTemplate": " Define classification template",
     "runJob": "Run sensitive data discovery jobs",
     "createIdentifier": "Create data identifier",
-    "addToIdentifier": "Add to Identifier",
+    "addToIdentifier": "Add to identifier",
     "createCategory": "Create category",
     "createIdentifierLabel": "Create Label",
     "refreshDataSource": "Refresh data source",
@@ -87,9 +87,9 @@
     "actions": "Actions"
   },
   "label": {
-    "label": "label",
-    "labels": "Labels",
-    "noLabel": "No labels",
+    "label": "Custom label",
+    "labels": "Custom Labels",
+    "noLabel": "No custom labels",
     "findLabels": "Find labels",
     "customLabel": "Custom label",
     "loadingLabel": "Loading labels",
@@ -97,7 +97,7 @@
     "updateLabel": "Update label",
     "deleteLabel": "Delete label",
     "deleteTips": "Are you sure you want to delete label(s) ",
-    "noLabelFound": "no label found."
+    "noLabelFound": "No custom label found."
   },
   "category": {
     "category": "Category",
@@ -109,7 +109,7 @@
     "updateCategory": "Update category",
     "deleteCategory": "Delete category",
     "deleteTips": "Are you sure you want to delete category ",
-    "noLabelFound": "no category found."
+    "noLabelFound": "No identifier category found."
   },
   "identLabel": {
     "identLabel": "Identifier Label",
@@ -121,7 +121,7 @@
     "updateLabel": "Update identifier label",
     "deleteLabel": "Delete identifier label",
     "deleteTips": "Are you sure you want to delete identifier label(s) ",
-    "noLabelFound": "no identifier label found."
+    "noLabelFound": "No identifier label found."
   },
   "table": {
     "preferences": "Preferences",
@@ -302,6 +302,7 @@
   "notAllSucceeded": "Not all succeeded",
   "deleteSuccess": "Delete success",
   "changeEnableError": "Change enable error",
+  "selectCategoryLabel": "Please select category/label",
   "pending": "Pending",
   "SUCCEEDED": "SUCCEEDED",
   "RUNNING": "RUNNING",

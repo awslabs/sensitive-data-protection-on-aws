@@ -465,6 +465,14 @@ const GlueJobContent = () => {
             }
             header={
               <Header
+                actions={
+                  <Button
+                    iconName="refresh"
+                    onClick={() => {
+                      getPageData();
+                    }}
+                  />
+                }
                 counter={`(${totalCount})`}
                 variant="h2"
                 description={t('job:detail.glueJobsDesc')}

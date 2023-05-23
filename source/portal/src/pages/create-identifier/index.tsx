@@ -215,7 +215,8 @@ const CreateIdentifierContent = () => {
           navigate(RouterEnum.TemplateIdentifiers.path, {
             state: {
               tabState: {
-                active: oldData.type.toString() === '1' ? 'custom' : 'builtIn',
+                active:
+                  oldData?.type?.toString() === '0' ? 'builtIn' : 'custom',
               },
             },
           });

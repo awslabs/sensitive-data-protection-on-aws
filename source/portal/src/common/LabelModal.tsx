@@ -234,7 +234,7 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
           }
           header={
             <Header
-              counter="(50)"
+              counter={`(${allLabelList?.length.toString()})`}
               actions={
                 <SpaceBetween direction="horizontal" size="xs">
                   <Button
@@ -292,12 +292,12 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
                 pageSize: pageSize,
               }}
               pageSizePreference={{
-                title: t('table.pageSize'),
+                title: t('table.selectPageSize'),
                 options: [
-                  { value: 10, label: `10 ${t('label.labels')}` },
-                  { value: 20, label: `20 ${t('label.labels')}` },
-                  { value: 50, label: `50 ${t('label.labels')}` },
-                  { value: 100, label: `100 ${t('label.labels')}` },
+                  { value: 10, label: t('table.pageSize10') },
+                  { value: 20, label: t('table.pageSize20') },
+                  { value: 50, label: t('table.pageSize50') },
+                  { value: 100, label: t('table.pageSize100') },
                 ],
               }}
               onConfirm={(e) => {

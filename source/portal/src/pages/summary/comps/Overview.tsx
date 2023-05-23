@@ -28,9 +28,13 @@ const Overview: React.FC = () => {
 
   const getDashbaordSourceCoverage = async () => {
     setLoadingCoverage(true);
-    const res = await getSourceCoverage();
-    setCoverageInfo(res as ISourceCoverage);
-    setLoadingCoverage(false);
+    try {
+      const res = await getSourceCoverage();
+      setCoverageInfo(res as ISourceCoverage);
+      setLoadingCoverage(false);
+    } catch (error) {
+      setLoadingCoverage(false);
+    }
   };
 
   useEffect(() => {

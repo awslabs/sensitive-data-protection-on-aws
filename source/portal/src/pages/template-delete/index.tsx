@@ -15,16 +15,18 @@ import { useTranslation } from 'react-i18next';
 
 const TemplateDelete = (props: any) => {
   const {
+    title,
     isShowDelete,
     setIsShowDelete,
     confirmDelete,
     showErrorTips = {},
+    confirmText,
   } = props;
   const { t } = useTranslation();
   const [confirmInput, setConfirmInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const clkConfirmDelete = async () => {
-    if (!confirmInput || confirmInput.toLowerCase() !== t('confirm')) {
+    if (!confirmInput || confirmInput !== t('confirm')) {
       alertMsg(t('confirmDelete'), 'warning');
       return;
     }
@@ -46,9 +48,7 @@ const TemplateDelete = (props: any) => {
     <Modal
       visible={isShowDelete}
       onDismiss={() => setIsShowDelete(false)}
-      header={
-        <Header variant="h2">{t('template:deleteDataIdentifier')}</Header>
-      }
+      header={<Header variant="h2">{title}</Header>}
       footer={
         <Box float="right">
           <SpaceBetween direction="horizontal" size="xs">
@@ -61,7 +61,7 @@ const TemplateDelete = (props: any) => {
             </Button>
             {!showErrorTips.template && !showErrorTips.catalog && (
               <Button onClick={clkConfirmDelete} loading={isLoading}>
-                {t('button.delete')}
+                {confirmText || t('button.delete')}
               </Button>
             )}
           </SpaceBetween>
@@ -103,7 +103,7 @@ const TemplateDelete = (props: any) => {
           <Input
             value={confirmInput}
             onChange={({ detail }) => setConfirmInput(detail.value)}
-            placeholder="Confirm"
+            placeholder={t('confirm') || ''}
             className="confirm-input"
           />
         </>

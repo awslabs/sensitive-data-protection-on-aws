@@ -9,6 +9,7 @@ interface ProgressType {
 }
 
 interface GlueJobProgressProps {
+  refresh?: number;
   jobDetailData: any;
   jobRowData: any;
 }
@@ -16,7 +17,7 @@ interface GlueJobProgressProps {
 const GlueJobProgress: React.FC<GlueJobProgressProps> = (
   props: GlueJobProgressProps
 ) => {
-  const { jobRowData, jobDetailData } = props;
+  const { jobRowData, jobDetailData, refresh } = props;
   const { t } = useTranslation();
   const [loadingData, setLoadingData] = useState(false);
   const [curCount, setCurCount] = useState(0);
@@ -37,6 +38,10 @@ const GlueJobProgress: React.FC<GlueJobProgressProps> = (
       console.info(error);
     }
   };
+
+  useEffect(() => {
+    getJobProgress();
+  }, [refresh]);
 
   useEffect(() => {
     getJobProgress();

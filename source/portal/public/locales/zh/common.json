@@ -16,7 +16,7 @@
     "runJob": "执行敏感数据发现任务",
     "classifiySetting": "分类设置",
     "defineTemplate": "定义分类模版",
-    "manageIdentifier": "管理数据标签",
+    "manageIdentifier": "管理数据识别规则",
     "doc": "文档"
   },
   "breadcrumb": {
@@ -30,7 +30,7 @@
     "dataSourceConnection": "数据源连接",
     "defineTemplate": "定义分类模板",
     "sensitiveJobs": "敏感数据发现作业",
-    "manageIdentifier": "管理数据标识符",
+    "manageIdentifier": "管理数据识别规则",
     "showPath": "显示路径",
     "breadcrumb": "面包屑"
   },
@@ -62,7 +62,7 @@
     "backToAWSAccount": "返回 AWS 账户视图",
     "connectAll": "全部连接",
     "connect": "连接",
-    "manageDataIdentifiers": "管理数据标识符",
+    "manageDataIdentifiers": "管理数据识别规则",
     "addDataIdentifier": "添加数据标识符",
     "addToTemplate": "添加到模板",
     "connectToDataSource": "连接到数据源",
@@ -302,6 +302,7 @@
   "notAllSucceeded": "并非所有人都成功了",
   "deleteSuccess": "删除成功",
   "changeEnableError": "更改启用错误",
+  "selectCategoryLabel": "请选择类别/标签",
   "pending": "等待",
   "SUCCEEDED": "成功",
   "RUNNING": "运行中",
