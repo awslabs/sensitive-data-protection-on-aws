@@ -78,7 +78,8 @@
     "next": "Next",
     "previous": "Previous",
     "jobRunDetails": "Job run details",
-    "downloadReport": "Download report"
+    "downloadReport": "Download report",
+    "dataCatalogs": "Data catalogs"
   },
   "label": {
     "label": "label",
@@ -185,7 +186,13 @@
       "description": "Description",
       "jobFrequency": "Job frequency",
       "lastJobStartedAt": "Last job started at",
-      "lastJobFinishedAt": "Last job finished at (Duration)"
+      "lastJobFinishedAt": "Last job finished at (Duration)",
+      "connectionStatus": "Connection status",
+      "port": "Port",
+      "endpoint": "Endpoint",
+      "catalogStatus": "Catalog status",
+      "dataCatalog": "Data catalog",
+      "rdsInstanceName": "RDS instances name"
     }
   },
   "tab": {
@@ -222,5 +229,13 @@
   "pauseSuccess": "Pause success",
   "stopSuccess": "Stop success",
   "startSuccess": "Start success",
-  "continueSuccess": "Continue success"
+  "continueSuccess": "Continue success",
+  "loadDataError": "Load data error",
+  "startConnectAllS3": "Start connect all S3",
+  "startConnect": "Start connect",
+  "inputRDSUserOrPassword": "Please input rds user or password!",
+  "selectSecretManage": "Please select sercret manager!",
+  "connectFailed": "Connected failed",
+  "disconnectSuccess": "Disconnect success",
+  "disconnect": "Disconnect"
 }

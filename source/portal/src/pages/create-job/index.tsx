@@ -664,9 +664,9 @@ const CreateJobContent = () => {
                             ).length;
                             return `${
                               (item as any)[S3_CATALOG_COLUMS[0].id]
-                            } is ${isItemSelected ? '' : t('table.not')} ${t(
-                              'table.selected'
-                            )}`;
+                            } ${t('table.is')} ${
+                              isItemSelected ? '' : t('table.not')
+                            } ${t('table.selected')}`;
                           },
                         }}
                         items={s3CatalogData}
@@ -869,9 +869,9 @@ const CreateJobContent = () => {
                               ).length;
                               return `${
                                 (item as any)[S3_CATALOG_COLUMS[0].id]
-                              } is ${isItemSelected ? '' : t('table.not')} ${t(
-                                'table.selected'
-                              )}`;
+                              } ${t('table.is')} ${
+                                isItemSelected ? '' : t('table.not')
+                              } ${t('table.selected')}`;
                             },
                           }}
                           items={rdsCatalogData}

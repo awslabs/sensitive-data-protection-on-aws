@@ -169,7 +169,7 @@ const AddIdentfierTable = (props: any) => {
             (i) =>
               (i as any)[columnList[0].id] === (item as any)[columnList[0].id]
           ).length;
-          return `${(item as any)[columnList[0].id]} is ${
+          return `${(item as any)[columnList[0].id]} ${t('table.is')} ${
             isItemSelected ? '' : 'not'
           } selected`;
         },
