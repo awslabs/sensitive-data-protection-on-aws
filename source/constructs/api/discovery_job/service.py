@@ -294,6 +294,7 @@ def __create_job(database_type, account_id, region, database_name, job_name):
                                    Connections={'Connections': [f'rds-{database_name}-connection']},
                                    ExecutionProperty={'MaxConcurrentRuns': 3},
                                    NumberOfWorkers=2,
+                                   WorkerType='G.1X'
                                    )
         else:
             client_glue.create_job(Name=job_name,
@@ -306,6 +307,7 @@ def __create_job(database_type, account_id, region, database_name, job_name):
                                          const.VERSION: version},
                                    ExecutionProperty={'MaxConcurrentRuns': 100},
                                    NumberOfWorkers=2,
+                                   WorkerType='G.1X'
                                    )
 
 
