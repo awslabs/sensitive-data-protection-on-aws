@@ -38,9 +38,10 @@ import { TABLE_NAME } from 'enum/common_types';
 import { useTranslation } from 'react-i18next';
 
 const DataJobHeader: React.FC = () => {
+  const { t } = useTranslation();
   return (
-    <Header variant="h1" description="Manage sensitive data discovery jobs.">
-      Run sensitive data discovery jobs
+    <Header variant="h1" description={t('job:manageJobs')}>
+      {t('job:runJobs')}
     </Header>
   );
 };
@@ -71,7 +72,7 @@ const DataJobContent: React.FC<any> = (props: any) => {
     query,
     setQuery,
     tableName: TABLE_NAME.DISCOVERY_JOB,
-    filteringPlaceholder: 'Filter jobs',
+    filteringPlaceholder: t('job:filterJobs'),
   };
 
   const clkAddJob = () => {
@@ -80,15 +81,15 @@ const DataJobContent: React.FC<any> = (props: any) => {
 
   const clkOption = async (selectedOption: OptionDefinition) => {
     if (!selectedItems || selectedItems.length === 0) {
-      alertMsg('Please select one', 'error');
+      alertMsg(t('selectOneItem'), 'error');
       return;
     }
     if (selectedOption.value === 'pause') {
       const result = await disableJob({ id: selectedItems[0].id });
-      result && alertMsg('Pause success', 'success');
+      result && alertMsg(t('pauseSuccess'), 'success');
     } else if (selectedOption.value === 'cancel') {
       const result = await stopJob({ id: selectedItems[0].id });
-      result && alertMsg('Stop success', 'success');
+      result && alertMsg(t('stopSuccess'), 'success');
     } else if (selectedOption.value === 'copyNew') {
       navigate(RouterEnum.CreateJob.path, {
         state: { oldData: selectedItems[0] },
@@ -96,11 +97,11 @@ const DataJobContent: React.FC<any> = (props: any) => {
       return;
     } else if (selectedOption.value === 'execute_once') {
       await startJob({ id: selectedItems[0].id });
-      alertMsg('Start success', 'success');
+      alertMsg(t('startSuccess'), 'success');
       return;
     } else if (selectedOption.value === 'continue') {
       await enableJob({ id: selectedItems[0].id });
-      alertMsg('Continue success', 'success');
+      alertMsg(t('continueSuccess'), 'success');
       return;
     }
     getPageData();
@@ -177,26 +178,26 @@ const DataJobContent: React.FC<any> = (props: any) => {
           setSelectedItems(detail.selectedItems)
         }
         ariaLabels={{
-          selectionGroupLabel: 'Items selection',
+          selectionGroupLabel: t('table.itemsSelection') || '',
           allItemsSelectionLabel: ({ selectedItems }) =>
             `${selectedItems.length} ${
-              selectedItems.length === 1 ? 'item' : 'items'
-            } selected`,
+              selectedItems.length === 1 ? t('table.item') : t('table.items')
+            } ${t('table.selected')}`,
           itemSelectionLabel: ({ selectedItems }, item) => {
             const isItemSelected = selectedItems.filter(
               (i) =>
                 (i as any)[columnList[0].id] === (item as any)[columnList[0].id]
             ).length;
             return `${(item as any)[columnList[0].id]} is ${
-              isItemSelected ? '' : 'not'
-            } selected`;
+              isItemSelected ? '' : t('table.not')
+            } ${t('table.selected')}`;
           },
         }}
         selectionType="single"
         columnDefinitions={columnList.map((item) => {
           return {
             id: item.id,
-            header: item.label,
+            header: t(item.label),
             cell: (e: any) => {
               if (item.id === 'last_start_time') {
                 return (e as any)[item.id]
@@ -345,13 +346,13 @@ const DataJobContent: React.FC<any> = (props: any) => {
             </span>
           </>
         }
-        loadingText="Loading resources"
+        loadingText={t('table.loadingResources') || ''}
         visibleColumns={preferences.visibleContent}
         empty={
           <Box textAlign="center" color="inherit">
-            <b>No resources</b>
+            <b>{t('table.noResources')}</b>
             <Box padding={{ bottom: 's' }} variant="p" color="inherit">
-              No resources to display.
+              {t('table.noResourcesDisplay')}
             </Box>
           </Box>
         }
@@ -362,9 +363,10 @@ const DataJobContent: React.FC<any> = (props: any) => {
             onChange={({ detail }) => setCurrentPage(detail.currentPageIndex)}
             pagesCount={Math.ceil(totalCount / preferences.pageSize)}
             ariaLabels={{
-              nextPageLabel: 'Next page',
-              previousPageLabel: 'Previous page',
-              pageLabel: (pageNumber) => `Page ${pageNumber} of all pages`,
+              nextPageLabel: t('table.nextPage') || '',
+              previousPageLabel: t('table.previousPage') || '',
+              pageLabel: (pageNumber) =>
+                `${t('table.pageLabel', { pageNumber: pageNumber })}`,
             }}
           />
         }
@@ -372,23 +374,23 @@ const DataJobContent: React.FC<any> = (props: any) => {
           <CollectionPreferences
             onConfirm={({ detail }) => setPreferences(detail)}
             preferences={preferences}
-            title="Preferences"
-            confirmLabel="Confirm"
-            cancelLabel="Cancel"
+            title={t('table.preferences')}
+            confirmLabel={t('table.confirm')}
+            cancelLabel={t('table.cancel')}
             pageSizePreference={{
-              title: 'Select page size',
+              title: t('table.selectPageSize'),
               options: [
-                { value: 10, label: '10 resources' },
-                { value: 20, label: '20 resources' },
-                { value: 50, label: '50 resources' },
-                { value: 100, label: '100 resources' },
+                { value: 10, label: t('table.pageSize10') },
+                { value: 20, label: t('table.pageSize20') },
+                { value: 50, label: t('table.pageSize50') },
+                { value: 100, label: t('table.pageSize100') },
               ],
             }}
             visibleContentPreference={{
-              title: 'Select visible content',
+              title: t('table.selectVisibleContent'),
               options: [
                 {
-                  label: 'Main distribution properties',
+                  label: t('table.mainDistributionProp'),
                   options: columnList,
                 },
               ],

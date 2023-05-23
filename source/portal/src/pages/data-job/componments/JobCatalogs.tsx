@@ -1,6 +1,7 @@
 import { Box, Table } from '@cloudscape-design/components';
 import { getJobDetail } from 'apis/data-job/api';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
 
@@ -15,7 +16,7 @@ const DATABASE_COLUMN_LIST = [
 const JobCatalogs = (props: any) => {
   const { detailRow } = props;
   const navigate = useNavigate();
-
+  const { t } = useTranslation();
   const [isLoading, setIsloading] = useState(false);
   const [dataList, setDataList] = useState([]);
   const columnList = DATABASE_COLUMN_LIST;
@@ -68,9 +69,9 @@ const JobCatalogs = (props: any) => {
       visibleColumns={columnList.map((i) => i.id)}
       empty={
         <Box textAlign="center" color="inherit">
-          <b>No resources</b>
+          <b>{t('table.noResources')}</b>
           <Box padding={{ bottom: 's' }} variant="p" color="inherit">
-            No resources to display.
+            {t('table.noResourcesDisplay')}
           </Box>
         </Box>
       }

@@ -76,7 +76,9 @@
     "manageLabel": "Manage Label",
     "runAJob": "Run Job",
     "next": "Next",
-    "previous": "Previous"
+    "previous": "Previous",
+    "jobRunDetails": "Job run details",
+    "downloadReport": "Download report"
   },
   "label": {
     "label": "label",
@@ -172,7 +174,18 @@
       "table": "Table",
       "engineType": "Engine type",
       "rows": "Rows",
-      "label": "Label"
+      "label": "Label",
+      "jobStatus": "Job status",
+      "jobStartedAt": "Job started at",
+      "jobCompletedAt": "Job completed at",
+      "report": "Report",
+      "jobRunDetails": "Job run details",
+      "jobId": "Job id",
+      "jobName": "Job name",
+      "description": "Description",
+      "jobFrequency": "Job frequency",
+      "lastJobStartedAt": "Last job started at",
+      "lastJobFinishedAt": "Last job finished at (Duration)"
     }
   },
   "tab": {
@@ -180,7 +193,10 @@
     "tables": "Tables",
     "instanceProperties": "Instance properties",
     "foders": "Folders",
-    "bucketProperties": "Bucket properties"
+    "bucketProperties": "Bucket properties",
+    "jobHistory": "Job history",
+    "jobProperties": "Job properties",
+    "dataCatalogs": "Data catalogs"
   },
   "step": {
     "step": "Step ",
@@ -201,5 +217,10 @@
   "create": "Create",
   "selected": "selected",
   "noSaveData": "No Save Data",
-  "saveSuccess": "Save Success"
+  "saveSuccess": "Save Success",
+  "noReportFile": "No report file",
+  "pauseSuccess": "Pause success",
+  "stopSuccess": "Stop success",
+  "startSuccess": "Start success",
+  "continueSuccess": "Continue success"
 }

@@ -12,6 +12,9 @@
   "weeklyStartDay": "Weekly, start day: ",
   "selectDayOfMonth": "Please select day of month",
   "monthlyStartDay": "Monthly, start day: ",
+  "filterJobs": "Filter jobs",
+  "runJobs": "Run sensitive data discovery jobs",
+  "manageJobs": "Manage sensitive data discovery jobs.",
   "create": {
     "title": "Create sensitive data discovery job",
     "seelctS3DataCatalog": "Select data catalogs (S3)",
