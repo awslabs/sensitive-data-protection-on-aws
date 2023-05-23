@@ -1,5 +1,6 @@
 import React from 'react';
 import '../style.scss';
+import { useTranslation } from 'react-i18next';
 
 const RunStatusPercent = (props: any) => {
   const {
@@ -9,6 +10,7 @@ const RunStatusPercent = (props: any) => {
     ready = 0.2,
     other = 0.15,
   } = props;
+  const { t } = useTranslation();
   return (
     <div className="run-status">
       <div className="run-status-percent">
@@ -36,23 +38,23 @@ const RunStatusPercent = (props: any) => {
       <div className="run-status-color">
         <div className="color-item">
           <div className="success-color color-basic"></div>
-          <span>SUCCEEDED</span>
+          <span>{t('SUCCEEDED')}</span>
         </div>
         <div className="color-item">
           <div className="running-color color-basic"></div>
-          <span>RUNNING</span>
+          <span>{t('RUNNING')}</span>
         </div>
         <div className="color-item">
           <div className="failed-color color-basic"></div>
-          <span>FAILED</span>
+          <span>{t('FAILED')}</span>
         </div>
         <div className="color-item">
           <div className="ready-color color-basic"></div>
-          <span>READY</span>
+          <span>{t('READY')}</span>
         </div>
         <div className="color-item">
           <div className="other-color color-basic"></div>
-          <span>OTHERS</span>
+          <span>{t('OTHERS')}</span>
         </div>
       </div>
     </div>

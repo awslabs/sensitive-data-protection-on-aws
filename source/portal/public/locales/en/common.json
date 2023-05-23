@@ -79,7 +79,8 @@
     "previous": "Previous",
     "jobRunDetails": "Job run details",
     "downloadReport": "Download report",
-    "dataCatalogs": "Data catalogs"
+    "dataCatalogs": "Data catalogs",
+    "downloadSnapshot": "Download snapshot"
   },
   "label": {
     "label": "label",
@@ -195,7 +196,12 @@
       "rdsInstanceName": "RDS instances name",
       "dataIdentifierName": "Data identifier name",
       "source": "Source",
-      "enabled": "Enabled"
+      "enabled": "Enabled",
+      "glueJobId": "Glue job id",
+      "glueJobStatus": "Glue job status",
+      "jobProgress": "Job Progress",
+      "createdAt": "Created at",
+      "finishedAt": "Finished at"
     }
   },
   "tab": {
@@ -244,5 +250,16 @@
   "addSuccessful": "Add successful",
   "notAllSucceeded": "Not all succeeded",
   "deleteSuccess": "Delete success",
-  "changeEnableError": "Change enable error"
+  "changeEnableError": "Change enable error",
+  "pending": "Pending",
+  "SUCCEEDED": "SUCCEEDED",
+  "RUNNING": "RUNNING",
+  "FAILED": "FAILED",
+  "READY": "READY",
+  "OTHERS": "OTHERS",
+  "noTemplateFile": "No template file",
+  "Sec": " Sec ",
+  "Min": " Min",
+  "Hours": " Hours ",
+  "Days": " Days "
 }

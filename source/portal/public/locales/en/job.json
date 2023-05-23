@@ -63,5 +63,20 @@
     "specify": "Specific data catalogs",
     "skipScanS3": "Skip scan Amazon S3",
     "skipScanRDS": "Skip scan for Amazon RDS"
+  },
+  "detail": {
+    "detailForJob": "Details for job: ",
+    "detailForJobDesc": "Sensitive data discovery job consists of Glue jobs that run in AWS accounts. ",
+    "jobInfo": "Job information",
+    "jobInfoDesc": "Basic information of this sensitive discovery job.",
+    "jobId": "Job id",
+    "jobStatus": "Job status",
+    "jobStartedAt": "Job started at",
+    "jobFinishedAt": "Job finished at (Durantion)",
+    "classificationSnapshot": "Classification template snapshot",
+    "glueJobStatus": "Glue job status",
+    "glueJobs": "Glue jobs",
+    "glueJobsDesc": "The glue jobs that run in AWS accounts. Once all glue jobs finished, the sensitive discovery job will mark as Completed.",
+    "errorLog": "Error log"
   }
 }
