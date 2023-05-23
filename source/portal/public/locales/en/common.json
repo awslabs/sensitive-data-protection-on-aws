@@ -147,6 +147,8 @@
     "pageSize100": "100 resources",
     "selectVisibleContent": "Select visible content",
     "mainDistributionProp": "Main distribution properties",
+    "prev": "Prev",
+    "next": "Next",
     "label": {
       "bucketName": "Bucket name",
       "objects": "Objects",

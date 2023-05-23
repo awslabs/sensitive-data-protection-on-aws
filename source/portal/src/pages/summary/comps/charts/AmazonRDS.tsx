@@ -61,7 +61,7 @@ export const AmazonRDS: React.FC<any> = memo(() => {
           </SpaceBetween>
         }
       >
-        Data catalogs
+        {t('summary:dataCatalogs')}
       </Header>
       <RDSCatalogOverview />
       <Grid
@@ -77,11 +77,11 @@ export const AmazonRDS: React.FC<any> = memo(() => {
           <CustomLineChart title="Data catalog trend" />
         </div> */}
         <div className="mt-20 pd-10">
-          <MapChart sourceType="rds" title="Data location" />
+          <MapChart sourceType="rds" title={t('summary:dataLocation')} />
         </div>
         <div className="mt-20 pd-10">
           <CircleChart
-            title="Privacy tagging for data catalogs"
+            title={t('summary:privacyTagging')}
             circleType="donut"
             sourceType="rds"
           />
@@ -92,9 +92,9 @@ export const AmazonRDS: React.FC<any> = memo(() => {
           ) : (
             <TableData
               dataList={conatainsPIIData}
-              keyLable="AWS account"
-              valueLable="RDS instances"
-              title="Top AWS accounts contain PII"
+              keyLable={t('summary:awsAccount')}
+              valueLable={t('summary:rdsIntacnes')}
+              title={t('summary:topAccountsContainPII')}
             />
           )}
         </div>
@@ -104,15 +104,15 @@ export const AmazonRDS: React.FC<any> = memo(() => {
           ) : (
             <TableData
               dataList={identifierData}
-              keyLable="Data identifier"
-              valueLable="RDS instances"
-              title="Top data identifiers"
+              keyLable={t('summary:dataIdentifier')}
+              valueLable={t('summary:rdsIntacnes')}
+              title={t('summary:topDataIdentifier')}
             />
           )}
         </div>
         <div className="mt-20 pd-10">
           <CircleChart
-            title="Last updated status"
+            title={t('summary:lastUpdatedStatus')}
             circleType="pie"
             sourceType="rds"
           />

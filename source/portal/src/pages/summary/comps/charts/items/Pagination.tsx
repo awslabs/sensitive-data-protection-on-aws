@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface PaginationProps {
   currentPage: number;
@@ -9,6 +10,7 @@ interface PaginationProps {
 
 const Pagination: React.FC<PaginationProps> = (props: PaginationProps) => {
   const { currentPage, pageSize, totalData, onPageChange } = props;
+  const { t } = useTranslation();
   const totalPages = Math.ceil(totalData / pageSize);
   const pages = [];
   for (let i = 1; i <= totalPages; i++) {
@@ -27,7 +29,7 @@ const Pagination: React.FC<PaginationProps> = (props: PaginationProps) => {
                 onPageChange(currentPage - 1);
               }}
             >
-              Prev
+              {t('table.prev')}
             </span>
           </li>
           {pages.map((page) => (
@@ -44,7 +46,7 @@ const Pagination: React.FC<PaginationProps> = (props: PaginationProps) => {
                 onPageChange(currentPage + 1);
               }}
             >
-              Next
+              {t('table.next')}
             </span>
           </li>
         </ul>
