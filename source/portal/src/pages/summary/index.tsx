@@ -15,9 +15,10 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 const HomeHeader: React.FC = () => {
+  const { t } = useTranslation();
   return (
     <Header variant="h1" description="">
-      Summary
+      {t('summary:summary')}
     </Header>
   );
 };
@@ -36,10 +37,7 @@ const HomeContent: React.FC = () => {
             className="flex-v justify-spacebetween"
             style={{ minWidth: 250 }}
           >
-            <div>
-              STEP1: Connect to data source. Onboard AWS accounts and create
-              data catalogs for data source (e.g. S3, RDS).
-            </div>
+            <div>{t('summary:step1')}</div>
             <div className="mt-20">
               <Button
                 onClick={() => navigate(RouterEnum.AccountManagement.path)}
@@ -52,10 +50,7 @@ const HomeContent: React.FC = () => {
             className="flex-v justify-spacebetween"
             style={{ minWidth: 220 }}
           >
-            <div>
-              STEP2: Browse data catalogs. Data catalog is a repository of
-              metadata of data source.
-            </div>
+            <div>{t('summary:step2')}</div>
             <div className="mt-20">
               <Button onClick={() => navigate(RouterEnum.Catalog.path)}>
                 {t('button.browserCatalog')}
@@ -66,10 +61,7 @@ const HomeContent: React.FC = () => {
             className="flex-v justify-spacebetween"
             style={{ minWidth: 250 }}
           >
-            <div>
-              STEP3: Define classification template by selecting a collection of
-              data identifiers. Data identifiers are rules to inspect data.
-            </div>
+            <div>{t('summary:step3')}</div>
             <div className="mt-20">
               <Button onClick={() => navigate(RouterEnum.Datatemplate.path)}>
                 {t('button.defineTemplate')}
@@ -80,11 +72,7 @@ const HomeContent: React.FC = () => {
             className="flex-v justify-spacebetween"
             style={{ minWidth: 270 }}
           >
-            <div>
-              STEP4: Create and run discovery jobs using defined classification
-              template. The job automatically labels sensitive data in data
-              catalog.
-            </div>
+            <div>{t('summary:step4')}</div>
             <div className="mt-20">
               <Button onClick={() => navigate(RouterEnum.Datajob.path)}>
                 {t('button.runJob')}

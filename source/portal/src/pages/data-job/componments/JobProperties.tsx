@@ -7,16 +7,17 @@ import {
   CLSAAIFIED_TYPE,
 } from 'pages/common-badge/types/badge_type';
 import { memo, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getCronData } from 'tools/tools';
 
 const PROPERTY_COLUMN_LIST = [
-  { id: 'property', label: 'Property' },
-  { id: 'value', label: 'Value' },
+  { id: 'property', label: 'table.label.property' },
+  { id: 'value', label: 'table.label.value' },
 ];
 
 const JobProperties: React.FC<any> = memo((props: any) => {
   const { detailRow } = props;
-
+  const { t } = useTranslation();
   const [isLoading, setIsloading] = useState(false);
   const [dataList, setDataList] = useState([] as any);
 
@@ -87,7 +88,7 @@ const JobProperties: React.FC<any> = memo((props: any) => {
           columnList.map((item) => {
             return {
               id: item.id,
-              header: item.label,
+              header: t(item.label),
               cell: (e: any) => {
                 if (e['property'] === 'schedule' && item.id === 'value') {
                   return getCronData(e[item.id]);
@@ -98,13 +99,13 @@ const JobProperties: React.FC<any> = memo((props: any) => {
           }) as any
         }
         items={dataList}
-        loadingText="Loading resources"
+        loadingText={t('table.loadingResources') || ''}
         visibleColumns={columnList.map((i) => i.id)}
         empty={
           <Box textAlign="center" color="inherit">
-            <b>No resources</b>
+            <b>{t('table.noResources')}</b>
             <Box padding={{ bottom: 's' }} variant="p" color="inherit">
-              No resources to display.
+              {t('table.noResourcesDisplay')}
             </Box>
           </Box>
         }

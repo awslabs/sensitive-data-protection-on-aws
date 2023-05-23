@@ -1,37 +1,37 @@
 export const JOB_LIST_COLUMN_LIST = [
   {
     id: 'id',
-    label: 'Job id',
+    label: 'table.label.jobId',
     filter: true,
   },
   {
     id: 'name',
-    label: 'Job name',
+    label: 'table.label.jobName',
     filter: true,
   },
   {
     id: 'description',
-    label: 'Description',
+    label: 'table.label.description',
     filter: true,
   },
   {
     id: 'schedule',
-    label: 'Job frequency',
+    label: 'table.label.jobFrequency',
     filter: false,
   },
   {
     id: 'state',
-    label: 'Job status',
+    label: 'table.label.jobStatus',
     filter: true,
   },
   {
     id: 'last_start_time',
-    label: 'Last job started at',
+    label: 'table.label.lastJobStartedAt',
     filter: false,
   },
   {
     id: 'last_end_time',
-    label: 'Last job finished at (Duration)',
+    label: 'table.label.lastJobFinishedAt',
     filter: false,
   },
 ];

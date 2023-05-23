@@ -1,0 +1,24 @@
+{
+  "basicInfo": "基本信息",
+  "basicInfoDesc": "此 AWS 账户的基本信息",
+  "authStatus": "身份验证状态",
+  "statusReason": "状态原因",
+  "organization": "组织",
+  "filterBuckets": "过滤存储桶",
+  "filterInstances": "筛选实例",
+  "connectToRDSDataSource": "连接到 RDS 数据源",
+  "rdsInstances": "RDS 实例",
+  "connectionTips": "连接可能需要大约 20-30 秒。",
+  "connectToDataSourceForAccount": "连接到账户 ID 的数据源： ",
+  "connectToDataSourceForAccountDesc": "您可以通过连接数据源来创建数据目录。 ",
+  "header": {
+    "s3Title": "数据源：S3 存储桶",
+    "s3Info": "在此 AWS 账户中发现的 S3 存储桶。连接到 S3 存储桶以创建数据目录。",
+    "rdsTitle": "数据源：RDS 实例",
+    "rdsInfo": "在此 AWS 账户中发现的 RDS 实例。连接到 RDS 实例以创建数据目录。"
+  },
+  "credentialOption": {
+    "secretManager": "Secret Manager",
+    "userNamePWD": "用户名/密码"
+  }
+}

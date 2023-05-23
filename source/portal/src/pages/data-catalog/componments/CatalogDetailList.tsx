@@ -43,6 +43,7 @@ import { deepClone } from 'tools/tools';
 import { TABLE_NAME } from 'enum/common_types';
 import { getIdentifiersList } from 'apis/data-template/api';
 import { nFormatter } from 'ts/common';
+import { useTranslation } from 'react-i18next';
 
 const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
   (props: CatalogDetailListProps) => {
@@ -65,6 +66,8 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       setSaveDisabled,
       isFreeText,
     } = props;
+
+    const { t } = useTranslation();
 
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -97,7 +100,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       setQuery,
       tableName: TABLE_NAME.CATALOG_TABLE_LEVEL_CLASSIFICATION,
       columnList: columnList.filter((i) => i.filter),
-      filteringPlaceholder: 'Filter catalogs',
+      filteringPlaceholder: t('catalog:detail.filterCatalogs'),
     };
 
     const [editComments, setEditComments] = useState(null as any);
@@ -442,7 +445,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
         {identifiersFilter && (
           <div className="filter-identifiers">
             <span className="title-identifiers">
-              Identifiers: {identifiersFilter}
+              {t('catalog:detail.identifier')} {identifiersFilter}
             </span>
             <div className="clear-identifiers" onClick={clearIdentifiersFilter}>
               <Icon name="close" alt="clear" size="small" />
@@ -458,7 +461,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
               columnList.map((item) => {
                 return {
                   id: item.id,
-                  header: item.label,
+                  header: t(item.label),
                   // different column tag
                   cell: (e: any) => {
                     if (
@@ -583,7 +586,9 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                         return (
                           <div className="detail-edit-icon-max-width">
                             <Multiselect
-                              placeholder="Please select identifier"
+                              placeholder={
+                                t('catalog:detail.selectIdentifier') || ''
+                              }
                               selectedOptions={selectIndentOption}
                               onChange={(event) => {
                                 setSelectIndentOption(
@@ -597,7 +602,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                               }}
                               // triggerVariant="option"
                               options={identifierOptions}
-                              selectedAriaLabel="Selected"
+                              selectedAriaLabel={t('selected') || ''}
                               onBlur={() => {
                                 setEditIndentifier(null);
                               }}
@@ -854,13 +859,13 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
             }
             resizableColumns
             items={dataList}
-            loadingText="Loading resources"
+            loadingText={t('table.loadingResources') || ''}
             visibleColumns={preferences.visibleContent}
             empty={
               <Box textAlign="center" color="inherit">
-                <b>No data identfiers</b>
+                <b>{t('catalog:detail.noDataIdentifier')}</b>
                 <Box padding={{ bottom: 's' }} variant="p" color="inherit">
-                  No data in this catalog was identfied as sensitive data.
+                  {t('catalog:detail.noDataIdentifierDesc')}
                 </Box>
               </Box>
             }
@@ -891,10 +896,10 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                   }
                   pagesCount={Math.ceil(totalCount / preferences.pageSize)}
                   ariaLabels={{
-                    nextPageLabel: 'Next page',
-                    previousPageLabel: 'Previous page',
+                    nextPageLabel: t('table.nextPage') || '',
+                    previousPageLabel: t('table.previousPage') || '',
                     pageLabel: (pageNumber) =>
-                      `Page ${pageNumber} of all pages`,
+                      `${t('table.pageLabel', { pageNumber: pageNumber })}`,
                   }}
                 />
               )
@@ -904,23 +909,23 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                 <CollectionPreferences
                   onConfirm={({ detail }) => setPreferences(detail)}
                   preferences={preferences}
-                  title="Preferences"
-                  confirmLabel="Confirm"
-                  cancelLabel="Cancel"
+                  title={t('table.preferences')}
+                  confirmLabel={t('table.confirm')}
+                  cancelLabel={t('table.cancel')}
                   pageSizePreference={{
-                    title: 'Select page size',
+                    title: t('table.selectPageSize'),
                     options: [
-                      { value: 10, label: '10 resources' },
-                      { value: 20, label: '20 resources' },
-                      { value: 50, label: '50 resources' },
-                      { value: 100, label: '100 resources' },
+                      { value: 10, label: t('table.pageSize10') },
+                      { value: 20, label: t('table.pageSize20') },
+                      { value: 50, label: t('table.pageSize50') },
+                      { value: 100, label: t('table.pageSize100') },
                     ],
                   }}
                   visibleContentPreference={{
-                    title: 'Select visible content',
+                    title: t('table.selectVisibleContent'),
                     options: [
                       {
-                        label: 'Main distribution properties',
+                        label: t('table.mainDistributionProp'),
                         options: columnList,
                       },
                     ],

@@ -10,9 +10,11 @@ import HorizontalBarChart from './HorizontalBarChart';
 import { getDatacatalogSummary } from 'apis/dashboard/api';
 import { ColumnChartData, ICatalogSummary } from 'ts/dashboard/types';
 import { formatNumber, formatSize } from 'tools/tools';
+import { useTranslation } from 'react-i18next';
 
 const S3CatalogOverview = () => {
   const [loadingData, setLoadingData] = useState(true);
+  const { t } = useTranslation();
   const [catalogSummaryData, setCatalogSummaryData] =
     useState<ICatalogSummary>();
   const [columChartData, setColumChartData] = useState<ColumnChartData[]>([]);
@@ -62,26 +64,26 @@ const S3CatalogOverview = () => {
         <>
           <ColumnLayout columns={3} variant="text-grid">
             <div>
-              <Box variant="awsui-key-label">S3 buckets</Box>
+              <Box variant="awsui-key-label">{t('summary:s3Bucket')}</Box>
               <CounterLink>
                 {formatNumber(catalogSummaryData?.database_total || 0)}
               </CounterLink>
             </div>
             <div>
-              <Box variant="awsui-key-label">S3 objects</Box>
+              <Box variant="awsui-key-label">{t('summary:s3Objects')}</Box>
               <CounterLink>
                 {formatNumber(catalogSummaryData?.object_total || 0)}
               </CounterLink>
             </div>
             <div>
-              <Box variant="awsui-key-label">S3 object size</Box>
+              <Box variant="awsui-key-label">{t('summary:s3ObjectSize')}</Box>
               <CounterLink>
                 {formatSize(catalogSummaryData?.size_total || 0)}
               </CounterLink>
             </div>
           </ColumnLayout>
           <div>
-            <Box variant="awsui-key-label">Object types</Box>
+            <Box variant="awsui-key-label">{t('summary:objectTypes')}</Box>
             <HorizontalBarChart chartData={columChartData} />
           </div>
         </>

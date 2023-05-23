@@ -2,6 +2,7 @@ import { Select, SelectProps } from '@cloudscape-design/components';
 import { requestPropsByType } from 'apis/props/api';
 import { PropsType } from 'pages/create-identifier';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface PropsSelectProps {
   isSearch?: boolean;
@@ -15,7 +16,7 @@ const PropsSelect: React.FC<PropsSelectProps> = (props: PropsSelectProps) => {
   const [propsOptionList, setPropsOptionList] = useState<SelectProps.Option[]>(
     []
   );
-
+  const { t } = useTranslation();
   const getPropsOptionListByType = async () => {
     try {
       const result: PropsType[] = await requestPropsByType({
@@ -24,7 +25,7 @@ const PropsSelect: React.FC<PropsSelectProps> = (props: PropsSelectProps) => {
       const tmpOptions: SelectProps.Option[] = [
         isSearch
           ? {
-              label: 'All',
+              label: t('all') || '',
               value: '',
             }
           : {
@@ -61,11 +62,15 @@ const PropsSelect: React.FC<PropsSelectProps> = (props: PropsSelectProps) => {
   return (
     <div>
       <Select
-        placeholder={type === '1' ? 'Categroy' : 'Identifier label'}
+        placeholder={
+          (type === '1'
+            ? t('category.category')
+            : t('identLabel.identLabel')) || ''
+        }
         selectedOption={selectOption}
         onChange={({ detail }) => changeSelectValue(detail.selectedOption)}
         options={propsOptionList}
-        selectedAriaLabel="Selected"
+        selectedAriaLabel={t('selected') || ''}
       />
     </div>
   );

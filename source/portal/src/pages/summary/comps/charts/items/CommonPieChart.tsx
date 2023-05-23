@@ -1,6 +1,7 @@
 import React from 'react';
 import { PieChart } from '@cloudscape-design/components';
 import { IPieChartDataType } from 'ts/dashboard/types';
+import { useTranslation } from 'react-i18next';
 
 interface CommonPieChartProps {
   sourceType: 's3' | 'rds';
@@ -16,22 +17,31 @@ const CommonPieChart: React.FC<CommonPieChartProps> = (
   props: CommonPieChartProps
 ) => {
   const { sourceType, sourceTotal, circleType, chartData } = props;
+  const { t } = useTranslation();
   return (
     <PieChart
       variant={circleType}
       size="medium"
-      innerMetricDescription={sourceType === 's3' ? 'Bucket(s)' : 'Instance(s)'}
+      innerMetricDescription={
+        (sourceType === 's3' ? t('summary:buckets') : t('summary:instances')) ||
+        ''
+      }
       innerMetricValue={sourceTotal?.toString()}
       data={chartData}
       hideFilter={true}
       segmentDescription={(datum, sum) =>
         `${datum.value} ${
-          sourceType === 's3' ? 'Buckets' : 'RDS instances'
+          sourceType === 's3'
+            ? t('summary:s3Buckets')
+            : t('summary:rdsInstances')
         }, ${percentageFormatter(datum.value / sum)}`
       }
       detailPopoverContent={(datum, sum) => [
         {
-          key: sourceType === 's3' ? 'Buckets' : 'RDS instances',
+          key:
+            sourceType === 's3'
+              ? t('summary:s3Buckets')
+              : t('summary:rdsInstances'),
           value: datum.value,
         },
         {

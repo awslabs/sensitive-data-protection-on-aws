@@ -51,6 +51,7 @@ const findCategoryLabelAndConvertOption = (type: string, props: Props[]) => {
 
 const CreateIdentifierHeader: React.FC = () => {
   const location = useLocation();
+  const { t } = useTranslation();
   const {
     oldData = {
       id: 0,
@@ -58,7 +59,9 @@ const CreateIdentifierHeader: React.FC = () => {
   } = location.state || {};
   return (
     <Header variant="h1" description="">
-      {oldData.id ? 'Edit' : 'Create'} custom data identifier
+      {t('identifier:customDataIdent', {
+        type: oldData.id ? t('edit') : t('create'),
+      })}
     </Header>
   );
 };
@@ -148,7 +151,7 @@ const CreateIdentifierContent = () => {
 
   const clkValidate = (needSuccess = true) => {
     if (!patternRex) {
-      needSuccess && alertMsg('Your regular expression is valid.', 'success');
+      needSuccess && alertMsg(t('identifier:regexValid'), 'success');
       return true;
     }
     let isReg = true;
@@ -158,17 +161,15 @@ const CreateIdentifierContent = () => {
       isReg = false;
     }
 
-    isReg &&
-      needSuccess &&
-      alertMsg('Your regular expression is valid.', 'success');
+    isReg && needSuccess && alertMsg(t('identifier:regexValid'), 'success');
 
-    !isReg && alertMsg('Your regular expression is not valid.', 'error');
+    !isReg && alertMsg(t('identifier:regexNotValid'), 'error');
     return isReg;
   };
 
   const submitIdentifier = async () => {
     if (!identifierName) {
-      alertMsg('Please input name', 'error');
+      alertMsg(t('identifier:inputName'), 'error');
       return;
     }
     if (!clkValidate(false)) {
@@ -207,7 +208,7 @@ const CreateIdentifierContent = () => {
 
       if (result && result.id >= 0) {
         alertMsg(
-          requestParam.id ? 'Update success' : 'Create success',
+          requestParam.id ? t('updateSuccess') : t('createSuccess'),
           'success'
         );
         setTimeout(() => {
@@ -220,7 +221,7 @@ const CreateIdentifierContent = () => {
           });
         }, 800);
       } else {
-        alertMsg('Create error', 'error');
+        alertMsg(oldData.id ? t('updateFailed') : t('createFailed'), 'error');
       }
     } catch {
       setIsLoading(false);
@@ -232,9 +233,9 @@ const CreateIdentifierContent = () => {
       return;
     }
     if (new RegExp(patternRex).test(simpleData)) {
-      alertMsg('The example data conforms to the regular', 'success');
+      alertMsg(t('identifier:exampleConformsRegex'), 'success');
     } else {
-      alertMsg('The sample data does not conform to the regular', 'error');
+      alertMsg(t('identifier:exampleNotConformRegex'), 'error');
     }
   };
 
@@ -245,30 +246,31 @@ const CreateIdentifierContent = () => {
         size="xl"
         className="identifier-create-container"
       >
-        <Container header={<Header variant="h2">Basic information</Header>}>
+        <Container
+          header={<Header variant="h2">{t('identifier:basicInfo')}</Header>}
+        >
           <SpaceBetween direction="vertical" size="xs">
             <FormField
-              label="Name"
-              constraintText="The name can be up to 25 characters. Valid characters are a-z, A-Z,
-            0-9, . (period), _ (underscore) and - (hyphen)."
+              label={t('identifier:name')}
+              constraintText={t('identifier:identNameConstraint')}
             >
               <Input
                 value={identifierName}
                 onChange={({ detail }) =>
                   detail.value.length <= 60 && setIdentifierName(detail.value)
                 }
-                placeholder="Identifier name"
+                placeholder={t('identifier:identName') || ''}
               />
             </FormField>
 
-            <FormField label="Description - optional">
+            <FormField label={t('identifier:identDesc')}>
               <Input
                 value={identifierDescription}
                 onChange={({ detail }) =>
                   detail.value.length <= 60 &&
                   setIdentifierDescription(detail.value)
                 }
-                placeholder="Description"
+                placeholder={t('identifier:identDescDesc') || ''}
               />
             </FormField>
           </SpaceBetween>
@@ -276,11 +278,8 @@ const CreateIdentifierContent = () => {
 
         <Container
           header={
-            <Header
-              variant="h2"
-              description="Only if all rules are met, then the platform will auto-label the data as sensitive data (e.g. contain PII)."
-            >
-              Identification rules
+            <Header variant="h2" description={t('identifier:identRulesDesc')}>
+              {t('identifier:identRules')}
             </Header>
           }
           className="rules-container"
@@ -290,7 +289,7 @@ const CreateIdentifierContent = () => {
               onChange={({ detail }) => setPatternToggle(detail.checked)}
               checked={patternToggle}
             >
-              <b>Identify data pattern in column values</b>
+              <b>{t('identifier:identDataPattern')}</b>
             </Toggle>
             {patternToggle && (
               <>
@@ -314,7 +313,7 @@ const CreateIdentifierContent = () => {
               onChange={({ detail }) => setKeywordToggle(detail.checked)}
               checked={keywordToggle}
             >
-              <b>Identify keywords in column headers</b>
+              <b>{t('identifier:identKeywords')}</b>
             </Toggle>
             {keywordToggle && (
               <>
@@ -354,7 +353,7 @@ const CreateIdentifierContent = () => {
                 {keywordList && keywordList.length >= 30 && (
                   <span className="warning-tips">
                     <Icon name="status-warning" />
-                    &nbsp;&nbsp;You have exceeded the limit of 30 tags.
+                    &nbsp;&nbsp;{t('identifier:identExceedLimit')}
                   </span>
                 )}
               </>
@@ -373,25 +372,25 @@ const CreateIdentifierContent = () => {
                       showEditCategoryLabelModal('1', oldData);
                     }}
                   >
-                    Manage Category
+                    {t('button.manageCategory')}
                   </Button>
                   <Button
                     onClick={() => {
                       showEditCategoryLabelModal('2', oldData);
                     }}
                   >
-                    Manage Label
+                    {t('button.manageLabel')}
                   </Button>
                 </SpaceBetween>
               }
             >
-              Identifier properties
+              {t('identifier:identProperties')}
             </Header>
           }
         >
           <div className="flex gap-10">
             <div className="flex-1">
-              <FormField label="Select a category">
+              <FormField label={t('identifier:selectCategory')}>
                 <PropsSelect
                   refresh={refreshCategoryLableList}
                   type="1"
@@ -403,7 +402,7 @@ const CreateIdentifierContent = () => {
               </FormField>
             </div>
             <div className="flex-1">
-              <FormField label="Select a label">
+              <FormField label={t('identifier:selectLabel')}>
                 <PropsSelect
                   refresh={refreshCategoryLableList}
                   type="2"
@@ -434,7 +433,9 @@ const CreateIdentifierContent = () => {
       </SpaceBetween>
 
       <Container
-        header={<Header variant="h2">Evaluate with sample data</Header>}
+        header={
+          <Header variant="h2">{t('identifier:evaluateSampleData')}</Header>
+        }
         className="mt-evaluate"
       >
         <SpaceBetween direction="vertical" size="xs">

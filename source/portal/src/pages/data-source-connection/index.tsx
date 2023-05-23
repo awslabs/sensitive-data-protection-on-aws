@@ -29,20 +29,22 @@ const DataSourceConnectionHeader: React.FC = () => {
   return (
     <Header
       variant="h1"
-      description="You can create data catalogs by connecting data source."
+      description={t('datasource:connectToDataSourceForAccountDesc')}
       actions={
         <Button onClick={() => navigate(RouterEnum.AccountManagement.path)}>
           {t('button.backToAWSAccount')}
         </Button>
       }
     >
-      Connect to data source for account Id: {accountData.aws_account_id}
+      {t('datasource:connectToDataSourceForAccount')}{' '}
+      {accountData.aws_account_id}
     </Header>
   );
 };
 
 const DataSourceConnectionContent: React.FC = () => {
   const location = useLocation();
+  const { t } = useTranslation();
   const {
     accountData = {
       aws_account_email: '',
@@ -65,7 +67,7 @@ const DataSourceConnectionContent: React.FC = () => {
         <Tabs
           tabs={[
             {
-              label: TAB_LIST.S3.label,
+              label: t(TAB_LIST.S3.label),
               id: TAB_LIST.S3.id,
               content: (
                 <DataSourceList
@@ -75,7 +77,7 @@ const DataSourceConnectionContent: React.FC = () => {
               ),
             },
             {
-              label: TAB_LIST.RDS.label,
+              label: t(TAB_LIST.RDS.label),
               id: TAB_LIST.RDS.id,
               content: (
                 <DataSourceList

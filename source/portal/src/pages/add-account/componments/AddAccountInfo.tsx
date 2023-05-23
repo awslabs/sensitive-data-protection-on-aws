@@ -35,29 +35,29 @@ const AddAccountInfo: React.FC<any> = memo((props: any) => {
 
   const clkDownload = async () => {
     await navigator.clipboard.writeText(ADMIN_TEMPLATE_URL);
-    alertMsg('Copied to clipboard', 'success');
+    alertMsg(t('copied'), 'success');
   };
 
   const clkAgentDownload = async () => {
     await navigator.clipboard.writeText(AGENT_TEMPLATE_URL);
-    alertMsg('Copied to clipboard', 'success');
+    alertMsg(t('copied'), 'success');
   };
 
   const clkItDownload = async () => {
     await navigator.clipboard.writeText(IT_TEMPLATE_URL);
-    alertMsg('Copied to clipboard', 'success');
+    alertMsg(t('copied'), 'success');
   };
 
   const addAwsAccount = async () => {
     if (!inputAccount) {
-      alertMsg('Please Input AccountId', 'error');
+      alertMsg(t('account:inputAccountId'), 'error');
       return;
     }
     setIsLoading(true);
     try {
       await addAccount({ account_id: inputAccount });
       setIsLoading(false);
-      alertMsg('Add Success', 'success');
+      alertMsg(t('account:addSuccess'), 'success');
       setInputAccount('');
       navigate(RouterEnum.AccountManagement.path);
     } catch {
@@ -67,7 +67,7 @@ const AddAccountInfo: React.FC<any> = memo((props: any) => {
 
   const addAwsOrgAccount = async () => {
     if (!inputOrgAccount) {
-      alertMsg('Please Input AccountId', 'error');
+      alertMsg(t('account:inputAccountId'), 'error');
       return;
     }
     setIsLoading(true);
@@ -76,7 +76,7 @@ const AddAccountInfo: React.FC<any> = memo((props: any) => {
         organization_management_account_id: inputOrgAccount,
       });
       setIsLoading(false);
-      alertMsg('Add Success', 'success');
+      alertMsg(t('account:addSuccess'), 'success');
       setInputOrgAccount('');
       navigate(RouterEnum.AccountManagement.path);
     } catch {
@@ -92,24 +92,16 @@ const AddAccountInfo: React.FC<any> = memo((props: any) => {
             header={
               <Header
                 variant="h2"
-                description={
-                  <b>
-                    The CloudFormation stack is used for authroizing AWS
-                    Organization
-                  </b>
-                }
+                description={<b>{t('account:add.org.stepDesc')}</b>}
               >
-                Step1: Install agent to authorize Organization delegater
+                {t('account:add.org.step1')}
               </Header>
             }
           >
             <div className="pointer-icon" onClick={clkDownload}>
               <Icon name="copy" />
               &nbsp;&nbsp;
-              <span>
-                Copy [CloudFormationStack-AuthorizeOrganization] CloudFormation
-                stack’s Amazon S3 URL
-              </span>
+              <span>{t('account:add.org.step1Copy')}</span>
             </div>
           </Container>
 
@@ -117,40 +109,32 @@ const AddAccountInfo: React.FC<any> = memo((props: any) => {
             header={
               <Header
                 variant="h2"
-                description={
-                  <b>
-                    Deploy the stack in the AWS orgnization AWS account or the
-                    delegated administrator AWS account.
-                  </b>
-                }
+                description={<b>{t('account:add.org.step2Desc')}</b>}
               >
-                Step2: Authroize member accounts in Organization delegate
-                administrator
+                {t('account:add.org.step2')}
               </Header>
             }
           >
             <ul>
-              <li>
-                Log in to the AWS account of the AWS orgnization account or the
-                delegated administrator account.
-              </li>
-              <li>Go to the CloudFormation console of the AWS account.</li>
+              <li>{t('account:add.org.step2list1')}</li>
+              <li>{t('account:add.org.step2list2')}</li>
 
               <li>
-                Click the <b>Create stack</b> button and choose
-                <b>With new resources (standard)</b>.
+                {t('account:add.org.step2list3_1')}{' '}
+                <b>{t('account:add.org.step2list3_2')}</b>{' '}
+                {t('account:add.org.step2list3_3')}
+                <b>{t('account:add.org.step2list3_4')}</b>.
               </li>
               <li>
-                In the Create stack page, enter the template URL you have copied
-                in Step1 in <b>Amazon S3 URL</b>.
+                {t('account:add.org.step2list4_1')}
+                <b>{t('account:add.org.step2list4_2')}</b>.
               </li>
 
+              <li>{t('account:add.org.step2list5')}</li>
               <li>
-                Follow the steps to create the CloudFormation stack and wait
-                until the CloudFormation stack is deployed successfully.
-              </li>
-              <li>
-                Go to the <b>Outputs</b> tab to copy the parameters.
+                {t('account:add.org.step2list6_1')}
+                <b>{t('account:add.org.step2list6_2')}</b>
+                {t('account:add.org.step2list6_3')}
               </li>
             </ul>
           </Container>
@@ -159,25 +143,16 @@ const AddAccountInfo: React.FC<any> = memo((props: any) => {
             header={
               <Header
                 variant="h2"
-                description={
-                  <b>
-                    The CloudFormation stack is used for authroizing AWS
-                    Organization
-                  </b>
-                }
+                description={<b>{t('account:add.org.stepDesc')}</b>}
               >
-                Step3: Install agent stack to authorize member accounts in
-                Organization
+                {t('account:add.org.step3')}
               </Header>
             }
           >
             <div className="pointer-icon" onClick={clkAgentDownload}>
               <Icon name="copy" />
               &nbsp;&nbsp;
-              <span>
-                Copy [CloudFormationStack-AuthorizeMembers] CloudFormation
-                stack’s Amazon S3 URL
-              </span>
+              <span>{t('account:add.org.step3Copy')}</span>
             </div>
           </Container>
 
@@ -185,33 +160,20 @@ const AddAccountInfo: React.FC<any> = memo((props: any) => {
             header={
               <Header
                 variant="h2"
-                description={
-                  <b>
-                    The CloudFormation stack is used for authroizing AWS
-                    Organization
-                  </b>
-                }
+                description={<b>{t('account:add.org.stepDesc')}</b>}
               >
-                Step4: Install agent stack to authorize member accounts in
-                Organization
+                {t('account:add.org.step4')}
               </Header>
             }
           >
             <div className="pointer-icon" onClick={clkItDownload}>
               <Icon name="copy" />
               &nbsp;&nbsp;
-              <span>
-                Copy [CloudFormationStack-AuthorizeMembers] CloudFormation
-                stack’s Amazon S3 URL
-              </span>
+              <span>{t('account:add.org.step4Copy')}</span>
             </div>
           </Container>
           <Container
-            header={
-              <Header variant="h2">
-                Step5: Fill in the Organization management account id
-              </Header>
-            }
+            header={<Header variant="h2">{t('account:add.org.step5')}</Header>}
           >
             <FormField label="AWS account id">
               <Input
@@ -229,73 +191,58 @@ const AddAccountInfo: React.FC<any> = memo((props: any) => {
             header={
               <Header
                 variant="h2"
-                description={
-                  <b>
-                    The CloudFormation stack is used for authorizing AWS account
-                    to be tracked in this platform.
-                  </b>
-                }
+                description={<b>{t('account:add.account.step1Desc')}</b>}
               >
-                Step1: Copy CloudFormation template URL for agent stack
+                {t('account:add.account.step1')}
               </Header>
             }
           >
             <div className="pointer-icon" onClick={clkAgentDownload}>
               <Icon name="copy" />
               &nbsp;&nbsp;
-              <span>
-                Copy [CloudFormationStack-AuthorizeMembers] CloudFormation
-                stack’s Amazon S3 URL
-              </span>
+              <span>{t('account:add.account.step1Copy')}</span>
             </div>
           </Container>
           <Container
             header={
               <Header
                 variant="h2"
-                description={
-                  <b>
-                    Install the agent stack in CloudFormation in the AWS account
-                    you want to monitor.
-                  </b>
-                }
+                description={<b>{t('account:add.account.step2Desc')}</b>}
               >
-                Step2: Install agent CloudFormation stack for AWS account
+                {t('account:add.account.step2')}
               </Header>
             }
           >
             <ul>
-              <li>Go to the CloudFormation console of the AWS account.</li>
+              <li>{t('account:add.account.step2list1')}</li>
               <li>
-                In <b>Stacks</b>, click the right up corner button
-                <b>Create stack</b>
-                and choose <b>With new resources (standard)</b>.
+                {t('account:add.account.step2list2_1')}{' '}
+                <b>{t('account:add.account.step2list2_2')}</b>
+                {t('account:add.account.step2list2_3')}
+                <b>{t('account:add.account.step2list2_4')}</b>
+                {t('account:add.account.step2list2_5')}
+                <b>{t('account:add.account.step2list2_6')}</b>.
               </li>
 
               <li>
-                Pasted in <b>Amazon S3 URL</b> with the link you have copied
-                above.
+                {t('account:add.account.step2list3_1')}
+                <b>{t('account:add.account.step2list3_2')}</b>
+                {t('account:add.account.step2list3_3')}
               </li>
-              <li>Follow the steps to deploy the CloudFormation stack.</li>
+              <li>{t('account:add.account.step2list4')}</li>
 
-              <li>
-                Wait until the CloudFormation stack is deployed (installed)
-                successfully.
-              </li>
+              <li>{t('account:add.account.step2list5')}</li>
             </ul>
           </Container>
           <Container
             header={
-              <Header variant="h2">
-                Step3: After successfully installed the agent stack, fill in
-                back the account id
-              </Header>
+              <Header variant="h2">{t('account:add.account.step3')}</Header>
             }
           >
-            <FormField label="AWS account id">
+            <FormField label={t('account:add.account.awsAccountId')}>
               <Input
                 value={inputAccount}
-                placeholder="AWS account id"
+                placeholder={t('account:add.account.awsAccountId') || ''}
                 onChange={(e) => setInputAccount(e.detail.value)}
               />
             </FormField>

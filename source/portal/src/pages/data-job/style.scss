@@ -2,29 +2,28 @@
   width: 140px;
 
   button {
-    color: #0972D3;
-    border: 2px solid #0972D3 !important;
+    color: #0972d3;
+    border: 2px solid #0972d3 !important;
     border-radius: 40px !important;
   }
 
   button::after {
     position: relative;
     left: -10px;
-    font-family: 'Open Sans', sans-serif;
+    font-family: "Open Sans", sans-serif;
     font-style: normal;
     font-weight: 800;
     font-size: 14px;
     line-height: 22px;
-    color: #0972D3;
+    color: #0972d3;
     flex: none;
     order: 1;
     flex-grow: 0;
-    content: 'Actions';
   }
 }
 
 .job-name {
-  color: #0972D3;
+  color: #0972d3;
   cursor: pointer;
 }
 
@@ -33,7 +32,6 @@
 }
 
 .job-detail {
-
   .modal-body-header {
     padding-left: 28px;
     padding-top: 18px;
@@ -43,13 +41,13 @@
   .schema-body-span {
     display: block;
     margin-bottom: 12px;
-    font-family: 'Open Sans', sans-serif;
+    font-family: "Open Sans", sans-serif;
     font-style: normal;
     font-weight: 800;
     font-size: 24px;
     line-height: 30px;
     letter-spacing: -0.36px;
-    color: #414D5C;
+    color: #414d5c;
     flex: none;
     order: 0;
     flex-grow: 0;

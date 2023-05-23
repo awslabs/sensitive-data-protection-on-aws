@@ -1,4 +1,4 @@
-import { Popover, StatusIndicator } from '@cloudscape-design/components';
+import { Popover } from '@cloudscape-design/components';
 import CommonBadge from 'pages/common-badge';
 import {
   CLSAAIFIED_TYPE,
@@ -40,20 +40,11 @@ const SourceBadge = (props: any) => {
         dismissButton={false}
         position="top"
         size="medium"
-        content={
-          <div
-          >
-            {instanceStatus}
-          </div>
-        }
+        content={<div>{instanceStatus}</div>}
       >
         <CommonBadge
           badgeType={BADGE_TYPE.Classified}
-          badgeLabel={
-            instanceStatus.length > 15
-              ? 'ERROR'
-              : instanceStatus
-          }
+          badgeLabel={instanceStatus.length > 15 ? 'ERROR' : instanceStatus}
           labelType={labelType}
         />
       </Popover>

@@ -35,12 +35,14 @@ import { formatSize, useDidUpdateEffect } from 'tools/tools';
 import { useSearchParams } from 'react-router-dom';
 import IdentifierFilterTag from './IdentifierFilterTag';
 import { nFormatter } from 'ts/common';
+import { useTranslation } from 'react-i18next';
 
 /**
  * S3/RDS CatalogList componment
  */
 const CatalogList: React.FC<any> = memo((props: any) => {
   const { catalogType = DATA_TYPE_ENUM.s3 } = props;
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const urlCatalog = searchParams.get('catalogId');
   const urlAccountId = searchParams.get('accountId');
@@ -62,9 +64,9 @@ const CatalogList: React.FC<any> = memo((props: any) => {
   const [selectRowData, setSelectRowData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [showFilter, setShowFilter] = useState(!urlIdentifiers);
-  const tableTitle = `Data catalog: ${
+  const tableTitle = `${t('catalog:dataCatalog')} ${t(
     (DATA_TYPE as any)[catalogType] || DATA_TYPE.rds
-  }`;
+  )}`;
 
   const getDefaultSearchParam = () => {
     const resultList = [];
@@ -109,7 +111,7 @@ const CatalogList: React.FC<any> = memo((props: any) => {
     tableName: TableName,
     query,
     setQuery,
-    filteringPlaceholder: 'Filter data catalogs',
+    filteringPlaceholder: t('catalog:list.filterDataCatalog'),
   };
 
   // onload data
@@ -225,19 +227,19 @@ const CatalogList: React.FC<any> = memo((props: any) => {
           setSelectedItems(detail.selectedItems)
         }
         ariaLabels={{
-          selectionGroupLabel: 'Items selection',
+          selectionGroupLabel: t('table.itemsSelection') || '',
           allItemsSelectionLabel: ({ selectedItems }) =>
             `${selectedItems.length} ${
-              selectedItems.length === 1 ? 'item' : 'items'
-            } selected`,
+              selectedItems.length === 1 ? t('table.item') : t('table.items')
+            } ${t('table.selected')}`,
           itemSelectionLabel: ({ selectedItems }, item) => {
             const isItemSelected = selectedItems.filter(
               (i) =>
                 (i as any)[columnList[0].id] === (item as any)[columnList[0].id]
             ).length;
-            return `${(item as any)[columnList[0].id]} is ${
-              isItemSelected ? '' : 'not'
-            } selected`;
+            return `${(item as any)[columnList[0].id]} ${t('table.is')} ${
+              isItemSelected ? '' : t('table.not')
+            }${t('table.selected')}`;
           },
         }}
         selectionType="single"
@@ -245,7 +247,7 @@ const CatalogList: React.FC<any> = memo((props: any) => {
           columnList.map((item) => {
             return {
               id: item.id,
-              header: item.label,
+              header: t(item.label),
               // different column tag
               cell: (e: any) => {
                 if (item.id === COLUMN_OBJECT_STR.DatabaseName) {
@@ -358,13 +360,13 @@ const CatalogList: React.FC<any> = memo((props: any) => {
           }) as any
         }
         items={pageData}
-        loadingText="Loading resources"
+        loadingText={t('table.loadingResources') || ''}
         visibleColumns={preferences.visibleContent}
         empty={
           <Box textAlign="center" color="inherit">
-            <b>No resources</b>
+            <b>{t('table.noResources')}</b>
             <Box padding={{ bottom: 's' }} variant="p" color="inherit">
-              No resources to display.
+              {t('table.noResourcesDisplay')}
             </Box>
           </Box>
         }
@@ -392,9 +394,10 @@ const CatalogList: React.FC<any> = memo((props: any) => {
             onChange={({ detail }) => setCurrentPage(detail.currentPageIndex)}
             pagesCount={Math.ceil(totalCount / preferences.pageSize)}
             ariaLabels={{
-              nextPageLabel: 'Next page',
-              previousPageLabel: 'Previous page',
-              pageLabel: (pageNumber) => `Page ${pageNumber} of all pages`,
+              nextPageLabel: t('table.nextPage') || '',
+              previousPageLabel: t('table.previousPage') || '',
+              pageLabel: (pageNumber) =>
+                `${t('table.pageLabel', { pageNumber: pageNumber })}`,
             }}
           />
         }
@@ -402,23 +405,23 @@ const CatalogList: React.FC<any> = memo((props: any) => {
           <CollectionPreferences
             onConfirm={({ detail }) => setPreferences(detail)}
             preferences={preferences}
-            title="Preferences"
-            confirmLabel="Confirm"
-            cancelLabel="Cancel"
+            title={t('table.preferences')}
+            confirmLabel={t('table.confirm')}
+            cancelLabel={t('table.cancel')}
             pageSizePreference={{
-              title: 'Select page size',
+              title: t('table.selectPageSize'),
               options: [
-                { value: 10, label: '10 resources' },
-                { value: 20, label: '20 resources' },
-                { value: 50, label: '50 resources' },
-                { value: 100, label: '100 resources' },
+                { value: 10, label: t('table.pageSize10') },
+                { value: 20, label: t('table.pageSize20') },
+                { value: 50, label: t('table.pageSize50') },
+                { value: 100, label: t('table.pageSize100') },
               ],
             }}
             visibleContentPreference={{
-              title: 'Select visible content',
+              title: t('table.selectVisibleContent'),
               options: [
                 {
-                  label: 'Main distribution properties',
+                  label: t('table.mainDistributionProp'),
                   options: columnList,
                 },
               ],

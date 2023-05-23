@@ -6,6 +6,7 @@ import React from 'react';
 import { RouterEnum } from 'routers/routerEnum';
 import './style.scss';
 import { useTranslation } from 'react-i18next';
+import { GIHUB_REPO_LINK } from 'ts/common';
 
 interface INavigationProps {
   activeHref: string;
@@ -52,7 +53,7 @@ const Navigation: React.FC<INavigationProps> = (props: INavigationProps) => {
     {
       type: 'link',
       text: t('nav.doc'),
-      href: 'https://github.com/awslabs/sensitive-data-protection-on-aws',
+      href: GIHUB_REPO_LINK,
       external: true,
     },
   ];
