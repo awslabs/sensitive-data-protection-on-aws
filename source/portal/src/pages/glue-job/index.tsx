@@ -210,39 +210,51 @@ const GlueJobContent = () => {
   };
 
   const getProcessData = (processData: any) => {
+    const totalJobCount =
+      processData.success_count +
+      processData.running_count +
+      processData.fail_count +
+      processData.ready_count +
+      processData.stopped_count +
+      processData.not_existed_count;
     const tmpColumnChartData: ColumnChartData[] = [
       {
         title: t('SUCCEEDED'),
         type: 'bar',
-        valueFormatter: (e: any) => `${e} (${(100 * e).toFixed(0)}%)`,
+        valueFormatter: (e: any) =>
+          `${e} (${((100 * e) / totalJobCount).toFixed(0)}%)`,
         data: [{ x: '', y: processData.success_count }],
         color: '#037F0C',
       },
       {
         title: t('RUNNING'),
         type: 'bar',
-        valueFormatter: (e: any) => `${e} (${(100 * e).toFixed(0)}%)`,
+        valueFormatter: (e: any) =>
+          `${e} (${((100 * e) / totalJobCount).toFixed(0)}%)`,
         data: [{ x: '', y: processData.running_count }],
         color: '#0972D3',
       },
       {
         title: t('FAILED'),
         type: 'bar',
-        valueFormatter: (e: any) => `${e} (${(100 * e).toFixed(0)}%)`,
+        valueFormatter: (e: any) =>
+          `${e} (${((100 * e) / totalJobCount).toFixed(0)}%)`,
         data: [{ x: '', y: processData.fail_count }],
         color: '#D91515',
       },
       {
         title: t('READY'),
         type: 'bar',
-        valueFormatter: (e: any) => `${e} (${(100 * e).toFixed(0)}%)`,
+        valueFormatter: (e: any) =>
+          `${e} (${((100 * e) / totalJobCount).toFixed(0)}%)`,
         data: [{ x: '', y: processData.ready_count }],
         color: '#2EA597',
       },
       {
         title: t('OTHERS'),
         type: 'bar',
-        valueFormatter: (e: any) => `${e} (${(100 * e).toFixed(0)}%)`,
+        valueFormatter: (e: any) =>
+          `${e} (${((100 * e) / totalJobCount).toFixed(0)}%)`,
         data: [
           {
             x: '',

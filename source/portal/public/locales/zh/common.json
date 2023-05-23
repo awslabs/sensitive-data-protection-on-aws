@@ -210,7 +210,9 @@
       "finishedAt": "完成于",
       "identifierLabel": "标识符标签",
       "category": "类别",
-      "folders": "文件夹"
+      "folders": "文件夹",
+      "dataCatalogName": "数据目录名称",
+      "dataSourceType": "数据源类型"
     }
   },
   "tab": {

@@ -137,7 +137,7 @@ const DataJobContent: React.FC<any> = (props: any) => {
       const requestParam = {
         page: currentPage,
         size: preferences.pageSize,
-        sort_column: 'create_time',
+        sort_column: 'id',
         asc: false,
         conditions: [] as any,
       };
