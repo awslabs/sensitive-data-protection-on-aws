@@ -1,0 +1,31 @@
+{
+  "privacy": "隐私： ",
+  "customLabels": "自定义标签： ",
+  "addToTable": "添加到表",
+  "dataCatalog": "数据目录： ",
+  "browserCatalog": "浏览数据目录",
+  "browserCatalogDesc": "该平台连接到数据源以创建和更新数据目录。数据目录是数据源元数据的存储库。",
+  "detail": {
+    "filterCatalogs": "筛选目录",
+    "identifier": "标识符： ",
+    "selectIdentifier": "请选择标识符",
+    "noDataIdentifier": "没有数据标识符",
+    "noDataIdentifierDesc": "此目录中没有数据被识别为敏感数据。"
+  },
+  "list": {
+    "filterDataCatalog": "筛选数据目录"
+  },
+  "modal": {
+    "s3BucketDetail": "S3 存储桶详细信息",
+    "rdsInstanceDetail": "RDS 实例详细信息",
+    "customLabel": "自定义标签： "
+  },
+  "schemaModal": {
+    "detailDescInfo": "这些文件是结构化文件，被检测出具有相同的架构",
+    "detailDescHeader": "这是此表的 10 个采样数据条目。",
+    "schema": "架构",
+    "dataPreview": "数据预览",
+    "folderDetails": "文件夹详情",
+    "tableDetails": "表格详情"
+  }
+}

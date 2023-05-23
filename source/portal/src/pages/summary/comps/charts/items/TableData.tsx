@@ -4,6 +4,7 @@ import { ITableListKeyValue } from 'ts/dashboard/types';
 import '../../../style.scss';
 import { useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
+import { useTranslation } from 'react-i18next';
 
 interface TableDataProps {
   title: string;
@@ -14,27 +15,34 @@ interface TableDataProps {
 
 const TableData: React.FC<TableDataProps> = (props: TableDataProps) => {
   const { title, keyLable, valueLable, dataList } = props;
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const clkCount = (typeValue: any) => {
-    if (valueLable === 'S3 buckets') {
+    if (valueLable === t('summary:s3Bucket')) {
       navigate(
         `${RouterEnum.Catalog.path}?tagType=s3&accountId=${typeValue}&privacy=1`
       );
     }
 
-    if (valueLable === 'RDS instances' && keyLable === 'AWS account') {
+    if (
+      valueLable === t('summary:rdsIntacnes') &&
+      keyLable === t('summary:awsAccount')
+    ) {
       navigate(
         `${RouterEnum.Catalog.path}?tagType=rds&accountId=${typeValue}&privacy=1`
       );
     }
 
-    if (valueLable === 'RDS instances' && keyLable === 'Data identifier') {
+    if (
+      valueLable === t('summary:rdsIntacnes') &&
+      keyLable === t('summary:dataIdentifier')
+    ) {
       navigate(
         `${RouterEnum.Catalog.path}?tagType=rds&identifiers=${typeValue}`
       );
     }
 
-    if (valueLable === 'Total buckets') {
+    if (valueLable === t('summary:totalBuckets')) {
       navigate(
         `${RouterEnum.Catalog.path}?tagType=s3&identifiers=${typeValue}`
       );
@@ -73,14 +81,14 @@ const TableData: React.FC<TableDataProps> = (props: TableDataProps) => {
             },
           ]}
           items={dataList}
-          loadingText="Loading resources"
+          loadingText={t('table.loadingResources') || ''}
           sortingDisabled
           // stickyHeader
           empty={
             <Box textAlign="center" color="inherit">
-              <b>No resources</b>
+              <b>{t('table.noResources')}</b>
               <Box padding={{ bottom: 's' }} variant="p" color="inherit">
-                No resources to display.
+                {t('table.noResourcesDisplay')}
               </Box>
             </Box>
           }

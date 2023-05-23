@@ -67,7 +67,7 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
     query,
     setQuery,
     tableName: TABLE_NAME.TEMPLATE_IDENTIFIER,
-    filteringPlaceholder: 'Filter by name or description',
+    filteringPlaceholder: t('template:filterByNameOrDesc'),
   };
 
   const [curSortColumn, setCurSortColumn] = useState<any>('');
@@ -291,7 +291,7 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
               (i) =>
                 (i as any)[columnList[0].id] === (item as any)[columnList[0].id]
             ).length;
-            return `${(item as any)[columnList[0].id]} is ${
+            return `${(item as any)[columnList[0].id]} ${t('table.is')} ${
               isItemSelected ? '' : 'not'
             } selected`;
           },
@@ -300,7 +300,7 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
         columnDefinitions={columnList.map((item) => {
           return {
             id: item.id,
-            header: item.label,
+            header: t(item.label),
             maxWidth: '45%',
             sortingField: item.sortingField,
             cell: (e: any) => {

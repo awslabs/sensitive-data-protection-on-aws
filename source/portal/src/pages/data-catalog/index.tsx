@@ -16,12 +16,10 @@ import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
 
 const CatalogListHeader: React.FC = () => {
+  const { t } = useTranslation();
   return (
-    <Header
-      variant="h1"
-      description="The platform connects to data source to create and update data catalogs. A data catalog is a repository of metadata of data sources."
-    >
-      Browse data catalogs
+    <Header variant="h1" description={t('catalog:browserCatalogDesc')}>
+      {t('catalog:browserCatalog')}
     </Header>
   );
 };
@@ -50,12 +48,12 @@ const DataCatalogList: React.FC = () => {
               onChange={({ detail }) => setActiveTabId(detail.activeTabId)}
               tabs={[
                 {
-                  label: TAB_LIST.S3.label,
+                  label: t(TAB_LIST.S3.label),
                   id: TAB_LIST.S3.id,
                   content: <CatalogList catalogType={TAB_LIST.S3.id} />,
                 },
                 {
-                  label: TAB_LIST.RDS.label,
+                  label: t(TAB_LIST.RDS.label),
                   id: TAB_LIST.RDS.id,
                   content: <CatalogList catalogType={TAB_LIST.RDS.id} />,
                 },

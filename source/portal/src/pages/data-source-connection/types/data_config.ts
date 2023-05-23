@@ -13,32 +13,32 @@ export const COLUMN_OBJECT_STR = {
 export const S3_COLUMN_LIST = [
   {
     id: COLUMN_OBJECT_STR.Buckets,
-    label: 'Bucket name',
+    label: 'table.label.bucketName',
     filter: true,
   },
   {
     id: 'region',
-    label: 'AWS region',
+    label: 'table.label.awsRegion',
     filter: true,
   },
   {
     id: COLUMN_OBJECT_STR.AWSAccount,
-    label: 'AWS account',
+    label: 'table.label.awsAccount',
     filter: true,
   },
   {
     id: COLUMN_OBJECT_STR.GlueState,
-    label: 'Catalog status',
+    label: 'table.label.catalogStatus',
     filter: true,
   },
   {
     id: 'data_catalog',
-    label: 'Data catalog',
+    label: 'table.label.dataCatalog',
     filter: false,
   },
   {
     id: COLUMN_OBJECT_STR.LastModifyAt,
-    label: 'Last updated at',
+    label: 'table.label.lastUpdateAt',
     filter: false,
   },
 ];
@@ -46,48 +46,48 @@ export const S3_COLUMN_LIST = [
 export const RDS_COLUMN_LIST = [
   {
     id: COLUMN_OBJECT_STR.RDSInstances,
-    label: 'RDS instances name',
+    label: 'table.label.rdsInstanceName',
     filter: true,
   },
   {
     id: 'region',
-    label: 'AWS region',
+    label: 'table.label.awsRegion',
     filter: true,
   },
   {
     id: 'engine',
-    label: 'Engine type',
+    label: 'table.label.engineType',
     filter: true,
   },
   {
     id: COLUMN_OBJECT_STR.AWSAccount,
-    label: 'AWS account',
+    label: 'table.label.awsAccount',
     filter: true,
   },
   {
     id: 'glue_state',
-    label: 'Catalog status',
+    label: 'table.label.catalogStatus',
     filter: true,
   },
   {
     id: 'data_catalog',
-    label: 'Data catalog',
+    label: 'table.label.dataCatalog',
     filter: false,
   },
   {
     id: COLUMN_OBJECT_STR.RdsCreatedTime,
-    label: 'Last updated at',
+    label: 'table.label.lastUpdateAt',
     filter: false,
   },
 ];
 
 export const TABLE_HEADER = {
   s3: {
-    header: 'Data source: S3 buckets',
-    info: 'The S3 buckets that are discovered in this AWS account. Connect to S3 buckets to create data catalogs.',
+    header: 'datasource:header.s3Title',
+    info: 'datasource:header.s3Info',
   },
   rds: {
-    header: 'Data source: RDS instances',
-    info: 'The RDS instances that are discovered in this AWS account. Connect to RDS instances to create data catalogs.',
+    header: 'datasource:header.rdsTitle',
+    info: 'datasource:header.rdsInfo',
   },
 };

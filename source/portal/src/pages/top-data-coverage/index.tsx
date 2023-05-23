@@ -8,6 +8,7 @@ import {
   Header,
 } from '@cloudscape-design/components';
 import { CounterLink } from 'common/ConterLink';
+import { useTranslation } from 'react-i18next';
 
 const TopDataCoverage: React.FC<TopDataCoverageProps> = (
   props: TopDataCoverageProps
@@ -22,6 +23,7 @@ const TopDataCoverage: React.FC<TopDataCoverageProps> = (
     leftChildTotal,
     rightChildTotal,
   } = props;
+  const { t } = useTranslation();
 
   return (
     <Container
@@ -35,12 +37,12 @@ const TopDataCoverage: React.FC<TopDataCoverageProps> = (
         <div>
           <Box variant="awsui-key-label">{leftChildHeader}</Box>
           <CounterLink>{leftChildData || '-'}</CounterLink>{' '}
-          {leftChildTotal && `(of total ${leftChildTotal})`}
+          {leftChildTotal && `(${t('ofTotal')} ${leftChildTotal})`}
         </div>
         <div>
           <Box variant="awsui-key-label">{rightChildHeader}</Box>
           <CounterLink>{rightChildData || '-'}</CounterLink>{' '}
-          {rightChildTotal && `(of total ${rightChildTotal})`}
+          {rightChildTotal && `(${t('ofTotal')} ${rightChildTotal})`}
         </div>
       </ColumnLayout>
     </Container>

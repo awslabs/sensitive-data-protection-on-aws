@@ -38,42 +38,42 @@ import GlueJobProgress from './componments/GlueJobProgress';
 const GULE_JOB_COLUMN = [
   {
     id: 'id',
-    label: 'Glue job id',
+    label: 'table.label.glueJobId',
     filter: false,
   },
   {
     id: 'state',
-    label: 'Glue job status',
+    label: 'table.label.glueJobStatus',
     filter: true,
   },
   {
     id: 'account_id',
-    label: 'AWS account',
+    label: 'table.label.awsAccount',
     filter: true,
   },
   {
     id: 'region',
-    label: 'AWS region',
+    label: 'table.label.awsRegion',
     filter: true,
   },
   {
     id: 'database_name',
-    label: 'Data catalog',
+    label: 'table.label.dataCatalog',
     filter: true,
   },
   {
     id: 'progress',
-    label: 'Job Progress',
+    label: 'table.label.jobProgress',
     filter: false,
   },
   {
     id: 'start_time',
-    label: 'Created at',
+    label: 'table.label.createdAt',
     filter: false,
   },
   {
     id: 'end_time',
-    label: 'Finished at',
+    label: 'table.label.finishedAt',
     filter: false,
   },
 ];
@@ -86,14 +86,14 @@ const HomeHeader: React.FC = () => {
   return (
     <Header
       variant="h1"
-      description="Sensitive data discovery job consists of Glue jobs that run in AWS accounts. "
+      description={t('job:detail.detailForJobDesc')}
       actions={
         <Button onClick={() => navigate(RouterEnum.Datajob.path)}>
           {t('button.backToJobList')}
         </Button>
       }
     >
-      Details for job: {jobData.name}
+      {t('job:detail.detailForJob')} {jobData.name}
     </Header>
   );
 };
@@ -102,7 +102,7 @@ const GlueJobContent = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { jobDetailData, jobData } = location.state;
-
+  const { t } = useTranslation();
   const [downloading, setDownloading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
@@ -127,7 +127,7 @@ const GlueJobContent = () => {
     tableName: 'discovery_job_run_database',
     query,
     setQuery,
-    filteringPlaceholder: 'Filter jobs',
+    filteringPlaceholder: t('job:filterJobs'),
   };
 
   const Badge = ({ jobRowData, needToUpper }: any) => {
@@ -210,39 +210,51 @@ const GlueJobContent = () => {
   };
 
   const getProcessData = (processData: any) => {
+    const totalJobCount =
+      processData.success_count +
+      processData.running_count +
+      processData.fail_count +
+      processData.ready_count +
+      processData.stopped_count +
+      processData.not_existed_count;
     const tmpColumnChartData: ColumnChartData[] = [
       {
-        title: 'SUCCEEDED',
+        title: t('SUCCEEDED'),
         type: 'bar',
-        valueFormatter: (e: any) => `${e} (${(100 * e).toFixed(0)}%)`,
+        valueFormatter: (e: any) =>
+          `${e} (${((100 * e) / totalJobCount).toFixed(0)}%)`,
         data: [{ x: '', y: processData.success_count }],
         color: '#037F0C',
       },
       {
-        title: 'RUNNING',
+        title: t('RUNNING'),
         type: 'bar',
-        valueFormatter: (e: any) => `${e} (${(100 * e).toFixed(0)}%)`,
+        valueFormatter: (e: any) =>
+          `${e} (${((100 * e) / totalJobCount).toFixed(0)}%)`,
         data: [{ x: '', y: processData.running_count }],
         color: '#0972D3',
       },
       {
-        title: 'FAILED',
+        title: t('FAILED'),
         type: 'bar',
-        valueFormatter: (e: any) => `${e} (${(100 * e).toFixed(0)}%)`,
+        valueFormatter: (e: any) =>
+          `${e} (${((100 * e) / totalJobCount).toFixed(0)}%)`,
         data: [{ x: '', y: processData.fail_count }],
         color: '#D91515',
       },
       {
-        title: 'READY',
+        title: t('READY'),
         type: 'bar',
-        valueFormatter: (e: any) => `${e} (${(100 * e).toFixed(0)}%)`,
+        valueFormatter: (e: any) =>
+          `${e} (${((100 * e) / totalJobCount).toFixed(0)}%)`,
         data: [{ x: '', y: processData.ready_count }],
         color: '#2EA597',
       },
       {
-        title: 'OTHERS',
+        title: t('OTHERS'),
         type: 'bar',
-        valueFormatter: (e: any) => `${e} (${(100 * e).toFixed(0)}%)`,
+        valueFormatter: (e: any) =>
+          `${e} (${((100 * e) / totalJobCount).toFixed(0)}%)`,
         data: [
           {
             x: '',
@@ -279,10 +291,10 @@ const GlueJobContent = () => {
       if (result) {
         window.open(result, '_blank');
       } else {
-        alertMsg('No template file', 'error');
+        alertMsg(t('noTemplateFile'), 'error');
       }
     } catch {
-      alertMsg('No template file', 'error');
+      alertMsg(t('noTemplateFile'), 'error');
     }
     setDownloading(false);
   };
@@ -301,24 +313,24 @@ const GlueJobContent = () => {
 
     const seconds = Math.floor(diff / 1000);
     if (seconds < 60) {
-      return seconds + ' Sec ';
+      return seconds + t('Sec');
     }
 
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     if (minutes < 60) {
-      return minutes + ' Min ' + remainingSeconds + ' Sec ';
+      return minutes + t('Min') + remainingSeconds + t('Sec');
     }
 
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
     if (hours < 24) {
-      return hours + ' Hours ' + remainingMinutes + 'Min';
+      return hours + t('Hours') + remainingMinutes + t('Min');
     }
 
     const days = Math.floor(hours / 24);
     const remainingHours = hours % 24;
-    return days + 'Days' + remainingHours + 'Hours';
+    return days + t('Days') + remainingHours + t('Hours');
   };
 
   return (
@@ -326,32 +338,29 @@ const GlueJobContent = () => {
       <SpaceBetween direction="vertical" size="xl">
         <Container
           header={
-            <Header
-              variant="h2"
-              description="Basic information of this sensitive discovery job."
-            >
-              Job information
+            <Header variant="h2" description={t('job:detail.jobInfoDesc')}>
+              {t('job:detail.jobInfo')}
             </Header>
           }
           className="glue-job-container"
         >
           <div className="glue-job-header">
             <div className="job-header-id">
-              <p className="p-title">Job id</p>
+              <p className="p-title">{t('job:detail.jobId')}</p>
               <p>{jobDetailData.job_id}</p>
             </div>
             <div className="job-header-status">
-              <p className="p-title">Job status</p>
+              <p className="p-title">{t('job:detail.jobStatus')}</p>
               <Badge jobRowData={jobDetailData} />
             </div>
             <div className="job-header-status">
-              <p className="p-title">Job started at</p>
+              <p className="p-title">{t('job:detail.jobStartedAt')}</p>
               <p>
                 {moment(jobDetailData.start_time)
                   .add(8, 'h')
                   .format('YYYY-MM-DD HH:mm')}
               </p>
-              <p className="p-title">Job finished at (Durantion)</p>
+              <p className="p-title">{t('job:detail.jobFinishedAt')}</p>
               <p>
                 {moment(jobDetailData.end_time)
                   .add(8, 'h')
@@ -361,7 +370,9 @@ const GlueJobContent = () => {
               </p>
             </div>
             <div className="job-header-run">
-              <p className="p-title">Classification template snapshot</p>
+              <p className="p-title">
+                {t('job:detail.classificationSnapshot')}
+              </p>
               <p>
                 {downloading ? (
                   <Spinner />
@@ -378,12 +389,12 @@ const GlueJobContent = () => {
                         )
                       }
                     >
-                      Download snapshot
+                      {t('button.downloadSnapshot')}
                     </span>
                   </>
                 )}
               </p>
-              <p className="p-title">Glue job status</p>
+              <p className="p-title">{t('job:detail.glueJobStatus')}</p>
               <HorizontalBarChart chartData={processData} />
             </div>
           </div>
@@ -395,7 +406,7 @@ const GlueJobContent = () => {
             columnDefinitions={GULE_JOB_COLUMN.map((item) => {
               return {
                 id: item.id,
-                header: item.label,
+                header: t(item.label),
                 cell: (e) => {
                   if (
                     (item.id === 'start_time' || item.id === 'end_time') &&
@@ -445,9 +456,10 @@ const GlueJobContent = () => {
                 }
                 pagesCount={Math.ceil(totalCount / preferences.pageSize)}
                 ariaLabels={{
-                  nextPageLabel: 'Next page',
-                  previousPageLabel: 'Previous page',
-                  pageLabel: (pageNumber) => `Page ${pageNumber} of all pages`,
+                  nextPageLabel: t('table.nextPage') || '',
+                  previousPageLabel: t('table.previousPage') || '',
+                  pageLabel: (pageNumber) =>
+                    `${t('table.pageLabel', { pageNumber: pageNumber })}`,
                 }}
               />
             }
@@ -455,32 +467,32 @@ const GlueJobContent = () => {
               <Header
                 counter={`(${totalCount})`}
                 variant="h2"
-                description="The glue jobs that run in AWS accounts. Once all glue jobs finished, the sensitive discovery job will mark as Completed."
+                description={t('job:detail.glueJobsDesc')}
               >
-                Glue jobs
+                {t('job:detail.glueJobs')}
               </Header>
             }
             preferences={
               <CollectionPreferences
                 onConfirm={({ detail }) => setPreferences(detail)}
                 preferences={preferences}
-                title="Preferences"
-                confirmLabel="Confirm"
-                cancelLabel="Cancel"
+                title={t('table.preferences')}
+                confirmLabel={t('table.confirm')}
+                cancelLabel={t('table.cancel')}
                 pageSizePreference={{
-                  title: 'Select page size',
+                  title: t('table.selectPageSize'),
                   options: [
-                    { value: 10, label: '10 resources' },
-                    { value: 20, label: '20 resources' },
-                    { value: 50, label: '50 resources' },
-                    { value: 100, label: '100 resources' },
+                    { value: 10, label: t('table.pageSize10') },
+                    { value: 20, label: t('table.pageSize20') },
+                    { value: 50, label: t('table.pageSize50') },
+                    { value: 100, label: t('table.pageSize100') },
                   ],
                 }}
                 visibleContentPreference={{
-                  title: 'Select visible content',
+                  title: t('table.selectVisibleContent'),
                   options: [
                     {
-                      label: 'Main distribution properties',
+                      label: t('table.mainDistributionProp'),
                       options: GULE_JOB_COLUMN,
                     },
                   ],
@@ -493,7 +505,7 @@ const GlueJobContent = () => {
       <Modal
         visible={errlogModal}
         onDismiss={() => setErrlogModal(false)}
-        header={<Header variant="h2">Error log</Header>}
+        header={<Header variant="h2">{t('job:detail.errorLog')}</Header>}
       >
         {errrowData.log}
       </Modal>

@@ -14,6 +14,8 @@ import {
   Input,
   FormField,
   Tiles,
+  ButtonDropdown,
+  ButtonDropdownProps,
 } from '@cloudscape-design/components';
 import { DATA_TYPE_ENUM, TABLE_NAME } from 'enum/common_types';
 import {
@@ -41,7 +43,6 @@ import {
   getSecrets,
 } from 'apis/data-source/api';
 import { alertMsg, showHideSpinner } from 'tools/tools';
-import { OptionDefinition } from '@cloudscape-design/components/internal/components/option/interfaces';
 import SourceBadge from './SourceBadge';
 import ErrorBadge from 'pages/error-badge';
 import { useTranslation } from 'react-i18next';
@@ -61,7 +62,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [pageData, setPageData] = useState([] as any);
-  const [selectedCrawler, setSelectedCrawler] = useState(null);
+  const [selectedCrawler] = useState(null);
   const [sortDetail, setSortDetail] = useState({});
   const [rdsUser, setRdsUser] = useState('');
   const [rdsUserPwd, setRdsUserPwd] = useState('');
@@ -85,7 +86,9 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
     setQuery,
     tableName: filterTableName,
     filteringPlaceholder:
-      tagType === DATA_TYPE_ENUM.s3 ? 'Filter buckets' : 'Filter instances',
+      tagType === DATA_TYPE_ENUM.s3
+        ? t('datasource:filterBuckets')
+        : t('datasource:filterInstances'),
   };
 
   useEffect(() => {
@@ -150,7 +153,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         : await getDataSourceRdsByPage(requestParam);
     setIsLoading(false);
     if (!result || !result.items) {
-      alertMsg('Load data error', 'error');
+      alertMsg(t('loadDataError'), 'error');
       return;
     }
     setPageData(result.items);
@@ -178,7 +181,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       try {
         await connectDataSourceS3(requestParam);
         showHideSpinner(false);
-        alertMsg('Start connect all S3', 'success');
+        alertMsg(t('startConnectAllS3'), 'success');
         getPageData();
       } catch (error) {
         showHideSpinner(false);
@@ -190,7 +193,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
 
   const clkConnected = async () => {
     if (!selectedItems || selectedItems.length === 0) {
-      alertMsg('Please select one', 'error');
+      alertMsg(t('selectOneItem'), 'error');
       return;
     }
     if (tagType === DATA_TYPE_ENUM.s3) {
@@ -203,7 +206,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       try {
         await connectDataSourceS3(requestParam);
         showHideSpinner(false);
-        alertMsg('Start connect', 'success');
+        alertMsg(t('startConnect'), 'success');
         getPageData();
       } catch (error) {
         showHideSpinner(false);
@@ -216,7 +219,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
   const connectRDS = async () => {
     if (cedentialType === 'username_pwd') {
       if (!rdsUser || !rdsUserPwd) {
-        alertMsg('Please input rds user or password!', 'error');
+        alertMsg(t('inputRDSUserOrPassword'), 'error');
         return;
       }
       setBtnDisabled(true);
@@ -229,7 +232,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       };
       try {
         await connectDataSourceRDS(requestParam);
-        alertMsg('Start connect', 'success');
+        alertMsg(t('startConnect'), 'success');
         setBtnDisabled(false);
         getPageData();
       } catch {
@@ -237,7 +240,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       }
     } else if (cedentialType === 'secret_manager') {
       if (!secretSelect || !secretSelect.value) {
-        alertMsg('Please select sercret manager!', 'error');
+        alertMsg(t('selectSecretManage'), 'error');
         return;
       }
       setBtnDisabled(true);
@@ -249,22 +252,24 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       };
       try {
         await connectDataSourceRDS(requestParam);
-        alertMsg('Start connect', 'success');
+        alertMsg(t('startConnect'), 'success');
         setBtnDisabled(false);
         getPageData();
       } catch {
-        alertMsg('Connected failed', 'error');
+        alertMsg(t('connectFailed'), 'error');
         setBtnDisabled(false);
       }
     }
   };
 
-  const clkDisconnectDataSource = async (selectedOption: OptionDefinition) => {
+  const clkDisconnectDataSource = async (
+    selectedOption: ButtonDropdownProps.ItemClickDetails
+  ) => {
     if (!selectedItems || selectedItems.length === 0) {
-      alertMsg('Please select one', 'error');
+      alertMsg(t('selectOneItem'), 'error');
       return;
     }
-    if (!selectedOption || selectedOption.value !== 'disconnect') {
+    if (!selectedOption || selectedOption.id !== 'disconnect') {
       return;
     }
     const requestParam: any = {
@@ -282,7 +287,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         ? await disconnectDataSourceS3(requestParam)
         : await disconnectDataSourceRDS(requestParam);
       showHideSpinner(false);
-      alertMsg('Disconnect success', 'success');
+      alertMsg(t('disconnectSuccess'), 'success');
       getPageData();
       return;
     } catch (error) {
@@ -326,26 +331,26 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
           setSelectedItems(detail.selectedItems)
         }
         ariaLabels={{
-          selectionGroupLabel: 'Items selection',
+          selectionGroupLabel: t('table.itemsSelection') || '',
           allItemsSelectionLabel: ({ selectedItems }) =>
             `${selectedItems.length} ${
-              selectedItems.length === 1 ? 'item' : 'items'
-            } selected`,
+              selectedItems.length === 1 ? t('table.item') : t('table.items')
+            } ${t('table.selected')}`,
           itemSelectionLabel: ({ selectedItems }, item) => {
             const isItemSelected = selectedItems.filter(
               (i) =>
                 (i as any)[columnList[0].id] === (item as any)[columnList[0].id]
             ).length;
-            return `${(item as any)[columnList[0].id]} is ${
-              isItemSelected ? '' : 'not'
-            } selected`;
+            return `${(item as any)[columnList[0].id]} ${t('table.is')} ${
+              isItemSelected ? '' : t('table.not')
+            } ${t('table.selected')}`;
           },
         }}
         columnDefinitions={
           columnList.map((item) => {
             return {
               id: item.id,
-              header: item.label,
+              header: t(item.label),
               // different column tag
               cell: (e: any) => {
                 if (
@@ -395,7 +400,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                         onClick={() => alertMsg((e as any)[item.id], 'error')}
                         style={{ cursor: 'pointer' }}
                       >
-                        <ErrorBadge badgeLabel='ERROR' />
+                        <ErrorBadge badgeLabel="ERROR" />
                       </div>
                     );
                   }
@@ -420,7 +425,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                       target="_blank"
                       rel="noreferrer"
                     >
-                      Data catalogs
+                      {t('button.dataCatalogs')}
                     </a>
                   );
                 }
@@ -463,34 +468,33 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                     <Icon name="share" className="btn-icon" />
                     {t('button.connect')}
                   </Button>
-                  <Select
-                    className="ations-select"
-                    selectedOption={{}}
-                    onChange={({ detail }) => {
-                      clkDisconnectDataSource(detail.selectedOption);
+                  <ButtonDropdown
+                    onItemClick={({ detail }) => {
+                      clkDisconnectDataSource(detail);
                     }}
-                    options={[{ label: 'Disconnect', value: 'disconnect' }]}
-                    selectedAriaLabel="Actions"
-                  ></Select>
+                    items={[{ text: t('disconnect') || '', id: 'disconnect' }]}
+                  >
+                    {t('button.actions')}
+                  </ButtonDropdown>
                 </SpaceBetween>
               }
             >
-              {(TABLE_HEADER as any)[tagType]['header']}
+              {t((TABLE_HEADER as any)[tagType]['header'])}
             </Header>
             <div className="description">
-              {(TABLE_HEADER as any)[tagType]['info']}
+              {t((TABLE_HEADER as any)[tagType]['info'])}
             </div>
           </>
         }
         items={pageData}
         selectionType="single"
-        loadingText="Loading resources"
+        loadingText={t('table.loadingResources') || ''}
         visibleColumns={preferences.visibleContent}
         empty={
           <Box textAlign="center" color="inherit">
-            <b>No resources</b>
+            <b>{t('table.noResources')}</b>
             <Box padding={{ bottom: 's' }} variant="p" color="inherit">
-              No resources to display.
+              {t('table.noResourcesDisplay')}
             </Box>
           </Box>
         }
@@ -528,9 +532,10 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
             onChange={({ detail }) => setCurrentPage(detail.currentPageIndex)}
             pagesCount={Math.ceil(totalCount / preferences.pageSize)}
             ariaLabels={{
-              nextPageLabel: 'Next page',
-              previousPageLabel: 'Previous page',
-              pageLabel: (pageNumber) => `Page ${pageNumber} of all pages`,
+              nextPageLabel: t('table.nextPage') || '',
+              previousPageLabel: t('table.previousPage') || '',
+              pageLabel: (pageNumber) =>
+                `${t('table.pageLabel', { pageNumber: pageNumber })}`,
             }}
           />
         }
@@ -538,23 +543,23 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
           <CollectionPreferences
             onConfirm={({ detail }) => setPreferences(detail)}
             preferences={preferences}
-            title="Preferences"
-            confirmLabel="Confirm"
-            cancelLabel="Cancel"
+            title={t('table.preferences')}
+            confirmLabel={t('table.confirm')}
+            cancelLabel={t('table.cancel')}
             pageSizePreference={{
-              title: 'Select page size',
+              title: t('table.selectPageSize'),
               options: [
-                { value: 10, label: '10 resources' },
-                { value: 20, label: '20 resources' },
-                { value: 50, label: '50 resources' },
-                { value: 100, label: '100 resources' },
+                { value: 10, label: t('table.pageSize10') },
+                { value: 20, label: t('table.pageSize20') },
+                { value: 50, label: t('table.pageSize50') },
+                { value: 100, label: t('table.pageSize100') },
               ],
             }}
             visibleContentPreference={{
-              title: 'Select visible content',
+              title: t('table.selectVisibleContent'),
               options: [
                 {
-                  label: 'Main distribution properties',
+                  label: t('table.mainDistributionProp'),
                   options: columnList,
                 },
               ],
@@ -566,7 +571,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       <Modal
         visible={showRdsPwdModal}
         onDismiss={() => setShowRdsPwdModal(false)}
-        header="Connect to RDS data source"
+        header={t('datasource:connectToRDSDataSource')}
         size="large"
         footer={
           <Box float="right">
@@ -586,7 +591,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         }
       >
         <Header variant="h2">
-          {selectedItems[0]?.instance_id || 'Rds instances'}
+          {selectedItems[0]?.instance_id || t('datasource:rdsInstances')}
         </Header>
         <SpaceBetween size={'s'}>
           <Grid
@@ -598,27 +603,27 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
             ]}
           >
             <div className="datasource-container-item datasource-width">
-              <p className="p-title">AWS account</p>
+              <p className="p-title">{t('table.label.awsAccount')}</p>
               <span className="datasource-container-account">
                 {selectedItems[0]?.aws_account}
               </span>
             </div>
             <div className="datasource-container-item datasource-width left-line">
-              <p className="p-title">AWS region</p>
+              <p className="p-title">{t('table.label.awsRegion')}</p>
               <span>{selectedItems[0]?.region}</span>
             </div>
             <div className="datasource-container-item datasource-width left-line">
-              <p className="p-title">Endpoint</p>
+              <p className="p-title">{t('table.label.endpoint')}</p>
               <span>{`${selectedItems[0]?.engine}:${selectedItems[0]?.address}`}</span>
             </div>
             <div className="datasource-container-item datasource-width left-line">
-              <p className="p-title">Port</p>
+              <p className="p-title">{t('table.label.port')}</p>
               <span>{selectedItems[0]?.port}</span>
             </div>
           </Grid>
           <Grid gridDefinition={[{ colspan: 3 }, { colspan: 3 }]}>
             <div className="datasource-container-item datasource-width">
-              <p className="p-title">Connection status</p>
+              <p className="p-title">{t('table.label.connectionStatus')}</p>
               <SourceBadge
                 instanceStatus={
                   selectedItems[0]?.glue_state ||
@@ -628,7 +633,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
               />
             </div>
             <div className="datasource-container-item datasource-width left-line">
-              <p className="p-title">Last updated at</p>
+              <p className="p-title">{t('table.label.lastUpdateAt')}</p>
               <span>
                 {accountData.last_updated
                   ? moment(accountData.last_updated)
@@ -645,8 +650,14 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
               onChange={({ detail }) => setCedentialType(detail.value)}
               value={cedentialType}
               items={[
-                { label: 'Secret Manager', value: 'secret_manager' },
-                { label: 'Username/Password', value: 'username_pwd' },
+                {
+                  label: t('datasource:credentialOption.secretManager'),
+                  value: 'secret_manager',
+                },
+                {
+                  label: t('datasource:credentialOption.userNamePWD'),
+                  value: 'username_pwd',
+                },
               ]}
             />
           </FormField>
@@ -676,14 +687,14 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                   setSecretSelect(detail.selectedOption)
                 }
                 options={secretOption}
-                selectedAriaLabel="Selected"
+                selectedAriaLabel={t('selected') || ''}
               />
               <div></div>
             </Grid>
           )}
 
           <span className="connection-tips">
-            The connection may takes around 20-30 seconds.{' '}
+            {t('datasource:connectionTips')}
           </span>
         </SpaceBetween>
       </Modal>

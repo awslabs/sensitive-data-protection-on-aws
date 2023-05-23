@@ -11,13 +11,14 @@ import { CounterLink } from '../../../common/ConterLink';
 import { getAccountInfomation } from 'apis/dashboard/api';
 import { IAccountInfo, ISourceCoverage } from 'ts/dashboard/types';
 import { getSourceCoverage } from 'apis/data-source/api';
+import { useTranslation } from 'react-i18next';
 
 const Overview: React.FC = () => {
   const [loadingOverview, setLoadingOverview] = useState(true);
   const [loadingCoverage, setLoadingCoverage] = useState(true);
   const [accountInfo, setAccountInfo] = useState<IAccountInfo>();
   const [coverageInfo, setCoverageInfo] = useState<ISourceCoverage>();
-
+  const { t } = useTranslation();
   const getOverviewData = async () => {
     setLoadingOverview(true);
     const res = await getAccountInfomation();
@@ -42,11 +43,8 @@ const Overview: React.FC = () => {
       <div>
         <Container
           header={
-            <Header
-              variant="h2"
-              description="AWS accounts that are tracked in this platform."
-            >
-              AWS accounts information
+            <Header variant="h2" description={t('summary:awsAccountInfoDesc')}>
+              {t('summary:awsAccountInfo')}
             </Header>
           }
         >
@@ -55,11 +53,13 @@ const Overview: React.FC = () => {
           ) : (
             <ColumnLayout columns={2} variant="text-grid">
               <div>
-                <Box variant="awsui-key-label">Total AWS accounts</Box>
+                <Box variant="awsui-key-label">
+                  {t('summary:totalAWSAccount')}
+                </Box>
                 <CounterLink>{accountInfo?.account_total}</CounterLink>
               </div>
               <div>
-                <Box variant="awsui-key-label">AWS regions</Box>
+                <Box variant="awsui-key-label">{t('summary:awsRegions')}</Box>
                 <CounterLink>{accountInfo?.region_total}</CounterLink>
               </div>
             </ColumnLayout>
@@ -71,9 +71,9 @@ const Overview: React.FC = () => {
           header={
             <Header
               variant="h2"
-              description="Data source that discovered in AWS accounts."
+              description={t('summary:dataSourceConnectionDesc')}
             >
-              Data source connection
+              {t('summary:dataSourceConnection')}
             </Header>
           }
         >
@@ -82,11 +82,15 @@ const Overview: React.FC = () => {
           ) : (
             <ColumnLayout columns={2} variant="text-grid">
               <div>
-                <Box variant="awsui-key-label">Total S3 buckets</Box>
+                <Box variant="awsui-key-label">
+                  {t('summary:totalS3Buckets')}
+                </Box>
                 <CounterLink>{coverageInfo?.s3_total}</CounterLink>
               </div>
               <div>
-                <Box variant="awsui-key-label">Total RDS instances</Box>
+                <Box variant="awsui-key-label">
+                  {t('summary:totalRDSInstances')}
+                </Box>
                 <CounterLink>{coverageInfo?.rds_total}</CounterLink>
               </div>
             </ColumnLayout>

@@ -183,12 +183,12 @@ const SchemaModal: React.FC<any> = (props: any) => {
     const result = await updateCatalogTable(requestParam);
     setIsLoading(false);
     if (result) {
-      alertMsg('Update Success', 'success');
+      alertMsg(t('updateSuccess'), 'success');
       setIsShowEditSelect(false);
       setSelectRowData(requestParam);
       updateFatherPage();
     } else {
-      alertMsg('Update Error', 'error');
+      alertMsg(t('updateFailed'), 'error');
     }
   };
 

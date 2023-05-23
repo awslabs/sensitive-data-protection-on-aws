@@ -9,28 +9,27 @@ import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
 
 const AddAccountHeader: React.FC = () => {
+  const { t } = useTranslation();
   return (
-    <Header
-      variant="h1"
-      description="Setup and manage the AWS accounts that you want the platform to discover sensitive data."
-    >
-      Add AWS accounts
+    <Header variant="h1" description={t('account:add.addAWSAccountDesc')}>
+      {t('account:add.addAWSAccount')}
     </Header>
   );
 };
 
 const AddAccountContent = () => {
+  const { t } = useTranslation();
   return (
     <div style={{ background: '#fff', marginTop: 40 }}>
       <Tabs
         tabs={[
           {
-            label: TAB_LIST.individual.label,
+            label: t(TAB_LIST.individual.label),
             id: TAB_LIST.individual.id,
             content: <AddAccountInfo tagType={TAB_LIST.individual.id} />,
           },
           {
-            label: TAB_LIST.via.label,
+            label: t(TAB_LIST.via.label),
             id: TAB_LIST.via.id,
             content: <AddAccountInfo tagType={TAB_LIST.via.id} />,
           },

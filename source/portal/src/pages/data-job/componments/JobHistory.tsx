@@ -12,14 +12,6 @@ import { useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
 import { alertMsg } from 'tools/tools';
 
-const HISTORY_COLUMN_LIST = [
-  { id: 'state', label: 'Job status' },
-  { id: 'start_time', label: 'Job started at' },
-  { id: 'end_time', label: 'Job completed at' },
-  { id: 'report', label: 'Report' },
-  { id: 'id', label: 'Job run details' },
-];
-
 const JobHistory: React.FC<any> = memo((props: any) => {
   const { detailRow } = props;
   const navigate = useNavigate();
@@ -28,6 +20,13 @@ const JobHistory: React.FC<any> = memo((props: any) => {
   const [dataList, setDataList] = useState([] as any[]);
   const [hasMoreData, setHasMoreData] = useState(dataList.length > 0);
   const [currentPage, setCurrentPage] = useState(1);
+  const HISTORY_COLUMN_LIST = [
+    { id: 'state', label: 'table.label.jobStatus' },
+    { id: 'start_time', label: 'table.label.jobStartedAt' },
+    { id: 'end_time', label: 'table.label.jobCompletedAt' },
+    { id: 'report', label: 'table.label.report' },
+    { id: 'id', label: 'table.label.jobRunDetails' },
+  ];
   const columnList = HISTORY_COLUMN_LIST;
 
   useEffect(() => {
@@ -71,10 +70,10 @@ const JobHistory: React.FC<any> = memo((props: any) => {
       if (result) {
         window.open(result, '_blank');
       } else {
-        alertMsg('No report file', 'error');
+        alertMsg(t('noReportFile'), 'error');
       }
     } catch {
-      alertMsg('No report file', 'error');
+      alertMsg(t('noReportFile'), 'error');
     }
     setIsloading(false);
   };
@@ -95,7 +94,7 @@ const JobHistory: React.FC<any> = memo((props: any) => {
         columnList.map((item) => {
           return {
             id: item.id,
-            header: item.label,
+            header: t(item.label),
             cell: (e: any) => {
               if (
                 (item.id === 'start_time' || item.id === 'end_time') &&
@@ -108,7 +107,7 @@ const JobHistory: React.FC<any> = memo((props: any) => {
               if (item.id === 'id' && (e as any)[item.id]) {
                 return (
                   <span className="job-name" onClick={() => clkJobId(e)}>
-                    Job run details
+                    {t('button.jobRunDetails')}
                   </span>
                 );
               }
@@ -123,7 +122,7 @@ const JobHistory: React.FC<any> = memo((props: any) => {
                           className="job-name"
                           onClick={() => clkDownloadReport(e.id, e.job_id)}
                         >
-                          Download report
+                          {t('button.downloadReport')}
                         </span>
                       </>
                     )}
@@ -159,13 +158,13 @@ const JobHistory: React.FC<any> = memo((props: any) => {
         }) as any
       }
       items={dataList}
-      loadingText="Loading resources"
+      loadingText={t('table.loadingResources') || ''}
       visibleColumns={columnList.map((i) => i.id)}
       empty={
         <Box textAlign="center" color="inherit">
-          <b>No resources</b>
+          <b>{t('table.noResources')}</b>
           <Box padding={{ bottom: 's' }} variant="p" color="inherit">
-            No resources to display.
+            {t('table.noResourcesDisplay')}
           </Box>
         </Box>
       }

@@ -177,10 +177,6 @@ const PropsModal: React.FC<PropsModalProps> = (props: PropsModalProps) => {
     setTotalCount(afterFilterList.length);
   }, [searchPropsName]);
 
-  useEffect(() => {
-    console.info('currentProps:', currentProps);
-  }, [currentProps]);
-
   return (
     <div>
       <Modal
@@ -194,7 +190,7 @@ const PropsModal: React.FC<PropsModalProps> = (props: PropsModalProps) => {
                   clickHideModal();
                 }}
               >
-                Close
+                {t('button.close')}
               </Button>
             ) : (
               <SpaceBetween direction="horizontal" size="xs">
@@ -284,7 +280,6 @@ const PropsModal: React.FC<PropsModalProps> = (props: PropsModalProps) => {
           }
           header={
             <Header
-              counter="(50)"
               actions={
                 <SpaceBetween direction="horizontal" size="xs">
                   <Button

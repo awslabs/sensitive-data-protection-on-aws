@@ -1,5 +1,6 @@
 import { BreadcrumbGroup } from '@cloudscape-design/components';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 type BreadCrumbType = {
   text: string;
@@ -14,11 +15,12 @@ const CustomBreadCrumb: React.FC<ICustomBreadCrumbProps> = (
   props: ICustomBreadCrumbProps
 ) => {
   const { breadcrumbItems } = props;
+  const { t } = useTranslation();
   return (
     <BreadcrumbGroup
       items={breadcrumbItems}
-      expandAriaLabel="Show path"
-      ariaLabel="Breadcrumbs"
+      expandAriaLabel={t('breadcrumb.showPath') || ''}
+      ariaLabel={t('breadcrumb.breadcrumb') || ''}
     />
   );
 };

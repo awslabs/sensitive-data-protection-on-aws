@@ -38,6 +38,7 @@ import {
   NON_PII_OPTION,
 } from 'pages/common-badge/componments/Options';
 import LabelModal from 'common/LabelModal';
+import { useTranslation } from 'react-i18next';
 
 const DetailModal: React.FC<any> = (props: any) => {
   const {
@@ -48,6 +49,7 @@ const DetailModal: React.FC<any> = (props: any) => {
     setSelectRowData,
     updateFatherPage,
   } = props;
+  const { t } = useTranslation();
 
   const modalTabs =
     catalogType === DATA_TYPE_ENUM.s3 ? S3_MODAL_TABS : RDS_MODAL_TABS;
@@ -103,12 +105,12 @@ const DetailModal: React.FC<any> = (props: any) => {
     const result = await updateCatalogDatabase(requestParam);
     setIsLoading(false);
     if (result) {
-      alertMsg('Update Success', 'success');
+      alertMsg(t('updateSuccess'), 'success');
       setIsShowEditSelect(false);
       setSelectRowData(requestParam);
       updateFatherPage();
     } else {
-      alertMsg('Update Error', 'error');
+      alertMsg(t('updateFailed'), 'error');
     }
   };
 
@@ -216,8 +218,8 @@ const DetailModal: React.FC<any> = (props: any) => {
       label:
         item.id === COLUMN_OBJECT_STR.Folders ||
         item.id === COLUMN_OBJECT_STR.Tables
-          ? `${item.label} (${selectRowData.table_count})`
-          : `${item.label}`,
+          ? `${t(item.label)} (${selectRowData.table_count})`
+          : `${t(item.label)}`,
       content: <CatalogDetailList {...tempProps} />,
     };
   });
@@ -229,8 +231,8 @@ const DetailModal: React.FC<any> = (props: any) => {
       showModal={showDetailModal}
       header={
         catalogType === DATA_TYPE_ENUM.s3
-          ? 'S3 bucket details'
-          : 'RDS instance details'
+          ? t('catalog:modal.s3BucketDetail')
+          : t('catalog:modal.rdsInstanceDetail')
       }
       showFolderIcon={true}
     >
@@ -239,7 +241,7 @@ const DetailModal: React.FC<any> = (props: any) => {
         <div>
           {!isShowEditSelect && (
             <span>
-              <b>Privacy: </b>
+              <b>{t('catalog:privacy')}</b>
               <CommonBadge
                 badgeType={BADGE_TYPE.Privacy}
                 badgeLabel={selectRowData[BADGE_TYPE.Privacy]}
@@ -266,7 +268,7 @@ const DetailModal: React.FC<any> = (props: any) => {
                   selectedOption={selectedOption}
                   triggerVariant="option"
                   options={[CONTAINS_PII_OPTION, NON_PII_OPTION, NA_OPTION]}
-                  selectedAriaLabel="Selected"
+                  selectedAriaLabel={t('selected') || ''}
                 ></Select>
               </div>
               <div className="check-icon">
@@ -279,7 +281,7 @@ const DetailModal: React.FC<any> = (props: any) => {
 
         <div className="mt-5">
           <span>
-            <b>Custom labels: </b>
+            <b>{t('catalog:modal.customLabel')} </b>
             {selectRowData[COLUMN_OBJECT_STR.Labels].map((label: any) => {
               return (
                 <span key={label.id} className="custom-badge label mr-5">

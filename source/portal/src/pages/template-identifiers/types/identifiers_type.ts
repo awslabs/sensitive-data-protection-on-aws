@@ -1,23 +1,23 @@
 export const IDENTIFIER_COLUMN_LIST = [
   {
     id: 'name',
-    label: 'Data identifier name',
+    label: 'table.label.dataIdentifierName',
     filter: true,
     sortingField: 'name',
   },
   {
     id: 'description',
-    label: 'Description',
+    label: 'table.label.description',
     filter: true,
   },
   {
     id: 'category',
-    label: 'Catagory',
+    label: 'table.label.category',
     filter: true,
   },
   {
     id: 'label',
-    label: 'Identifier label',
+    label: 'table.label.identifierLabel',
     filter: true,
   },
 ];
