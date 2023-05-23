@@ -298,7 +298,7 @@ def sync_s3_connection(account: str, region: str, bucket: str):
                         Role=crawler_role_arn,
                         DatabaseName=glue_database_name,
                         Targets={
-                            "S3Targets": build_s3_targets(bucket, credentials, region, True)
+                            "S3Targets": build_s3_targets(bucket, credentials, region, False)
                         },
                         SchemaChangePolicy={
                             'UpdateBehavior': 'UPDATE_IN_DATABASE',
@@ -700,8 +700,9 @@ def create_rds_connection(account: str, region: str, instance_name: str, rds_use
         raise BizException(MessageEnum.SOURCE_CONNECTION_FAILED.get_code(),
                            str(err))
 
+
 def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=None, rds_password=None,
-                          rds_secret_id=None):
+                        rds_secret_id=None):
     glue_connection_name = f"rds-{instance_name}-connection"
     glue_database_name = f"rds-{instance_name}-database"
     crawler_name = f"rds-{instance_name}-crawler"
@@ -971,7 +972,7 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                                 'DeleteBehavior': 'DELETE_FROM_DATABASE'
                             }
                         )
-                        logger.info("update crawler:")
+                        logger.info("update rds crawler:")
                         logger.info(up_cr_response)
                         st_cr_response = glue.start_crawler(
                             Name=crawler_name
@@ -1745,7 +1746,7 @@ def __list_rds_schema(account, region, credentials, instance_name, payload, rds_
     # delete lambda
     logger.info("__list_rds_schema get lambda function delete:")
     logger.info(function_name)
-    lambda_.delete_function(FunctionName=function_name)
+    # lambda_.delete_function(FunctionName=function_name)
     schemas = json.loads(body)
     if schemas['statusCode'] == 500:
         raise Exception(schemas['errorMessage'])
