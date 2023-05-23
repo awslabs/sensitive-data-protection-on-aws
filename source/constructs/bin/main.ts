@@ -52,7 +52,6 @@ stackSuppressions(
     { id: 'AwsSolutions-EC23', reason: 'Use private subnet and has setup the port' },
     { id: 'AwsSolutions-SQS3', reason: "It is a DLQ and doesn't need another DLQ" },
     { id: 'AwsSolutions-SQS4', reason: 'It is a DLQ' },
-    { id: 'AwsSolutions-SMG4', reason: 'Using an existing VPC, SecretRotation will report an error' },
   ],
 );
 
