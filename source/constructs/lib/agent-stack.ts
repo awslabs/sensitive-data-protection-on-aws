@@ -353,6 +353,8 @@ export class AgentStack extends Stack {
           'glue:GetDatabase',
           'glue:GetTables',
           'glue:GetTable',
+          'glue:DeleteTable',
+          'glue:DeleteDatabase',
           'glue:GetConnection',
           'glue:GetPartitions',
           'glue:BatchCreatePartition',

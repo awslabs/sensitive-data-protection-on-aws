@@ -235,8 +235,8 @@ def sync_s3_connection(account: str, region: str, bucket: str):
     elif state == ConnectionState.CRAWLING.value:
         raise BizException(MessageEnum.SOURCE_CONNECTION_CRAWLING.get_code(),
                            MessageEnum.SOURCE_CONNECTION_CRAWLING.get_msg())
-    else:
-        delete_glue_connection(account, region, crawler_name, glue_database_name, glue_connection_name)
+    # else:
+    #     delete_glue_connection(account, region, crawler_name, glue_database_name, glue_connection_name)
     try:
         # PENDING｜ACTIVE｜ERROR with message
         crud.set_s3_bucket_source_glue_state(account, region, bucket, ConnectionState.PENDING.value)
@@ -290,26 +290,30 @@ def sync_s3_connection(account: str, region: str, bucket: str):
         try:
             gt_cr_response = glue.get_crawler(Name=crawler_name)
             logger.info(gt_cr_response)
-            # try:
-            #     if state == ConnectionState.ACTIVE.value:
-            #         up_cr_response = glue.update_crawler(
-            #             Name=crawler_name,
-            #             Role=crawler_role_arn,
-            #             DatabaseName=glue_database_name,
-            #             Targets={
-            #                 "S3Targets": build_s3_targets(bucket, credentials, region, False)
-            #             },
-            #         )
-            #         logger.info("update crawler:")
-            #         logger.info(up_cr_response)
-            #         st_cr_response = glue.start_crawler(
-            #             Name=crawler_name
-            #         )
-            #         logger.info(st_cr_response)
-            #     gt_cr_response = glue.get_crawler(Name=crawler_name)
-            #     logger.info(gt_cr_response)
-            # except Exception as e:
-            #     delete_glue_connection(account, region, crawler_name, glue_database_name, glue_connection_name)
+            try:
+                if state == ConnectionState.ACTIVE.value or state == ConnectionState.UNSUPPORTED.value \
+                        or state == ConnectionState.ERROR.value or state == ConnectionState.STOPPING.value:
+                    up_cr_response = glue.update_crawler(
+                        Name=crawler_name,
+                        Role=crawler_role_arn,
+                        DatabaseName=glue_database_name,
+                        Targets={
+                            "S3Targets": build_s3_targets(bucket, credentials, region, True)
+                        },
+                        SchemaChangePolicy={
+                            'UpdateBehavior': 'UPDATE_IN_DATABASE',
+                            'DeleteBehavior': 'DELETE_FROM_DATABASE'
+                        }
+                    )
+                    logger.info("update crawler:")
+                    logger.info(up_cr_response)
+                    st_cr_response = glue.start_crawler(
+                        Name=crawler_name
+                    )
+                    logger.info(st_cr_response)
+            except Exception as e:
+                logger.info("update_crawler s3 error")
+                logger.info(str(e))
         except Exception as e:
             response = glue.create_crawler(
                 Name=crawler_name,
@@ -724,8 +728,8 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
         raise BizException(MessageEnum.SOURCE_CONNECTION_CRAWLING.get_code(),
                            MessageEnum.SOURCE_CONNECTION_CRAWLING.get_msg())
 
-    else:
-        delete_glue_connection(account, region, crawler_name, glue_database_name, glue_connection_name)
+    # else:
+    #     delete_glue_connection(account, region, crawler_name, glue_database_name, glue_connection_name)
 
     crawler_role_arn = __gen_role_arn(account_id=account,
                                       region=region,
@@ -952,6 +956,30 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
             try:
                 response = glue.get_crawler(Name=crawler_name)
                 logger.info("sync_rds_connection get_crawler:")
+                try:
+                    if state == ConnectionState.ACTIVE.value or state == ConnectionState.UNSUPPORTED.value \
+                            or state == ConnectionState.ERROR.value or state == ConnectionState.STOPPING.value:
+                        up_cr_response = glue.update_crawler(
+                            Name=crawler_name,
+                            Role=crawler_role_arn,
+                            DatabaseName=glue_database_name,
+                            Targets={
+                                'JdbcTargets': jdbc_targets,
+                            },
+                            SchemaChangePolicy={
+                                'UpdateBehavior': 'UPDATE_IN_DATABASE',
+                                'DeleteBehavior': 'DELETE_FROM_DATABASE'
+                            }
+                        )
+                        logger.info("update crawler:")
+                        logger.info(up_cr_response)
+                        st_cr_response = glue.start_crawler(
+                            Name=crawler_name
+                        )
+                        logger.info(st_cr_response)
+                except Exception as e:
+                    logger.info("update_crawler error")
+                    logger.info(str(e))
                 logger.info(response)
             except Exception as e:
                 logger.info("sync_rds_connection get_crawler and create:")
