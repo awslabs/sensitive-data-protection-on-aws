@@ -2,11 +2,12 @@ import {
   AppLayout,
   Box,
   Button,
+  ButtonDropdown,
+  ButtonDropdownProps,
   CollectionPreferences,
   ContentLayout,
   Header,
   Pagination,
-  Select,
   SpaceBetween,
   Table,
 } from '@cloudscape-design/components';
@@ -15,7 +16,6 @@ import { JOB_LIST_COLUMN_LIST } from './types/job_list_type';
 import ResourcesFilter from 'pages/resources-filter';
 import moment from 'moment';
 import { alertMsg, getCronData } from 'tools/tools';
-import { OptionDefinition } from '@cloudscape-design/components/internal/components/option/interfaces';
 import { useNavigate } from 'react-router-dom';
 import CommonBadge from 'pages/common-badge';
 import {
@@ -79,27 +79,29 @@ const DataJobContent: React.FC<any> = (props: any) => {
     navigate(RouterEnum.CreateJob.path);
   };
 
-  const clkOption = async (selectedOption: OptionDefinition) => {
+  const clkOption = async (
+    selectedOption: ButtonDropdownProps.ItemClickDetails
+  ) => {
     if (!selectedItems || selectedItems.length === 0) {
       alertMsg(t('selectOneItem'), 'error');
       return;
     }
-    if (selectedOption.value === 'pause') {
+    if (selectedOption.id === 'pause') {
       const result = await disableJob({ id: selectedItems[0].id });
       result && alertMsg(t('pauseSuccess'), 'success');
-    } else if (selectedOption.value === 'cancel') {
+    } else if (selectedOption.id === 'cancel') {
       const result = await stopJob({ id: selectedItems[0].id });
       result && alertMsg(t('stopSuccess'), 'success');
-    } else if (selectedOption.value === 'copyNew') {
+    } else if (selectedOption.id === 'copyNew') {
       navigate(RouterEnum.CreateJob.path, {
         state: { oldData: selectedItems[0] },
       });
       return;
-    } else if (selectedOption.value === 'execute_once') {
+    } else if (selectedOption.id === 'execute_once') {
       await startJob({ id: selectedItems[0].id });
       alertMsg(t('startSuccess'), 'success');
       return;
-    } else if (selectedOption.value === 'continue') {
+    } else if (selectedOption.id === 'continue') {
       await enableJob({ id: selectedItems[0].id });
       alertMsg(t('continueSuccess'), 'success');
       return;
@@ -278,16 +280,14 @@ const DataJobContent: React.FC<any> = (props: any) => {
                     disabled={isLoading}
                     iconName="refresh"
                   />
-                  <Select
-                    className="job-ations-select"
-                    selectedOption={{}}
-                    onChange={({ detail }) => {
-                      clkOption(detail.selectedOption);
+                  <ButtonDropdown
+                    onItemClick={(item) => {
+                      clkOption(item.detail);
                     }}
-                    options={[
+                    items={[
                       {
-                        label: t('button.cancel') || '',
-                        value: 'cancel',
+                        text: t('button.cancel') || '',
+                        id: 'cancel',
                         disabled:
                           selectedItems.length === 0 ||
                           selectedItems.filter(
@@ -297,8 +297,8 @@ const DataJobContent: React.FC<any> = (props: any) => {
                           ).length === 0,
                       },
                       {
-                        label: t('button.pause') || '',
-                        value: 'pause',
+                        text: t('button.pause') || '',
+                        id: 'pause',
                         disabled:
                           selectedItems.length === 0 ||
                           selectedItems.filter(
@@ -308,8 +308,8 @@ const DataJobContent: React.FC<any> = (props: any) => {
                           ).length === 0,
                       },
                       {
-                        label: t('button.continue') || '',
-                        value: 'continue',
+                        text: t('button.continue') || '',
+                        id: 'continue',
                         disabled:
                           selectedItems.length === 0 ||
                           selectedItems.filter(
@@ -317,8 +317,8 @@ const DataJobContent: React.FC<any> = (props: any) => {
                           ).length === 0,
                       },
                       {
-                        label: t('button.exeOnce') || '',
-                        value: 'execute_once',
+                        text: t('button.exeOnce') || '',
+                        id: 'execute_once',
                         disabled:
                           selectedItems.length === 0 ||
                           selectedItems.filter(
@@ -326,24 +326,23 @@ const DataJobContent: React.FC<any> = (props: any) => {
                           ).length > 0,
                       },
                       {
-                        label: t('button.copyToNew') || '',
-                        value: 'copyNew',
+                        text: t('button.copyToNew') || '',
+                        id: 'copyNew',
                         disabled: selectedItems.length === 0,
                       },
                     ]}
-                    selectedAriaLabel="Actions"
-                  ></Select>
+                  >
+                    {t('button.actions')}
+                  </ButtonDropdown>
                   <Button onClick={clkAddJob} disabled={isLoading}>
                     {t('button.createJob')}
                   </Button>
                 </SpaceBetween>
               }
             >
-              Jobs
+              {t('job:jobs')}
             </Header>
-            <span className="table-header-info">
-              Sensitive data discovery jobs.
-            </span>
+            <span className="table-header-info">{t('job:jobsDesc')}</span>
           </>
         }
         loadingText={t('table.loadingResources') || ''}

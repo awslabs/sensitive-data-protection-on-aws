@@ -433,7 +433,7 @@ const DataTemplate: React.FC = () => {
           className="privacy-tab"
           tabs={[
             {
-              label: 'Privacy',
+              label: t('privacy') || '',
               id: 'Privacy',
               content: <DataTemplateContent />,
             },

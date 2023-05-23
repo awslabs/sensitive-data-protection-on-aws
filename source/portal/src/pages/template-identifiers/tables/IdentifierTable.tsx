@@ -67,7 +67,7 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
     query,
     setQuery,
     tableName: TABLE_NAME.TEMPLATE_IDENTIFIER,
-    filteringPlaceholder: 'Filter by name or description',
+    filteringPlaceholder: t('template:filterByNameOrDesc'),
   };
 
   const [curSortColumn, setCurSortColumn] = useState<any>('');

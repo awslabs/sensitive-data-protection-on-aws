@@ -14,6 +14,8 @@ import {
   Input,
   FormField,
   Tiles,
+  ButtonDropdown,
+  ButtonDropdownProps,
 } from '@cloudscape-design/components';
 import { DATA_TYPE_ENUM, TABLE_NAME } from 'enum/common_types';
 import {
@@ -41,7 +43,6 @@ import {
   getSecrets,
 } from 'apis/data-source/api';
 import { alertMsg, showHideSpinner } from 'tools/tools';
-import { OptionDefinition } from '@cloudscape-design/components/internal/components/option/interfaces';
 import SourceBadge from './SourceBadge';
 import ErrorBadge from 'pages/error-badge';
 import { useTranslation } from 'react-i18next';
@@ -261,12 +262,14 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
     }
   };
 
-  const clkDisconnectDataSource = async (selectedOption: OptionDefinition) => {
+  const clkDisconnectDataSource = async (
+    selectedOption: ButtonDropdownProps.ItemClickDetails
+  ) => {
     if (!selectedItems || selectedItems.length === 0) {
       alertMsg(t('selectOneItem'), 'error');
       return;
     }
-    if (!selectedOption || selectedOption.value !== 'disconnect') {
+    if (!selectedOption || selectedOption.id !== 'disconnect') {
       return;
     }
     const requestParam: any = {
@@ -465,17 +468,14 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                     <Icon name="share" className="btn-icon" />
                     {t('button.connect')}
                   </Button>
-                  <Select
-                    className="ations-select"
-                    selectedOption={{}}
-                    onChange={({ detail }) => {
-                      clkDisconnectDataSource(detail.selectedOption);
+                  <ButtonDropdown
+                    onItemClick={({ detail }) => {
+                      clkDisconnectDataSource(detail);
                     }}
-                    options={[
-                      { label: t('disconnect') || '', value: 'disconnect' },
-                    ]}
-                    selectedAriaLabel="Actions"
-                  ></Select>
+                    items={[{ text: t('disconnect') || '', id: 'disconnect' }]}
+                  >
+                    {t('button.actions')}
+                  </ButtonDropdown>
                 </SpaceBetween>
               }
             >

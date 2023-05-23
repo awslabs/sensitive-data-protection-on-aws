@@ -48,7 +48,7 @@
       "step3Copy": "Copy [CloudFormationStack-AuthorizeMembers] CloudFormation stack’s Amazon S3 URL",
       "step4": "Step4: Install agent stack to authorize member accounts in Organization",
       "step4Copy": "Copy [CloudFormationStack-AuthorizeMembers] CloudFormation stack’s Amazon S3 URL",
-      "step5": " tep5: Fill in the Organization management account id"
+      "step5": "Step5: Fill in the Organization management account id"
     },
     "account": {
       "via": "Individual account",

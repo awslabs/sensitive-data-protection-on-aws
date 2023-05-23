@@ -83,7 +83,8 @@
     "downloadReport": "Download report",
     "dataCatalogs": "Data catalogs",
     "downloadSnapshot": "Download snapshot",
-    "close": "Close"
+    "close": "Close",
+    "actions": "Actions"
   },
   "label": {
     "label": "label",
@@ -99,7 +100,7 @@
     "noLabelFound": "no label found."
   },
   "category": {
-    "category": "Categry",
+    "category": "Category",
     "categories": "Categories",
     "noCategories": "No Categories",
     "findCategories": "Find Categories",
@@ -207,7 +208,9 @@
       "jobProgress": "Job Progress",
       "createdAt": "Created at",
       "finishedAt": "Finished at",
-      "identifierLabel": "Identifier Label"
+      "identifierLabel": "Identifier Label",
+      "category": "Category",
+      "folders": "Folders"
     }
   },
   "tab": {
@@ -315,5 +318,8 @@
   "all": "All",
   "ofTotal": " of total",
   "confirmDelete": "Please confirm delete",
-  "confirm": "Confirm"
+  "confirm": "Confirm",
+  "s3Bucket": "S3 bucket",
+  "rdsInstance": "RDS instance",
+  "privacy": "Privacy"
 }

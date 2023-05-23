@@ -12,7 +12,7 @@ export const IDENTIFIER_COLUMN_LIST = [
   },
   {
     id: 'category',
-    label: 'table.label.catagory',
+    label: 'table.label.category',
     filter: true,
   },
   {

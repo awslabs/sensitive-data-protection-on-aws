@@ -15,6 +15,8 @@
   "filterJobs": "Filter jobs",
   "runJobs": "Run sensitive data discovery jobs",
   "manageJobs": "Manage sensitive data discovery jobs.",
+  "jobs": "Jobs",
+  "jobsDesc": "Sensitive data discovery jobs.",
   "create": {
     "title": "Create sensitive data discovery job",
     "seelctS3DataCatalog": "Select data catalogs (S3)",

@@ -64,9 +64,9 @@ const CatalogList: React.FC<any> = memo((props: any) => {
   const [selectRowData, setSelectRowData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [showFilter, setShowFilter] = useState(!urlIdentifiers);
-  const tableTitle = `Data catalog: ${
+  const tableTitle = `${t('catalog:dataCatalog')} ${t(
     (DATA_TYPE as any)[catalogType] || DATA_TYPE.rds
-  }`;
+  )}`;
 
   const getDefaultSearchParam = () => {
     const resultList = [];
