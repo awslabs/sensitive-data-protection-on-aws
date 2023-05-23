@@ -20,14 +20,14 @@ const TemplateIdentifiersHeader: React.FC = () => {
   return (
     <Header
       variant="h1"
-      description="Data identifiers are the rules to discover sensitive data. "
+      description={t('template:manageDataIdentifierDesc')}
       actions={
         <Button onClick={() => navigate(RouterEnum.Datatemplate.path)}>
           {t('button.defineTemplate')}
         </Button>
       }
     >
-      Manage data identifiers
+      {t('template:manageDataIdentifier')}
     </Header>
   );
 };
@@ -63,17 +63,23 @@ const TemplateIdentifiers: React.FC = () => {
             }}
             tabs={[
               {
-                label: 'Built-in data identifiers',
+                label: t('template:builtInIdentifier'),
                 id: 'builtIn',
                 content: (
-                  <IdentifierTable title="Built-in data identifiers" type={0} />
+                  <IdentifierTable
+                    title={t('template:builtInIdentifier')}
+                    type={0}
+                  />
                 ),
               },
               {
-                label: 'Custom data identifiers',
+                label: t('template:customIdentifier'),
                 id: 'custom',
                 content: (
-                  <IdentifierTable title="Custom data identifiers" type={1} />
+                  <IdentifierTable
+                    title={t('template:customIdentifier')}
+                    type={1}
+                  />
                 ),
               },
             ]}

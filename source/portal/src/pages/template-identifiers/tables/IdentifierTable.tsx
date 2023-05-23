@@ -300,7 +300,7 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
         columnDefinitions={columnList.map((item) => {
           return {
             id: item.id,
-            header: item.label,
+            header: t(item.label),
             maxWidth: '45%',
             sortingField: item.sortingField,
             cell: (e: any) => {

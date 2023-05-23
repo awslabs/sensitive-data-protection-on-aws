@@ -178,7 +178,7 @@ const AddIdentfierTable = (props: any) => {
       columnDefinitions={columnList.map((item) => {
         return {
           id: item.id,
-          header: item.label,
+          header: t(item.label),
           cell: (e: any) => {
             if (item.id === 'category') {
               return (

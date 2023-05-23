@@ -34,7 +34,7 @@ export const S3_COLUMN_LIST = [
   },
   {
     id: COLUMN_OBJECT_STR.ObjectCount,
-    label: 'table.label.object',
+    label: 'table.label.objects',
   },
   {
     id: COLUMN_OBJECT_STR.Size,
@@ -390,7 +390,7 @@ export const S3_FILTER_COLUMN = [
   },
   {
     id: COLUMN_OBJECT_STR.ObjectCount,
-    label: 'table.label.object',
+    label: 'table.label.objects',
     filter: false,
   },
   {

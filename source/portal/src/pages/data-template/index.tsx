@@ -286,7 +286,7 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
         columnDefinitions={columnList.map((item) => {
           return {
             id: item.id,
-            header: item.label,
+            header: t(item.label),
             sortingField: item.sortingField,
             cell: (e: any) => {
               if (item.id === 'type') {

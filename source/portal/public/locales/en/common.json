@@ -82,7 +82,8 @@
     "jobRunDetails": "Job run details",
     "downloadReport": "Download report",
     "dataCatalogs": "Data catalogs",
-    "downloadSnapshot": "Download snapshot"
+    "downloadSnapshot": "Download snapshot",
+    "close": "Close"
   },
   "label": {
     "label": "label",
@@ -110,7 +111,7 @@
     "noLabelFound": "no category found."
   },
   "identLabel": {
-    "identLabel": "Label",
+    "identLabel": "Identifier Label",
     "identLabels": "Identifier Labels",
     "noLabel": "No identifier labels",
     "findLabels": "Find identifier labels",
@@ -203,7 +204,8 @@
       "glueJobStatus": "Glue job status",
       "jobProgress": "Job Progress",
       "createdAt": "Created at",
-      "finishedAt": "Finished at"
+      "finishedAt": "Finished at",
+      "identifierLabel": "Identifier Label"
     }
   },
   "tab": {
@@ -307,5 +309,9 @@
   "loginExpired": "Your login has expired",
   "loginExpiredDesc": " Your login has expired, the system will jump to the login page after 5s, or click ",
   "here": "here",
-  "toJump": " to jump."
+  "toJump": " to jump.",
+  "all": "All",
+  "ofTotal": " of total",
+  "confirmDelete": "Please confirm delete",
+  "confirm": "Confirm"
 }
