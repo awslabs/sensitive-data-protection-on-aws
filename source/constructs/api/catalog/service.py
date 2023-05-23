@@ -240,7 +240,7 @@ def sync_crawler_result(
                     "object_count": table_object_count,
                     "size_key": table_size_key,
                     "column_count": column_order_num,
-                    "row_count": table_size,
+                    # "row_count": table_size,
                     "storage_location": table_location,
                     "classification": table_classification,
                 }
@@ -254,7 +254,7 @@ def sync_crawler_result(
                     crud.update_catalog_table_level_classification_by_id(original_table.id, catalog_table_dict)
                 table_name_list.append(table_name)
                 database_column_count += column_order_num
-                database_row_count += table_size
+                # database_row_count += table_size
                 # update_catalog_table_and_database_level_privacy(account_id,
                 #                                                 region,
                 #                                                 database_type,
@@ -299,7 +299,7 @@ def sync_crawler_result(
             "size_key": database_size,
             "table_count": 0 if need_clean_database else table_count,
             "column_count": database_column_count,
-            "row_count": database_row_count,
+            # "row_count": database_row_count,
             # Store location for s3 and engine type for rds
             "storage_location": "s3://" + database_name + "/"
             if database_type == DatabaseType.S3.value
