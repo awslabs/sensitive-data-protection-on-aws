@@ -1,4 +1,4 @@
-import { Select, SelectProps } from '@cloudscape-design/components';
+import { Button, Select, SelectProps } from '@cloudscape-design/components';
 import { requestPropsByType } from 'apis/props/api';
 import { PropsType } from 'pages/create-identifier';
 import React, { useEffect, useState } from 'react';
@@ -13,11 +13,13 @@ interface PropsSelectProps {
 }
 const PropsSelect: React.FC<PropsSelectProps> = (props: PropsSelectProps) => {
   const { refresh, isSearch, type, selectOption, changeSelectValue } = props;
+  const [loadingData, setLoadingData] = useState(false);
   const [propsOptionList, setPropsOptionList] = useState<SelectProps.Option[]>(
     []
   );
   const { t } = useTranslation();
   const getPropsOptionListByType = async () => {
+    setLoadingData(true);
     try {
       const result: PropsType[] = await requestPropsByType({
         type: type,
@@ -44,8 +46,10 @@ const PropsSelect: React.FC<PropsSelectProps> = (props: PropsSelectProps) => {
           });
         setPropsOptionList(tmpOptions);
       }
+      setLoadingData(false);
     } catch (error) {
       console.error(error);
+      setLoadingData(false);
     }
   };
 
@@ -60,18 +64,29 @@ const PropsSelect: React.FC<PropsSelectProps> = (props: PropsSelectProps) => {
   }, [refresh]);
 
   return (
-    <div>
-      <Select
-        placeholder={
-          (type === '1'
-            ? t('category.category')
-            : t('identLabel.identLabel')) || ''
-        }
-        selectedOption={selectOption}
-        onChange={({ detail }) => changeSelectValue(detail.selectedOption)}
-        options={propsOptionList}
-        selectedAriaLabel={t('selected') || ''}
-      />
+    <div className="flex">
+      <div className="flex-1">
+        <Select
+          placeholder={
+            (type === '1'
+              ? t('category.category')
+              : t('identLabel.identLabel')) || ''
+          }
+          selectedOption={selectOption}
+          onChange={({ detail }) => changeSelectValue(detail.selectedOption)}
+          options={propsOptionList}
+          selectedAriaLabel={t('selected') || ''}
+        />
+      </div>
+      <div className="ml-10">
+        <Button
+          loading={loadingData}
+          iconName="refresh"
+          onClick={() => {
+            getPropsOptionListByType();
+          }}
+        />
+      </div>
     </div>
   );
 };

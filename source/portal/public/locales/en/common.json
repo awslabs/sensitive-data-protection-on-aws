@@ -302,6 +302,7 @@
   "notAllSucceeded": "Not all succeeded",
   "deleteSuccess": "Delete success",
   "changeEnableError": "Change enable error",
+  "selectCategoryLabel": "Please select category/label",
   "pending": "Pending",
   "SUCCEEDED": "SUCCEEDED",
   "RUNNING": "RUNNING",

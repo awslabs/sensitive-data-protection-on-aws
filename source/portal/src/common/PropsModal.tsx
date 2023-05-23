@@ -180,13 +180,17 @@ const PropsModal: React.FC<PropsModalProps> = (props: PropsModalProps) => {
   return (
     <div>
       <Modal
-        onDismiss={() => clickHideModal()}
+        onDismiss={() => {
+          setSelectedItems([]);
+          clickHideModal();
+        }}
         visible={showModal}
         footer={
           <Box float="right">
             {isManage ? (
               <Button
                 onClick={() => {
+                  setSelectedItems([]);
                   clickHideModal();
                 }}
               >
@@ -197,6 +201,7 @@ const PropsModal: React.FC<PropsModalProps> = (props: PropsModalProps) => {
                 <Button
                   variant="link"
                   onClick={() => {
+                    setSelectedItems([]);
                     clickHideModal();
                   }}
                 >
@@ -208,6 +213,7 @@ const PropsModal: React.FC<PropsModalProps> = (props: PropsModalProps) => {
                   onClick={() => {
                     savePropsToResource(selectedItems, () => {
                       setSearchPropsName('');
+                      setSelectedItems([]);
                     });
                   }}
                 >

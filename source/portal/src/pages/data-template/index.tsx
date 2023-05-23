@@ -199,7 +199,13 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
     }
   };
 
-  const deleteModalProps = { isShowDelete, setIsShowDelete, confirmDelete };
+  const deleteModalProps = {
+    isShowDelete,
+    setIsShowDelete,
+    confirmDelete,
+    title: t('template:removeDataIdentifier'),
+    confirmText: t('button.remove'),
+  };
 
   const clkDelete = async (selectedOption: string | OptionDefinition) => {
     if (selectedOption !== 'delete') {
