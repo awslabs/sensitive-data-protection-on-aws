@@ -5,20 +5,19 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
 
-const DATABASE_COLUMN_LIST = [
-  { id: 'job_id', label: 'Job id' },
-  { id: 'database_name', label: 'Data catalog name' },
-  { id: 'account_id', label: 'AWS account' },
-  { id: 'region', label: 'AWS region' },
-  { id: 'database_type', label: 'Data source type' },
-];
-
 const JobCatalogs = (props: any) => {
   const { detailRow } = props;
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [isLoading, setIsloading] = useState(false);
   const [dataList, setDataList] = useState([]);
+  const DATABASE_COLUMN_LIST = [
+    { id: 'job_id', label: t('table.label.jobId') },
+    { id: 'database_name', label: t('table.label.dataCatalogName') },
+    { id: 'account_id', label: t('table.label.awsAccount') },
+    { id: 'region', label: t('table.label.awsRegion') },
+    { id: 'database_type', label: t('table.label.dataSourceType') },
+  ];
   const columnList = DATABASE_COLUMN_LIST;
 
   useEffect(() => {
@@ -65,7 +64,7 @@ const JobCatalogs = (props: any) => {
         }) as any
       }
       items={dataList}
-      loadingText="Loading resources"
+      loadingText={t('table.loadingResources') || ''}
       visibleColumns={columnList.map((i) => i.id)}
       empty={
         <Box textAlign="center" color="inherit">

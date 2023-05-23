@@ -51,17 +51,29 @@ const JobDetailModal = (props: any) => {
           {
             id: 'jobHistory',
             label: t('tab.jobHistory'),
-            content: <JobHistory detailRow={detailRow} />,
+            content: (
+              <div className="pd-10">
+                <JobHistory detailRow={detailRow} />
+              </div>
+            ),
           },
           {
             id: 'jobProperties',
             label: t('tab.jobProperties'),
-            content: <JobProperties detailRow={detailRow} />,
+            content: (
+              <div className="pd-10">
+                <JobProperties detailRow={detailRow} />
+              </div>
+            ),
           },
           {
             id: 'dataCatalogs',
             label: t('tab.dataCatalogs'),
-            content: <JobCatalogs detailRow={detailRow} />,
+            content: (
+              <div className="pd-10">
+                <JobCatalogs detailRow={detailRow} />
+              </div>
+            ),
           },
         ]}
       />

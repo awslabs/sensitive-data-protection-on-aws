@@ -586,6 +586,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                         return (
                           <div className="detail-edit-icon-max-width">
                             <Multiselect
+                              hideTokens
                               placeholder={
                                 t('catalog:detail.selectIdentifier') || ''
                               }
@@ -679,7 +680,17 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                               </div>
                             </div>
                           ) : (
-                            ''
+                            <div
+                              onClick={() =>
+                                clickEditIcon(
+                                  e as any,
+                                  COLUMN_OBJECT_STR.Identifier
+                                )
+                              }
+                            >
+                              N/A
+                              <Icon name="edit" className="modal-badge-edit" />
+                            </div>
                           );
                         }
                         const showIdentifier =

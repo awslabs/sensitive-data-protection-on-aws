@@ -210,7 +210,9 @@
       "finishedAt": "Finished at",
       "identifierLabel": "Identifier Label",
       "category": "Category",
-      "folders": "Folders"
+      "folders": "Folders",
+      "dataCatalogName": "Data catalog name",
+      "dataSourceType": "Data source type"
     }
   },
   "tab": {
