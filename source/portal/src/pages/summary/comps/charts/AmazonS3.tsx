@@ -7,7 +7,6 @@ import {
 } from '@cloudscape-design/components';
 import React, { memo, useEffect, useState } from 'react';
 import S3CatalogOverview from './items/S3CatalogOverview';
-// import CustomLineChart from './items/CustomLineChart';
 import MapChart from './items/MapChart';
 import CircleChart from './items/CircleChart';
 import TableData from './items/TableData';
@@ -22,21 +21,12 @@ const AmazonS3: React.FC<any> = memo(() => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [loadingTableData, setLoadingTableData] = useState(true);
-  // const [conatainsPIIData, setConatainsPIIData] = useState<
-  //   ITableListKeyValue[]
-  // >([]);
-  // const [identifierData, setIdentifierData] = useState<ITableListKeyValue[]>(
-  //   []
-  // );
 
   const [currentPagePII, setCurrentPagePII] = useState(1);
   const [pageSizePII] = useState(5);
   const [allConatainsPIIDataData, setAllConatainsPIIDataData] = useState<
     ITableListKeyValue[]
   >([]);
-  // const piiStart = (currentPagePII - 1) * pageSizePII;
-  // const piiEnd = piiStart + pageSizePII;
-  // const containsPIIDataToShow = allConatainsPIIDataData.slice(piiStart, piiEnd);
   const handlePageChangePII = (page: number) => {
     setCurrentPagePII(page);
   };
@@ -46,9 +36,6 @@ const AmazonS3: React.FC<any> = memo(() => {
   const [allIdentifierData, setAllIdentifierData] = useState<
     ITableListKeyValue[]
   >([]);
-  // const idfStart = (currentPageIDF - 1) * pageSizeIDF;
-  // const idfEnd = idfStart + pageSizeIDF;
-  // const containsIDFDataToShow = allIdentifierData.slice(idfStart, idfEnd);
 
   const handlePageChangeIDF = (page: number) => {
     setCurrentPageIDF(page);
@@ -61,12 +48,8 @@ const AmazonS3: React.FC<any> = memo(() => {
         database_type: 's3',
         top_n: 99999,
       })) as ITableDataType;
-      // setConatainsPIIData(tableData.account_top_n);
       setAllConatainsPIIDataData(tableData.account_top_n);
-      // setIdentifierData(tableData.identifier_top_n);
       setAllIdentifierData(tableData.identifier_top_n);
-
-      // setAllData(tableData.identifier_top_n);
       setLoadingTableData(false);
     } catch (error) {
       setLoadingTableData(false);
@@ -89,7 +72,7 @@ const AmazonS3: React.FC<any> = memo(() => {
           </SpaceBetween>
         }
       >
-        Data catalogs
+        {t('summary:dataCatalogs')}
       </Header>
       <S3CatalogOverview />
       <Grid
@@ -101,15 +84,12 @@ const AmazonS3: React.FC<any> = memo(() => {
           { colspan: 6 },
         ]}
       >
-        {/* <div className="mt-20 pd-10">
-          <CustomLineChart title="Data catalogs trend" />
-        </div> */}
         <div className="mt-20 pd-10">
-          <MapChart sourceType="s3" title="Data location" />
+          <MapChart sourceType="s3" title={t('summary:dataLocation')} />
         </div>
         <div className="mt-20 pd-10">
           <CircleChart
-            title="Privacy tagging for data catalogs"
+            title={t('summary:privacyTagging')}
             circleType="donut"
             sourceType="s3"
           />
@@ -121,9 +101,9 @@ const AmazonS3: React.FC<any> = memo(() => {
             <>
               <TableData
                 dataList={allConatainsPIIDataData}
-                keyLable="AWS account"
-                valueLable="S3 buckets"
-                title="Top AWS accounts contain PII"
+                keyLable={t('summary:awsAccount')}
+                valueLable={t('summary:s3Bucket')}
+                title={t('summary:topAccountsContainPII')}
               />
               {allConatainsPIIDataData.length > 0 && (
                 <Pagination
@@ -143,9 +123,9 @@ const AmazonS3: React.FC<any> = memo(() => {
             <>
               <TableData
                 dataList={allIdentifierData}
-                keyLable="Data identifier"
-                valueLable="Total buckets"
-                title="Top data identifiers"
+                keyLable={t('summary:dataIdentifier')}
+                valueLable={t('summary:totalBuckets')}
+                title={t('summary:topDataIdentifier')}
               />
               {allIdentifierData.length > 0 && (
                 <Pagination
@@ -160,7 +140,7 @@ const AmazonS3: React.FC<any> = memo(() => {
         </div>
         <div className="mt-20 pd-10">
           <CircleChart
-            title="Last updated status"
+            title={t('summary:lastUpdatedStatus')}
             circleType="pie"
             sourceType="s3"
           />

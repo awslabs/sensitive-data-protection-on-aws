@@ -2,12 +2,14 @@ import Container from '@cloudscape-design/components/container';
 import Header from '@cloudscape-design/components/header';
 import './style.scss';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const NoAccess = () => {
   const jumpToIndex = () => {
     window.location.replace(window.location.origin);
     return;
   };
+  const { t } = useTranslation();
   useEffect(() => {
     waitJumpToIndex();
   }, []);
@@ -19,13 +21,12 @@ const NoAccess = () => {
   };
   return (
     <div className="no-access">
-      <Container header={<Header variant="h2">Your login has expired</Header>}>
-        Your login has expired, the system will jump to the login page after 5s,
-        or click{' '}
+      <Container header={<Header variant="h2">{t('loginExpired')}</Header>}>
+        {t('loginExpiredDesc')}
         <span onClick={jumpToIndex} className="no-access-link">
-          here
+          {t('here')}
         </span>{' '}
-        to jump.
+        {t('toJump')}
       </Container>
     </div>
   );

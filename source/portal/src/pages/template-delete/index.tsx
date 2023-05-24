@@ -15,17 +15,19 @@ import { useTranslation } from 'react-i18next';
 
 const TemplateDelete = (props: any) => {
   const {
+    title,
     isShowDelete,
     setIsShowDelete,
     confirmDelete,
     showErrorTips = {},
+    confirmText,
   } = props;
   const { t } = useTranslation();
   const [confirmInput, setConfirmInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const clkConfirmDelete = async () => {
-    if (!confirmInput || confirmInput.toLowerCase() !== 'confirm') {
-      alertMsg('Please confirm delete', 'warning');
+    if (!confirmInput || confirmInput !== t('confirm')) {
+      alertMsg(t('confirmDelete'), 'warning');
       return;
     }
     setIsLoading(true);
@@ -46,7 +48,7 @@ const TemplateDelete = (props: any) => {
     <Modal
       visible={isShowDelete}
       onDismiss={() => setIsShowDelete(false)}
-      header={<Header variant="h2">Delete a data identifier</Header>}
+      header={<Header variant="h2">{title}</Header>}
       footer={
         <Box float="right">
           <SpaceBetween direction="horizontal" size="xs">
@@ -59,54 +61,49 @@ const TemplateDelete = (props: any) => {
             </Button>
             {!showErrorTips.template && !showErrorTips.catalog && (
               <Button onClick={clkConfirmDelete} loading={isLoading}>
-                {t('button.delete')}
+                {confirmText || t('button.delete')}
               </Button>
             )}
           </SpaceBetween>
         </Box>
       }
     >
-      <p className="delete-top">
-        Delete this data identifier permanently? This action cannot be undone.
-      </p>
+      <p className="delete-top">{t('template:deleteIdentifierTips')}</p>
       {(showErrorTips.template || showErrorTips.catalog) && (
         <>
           <div className="delete-identifer">
             <Icon name="status-warning" className="delete-identifer-warning" />
             <span className="warning-desc">
-              This identifier is being used in the following place
+              {t('template:identifierBeingUsed')}
             </span>
             <ul>
               {showErrorTips.template && (
                 <li>
-                  Classification template, click{' '}
-                  <a href={RouterEnum.Datatemplate.path}>here</a>
+                  {t('template:classficationTemplate')}
+                  <a href={RouterEnum.Datatemplate.path}>{t('here')}</a>
                 </li>
               )}
               {showErrorTips.catalog && (
                 <li>
-                  Data catalogs, click{' '}
-                  <a href={RouterEnum.Datajob.path}>here</a>
+                  {t('template:dataCatalog')}
+                  <a href={RouterEnum.Datajob.path}>{t('here')}</a>
                 </li>
               )}
             </ul>
           </div>
           <span className="confirm-top">
-            Please remove these identifier and then delete
+            {t('template:removeTheseAndDelete')}
           </span>
         </>
       )}
       {!showErrorTips.template && !showErrorTips.catalog && (
         <>
-          <span className="confirm-top">
-            To avoid accidental deletions we ask you to provide additional
-            written consent.
-          </span>
-          <span className="confirm-agree">Type “Confirm” to agree</span>
+          <span className="confirm-top">{t('template:toAvoidTips')}</span>
+          <span className="confirm-agree">{t('template:typeConfirm')}</span>
           <Input
             value={confirmInput}
             onChange={({ detail }) => setConfirmInput(detail.value)}
-            placeholder="Confirm"
+            placeholder={t('confirm') || ''}
             className="confirm-input"
           />
         </>

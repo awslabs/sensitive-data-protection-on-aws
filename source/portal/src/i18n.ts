@@ -31,6 +31,7 @@ i18n
   .init({
     ns: [
       'common',
+      'account',
       'home',
       'summary',
       'datasource',

@@ -177,30 +177,31 @@ const PropsModal: React.FC<PropsModalProps> = (props: PropsModalProps) => {
     setTotalCount(afterFilterList.length);
   }, [searchPropsName]);
 
-  useEffect(() => {
-    console.info('currentProps:', currentProps);
-  }, [currentProps]);
-
   return (
     <div>
       <Modal
-        onDismiss={() => clickHideModal()}
+        onDismiss={() => {
+          setSelectedItems([]);
+          clickHideModal();
+        }}
         visible={showModal}
         footer={
           <Box float="right">
             {isManage ? (
               <Button
                 onClick={() => {
+                  setSelectedItems([]);
                   clickHideModal();
                 }}
               >
-                Close
+                {t('button.close')}
               </Button>
             ) : (
               <SpaceBetween direction="horizontal" size="xs">
                 <Button
                   variant="link"
                   onClick={() => {
+                    setSelectedItems([]);
                     clickHideModal();
                   }}
                 >
@@ -212,6 +213,7 @@ const PropsModal: React.FC<PropsModalProps> = (props: PropsModalProps) => {
                   onClick={() => {
                     savePropsToResource(selectedItems, () => {
                       setSearchPropsName('');
+                      setSelectedItems([]);
                     });
                   }}
                 >
@@ -284,7 +286,7 @@ const PropsModal: React.FC<PropsModalProps> = (props: PropsModalProps) => {
           }
           header={
             <Header
-              counter="(50)"
+              counter={`(${allPropsList?.length.toString()})`}
               actions={
                 <SpaceBetween direction="horizontal" size="xs">
                   <Button
@@ -349,40 +351,12 @@ const PropsModal: React.FC<PropsModalProps> = (props: PropsModalProps) => {
                 pageSize: pageSize,
               }}
               pageSizePreference={{
-                title: t('table.pageSize'),
+                title: t('table.selectPageSize'),
                 options: [
-                  {
-                    value: 10,
-                    label: `10 ${
-                      propsType === '1'
-                        ? t('category.category')
-                        : t('identLabel.identLabel')
-                    }`,
-                  },
-                  {
-                    value: 20,
-                    label: `20 ${
-                      propsType === '1'
-                        ? t('category.category')
-                        : t('identLabel.identLabel')
-                    }`,
-                  },
-                  {
-                    value: 50,
-                    label: `50 ${
-                      propsType === '1'
-                        ? t('category.category')
-                        : t('identLabel.identLabel')
-                    }`,
-                  },
-                  {
-                    value: 100,
-                    label: `100 ${
-                      propsType === '1'
-                        ? t('category.category')
-                        : t('identLabel.identLabel')
-                    }`,
-                  },
+                  { value: 10, label: t('table.pageSize10') },
+                  { value: 20, label: t('table.pageSize20') },
+                  { value: 50, label: t('table.pageSize50') },
+                  { value: 100, label: t('table.pageSize100') },
                 ],
               }}
               onConfirm={(e) => {

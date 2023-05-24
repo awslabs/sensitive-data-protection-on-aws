@@ -10,9 +10,11 @@ import { Tabs } from '@cloudscape-design/components';
 import JobHistory from './JobHistory';
 import JobProperties from './JobProperties';
 import JobCatalogs from './JobCatalogs';
+import { useTranslation } from 'react-i18next';
 
 const JobDetailModal = (props: any) => {
   const { showDetailModal, setShowDetailModal, detailRow } = props;
+  const { t } = useTranslation();
   let tempType = CLSAAIFIED_TYPE.Success;
   if (detailRow.state === 'Active (idle)') {
     tempType = CLSAAIFIED_TYPE.SystemMark;
@@ -48,18 +50,30 @@ const JobDetailModal = (props: any) => {
         tabs={[
           {
             id: 'jobHistory',
-            label: 'Job history',
-            content: <JobHistory detailRow={detailRow} />,
+            label: t('tab.jobHistory'),
+            content: (
+              <div className="pd-10">
+                <JobHistory detailRow={detailRow} />
+              </div>
+            ),
           },
           {
             id: 'jobProperties',
-            label: 'Job properties',
-            content: <JobProperties detailRow={detailRow} />,
+            label: t('tab.jobProperties'),
+            content: (
+              <div className="pd-10">
+                <JobProperties detailRow={detailRow} />
+              </div>
+            ),
           },
           {
             id: 'dataCatalogs',
-            label: 'Data catalogs',
-            content: <JobCatalogs detailRow={detailRow} />,
+            label: t('tab.dataCatalogs'),
+            content: (
+              <div className="pd-10">
+                <JobCatalogs detailRow={detailRow} />
+              </div>
+            ),
           },
         ]}
       />

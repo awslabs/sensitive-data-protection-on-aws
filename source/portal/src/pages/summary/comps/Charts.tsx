@@ -2,25 +2,27 @@ import { Container, Tabs } from '@cloudscape-design/components';
 import AmazonS3 from './charts/AmazonS3';
 import { AmazonRDS } from './charts/AmazonRDS';
 import { RouterEnum } from 'routers/routerEnum';
+import { useTranslation } from 'react-i18next';
 
 const Charts = () => {
+  const { t } = useTranslation();
   return (
     <Container>
       <div>
-        The statistics below are based the result of the latest sensitive
-        discovery job. Click <a href={RouterEnum.Datajob.path}>here</a> to see
-        job details.
+        {t('summary:chartTips')}
+        <a href={RouterEnum.Datajob.path}>{t('here')}</a>{' '}
+        {t('summary:toSeeJobDetail')}
       </div>
       <div className="mt-10">
         <Tabs
           tabs={[
             {
-              label: 'Amazon S3',
+              label: t('summary:amazonS3'),
               id: 's3',
               content: <AmazonS3 />,
             },
             {
-              label: 'Amazon RDS',
+              label: t('summary:amazonRDS'),
               id: 'rds',
               content: <AmazonRDS />,
             },

@@ -1,6 +1,7 @@
 import { Spinner } from '@cloudscape-design/components';
 import { requestJobProgress } from 'apis/data-job/api';
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface ProgressType {
   current_table_count: number;
@@ -8,6 +9,7 @@ interface ProgressType {
 }
 
 interface GlueJobProgressProps {
+  refresh?: number;
   jobDetailData: any;
   jobRowData: any;
 }
@@ -15,7 +17,8 @@ interface GlueJobProgressProps {
 const GlueJobProgress: React.FC<GlueJobProgressProps> = (
   props: GlueJobProgressProps
 ) => {
-  const { jobRowData, jobDetailData } = props;
+  const { jobRowData, jobDetailData, refresh } = props;
+  const { t } = useTranslation();
   const [loadingData, setLoadingData] = useState(false);
   const [curCount, setCurCount] = useState(0);
   const [tableCount, setTableCount] = useState(0);
@@ -38,6 +41,10 @@ const GlueJobProgress: React.FC<GlueJobProgressProps> = (
 
   useEffect(() => {
     getJobProgress();
+  }, [refresh]);
+
+  useEffect(() => {
+    getJobProgress();
   }, []);
 
   return (
@@ -45,7 +52,7 @@ const GlueJobProgress: React.FC<GlueJobProgressProps> = (
       {loadingData ? (
         <Spinner />
       ) : curCount === -1 ? (
-        'Pending'
+        t('pending')
       ) : (
         <span>{`${curCount}/${tableCount}`}</span>
       )}

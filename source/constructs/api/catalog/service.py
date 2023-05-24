@@ -96,64 +96,6 @@ def get_database_identifiers_from_tables(
     return result_list
 
 
-def __query_job_result_table_size_by_athena(
-        account_id: str,
-        region: str,
-        database_type: str,
-        database_name: str,
-):
-    client = boto3.client("athena")
-    select_sql = (
-            (
-                """SELECT table_name, column_name, job_id, run_id, account_id, region, database_type, database_name, table_size
-                FROM %s 
-                WHERE account_id='%s'
-                    AND region='%s' 
-                    AND database_type='%s' 
-                    AND database_name='%s' """
-            )
-            % (const.JOB_RESULT_TABLE_NAME, account_id, region, database_type, database_name)
-    )
-    logger.debug("Athena SELECT TABLE_SIZE SQL : " + select_sql)
-    project_bucket_name = os.getenv(
-        const.PROJECT_BUCKET_NAME, const.PROJECT_BUCKET_DEFAULT_NAME
-    )
-    queryStart = client.start_query_execution(
-        QueryString=select_sql,
-        QueryExecutionContext={
-            "Database": const.JOB_RESULT_DATABASE_NAME,
-            "Catalog": "AwsDataCatalog",
-        },
-        ResultConfiguration={"OutputLocation": f"s3://{project_bucket_name}/athena-output/"},
-    )
-    query_id = queryStart["QueryExecutionId"]
-    while True:
-        response = client.get_query_execution(QueryExecutionId=query_id)
-        query_execution_status = response["QueryExecution"]["Status"]["State"]
-        if query_execution_status == AthenaQueryState.SUCCEEDED.value:
-            break
-        if query_execution_status == AthenaQueryState.FAILED.value:
-            # raise Exception("Query Asset STATUS:" + query_execution_status)
-            return {}
-        else:
-            time.sleep(1)
-    result = client.get_query_results(QueryExecutionId=query_id)
-    # Remove Athena query result to save cost.
-    __remove_query_result_from_s3(query_id)
-    table_size_dict = {}
-    if "ResultSet" in result and "Rows" in result["ResultSet"]:
-        i = 0
-        for row in result["ResultSet"]["Rows"]:
-            if "Data" in row and i > 0:
-                table_name = __get_athena_column_value(row["Data"][0], "str")
-                # column_name = __get_athena_column_value(row["Data"][1], "str")
-                table_size = int(__get_athena_column_value(row["Data"][8], "int"))
-                table_size_dict[table_name] = table_size
-            i += 1
-    # Initialize database privacy with NON-PII
-    return table_size_dict
-
-
 def sync_crawler_result(
         account_id: str,
         region: str,
@@ -214,8 +156,6 @@ def sync_crawler_result(
             tables_response = client.get_tables(
                 DatabaseName=glue_database_name, NextToken=next_token
             )
-            table_size_response = __query_job_result_table_size_by_athena(account_id, region, database_type,
-                                                                          database_name)
             for table in tables_response["TableList"]:
                 table_name = table["Name"].strip()
                 # If the file is end of .csv or .json, but the content of the file is not csv/json
@@ -255,8 +195,8 @@ def sync_crawler_result(
                 database_size += table_size_key
                 column_order_num = 0
                 table_size = 0
-                if table_size_response.get(table_name) is not None:
-                    table_size = table_size_response[table_name]
+                # if table_size_response.get(table_name) is not None:
+                #     table_size = table_size_response[table_name]
                 for column in column_list:
                     column_order_num += 1
                     column_name = column["Name"].strip()
@@ -300,7 +240,7 @@ def sync_crawler_result(
                     "object_count": table_object_count,
                     "size_key": table_size_key,
                     "column_count": column_order_num,
-                    "row_count": table_size,
+                    # "row_count": table_size,
                     "storage_location": table_location,
                     "classification": table_classification,
                 }
@@ -314,7 +254,7 @@ def sync_crawler_result(
                     crud.update_catalog_table_level_classification_by_id(original_table.id, catalog_table_dict)
                 table_name_list.append(table_name)
                 database_column_count += column_order_num
-                database_row_count += table_size
+                # database_row_count += table_size
                 # update_catalog_table_and_database_level_privacy(account_id,
                 #                                                 region,
                 #                                                 database_type,
@@ -359,7 +299,7 @@ def sync_crawler_result(
             "size_key": database_size,
             "table_count": 0 if need_clean_database else table_count,
             "column_count": database_column_count,
-            "row_count": database_row_count,
+            # "row_count": database_row_count,
             # Store location for s3 and engine type for rds
             "storage_location": "s3://" + database_name + "/"
             if database_type == DatabaseType.S3.value

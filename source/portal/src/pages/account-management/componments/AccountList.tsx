@@ -54,7 +54,7 @@ const AccountList: React.FC<any> = (props: any) => {
     query,
     setQuery,
     tableName: TABLE_NAME.SOURCE_ACCOUNT,
-    filteringPlaceholder: 'Filter AWS accounts',
+    filteringPlaceholder: t('account:filterAWSAccounts'),
   };
 
   useEffect(() => {
@@ -107,7 +107,9 @@ const AccountList: React.FC<any> = (props: any) => {
           });
         });
       const getAccountListresult: any = await getAccountList(requestParam);
-      await refreshAllAccountData(getAccountListresult.items);
+      if (getAccountListresult?.items?.length > 0) {
+        await refreshAllAccountData(getAccountListresult.items);
+      }
       const result: any = await getAccountList(requestParam);
       setSelectedItems([]);
       setPageData(result.items);
@@ -141,7 +143,7 @@ const AccountList: React.FC<any> = (props: any) => {
     try {
       await refreshDataSource(requestParam);
       await getPageData();
-      alertMsg('Refresh success', 'success');
+      alertMsg(t('account:filterAWSAccounts'), 'success');
     } catch (e) {
       console.warn('Refresh Data Error:', e);
     }
@@ -150,13 +152,13 @@ const AccountList: React.FC<any> = (props: any) => {
 
   const clkDeleteAccount = async () => {
     if (!selectedItems || selectedItems.length === 0) {
-      alertMsg('Please select on item', 'error');
+      alertMsg(t('selectOneItem'), 'error');
       return;
     }
     setDeleteLoading(true);
     const requestParam = { account_id: selectedItems[0].aws_account_id };
     await deleteAccount(requestParam);
-    alertMsg('Delete success', 'success');
+    alertMsg(t('account:deleteSuccess'), 'success');
     setDeleteLoading(false);
     return;
   };
@@ -173,19 +175,19 @@ const AccountList: React.FC<any> = (props: any) => {
       selectedItems={selectedItems}
       onSelectionChange={({ detail }) => setSelectedItems(detail.selectedItems)}
       ariaLabels={{
-        selectionGroupLabel: 'Items selection',
+        selectionGroupLabel: t('table.itemsSelection') || '',
         allItemsSelectionLabel: ({ selectedItems }) =>
           `${selectedItems.length} ${
-            selectedItems.length === 1 ? 'item' : 'items'
-          } selected`,
+            selectedItems.length === 1 ? t('table.item') : t('table.items')
+          } ${t('table.selected')}`,
         itemSelectionLabel: ({ selectedItems }, item) => {
           const isItemSelected = selectedItems.filter(
             (i) =>
               (i as any)[columnList[0].id] === (item as any)[columnList[0].id]
           ).length;
-          return `${(item as any)[columnList[0].id]} is ${
-            isItemSelected ? '' : 'not'
-          } selected`;
+          return `${(item as any)[columnList[0].id]} ${t('table.is')} ${
+            isItemSelected ? '' : t('table.not')
+          } ${t('table.selected')}`;
         },
       }}
       selectionType="single"
@@ -193,7 +195,7 @@ const AccountList: React.FC<any> = (props: any) => {
         columnList.map((item) => {
           return {
             id: item.id,
-            header: item.label,
+            header: t(item.label),
             // different column tag
             cell: (e: any) => {
               if (item.id === TYPE_COLUMN.STATUS) {
@@ -263,9 +265,9 @@ const AccountList: React.FC<any> = (props: any) => {
                       </div>
                     );
                   }
-                  showText = `${e[TYPE_COLUMN.CONNECTED_S3_BUCKET]} (of total ${
-                    e[TYPE_COLUMN.TOTAL_S3_BUCKET]
-                  })`;
+                  showText = `${e[TYPE_COLUMN.CONNECTED_S3_BUCKET]} (${t(
+                    'table.ofTotal'
+                  )} ${e[TYPE_COLUMN.TOTAL_S3_BUCKET]})`;
                 }
                 if (item.id === TYPE_COLUMN.RDS_CONNECTION) {
                   if (
@@ -332,7 +334,7 @@ const AccountList: React.FC<any> = (props: any) => {
                       size="small"
                       className="small-icon"
                     ></Icon>{' '}
-                    Refresh data source
+                    {t('button.refreshDataSource')}
                   </span>
                 );
               }
@@ -350,8 +352,7 @@ const AccountList: React.FC<any> = (props: any) => {
         <>
           <Header
             counter={`(${totalCount})`}
-            description="Only AWS accounts that have authroization status SUCCEEDED can be
-            tracked by this platform."
+            description={t('account:awsAccountsDesc')}
             actions={
               <SpaceBetween direction="horizontal" size="xs">
                 <Button
@@ -372,18 +373,18 @@ const AccountList: React.FC<any> = (props: any) => {
               </SpaceBetween>
             }
           >
-            AWS accounts
+            {t('account:awsAccounts')}
           </Header>
         </>
       }
       items={pageData}
-      loadingText="Loading resources"
+      loadingText={t('table.loadingResources') || ''}
       visibleColumns={preferences.visibleContent}
       empty={
         <Box textAlign="center" color="inherit">
-          <b>No resources</b>
+          <b>{t('table.noResources')}</b>
           <Box padding={{ bottom: 's' }} variant="p" color="inherit">
-            No resources to display.
+            {t('table.noResourcesDisplay')}
           </Box>
         </Box>
       }
@@ -394,9 +395,10 @@ const AccountList: React.FC<any> = (props: any) => {
           onChange={({ detail }) => setCurrentPage(detail.currentPageIndex)}
           pagesCount={Math.ceil(totalCount / preferences.pageSize)}
           ariaLabels={{
-            nextPageLabel: 'Next page',
-            previousPageLabel: 'Previous page',
-            pageLabel: (pageNumber) => `Page ${pageNumber} of all pages`,
+            nextPageLabel: t('table.nextPage') || '',
+            previousPageLabel: t('table.previousPage') || '',
+            pageLabel: (pageNumber) =>
+              `${t('table.pageLabel', { pageNumber: pageNumber })}`,
           }}
         />
       }
@@ -404,23 +406,23 @@ const AccountList: React.FC<any> = (props: any) => {
         <CollectionPreferences
           onConfirm={({ detail }) => setPreferences(detail)}
           preferences={preferences}
-          title="Preferences"
-          confirmLabel="Confirm"
-          cancelLabel="Cancel"
+          title={t('table.preferences')}
+          confirmLabel={t('table.confirm')}
+          cancelLabel={t('table.cancel')}
           pageSizePreference={{
-            title: 'Select page size',
+            title: t('table.selectPageSize'),
             options: [
-              { value: 10, label: '10 resources' },
-              { value: 20, label: '20 resources' },
-              { value: 50, label: '50 resources' },
-              { value: 100, label: '100 resources' },
+              { value: 10, label: t('table.pageSize10') },
+              { value: 20, label: t('table.pageSize20') },
+              { value: 50, label: t('table.pageSize50') },
+              { value: 100, label: t('table.pageSize100') },
             ],
           }}
           visibleContentPreference={{
-            title: 'Select visible content',
+            title: t('table.selectVisibleContent'),
             options: [
               {
-                label: 'Main distribution properties',
+                label: t('table.mainDistributionProp'),
                 options: columnList,
               },
             ],

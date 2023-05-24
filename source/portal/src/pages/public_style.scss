@@ -15,7 +15,6 @@
     flex: none;
     order: 1;
     flex-grow: 0;
-    content: "Actions";
   }
 }
 
@@ -37,11 +36,9 @@
 }
 
 @media (min-width: 689px) and (max-width: 1449px) {
-
   .fix-mid-screen {
     overflow-x: auto;
   }
-
 }
 
 .common-header {

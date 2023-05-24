@@ -121,12 +121,12 @@ const LayoutHeader: React.FC<LayoutHeaderProps> = ({
         },
       ]}
       i18nStrings={{
-        searchIconAriaLabel: 'Search',
-        searchDismissIconAriaLabel: 'Close search',
-        overflowMenuTriggerText: 'More',
-        overflowMenuTitleText: 'All',
-        overflowMenuBackIconAriaLabel: 'Back',
-        overflowMenuDismissIconAriaLabel: 'Close menu',
+        searchIconAriaLabel: t('menu.search') || '',
+        searchDismissIconAriaLabel: t('menu.closeSearch') || '',
+        overflowMenuTriggerText: t('menu.more') || '',
+        overflowMenuTitleText: t('menu.all') || '',
+        overflowMenuBackIconAriaLabel: t('menu.back') || '',
+        overflowMenuDismissIconAriaLabel: t('menu.closeMenu') || '',
       }}
     />
   );

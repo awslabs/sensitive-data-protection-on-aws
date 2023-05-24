@@ -46,14 +46,14 @@ const DataTemplateHeader: React.FC = () => {
   return (
     <Header
       variant="h1"
-      description="A classification template contains a set of data identifiers. Sensitive data discovery job uses a classification template to identify sensitive data. "
+      description={t('template:defineClassificationDesc')}
       actions={
         <Button onClick={() => navigate(RouterEnum.TemplateIdentifiers.path)}>
           {t('button.manageDataIdentifiers')}
         </Button>
       }
     >
-      Define classification template
+      {t('template:defineClassification')}
     </Header>
   );
 };
@@ -96,7 +96,7 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
     query,
     setQuery,
     tableName: TABLE_NAME.TEMPLATE_IDENTIFIER,
-    filteringPlaceholder: 'Filter data identifiers',
+    filteringPlaceholder: t('template:filterDataIndentifier'),
   };
 
   const [lastUpdateTime, setLastUpdateTime] = useState('');
@@ -160,7 +160,6 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
   const getUpdateTime = async () => {
     try {
       const result: any = await getTemplateUpdateTime();
-      console.info('result:', result);
       if (result && result.length > 10) {
         setLastUpdateTime(buildTimeFormat(result));
       }
@@ -181,7 +180,7 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
     };
     const result = await updateTemplateMapping(requestParam);
     if (!result) {
-      alertMsg('Change enable error', 'error');
+      alertMsg(t('changeEnableError'), 'error');
     }
   };
 
@@ -192,7 +191,7 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
     showHideSpinner(true);
     try {
       await deleteTemplateMapping(requestParam);
-      alertMsg('Delete success', 'success');
+      alertMsg(t('deleteSuccess'), 'success');
       showHideSpinner(false);
       getPageData();
     } catch (error) {
@@ -200,14 +199,20 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
     }
   };
 
-  const deleteModalProps = { isShowDelete, setIsShowDelete, confirmDelete };
+  const deleteModalProps = {
+    isShowDelete,
+    setIsShowDelete,
+    confirmDelete,
+    title: t('template:removeDataIdentifier'),
+    confirmText: t('button.remove'),
+  };
 
   const clkDelete = async (selectedOption: string | OptionDefinition) => {
     if (selectedOption !== 'delete') {
       return;
     }
     if (!selectedItems || selectedItems.length === 0) {
-      alertMsg('Please select one', 'error');
+      alertMsg(t('selectOneItem'), 'error');
       return;
     }
     setIsShowDelete(true);
@@ -228,31 +233,30 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
   return (
     <SpaceBetween direction="vertical" size="xl" className="mapping-container">
       <Container
-        header={<Header variant="h2">How it works</Header>}
+        header={<Header variant="h2">{t('template:howItWorks')}</Header>}
         className="template-container"
       >
         <span className="template-container-title">
-          Define classification template for privacy.
+          {t('template:defineTmplPrivacy')}
         </span>
         <br></br>
         <p>
-          The platform will label data catalog with privacy tag &nbsp;&nbsp;
+          {t('template:platFormWillLabel')}&nbsp;&nbsp;
           <CommonBadge
             badgeType={BADGE_TYPE.Privacy}
             badgeLabel={PRIVARY_TYPE.ContainsPII}
           />
-          &nbsp;&nbsp; if data matches the enabled data identifier’s rule.
+          &nbsp;&nbsp;{t('template:dataMatches')}
         </p>
         <p>
-          The platform will label data catalog with privacy tag &nbsp;&nbsp;
+          {t('template:platFormWillLabel')}&nbsp;&nbsp;
           <CommonBadge
             badgeType={BADGE_TYPE.Privacy}
             badgeLabel={PRIVARY_TYPE.NonPII}
           />
-          &nbsp;&nbsp; if data is scanned, but not matched with any of enabled
-          data identifiers.
+          &nbsp;&nbsp; {t('template:dataScaned')}
         </p>
-        <p>If a data is never scanned, the privacy tag shows “N/A”</p>
+        <p> {t('template:dataNeverScanned')}</p>
       </Container>
       <Table
         className="template-table"
@@ -263,19 +267,19 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
         }
         resizableColumns
         ariaLabels={{
-          selectionGroupLabel: 'Items selection',
+          selectionGroupLabel: t('table.itemsSelection') || '',
           allItemsSelectionLabel: ({ selectedItems }) =>
             `${selectedItems.length} ${
-              selectedItems.length === 1 ? 'item' : 'items'
-            } selected`,
+              selectedItems.length === 1 ? t('table.item') : t('table.items')
+            } ${t('table.selected')}`,
           itemSelectionLabel: ({ selectedItems }, item) => {
             const isItemSelected = selectedItems.filter(
               (i) =>
                 (i as any)[columnList[0].id] === (item as any)[columnList[0].id]
             ).length;
-            return `${(item as any)[columnList[0].id]} is ${
-              isItemSelected ? '' : 'not'
-            } selected`;
+            return `${(item as any)[columnList[0].id]} ${t('table.is')} ${
+              isItemSelected ? '' : t('table.not')
+            } ${t('table.selected')}`;
           },
         }}
         items={pageData}
@@ -288,7 +292,7 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
         columnDefinitions={columnList.map((item) => {
           return {
             id: item.id,
-            header: item.label,
+            header: t(item.label),
             sortingField: item.sortingField,
             cell: (e: any) => {
               if (item.id === 'type') {
@@ -316,13 +320,14 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
           <>
             <Header
               variant="h2"
-              description="The identifiers in this template will be used in sensitive data discovery job."
+              description={t('template:dataIdentifierInThisTmplDesc')}
               counter={`(${totalCount})`}
               actions={
                 <SpaceBetween direction="horizontal" size="xs">
                   <span className="description">
                     <b>
-                      Last updated <br />
+                      {t('template:lastUpdated')}
+                      <br />
                       {lastUpdateTime}
                     </b>
                   </span>
@@ -344,17 +349,17 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
                 </SpaceBetween>
               }
             >
-              Data identifiers in this template
+              {t('template:dataIdentifierInThisTmpl')}
             </Header>
           </>
         }
-        loadingText="Loading resources"
+        loadingText={t('table.loadingResources') || ''}
         visibleColumns={preferences.visibleContent}
         empty={
           <Box textAlign="center" color="inherit">
-            <b>No resources</b>
+            <b>{t('table.noResources')}</b>
             <Box padding={{ bottom: 's' }} variant="p" color="inherit">
-              No resources to display.
+              {t('table.noResourcesDisplay')}
             </Box>
           </Box>
         }
@@ -365,9 +370,10 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
             onChange={({ detail }) => setCurrentPage(detail.currentPageIndex)}
             pagesCount={Math.ceil(totalCount / preferences.pageSize)}
             ariaLabels={{
-              nextPageLabel: 'Next page',
-              previousPageLabel: 'Previous page',
-              pageLabel: (pageNumber) => `Page ${pageNumber} of all pages`,
+              nextPageLabel: t('table.nextPage') || '',
+              previousPageLabel: t('table.previousPage') || '',
+              pageLabel: (pageNumber) =>
+                `${t('table.pageLabel', { pageNumber: pageNumber })}`,
             }}
           />
         }
@@ -375,23 +381,23 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
           <CollectionPreferences
             onConfirm={({ detail }) => setPreferences(detail)}
             preferences={preferences}
-            title="Preferences"
-            confirmLabel="Confirm"
-            cancelLabel="Cancel"
+            title={t('table.preferences')}
+            confirmLabel={t('table.confirm')}
+            cancelLabel={t('table.cancel')}
             pageSizePreference={{
-              title: 'Select page size',
+              title: t('table.selectPageSize'),
               options: [
-                { value: 10, label: '10 resources' },
-                { value: 20, label: '20 resources' },
-                { value: 50, label: '50 resources' },
-                { value: 100, label: '100 resources' },
+                { value: 10, label: t('table.pageSize10') },
+                { value: 20, label: t('table.pageSize20') },
+                { value: 50, label: t('table.pageSize50') },
+                { value: 100, label: t('table.pageSize100') },
               ],
             }}
             visibleContentPreference={{
-              title: 'Select visible content',
+              title: t('table.selectVisibleContent'),
               options: [
                 {
-                  label: 'Main distribution properties',
+                  label: t('table.mainDistributionProp'),
                   options: columnList,
                 },
               ],
@@ -404,7 +410,7 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
       <RightModal
         setShowModal={setShowAddCustomIdentfier}
         showModal={showAddCustomIdentfier}
-        header="Add data identifiers"
+        header={t('template:addDataIdentifier')}
         showFolderIcon={false}
       >
         <div className="add-identfier-modal">
@@ -433,7 +439,7 @@ const DataTemplate: React.FC = () => {
           className="privacy-tab"
           tabs={[
             {
-              label: 'Privacy',
+              label: t('privacy') || '',
               id: 'Privacy',
               content: <DataTemplateContent />,
             },

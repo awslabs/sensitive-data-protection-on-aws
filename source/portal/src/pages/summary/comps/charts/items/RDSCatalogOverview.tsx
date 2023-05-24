@@ -10,9 +10,11 @@ import HorizontalBarChart from './HorizontalBarChart';
 import { getDatacatalogSummary } from 'apis/dashboard/api';
 import { ICatalogSummary, ColumnChartData } from 'ts/dashboard/types';
 import { formatNumber } from 'tools/tools';
+import { useTranslation } from 'react-i18next';
 
 const RDSCatalogOverview = () => {
   const [loadingData, setLoadingData] = useState(true);
+  const { t } = useTranslation();
   const [catalogSummaryData, setCatalogSummaryData] =
     useState<ICatalogSummary>();
   const [columChartData, setColumChartData] = useState<ColumnChartData[]>([]);
@@ -54,26 +56,26 @@ const RDSCatalogOverview = () => {
         <Grid gridDefinition={[{ colspan: 6 }, { colspan: 6 }]}>
           <ColumnLayout columns={4} variant="text-grid">
             <div>
-              <Box variant="awsui-key-label">RDS instances</Box>
+              <Box variant="awsui-key-label">{t('summary:rdsIntacnes')}</Box>
               <CounterLink>
                 {formatNumber(catalogSummaryData?.instance_total || 0)}
               </CounterLink>
             </div>
             <div>
-              <Box variant="awsui-key-label">RDS tables</Box>
+              <Box variant="awsui-key-label">{t('summary:rdsTables')}</Box>
               <CounterLink>
                 {formatNumber(catalogSummaryData?.table_total || 0)}
               </CounterLink>
             </div>
             <div>
-              <Box variant="awsui-key-label">RDS columns</Box>
+              <Box variant="awsui-key-label">{t('summary:rdsColumns')}</Box>
               <CounterLink>
                 {formatNumber(catalogSummaryData?.column_total || 0)}
               </CounterLink>
             </div>
           </ColumnLayout>
           <div>
-            <Box variant="awsui-key-label">RDS engine types</Box>
+            <Box variant="awsui-key-label">{t('summary:rdsEngineTypes')}</Box>
             <HorizontalBarChart chartData={columChartData} />
           </div>
         </Grid>

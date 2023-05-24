@@ -2,11 +2,12 @@ import {
   AppLayout,
   Box,
   Button,
+  ButtonDropdown,
+  ButtonDropdownProps,
   CollectionPreferences,
   ContentLayout,
   Header,
   Pagination,
-  Select,
   SpaceBetween,
   Table,
 } from '@cloudscape-design/components';
@@ -15,7 +16,6 @@ import { JOB_LIST_COLUMN_LIST } from './types/job_list_type';
 import ResourcesFilter from 'pages/resources-filter';
 import moment from 'moment';
 import { alertMsg, getCronData } from 'tools/tools';
-import { OptionDefinition } from '@cloudscape-design/components/internal/components/option/interfaces';
 import { useNavigate } from 'react-router-dom';
 import CommonBadge from 'pages/common-badge';
 import {
@@ -38,9 +38,10 @@ import { TABLE_NAME } from 'enum/common_types';
 import { useTranslation } from 'react-i18next';
 
 const DataJobHeader: React.FC = () => {
+  const { t } = useTranslation();
   return (
-    <Header variant="h1" description="Manage sensitive data discovery jobs.">
-      Run sensitive data discovery jobs
+    <Header variant="h1" description={t('job:manageJobs')}>
+      {t('job:runJobs')}
     </Header>
   );
 };
@@ -71,36 +72,38 @@ const DataJobContent: React.FC<any> = (props: any) => {
     query,
     setQuery,
     tableName: TABLE_NAME.DISCOVERY_JOB,
-    filteringPlaceholder: 'Filter jobs',
+    filteringPlaceholder: t('job:filterJobs'),
   };
 
   const clkAddJob = () => {
     navigate(RouterEnum.CreateJob.path);
   };
 
-  const clkOption = async (selectedOption: OptionDefinition) => {
+  const clkOption = async (
+    selectedOption: ButtonDropdownProps.ItemClickDetails
+  ) => {
     if (!selectedItems || selectedItems.length === 0) {
-      alertMsg('Please select one', 'error');
+      alertMsg(t('selectOneItem'), 'error');
       return;
     }
-    if (selectedOption.value === 'pause') {
+    if (selectedOption.id === 'pause') {
       const result = await disableJob({ id: selectedItems[0].id });
-      result && alertMsg('Pause success', 'success');
-    } else if (selectedOption.value === 'cancel') {
+      result && alertMsg(t('pauseSuccess'), 'success');
+    } else if (selectedOption.id === 'cancel') {
       const result = await stopJob({ id: selectedItems[0].id });
-      result && alertMsg('Stop success', 'success');
-    } else if (selectedOption.value === 'copyNew') {
+      result && alertMsg(t('stopSuccess'), 'success');
+    } else if (selectedOption.id === 'copyNew') {
       navigate(RouterEnum.CreateJob.path, {
         state: { oldData: selectedItems[0] },
       });
       return;
-    } else if (selectedOption.value === 'execute_once') {
+    } else if (selectedOption.id === 'execute_once') {
       await startJob({ id: selectedItems[0].id });
-      alertMsg('Start success', 'success');
+      alertMsg(t('startSuccess'), 'success');
       return;
-    } else if (selectedOption.value === 'continue') {
+    } else if (selectedOption.id === 'continue') {
       await enableJob({ id: selectedItems[0].id });
-      alertMsg('Continue success', 'success');
+      alertMsg(t('continueSuccess'), 'success');
       return;
     }
     getPageData();
@@ -134,7 +137,7 @@ const DataJobContent: React.FC<any> = (props: any) => {
       const requestParam = {
         page: currentPage,
         size: preferences.pageSize,
-        sort_column: 'create_time',
+        sort_column: 'id',
         asc: false,
         conditions: [] as any,
       };
@@ -177,26 +180,26 @@ const DataJobContent: React.FC<any> = (props: any) => {
           setSelectedItems(detail.selectedItems)
         }
         ariaLabels={{
-          selectionGroupLabel: 'Items selection',
+          selectionGroupLabel: t('table.itemsSelection') || '',
           allItemsSelectionLabel: ({ selectedItems }) =>
             `${selectedItems.length} ${
-              selectedItems.length === 1 ? 'item' : 'items'
-            } selected`,
+              selectedItems.length === 1 ? t('table.item') : t('table.items')
+            } ${t('table.selected')}`,
           itemSelectionLabel: ({ selectedItems }, item) => {
             const isItemSelected = selectedItems.filter(
               (i) =>
                 (i as any)[columnList[0].id] === (item as any)[columnList[0].id]
             ).length;
-            return `${(item as any)[columnList[0].id]} is ${
-              isItemSelected ? '' : 'not'
-            } selected`;
+            return `${(item as any)[columnList[0].id]} ${t('table.is')} ${
+              isItemSelected ? '' : t('table.not')
+            } ${t('table.selected')}`;
           },
         }}
         selectionType="single"
         columnDefinitions={columnList.map((item) => {
           return {
             id: item.id,
-            header: item.label,
+            header: t(item.label),
             cell: (e: any) => {
               if (item.id === 'last_start_time') {
                 return (e as any)[item.id]
@@ -277,16 +280,14 @@ const DataJobContent: React.FC<any> = (props: any) => {
                     disabled={isLoading}
                     iconName="refresh"
                   />
-                  <Select
-                    className="job-ations-select"
-                    selectedOption={{}}
-                    onChange={({ detail }) => {
-                      clkOption(detail.selectedOption);
+                  <ButtonDropdown
+                    onItemClick={(item) => {
+                      clkOption(item.detail);
                     }}
-                    options={[
+                    items={[
                       {
-                        label: t('button.cancel') || '',
-                        value: 'cancel',
+                        text: t('button.cancel') || '',
+                        id: 'cancel',
                         disabled:
                           selectedItems.length === 0 ||
                           selectedItems.filter(
@@ -296,8 +297,8 @@ const DataJobContent: React.FC<any> = (props: any) => {
                           ).length === 0,
                       },
                       {
-                        label: t('button.pause') || '',
-                        value: 'pause',
+                        text: t('button.pause') || '',
+                        id: 'pause',
                         disabled:
                           selectedItems.length === 0 ||
                           selectedItems.filter(
@@ -307,8 +308,8 @@ const DataJobContent: React.FC<any> = (props: any) => {
                           ).length === 0,
                       },
                       {
-                        label: t('button.continue') || '',
-                        value: 'continue',
+                        text: t('button.continue') || '',
+                        id: 'continue',
                         disabled:
                           selectedItems.length === 0 ||
                           selectedItems.filter(
@@ -316,8 +317,8 @@ const DataJobContent: React.FC<any> = (props: any) => {
                           ).length === 0,
                       },
                       {
-                        label: t('button.exeOnce') || '',
-                        value: 'execute_once',
+                        text: t('button.exeOnce') || '',
+                        id: 'execute_once',
                         disabled:
                           selectedItems.length === 0 ||
                           selectedItems.filter(
@@ -325,33 +326,32 @@ const DataJobContent: React.FC<any> = (props: any) => {
                           ).length > 0,
                       },
                       {
-                        label: t('button.copyToNew') || '',
-                        value: 'copyNew',
+                        text: t('button.copyToNew') || '',
+                        id: 'copyNew',
                         disabled: selectedItems.length === 0,
                       },
                     ]}
-                    selectedAriaLabel="Actions"
-                  ></Select>
+                  >
+                    {t('button.actions')}
+                  </ButtonDropdown>
                   <Button onClick={clkAddJob} disabled={isLoading}>
                     {t('button.createJob')}
                   </Button>
                 </SpaceBetween>
               }
             >
-              Jobs
+              {t('job:jobs')}
             </Header>
-            <span className="table-header-info">
-              Sensitive data discovery jobs.
-            </span>
+            <span className="table-header-info">{t('job:jobsDesc')}</span>
           </>
         }
-        loadingText="Loading resources"
+        loadingText={t('table.loadingResources') || ''}
         visibleColumns={preferences.visibleContent}
         empty={
           <Box textAlign="center" color="inherit">
-            <b>No resources</b>
+            <b>{t('table.noResources')}</b>
             <Box padding={{ bottom: 's' }} variant="p" color="inherit">
-              No resources to display.
+              {t('table.noResourcesDisplay')}
             </Box>
           </Box>
         }
@@ -362,9 +362,10 @@ const DataJobContent: React.FC<any> = (props: any) => {
             onChange={({ detail }) => setCurrentPage(detail.currentPageIndex)}
             pagesCount={Math.ceil(totalCount / preferences.pageSize)}
             ariaLabels={{
-              nextPageLabel: 'Next page',
-              previousPageLabel: 'Previous page',
-              pageLabel: (pageNumber) => `Page ${pageNumber} of all pages`,
+              nextPageLabel: t('table.nextPage') || '',
+              previousPageLabel: t('table.previousPage') || '',
+              pageLabel: (pageNumber) =>
+                `${t('table.pageLabel', { pageNumber: pageNumber })}`,
             }}
           />
         }
@@ -372,23 +373,23 @@ const DataJobContent: React.FC<any> = (props: any) => {
           <CollectionPreferences
             onConfirm={({ detail }) => setPreferences(detail)}
             preferences={preferences}
-            title="Preferences"
-            confirmLabel="Confirm"
-            cancelLabel="Cancel"
+            title={t('table.preferences')}
+            confirmLabel={t('table.confirm')}
+            cancelLabel={t('table.cancel')}
             pageSizePreference={{
-              title: 'Select page size',
+              title: t('table.selectPageSize'),
               options: [
-                { value: 10, label: '10 resources' },
-                { value: 20, label: '20 resources' },
-                { value: 50, label: '50 resources' },
-                { value: 100, label: '100 resources' },
+                { value: 10, label: t('table.pageSize10') },
+                { value: 20, label: t('table.pageSize20') },
+                { value: 50, label: t('table.pageSize50') },
+                { value: 100, label: t('table.pageSize100') },
               ],
             }}
             visibleContentPreference={{
-              title: 'Select visible content',
+              title: t('table.selectVisibleContent'),
               options: [
                 {
-                  label: 'Main distribution properties',
+                  label: t('table.mainDistributionProp'),
                   options: columnList,
                 },
               ],

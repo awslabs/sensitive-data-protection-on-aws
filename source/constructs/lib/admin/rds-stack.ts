@@ -118,20 +118,14 @@ export class RdsStack extends Construct {
       deletionProtection: false,
     });
 
-    // Using an existing VPC, SecretRotation will report an error
-    if (!props.existingVpc) {
-      new SecretRotation(this, 'SecretRotation', {
-        application: SecretRotationApplication.MYSQL_ROTATION_SINGLE_USER,
-        secret: dbSecret,
-        target: databaseInstance,
-        vpc: props.vpc,
-        vpcSubnets: props.vpc.selectSubnets({
-          subnetType: SubnetType.PRIVATE_WITH_EGRESS,
-        }),
-        securityGroup: this.clientSecurityGroup,
-        excludeCharacters: this.excludeCharacters,
-      });
-    }
+    new SecretRotation(this, 'SecretRotation', {
+      application: SecretRotationApplication.MYSQL_ROTATION_SINGLE_USER,
+      secret: dbSecret,
+      target: databaseInstance,
+      vpc: props.vpc,
+      securityGroup: this.clientSecurityGroup,
+      excludeCharacters: this.excludeCharacters,
+    });
 
     // Begin initDatabase
     // Create a lambda layer with required python packages.
