@@ -192,7 +192,7 @@ const CreateIdentifierContent = () => {
       description: identifierDescription,
       type: 1,
       name: identifierName,
-      category: 1,
+      classification: 1,
       privacy: 0,
       rule: patternToggle ? patternRex : null,
       header_keywords: keywordToggle ? tempHeadList : null,
