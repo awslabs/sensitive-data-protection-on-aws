@@ -161,6 +161,8 @@ class SourceDeteteRdsConnection(BaseModel):
 class SourceNewAccount(BaseModel):
     account_id: str
 
+class SourceOrgAccount(BaseModel):
+    organization_management_account_id: str
 
 class DataSourceType(str, Enum):
     s3 = "s3"
