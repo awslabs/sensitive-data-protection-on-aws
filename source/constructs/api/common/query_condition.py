@@ -42,18 +42,18 @@ def query_with_condition(query: Query, condition: QueryCondition):
                     query = query.filter(or_(table_value == None, not_(table_value.contains(c.values))))
             elif free_search_columns:
                 for column in (free_search_columns or []):
-                    free_search_conditions.append(getattr(table_obj, column).contains(c.values))
+                    free_search_conditions.append(getattr(table_obj, column).contains(c.values[0], autoescape=True))
                 query = query.filter(or_(*free_search_conditions))
             else:
                 pass
-        if condition.sort_column:
-            sort_column = getattr(table_obj, condition.sort_column)
-            if condition.asc:
-                query = query.order_by(sort_column)
-            else:
-                query = query.order_by(sort_column.desc())
+    if condition.sort_column:
+        sort_column = getattr(table_obj, condition.sort_column)
+        if condition.asc:
+            query = query.order_by(sort_column)
         else:
-            query = query.order_by(getattr(table_obj, 'modify_time').desc())
+            query = query.order_by(sort_column.desc())
+    else:
+        query = query.order_by(getattr(table_obj, 'modify_time').desc())
     return query
 
 
@@ -76,14 +76,14 @@ def query_with_condition_multi_table(query: Query, condition: QueryCondition, ma
                     query = query.filter(or_(table_value == None, not_(table_value.contains(c.values))))
             elif not c.column and free_search_columns:
                 for column in (free_search_columns or []):
-                    free_search_conditions.append(mappings[column][0].contains(c.values))
+                    free_search_conditions.append(mappings[column][0].contains(c.values[0], autoescape=True))
                 query = query.filter(or_(*free_search_conditions))
             else:
                 pass
-        if condition.sort_column:
-            sort_column = mappings[condition.sort_column][0]
-            if condition.asc:
-                query = query.order_by(sort_column)
-            else:
-                query = query.order_by(sort_column.desc())
+    if condition.sort_column:
+        sort_column = mappings[condition.sort_column][0]
+        if condition.asc:
+            query = query.order_by(sort_column)
+        else:
+            query = query.order_by(sort_column.desc())
     return query
