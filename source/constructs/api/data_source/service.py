@@ -144,9 +144,13 @@ def create_s3_connection(account: str, region: str, bucket: str):
             Permissions=['ALL'],
             PermissionsWithGrantOption=['ALL']
         )
-
+        logger.info(response)
         try:
             glue.get_crawler(Name=crawler_name)
+            response = glue.start_crawler(
+                Name=crawler_name
+            )
+            logger.info(response)
         except Exception as e:
             response = glue.create_crawler(
                 Name=crawler_name,
@@ -314,6 +318,10 @@ def sync_s3_connection(account: str, region: str, bucket: str):
             except Exception as e:
                 logger.info("update_crawler s3 error")
                 logger.info(str(e))
+            response = glue.start_crawler(
+                Name=crawler_name
+            )
+            logger.info(response)
         except Exception as e:
             response = glue.create_crawler(
                 Name=crawler_name,
