@@ -12,7 +12,7 @@
  */
 
 import { Aws, CfnParameter, Stack, StackProps, Tags } from 'aws-cdk-lib';
-import { ArnPrincipal, Policy, PolicyStatement, Role } from 'aws-cdk-lib/aws-iam';
+import { AccountPrincipal, Policy, PolicyStatement, PrincipalWithConditions, Role } from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 import { Parameter } from './common/parameter';
 import { SolutionInfo } from './common/solution-info';
@@ -39,7 +39,7 @@ export class ITStack extends Stack {
     const trustedRoleARN = `arn:${Aws.PARTITION}:iam::${adminAccountId}:role/${trustedRoleName}`;
 
     const listOrganizationRole = new Role(this, 'ListOrganizationRole', {
-      assumedBy: new ArnPrincipal(trustedRoleARN),
+      assumedBy: new PrincipalWithConditions(new AccountPrincipal(adminAccountId), { StringLike: { 'aws:PrincipalArn': trustedRoleARN } }),
       roleName: listOrganizationRoleName,
     });
 

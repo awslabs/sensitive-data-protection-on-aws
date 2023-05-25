@@ -28,6 +28,7 @@ export interface LabelModalProps {
   saveLoading: boolean;
   saveLabelToResource: (labelIds: Label[], callback: () => void) => void;
   addButtonText?: string;
+  cleanData?: number;
 }
 
 const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
@@ -38,6 +39,7 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
     saveLabelToResource,
     saveLoading,
     addButtonText,
+    cleanData,
   } = props;
   const { t } = useTranslation();
   const [showCreateLabel, setShowCreateLabel] = useState(false);
@@ -139,6 +141,12 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
       setLoadingDelete(false);
     }
   };
+
+  useEffect(() => {
+    setSelectedItems([]);
+    clickHideModal();
+    setSearchLabelName('');
+  }, [cleanData]);
 
   useEffect(() => {
     if (showModal) {

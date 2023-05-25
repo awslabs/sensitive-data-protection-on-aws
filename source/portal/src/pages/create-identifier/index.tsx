@@ -105,6 +105,7 @@ const CreateIdentifierContent = () => {
   const [refreshCategoryLableList, setRefreshCategoryLableList] = useState(0);
   const [modalType, setModalType] = useState('');
   // const [loadingSave, setLoadingSave] = useState(false);
+  const [cleanData, setCleanData] = useState(1);
   const showEditCategoryLabelModal = (curType: string, item: any) => {
     setModalType(curType);
     setShowModal(true);
@@ -469,9 +470,12 @@ const CreateIdentifierContent = () => {
           });
           setShowModal(false);
         }}
+        cleanData={cleanData}
         saveLoading={false}
         savePropsToResource={(props) => {
-          console.info(props);
+          setCleanData((prev) => {
+            return prev + 1;
+          });
         }}
       />
     </Grid>

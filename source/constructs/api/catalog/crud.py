@@ -250,6 +250,7 @@ def update_catalog_database_level_classification(
 ):
     database.modify_time = mytime.get_time()
     del database.labels
+    del database.modify_by
     size = (
         get_session()
         .query(models.CatalogDatabaseLevelClassification)
@@ -265,6 +266,7 @@ def update_catalog_table_level_classification(
 ):
     table.modify_time = mytime.get_time()
     del table.labels
+    del table.modify_by
     size = (
         get_session()
         .query(models.CatalogTableLevelClassification)
@@ -279,6 +281,7 @@ def update_catalog_column_level_classification(
     column: schemas.CatalogColumnLevelClassification,
 ) -> bool:
     column.modify_time = mytime.get_time()
+    del column.modify_by
     size = (
         get_session()
         .query(models.CatalogColumnLevelClassification)
@@ -341,7 +344,7 @@ def update_catalog_table_none_privacy_by_name(account_id: str,
                                               table_name: str,
                                               overwrite: bool,
                                               ):
-    table = {"modify_time": mytime.get_time(), "row_count": 0, "identifiers": const.NA, "privacy": Privacy.NA.value}
+    table = {"row_count": 0, "identifiers": const.NA, "privacy": Privacy.NA.value, "state": CatalogState.UPDATED.value}
     session = get_session()
     query = session.query(models.CatalogTableLevelClassification)
     query = query.filter(models.CatalogTableLevelClassification.account_id == account_id)
@@ -352,6 +355,8 @@ def update_catalog_table_none_privacy_by_name(account_id: str,
         query = query.filter(models.CatalogTableLevelClassification.table_name == table_name)
     if not overwrite:
         query = query.filter(models.CatalogTableLevelClassification.manual_tag != const.MANUAL)
+    else:
+        table['manual_tag'] = const.SYSTEM
     size = query.update(table)
     session.commit()
     return size > 0
@@ -365,8 +370,8 @@ def update_catalog_column_none_privacy_by_table(account_id: str,
                                                 column_names: list,
                                                 overwrite: bool,
                                                 ):
-    column = {"modify_time": mytime.get_time(), "identifier": '{"N/A": 0}', "column_value_example": const.NA,
-             "privacy": Privacy.NA.value}
+    column = {"identifier": '{"N/A": 0}', "column_value_example": const.NA,
+              "privacy": Privacy.NA.value, "state": CatalogState.UPDATED.value}
     session = get_session()
     query = session.query(models.CatalogColumnLevelClassification)
     query = query.filter(models.CatalogColumnLevelClassification.account_id == account_id)
@@ -379,6 +384,8 @@ def update_catalog_column_none_privacy_by_table(account_id: str,
         query = query.filter(~models.CatalogColumnLevelClassification.column_name.in_(column_names))
     if not overwrite:
         query = query.filter(models.CatalogColumnLevelClassification.manual_tag != const.MANUAL)
+    else:
+        column['manual_tag'] = const.SYSTEM
     size = query.update(column)
     session.commit()
     return size > 0
