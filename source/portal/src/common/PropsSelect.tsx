@@ -1,4 +1,4 @@
-import { Button, Select, SelectProps } from '@cloudscape-design/components';
+import { Select, SelectProps } from '@cloudscape-design/components';
 import { requestPropsByType } from 'apis/props/api';
 import { PropsType } from 'pages/create-identifier';
 import React, { useEffect, useState } from 'react';
@@ -20,6 +20,7 @@ const PropsSelect: React.FC<PropsSelectProps> = (props: PropsSelectProps) => {
   const { t } = useTranslation();
   const getPropsOptionListByType = async () => {
     setLoadingData(true);
+    setPropsOptionList([]);
     try {
       const result: PropsType[] = await requestPropsByType({
         type: type,
@@ -27,7 +28,8 @@ const PropsSelect: React.FC<PropsSelectProps> = (props: PropsSelectProps) => {
       const tmpOptions: SelectProps.Option[] = [
         isSearch
           ? {
-              label: t('all') || '',
+              label:
+                type === '1' ? t('allCategory') || '' : t('allLabel') || '',
               value: '',
             }
           : {
@@ -67,6 +69,10 @@ const PropsSelect: React.FC<PropsSelectProps> = (props: PropsSelectProps) => {
     <div className="flex">
       <div className="flex-1">
         <Select
+          statusType={loadingData ? 'loading' : 'finished'}
+          onFocus={() => {
+            getPropsOptionListByType();
+          }}
           placeholder={
             (type === '1'
               ? t('category.category')
@@ -76,15 +82,6 @@ const PropsSelect: React.FC<PropsSelectProps> = (props: PropsSelectProps) => {
           onChange={({ detail }) => changeSelectValue(detail.selectedOption)}
           options={propsOptionList}
           selectedAriaLabel={t('selected') || ''}
-        />
-      </div>
-      <div className="ml-10">
-        <Button
-          loading={loadingData}
-          iconName="refresh"
-          onClick={() => {
-            getPropsOptionListByType();
-          }}
         />
       </div>
     </div>

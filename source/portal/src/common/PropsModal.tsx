@@ -36,6 +36,7 @@ export interface PropsModalProps {
   saveLoading: boolean;
   savePropsToResource: (propsIds: Props[], callback: () => void) => void;
   addButtonText?: string;
+  cleanData?: number;
 }
 
 const PropsModal: React.FC<PropsModalProps> = (props: PropsModalProps) => {
@@ -47,6 +48,7 @@ const PropsModal: React.FC<PropsModalProps> = (props: PropsModalProps) => {
     clickHideModal,
     savePropsToResource,
     saveLoading,
+    cleanData,
   } = props;
   const { t } = useTranslation();
   const [showCreateProps, setShowCreateProps] = useState(false);
@@ -86,7 +88,19 @@ const PropsModal: React.FC<PropsModalProps> = (props: PropsModalProps) => {
         // set default selected items
         if (defaultSelectPropss.length > 0) {
           const defaultIds = defaultSelectPropss.map((item) => item.id);
-          setSelectedItems(result.filter((e) => defaultIds.includes(e.id)));
+          const findItems = result.filter((e) => defaultIds.includes(e.id));
+          setSelectedItems(findItems);
+          setCurrentProps(
+            findItems.length > 0
+              ? findItems[0]
+              : {
+                  id: '',
+                  prop_name: '',
+                  prop_type: propsType,
+                }
+          );
+        } else {
+          setSelectedItems([]);
         }
         setTotalCount(result.length);
         const start = (curPage - 1) * pageSize;
@@ -164,6 +178,12 @@ const PropsModal: React.FC<PropsModalProps> = (props: PropsModalProps) => {
   }, [showModal]);
 
   useEffect(() => {
+    setSelectedItems([]);
+    clickHideModal();
+    setSearchPropsName('');
+  }, [cleanData]);
+
+  useEffect(() => {
     const start = (curPage - 1) * pageSize;
     setTableDisplayData(allPropsList.slice(start, start + pageSize));
   }, [curPage, pageSize]);
@@ -183,6 +203,7 @@ const PropsModal: React.FC<PropsModalProps> = (props: PropsModalProps) => {
         onDismiss={() => {
           setSelectedItems([]);
           clickHideModal();
+          setSearchPropsName('');
         }}
         visible={showModal}
         footer={
@@ -192,6 +213,7 @@ const PropsModal: React.FC<PropsModalProps> = (props: PropsModalProps) => {
                 onClick={() => {
                   setSelectedItems([]);
                   clickHideModal();
+                  setSearchPropsName('');
                 }}
               >
                 {t('button.close')}
@@ -203,6 +225,7 @@ const PropsModal: React.FC<PropsModalProps> = (props: PropsModalProps) => {
                   onClick={() => {
                     setSelectedItems([]);
                     clickHideModal();
+                    setSearchPropsName('');
                   }}
                 >
                   {t('button.cancel')}
@@ -214,6 +237,7 @@ const PropsModal: React.FC<PropsModalProps> = (props: PropsModalProps) => {
                     savePropsToResource(selectedItems, () => {
                       setSearchPropsName('');
                       setSelectedItems([]);
+                      clickHideModal();
                     });
                   }}
                 >

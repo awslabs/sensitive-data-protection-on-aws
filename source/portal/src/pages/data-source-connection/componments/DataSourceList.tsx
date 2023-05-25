@@ -400,7 +400,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                         onClick={() => alertMsg((e as any)[item.id], 'error')}
                         style={{ cursor: 'pointer' }}
                       >
-                        <ErrorBadge badgeLabel="ERROR" />
+                        <ErrorBadge badgeLabel={(e as any)[item.id]} />
                       </div>
                     );
                   }
