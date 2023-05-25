@@ -310,6 +310,7 @@ def sync_crawler_result(
         if original_database == None:
             crud.create_catalog_database_level_classification(catalog_database_dict)
         else:
+            catalog_database_dict['modify_by'] = original_database.modify_by
             crud.update_catalog_database_level_classification_by_id(original_database.id, catalog_database_dict)
 
     logger.info(
@@ -547,12 +548,13 @@ def sync_job_detection_result(
                 )
                 identifier_dict = __convert_identifiers_to_dict(identifier)
                 if catalog_column is not None and (overwrite or (
-                        not overwrite and catalog_column.manual_tag != "manual")):
+                        not overwrite and catalog_column.manual_tag != const.MANUAL)):
                     column_dict = {
                         "identifier": json.dumps(identifier_dict),
                         "column_value_example": column_sample_data,
                         "privacy": column_privacy,
                         "state": CatalogState.DETECTED.value,
+                        "manual_tag": const.SYSTEM,
                     }
                     crud.update_catalog_column_level_classification_by_id(
                         catalog_column.id, column_dict
@@ -617,12 +619,13 @@ def sync_job_detection_result(
             identifier_set = table_identifier_dict[table_name]
             identifiers = "|".join(list(map(str, identifier_set)))
             if catalog_table is not None and (overwrite or (
-                        not overwrite and catalog_table.manual_tag != "manual")):
+                        not overwrite and catalog_table.manual_tag != const.MANUAL)):
                 table_dict = {
                     "privacy": privacy,
                     "identifiers": identifiers,
                     "state": CatalogState.DETECTED.value,
                     "row_count": table_size,
+                    "manual_tag": const.SYSTEM,
                 }
                 crud.update_catalog_table_level_classification_by_id(
                     catalog_table.id, table_dict
@@ -631,11 +634,12 @@ def sync_job_detection_result(
         account_id, region, database_type, database_name
     )
     if catalog_database is not None and (overwrite or (
-                        not overwrite and catalog_database.manual_tag != "manual")):
+                        not overwrite and catalog_database.manual_tag != const.MANUAL)):
         database_dict = {
             "privacy": database_privacy,
             "state": CatalogState.DETECTED.value,
             "row_count": row_count,
+            "manual_tag": const.SYSTEM,
         }
         crud.update_catalog_database_level_classification_by_id(
             catalog_database.id, database_dict
