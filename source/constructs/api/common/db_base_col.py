@@ -16,5 +16,5 @@ def __handle_params(clause, params):
         params['create_by'] = os.getenv(const.USER, const.USER_DEFAULT_NAME)
         params['create_time'] = datetime.utcnow()
     if str(clause).startswith('UPDATE'):
-        params['modify_by'] = os.getenv(const.USER, const.USER_DEFAULT_NAME)
+        params['modify_by'] = params['modify_by'] if ('modify_by' in params) else os.getenv(const.USER, const.USER_DEFAULT_NAME)
         params['modify_time'] = datetime.utcnow()

@@ -56,6 +56,7 @@ def build_s3_targets(bucket, credentials, region, is_init):
             s3_targets.append(
                 {
                     "Path": f"s3://{bucket}/{common_prefix['Prefix']}",
+                    "SampleSize": 20,
                     "Exclusions": []
                 }
             )
