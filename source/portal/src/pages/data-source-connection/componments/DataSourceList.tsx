@@ -379,8 +379,8 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                       tempType = CLSAAIFIED_TYPE.Failed;
                       break;
                     case 'CRAWLING':
-                      tempLabel = 'CRAWLING';
-                      tempType = CLSAAIFIED_TYPE.SystemMark;
+                      tempLabel = CLSAAIFIED_TYPE.Crawling;
+                      tempType = CLSAAIFIED_TYPE.System;
                       break;
                     case '':
                       tempLabel = CLSAAIFIED_TYPE.Unconnected.toUpperCase();
@@ -418,6 +418,8 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                     return '-';
                   }
                   return (
+                    <>
+                    {t('button.dataCatalogs')}
                     <a
                       href={`/catalog?catalogId=${
                         (e as any)[COLUMN_OBJECT_STR.Buckets] ||
@@ -425,9 +427,11 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                       }&tagType=${tagType}`}
                       target="_blank"
                       rel="noreferrer"
+                      style={{marginLeft:5}}
                     >
-                      {t('button.dataCatalogs')}
+                      <Icon name="external" variant="link"/>
                     </a>
+                    </>
                   );
                 }
 
@@ -565,7 +569,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                 },
               ],
             }}
-          />
+          /> 
         }
         loading={isLoading}
       />
