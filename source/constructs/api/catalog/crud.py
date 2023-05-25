@@ -250,6 +250,7 @@ def update_catalog_database_level_classification(
 ):
     database.modify_time = mytime.get_time()
     del database.labels
+    del database.modify_by
     size = (
         get_session()
         .query(models.CatalogDatabaseLevelClassification)
@@ -265,6 +266,7 @@ def update_catalog_table_level_classification(
 ):
     table.modify_time = mytime.get_time()
     del table.labels
+    del table.modify_by
     size = (
         get_session()
         .query(models.CatalogTableLevelClassification)
@@ -279,6 +281,7 @@ def update_catalog_column_level_classification(
     column: schemas.CatalogColumnLevelClassification,
 ) -> bool:
     column.modify_time = mytime.get_time()
+    del column.modify_by
     size = (
         get_session()
         .query(models.CatalogColumnLevelClassification)
