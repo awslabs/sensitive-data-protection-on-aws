@@ -64,8 +64,8 @@ const ResourcesFilter: React.FC<ResourcesFilterProps> = (
     return {
       key: item.id,
       operators: deepClone(DEFAULT_FILTER),
-      propertyLabel: item.label,
-      groupValuesLabel: `${item.label} ${t('filter.values')}`,
+      propertyLabel: t(item.label),
+      groupValuesLabel: `${t(item.label)} ${t('filter.values')}`,
     };
   });
 
