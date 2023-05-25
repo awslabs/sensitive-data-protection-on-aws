@@ -136,6 +136,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
           column: item.propertyKey,
           values: [`${item.value}`],
           condition: 'and',
+          operation: item.operator
         });
       });
     if (selectedCrawler) {

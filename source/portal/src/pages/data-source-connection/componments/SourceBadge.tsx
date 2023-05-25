@@ -25,6 +25,9 @@ const SourceBadge = (props: any) => {
     case 'UNCONNECTED':
       labelType = CLSAAIFIED_TYPE.Unconnected;
       break;
+    case 'CRAWLING':
+      labelType = CLSAAIFIED_TYPE.CRAWLING;
+      break;
     case 'FAILED':
       labelType = CLSAAIFIED_TYPE.Failed;
       break;
@@ -43,12 +46,12 @@ const SourceBadge = (props: any) => {
         size="medium"
         content={<div>{instanceStatus}</div>}
       >
-        {/* <CommonBadge
+        {instanceStatus.length > 15?( <ErrorBadge badgeLabel={instanceStatus} />):(<CommonBadge
           badgeType={BADGE_TYPE.Classified}
           badgeLabel={instanceStatus.length > 15 ? 'ERROR' : instanceStatus}
           labelType={labelType}
-        /> */}
-        <ErrorBadge badgeLabel={instanceStatus} />
+        />)}
+       
       </Popover>
     );
   }
