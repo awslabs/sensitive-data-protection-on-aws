@@ -324,5 +324,7 @@
   "confirm": "确认",
   "s3Bucket": "S3 存储桶",
   "rdsInstance": "RDS 实例",
-  "privacy": "隐私"
+  "privacy": "隐私",
+  "allCategory": "所有类别",
+  "allLabel": "所有标签"
 }

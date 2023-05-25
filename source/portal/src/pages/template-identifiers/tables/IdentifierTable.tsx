@@ -86,6 +86,7 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
     useState<SelectProps.Option | null>(null);
   const [searchSelectedLabel, setSearchSelectedLabel] =
     useState<SelectProps.Option | null>(null);
+  const [cleanData, setCleanData] = useState(1);
 
   const confirmDelete = async () => {
     const requestParam = {
@@ -256,6 +257,9 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
       setLoadingSave(false);
       if (result && result.id >= 0) {
         alertMsg('Update success', 'success');
+        setCleanData((prev) => {
+          return prev + 1;
+        });
         setShowModal(false);
         getPageData();
       } else {
@@ -471,11 +475,12 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
       <PropsModal
         propsType={modalType}
         showModal={showModal}
-        defaultSelectPropss={currentIdentifier?.props}
+        defaultSelectPropss={currentIdentifier?.props || []}
         clickHideModal={() => {
           setShowModal(false);
         }}
         saveLoading={loadingSave}
+        cleanData={cleanData}
         savePropsToResource={(props) => {
           saveIdentifierWithLabelCategory(props);
         }}
