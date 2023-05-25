@@ -4,6 +4,7 @@ import {
   CLSAAIFIED_TYPE,
   BADGE_TYPE,
 } from 'pages/common-badge/types/badge_type';
+import ErrorBadge from 'pages/error-badge';
 
 const SourceBadge = (props: any) => {
   const { instanceStatus, needInfo = false } = props;
@@ -42,11 +43,12 @@ const SourceBadge = (props: any) => {
         size="medium"
         content={<div>{instanceStatus}</div>}
       >
-        <CommonBadge
+        {/* <CommonBadge
           badgeType={BADGE_TYPE.Classified}
           badgeLabel={instanceStatus.length > 15 ? 'ERROR' : instanceStatus}
           labelType={labelType}
-        />
+        /> */}
+        <ErrorBadge badgeLabel={instanceStatus} />
       </Popover>
     );
   }
