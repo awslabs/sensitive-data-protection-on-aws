@@ -19,6 +19,7 @@ class DataSource(Base):
     modify_by = sa.Column(sa.String(255))
     modify_time = sa.Column(sa.DateTime())
 
+
 class Account(Base):
     __tablename__ = 'source_account'
 
@@ -49,6 +50,7 @@ class Account(Base):
     modify_by = sa.Column(sa.String(255))
     modify_time = sa.Column(sa.DateTime())
 
+
 class AccountCompare(Base):
     __tablename__ = 'source_account_compare'
 
@@ -62,6 +64,7 @@ class AccountCompare(Base):
     create_time = sa.Column(sa.DateTime())
     modify_by = sa.Column(sa.String(255))
     modify_time = sa.Column(sa.DateTime())
+
 
 class DetectionHistory(Base):
     __tablename__ = 'source_detection_history'
@@ -79,14 +82,15 @@ class DetectionHistory(Base):
     modify_by = sa.Column(sa.String(255))
     modify_time = sa.Column(sa.DateTime())
 
+
 class S3BucketSource(Base):
     __tablename__ = 'source_s3_bucket'
 
     id = sa.Column(sa.Integer(), autoincrement=True, primary_key=True)
-    bucket_name = sa.Column(sa.String(255))
+    bucket_name = sa.Column(sa.String(255), info={'searchable': True})
     size = sa.Column(sa.Integer())
-    account_id = sa.Column(sa.Integer())
-    region = sa.Column(sa.String(255))
+    account_id = sa.Column(sa.Integer(), info={'searchable': True})
+    region = sa.Column(sa.String(255), info={'searchable': True})
     creation_date = sa.Column(sa.DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
     data_source_id = sa.Column(sa.Integer())
     detection_history_id = sa.Column(sa.Integer(), sa.ForeignKey('source_detection_history.id'))
@@ -95,7 +99,7 @@ class S3BucketSource(Base):
     glue_connection = sa.Column(sa.String(255))
     glue_vpc_endpoint = sa.Column(sa.String(255))
     glue_crawler = sa.Column(sa.String(255))
-    glue_state = sa.Column(sa.String(255))
+    glue_state = sa.Column(sa.String(255), info={'searchable': True})
     glue_crawler_last_updated = sa.Column(sa.DateTime)
     detection_history = relationship("DetectionHistory")
     version = sa.Column(sa.Integer())
@@ -104,20 +108,21 @@ class S3BucketSource(Base):
     modify_by = sa.Column(sa.String(255))
     modify_time = sa.Column(sa.DateTime())
 
+
 class RdsInstanceSource(Base):
     __tablename__ = 'source_rds_instance'
 
     id = sa.Column(sa.Integer(), autoincrement=True, primary_key=True)
-    instance_id = sa.Column(sa.String(255))
+    instance_id = sa.Column(sa.String(255), info={'searchable': True})
     instance_class = sa.Column(sa.String(255))
-    engine = sa.Column(sa.String(255))
+    engine = sa.Column(sa.String(255), info={'searchable': True})
     instance_status = sa.Column(sa.String(255))
     address = sa.Column(sa.String(255))
     port = sa.Column(sa.Integer())
     master_username = sa.Column(sa.String(255))
     created_time = sa.Column(sa.DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
-    account_id = sa.Column(sa.String(255))
-    region = sa.Column(sa.String(255))
+    account_id = sa.Column(sa.String(255), info={'searchable': True})
+    region = sa.Column(sa.String(255), info={'searchable': True})
     data_source_id = sa.Column(sa.Integer())
     detection_history_id = sa.Column(sa.Integer(), sa.ForeignKey('source_detection_history.id'))
     aws_account = sa.Column(sa.String(255))
@@ -126,13 +131,14 @@ class RdsInstanceSource(Base):
     glue_connection = sa.Column(sa.String(255))
     glue_vpc_endpoint = sa.Column(sa.String(255))
     glue_crawler_last_updated = sa.Column(sa.DateTime)
-    glue_state = sa.Column(sa.String(255))
+    glue_state = sa.Column(sa.String(255), info={'searchable': True})
     detection_history = relationship("DetectionHistory")
     version = sa.Column(sa.Integer())
     create_by = sa.Column(sa.String(255))
     create_time = sa.Column(sa.DateTime())
     modify_by = sa.Column(sa.String(255))
     modify_time = sa.Column(sa.DateTime())
+
 
 class DynamodbTableSource(Base):
     __tablename__ = 'source_dynamodb_table'

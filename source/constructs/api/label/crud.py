@@ -37,6 +37,14 @@ def create_label(label: schemas.LabelCreate) -> models.Label:
                             create_time=formatted_date,
                             modify_time=formatted_date
                             )
+    label_exist = session.query(models.Label)\
+        .filter(models.Label.classification == db_label.classification)\
+        .filter(models.Label.type == db_label.type)\
+        .filter(models.Label.label_name == db_label.label_name).first()
+    if label_exist is not None:
+        raise BizException(MessageEnum.LABEL_EXIST_FAILED.get_code(),
+                           MessageEnum.LABEL_EXIST_FAILED.get_msg())
+    session = get_session()
     session.add(db_label)
     session.commit()
     print(db_label.id)

@@ -516,12 +516,14 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                     }
                     if (item.id === COLUMN_OBJECT_STR.FolderName) {
                       return (
-                        <span
-                          className="catalog-detail-row-folders hander"
-                          onClick={() => clickFolderName(e as any)}
-                        >
-                          {(e as any)[item.id]}
-                        </span>
+                        <div className="wrap-line">
+                          <span
+                            className="catalog-detail-row-folders hander"
+                            onClick={() => clickFolderName(e as any)}
+                          >
+                            {(e as any)[item.id]}
+                          </span>
+                        </div>
                       );
                     }
                     if (item.id === COLUMN_OBJECT_STR.Privacy) {

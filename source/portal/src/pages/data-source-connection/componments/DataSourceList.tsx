@@ -136,6 +136,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
           column: item.propertyKey,
           values: [`${item.value}`],
           condition: 'and',
+          operation: item.operator
         });
       });
     if (selectedCrawler) {
@@ -400,7 +401,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                         onClick={() => alertMsg((e as any)[item.id], 'error')}
                         style={{ cursor: 'pointer' }}
                       >
-                        <ErrorBadge badgeLabel="ERROR" />
+                        <ErrorBadge badgeLabel={(e as any)[item.id]} />
                       </div>
                     );
                   }

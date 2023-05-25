@@ -87,6 +87,9 @@ class MessageEnum(Enum):
     SOURCE_DELETE_WHEN_CONNECTING = {1226: "Could not disconnect data source while connection is creating"}
     SOURCE_ORG_ADD_ACCOUNT_FAILED = {1227: "Add account by Organizations failed"}
 
+    # label
+    LABEL_EXIST_FAILED = {1611: "Cannot create duplicated label"}
+
     def get_code(self):
         return list(self.value.keys())[0]
 

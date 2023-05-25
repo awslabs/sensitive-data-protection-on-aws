@@ -28,6 +28,7 @@ export interface LabelModalProps {
   saveLoading: boolean;
   saveLabelToResource: (labelIds: Label[], callback: () => void) => void;
   addButtonText?: string;
+  cleanData?: number;
 }
 
 const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
@@ -38,6 +39,7 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
     saveLabelToResource,
     saveLoading,
     addButtonText,
+    cleanData,
   } = props;
   const { t } = useTranslation();
   const [showCreateLabel, setShowCreateLabel] = useState(false);
@@ -75,6 +77,8 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
         if (defaultSelectLabels.length > 0) {
           const defaultIds = defaultSelectLabels.map((item) => item.id);
           setSelectedItems(result.filter((e) => defaultIds.includes(e.id)));
+        } else {
+          setSelectedItems([]);
         }
         setTotalCount(result.length);
         const start = (curPage - 1) * pageSize;
@@ -139,6 +143,12 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
   };
 
   useEffect(() => {
+    setSelectedItems([]);
+    clickHideModal();
+    setSearchLabelName('');
+  }, [cleanData]);
+
+  useEffect(() => {
     if (showModal) {
       getLabelsList();
     }
@@ -161,7 +171,11 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
   return (
     <div>
       <Modal
-        onDismiss={() => clickHideModal()}
+        onDismiss={() => {
+          setSelectedItems([]);
+          clickHideModal();
+          setSearchLabelName('');
+        }}
         visible={showModal}
         footer={
           <Box float="right">
@@ -169,7 +183,9 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
               <Button
                 variant="link"
                 onClick={() => {
+                  setSelectedItems([]);
                   clickHideModal();
+                  setSearchLabelName('');
                 }}
               >
                 {t('button.cancel')}
@@ -180,6 +196,7 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
                 onClick={() => {
                   saveLabelToResource(selectedItems, () => {
                     setSearchLabelName('');
+                    setSelectedItems([]);
                   });
                 }}
               >
