@@ -654,6 +654,10 @@ def create_rds_connection(account: str, region: str, instance_name: str, rds_use
 
             try:
                 glue.get_crawler(Name=crawler_name)
+                response = glue.start_crawler(
+                    Name=crawler_name
+                )
+                logger.info(response)
             except Exception as e:
                 response = glue.create_crawler(
                     Name=crawler_name,
@@ -966,6 +970,11 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
             try:
                 response = glue.get_crawler(Name=crawler_name)
                 logger.info("sync_rds_connection get_crawler:")
+                logger.info(response)
+                response = glue.start_crawler(
+                    Name=crawler_name
+                )
+                logger.info(response)
                 try:
                     if state == ConnectionState.ACTIVE.value or state == ConnectionState.UNSUPPORTED.value \
                             or state == ConnectionState.ERROR.value or state == ConnectionState.STOPPING.value:
