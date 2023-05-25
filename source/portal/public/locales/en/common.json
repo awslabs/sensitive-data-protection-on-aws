@@ -324,5 +324,7 @@
   "confirm": "Confirm",
   "s3Bucket": "S3 bucket",
   "rdsInstance": "RDS instance",
-  "privacy": "Privacy"
+  "privacy": "Privacy",
+  "allCategory": "All Categories",
+  "allLabel": "All Labels"
 }
