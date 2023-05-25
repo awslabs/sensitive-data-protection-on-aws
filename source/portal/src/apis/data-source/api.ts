@@ -14,13 +14,13 @@ const getDataSourceRdsByPage = async (params: any) => {
 
 // S3连接
 const connectDataSourceS3 = async (params: any) => {
-  const result = await apiRequest('post', 'data-source/s3', params);
+  const result = await apiRequest('post', 'data-source/sync-s3', params);
   return result;
 };
 
 // rds连接
 const connectDataSourceRDS = async (params: any) => {
-  const result = await apiRequest('post', 'data-source/rds', params);
+  const result = await apiRequest('post', 'data-source/sync-rds', params);
   return result;
 };
 
