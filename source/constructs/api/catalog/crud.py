@@ -365,7 +365,7 @@ def update_catalog_column_none_privacy_by_table(account_id: str,
                                                 column_names: list,
                                                 overwrite: bool,
                                                 ):
-    table = {"modify_time": mytime.get_time(), "row_count": 0, "identifier": '{"N/A": 0}', "column_value_example": const.NA,
+    column = {"modify_time": mytime.get_time(), "identifier": '{"N/A": 0}', "column_value_example": const.NA,
              "privacy": Privacy.NA.value}
     session = get_session()
     query = session.query(models.CatalogColumnLevelClassification)
@@ -379,7 +379,7 @@ def update_catalog_column_none_privacy_by_table(account_id: str,
         query = query.filter(~models.CatalogColumnLevelClassification.column_name.in_(column_names))
     if not overwrite:
         query = query.filter(models.CatalogColumnLevelClassification.manual_tag != const.MANUAL)
-    size = query.update(table)
+    size = query.update(column)
     session.commit()
     return size > 0
 
