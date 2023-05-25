@@ -64,6 +64,7 @@ const SchemaModal: React.FC<any> = (props: any) => {
   const [saveDisabled, setSaveDisabled] = useState(true);
   const [showLabelModal, setShowLabelModal] = useState(false);
   const [saveLabelLoading, setSaveLabelLoading] = useState(false);
+  const [cleanData, setCleanData] = useState(1);
 
   let tabsContent = [];
 
@@ -245,6 +246,9 @@ const SchemaModal: React.FC<any> = (props: any) => {
 
       setSaveLabelLoading(false);
       if (result) {
+        setCleanData((prev) => {
+          return prev + 1;
+        });
         setShowLabelModal(false);
         setSelectRowData((prev: any) => {
           return {
@@ -395,7 +399,12 @@ const SchemaModal: React.FC<any> = (props: any) => {
         saveLabelToResource={(labelIds, callback) => {
           saveLabelsToTable(labelIds, callback);
         }}
-        addButtonText="Add to Table"
+        addButtonText={
+          (catalogType === DATA_TYPE_ENUM.rds
+            ? t('label.addToTable')
+            : t('label.addToFolder')) || ''
+        }
+        cleanData={cleanData}
       />
     </Modal>
   );

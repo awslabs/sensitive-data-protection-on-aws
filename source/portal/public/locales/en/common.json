@@ -97,7 +97,9 @@
     "updateLabel": "Update label",
     "deleteLabel": "Delete label",
     "deleteTips": "Are you sure you want to delete label(s) ",
-    "noLabelFound": "No custom label found."
+    "noLabelFound": "No custom label found.",
+    "addToTable": "Add to table",
+    "addToFolder": "Add to folder"
   },
   "category": {
     "category": "Category",

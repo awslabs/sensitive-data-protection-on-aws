@@ -65,7 +65,7 @@ const DetailModal: React.FC<any> = (props: any) => {
   );
 
   const [saveLabelLoading, setSaveLabelLoading] = useState(false);
-
+  const [cleanData, setCleanData] = useState(1);
   useEffect(() => {
     if (
       typeof selectRowData.privacy !== 'number' &&
@@ -124,6 +124,9 @@ const DetailModal: React.FC<any> = (props: any) => {
 
       setSaveLabelLoading(false);
       if (result) {
+        setCleanData((prev) => {
+          return prev + 1;
+        });
         setShowLabelModal(false);
         setSelectRowData((prev: any) => {
           return {
@@ -317,6 +320,7 @@ const DetailModal: React.FC<any> = (props: any) => {
         saveLabelToResource={(labelIds, callback) => {
           saveLabelsToCatelog(labelIds, callback);
         }}
+        cleanData={cleanData}
       />
     </RightModal>
   );
