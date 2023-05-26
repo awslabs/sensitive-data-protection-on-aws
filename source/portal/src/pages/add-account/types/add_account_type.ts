@@ -1,6 +1,6 @@
 export const TAB_LIST = {
   via: { id: 'via', label: 'account:add.org.via' },
-  individual: { id: 'individual', label: 'account:add.org.via' },
+  individual: { id: 'individual', label: 'account:add.account.via' },
 };
 
 export const ADMIN_TEMPLATE_URL =
