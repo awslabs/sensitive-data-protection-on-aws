@@ -460,26 +460,35 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                     disabled={isLoading}
                     iconName="refresh"
                   />
-                  {tagType === DATA_TYPE_ENUM.s3 && accountData && (
-                    <Button disabled={isLoading} onClick={clkAllS3Connected}>
-                      <Icon name="view-full" className="btn-icon" />
-                      {t('button.connectAll')}
-                    </Button>
-                  )}
                   <Button
                     disabled={isLoading || selectedItems.length === 0}
                     onClick={clkConnected}
                   >
-                    <Icon name="share" className="btn-icon" />
-                    {t('button.connect')}
+                    {t("button.connect")}
                   </Button>
                   <ButtonDropdown
                     onItemClick={({ detail }) => {
-                      clkDisconnectDataSource(detail);
+                      if (detail.id === "disconnect") {
+                        clkDisconnectDataSource(detail);
+                      }
+                      if (detail.id === "connectAll") {
+                        clkAllS3Connected();
+                      }
                     }}
-                    items={[{ text: t('disconnect') || '', id: 'disconnect' }]}
+                    items={[
+                      {
+                        text: t("disconnect") || "",
+                        id: "disconnect",
+                        disabled: selectedItems.length === 0,
+                      },
+                      {
+                        text: t("button.connectAll") || "",
+                        id: "connectAll",
+                        disabled: tagType === DATA_TYPE_ENUM.rds,
+                      },
+                    ]}
                   >
-                    {t('button.actions')}
+                    {t("button.actions")}
                   </ButtonDropdown>
                 </SpaceBetween>
               }
@@ -569,7 +578,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                 },
               ],
             }}
-          /> 
+          />
         }
         loading={isLoading}
       />
