@@ -1,7 +1,9 @@
 import time
 import logging.config
-import jwt
 import os
+import requests
+from jose import jwk, jwt
+from jose.utils import base64url_decode
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from mangum import Mangum
@@ -14,7 +16,6 @@ from common.enum import MessageEnum
 from common.constant import const
 from template.main import router as template_router
 from common.exception_handler import biz_exception
-from okta_jwt_verifier import BaseJWTVerifier
 from label.main import router as label_router
 from fastapi_pagination import add_pagination
 
@@ -34,10 +35,16 @@ app = FastAPI(
 # Among them, code is the business failure code, and message is the content of the failure
 biz_exception(app)
 
+issuer = os.getenv(const.OIDC_ISSUER, const.EMPTY_STR)
+client_id = os.getenv(const.OIDC_CLIENT_ID, const.EMPTY_STR)
+jwks_uri = os.getenv(const.OIDC_JWKS_URI, const.EMPTY_STR)
+if jwks_uri != const.EMPTY_STR:
+    jwt_keys = requests.get(jwks_uri).json()['keys']
+
 
 # request interceptor
 @app.middleware("http")
-async def validate_token(request: Request, call_next):
+async def validate(request: Request, call_next):
     start_time = time.time()
     hs = request.headers
     method = request.method
@@ -62,16 +69,24 @@ async def validate_token(request: Request, call_next):
     elif authorization:
         try:
             token = authorization.split(' ')[1]
-            jwt_str = jwt.decode(token, options={"verify_signature": False})
-        except Exception:
+            jwt_claims = jwt.get_unverified_claims(token)
+        except Exception as e:
             return resp_err(MessageEnum.BIZ_INVALID_TOKEN.get_code(), MessageEnum.BIZ_INVALID_TOKEN.get_msg())
-        os.environ[const.USER] = jwt_str['sub']
+        username = __get_username(jwt_claims)
+        os.environ[const.USER] = username
+        logger.debug(f"username:{username}")
         if token in token_list:
-            if time.time() > jwt_str['exp']:
+            logger.debug("token in list")
+            if time.time() > jwt_claims['exp']:
                 token_list.remove(token)
-                invoke_okta_auth(token, jwt_str)
+                return resp_err(MessageEnum.BIZ_INVALID_TOKEN.get_code(), MessageEnum.BIZ_INVALID_TOKEN.get_msg())
         else:
-            invoke_okta_auth(token, jwt_str)
+            logger.debug("token not in list")
+            validate_result = __validate_token(token, jwt_claims)
+            if validate_result:
+                token_list.append(token)
+            else:
+                return resp_err(MessageEnum.BIZ_INVALID_TOKEN.get_code(), MessageEnum.BIZ_INVALID_TOKEN.get_msg())
     elif os.getenv(const.MODE) == const.MODE_DEV:
         pass
     else:
@@ -88,14 +103,66 @@ async def validate_token(request: Request, call_next):
     return response
 
 
-def invoke_okta_auth(token, jwt_str):
-    try:
-        jwt_verifier = BaseJWTVerifier(issuer=jwt_str['iss'], audience=jwt_str['aud'])
-        jwt_verifier.verify_access_token(token)
-        os.environ[const.USER] = jwt_str['sub']
-        token_list.append(token)
-    except Exception:
-        return resp_err(MessageEnum.BIZ_INVALID_TOKEN.get_code(), MessageEnum.BIZ_INVALID_TOKEN.get_msg())
+def __get_username(jwt_claims: dict):
+    username_keys = ["email", "username", "preferred_username"]
+    for username_key in username_keys:
+        username = jwt_claims.get(username_key)
+        if username is not None:
+            return username
+    return jwt_claims.get("sub")
+
+
+def __validate_token(token, jwt_claims):
+    if jwks_uri == const.EMPTY_STR:
+        return __online_validate(token, jwt_claims)
+    else:
+        return __offline_validate(token, jwt_claims)
+
+
+def __offline_validate(token, jwt_claims):
+    headers = jwt.get_unverified_headers(token)
+    kid = headers['kid']
+    # search for the kid in the downloaded public keys
+    key_index = -1
+    for i in range(len(jwt_keys)):
+        if kid == jwt_keys[i]['kid']:
+            key_index = i
+            break
+    if key_index == -1:
+        logger.info(f'Public key not found in jwks.json.kid:{kid}')
+        return False
+    # construct the public key
+    public_key = jwk.construct(jwt_keys[key_index])
+    # get the last two sections of the token,
+    # message and signature (encoded in base64)
+    message, encoded_signature = str(token).rsplit('.', 1)
+    # decode the signature
+    decoded_signature = base64url_decode(encoded_signature.encode('utf-8'))
+    # verify the signature
+    if not public_key.verify(message.encode("utf8"), decoded_signature):
+        logger.info('Signature verification failed')
+        return False
+    logger.debug('Signature successfully verified')
+    # since we passed the verification, we can now safely
+    # use the unverified claims
+    if time.time() > jwt_claims['exp']:
+        logger.info('Token is expired')
+        return False
+    return True
+
+
+def __online_validate(token, jwt_claims):
+    jwt_issuer = jwt_claims["iss"]
+    # Currently only OKTA is supported
+    if "okta.com" in jwt_issuer:
+        headers = {"Content-type": "application/x-www-form-urlencoded"}
+        url = f"{issuer}/oauth2/v1/introspect/"
+        data = "client_id={}&token_type_hint=access_token&token={}".format(client_id, token)
+        json_response = requests.post(url, data, headers=headers).json()
+        logger.debug(json_response)
+        return json_response.get("active")
+    else:
+        return False
 
 
 app.include_router(discovery_router)
