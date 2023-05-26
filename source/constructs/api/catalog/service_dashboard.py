@@ -130,6 +130,8 @@ def agg_catalog_data_source_top_n(database_type: str, top_n: int):
     
     result_dict['account_top_n'] = __get_top_n_count(account_dict, top_n)
     result_dict['identifier_top_n'] = __get_top_n_count(identifier_dict, top_n)
+    # TODO add CATEGORY / IDENTIFIER LABEL
+    logger.info(identifier_dict.keys())
     return result_dict
 
 

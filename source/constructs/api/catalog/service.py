@@ -86,6 +86,8 @@ def get_database_identifiers_from_tables(
                 identifier_dict[identifier]["row_count"] += table.row_count
                 identifier_dict[identifier]['table_name_list'].append(table.table_name)
 
+    # TODO add CATEGORY / IDENTIFIER LABEL
+    logger.info(identifier_dict.keys())
     for k in identifier_dict:
         if k == const.NA:
             continue
