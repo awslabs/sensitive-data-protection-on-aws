@@ -19,6 +19,7 @@ from . import s3_detector, rds_detector, crud
 from . import schemas
 
 SLEEP_TIME = 5
+SLEEP_MIN_TIME = 2
 
 # for delegated account(IT), admin account could use this role to list stackset in IT account.
 # CloudFormation Role name is: ListOrganizationRole
@@ -291,7 +292,7 @@ def sync_s3_connection(account: str, region: str, bucket: str):
             Permissions=['ALL'],
             PermissionsWithGrantOption=['ALL']
         )
-
+        sleep(SLEEP_MIN_TIME)
         try:
             gt_cr_response = glue.get_crawler(Name=crawler_name)
             logger.info(gt_cr_response)
@@ -312,10 +313,6 @@ def sync_s3_connection(account: str, region: str, bucket: str):
                     )
                     logger.info("update crawler:")
                     logger.info(up_cr_response)
-                    st_cr_response = glue.start_crawler(
-                        Name=crawler_name
-                    )
-                    logger.info(st_cr_response)
             except Exception as e:
                 logger.info("update_crawler s3 error")
                 logger.info(str(e))
@@ -956,7 +953,7 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                 Permissions=['ALL'],
                 PermissionsWithGrantOption=['ALL']
             )
-
+            sleep(SLEEP_MIN_TIME)
             jdbc_targets = []
             for schema in schema_list:
                 jdbc_targets.append(
@@ -970,10 +967,6 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
             try:
                 response = glue.get_crawler(Name=crawler_name)
                 logger.info("sync_rds_connection get_crawler:")
-                logger.info(response)
-                response = glue.start_crawler(
-                    Name=crawler_name
-                )
                 logger.info(response)
                 try:
                     if state == ConnectionState.ACTIVE.value or state == ConnectionState.UNSUPPORTED.value \
@@ -992,14 +985,13 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                         )
                         logger.info("update rds crawler:")
                         logger.info(up_cr_response)
-                        st_cr_response = glue.start_crawler(
-                            Name=crawler_name
-                        )
-                        logger.info(st_cr_response)
                 except Exception as e:
                     logger.info("update_crawler error")
                     logger.info(str(e))
-                logger.info(response)
+                st_cr_response = glue.start_crawler(
+                    Name=crawler_name
+                )
+                logger.info(st_cr_response)
             except Exception as e:
                 logger.info("sync_rds_connection get_crawler and create:")
                 logger.info(str(e))
