@@ -66,7 +66,7 @@ const CommonBadge: React.FC<CommonBadgeProps> = (props: CommonBadgeProps) => {
       iconName = 'status-pending';
       break;
     case 'CRAWLING':
-      iconName = 'bug';
+      iconName = 'status-info';
       break;
     case CLSAAIFIED_TYPE.Failed:
       iconName = 'status-negative';

@@ -418,8 +418,6 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                     return '-';
                   }
                   return (
-                    <>
-                    {t('button.dataCatalogs')}
                     <a
                       href={`/catalog?catalogId=${
                         (e as any)[COLUMN_OBJECT_STR.Buckets] ||
@@ -429,9 +427,8 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                       rel="noreferrer"
                       style={{marginLeft:5}}
                     >
-                      <Icon name="external" variant="link"/>
+                      {t('button.dataCatalogs')}
                     </a>
-                    </>
                   );
                 }
 
