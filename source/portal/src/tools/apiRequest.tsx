@@ -51,7 +51,7 @@ axios.interceptors.request.use(
             localStorage.getItem(
               `oidc.user:${configJSONObj.aws_oidc_issuer}:${configJSONObj.aws_oidc_client_id}`
             ) || ''
-          )?.access_token;
+          )?.id_token;
     config.data = JSON.stringify(config.data);
     config.headers = {
       'Content-Type': 'application/json',
