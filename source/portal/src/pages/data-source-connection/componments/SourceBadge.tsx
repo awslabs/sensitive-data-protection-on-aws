@@ -26,7 +26,7 @@ const SourceBadge = (props: any) => {
       labelType = CLSAAIFIED_TYPE.Unconnected;
       break;
     case 'CRAWLING':
-      labelType = CLSAAIFIED_TYPE.CRAWLING;
+      labelType = CLSAAIFIED_TYPE.System;
       break;
     case 'FAILED':
       labelType = CLSAAIFIED_TYPE.Failed;
@@ -48,7 +48,7 @@ const SourceBadge = (props: any) => {
       >
         {instanceStatus.length > 15?( <ErrorBadge badgeLabel={instanceStatus} />):(<CommonBadge
           badgeType={BADGE_TYPE.Classified}
-          badgeLabel={instanceStatus.length > 15 ? 'ERROR' : instanceStatus}
+          badgeLabel={instanceStatus}
           labelType={labelType}
         />)}
        

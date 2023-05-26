@@ -18,7 +18,7 @@ export const CLSAAIFIED_TYPE = {
   Failed: 'Failed',
   Completed: 'Completed',
   Stopped: 'Stopped',
-  CRAWLING: 'Crawling',
+  Crawling: 'Crawling',
 };
 
 export const PRIVARY_TYPE_DATA = {
