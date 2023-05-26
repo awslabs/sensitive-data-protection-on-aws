@@ -379,7 +379,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                       tempType = CLSAAIFIED_TYPE.Failed;
                       break;
                     case 'CRAWLING':
-                      tempLabel = CLSAAIFIED_TYPE.Crawling;
+                      tempLabel = 'CRAWLING';
                       tempType = CLSAAIFIED_TYPE.System;
                       break;
                     case '':
