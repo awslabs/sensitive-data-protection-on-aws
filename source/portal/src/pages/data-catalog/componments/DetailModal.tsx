@@ -285,7 +285,7 @@ const DetailModal: React.FC<any> = (props: any) => {
         <div className="mt-5">
           <span>
             <b>{t('catalog:modal.customLabel')} </b>
-            {selectRowData[COLUMN_OBJECT_STR.Labels].map((label: any) => {
+            {selectRowData[COLUMN_OBJECT_STR.Labels]?.map((label: any) => {
               return (
                 <span key={label.id} className="custom-badge label mr-5">
                   {label.label_name}

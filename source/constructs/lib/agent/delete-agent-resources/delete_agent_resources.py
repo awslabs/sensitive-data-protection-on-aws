@@ -89,10 +89,13 @@ def notify_admin_to_delete_resources():
         "Region": os.getenv("RegionName")
     }
     url_suffix = ".cn" if partition == "aws-cn" else ""
-    response = sqs.send_message(
-        QueueUrl=f"https://sqs.{os.getenv('AWS_REGION')}.amazonaws.com{url_suffix}/{os.getenv('AdminAccountId')}/{os.getenv('QueueName')}",
-        MessageBody=json.dumps(message))
-    logger.info(response)
+    try:
+        response = sqs.send_message(
+            QueueUrl=f"https://sqs.{os.getenv('AWS_REGION')}.amazonaws.com{url_suffix}/{os.getenv('AdminAccountId')}/{os.getenv('QueueName')}",
+            MessageBody=json.dumps(message))
+        logger.info(response)
+    except Exception as e:
+        logger.error(e)
 
 
 def on_delete(event):

@@ -45,10 +45,12 @@ import { BuildConfig } from '../common/build-config';
 import { SolutionInfo } from '../common/solution-info';
 
 export interface ApiProps {
-  vpc: IVpc;
-  bucketName: string;
-  rdsClientSecurityGroup: SecurityGroup;
-  // orgId: string;
+  readonly vpc: IVpc;
+  readonly bucketName: string;
+  readonly rdsClientSecurityGroup: SecurityGroup;
+  readonly oidcIssuer: string;
+  readonly oidcClientId: string;
+  readonly oidcJwksUri: string;
 }
 
 
@@ -112,6 +114,9 @@ export class ApiStack extends Construct {
         ProjectBucketName: props.bucketName,
         Version: SolutionInfo.SOLUTION_VERSION,
         ControllerFunctionName: controllerFunctionName,
+        OidcIssuer: props.oidcIssuer,
+        OidcClientId: props.oidcClientId,
+        OidcJwksUri: props.oidcJwksUri,
       },
       role: this.apiRole,
       layers: [this.apiLayer],

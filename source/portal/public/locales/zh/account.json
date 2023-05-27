@@ -51,7 +51,7 @@
       "step5": "步骤 5：填写组织管理账户 ID"
     },
     "account": {
-      "via": "个人账户",
+      "via": "独立AWS账户",
       "step1": "步骤 1：复制代理堆栈的 CloudFormation 模板网址",
       "step1Desc": "CloudFormation 堆栈用于授权在此平台上跟踪 AWS 账户。",
       "step1Copy": "复制 [CloudFormationStack-AuthorizeMembers] CloudFormation 堆栈的 Amazon S3 URL",
