@@ -26,6 +26,10 @@ def get_identifier(id: int):
     return crud.get_identifier(id)
 
 
+# def get_identifier_by_names(names: list):
+#     return crud.get_identifier_by_names(names)
+
+
 def create_identifier(identifier: schemas.TemplateIdentifier):
     res_list = crud.get_identify_by_name(identifier.name)
     if res_list:
