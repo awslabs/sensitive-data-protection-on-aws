@@ -15,6 +15,9 @@ def get_identifiers(condition: QueryCondition):
         if item.column == 'props':
             props_filter.append(item)
         else:
+            if item.column == 'type' and int(item.values[0])==0:
+                item.values = [0, 2]
+                item.operation = 'in'
             props_filter_not.append(item)
     condition.conditions = props_filter_not
     query = query_with_condition(get_session().query(models.TemplateIdentifier), condition)
@@ -28,6 +31,10 @@ def get_identifiers(condition: QueryCondition):
                         break
             query = query.filter(models.TemplateIdentifier.id.in_(q_item))
     return query
+
+
+# def get_identifier_by_names(names: list):
+#     return get_session().query()
 
 
 def get_mappings(id: int, condition: QueryCondition):

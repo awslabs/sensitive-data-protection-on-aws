@@ -25,6 +25,7 @@ def query_with_condition(query: Query, condition: QueryCondition):
     table_obj = query.column_descriptions[0]['type']
     free_search_columns = []
     free_search_conditions = []
+    in_conditions = []
     for column in [item for item in dir(table_obj) if not item.startswith('_')]:
         if hasattr(getattr(table_obj, column), 'info') and getattr(table_obj, column).info.get('searchable'):
             free_search_columns.append(column)
@@ -38,6 +39,10 @@ def query_with_condition(query: Query, condition: QueryCondition):
                     query = query.filter(table_value != c.values)
                 elif c.operation == OperationType.CONTAIN.value:
                     query = query.filter(table_value.contains(c.values))
+                elif c.operation == OperationType.IN.value:
+                    for item in c.values:
+                        in_conditions.append(table_value == item)
+                    query = query.filter(or_(*in_conditions))
                 else:
                     query = query.filter(or_(table_value == None, not_(table_value.contains(c.values))))
             elif free_search_columns:

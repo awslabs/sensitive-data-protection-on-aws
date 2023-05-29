@@ -240,6 +240,7 @@ class OperationType(Enum):
     NOT_EQUAL = "!="
     CONTAIN = ":"
     NOT_CONTAIN = "!:"
+    IN = "in"
 
 
 
