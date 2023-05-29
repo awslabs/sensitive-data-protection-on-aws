@@ -362,10 +362,31 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
             if vpc_sg['Status'] == 'active':
                 rds_security_groups.append(vpc_sg['VpcSecurityGroupId'])
 
+        subnet_ids = []
         for subnet in rds_instance['DBSubnetGroup']['Subnets']:
             if subnet['SubnetAvailabilityZone']['Name'] == rds_az:
                 rds_subnet_id = subnet['SubnetIdentifier']
-                break;
+                subnet_ids.append(rds_subnet_id)
+
+        ec2_client = boto3.client('ec2',
+                                  aws_access_key_id=credentials['AccessKeyId'],
+                                  aws_secret_access_key=credentials['SecretAccessKey'],
+                                  aws_session_token=credentials['SessionToken'],
+                                  region_name=region)
+        response = ec2_client.describe_subnets(
+            SubnetIds=subnet_ids
+        )
+        logger.info(response)
+        for subnet_desc in response['Subnets']:
+            subnet_map_public_ip = subnet_desc['MapPublicIpOnLaunch']
+            if subnet_map_public_ip:
+                logger.info("RDS instance subnet is public")
+            else:
+                rds_subnet_id = subnet_map_public_ip
+                logger.info("RDS instance subnet is private")
+                logger.info(rds_subnet_id)
+                break
+
         if public_access:
             raise BizException(MessageEnum.SOURCE_RDS_PUBLIC_ACCESSABLE.get_code(),
                                MessageEnum.SOURCE_RDS_PUBLIC_ACCESSABLE.get_msg())
