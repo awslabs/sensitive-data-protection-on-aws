@@ -367,7 +367,7 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
             if subnet['SubnetAvailabilityZone']['Name'] == rds_az:
                 rds_subnet_id = subnet['SubnetIdentifier']
                 subnet_ids.append(rds_subnet_id)
-
+        logger.info(subnet_ids)
         ec2_client = boto3.client('ec2',
                                   aws_access_key_id=credentials['AccessKeyId'],
                                   aws_secret_access_key=credentials['SecretAccessKey'],
@@ -382,7 +382,7 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
             if subnet_map_public_ip:
                 logger.info("RDS instance subnet is public")
             else:
-                rds_subnet_id = subnet_map_public_ip
+                rds_subnet_id = subnet_desc['SubnetId']
                 logger.info("RDS instance subnet is private")
                 logger.info(rds_subnet_id)
                 break
