@@ -442,8 +442,14 @@ def get_run_status(job_id: int, run_id: int) -> schemas.DiscoveryJobRunDatabaseS
 def get_run_database_progress(job_id: int, run_id: int, run_database_id: int) -> schemas.DiscoveryJobRunDatabaseProgress:
     run_database = crud.get_run_database(run_database_id)
     if run_database.table_count is None:
-        run_database.table_count = __get_table_count_from_agent(run_database)
-        crud.save_run_database(run_database)
+        try:
+            run_database.table_count = __get_table_count_from_agent(run_database)
+            crud.save_run_database(run_database)
+        except Exception:
+            message = traceback.format_exc()
+            logger.exception(f"get table count from agent exception:{message}")
+            return schemas.DiscoveryJobRunDatabaseProgress(current_table_count=-1,
+                                                           table_count=-1)
     current_table_count = -1
     if run_database.state == RunDatabaseState.READY.value:
         current_table_count = 0
