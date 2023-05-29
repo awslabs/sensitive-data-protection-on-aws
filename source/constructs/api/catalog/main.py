@@ -113,11 +113,12 @@ def get_catalog_table_by_database_identifier(
     region: str,
     database_type: str,
     database_name: str,
+    table_name: str,
     identifier: str,
     params: Params = Depends(),
 ):
     catalogs = crud.get_catalog_table_level_classification_by_database_identifier(
-            account_id, region, database_type, database_name, identifier
+            account_id, region, database_type, database_name, table_name, identifier
         )
 
     rlt = paginate(catalogs, params, )

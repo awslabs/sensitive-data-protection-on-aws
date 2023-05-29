@@ -151,20 +151,20 @@ def get_catalog_table_level_classification_by_database_identifier(
     region: str,
     database_type: str,
     database_name: str,
+    table_name: str,
     identifier: str,
 ):
+    session = get_session()
+    query = session.query(models.CatalogTableLevelClassification)
+    query = query.filter(models.CatalogTableLevelClassification.account_id == account_id)
+    query = query.filter(models.CatalogTableLevelClassification.region == region)
+    query = query.filter(models.CatalogTableLevelClassification.database_type == database_type)
+    query = query.filter(models.CatalogTableLevelClassification.database_name == database_name)
+    query = query.filter(models.CatalogTableLevelClassification.identifiers.ilike("%" + identifier + "%"))
+    if table_name is not None:
+        query = query.filter(models.CatalogTableLevelClassification.table_name.ilike("%" + table_name + "%"))
     result = (
-        get_session()
-        .query(models.CatalogTableLevelClassification)
-        .filter(models.CatalogTableLevelClassification.account_id == account_id)
-        .filter(models.CatalogTableLevelClassification.region == region)
-        .filter(models.CatalogTableLevelClassification.database_type == database_type)
-        .filter(models.CatalogTableLevelClassification.database_name == database_name)
-        .filter(
-            models.CatalogTableLevelClassification.identifiers.ilike(
-                "%" + identifier + "%"
-            )
-        )
+        query
     )
     return result
 
