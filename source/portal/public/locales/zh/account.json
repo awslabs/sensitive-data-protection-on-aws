@@ -18,7 +18,7 @@
   "awsRegions": "AWS 区域",
   "dataSourceConnection": "数据源连接",
   "dataSourceDiscoverInAWSAccount": "在 AWS 账户中发现的数据源。",
-  "totalS3Bucket": "S3 存储分段总数",
+  "totalS3Bucket": "S3 存储桶总数",
   "totalRDSInstance": "RDS 实例总数",
   "inputAccountId": "请输入账户 ID",
   "addSuccess": "添加成功",
