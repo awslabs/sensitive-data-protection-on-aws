@@ -319,6 +319,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
           region: selectRowData.region,
           database_type: selectRowData.database_type,
           database_name: selectRowData.database_name,
+          table_name:"",
           page: currentPage,
           size: preferences.pageSize,
         };
