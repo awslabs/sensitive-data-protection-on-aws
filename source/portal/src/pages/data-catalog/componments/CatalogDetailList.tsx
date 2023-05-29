@@ -12,6 +12,7 @@ import {
   Badge,
   Textarea,
   Multiselect,
+  TextFilter,
 } from '@cloudscape-design/components';
 import CommonBadge from 'pages/common-badge';
 import SchemaModal from './SchemaModal';
@@ -84,6 +85,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
     const [selectPrivacyOption, setSelectPrivacyOption] = useState(
       null as SelectProps.Option | null
     );
+    const [nameFilterText, setNameFilterText] = useState('');
     const [preferences, setPreferences] = useState({
       pageSize: 20,
       wrapLines: true,
@@ -160,7 +162,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
 
     useEffect(() => {
       getPageData();
-    }, [query, currentPage]);
+    }, [query, currentPage, nameFilterText]);
 
     useEffect(() => {
       if (currentPage !== 1) {
@@ -170,17 +172,17 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       }
     }, [preferences.pageSize]);
 
-    const getPageData = async () => {
+    const getPageData = async (nameFilter?: string) => {
       setIsLoading(true);
       switch (tagId) {
         case 'dataIdentifiers':
           await getDataIdentifiers();
           break;
         case COLUMN_OBJECT_STR.Folders:
-          await getDataFolders();
+          await getDataFolders(nameFilter);
           break;
         case COLUMN_OBJECT_STR.Tables:
-          await getDataFolders();
+          await getDataFolders(nameFilter);
           break;
         case COLUMN_OBJECT_STR.Schema:
           setSaveLoading(true);
@@ -312,14 +314,14 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       getPageData();
     };
 
-    const getDataFolders = async () => {
+    const getDataFolders = async (nameFilter?: string) => {
       try {
         const requestParam: any = {
           account_id: selectRowData.account_id,
           region: selectRowData.region,
           database_type: selectRowData.database_type,
           database_name: selectRowData.database_name,
-          table_name:"",
+          table_name: nameFilter,
           page: currentPage,
           size: preferences.pageSize,
         };
@@ -884,11 +886,23 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
               </Box>
             }
             filter={
-              needFilter && (
+              identifiersFilter ? (
+                <>
+                  <TextFilter
+                    filteringText={nameFilterText}
+                    onChange={({ detail }) => {
+                      setNameFilterText(detail.filteringText);
+                    }}
+                    countText={`${totalCount} ${t('filter.matches')}`}
+                  />
+                </>
+              ) : needFilter ? (
                 <ResourcesFilter
                   isFreeText={isFreeText}
                   {...resourcesFilterProps}
                 />
+              ) : (
+                <></>
               )
             }
             header={
