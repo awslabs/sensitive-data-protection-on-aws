@@ -48,6 +48,7 @@ def build_s3_targets(bucket, credentials, region, is_init):
     """ :type : pyboto3.s3 """
     response = s3.list_objects(Bucket=bucket, Delimiter='/')
     if 'Contents' not in response and 'CommonPrefixes' not in response:
+        logger.info(response)
         raise BizException(MessageEnum.SOURCE_S3_EMPTY_BUCKET.get_code(),
                            MessageEnum.SOURCE_S3_EMPTY_BUCKET.get_msg())
     logger.info(response)
@@ -292,6 +293,7 @@ def sync_s3_connection(account: str, region: str, bucket: str):
             Permissions=['ALL'],
             PermissionsWithGrantOption=['ALL']
         )
+        logger.info(response)
         sleep(SLEEP_MIN_TIME)
         try:
             gt_cr_response = glue.get_crawler(Name=crawler_name)
@@ -953,6 +955,7 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                 Permissions=['ALL'],
                 PermissionsWithGrantOption=['ALL']
             )
+            logger.info(response)
             sleep(SLEEP_MIN_TIME)
             jdbc_targets = []
             for schema in schema_list:
