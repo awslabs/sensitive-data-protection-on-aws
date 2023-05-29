@@ -87,6 +87,8 @@ class MessageEnum(Enum):
     SOURCE_SOURCE_USED_BY_JOB = {1225: "Could not disconnect data source connection, the data source is used by discovery job"}
     SOURCE_DELETE_WHEN_CONNECTING = {1226: "Could not disconnect data source while connection is creating"}
     SOURCE_ORG_ADD_ACCOUNT_FAILED = {1227: "Add account by Organizations failed"}
+    SOURCE_RDS_NO_VPC_SECRET_MANAGER_ENDPOINT = {1228: "Could not find secret manager endpoint or NAT gateway for "
+                                                       "subnetId in VPC"}
 
     # label
     LABEL_EXIST_FAILED = {1611: "Cannot create duplicated label"}

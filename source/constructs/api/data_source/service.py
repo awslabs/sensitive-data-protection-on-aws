@@ -48,6 +48,7 @@ def build_s3_targets(bucket, credentials, region, is_init):
     """ :type : pyboto3.s3 """
     response = s3.list_objects(Bucket=bucket, Delimiter='/')
     if 'Contents' not in response and 'CommonPrefixes' not in response:
+        logger.info(response)
         raise BizException(MessageEnum.SOURCE_S3_EMPTY_BUCKET.get_code(),
                            MessageEnum.SOURCE_S3_EMPTY_BUCKET.get_msg())
     logger.info(response)
@@ -82,146 +83,6 @@ def build_s3_targets(bucket, credentials, region, is_init):
     logger.info("build_s3_targets")
     logger.info(s3_targets)
     return s3_targets
-
-
-def create_s3_connection(account: str, region: str, bucket: str):
-    glue_connection_name = f"s3-{bucket}-connection"
-    glue_database_name = f"s3-{bucket}-database"
-    crawler_name = f"s3-{bucket}-crawler"
-    if region != _admin_account_region:
-        raise BizException(MessageEnum.SOURCE_DO_NOT_SUPPORT_CROSS_REGION.get_code(),
-                           MessageEnum.SOURCE_DO_NOT_SUPPORT_CROSS_REGION.get_msg())
-
-    if crud.get_s3_bucket_source_glue_state(account, region, bucket) == ConnectionState.PENDING.value:
-        raise BizException(MessageEnum.SOURCE_CONNECTION_NOT_FINISHED.get_code(),
-                           MessageEnum.SOURCE_CONNECTION_NOT_FINISHED.get_msg())
-    if crud.get_s3_bucket_source_glue_state(account, region, bucket) == ConnectionState.CRAWLING.value:
-        raise BizException(MessageEnum.SOURCE_CONNECTION_CRAWLING.get_code(),
-                           MessageEnum.SOURCE_CONNECTION_CRAWLING.get_msg())
-    if crud.get_s3_bucket_source_glue_state(account, region, bucket) == ConnectionState.ACTIVE.value:
-        raise BizException(MessageEnum.SOURCE_CONNECTION_ACTIVE.get_code(),
-                           MessageEnum.SOURCE_CONNECTION_ACTIVE.get_msg())
-
-    try:
-        iam_role_name = crud.get_iam_role(account)
-        assumed_role = sts.assume_role(
-            RoleArn=f"{iam_role_name}",
-            RoleSessionName="glue-s3-connection"
-        )
-        credentials = assumed_role['Credentials']
-        # PENDING｜ACTIVE｜ERROR with message
-        crud.set_s3_bucket_source_glue_state(account, region, bucket, ConnectionState.PENDING.value)
-        s3_targets = build_s3_targets(bucket, credentials, region, True)
-        glue = boto3.client('glue',
-                            aws_access_key_id=credentials['AccessKeyId'],
-                            aws_secret_access_key=credentials['SecretAccessKey'],
-                            aws_session_token=credentials['SessionToken'],
-                            region_name=region
-                            )
-        """ :type : pyboto3.glue """
-
-        try:
-            glue.get_database(Name=glue_database_name)
-        except Exception as e:
-            glue.create_database(DatabaseInput={'Name': glue_database_name})
-        # wait for database creation, several seconds
-        lakeformation = boto3.client('lakeformation',
-                                     aws_access_key_id=credentials['AccessKeyId'],
-                                     aws_secret_access_key=credentials['SecretAccessKey'],
-                                     aws_session_token=credentials['SessionToken'],
-                                     region_name=region)
-        """ :type : pyboto3.lakeformation """
-        crawler_role_arn = __gen_role_arn(account_id=account,
-                                          region=region,
-                                          role_name='GlueDetectionJobRole')
-        response = lakeformation.grant_permissions(
-            Principal={
-                'DataLakePrincipalIdentifier': f"{crawler_role_arn}"
-            },
-            Resource={
-                'Database': {
-                    'Name': glue_database_name
-                }
-            },
-            Permissions=['ALL'],
-            PermissionsWithGrantOption=['ALL']
-        )
-        logger.info(response)
-        try:
-            glue.get_crawler(Name=crawler_name)
-            response = glue.start_crawler(
-                Name=crawler_name
-            )
-            logger.info(response)
-        except Exception as e:
-            response = glue.create_crawler(
-                Name=crawler_name,
-                Role=crawler_role_arn,
-                DatabaseName=glue_database_name,
-                Targets={
-                    "S3Targets": s3_targets
-                },
-                SchemaChangePolicy={
-                    "UpdateBehavior": "UPDATE_IN_DATABASE",
-                    "DeleteBehavior": "DELETE_FROM_DATABASE"
-                },
-                RecrawlPolicy={
-                    "RecrawlBehavior": "CRAWL_EVERYTHING"
-                },
-                Tags={
-                    'AdminAccountId': _admin_account_id
-                }
-            )
-            logger.info(response)
-            response = glue.start_crawler(
-                Name=crawler_name
-            )
-            logger.info(response)
-
-        crud.create_s3_connection(account, region, bucket, glue_connection_name, glue_database_name, crawler_name)
-    except Exception as err:
-        crud.set_s3_bucket_source_glue_state(account, region, bucket, str(err))
-        glue = boto3.client('glue',
-                            aws_access_key_id=credentials['AccessKeyId'],
-                            aws_secret_access_key=credentials['SecretAccessKey'],
-                            aws_session_token=credentials['SessionToken'],
-                            region_name=region
-                            )
-        """ :type : pyboto3.glue """
-
-        try:
-            glue.delete_crawler(crawler_name)
-        except Exception as e:
-            pass
-        try:
-            glue.delete_database(Name=glue_database_name)
-        except Exception as e:
-            pass
-        try:
-            glue.delete_connection(ConnectionName=glue_connection_name)
-        except Exception as e:
-            pass
-
-        logger.error(traceback.format_exc())
-        raise BizException(MessageEnum.SOURCE_CONNECTION_FAILED.get_code(),
-                           str(err))
-
-
-def create_s3_connection_by_region(account: str, region: str):
-    buckets = crud.list_s3_bucket_source_by_account(
-        account_id=account,
-        region=region,
-        state=None
-    )
-    for bucket in buckets:
-        try:
-            create_s3_connection(
-                account=account,
-                region=region,
-                bucket=bucket
-            )
-        except Exception as err:
-            logger.error(traceback.format_exc())
 
 
 def sync_s3_connection(account: str, region: str, bucket: str):
@@ -292,6 +153,7 @@ def sync_s3_connection(account: str, region: str, bucket: str):
             Permissions=['ALL'],
             PermissionsWithGrantOption=['ALL']
         )
+        logger.info(response)
         sleep(SLEEP_MIN_TIME)
         try:
             gt_cr_response = glue.get_crawler(Name=crawler_name)
@@ -385,7 +247,7 @@ def sync_s3_connection_by_region(account: str, region: str):
 
 
 # The routing of the RDS subnet is not checked
-def check_link(credentials, region_name: str, vpc_id: str):
+def check_link(credentials, region_name: str, vpc_id: str, rds_secret_id: str):
     ec2 = boto3.client('ec2',
                        aws_access_key_id=credentials['AccessKeyId'],
                        aws_secret_access_key=credentials['SecretAccessKey'],
@@ -395,322 +257,35 @@ def check_link(credentials, region_name: str, vpc_id: str):
     nat_gateways = ec2.describe_nat_gateways(Filters=[{'Name': 'vpc-id', 'Values': [vpc_id]}])
     for nat_gateway in nat_gateways['NatGateways']:
         if nat_gateway['State'] == 'available':
-            return True, True
+            return
     endpoints = ec2.describe_vpc_endpoints(Filters=[{'Name': 'vpc-id', 'Values': [vpc_id]}])['VpcEndpoints']
     s3_endpoint_exists = False
     glue_endpoint_exists = False
+    secret_endpoint_exists = False
     for endpoint in endpoints:
         if endpoint['ServiceName'] == f'com.amazonaws.{region_name}.s3':
             s3_endpoint_exists = True
         elif endpoint['ServiceName'] == f'com.amazonaws.{region_name}.glue':
             glue_endpoint_exists = True
-    return s3_endpoint_exists, glue_endpoint_exists
+        elif rds_secret_id is not None and endpoint['ServiceName'] == f'com.amazonaws.{region_name}.secretsmanager':
+            secret_endpoint_exists = True
+
+    if not s3_endpoint_exists:
+        raise BizException(MessageEnum.SOURCE_RDS_NO_VPC_S3_ENDPOINT.get_code(),
+                           MessageEnum.SOURCE_RDS_NO_VPC_S3_ENDPOINT.get_msg())
+    if not glue_endpoint_exists:
+        raise BizException(MessageEnum.SOURCE_RDS_NO_VPC_GLUE_ENDPOINT.get_code(),
+                           MessageEnum.SOURCE_RDS_NO_VPC_GLUE_ENDPOINT.get_msg())
+    if rds_secret_id is not None and not secret_endpoint_exists:
+        raise BizException(MessageEnum.SOURCE_RDS_NO_VPC_SECRET_MANAGER_ENDPOINT.get_code(),
+                           MessageEnum.SOURCE_RDS_NO_VPC_SECRET_MANAGER_ENDPOINT.get_msg())
+    logger.info("sync_rds_connection check_link :")
+    logger.info(s3_endpoint_exists)
+    logger.info(glue_endpoint_exists)
+    logger.info(secret_endpoint_exists)
 
 
 # Create crawler, connection and database and start crawler
-def create_rds_connection(account: str, region: str, instance_name: str, rds_user=None, rds_password=None,
-                          rds_secret_id=None):
-    try:
-        if rds_user is None and rds_secret_id is None:
-            raise BizException(MessageEnum.SOURCE_RDS_NO_AUTH.get_code(),
-                               MessageEnum.SOURCE_RDS_NO_AUTH.get_msg())
-
-        if rds_user is not None and rds_secret_id is not None:
-            raise BizException(MessageEnum.SOURCE_RDS_DUPLICATE_AUTH.get_code(),
-                               MessageEnum.SOURCE_RDS_DUPLICATE_AUTH.get_msg())
-
-        if region != _admin_account_region:
-            raise BizException(MessageEnum.SOURCE_DO_NOT_SUPPORT_CROSS_REGION.get_code(),
-                               MessageEnum.SOURCE_DO_NOT_SUPPORT_CROSS_REGION.get_msg())
-
-        if crud.get_rds_instance_source_glue_state(account, region, instance_name) == ConnectionState.PENDING.value:
-            raise BizException(MessageEnum.SOURCE_CONNECTION_NOT_FINISHED.get_code(),
-                               MessageEnum.SOURCE_CONNECTION_NOT_FINISHED.get_msg())
-
-        if crud.get_rds_instance_source_glue_state(account, region, instance_name) == ConnectionState.CRAWLING.value:
-            raise BizException(MessageEnum.SOURCE_CONNECTION_CRAWLING.get_code(),
-                               MessageEnum.SOURCE_CONNECTION_CRAWLING.get_msg())
-
-        if crud.get_rds_instance_source_glue_state(account, region, instance_name) == ConnectionState.ACTIVE.value:
-            raise BizException(MessageEnum.SOURCE_CONNECTION_ACTIVE.get_code(),
-                               MessageEnum.SOURCE_CONNECTION_ACTIVE.get_msg())
-    except Exception as err:
-        logger.error(traceback.format_exc())
-        raise BizException(MessageEnum.SOURCE_CONNECTION_FAILED.get_code(), str(err))
-
-    glue_connection_name = f"rds-{instance_name}-connection"
-    glue_database_name = f"rds-{instance_name}-database"
-    crawler_name = f"rds-{instance_name}-crawler"
-    crawler_role_arn = __gen_role_arn(account_id=account,
-                                      region=region,
-                                      role_name='GlueDetectionJobRole')
-    credentials = None
-    try:
-        iam_role_name = crud.get_iam_role(account)
-
-        assumed_role = sts.assume_role(
-            RoleArn=f"{iam_role_name}",
-            RoleSessionName="glue-rds-connection"
-        )
-        credentials = assumed_role['Credentials']
-    except Exception as err:
-        raise BizException(MessageEnum.SOURCE_ASSUME_ROLE_FAILED.get_code(),
-                           MessageEnum.SOURCE_ASSUME_ROLE_FAILED.get_msg())
-    if credentials is None:
-        raise BizException(MessageEnum.SOURCE_ASSUME_ROLE_FAILED.get_code(),
-                           MessageEnum.SOURCE_ASSUME_ROLE_FAILED.get_msg())
-
-    try:
-        # PENDING｜ACTIVE｜ERROR with message
-        crud.set_rds_instance_source_glue_state(account, region, instance_name, ConnectionState.PENDING.value)
-        rds = boto3.client(
-            'rds',
-            aws_access_key_id=credentials['AccessKeyId'],
-            aws_secret_access_key=credentials['SecretAccessKey'],
-            aws_session_token=credentials['SessionToken'],
-            region_name=region
-        )
-        """ :type : pyboto3.rds """
-
-        rds_instance = rds.describe_db_instances(DBInstanceIdentifier=instance_name)['DBInstances'][0]
-        public_access = rds_instance['PubliclyAccessible']
-        engine = rds_instance['Engine']
-        host = rds_instance['Endpoint']['Address']
-        port = rds_instance['Endpoint']['Port']
-        rds_vpc_id = rds_instance['DBSubnetGroup']['VpcId']
-        rds_az = rds_instance['AvailabilityZone']
-        rds_security_groups = []
-        for vpc_sg in rds_instance['VpcSecurityGroups']:
-            if vpc_sg['Status'] == 'active':
-                rds_security_groups.append(vpc_sg['VpcSecurityGroupId'])
-
-        for subnet in rds_instance['DBSubnetGroup']['Subnets']:
-            if subnet['SubnetAvailabilityZone']['Name'] == rds_az:
-                rds_subnet_id = subnet['SubnetIdentifier']
-                break;
-        if public_access:
-            raise BizException(MessageEnum.SOURCE_RDS_PUBLIC_ACCESSABLE.get_code(),
-                               MessageEnum.SOURCE_RDS_PUBLIC_ACCESSABLE.get_msg())
-        # secretsmanager = boto3.client('secretsmanager',
-        #                               aws_access_key_id=credentials['AccessKeyId'],
-        #                               aws_secret_access_key=credentials['SecretAccessKey'],
-        #                               aws_session_token=credentials['SessionToken'],
-        #                               region_name='cn-north-1')
-        # """ :type : pyboto3.secretsmanager """
-        # response = secretsmanager.list_secrets()
-        # # print(response)
-        # response = secretsmanager.get_secret_value(
-        #     SecretId='sdps-mysql'
-        # )
-
-        # ec2 = boto3.client('ec2',
-        #                    aws_access_key_id=credentials['AccessKeyId'],
-        #                    aws_secret_access_key=credentials['SecretAccessKey'],
-        #                    aws_session_token=credentials['SessionToken'],
-        #                    region_name=region)
-        # """ :type : pyboto3.ec2 """
-        # for route_table in ec2.describe_route_tables()['RouteTables']:
-        #     if route_table['VpcId'] == rds_vpc_id:
-        #         rds_route_table_id = route_table['RouteTableId']
-        #
-        # endpoint_exists = False
-        # for endpoints in ec2.describe_vpc_endpoints()['VpcEndpoints']:
-        #     if rds_vpc_id == endpoints['VpcId'] and 'Gateway' == endpoints['VpcEndpointType']:
-        #         for route_table in endpoints['RouteTableIds']:
-        #             if route_table == rds_route_table_id:
-        #                 endpoint_exists = True
-        #                 glue_vpc_endpoint_id = endpoints['VpcEndpointId']
-        #                 break
-        #
-        # if not endpoint_exists:
-        #     response = ec2.create_vpc_endpoint(
-        #         VpcEndpointType='Gateway',
-        #         VpcId=rds_vpc_id,
-        #         ServiceName=f"com.amazonaws.{region}.s3",
-        #         RouteTableIds=[
-        #             rds_route_table_id,
-        #         ]
-        #     )
-        #     glue_vpc_endpoint_id = response['VpcEndpoint']['VpcEndpointId']
-        link_result_s3, link_result_glue = check_link(credentials, region, rds_vpc_id)
-        if not link_result_s3:
-            raise BizException(MessageEnum.SOURCE_RDS_NO_VPC_S3_ENDPOINT.get_code(),
-                               MessageEnum.SOURCE_RDS_NO_VPC_S3_ENDPOINT.get_msg())
-        if not link_result_glue:
-            raise BizException(MessageEnum.SOURCE_RDS_NO_VPC_GLUE_ENDPOINT.get_code(),
-                               MessageEnum.SOURCE_RDS_NO_VPC_GLUE_ENDPOINT.get_msg())
-
-        if rds_secret_id is not None:
-            secretsmanager = boto3.client('secretsmanager',
-                                          aws_access_key_id=credentials['AccessKeyId'],
-                                          aws_secret_access_key=credentials['SecretAccessKey'],
-                                          aws_session_token=credentials['SessionToken'],
-                                          region_name=region
-                                          )
-            """ :type : pyboto3.secretsmanager """
-            secret_value = secretsmanager.get_secret_value(
-                SecretId=rds_secret_id
-            )
-            secret_values = json.loads(secret_value['SecretString'])
-            rds_user = secret_values['username']
-            rds_password = secret_values['password']
-
-        payload = {
-            "engine": engine,
-            "host": host,
-            "port": port,
-            "username": rds_user,
-            "password": rds_password,
-        }
-        schema_list = __list_rds_schema(account, region, credentials, instance_name, payload, rds_security_groups,
-                                        rds_subnet_id)
-        logger.info(schema_list)
-        if len(schema_list) > 0:
-            glue = boto3.client('glue',
-                                aws_access_key_id=credentials['AccessKeyId'],
-                                aws_secret_access_key=credentials['SecretAccessKey'],
-                                aws_session_token=credentials['SessionToken'],
-                                region_name=region
-                                )
-            """ :type : pyboto3.glue """
-
-            jdbc_url = __create_jdbc_url(engine=engine, host=host, port=port)
-            try:
-                glue.get_connection(Name=glue_connection_name)
-            except Exception as e:
-                if rds_secret_id is None:
-                    response = glue.create_connection(
-                        ConnectionInput={
-                            'Name': glue_connection_name,
-                            'Description': glue_connection_name,
-                            'ConnectionType': 'JDBC',
-                            'ConnectionProperties': {
-                                'USERNAME': rds_user,
-                                'PASSWORD': rds_password,
-                                'JDBC_CONNECTION_URL': jdbc_url,
-                                'JDBC_ENFORCE_SSL': 'false',
-                            },
-
-                            'PhysicalConnectionRequirements': {
-                                'SubnetId': rds_subnet_id,
-                                'AvailabilityZone': rds_az,
-                                'SecurityGroupIdList': rds_security_groups
-                            }
-                        }
-                    )
-                else:
-                    response = glue.create_connection(
-                        ConnectionInput={
-                            'Name': glue_connection_name,
-                            'Description': glue_connection_name,
-                            'ConnectionType': 'JDBC',
-                            'ConnectionProperties': {
-                                'SECRET_ID': rds_secret_id,
-                                'JDBC_CONNECTION_URL': jdbc_url,
-                                'JDBC_ENFORCE_SSL': 'false',
-                            },
-
-                            'PhysicalConnectionRequirements': {
-                                'SubnetId': rds_subnet_id,
-                                'AvailabilityZone': rds_az,
-                                'SecurityGroupIdList': rds_security_groups
-                            }
-                        }
-                    )
-            try:
-                glue.get_database(Name=glue_database_name)
-            except Exception as e:
-                response = glue.create_database(DatabaseInput={'Name': glue_database_name})
-            lakeformation = boto3.client('lakeformation',
-                                         aws_access_key_id=credentials['AccessKeyId'],
-                                         aws_secret_access_key=credentials['SecretAccessKey'],
-                                         aws_session_token=credentials['SessionToken'],
-                                         region_name=region)
-            """ :type : pyboto3.lakeformation """
-            response = lakeformation.grant_permissions(
-                Principal={
-                    'DataLakePrincipalIdentifier': f"{crawler_role_arn}"
-                },
-                Resource={
-                    'Database': {
-                        'Name': glue_database_name
-                    }
-                },
-                Permissions=['ALL'],
-                PermissionsWithGrantOption=['ALL']
-            )
-
-            jdbc_targets = []
-            for schema in schema_list:
-                jdbc_targets.append(
-                    {
-                        'ConnectionName': glue_connection_name,
-                        'Path': f"{schema}/%",
-                    }
-                )
-
-            try:
-                glue.get_crawler(Name=crawler_name)
-                response = glue.start_crawler(
-                    Name=crawler_name
-                )
-                logger.info(response)
-            except Exception as e:
-                response = glue.create_crawler(
-                    Name=crawler_name,
-                    Role=crawler_role_arn,
-                    DatabaseName=glue_database_name,
-                    Targets={
-                        'JdbcTargets': jdbc_targets,
-                    },
-                    SchemaChangePolicy={
-                        "UpdateBehavior": "UPDATE_IN_DATABASE",
-                        "DeleteBehavior": "DELETE_FROM_DATABASE"
-                    },
-                    RecrawlPolicy={
-                        "RecrawlBehavior": "CRAWL_EVERYTHING"
-                    },
-                    Tags={
-                        'AdminAccountId': _admin_account_id
-                    }
-                )
-                glue.start_crawler(
-                    Name=crawler_name
-                )
-            crud.create_rds_connection(account, region, instance_name, glue_connection_name, glue_database_name,
-                                       None, crawler_name)
-        else:
-            crud.set_rds_instance_source_glue_state(account, region, instance_name,
-                                                    MessageEnum.SOURCE_RDS_NO_SCHEMA.get_msg())
-            raise BizException(MessageEnum.SOURCE_RDS_NO_SCHEMA.get_code(), MessageEnum.SOURCE_RDS_NO_SCHEMA.get_msg())
-    except Exception as err:
-        crud.set_rds_instance_source_glue_state(account, region, instance_name, str(err))
-        glue = boto3.client('glue',
-                            aws_access_key_id=credentials['AccessKeyId'],
-                            aws_secret_access_key=credentials['SecretAccessKey'],
-                            aws_session_token=credentials['SessionToken'],
-                            region_name=region
-                            )
-        """ :type : pyboto3.glue """
-
-        try:
-            glue.delete_crawler(crawler_name)
-        except Exception:
-            pass
-        try:
-            glue.delete_database(Name=glue_database_name)
-        except Exception:
-            pass
-        try:
-            glue.delete_connection(ConnectionName=glue_connection_name)
-        except Exception:
-            pass
-
-        logger.error(traceback.format_exc())
-        raise BizException(MessageEnum.SOURCE_CONNECTION_FAILED.get_code(),
-                           str(err))
-
-
 def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=None, rds_password=None,
                         rds_secret_id=None):
     glue_connection_name = f"rds-{instance_name}-connection"
@@ -787,10 +362,31 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
             if vpc_sg['Status'] == 'active':
                 rds_security_groups.append(vpc_sg['VpcSecurityGroupId'])
 
+        subnet_ids = []
         for subnet in rds_instance['DBSubnetGroup']['Subnets']:
             if subnet['SubnetAvailabilityZone']['Name'] == rds_az:
                 rds_subnet_id = subnet['SubnetIdentifier']
-                break;
+                subnet_ids.append(rds_subnet_id)
+        logger.info(subnet_ids)
+        ec2_client = boto3.client('ec2',
+                                  aws_access_key_id=credentials['AccessKeyId'],
+                                  aws_secret_access_key=credentials['SecretAccessKey'],
+                                  aws_session_token=credentials['SessionToken'],
+                                  region_name=region)
+        response = ec2_client.describe_subnets(
+            SubnetIds=subnet_ids
+        )
+        logger.info(response)
+        for subnet_desc in response['Subnets']:
+            subnet_map_public_ip = subnet_desc['MapPublicIpOnLaunch']
+            if subnet_map_public_ip:
+                logger.info("RDS instance subnet is public")
+            else:
+                rds_subnet_id = subnet_desc['SubnetId']
+                logger.info("RDS instance subnet is private")
+                logger.info(rds_subnet_id)
+                break
+
         if public_access:
             raise BizException(MessageEnum.SOURCE_RDS_PUBLIC_ACCESSABLE.get_code(),
                                MessageEnum.SOURCE_RDS_PUBLIC_ACCESSABLE.get_msg())
@@ -835,17 +431,7 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
         #         ]
         #     )
         #     glue_vpc_endpoint_id = response['VpcEndpoint']['VpcEndpointId']
-        link_result_s3, link_result_glue = check_link(credentials, region, rds_vpc_id)
-        logger.info("sync_rds_connection check_link :")
-        logger.info(link_result_s3)
-        logger.info(link_result_glue)
-        if not link_result_s3:
-            raise BizException(MessageEnum.SOURCE_RDS_NO_VPC_S3_ENDPOINT.get_code(),
-                               MessageEnum.SOURCE_RDS_NO_VPC_S3_ENDPOINT.get_msg())
-        if not link_result_glue:
-            raise BizException(MessageEnum.SOURCE_RDS_NO_VPC_GLUE_ENDPOINT.get_code(),
-                               MessageEnum.SOURCE_RDS_NO_VPC_GLUE_ENDPOINT.get_msg())
-
+        check_link(credentials, region, rds_vpc_id, rds_secret_id)
         if rds_secret_id is not None:
             secretsmanager = boto3.client('secretsmanager',
                                           aws_access_key_id=credentials['AccessKeyId'],
@@ -953,6 +539,7 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                 Permissions=['ALL'],
                 PermissionsWithGrantOption=['ALL']
             )
+            logger.info(response)
             sleep(SLEEP_MIN_TIME)
             jdbc_targets = []
             for schema in schema_list:
