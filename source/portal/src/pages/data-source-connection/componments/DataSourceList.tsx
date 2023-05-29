@@ -4,7 +4,6 @@ import {
   Button,
   CollectionPreferences,
   Header,
-  Icon,
   Pagination,
   SpaceBetween,
   Table,
@@ -136,7 +135,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
           column: item.propertyKey,
           values: [`${item.value}`],
           condition: 'and',
-          operation: item.operator
+          operation: item.operator,
         });
       });
     if (selectedCrawler) {
@@ -208,8 +207,10 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         await connectDataSourceS3(requestParam);
         showHideSpinner(false);
         alertMsg(t('startConnect'), 'success');
+        setSelectedItems([]);
         getPageData();
       } catch (error) {
+        setSelectedItems([]);
         showHideSpinner(false);
       }
     } else {
@@ -261,6 +262,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         setBtnDisabled(false);
       }
     }
+    setSelectedItems([]);
   };
 
   const clkDisconnectDataSource = async (
@@ -289,9 +291,11 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         : await disconnectDataSourceRDS(requestParam);
       showHideSpinner(false);
       alertMsg(t('disconnectSuccess'), 'success');
+      setSelectedItems([]);
       getPageData();
       return;
     } catch (error) {
+      setSelectedItems([]);
       showHideSpinner(false);
     }
   };
@@ -425,7 +429,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                       }&tagType=${tagType}`}
                       target="_blank"
                       rel="noreferrer"
-                      style={{marginLeft:5}}
+                      style={{ marginLeft: 5 }}
                     >
                       {t('button.dataCatalogs')}
                     </a>
@@ -461,31 +465,31 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                     disabled={isLoading || selectedItems.length === 0}
                     onClick={clkConnected}
                   >
-                    {t("button.connect")}
+                    {t('button.connect')}
                   </Button>
                   <ButtonDropdown
                     onItemClick={({ detail }) => {
-                      if (detail.id === "disconnect") {
+                      if (detail.id === 'disconnect') {
                         clkDisconnectDataSource(detail);
                       }
-                      if (detail.id === "connectAll") {
+                      if (detail.id === 'connectAll') {
                         clkAllS3Connected();
                       }
                     }}
                     items={[
                       {
-                        text: t("disconnect") || "",
-                        id: "disconnect",
+                        text: t('disconnect') || '',
+                        id: 'disconnect',
                         disabled: selectedItems.length === 0,
                       },
                       {
-                        text: t("button.connectAll") || "",
-                        id: "connectAll",
+                        text: t('button.connectAll') || '',
+                        id: 'connectAll',
                         disabled: tagType === DATA_TYPE_ENUM.rds,
                       },
                     ]}
                   >
-                    {t("button.actions")}
+                    {t('button.actions')}
                   </ButtonDropdown>
                 </SpaceBetween>
               }
