@@ -34,22 +34,6 @@ def list_rds_instances(condition: QueryCondition):
     ))
 
 
-@router.post("/s3", response_model=BaseResponse)
-@inject_session
-def create_s3_connection(s3: schemas.SourceS3Connection):
-    if s3.bucket == '*':
-        return service.create_s3_connection_by_region(
-            s3.account_id,
-            s3.region
-        )
-    else:
-        return service.create_s3_connection(
-            s3.account_id,
-            s3.region,
-            s3.bucket
-        )
-
-
 @router.post("/sync-s3", response_model=BaseResponse)
 @inject_session
 def sync_s3_connection(s3: schemas.SourceS3Connection):
@@ -83,19 +67,6 @@ def delete_rds_connection(rds: schemas.SourceDeteteRdsConnection):
         rds.account_id,
         rds.region,
         rds.instance
-    )
-
-
-@router.post("/rds", response_model=BaseResponse)
-@inject_session
-def create_rds_connection(rds: schemas.SourceRdsConnection):
-    return service.create_rds_connection(
-        rds.account_id,
-        rds.region,
-        rds.instance,
-        rds.rds_user,
-        rds.rds_password,
-        rds.rds_secret
     )
 
 
