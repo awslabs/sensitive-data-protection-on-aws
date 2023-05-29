@@ -161,7 +161,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
     }, []);
 
     useEffect(() => {
-      getPageData();
+      getPageData(nameFilterText);
     }, [query, currentPage, nameFilterText]);
 
     useEffect(() => {
