@@ -247,7 +247,7 @@ def sync_s3_connection_by_region(account: str, region: str):
 
 
 # The routing of the RDS subnet is not checked
-def check_link(credentials, region_name: str, vpc_id: str):
+def check_link(credentials, region_name: str, vpc_id: str, rds_secret_id: str):
     ec2 = boto3.client('ec2',
                        aws_access_key_id=credentials['AccessKeyId'],
                        aws_secret_access_key=credentials['SecretAccessKey'],
@@ -257,16 +257,32 @@ def check_link(credentials, region_name: str, vpc_id: str):
     nat_gateways = ec2.describe_nat_gateways(Filters=[{'Name': 'vpc-id', 'Values': [vpc_id]}])
     for nat_gateway in nat_gateways['NatGateways']:
         if nat_gateway['State'] == 'available':
-            return True, True
+            return
     endpoints = ec2.describe_vpc_endpoints(Filters=[{'Name': 'vpc-id', 'Values': [vpc_id]}])['VpcEndpoints']
     s3_endpoint_exists = False
     glue_endpoint_exists = False
+    secret_endpoint_exists = False
     for endpoint in endpoints:
         if endpoint['ServiceName'] == f'com.amazonaws.{region_name}.s3':
             s3_endpoint_exists = True
         elif endpoint['ServiceName'] == f'com.amazonaws.{region_name}.glue':
             glue_endpoint_exists = True
-    return s3_endpoint_exists, glue_endpoint_exists
+        elif rds_secret_id is not None and endpoint['ServiceName'] == f'com.amazonaws.{region_name}.secretsmanager':
+            secret_endpoint_exists = True
+
+    if not s3_endpoint_exists:
+        raise BizException(MessageEnum.SOURCE_RDS_NO_VPC_S3_ENDPOINT.get_code(),
+                           MessageEnum.SOURCE_RDS_NO_VPC_S3_ENDPOINT.get_msg())
+    if not glue_endpoint_exists:
+        raise BizException(MessageEnum.SOURCE_RDS_NO_VPC_GLUE_ENDPOINT.get_code(),
+                           MessageEnum.SOURCE_RDS_NO_VPC_GLUE_ENDPOINT.get_msg())
+    if rds_secret_id is not None and not secret_endpoint_exists:
+        raise BizException(MessageEnum.SOURCE_RDS_NO_VPC_SECRET_MANAGER_ENDPOINT.get_code(),
+                           MessageEnum.SOURCE_RDS_NO_VPC_SECRET_MANAGER_ENDPOINT.get_msg())
+    logger.info("sync_rds_connection check_link :")
+    logger.info(s3_endpoint_exists)
+    logger.info(glue_endpoint_exists)
+    logger.info(secret_endpoint_exists)
 
 
 # Create crawler, connection and database and start crawler
@@ -394,17 +410,7 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
         #         ]
         #     )
         #     glue_vpc_endpoint_id = response['VpcEndpoint']['VpcEndpointId']
-        link_result_s3, link_result_glue = check_link(credentials, region, rds_vpc_id)
-        logger.info("sync_rds_connection check_link :")
-        logger.info(link_result_s3)
-        logger.info(link_result_glue)
-        if not link_result_s3:
-            raise BizException(MessageEnum.SOURCE_RDS_NO_VPC_S3_ENDPOINT.get_code(),
-                               MessageEnum.SOURCE_RDS_NO_VPC_S3_ENDPOINT.get_msg())
-        if not link_result_glue:
-            raise BizException(MessageEnum.SOURCE_RDS_NO_VPC_GLUE_ENDPOINT.get_code(),
-                               MessageEnum.SOURCE_RDS_NO_VPC_GLUE_ENDPOINT.get_msg())
-
+        check_link(credentials, region, rds_vpc_id, rds_secret_id)
         if rds_secret_id is not None:
             secretsmanager = boto3.client('secretsmanager',
                                           aws_access_key_id=credentials['AccessKeyId'],
