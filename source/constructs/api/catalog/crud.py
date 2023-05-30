@@ -186,7 +186,6 @@ def get_catalog_table_level_classification_by_identifier_and_database_type(
     return result
 
 
-
 def create_catalog_column_level_classification(catalog_column: dict):
     parsed_schema = parse_pydantic_schema(catalog_column)
     db_catalog = models.CatalogColumnLevelClassification(
@@ -208,6 +207,29 @@ def create_catalog_column_level_classification(catalog_column: dict):
     return db_catalog
 
 
+def batch_create_catalog_column_level_classification(catalog_columns: list):
+    catalog_columns_db = []
+    for catalog_column in catalog_columns:
+        parsed_schema = parse_pydantic_schema(catalog_column)
+        db_catalog = models.CatalogColumnLevelClassification(
+            **parsed_schema,
+            column_value_example=const.NA,
+            identifier='{"' + const.NA + '": 0}',
+            identifier_score=0.0,
+            privacy=Privacy.NA.value,
+            sensitivity=const.NA,
+            version=0,
+            create_by=const.SOLUTION_NAME,
+            create_time=mytime.get_time(),
+            modify_by=const.SOLUTION_NAME,
+            modify_time=mytime.get_time(),
+            state=CatalogState.CREATED.value,
+        )
+        catalog_columns_db.append(db_catalog)
+    get_session().bulk_insert_mappings(models.CatalogColumnLevelClassification, catalog_columns_db)
+    get_session().commit()
+
+
 def create_catalog_table_level_classification(catalog_table: dict):
     parsed_schema = parse_pydantic_schema(catalog_table)
     db_catalog = models.CatalogTableLevelClassification(
@@ -225,6 +247,27 @@ def create_catalog_table_level_classification(catalog_table: dict):
     get_session().add(db_catalog)
     get_session().commit()
     return db_catalog
+
+
+def batch_create_catalog_table_level_classification(catalog_tables: list):
+    catalog_tables_db = []
+    for catalog_table in catalog_tables:
+        parsed_schema = parse_pydantic_schema(catalog_table)
+        db_catalog = models.CatalogTableLevelClassification(
+            **parsed_schema,
+            privacy=Privacy.NA.value,
+            sensitivity=const.NA,
+            identifiers=const.NA,
+            version=0,
+            create_by=const.SOLUTION_NAME,
+            create_time=mytime.get_time(),
+            modify_by=const.SOLUTION_NAME,
+            modify_time=mytime.get_time(),
+            state=CatalogState.CREATED.value,
+        )
+        catalog_tables_db.append(db_catalog)
+    get_session().bulk_insert_mappings(models.CatalogTableLevelClassification, catalog_tables_db)
+    get_session().commit()
 
 
 def create_catalog_database_level_classification(catalog_database: dict):
@@ -307,6 +350,14 @@ def update_catalog_column_level_classification_by_id(
     return size > 0
 
 
+def batch_update_catalog_column_level_classification_by_id(
+    columns: list
+):
+    get_session().bulk_update_mappings(models.CatalogColumnLevelClassification, columns)
+    get_session().commit()
+
+
+
 def update_catalog_database_level_classification_by_id(
     id: int,
     database: dict,
@@ -335,6 +386,13 @@ def update_catalog_table_level_classification_by_id(
     )
     get_session().commit()
     return size > 0
+
+
+def batch_update_catalog_table_level_classification_by_id(
+    tables: list,
+):
+    get_session().bulk_update_mappings(models.CatalogTableLevelClassification, tables)
+    get_session().commit()
 
 
 def update_catalog_table_none_privacy_by_name(account_id: str,

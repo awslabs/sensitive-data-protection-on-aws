@@ -145,7 +145,6 @@ def sync_crawler_result(
     database_object_count = 0  # Aggregate from each table
     database_size = 0  # Aggregate from each table
     database_column_count = 0  # Aggregate from each table
-    database_row_count = 0  # Aggregate from each table
     table_count = 0  # Count each table
     need_clean_database = False
     if crawler_last_run_status == GlueCrawlerState.SUCCEEDED.value:
@@ -158,6 +157,12 @@ def sync_crawler_result(
             tables_response = client.get_tables(
                 DatabaseName=glue_database_name, NextToken=next_token
             )
+            # logger.info("get glue tables" + str(tables_response))
+            delete_glue_table_names = []
+            column_create_list = []
+            column_update_list = []
+            table_create_list = []
+            table_update_list = []
             for table in tables_response["TableList"]:
                 table_name = table["Name"].strip()
                 # If the file is end of .csv or .json, but the content of the file is not csv/json
@@ -171,8 +176,9 @@ def sync_crawler_result(
                 # Delete empty table when Glue crawler not supported the S3 file type
                 # s3 can return directly ,but rds cannot
                 if database_type == DatabaseType.S3.value and table_size_key == 0:
-                    client.delete_table(DatabaseName=glue_database_name,
-                                        Name=table_name)
+                    delete_glue_table_names.append(table_name)
+                    # client.delete_table(DatabaseName=glue_database_name,
+                    #                     Name=table_name)
                     logger.info("Delete empty glue table named " + glue_database_name + "." + table_name)
                     continue
                 table_count += 1
@@ -196,9 +202,7 @@ def sync_crawler_result(
                 database_object_count += table_object_count
                 database_size += table_size_key
                 column_order_num = 0
-                table_size = 0
-                # if table_size_response.get(table_name) is not None:
-                #     table_size = table_size_response[table_name]
+                logger.info("start to process glue columns")
                 for column in column_list:
                     column_order_num += 1
                     column_name = column["Name"].strip()
@@ -222,12 +226,14 @@ def sync_crawler_result(
                                                                                            database_type, database_name,
                                                                                            table_name, column_name)
                     if original_column == None:
-                        crud.create_catalog_column_level_classification(catalog_column_dict)
+                        column_create_list.append(catalog_column_dict)
+                        # crud.create_catalog_column_level_classification(catalog_column_dict)
                     else:
                         # Keep the latest modify if it is a specfic user
                         catalog_column_dict['modify_by'] = original_column.modify_by
-                        crud.update_catalog_column_level_classification_by_id(original_column.id, catalog_column_dict)
-                    # table_column_dict.setdefault(table_column_dict[table_name], []).append(column_name)
+                        catalog_column_dict['id'] = original_column.id
+                        column_update_list.append(catalog_column_dict)
+                        # crud.update_catalog_column_level_classification_by_id(original_column.id, catalog_column_dict)
                     if table_name in table_column_dict:
                         table_column_dict[table_name].append(column_name)
                     else:
@@ -242,26 +248,38 @@ def sync_crawler_result(
                     "object_count": table_object_count,
                     "size_key": table_size_key,
                     "column_count": column_order_num,
-                    # "row_count": table_size,
                     "storage_location": table_location,
                     "classification": table_classification,
                 }
                 original_table = crud.get_catalog_table_level_classification_by_name(account_id, region, database_type,
                                                                                      database_name, table_name)
                 if original_table == None:
-                    crud.create_catalog_table_level_classification(catalog_table_dict)
+                    table_create_list.append(catalog_table_dict)
+                    # crud.create_catalog_table_level_classification(catalog_table_dict)
                 else:
                     # Keep the latest modify if it is a specfic user
                     catalog_table_dict['modify_by'] = original_table.modify_by
-                    crud.update_catalog_table_level_classification_by_id(original_table.id, catalog_table_dict)
+                    catalog_table_dict['id'] = original_table.id
+                    table_update_list.append(catalog_table_dict)
+                    # crud.update_catalog_table_level_classification_by_id(original_table.id, catalog_table_dict)
                 table_name_list.append(table_name)
                 database_column_count += column_order_num
-                # database_row_count += table_size
                 # update_catalog_table_and_database_level_privacy(account_id,
                 #                                                 region,
                 #                                                 database_type,
                 #                                                 database_name,
                 #                                                 table_name)
+            logger.info("batch delete glue tables" + json.dumps(delete_glue_table_names))
+            client.batch_delete_table(DatabaseName=glue_database_name,
+                                      TablesToDelete=delete_glue_table_names)
+            logger.debug("batch create columns" + str(column_create_list))
+            crud.batch_create_catalog_column_level_classification(column_create_list)
+            logger.debug("batch update columns" + str(column_update_list))
+            crud.batch_update_catalog_column_level_classification_by_id(column_update_list)
+            logger.debug("batch create tables" + str(table_create_list))
+            crud.batch_create_catalog_table_level_classification(table_create_list)
+            logger.debug("batch update tables" + str(table_update_list))
+            crud.batch_update_catalog_table_level_classification_by_id(table_update_list)
             next_token = tables_response.get("NextToken")
             if next_token is None:
                 break
@@ -534,7 +552,6 @@ def sync_job_detection_result(
                 privacy = int(__get_athena_column_value(row["Data"][4], "int"))
                 table_size = int(__get_athena_column_value(row["Data"][5], "int"))
                 table_size_dict[table_name] = table_size
-                # table_column_dict.setdefault(table_column_dict[table_name], []).append(column_name)
                 if table_name in table_column_dict:
                     table_column_dict[table_name].append(column_name)
                 else:
