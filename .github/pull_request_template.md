@@ -1,13 +1,15 @@
+**What is the current behavior?
 
-*Issue #, if available:*
+Please describe the current behavior of the code that you are trying to modify. This could include any issues or limitations that you are addressing.
 
-*Description of changes:*
+**What is the updated behavior?
 
-*How Has This Been Tested:*
+Please describe the changes you are making to the code's behavior. This could include new features or enhancements that you are adding, as well as how they differ from the current behavior.
 
-*[x] My testing has passed*
+**Checklist
 
-----
+Please check off the following items before submitting your pull request:
 
-*By submitting this pull request, I confirm that my contribution is made under the terms of the Apache-2.0 license*
-
+- [ ] I have tested my changes.
+- [ ] No sensitive information is included.
+- [ ] I've reviewed my changes to ensure they won't cause any new issues that could affect the stability or performance of the codebase.
