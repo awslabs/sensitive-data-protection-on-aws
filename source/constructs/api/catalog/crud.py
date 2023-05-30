@@ -226,7 +226,7 @@ def batch_create_catalog_column_level_classification(catalog_columns: list):
             state=CatalogState.CREATED.value,
         )
         catalog_columns_db.append(db_catalog)
-    get_session().bulk_insert_mappings(models.CatalogColumnLevelClassification, catalog_columns_db)
+    get_session().bulk_save_objects(catalog_columns_db)
     get_session().commit()
 
 
@@ -266,7 +266,7 @@ def batch_create_catalog_table_level_classification(catalog_tables: list):
             state=CatalogState.CREATED.value,
         )
         catalog_tables_db.append(db_catalog)
-    get_session().bulk_insert_mappings(models.CatalogTableLevelClassification, catalog_tables_db)
+    get_session().bulk_save_objects(catalog_tables_db)
     get_session().commit()
 
 
