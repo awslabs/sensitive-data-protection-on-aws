@@ -358,9 +358,9 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
         rds_vpc_id = rds_instance['DBSubnetGroup']['VpcId']
         rds_az = rds_instance['AvailabilityZone']
         rds_security_groups = []
-        for vpc_sg in rds_instance['VpcSecurityGroups']:
-            if vpc_sg['Status'] == 'active':
-                rds_security_groups.append(vpc_sg['VpcSecurityGroupId'])
+        # for vpc_sg in rds_instance['VpcSecurityGroups']:
+        #     if vpc_sg['Status'] == 'active':
+        #         rds_security_groups.append(vpc_sg['VpcSecurityGroupId'])
 
         subnet_ids = []
         for subnet in rds_instance['DBSubnetGroup']['Subnets']:
@@ -383,9 +383,23 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                 logger.info("RDS instance subnet is public")
             else:
                 rds_subnet_id = subnet_desc['SubnetId']
-                logger.info("RDS instance subnet is private")
-                logger.info(rds_subnet_id)
+                logger.info("RDS instance subnet is private" + str(rds_subnet_id))
                 break
+        response = ec2_client.describe_security_groups(
+            Filters=[
+                {
+                    'Name': 'vpc-id',
+                    'Values': [rds_vpc_id]
+                }
+            ]
+        )
+        logger.info(response)
+        security_groups = response['SecurityGroups']
+        for security_group in security_groups:
+            if security_group['GroupId'] is not None and len(security_group['GroupId']) > 0:
+                rds_security_groups.append(security_group['GroupId'])
+                logger.info("rds_security_groups change append new vpc sg:")
+                logger.info(security_group['GroupId'])
 
         if public_access:
             raise BizException(MessageEnum.SOURCE_RDS_PUBLIC_ACCESSABLE.get_code(),

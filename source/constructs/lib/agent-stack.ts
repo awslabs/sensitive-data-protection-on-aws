@@ -311,6 +311,7 @@ export class AgentStack extends Stack {
             'logs:GetLogGroupFields',
             'glue:GetColumnStatisticsForPartition',
             'glue:GetJobRuns',
+            'glue:BatchDeleteTable',
           ],
           resources: [
             `arn:${Aws.PARTITION}:glue:*:${Aws.ACCOUNT_ID}:table/*/*`,
