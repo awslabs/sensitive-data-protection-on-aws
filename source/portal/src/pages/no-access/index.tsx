@@ -16,6 +16,7 @@ const NoAccess = () => {
 
   const waitJumpToIndex = () => {
     setTimeout(() => {
+      localStorage.clear();
       jumpToIndex();
     }, 5000);
   };
