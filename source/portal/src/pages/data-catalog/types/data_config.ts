@@ -24,6 +24,8 @@ export const COLUMN_OBJECT_STR = {
   AccountId: 'account_id',
   Labels: 'labels',
   Comments: 'comments',
+  Category: 'category',
+  IdentifierLabel: 'ident_label',
 };
 
 // S3 catalog column
@@ -137,6 +139,16 @@ export const DATA_IDENT_COLUMN = [
     label: 'table.label.size',
     filter: false,
   },
+  {
+    id: COLUMN_OBJECT_STR.Category,
+    label: 'table.label.category',
+    filter: false,
+  },
+  {
+    id: COLUMN_OBJECT_STR.IdentifierLabel,
+    label: 'table.label.identifierLabel',
+    filter: false,
+  },
 ];
 
 export const RDS_DATA_IDENT_COLUMN = [
@@ -154,6 +166,16 @@ export const RDS_DATA_IDENT_COLUMN = [
     id: COLUMN_OBJECT_STR.Objects,
     label: 'table.label.columns',
     filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.Category,
+    label: 'table.label.category',
+    filter: false,
+  },
+  {
+    id: COLUMN_OBJECT_STR.IdentifierLabel,
+    label: 'table.label.identifierLabel',
+    filter: false,
   },
 ];
 
