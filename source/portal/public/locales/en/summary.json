@@ -48,5 +48,6 @@
   "dataSourceConnection": "Data source connection",
   "dataSourceConnectionDesc": "Data source that discovered in AWS accounts.",
   "totalS3Buckets": "Total S3 buckets",
-  "totalRDSInstances": "Total RDS instances"
+  "totalRDSInstances": "Total RDS instances",
+  "searchByIdentName": "Search identifiers by name"
 }

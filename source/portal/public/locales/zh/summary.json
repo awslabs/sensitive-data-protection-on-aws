@@ -48,5 +48,6 @@
   "dataSourceConnection": "数据源连接",
   "dataSourceConnectionDesc": "在 AWS 账户中发现的数据源。",
   "totalS3Buckets": "S3 存储桶总数",
-  "totalRDSInstances": "RDS 实例总数"
+  "totalRDSInstances": "RDS 实例总数",
+  "searchByIdentName": "根据名称过滤标识符"
 }

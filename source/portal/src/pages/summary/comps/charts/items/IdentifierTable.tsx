@@ -1,11 +1,18 @@
-import { Header, Table, Box } from '@cloudscape-design/components';
-import React from 'react';
+import {
+  Header,
+  Table,
+  Box,
+  SelectProps,
+  Select,
+  TextFilter,
+} from '@cloudscape-design/components';
+import React, { useEffect, useState } from 'react';
 import { ITableListKeyValue } from 'ts/dashboard/types';
 import '../../../style.scss';
 import { useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
-import { Props } from 'common/PropsModal';
+import { cloneDeep } from 'lodash';
 
 interface IdentifierTableProps {
   title: string;
@@ -20,6 +27,25 @@ const IdentifierTableData: React.FC<IdentifierTableProps> = (
   const { title, keyLable, valueLable, dataList } = props;
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchIdentName, setSearchIdentName] = useState('');
+  const [categoryValue, setCategoryValue] = useState<SelectProps.Option>({
+    label: t('allCategory') || '',
+    value: '',
+  });
+  const [identLabelValue, setIdentLabelValue] = useState<SelectProps.Option>({
+    label: t('allLabel') || '',
+    value: '',
+  });
+  const [categoryOptionList, setCategoryOptionList] = useState<
+    SelectProps.Option[]
+  >([]);
+  const [identLabelOptionList, setIdentLabelOptionList] = useState<
+    SelectProps.Option[]
+  >([]);
+
+  const [displayTableList, setDisplayTableList] =
+    useState<ITableListKeyValue[]>(dataList);
+
   const clkCount = (typeValue: any) => {
     if (valueLable === t('summary:s3Bucket')) {
       navigate(
@@ -52,9 +78,89 @@ const IdentifierTableData: React.FC<IdentifierTableProps> = (
     }
     return;
   };
+
+  useEffect(() => {
+    const containsCategoryList = dataList.map((element) => element.category);
+    const uniqueCategoryListArray = Array.from(new Set(containsCategoryList));
+    const tmpCategoryOptions: SelectProps.Option[] =
+      uniqueCategoryListArray.map((element) => {
+        return { label: element, value: element };
+      });
+    setCategoryOptionList([
+      {
+        label: t('allCategory') || '',
+        value: '',
+      },
+      ...tmpCategoryOptions.sort((a: any, b: any) =>
+        a.value?.localeCompare(b?.value)
+      ),
+    ]);
+
+    const containsLabelList = dataList.map(
+      (element) => element.identifierLabel
+    );
+    const uniqueLabelListArray = Array.from(new Set(containsLabelList));
+    const tmpLabelOptions: SelectProps.Option[] = uniqueLabelListArray.map(
+      (element) => {
+        return { label: element, value: element };
+      }
+    );
+    setIdentLabelOptionList([
+      { label: t('allLabel') || '', value: '' },
+      ...tmpLabelOptions.sort((a: any, b: any) =>
+        a.value?.localeCompare(b?.value)
+      ),
+    ]);
+  }, [dataList]);
+
+  useEffect(() => {
+    let waitFilterList = cloneDeep(dataList);
+    waitFilterList = waitFilterList.filter((element) =>
+      element.name
+        ?.toLocaleLowerCase()
+        .includes(searchIdentName.toLocaleLowerCase())
+    );
+    if (categoryValue.value) {
+      waitFilterList = waitFilterList.filter(
+        (element) => element.category === categoryValue.value
+      );
+    }
+    if (identLabelValue.value) {
+      waitFilterList = waitFilterList.filter(
+        (element) => element.identifierLabel === identLabelValue.value
+      );
+    }
+    setDisplayTableList(waitFilterList);
+  }, [categoryValue, identLabelValue, searchIdentName]);
+
   return (
     <div>
       <Header variant="h3">{title}</Header>
+      <div className="flex gap-10">
+        <div className="flex-2">
+          <TextFilter
+            filteringText={searchIdentName}
+            filteringPlaceholder={t('summary:searchByIdentName') || ''}
+            onChange={({ detail }) => setSearchIdentName(detail.filteringText)}
+          />
+        </div>
+        <div className="flex-1">
+          <Select
+            placeholder={t('category.category') || ''}
+            selectedOption={categoryValue}
+            onChange={({ detail }) => setCategoryValue(detail.selectedOption)}
+            options={categoryOptionList}
+          />
+        </div>
+        <div className="flex-1">
+          <Select
+            placeholder={t('identLabel.identLabel') || ''}
+            selectedOption={identLabelValue}
+            onChange={({ detail }) => setIdentLabelValue(detail.selectedOption)}
+            options={identLabelOptionList}
+          />
+        </div>
+      </div>
       <div className="max-table-height">
         <Table
           variant="embedded"
@@ -86,26 +192,18 @@ const IdentifierTableData: React.FC<IdentifierTableProps> = (
               id: 'category',
               header: t('category.category'),
               cell: (item) => {
-                return (
-                  item?.props?.find(
-                    (prop: Props) => prop.prop_type?.toString() === '1'
-                  )?.prop_name || 'N/A'
-                );
+                return item.category;
               },
             },
             {
               id: 'label',
               header: t('identLabel.identLabel'),
               cell: (item) => {
-                return (
-                  item?.props?.find(
-                    (prop: Props) => prop.prop_type?.toString() === '2'
-                  )?.prop_name || 'N/A'
-                );
+                return item.identifierLabel;
               },
             },
           ]}
-          items={dataList}
+          items={displayTableList}
           loadingText={t('table.loadingResources') || ''}
           sortingDisabled
           // stickyHeader

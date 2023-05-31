@@ -40,6 +40,8 @@ export interface ITableListKeyValue {
   name: string;
   data_source_count: string | number;
   props?: Props[];
+  category?: string;
+  identifierLabel?: string;
 }
 
 export interface ITableDataType {
