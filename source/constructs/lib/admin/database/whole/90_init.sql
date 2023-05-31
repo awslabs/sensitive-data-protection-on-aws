@@ -46,7 +46,7 @@ INSERT INTO template_identifier (id, description, type, version, name, classific
 INSERT INTO template_identifier (id, description, type, version, name, classification, privacy, rule, header_keywords, create_by) VALUES (38, 'Glue identifier for detecting uk phone number. (Built-in)', 2, null, 'UK_PHONE_NUMBER', 0, 0, '', '', 'SDPS');
 INSERT INTO template_identifier (id, description, type, version, name, classification, privacy, rule, header_keywords, create_by) VALUES (39, 'Glue identifier for detecting uk unique taxpayer reference number. (Built-in)', 2, null, 'UK_UNIQUE_TAXPAYER_REFERENCE_NUMBER', 0, 0, '', '', 'SDPS');
 INSERT INTO template_identifier (id, description, type, version, name, classification, privacy, rule, header_keywords, create_by) VALUES (40, 'Glue identifier for detecting uk value added tax. (Built-in)', 2, null, 'UK_VALUE_ADDED_TAX', 0, 0, '', '', 'SDPS');
-DELETE FROM template_identifier_prop_ref WHERE id < 63;
+DELETE FROM template_identifier_prop_ref WHERE id < 81;
 INSERT INTO template_identifier_prop_ref (id, identifier_id, prop_id) VALUES (1,1,1);
 INSERT INTO template_identifier_prop_ref (id, identifier_id, prop_id) VALUES (2,2,1);
 INSERT INTO template_identifier_prop_ref (id, identifier_id, prop_id) VALUES (3,3,1);
