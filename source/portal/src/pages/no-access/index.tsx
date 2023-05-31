@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 const NoAccess = () => {
   const jumpToIndex = () => {
+    localStorage.clear();
     window.location.replace(window.location.origin);
     return;
   };
@@ -16,7 +17,6 @@ const NoAccess = () => {
 
   const waitJumpToIndex = () => {
     setTimeout(() => {
-      localStorage.clear();
       jumpToIndex();
     }, 5000);
   };
