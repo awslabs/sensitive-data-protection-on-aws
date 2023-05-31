@@ -94,6 +94,18 @@ def __get_top_n_count(data_dict: dict, n: int):
     return top_n_list
 
 
+def __get_identifier_top_n_count(data_dict: dict, template_dict: dict, n: int):
+    top_n_list = []
+    # v is a set, we need to return top n set sort by it's length.
+    data_list = []
+    for k in data_dict.keys():
+        data_list.append({'name': k, "data_source_count": len(data_dict[k]), "props": template_dict[k] if template_dict.get(k) is not None else None})
+
+    top_n_list = heapq.nlargest(n, data_list, key=lambda x: x['data_source_count'])
+    logger.info(top_n_list)
+    return top_n_list
+
+
 def agg_catalog_data_source_top_n(database_type: str, top_n: int):
     if database_type not in [DatabaseType.RDS.value, DatabaseType.S3.value]:
         raise BizException(
@@ -129,9 +141,17 @@ def agg_catalog_data_source_top_n(database_type: str, top_n: int):
         
     
     result_dict['account_top_n'] = __get_top_n_count(account_dict, top_n)
-    result_dict['identifier_top_n'] = __get_top_n_count(identifier_dict, top_n)
-    # TODO add CATEGORY / IDENTIFIER LABEL
+
     logger.info(identifier_dict.keys())
+    from template.service import get_identifiers
+    template_identifier_resp = get_identifiers(QueryCondition(size=500, conditions=[
+        {"values": list(identifier_dict.keys()), "column": "name", "condition": "and", "operation": "in"}])).all()
+    logger.info(template_identifier_resp)
+    template_identifier_dict = {}
+    for template_identifier in template_identifier_resp:
+        template_identifier_dict[template_identifier.name] = template_identifier.props
+    logger.info(template_identifier_dict)
+    result_dict['identifier_top_n'] = __get_identifier_top_n_count(identifier_dict, template_identifier_dict, top_n)
     return result_dict
 
 

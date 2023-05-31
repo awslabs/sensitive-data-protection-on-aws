@@ -6,6 +6,8 @@ from data_source import crud as data_source_crud
 import time
 from time import sleep
 from common.constant import const
+from template.service import get_identifiers
+from common.query_condition import QueryCondition
 from common.enum import (
     DatabaseType,
     CatalogState,
@@ -85,16 +87,21 @@ def get_database_identifiers_from_tables(
                 identifier_dict[identifier]["column_count"] += table.column_count
                 identifier_dict[identifier]["row_count"] += table.row_count
                 identifier_dict[identifier]['table_name_list'].append(table.table_name)
-
-    # TODO add CATEGORY / IDENTIFIER LABEL
     logger.info(identifier_dict.keys())
+    template_identifier_resp = get_identifiers(QueryCondition(size=500, conditions=[{"values": list(identifier_dict.keys()), "column": "name", "condition": "and", "operation": "in"}])).all()
+    logger.info(template_identifier_resp)
+    template_identifier_dict = {}
+    for template_identifier in template_identifier_resp:
+        template_identifier_dict[template_identifier.name] = template_identifier.props
+    logger.info(template_identifier_dict)
     for k in identifier_dict:
         if k == const.NA:
             continue
         k_dict = identifier_dict[k]
         k_dict["identifier"] = k  # put the identifier name in result dict
+        k_dict["props"] = template_identifier_dict[k] if template_identifier_dict.get(k) is not None else None
         result_list.append(k_dict)
-
+    logger.info(result_list)
     return result_list
 
 
