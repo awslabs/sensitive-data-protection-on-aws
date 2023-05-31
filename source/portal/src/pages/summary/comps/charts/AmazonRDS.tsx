@@ -16,6 +16,7 @@ import { ITableListKeyValue, ITableDataType } from 'ts/dashboard/types';
 import { useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
+import IdentifierTableData from './items/IdentifierTable';
 
 export const AmazonRDS: React.FC<any> = memo(() => {
   const navigate = useNavigate();
@@ -68,7 +69,7 @@ export const AmazonRDS: React.FC<any> = memo(() => {
         gridDefinition={[
           { colspan: 6 },
           { colspan: 6 },
-          { colspan: 6 },
+          { colspan: 12 },
           { colspan: 6 },
           { colspan: 6 },
         ]}
@@ -90,11 +91,11 @@ export const AmazonRDS: React.FC<any> = memo(() => {
           {loadingTableData ? (
             <Spinner />
           ) : (
-            <TableData
-              dataList={conatainsPIIData}
-              keyLable={t('summary:awsAccount')}
+            <IdentifierTableData
+              dataList={identifierData}
+              keyLable={t('summary:dataIdentifier')}
               valueLable={t('summary:rdsIntacnes')}
-              title={t('summary:topAccountsContainPII')}
+              title={t('summary:topDataIdentifier')}
             />
           )}
         </div>
@@ -103,13 +104,14 @@ export const AmazonRDS: React.FC<any> = memo(() => {
             <Spinner />
           ) : (
             <TableData
-              dataList={identifierData}
-              keyLable={t('summary:dataIdentifier')}
+              dataList={conatainsPIIData}
+              keyLable={t('summary:awsAccount')}
               valueLable={t('summary:rdsIntacnes')}
-              title={t('summary:topDataIdentifier')}
+              title={t('summary:topAccountsContainPII')}
             />
           )}
         </div>
+
         <div className="mt-20 pd-10">
           <CircleChart
             title={t('summary:lastUpdatedStatus')}
