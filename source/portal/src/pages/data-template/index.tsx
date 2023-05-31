@@ -296,7 +296,7 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
             sortingField: item.sortingField,
             cell: (e: any) => {
               if (item.id === 'type') {
-                if ((e as any)[item.id] === 0) {
+                if ((e as any)[item.id] === 0 || (e as any)[item.id] === 2) {
                   return 'Built-in';
                 } else {
                   return 'Custom';
