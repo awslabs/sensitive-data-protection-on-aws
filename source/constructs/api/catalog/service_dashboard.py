@@ -144,7 +144,7 @@ def agg_catalog_data_source_top_n(database_type: str, top_n: int):
 
     logger.info(identifier_dict.keys())
     from template.service import get_identifiers
-    template_identifier_resp = get_identifiers(QueryCondition(conditions=[
+    template_identifier_resp = get_identifiers(QueryCondition(size=500, conditions=[
         {"values": list(identifier_dict.keys()), "column": "name", "condition": "and", "operation": "in"}])).all()
     logger.info(template_identifier_resp)
     template_identifier_dict = {}

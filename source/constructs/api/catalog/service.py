@@ -88,7 +88,7 @@ def get_database_identifiers_from_tables(
                 identifier_dict[identifier]["row_count"] += table.row_count
                 identifier_dict[identifier]['table_name_list'].append(table.table_name)
     logger.info(identifier_dict.keys())
-    template_identifier_resp = get_identifiers(QueryCondition(conditions=[{"values": list(identifier_dict.keys()), "column": "name", "condition": "and", "operation": "in"}])).all()
+    template_identifier_resp = get_identifiers(QueryCondition(size=500, conditions=[{"values": list(identifier_dict.keys()), "column": "name", "condition": "and", "operation": "in"}])).all()
     logger.info(template_identifier_resp)
     template_identifier_dict = {}
     for template_identifier in template_identifier_resp:
