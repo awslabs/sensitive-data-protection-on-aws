@@ -337,7 +337,7 @@ def detect_df(df, spark, glueContext, udf_dict, broadcast_template, table, regio
     data_frame = data_frame.withColumn('database_type', sf.lit(args['DatabaseType']))
     data_frame = data_frame.withColumn('table_name', sf.lit(table['Name']))
     data_frame = data_frame.withColumn('region', sf.lit(region))
-    data_frame = data_frame.withColumn('update_time', sf.from_utc_timestamp(sf.current_timestamp(), 'Asia/Shanghai'))
+    data_frame = data_frame.withColumn('update_time', sf.from_utc_timestamp(sf.current_timestamp(), 'UTC'))
     data_frame = data_frame.withColumn('s3_location', sf.lit(s3_location))
     data_frame = data_frame.withColumn('s3_bucket', sf.lit(s3_bucket))
     data_frame = data_frame.withColumn('rds_instance_id', sf.lit(rds_instance_id))

@@ -12,11 +12,14 @@ logger.setLevel(logging.INFO)
 
 
 def main(input_event):
+    logger.info("start lambda : sync_crawler_results")
+    logger.info(input_event)
     state = ConnectionState.ACTIVE.value
     if input_event['detail']['state'] == 'Failed':
         state = input_event['detail']['errorMessage']
-
+    logger.info(state)
     crawler_name = input_event['detail']['crawlerName']
+    logger.info(crawler_name)
     if crawler_name.startswith('rds-') and crawler_name.endswith('-crawler'):
         database_name = crawler_name[4:-8]
         data_source_crud.set_rds_instance_source_glue_state(
@@ -50,6 +53,7 @@ def main(input_event):
             account=input_event['detail']['accountId'],
             region=input_event['region'],
         )
+    logger.info("end lambda : sync_crawler_results!")
 
 
 def lambda_handler(event, context):
