@@ -19,6 +19,7 @@ import { SolutionInfo } from '../common/solution-info';
 export interface BucketProps {
   encryption?: BucketEncryption;
   enforceSSL?: boolean;
+  versioned?: boolean;
   autoDeleteObjects?: boolean;
   removalPolicy?: RemovalPolicy;
 }
@@ -35,6 +36,7 @@ export class BucketStack extends Construct {
       objectOwnership: ObjectOwnership.BUCKET_OWNER_ENFORCED,
       encryption: props?.encryption ?? BucketEncryption.S3_MANAGED,
       enforceSSL: props?.enforceSSL ?? true,
+      versioned: props?.enforceSSL ?? true,
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       autoDeleteObjects: props?.autoDeleteObjects ?? true,
       removalPolicy: props?.removalPolicy ?? RemovalPolicy.DESTROY,

@@ -46,6 +46,7 @@ import {
   CfnLoadBalancer,
   CfnListener,
   ListenerCertificate,
+  SslPolicy,
 } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { LambdaTarget } from 'aws-cdk-lib/aws-elasticloadbalancingv2-targets';
 import {
@@ -147,6 +148,7 @@ export class AlbStack extends NestedStack {
         protocol: ApplicationProtocol.HTTPS,
         port: props.port,
         certificates: [ListenerCertificate.fromArn(props.certificateArn)],
+        sslPolicy: SslPolicy.RECOMMENDED_TLS,
       });
 
       this.url = this.setUrl(scope, alb.loadBalancerDnsName, props, this.httpsDefaultPort);
