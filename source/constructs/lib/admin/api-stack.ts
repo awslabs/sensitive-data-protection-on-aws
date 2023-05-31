@@ -70,7 +70,7 @@ export class ApiStack extends Construct {
     const controllerFunction = this.createFunction('Controller', 'lambda.controller.lambda_handler', props, '');
     const controllerFunctionName = controllerFunction.functionName;
 
-    this.apiFunction = this.createFunction('API', 'main.handler', props, controllerFunctionName, 720);
+    this.apiFunction = this.createFunction('API', 'main.handler', props, controllerFunctionName, 900);
 
     const checkRunFunction = this.createFunction('CheckRun', 'lambda.check_run.lambda_handler', props, controllerFunctionName, 600);
     const checkRunRule = new events.Rule(this, 'CheckRunRule', {
