@@ -10,7 +10,7 @@ create table template
     create_time timestamp    null,
     modify_by   varchar(255) null,
     modify_time timestamp    null
-) auto_increment=1001;
+) auto_increment=10001;
 
 create table template_identifier
 (
@@ -28,7 +28,7 @@ create table template_identifier
     modify_by       varchar(255)                null,
     modify_time     timestamp                   null,
     create_time     timestamp                   null
-) auto_increment=1001;
+) auto_increment=10001;
 
 
 create table template_mapping
@@ -43,7 +43,7 @@ create table template_mapping
     create_time   timestamp    null,
     modify_by     varchar(255) null,
     modify_time   timestamp    null
-) auto_increment=1001;
+) auto_increment=10001;
 
 
 create table template_identifier_prop
@@ -57,7 +57,7 @@ create table template_identifier_prop
     create_time   timestamp    null,
     modify_by     varchar(255) null,
     modify_time   timestamp    null
-) auto_increment=1001;
+) auto_increment=10001;
 
 
 create table template_identifier_prop_ref
@@ -71,4 +71,4 @@ create table template_identifier_prop_ref
     create_time   timestamp    null,
     modify_by     varchar(255) null,
     modify_time   timestamp    null
-) auto_increment=1001;
+) auto_increment=10001;
