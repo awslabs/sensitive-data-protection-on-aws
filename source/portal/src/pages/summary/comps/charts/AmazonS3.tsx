@@ -16,6 +16,8 @@ import { useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
 import Pagination from './items/Pagination';
 import { useTranslation } from 'react-i18next';
+import IdentifierTableData from './items/IdentifierTable';
+import { Props } from 'common/PropsModal';
 
 const AmazonS3: React.FC<any> = memo(() => {
   const navigate = useNavigate();
@@ -31,15 +33,9 @@ const AmazonS3: React.FC<any> = memo(() => {
     setCurrentPagePII(page);
   };
 
-  const [currentPageIDF, setCurrentPageIDF] = useState(1);
-  const [pageSizeIDF] = useState(5);
   const [allIdentifierData, setAllIdentifierData] = useState<
     ITableListKeyValue[]
   >([]);
-
-  const handlePageChangeIDF = (page: number) => {
-    setCurrentPageIDF(page);
-  };
 
   const getTopNTableData = async () => {
     setLoadingTableData(true);
@@ -49,6 +45,18 @@ const AmazonS3: React.FC<any> = memo(() => {
         top_n: 99999,
       })) as ITableDataType;
       setAllConatainsPIIDataData(tableData.account_top_n);
+      if (tableData.identifier_top_n && tableData.identifier_top_n.length > 0) {
+        tableData.identifier_top_n.forEach((element) => {
+          element.category =
+            element?.props?.find(
+              (prop: Props) => prop.prop_type?.toString() === '1'
+            )?.prop_name || 'N/A';
+          element.identifierLabel =
+            element?.props?.find(
+              (prop: Props) => prop.prop_type?.toString() === '2'
+            )?.prop_name || 'N/A';
+        });
+      }
       setAllIdentifierData(tableData.identifier_top_n);
       setLoadingTableData(false);
     } catch (error) {
@@ -79,7 +87,7 @@ const AmazonS3: React.FC<any> = memo(() => {
         gridDefinition={[
           { colspan: 6 },
           { colspan: 6 },
-          { colspan: 6 },
+          { colspan: 12 },
           { colspan: 6 },
           { colspan: 6 },
         ]}
@@ -93,6 +101,20 @@ const AmazonS3: React.FC<any> = memo(() => {
             circleType="donut"
             sourceType="s3"
           />
+        </div>
+        <div className="mt-20 pd-10">
+          {loadingTableData ? (
+            <Spinner />
+          ) : (
+            <>
+              <IdentifierTableData
+                dataList={allIdentifierData}
+                keyLable={t('summary:dataIdentifier')}
+                valueLable={t('summary:totalBuckets')}
+                title={t('summary:topDataIdentifier')}
+              />
+            </>
+          )}
         </div>
         <div className="mt-20 pd-10">
           {loadingTableData ? (
@@ -116,28 +138,7 @@ const AmazonS3: React.FC<any> = memo(() => {
             </>
           )}
         </div>
-        <div className="mt-20 pd-10">
-          {loadingTableData ? (
-            <Spinner />
-          ) : (
-            <>
-              <TableData
-                dataList={allIdentifierData}
-                keyLable={t('summary:dataIdentifier')}
-                valueLable={t('summary:totalBuckets')}
-                title={t('summary:topDataIdentifier')}
-              />
-              {allIdentifierData.length > 0 && (
-                <Pagination
-                  currentPage={currentPageIDF}
-                  pageSize={pageSizeIDF}
-                  totalData={allIdentifierData.length}
-                  onPageChange={handlePageChangeIDF}
-                />
-              )}
-            </>
-          )}
-        </div>
+
         <div className="mt-20 pd-10">
           <CircleChart
             title={t('summary:lastUpdatedStatus')}

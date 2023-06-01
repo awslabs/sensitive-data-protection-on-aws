@@ -45,6 +45,7 @@ import { TABLE_NAME } from 'enum/common_types';
 import { getIdentifiersList } from 'apis/data-template/api';
 import { nFormatter } from 'ts/common';
 import { useTranslation } from 'react-i18next';
+import { Props } from 'common/PropsModal';
 
 const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
   (props: CatalogDetailListProps) => {
@@ -529,6 +530,27 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                         </div>
                       );
                     }
+
+                    if (item.id === COLUMN_OBJECT_STR.Category) {
+                      return (
+                        <div className="wrap-line">
+                          {e?.props?.find(
+                            (prop: Props) => prop.prop_type?.toString() === '1'
+                          )?.prop_name || 'N/A'}
+                        </div>
+                      );
+                    }
+
+                    if (item.id === COLUMN_OBJECT_STR.IdentifierLabel) {
+                      return (
+                        <div className="wrap-line">
+                          {e?.props?.find(
+                            (prop: Props) => prop.prop_type?.toString() === '2'
+                          )?.prop_name || 'N/A'}
+                        </div>
+                      );
+                    }
+
                     if (item.id === COLUMN_OBJECT_STR.Privacy) {
                       if (editPrivacy && editPrivacy.id === (e as any).id) {
                         return (

@@ -16,6 +16,8 @@ import { ITableListKeyValue, ITableDataType } from 'ts/dashboard/types';
 import { useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
+import IdentifierTableData from './items/IdentifierTable';
+import { Props } from 'common/PropsModal';
 
 export const AmazonRDS: React.FC<any> = memo(() => {
   const navigate = useNavigate();
@@ -36,6 +38,18 @@ export const AmazonRDS: React.FC<any> = memo(() => {
         top_n: 99999,
       })) as ITableDataType;
       setConatainsPIIData(tableData.account_top_n);
+      if (tableData.identifier_top_n && tableData.identifier_top_n.length > 0) {
+        tableData.identifier_top_n.forEach((element) => {
+          element.category =
+            element?.props?.find(
+              (prop: Props) => prop.prop_type?.toString() === '1'
+            )?.prop_name || 'N/A';
+          element.identifierLabel =
+            element?.props?.find(
+              (prop: Props) => prop.prop_type?.toString() === '2'
+            )?.prop_name || 'N/A';
+        });
+      }
       setIdentifierData(tableData.identifier_top_n);
       setLoadingTableData(false);
     } catch (error) {
@@ -68,7 +82,7 @@ export const AmazonRDS: React.FC<any> = memo(() => {
         gridDefinition={[
           { colspan: 6 },
           { colspan: 6 },
-          { colspan: 6 },
+          { colspan: 12 },
           { colspan: 6 },
           { colspan: 6 },
         ]}
@@ -90,11 +104,11 @@ export const AmazonRDS: React.FC<any> = memo(() => {
           {loadingTableData ? (
             <Spinner />
           ) : (
-            <TableData
-              dataList={conatainsPIIData}
-              keyLable={t('summary:awsAccount')}
+            <IdentifierTableData
+              dataList={identifierData}
+              keyLable={t('summary:dataIdentifier')}
               valueLable={t('summary:rdsIntacnes')}
-              title={t('summary:topAccountsContainPII')}
+              title={t('summary:topDataIdentifier')}
             />
           )}
         </div>
@@ -103,13 +117,14 @@ export const AmazonRDS: React.FC<any> = memo(() => {
             <Spinner />
           ) : (
             <TableData
-              dataList={identifierData}
-              keyLable={t('summary:dataIdentifier')}
+              dataList={conatainsPIIData}
+              keyLable={t('summary:awsAccount')}
               valueLable={t('summary:rdsIntacnes')}
-              title={t('summary:topDataIdentifier')}
+              title={t('summary:topAccountsContainPII')}
             />
           )}
         </div>
+
         <div className="mt-20 pd-10">
           <CircleChart
             title={t('summary:lastUpdatedStatus')}
