@@ -369,15 +369,15 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
         rds_vpc_id = rds_instance['DBSubnetGroup']['VpcId']
         rds_az = rds_instance['AvailabilityZone']
         rds_security_groups = []
-        # for vpc_sg in rds_instance['VpcSecurityGroups']:
-        #     if vpc_sg['Status'] == 'active':
-        #         rds_security_groups.append(vpc_sg['VpcSecurityGroupId'])
+        for vpc_sg in rds_instance['VpcSecurityGroups']:
+            if vpc_sg['Status'] == 'active':
+                rds_security_groups.append(vpc_sg['VpcSecurityGroupId'])
 
         subnet_ids = []
         for subnet in rds_instance['DBSubnetGroup']['Subnets']:
             if subnet['SubnetAvailabilityZone']['Name'] == rds_az:
-                rds_subnet_id = subnet['SubnetIdentifier']
-                subnet_ids.append(rds_subnet_id)
+                rds_subnet_id_temp = subnet['SubnetIdentifier']
+                subnet_ids.append(rds_subnet_id_temp)
         logger.info(subnet_ids)
         ec2_client = boto3.client('ec2',
                                   aws_access_key_id=credentials['AccessKeyId'],
@@ -387,6 +387,7 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
         response = ec2_client.describe_subnets(
             SubnetIds=subnet_ids
         )
+        rds_subnet_id = ""
         logger.info(response)
         for subnet_desc in response['Subnets']:
             subnet_map_public_ip = subnet_desc['MapPublicIpOnLaunch']
@@ -396,66 +397,29 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                 rds_subnet_id = subnet_desc['SubnetId']
                 logger.info("RDS instance subnet is private" + str(rds_subnet_id))
                 break
-        response = ec2_client.describe_security_groups(
-            Filters=[
-                {
-                    'Name': 'vpc-id',
-                    'Values': [rds_vpc_id]
-                }
-            ]
-        )
-        logger.info(response)
-        security_groups = response['SecurityGroups']
-        for security_group in security_groups:
-            if security_group['GroupId'] is not None and len(security_group['GroupId']) > 0:
-                rds_security_groups.append(security_group['GroupId'])
-                logger.info("rds_security_groups change append new vpc sg:")
-                logger.info(security_group['GroupId'])
+
+        if rds_subnet_id is None or len(rds_subnet_id) <= 0:
+            raise BizException(MessageEnum.SOURCE_RDS_NO_PRIVATE_ACCESSABLE.get_code(),
+                               MessageEnum.SOURCE_RDS_NO_PRIVATE_ACCESSABLE.get_msg())
+        # response = ec2_client.describe_security_groups(
+        #     Filters=[
+        #         {
+        #             'Name': 'vpc-id',
+        #             'Values': [rds_vpc_id]
+        #         }
+        #     ]
+        # )
+        # logger.info(response)
+        # security_groups = response['SecurityGroups']
+        # for security_group in security_groups:
+        #     if security_group['GroupId'] is not None and len(security_group['GroupId']) > 0:
+        #         rds_security_groups.append(security_group['GroupId'])
+        #         logger.info("rds_security_groups change append new vpc sg:")
+        #         logger.info(security_group['GroupId'])
 
         if public_access:
             raise BizException(MessageEnum.SOURCE_RDS_PUBLIC_ACCESSABLE.get_code(),
                                MessageEnum.SOURCE_RDS_PUBLIC_ACCESSABLE.get_msg())
-        # secretsmanager = boto3.client('secretsmanager',
-        #                               aws_access_key_id=credentials['AccessKeyId'],
-        #                               aws_secret_access_key=credentials['SecretAccessKey'],
-        #                               aws_session_token=credentials['SessionToken'],
-        #                               region_name='cn-north-1')
-        # """ :type : pyboto3.secretsmanager """
-        # response = secretsmanager.list_secrets()
-        # # print(response)
-        # response = secretsmanager.get_secret_value(
-        #     SecretId='sdps-mysql'
-        # )
-
-        # ec2 = boto3.client('ec2',
-        #                    aws_access_key_id=credentials['AccessKeyId'],
-        #                    aws_secret_access_key=credentials['SecretAccessKey'],
-        #                    aws_session_token=credentials['SessionToken'],
-        #                    region_name=region)
-        # """ :type : pyboto3.ec2 """
-        # for route_table in ec2.describe_route_tables()['RouteTables']:
-        #     if route_table['VpcId'] == rds_vpc_id:
-        #         rds_route_table_id = route_table['RouteTableId']
-        #
-        # endpoint_exists = False
-        # for endpoints in ec2.describe_vpc_endpoints()['VpcEndpoints']:
-        #     if rds_vpc_id == endpoints['VpcId'] and 'Gateway' == endpoints['VpcEndpointType']:
-        #         for route_table in endpoints['RouteTableIds']:
-        #             if route_table == rds_route_table_id:
-        #                 endpoint_exists = True
-        #                 glue_vpc_endpoint_id = endpoints['VpcEndpointId']
-        #                 break
-        #
-        # if not endpoint_exists:
-        #     response = ec2.create_vpc_endpoint(
-        #         VpcEndpointType='Gateway',
-        #         VpcId=rds_vpc_id,
-        #         ServiceName=f"com.amazonaws.{region}.s3",
-        #         RouteTableIds=[
-        #             rds_route_table_id,
-        #         ]
-        #     )
-        #     glue_vpc_endpoint_id = response['VpcEndpoint']['VpcEndpointId']
         check_link(credentials, region, rds_vpc_id, rds_secret_id)
         if rds_secret_id is not None:
             secretsmanager = boto3.client('secretsmanager',
