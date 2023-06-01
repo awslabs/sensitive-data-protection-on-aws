@@ -315,6 +315,12 @@ def sync_crawler_result(
         elif database_type == DatabaseType.S3.value:
             data_source_crud.set_s3_bucket_source_glue_state(account_id, region, database_name,
                                                              ConnectionState.UNSUPPORTED.value)
+        original_database = crud.get_catalog_database_level_classification_by_name(account_id, region,
+                                                                                   database_type,
+                                                                                   database_name)
+        if original_database is not None:
+            crud.delete_catalog_database_level_classification(original_database.id)
+
     # create database
     if table_count > 0:
         catalog_database_dict = {
