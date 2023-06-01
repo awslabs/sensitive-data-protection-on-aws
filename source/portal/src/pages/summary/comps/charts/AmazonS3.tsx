@@ -17,6 +17,7 @@ import { RouterEnum } from 'routers/routerEnum';
 import Pagination from './items/Pagination';
 import { useTranslation } from 'react-i18next';
 import IdentifierTableData from './items/IdentifierTable';
+import { Props } from 'common/PropsModal';
 
 const AmazonS3: React.FC<any> = memo(() => {
   const navigate = useNavigate();
@@ -44,6 +45,18 @@ const AmazonS3: React.FC<any> = memo(() => {
         top_n: 99999,
       })) as ITableDataType;
       setAllConatainsPIIDataData(tableData.account_top_n);
+      if (tableData.identifier_top_n && tableData.identifier_top_n.length > 0) {
+        tableData.identifier_top_n.forEach((element) => {
+          element.category =
+            element?.props?.find(
+              (prop: Props) => prop.prop_type?.toString() === '1'
+            )?.prop_name || 'N/A';
+          element.identifierLabel =
+            element?.props?.find(
+              (prop: Props) => prop.prop_type?.toString() === '2'
+            )?.prop_name || 'N/A';
+        });
+      }
       setAllIdentifierData(tableData.identifier_top_n);
       setLoadingTableData(false);
     } catch (error) {
