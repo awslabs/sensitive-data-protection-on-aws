@@ -397,7 +397,7 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                 logger.info("RDS instance subnet is private" + str(rds_subnet_id))
                 break
 
-        if len(rds_subnet_id) <= 0:
+        if rds_subnet_id is None or len(rds_subnet_id) <= 0:
             raise BizException(MessageEnum.SOURCE_RDS_NO_PRIVATE_ACCESSABLE.get_code(),
                                MessageEnum.SOURCE_RDS_NO_PRIVATE_ACCESSABLE.get_msg())
         # response = ec2_client.describe_security_groups(
