@@ -387,6 +387,7 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
         response = ec2_client.describe_subnets(
             SubnetIds=subnet_ids
         )
+        rds_subnet_id = ""
         logger.info(response)
         for subnet_desc in response['Subnets']:
             subnet_map_public_ip = subnet_desc['MapPublicIpOnLaunch']
