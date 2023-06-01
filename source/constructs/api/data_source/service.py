@@ -20,6 +20,7 @@ from . import schemas
 
 SLEEP_TIME = 5
 SLEEP_MIN_TIME = 2
+GRANT_PERMISSIONS_RETRIES = 10
 
 # for delegated account(IT), admin account could use this role to list stackset in IT account.
 # CloudFormation Role name is: ListOrganizationRole
@@ -141,20 +142,30 @@ def sync_s3_connection(account: str, region: str, bucket: str):
         crawler_role_arn = __gen_role_arn(account_id=account,
                                           region=region,
                                           role_name='GlueDetectionJobRole')
-        response = lakeformation.grant_permissions(
-            Principal={
-                'DataLakePrincipalIdentifier': f"{crawler_role_arn}"
-            },
-            Resource={
-                'Database': {
-                    'Name': glue_database_name
-                }
-            },
-            Permissions=['ALL'],
-            PermissionsWithGrantOption=['ALL']
-        )
-        logger.info(response)
-        sleep(SLEEP_MIN_TIME)
+
+        # retry for grant permissions
+        num_retries = GRANT_PERMISSIONS_RETRIES
+        while num_retries > 0:
+            try:
+                response = lakeformation.grant_permissions(
+                    Principal={
+                        'DataLakePrincipalIdentifier': f"{crawler_role_arn}"
+                    },
+                    Resource={
+                        'Database': {
+                            'Name': glue_database_name
+                        }
+                    },
+                    Permissions=['ALL'],
+                    PermissionsWithGrantOption=['ALL']
+                )
+            except Exception as e:
+                sleep(SLEEP_MIN_TIME)
+                num_retries -= 1
+            else:
+                break
+        else:
+            raise Exception('UNCONNECTED')
         try:
             gt_cr_response = glue.get_crawler(Name=crawler_name)
             logger.info(gt_cr_response)
@@ -541,20 +552,29 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                                          aws_session_token=credentials['SessionToken'],
                                          region_name=region)
             """ :type : pyboto3.lakeformation """
-            response = lakeformation.grant_permissions(
-                Principal={
-                    'DataLakePrincipalIdentifier': f"{crawler_role_arn}"
-                },
-                Resource={
-                    'Database': {
-                        'Name': glue_database_name
-                    }
-                },
-                Permissions=['ALL'],
-                PermissionsWithGrantOption=['ALL']
-            )
-            logger.info(response)
-            sleep(SLEEP_MIN_TIME)
+            # retry for grant permissions
+            num_retries = GRANT_PERMISSIONS_RETRIES
+            while num_retries > 0:
+                try:
+                    response = lakeformation.grant_permissions(
+                        Principal={
+                            'DataLakePrincipalIdentifier': f"{crawler_role_arn}"
+                        },
+                        Resource={
+                            'Database': {
+                                'Name': glue_database_name
+                            }
+                        },
+                        Permissions=['ALL'],
+                        PermissionsWithGrantOption=['ALL']
+                    )
+                except Exception as e:
+                    sleep(SLEEP_MIN_TIME)
+                    num_retries -= 1
+                else:
+                    break
+            else:
+                raise Exception('UNCONNECTED')
             jdbc_targets = []
             for schema in schema_list:
                 jdbc_targets.append(
