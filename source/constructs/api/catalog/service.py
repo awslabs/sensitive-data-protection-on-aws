@@ -276,9 +276,12 @@ def sync_crawler_result(
                 #                                                 database_type,
                 #                                                 database_name,
                 #                                                 table_name)
-            logger.info("batch delete glue tables" + json.dumps(delete_glue_table_names))
-            client.batch_delete_table(DatabaseName=glue_database_name,
-                                      TablesToDelete=delete_glue_table_names)
+            try:
+                logger.info("batch delete glue tables" + json.dumps(delete_glue_table_names))
+                client.batch_delete_table(DatabaseName=glue_database_name,
+                                          TablesToDelete=delete_glue_table_names)
+            except Exception as err:
+                logger.info("batch delete glue tables error" + str(err))
             logger.debug("batch create columns" + str(column_create_list))
             crud.batch_create_catalog_column_level_classification(column_create_list)
             logger.debug("batch update columns" + str(column_update_list))
