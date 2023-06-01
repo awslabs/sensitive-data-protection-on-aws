@@ -298,7 +298,6 @@ def sync_crawler_result(
         for catalog in catalog_table_list:
             if catalog.table_name not in table_name_list:
                 logger.info("sync_crawler_result DELETE TABLE AND COLUMN WHEN NOT IN GLUE TABLES！！！" + catalog.table_name)
-                need_clean_database = True
                 crud.delete_catalog_table_level_classification(catalog.id)
                 crud.delete_catalog_column_level_classification_by_table_name(account_id, region, database_type, database_name, catalog.table_name, None)
             if catalog.table_name in table_column_dict:
@@ -309,8 +308,6 @@ def sync_crawler_result(
                 crud.delete_catalog_column_level_classification_by_table_name(account_id, region, database_type,
                                                                               database_name, catalog.table_name,
                                                                               column_list)
-
-
     if table_count == 0:
         if database_type == DatabaseType.RDS.value:
             data_source_crud.set_rds_instance_source_glue_state(account_id, region, database_name,
@@ -327,7 +324,7 @@ def sync_crawler_result(
             "database_name": database_name,
             "object_count": database_object_count,
             "size_key": database_size,
-            "table_count": 0 if need_clean_database else table_count,
+            "table_count": table_count,
             "column_count": database_column_count,
             # "row_count": database_row_count,
             # Store location for s3 and engine type for rds
