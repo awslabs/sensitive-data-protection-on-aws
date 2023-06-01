@@ -319,6 +319,7 @@ def sync_crawler_result(
                                                                                    database_type,
                                                                                    database_name)
         if original_database is not None:
+            logger.info("sync_crawler_result table_count is 0 and delete exist catalog")
             crud.delete_catalog_database_level_classification(original_database.id)
 
     # create database
