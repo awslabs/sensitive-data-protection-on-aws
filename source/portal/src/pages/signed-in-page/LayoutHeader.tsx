@@ -14,7 +14,7 @@ interface LayoutHeaderProps {
 
 const ZH_TEXT = '简体中文';
 const EN_TEXT = 'English(US)';
-const ZH_LANGUAGE_LIST = ['zh', 'zh-cn', 'zh_CN'];
+const ZH_LANGUAGE_LIST = ['zh', 'zh-cn', 'zh_CN', 'zh-CN'];
 const EN_LANGUAGE_LIST = ['en', 'en-US', 'en_UK'];
 const LANGUAGE_ITEMS = [
   { id: 'en', text: EN_TEXT },
