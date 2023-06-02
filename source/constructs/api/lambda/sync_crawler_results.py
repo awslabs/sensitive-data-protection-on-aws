@@ -26,7 +26,7 @@ def main(input_event):
             if catalog_service.sync_crawler_result(account_id=input_event['detail']['accountId'],
                                                    region=input_event['region'],
                                                    database_type=DatabaseType.RDS.value,
-                                                   database_name=database_name) == 0:
+                                                   database_name=database_name):
                 state = ConnectionState.UNSUPPORTED.value
 
             data_source_crud.update_rds_instance_count(
@@ -49,7 +49,7 @@ def main(input_event):
             if catalog_service.sync_crawler_result(account_id=input_event['detail']['accountId'],
                                                    region=input_event['region'],
                                                    database_type=DatabaseType.S3.value,
-                                                   database_name=database_name) == 0:
+                                                   database_name=database_name):
                 state = ConnectionState.UNSUPPORTED.value
 
             data_source_crud.update_s3_bucket_count(
