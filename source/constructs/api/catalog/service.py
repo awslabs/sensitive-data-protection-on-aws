@@ -352,7 +352,7 @@ def sync_crawler_result(
         + str(table_count)
         + " tables affected."
     )
-    return True
+    return table_count == 0
 
 
 def __get_s3_bucket_key_from_location(s3_location: str):
