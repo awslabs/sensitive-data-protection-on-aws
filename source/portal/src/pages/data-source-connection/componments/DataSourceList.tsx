@@ -90,18 +90,18 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         : t('datasource:filterInstances'),
   };
 
-  useEffect(() => {
-    getPageData();
-  }, []);
+  // useEffect(() => {
+  //   getPageData();
+  // }, []);
 
   useEffect(() => {
     getPageData();
-  }, [currentPage, preferences.pageSize]);
+  }, [currentPage, preferences.pageSize, query, selectedCrawler, sortDetail]);
 
-  useEffect(() => {
-    setCurrentPage(1);
-    getPageData();
-  }, [query, selectedCrawler]);
+  // useEffect(() => {
+  //   setCurrentPage(1);
+  //   getPageData();
+  // }, []);
 
   useEffect(() => {
     if (showRdsPwdModal) {
@@ -160,9 +160,9 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
     setTotalCount(result.total);
   };
 
-  useEffect(() => {
-    getPageData();
-  }, [sortDetail]);
+  // useEffect(() => {
+  //   getPageData();
+  // }, [sortDetail]);
 
   useEffect(() => {
     if (cedentialType === 'secret_manager') {
@@ -457,7 +457,9 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
               actions={
                 <SpaceBetween direction="horizontal" size="xs">
                   <Button
-                    onClick={getPageData}
+                    onClick={() => {
+                      getPageData();
+                    }}
                     disabled={isLoading}
                     iconName="refresh"
                   />

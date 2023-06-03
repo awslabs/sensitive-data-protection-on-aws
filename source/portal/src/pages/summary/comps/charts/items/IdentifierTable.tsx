@@ -161,7 +161,7 @@ const IdentifierTableData: React.FC<IdentifierTableProps> = (
           />
         </div>
       </div>
-      <div className="max-table-height">
+      <div className="max-table-height mt-10">
         <Table
           variant="embedded"
           columnDefinitions={[

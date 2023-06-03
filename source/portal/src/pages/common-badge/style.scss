@@ -4,16 +4,17 @@
 }
 
 .pii-badge {
-  background: #EB6F6F !important;
+  background: #eb6f6f !important;
 }
 
 .no-pii-badge {
-  background: #89BDEE !important;
+  background: #89bdee !important;
 }
 
 .classified-badge {
   user-select: none;
-
+  word-break: break-all !important;
+  white-space: break-spaces;
   .classified-icon {
     top: 4px;
   }
@@ -26,26 +27,28 @@
 }
 
 .system-badge {
-  color: #0972D3;
+  color: #0972d3;
 }
 
 .manual-badge {
-  color: #037F0C;
+  color: #037f0c;
 }
 
 .system-mark-badge {
-  color: #5F6B7A;
+  color: #5f6b7a;
 }
 
 .data-indf-badge {
   width: fit-content !important;
   color: #fff !important;
-  background-color: #9BA7B6 !important;
+  background-color: #9ba7b6 !important;
   border-radius: 10px !important;
+  word-break: break-all !important;
+  white-space: break-spaces;
 }
 
 .success-badge {
-  color: #037F0C;
+  color: #037f0c;
 }
 
 .contain-pii-select {
@@ -66,5 +69,5 @@
 }
 
 .failed-badge {
-  color: #D91515;
+  color: #d91515;
 }
