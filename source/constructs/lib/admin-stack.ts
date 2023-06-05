@@ -87,17 +87,10 @@ export class AdminStack extends Stack {
       allowedPattern: '^[^ ]+$',
     });
     Parameter.addToParamLabels('Client ID', oidcClientId.logicalId);
-    const oidcJwksUri = new CfnParameter(this, 'OidcJwksUri', {
-      type: 'String',
-      description: 'Specify the JWKS URL.URL must begin with "https://".If using OKTA, please leave it blank.Other issuers must be filled in.',
-      allowedPattern: '(https):\\/\\/[\\w\\-_]+(\\.[\\w\\-_]+)+([\\w\\-\\.,@?^=%&:/~\\+#]*[\\w\\-\\@?^=%&/~\\+#])?|(\\s&&[^\\f\\n\\r\\t\\v])*',
-    });
-    Parameter.addToParamLabels('JWKS URL (optional)', oidcJwksUri.logicalId);
     Parameter.addToParamGroups(
       'OpenID Connect(OIDC) Identity Provider',
       oidcIssuer.logicalId,
       oidcClientId.logicalId,
-      oidcJwksUri.logicalId,
     );
 
     // ALB Paramter
@@ -159,7 +152,6 @@ export class AdminStack extends Stack {
       rdsClientSecurityGroup: rdsStack.clientSecurityGroup,
       oidcIssuer: oidcIssuer.valueAsString,
       oidcClientId: oidcClientId.valueAsString,
-      oidcJwksUri: oidcJwksUri.valueAsString,
     });
 
     const isHttp = new CfnCondition(this, 'IsHttp', { expression: Fn.conditionEquals(certificate.valueAsString, '') });

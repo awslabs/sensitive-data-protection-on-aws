@@ -50,7 +50,6 @@ export interface ApiProps {
   readonly rdsClientSecurityGroup: SecurityGroup;
   readonly oidcIssuer: string;
   readonly oidcClientId: string;
-  readonly oidcJwksUri: string;
 }
 
 
@@ -116,7 +115,6 @@ export class ApiStack extends Construct {
         ControllerFunctionName: controllerFunctionName,
         OidcIssuer: props.oidcIssuer,
         OidcClientId: props.oidcClientId,
-        OidcJwksUri: props.oidcJwksUri,
       },
       role: this.apiRole,
       layers: [this.apiLayer],
