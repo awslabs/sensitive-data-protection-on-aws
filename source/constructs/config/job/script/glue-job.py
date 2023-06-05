@@ -19,7 +19,6 @@ import sys
 from awsglue.transforms import *
 from awsglue.utils import getResolvedOptions
 from pyspark.context import SparkContext
-from pyspark.conf import SparkConf
 from awsglue.context import GlueContext
 from awsglue.job import Job
 # from awsglueml.transforms import EntityDetector
@@ -386,10 +385,7 @@ if __name__ == "__main__":
     error_path = f"s3://{args['BucketName']}/glue-database/job_detection_error_table/"
     base_time = parse(args['BaseTime']).replace(tzinfo=pytz.timezone('UTC'))
 
-    sparkConf = SparkConf().set("spark.speculation", "true")\
-        .set("spark.speculation.multiplier", "10")
-    
-    sc = SparkContext(conf=sparkConf)
+    sc = SparkContext()
     glueContext = GlueContext(sc)
     spark = glueContext.spark_session
     job = Job(glueContext)
