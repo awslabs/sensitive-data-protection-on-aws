@@ -37,8 +37,10 @@ biz_exception(app)
 
 issuer = os.getenv(const.OIDC_ISSUER, const.EMPTY_STR)
 client_id = os.getenv(const.OIDC_CLIENT_ID, const.EMPTY_STR)
-jwks_uri = os.getenv(const.OIDC_JWKS_URI, const.EMPTY_STR)
-if jwks_uri != const.EMPTY_STR:
+jwks_uri = const.EMPTY_STR
+if "okta.com" not in issuer:
+    oidc_configuration = requests.get(issuer + const.OIDC_CONFIGURATION_URL).json()
+    jwks_uri = oidc_configuration["jwks_uri"]
     jwt_keys = requests.get(jwks_uri).json()['keys']
 
 
