@@ -1,14 +1,16 @@
 To automate deployment, this solution uses the following AWS CloudFormation templates, which you can download before deployment:
 
- sensitive-data-protection.template: Use this template to launch the solution and all associated components. The default configuration deploys [AWS Lambda][lambda], [Amazon ECR][ecr], [Amazon Step Functions][step-functions], [AWS Glue][glue] and [Amazon SQS][sqs], but you can customize the template to meet your specific needs.
+## Global Region
+- Admin(New VPC):https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/1.0.0/default/Admin.template.json
+- Admin(Exist VPC):https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/1.0.0/default/AdminExistVpc.template.json
+- Agent:https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/1.0.0/default/Agent.template.json
+- IT:https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/1.0.0/default/IT.template.json
 
- [lambda]:https://aws.amazon.com/lambda/
- [ecr]:https://aws.amazon.com/ecr/
- [step-functions]:https://aws.amazon.com/step-functions/
- [glue]:https://aws.amazon.com/glue/
- [sqs]:https://aws.amazon.com/sqs/
-
-
+## China Region
+- Admin(New VPC):https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/1.0.0/cn/Admin.template.json
+- Admin(Exist VPC):https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/1.0.0/cn/AdminExistVpc.template.json
+- Agent:https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/1.0.0/cn/Agent.template.json
+- IT:https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/1.0.0/cn/IT.template.json
 
 
 

@@ -4,7 +4,7 @@ You can use either the AWS Management Console or the AWS Command Line Interface 
 
 ## Uninstall the stack using the AWS Management Console
 
-1. Sign in to the [AWS CloudFormation][cloudformation-console] console.
+1. Sign in to the AWS CloudFormation console.
 1. Select this solution’s installation parent stack.
 1. Choose **Delete**.
 
