@@ -13,6 +13,9 @@ nav:
         - Architecture diagram: architecture-overview/architecture.md
         - AWS services in this solution: architecture-overview/services-in-the-solution.md
         - How the solution works:  architecture-overview/architecture-details.md   
+    - Cost: cost.md
+    - Security: security.md
+    - Support Regions: regions.md
     - Plan your deployment:
         - Cost: plan-deployment/cost.md
         - Security: plan-deployment/security.md
