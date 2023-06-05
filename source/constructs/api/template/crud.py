@@ -136,6 +136,9 @@ def create_mapping(mapping: schemas.TemplateMapping) -> models.TemplateMapping:
     if not get_identifier(mapping.identifier_id):
         raise BizException(MessageEnum.TEMPLATE_IDENTIFIER_NOT_EXISTS.get_code(),
                            MessageEnum.TEMPLATE_IDENTIFIER_NOT_EXISTS.get_msg())
+    if get_mappings_by_identifier_temp(mapping.template_id, mapping.identifier_id):
+        raise BizException(MessageEnum.TEMPLATE_IDENTIFIER_ALREADY_EXISTS.get_code(),
+                           MessageEnum.TEMPLATE_IDENTIFIER_ALREADY_EXISTS.get_msg())
     db_mapping = models.TemplateMapping(**(parse_pydantic_schema(mapping)))
     snapshot_no = update_template_snapshot_no(mapping.template_id)
     session.add(db_mapping)
@@ -169,6 +172,9 @@ def delete_mapping(id: int):
 def get_mappings_by_identifier(id: int):
     return get_session().query(models.TemplateMapping).filter(models.TemplateMapping.identifier_id == id).all()
 
+
+def get_mappings_by_identifier_temp(template_id: int, identifier_id: int):
+    return get_session().query(models.TemplateMapping).filter(models.TemplateMapping.identifier_id == identifier_id).filter(models.TemplateMapping.template_id == template_id).all()
 
 def get_used_prop_ids():
     res = []
