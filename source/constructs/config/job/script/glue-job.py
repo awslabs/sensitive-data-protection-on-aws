@@ -19,6 +19,7 @@ import sys
 from awsglue.transforms import *
 from awsglue.utils import getResolvedOptions
 from pyspark.context import SparkContext
+from pyspark.conf import SparkConf
 from awsglue.context import GlueContext
 from awsglue.job import Job
 # from awsglueml.transforms import EntityDetector
@@ -85,9 +86,9 @@ class ColumnDetector:
         result = []
         identifiers = self.broadcast_template.value.get('identifiers')
         ml_result = sdps_ner.predict(str(col_val)).get(str(col_val), [])
-        ml_label_mapping = {'CHINESE-NAME': 'CN_CHINESE_NAME',
-                            'ENGLISH-NAME': 'CN_ENGLISH_NAME',
-                            'ADDRESS': 'CN_ADDRESS'}
+        ml_label_mapping = {'CHINESE-NAME': 'CHINA_CHINESE_NAME',
+                            'ENGLISH-NAME': 'CHINA_ENGLISH_NAME',
+                            'ADDRESS': 'CHINA_ADDRESS'}
 
         for identifier in identifiers:
             identifier_type = identifier.get('type', -1)
@@ -201,31 +202,22 @@ def create_summarize_glue_result_udf():
 def classifyColumnsAfterRowLevel(nonEmptySampledDf: DataFrame,
                                  summarize_glue_result_udf,
                                  outputColumnName: str,
-                                 thresholdFraction: float):
-    
-    clsDataCol = sf.col(outputColumnName)
-    identity_columns = {}
+                                 thresholdFraction: float,
+                                 rows: int):
 
-    for column in nonEmptySampledDf.columns:
-        if column == "DetectedEntities":
-            continue
-        identity_columns[column] = column+'_identity_types'
-        nonEmptySampledDf = nonEmptySampledDf.withColumn(column+'_identity_types', summarize_glue_result_udf(clsDataCol, sf.lit(column)))
+    glue_entities_df = nonEmptySampledDf.select(sf.explode(sf.col("DetectedEntities")).alias("column_name", "entities"))\
+        .selectExpr("column_name", "explode(entities) as entity")\
+        .selectExpr("column_name", "entity.entityType")\
+        .withColumn("score", sf.lit(1.0)/rows)\
+        .groupBy('column_name', 'entityType').agg(sf.sum('score').alias('score'))\
+        .where(f'score > 0.1')\
+        .withColumn('entityType', sf.struct('entityType', 'score'))\
+        .groupBy('column_name').agg(sf.collect_list('entityType').alias('entityType'))\
+        .withColumnRenamed("entityType", "identifiers")
 
-    rows = nonEmptySampledDf.count()
-    expr_str = ', '.join([f"'{k}', `{v}`"for k, v in identity_columns.items()])
-    expr_str = f"stack({len(identity_columns)}, {expr_str}) as (column_name,identity_types)"
-    nonEmptySampledDf = nonEmptySampledDf.select(sf.expr(expr_str))\
-        .select('column_name', sf.explode('identity_types'))\
-        .select('col.*', '*').groupBy('column_name', 'identifier').agg(sf.sum('score').alias('score'))\
-        .withColumn('score', sf.col('score')/rows)\
-        .where(f'score > {thresholdFraction}')\
-        .withColumn('identifier', sf.struct('identifier', 'score'))\
-        .groupBy('column_name').agg(sf.collect_list('identifier').alias('identifiers'))
+    return glue_entities_df
 
-    return nonEmptySampledDf
-
-def glue_entity_detection(glueContext, df, summarize_glue_result_udf, broadcast_template, threshold):
+def glue_entity_detection(glueContext, df, summarize_glue_result_udf, broadcast_template, threshold, rows):
 
     glue_identifiers = []
     identifiers = broadcast_template.value.get('identifiers')
@@ -244,15 +236,13 @@ def glue_entity_detection(glueContext, df, summarize_glue_result_udf, broadcast_
             "DetectedEntities",
         )
 
-        glue_detector_result = classifyColumnsAfterRowLevel(DetectSensitiveData_node1.toDF(), summarize_glue_result_udf, "DetectedEntities", threshold)
+        glue_detector_result = classifyColumnsAfterRowLevel(DetectSensitiveData_node1.toDF(), summarize_glue_result_udf, "DetectedEntities", threshold, rows)
     else:
         glue_detector_result = None
 
     return glue_detector_result
 
-def sdps_entity_detection(df, threshold, detect_column_udf):
-
-    rows = df.count()
+def sdps_entity_detection(df, detect_column_udf, threshold, rows):
 
     identity_columns = {}
     for column in df.columns:
@@ -286,7 +276,7 @@ def detect_df(df, spark, glueContext, udf_dict, broadcast_template, table, regio
         if args['Depth'].isdigit() and args['Depth'] != '1':
             depth = int(args['Depth'])
             df = df.limit(depth*10)
-            rows = df.count()
+            rows = min(table_size, depth*10)
             sample_rate = 1.0 if rows <= depth else depth/rows
         else:
             sample_rate = float(args['Depth'])
@@ -296,8 +286,8 @@ def detect_df(df, spark, glueContext, udf_dict, broadcast_template, table, regio
         sample_df = df.limit(10)
         # sample_df.show()
 
-        glue_result_df = glue_entity_detection(glueContext, df, summarize_glue_result_udf, broadcast_template, threshold)
-        sdps_result_df = sdps_entity_detection(df, threshold, detect_column_udf)
+        glue_result_df = glue_entity_detection(glueContext, df, summarize_glue_result_udf, broadcast_template, threshold, rows)
+        sdps_result_df = sdps_entity_detection(df, detect_column_udf, threshold, rows)
 
         if glue_result_df != None:
             union_result_df = glue_result_df.union(sdps_result_df)
@@ -305,7 +295,6 @@ def detect_df(df, spark, glueContext, udf_dict, broadcast_template, table, regio
             result_df = result_df.select('column_name', sf.flatten('identifiers').alias('identifiers'))
         else:
             result_df = sdps_result_df
-        # result_df.show(truncate=False)
     
         expr_str = ', '.join([f"'{c}', cast(`{c}` as string)"for c in sample_df.columns])
         expr_str = f"stack({len(sample_df.columns)}, {expr_str}) as (column_name,sample_data)"
@@ -397,7 +386,10 @@ if __name__ == "__main__":
     error_path = f"s3://{args['BucketName']}/glue-database/job_detection_error_table/"
     base_time = parse(args['BaseTime']).replace(tzinfo=pytz.timezone('UTC'))
 
-    sc = SparkContext()
+    sparkConf = SparkConf().set("spark.speculation", "true")\
+        .set("spark.speculation.multiplier", "10")
+    
+    sc = SparkContext(conf=sparkConf)
     glueContext = GlueContext(sc)
     spark = glueContext.spark_session
     job = Job(glueContext)
@@ -459,7 +451,6 @@ if __name__ == "__main__":
             if output:
                 df = reduce(DataFrame.unionAll, output)
                 df = df.repartition(1, 'year', 'month', 'day')
-                # df.show()
                 df.write.partitionBy('year', 'month', 'day').mode('append').parquet(output_path)
 
             # If error in detect_table, save to error_path
