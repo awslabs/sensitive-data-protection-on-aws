@@ -85,9 +85,9 @@ class ColumnDetector:
         result = []
         identifiers = self.broadcast_template.value.get('identifiers')
         ml_result = sdps_ner.predict(str(col_val)).get(str(col_val), [])
-        ml_label_mapping = {'CHINESE-NAME': 'CN_CHINESE_NAME',
-                            'ENGLISH-NAME': 'CN_ENGLISH_NAME',
-                            'ADDRESS': 'CN_ADDRESS'}
+        ml_label_mapping = {'CHINESE-NAME': 'CHINA_CHINESE_NAME',
+                            'ENGLISH-NAME': 'CHINA_ENGLISH_NAME',
+                            'ADDRESS': 'CHINA_ADDRESS'}
 
         for identifier in identifiers:
             identifier_type = identifier.get('type', -1)
