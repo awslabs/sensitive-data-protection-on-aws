@@ -58,6 +58,10 @@ def delete_identifier(id: int):
 
 
 def update_identifier(id: int, identifier: schemas.TemplateIdentifier):
+    res_list = crud.get_identify_by_name(identifier.name)
+    if res_list and res_list[0].id != id:
+        raise BizException(MessageEnum.TEMPLATE_IDENTIFIER_EXISTS.get_code(),
+                           MessageEnum.TEMPLATE_IDENTIFIER_EXISTS.get_msg())
     check_rule(identifier)
     snapshot_no, res = crud.update_identifier(id, identifier)
     # used_by_template = crud.get_mappings_by_identifier(id)
