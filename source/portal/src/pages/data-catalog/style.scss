@@ -111,6 +111,8 @@
     border-radius: 10px !important;
     position: relative;
     bottom: 4px;
+    word-break: break-all !important;
+    white-space: break-spaces;
   }
 
   div:has(ul) {

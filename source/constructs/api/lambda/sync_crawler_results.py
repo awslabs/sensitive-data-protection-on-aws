@@ -22,38 +22,49 @@ def main(input_event):
     logger.info(crawler_name)
     if crawler_name.startswith('rds-') and crawler_name.endswith('-crawler'):
         database_name = crawler_name[4:-8]
+        try:
+            if catalog_service.sync_crawler_result(account_id=input_event['detail']['accountId'],
+                                                   region=input_event['region'],
+                                                   database_type=DatabaseType.RDS.value,
+                                                   database_name=database_name):
+                state = ConnectionState.UNSUPPORTED.value
+
+            data_source_crud.update_rds_instance_count(
+                account=input_event['detail']['accountId'],
+                region=input_event['region'],
+            )
+        except Exception as e:
+            logger.error(str(e))
+
         data_source_crud.set_rds_instance_source_glue_state(
             account=input_event['detail']['accountId'],
             region=input_event['region'],
             instance_id=database_name,
             state=state
         )
-        catalog_service.sync_crawler_result(account_id=input_event['detail']['accountId'],
-                                            region=input_event['region'],
-                                            database_type=DatabaseType.RDS.value,
-                                            database_name=database_name)
-        data_source_crud.update_rds_instance_count(
-            account=input_event['detail']['accountId'],
-            region=input_event['region'],
-        )
 
     elif crawler_name.startswith('s3-') and crawler_name.endswith('-crawler'):
         database_name = crawler_name[3:-8]
+        try:
+            if catalog_service.sync_crawler_result(account_id=input_event['detail']['accountId'],
+                                                   region=input_event['region'],
+                                                   database_type=DatabaseType.S3.value,
+                                                   database_name=database_name):
+                state = ConnectionState.UNSUPPORTED.value
+
+            data_source_crud.update_s3_bucket_count(
+                account=input_event['detail']['accountId'],
+                region=input_event['region'],
+            )
+        except Exception as e:
+            logger.error(str(e))
+
         data_source_crud.set_s3_bucket_source_glue_state(
             account=input_event['detail']['accountId'],
             region=input_event['region'],
             bucket=database_name,
             state=state
         )
-        catalog_service.sync_crawler_result(account_id=input_event['detail']['accountId'],
-                                            region=input_event['region'],
-                                            database_type=DatabaseType.S3.value,
-                                            database_name=database_name)
-        data_source_crud.update_s3_bucket_count(
-            account=input_event['detail']['accountId'],
-            region=input_event['region'],
-        )
-    logger.info("end lambda : sync_crawler_results!")
 
 
 def lambda_handler(event, context):

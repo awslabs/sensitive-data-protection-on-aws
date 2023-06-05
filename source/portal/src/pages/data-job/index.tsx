@@ -109,9 +109,9 @@ const DataJobContent: React.FC<any> = (props: any) => {
     getPageData();
   };
 
-  useEffect(() => {
-    getPageData();
-  }, []);
+  // useEffect(() => {
+  //   getPageData();
+  // }, []);
   const firstUpload = useRef(true); // 记录是否是首次加载页面
 
   useEffect(() => {
@@ -276,7 +276,9 @@ const DataJobContent: React.FC<any> = (props: any) => {
               actions={
                 <SpaceBetween direction="horizontal" size="xs">
                   <Button
-                    onClick={getPageData}
+                    onClick={() => {
+                      getPageData();
+                    }}
                     disabled={isLoading}
                     iconName="refresh"
                   />

@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@cloudscape-design/components": "^3.0.279",
-    "@cloudscape-design/global-styles": "^1.0.1",
+    "@cloudscape-design/components": "^3.0.296",
+    "@cloudscape-design/global-styles": "^1.0.9",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -13,7 +13,7 @@
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.8",
     "aws-amplify": "^4.3.43",
-    "axios": "^1.1.3",
+    "axios": "^1.4.0",
     "classnames": "^2.3.2",
     "i18next": "^22.4.15",
     "i18next-browser-languagedetector": "^7.0.1",
@@ -22,11 +22,11 @@
     "oidc-client-ts": "^2.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-i18next": "^12.2.2",
-    "react-oidc-context": "^2.2.0",
-    "react-router-dom": "^6.4.3",
+    "react-i18next": "^12.3.1",
+    "react-oidc-context": "^2.2.2",
+    "react-router-dom": "^6.11.2",
     "react-simple-maps": "^3.0.0",
-    "react-tooltip": "^4.5.1"
+    "react-tooltip": "^5.13.1"
   },
   "scripts": {
     "local": "cross-env PORT=3080 REACT_APP_ENV=local node scripts/start.js",
@@ -171,6 +171,10 @@
       "jest-watch-typeahead/testname"
     ],
     "resetMocks": true
+  },
+  "overrides": {
+    "d3-color": "3.1.0",
+    "nth-check": "2.1.1"
   },
   "babel": {
     "presets": [

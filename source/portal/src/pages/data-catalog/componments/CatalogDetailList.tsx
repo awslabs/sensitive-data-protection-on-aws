@@ -157,21 +157,21 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       return;
     };
 
-    useEffect(() => {
-      getPageData();
-    }, []);
+    // useEffect(() => {
+    //   getPageData();
+    // }, []);
 
     useEffect(() => {
       getPageData(nameFilterText);
-    }, [query, currentPage, nameFilterText]);
+    }, [query, currentPage, nameFilterText, preferences.pageSize]);
 
-    useEffect(() => {
-      if (currentPage !== 1) {
-        setCurrentPage(1);
-      } else {
-        getPageData();
-      }
-    }, [preferences.pageSize]);
+    // useEffect(() => {
+    //   if (currentPage !== 1) {
+    //     setCurrentPage(1);
+    //   } else {
+    //     getPageData();
+    //   }
+    // }, [preferences.pageSize]);
 
     const getPageData = async (nameFilter?: string) => {
       setIsLoading(true);
@@ -180,10 +180,10 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
           await getDataIdentifiers();
           break;
         case COLUMN_OBJECT_STR.Folders:
-          await getDataFolders(nameFilter);
+          await getDataFolders(nameFilter || '');
           break;
         case COLUMN_OBJECT_STR.Tables:
-          await getDataFolders(nameFilter);
+          await getDataFolders(nameFilter || '');
           break;
         case COLUMN_OBJECT_STR.Schema:
           setSaveLoading(true);
@@ -654,8 +654,8 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                                 <CommonBadge
                                   badgeType={BADGE_TYPE.DataIndf}
                                   badgeLabel={
-                                    identifierList[0].length > 10
-                                      ? identifierList[0]?.substring(0, 9) +
+                                    identifierList[0].length > 20
+                                      ? identifierList[0]?.substring(0, 19) +
                                         '...'
                                       : identifierList[0]
                                   }
@@ -726,10 +726,12 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                             ? 'N/A'
                             : (e as any)[item.id];
                         return (
-                          <CommonBadge
-                            badgeType={BADGE_TYPE.DataIndf}
-                            badgeLabel={showIdentifier}
-                          />
+                          <div>
+                            <CommonBadge
+                              badgeType={BADGE_TYPE.DataIndf}
+                              badgeLabel={showIdentifier}
+                            />
+                          </div>
                         );
                       }
                     }
