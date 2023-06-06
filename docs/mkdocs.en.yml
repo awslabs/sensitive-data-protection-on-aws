@@ -1,0 +1,59 @@
+INHERIT: ./mkdocs.base.yml
+docs_dir: en
+site_dir: ./site/en
+theme:
+  language: en
+nav:
+  - Implementation Guide:
+    - Solution Overview:
+        - Overview: solution-overview/index.md
+        - Features and benefits: solution-overview/features-and-benefits.md
+        - Concepts and definitions: solution-overview/concepts-and-definitions.md
+    - Architecture Overview:
+        - Architecture diagram: architecture-overview/architecture.md
+        - AWS services in this solution: architecture-overview/services-in-the-solution.md
+        - How the solution works:  architecture-overview/architecture-details.md   
+    - Cost: cost.md
+    - Security: security.md
+    - Support Regions: regions.md
+    - Plan your deployment:
+        - Cost: plan-deployment/cost.md
+        - Security: plan-deployment/security.md
+        - Supported regions: plan-deployment/regions.md
+        - Quotas: plan-deployment/quotas.md
+    - Deploy the solution:
+        - AWS CloudFormation template: deployment/template.md
+        - Deployment: deployment/deployment.md
+    - Use the solution: 
+        - Overview: user-guide/get-started.md
+        - Connect to data source:
+            - Add AWS accounts: user-guide/data-source.md
+            - Create data catalogs: user-guide/data-catalog-create.md
+            - Delete data catalogs: user-guide/data-catalog-delete.md
+        - Define classification template: 
+            - Define classification template: user-guide/data-classification-template.md
+            - Manage data identifiers: user-guide/data-identifiers.md
+        - Run sensitive data discovery jobs: 
+            - Create job: user-guide/discovery-job-create.md
+            - View job details: user-guide/discovery-job-details.md
+            - Download job report: user-guide/discovery-job-report.md
+            - Re-run/Duplicate job: user-guide/discovery-job-rerun-and-duplicate.md
+            - Pause/Continue job: user-guide/discovery-job-pause-and-cancel.md
+        - Browse data catalogs: 
+            - Synchronize data catalogs: user-guide/data-catalog-sync.md
+            - Export data catalogs: user-guide/data-catalog-export.md
+            - Label data catalogs: user-guide/data-catalog-labels.md
+    - Appendix: 
+        - Built-in data identifiers: user-guide/appendix-built-in-identifiers.md
+        - Supported data types: user-guide/appendix-supported-data-types.md
+        - Permissions of CloudFormation Stacks: user-guide/appendix-permissions.md
+        - Add accounts via AWS Organization: user-guide/appendix-organization.md
+    - Uninstall the solution: uninstall.md
+    - Developer guide:
+        - Source code: developer-guide/source.md
+    - Troubleshooting: troubleshooting.md
+    - FAQ: faq.md 
+    - Revisions: revisions.md
+    - Contributors: contributors.md
+    - Notices: notices.md
+

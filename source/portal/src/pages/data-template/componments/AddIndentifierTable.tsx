@@ -61,6 +61,7 @@ const AddIdentfierTable = (props: any) => {
   }, []);
 
   useDidUpdateEffect(() => {
+    setSelectedItems([]);
     getPageData();
   }, [currentPage, preferences.pageSize]);
 

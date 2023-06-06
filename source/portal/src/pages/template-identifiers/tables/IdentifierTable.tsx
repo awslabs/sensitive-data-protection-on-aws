@@ -96,18 +96,23 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
       await deleteIdentifiers(requestParam);
       setIsShowDelete(false);
       alertMsg(t('deleteSuccess'), 'success');
+      setSelectedItems([]);
       getPageData();
     } catch (error: any) {
+      console.info('error:', error);
       if (error) {
         if (!error.ref || error.ref.length === 0) {
           alertMsg(error.message, 'error');
           return;
+        } else {
+          alertMsg(error.message, 'error');
+          setShowErrorTips({
+            template: error.ref.filter((i: any) => i === 'template').length > 0,
+            catalog:
+              error.ref.filter((i: any) => i === 's3' || i === 'rds').length >
+              0,
+          });
         }
-        setShowErrorTips({
-          template: error.ref.filter((i: any) => i === 'template').length > 0,
-          catalog:
-            error.ref.filter((i: any) => i === 's3' || i === 'rds').length > 0,
-        });
       }
     }
     return;

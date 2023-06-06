@@ -1,0 +1,40 @@
+site_name: <solution name>
+site_url: https://awslabs.github.io/sensitive-data-protection-on-aws/
+repo_url: https://github.com/awslabs/sensitive-data-protection-on-aws
+repo_name: awslabs/sensitive-data-protection-on-aws
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+  favicon: images/aws-solutions.png
+  logo: images/aws-solutions.png
+  icon:
+      repo: fontawesome/brands/github
+  language: en
+
+extra:
+  generator: false
+  copyright: Copyright &copy; 2020 - 2023 Amazon Web Services
+  alternate:
+    - name: English
+      link: /sensitive-data-protection-on-aws/en/
+      lang: en
+    - name: 简体中文
+      link: /sensitive-data-protection-on-aws/zh/
+      lang: zh
+  bucket: aws-gcr-solutions
+  version: develop
+
+plugins:
+  - search
+  - include-markdown
+  - macros
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - pymdownx.details
+  - pymdownx.superfences
+
+
