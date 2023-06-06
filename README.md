@@ -1,4 +1,4 @@
-English | [简体中文](README_zh-Hans.md)
+English | [简体中文](README_zh.md)
 
 <p align="center">
     <h3 align="center">Sensitive Data Protection Solution on AWS</h3>
