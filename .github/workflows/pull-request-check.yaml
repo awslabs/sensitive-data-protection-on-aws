@@ -103,7 +103,6 @@ jobs:
               .cfnnag_*
 
 
-  # the repository is private, this check cannot be done, set it to pass
   semgrep-scan:
     needs: semantic-validate
     runs-on: ubuntu-latest
@@ -117,18 +116,15 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - name: demo test
-        run: |
-          true
       # Fetch project source with GitHub Actions Checkout.
-      # - uses: actions/checkout@v3
-      # # Run the "semgrep ci" command on the command line of the docker image.
-      # - run: semgrep ci --config auto --sarif --output=semgrep.sarif
-      # - name: Upload SARIF file for GitHub Advanced Security Dashboard
-      #   uses: github/codeql-action/upload-sarif@v2
-      #   with:
-      #     sarif_file: semgrep.sarif
-      #   if: always()
+      - uses: actions/checkout@v3
+      # Run the "semgrep ci" command on the command line of the docker image.
+      - run: semgrep ci --config auto --sarif --output=semgrep.sarif
+      - name: Upload SARIF file for GitHub Advanced Security Dashboard
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: semgrep.sarif
+        if: always()
 
   viperlight:
     runs-on: ubuntu-latest
