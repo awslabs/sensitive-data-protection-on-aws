@@ -79,34 +79,28 @@ jobs:
     needs: semantic-validate
     runs-on: ubuntu-latest
     steps:
-      - name: demo test
-        run: |
-          true
-      # - name: 'Checkout Repository'
-      #   uses: actions/checkout@v3
-      # - name: Dependency Review
-      #   uses: actions/dependency-review-action@v3
-      #   with:
-      #     fail-on-severity: moderate
-      #     # Use comma-separated names to pass list arguments: LGPL-2.0,
-      #     deny-licenses: BSD-2-Clause
-
-
-      # - name: archive production artifacts
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: build-artifacts
-      #     path: |
-      #         .git/**/*
-      #         deployment/**/*
-      #         docs/**/*
-      #         ${{ github.workspace }}/source/portal
-      #         ${{ github.workspace }}/source/constructs               
-      #         deploy_vtag.yml
-      #         CHANGELOG.md
-      #         .cfnnagignore
-      #         .cfnnag_global_suppress_list
-      #         .cfnnag_*
+      - name: 'Checkout Repository'
+        uses: actions/checkout@v3
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v3
+        with:
+          fail-on-severity: moderate
+          deny-licenses: BSD-2-Clause
+      - name: archive production artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: |
+              .git/**/*
+              deployment/**/*
+              docs/**/*
+              ${{ github.workspace }}/source/portal
+              ${{ github.workspace }}/source/constructs               
+              deploy_vtag.yml
+              CHANGELOG.md
+              .cfnnagignore
+              .cfnnag_global_suppress_list
+              .cfnnag_*
 
 
   # the repository is private, this check cannot be done, set it to pass
