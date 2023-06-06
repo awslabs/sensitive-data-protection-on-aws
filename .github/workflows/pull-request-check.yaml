@@ -47,7 +47,7 @@ jobs:
       pull-requests: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: pyflakes
         uses: reviewdog/action-pyflakes@master
         with:
@@ -58,12 +58,13 @@ jobs:
     needs: semantic-validate
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: recursive
       - name: Checkout awslabs/git-secrets
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
+          submodules: recursive
           repository: awslabs/git-secrets
           ref: master
           path: git-secrets
@@ -79,37 +80,30 @@ jobs:
     needs: semantic-validate
     runs-on: ubuntu-latest
     steps:
-      - name: demo test
-        run: |
-          true
-      # - name: 'Checkout Repository'
-      #   uses: actions/checkout@v3
-      # - name: Dependency Review
-      #   uses: actions/dependency-review-action@v3
-      #   with:
-      #     fail-on-severity: moderate
-      #     # Use comma-separated names to pass list arguments: LGPL-2.0,
-      #     deny-licenses: BSD-2-Clause
+      - name: 'Checkout Repository'
+        uses: actions/checkout@v3
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v3
+        with:
+          fail-on-severity: moderate
+          deny-licenses: BSD-2-Clause
+      - name: archive production artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: |
+              .git/**/*
+              deployment/**/*
+              docs/**/*
+              ${{ github.workspace }}/source/portal
+              ${{ github.workspace }}/source/constructs               
+              deploy_vtag.yml
+              CHANGELOG.md
+              .cfnnagignore
+              .cfnnag_global_suppress_list
+              .cfnnag_*
 
 
-      # - name: archive production artifacts
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: build-artifacts
-      #     path: |
-      #         .git/**/*
-      #         deployment/**/*
-      #         docs/**/*
-      #         ${{ github.workspace }}/source/portal
-      #         ${{ github.workspace }}/source/constructs               
-      #         deploy_vtag.yml
-      #         CHANGELOG.md
-      #         .cfnnagignore
-      #         .cfnnag_global_suppress_list
-      #         .cfnnag_*
-
-
-  # the repository is private, this check cannot be done, set it to pass
   semgrep-scan:
     needs: semantic-validate
     runs-on: ubuntu-latest
@@ -123,18 +117,15 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - name: demo test
-        run: |
-          true
       # Fetch project source with GitHub Actions Checkout.
-      # - uses: actions/checkout@v3
-      # # Run the "semgrep ci" command on the command line of the docker image.
-      # - run: semgrep ci --config auto --sarif --output=semgrep.sarif
-      # - name: Upload SARIF file for GitHub Advanced Security Dashboard
-      #   uses: github/codeql-action/upload-sarif@v2
-      #   with:
-      #     sarif_file: semgrep.sarif
-      #   if: always()
+      - uses: actions/checkout@v3
+      # Run the "semgrep ci" command on the command line of the docker image.
+      - run: semgrep ci --config auto --sarif --output=semgrep.sarif
+      - name: Upload SARIF file for GitHub Advanced Security Dashboard
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: semgrep.sarif
+        if: always()
 
   viperlight:
     runs-on: ubuntu-latest
@@ -170,30 +161,6 @@ jobs:
       - name: demo test
         run: |
           true
-      # - name: Checkout
-      #   uses: actions/checkout@v3
-      # - name: Use Node.js 18.x
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: '18.x'
-      # - name: Run Typescript Unit Test
-      #   run: |
-      #     cd ${{ github.workspace }}/source/constructs
-      #     npm install --legacy-peer-deps
-      #     npm run test
-      # - name: Sed lcov report
-      #   if: always()
-      #   run: |
-      #     cd ${{ github.workspace }}/source/constructs/coverage
-      #     sed -i 's/source\/lib\//\/github\/workspace\/templates\/console\/source\/lib\//g' lcov.info
-      #     sed -i 's/source\/test\//\/github\/workspace\/templates\/console\/source\/test\//g' lcov.info
-      # - name: archive coverage report
-      #   uses: actions/upload-artifact@v3
-      #   if: always()
-      #   with:
-      #     name: cdk-coverage-report
-      #     path: |
-      #       templates/console/source/coverage/lcov.info
 
   api-unit-test:
     runs-on: ubuntu-latest
@@ -204,24 +171,7 @@ jobs:
       - name: demo test
         run: |
           true
-      # - name: Checkout
-      #   uses: actions/checkout@v3
-      # - name: Set up Python 3.9
-      #   uses: actions/setup-python@v4
-      #   with:
-      #     python-version: '3.9'
-      # - name: Run Saas Lambda Python Test
-      #   env:
-      #     AWS_DEFAULT_REGION: us-east-1
-      #   run: |
-      #     cd ${{ github.workspace }}/source/api
-      #     # pip install pytest
-      #     pip install poetry          
-      #     poetry install          
-      #     export PYTHONPATH=../ssl_for_saas
-      #     echo "PYTHONPATH=../ssl_for_saas" >> $GITHUB_ENV
-      #     poetry run pytest --cov --cov-config=.coveragerc -cov-report=term-missing --cov-report="xml:./ssl-for-saas.coverage.xml" test
-  
+
   code-build:
     needs: [cdk-unit-test, api-unit-test]
     runs-on: ubuntu-latest
@@ -263,25 +213,3 @@ jobs:
           echo "Build BE END>>>>>>>>>>>>>>>"
           echo "BE Content is shown as below:"
           ls -L ${{ github.workspace }}/source/constructs/cdk.out
-      # - name: Setup Ruby 2.6
-      #   uses: ruby/setup-ruby@477b21f02be01bcb8030d50f37cfec92bfa615b6
-      #   with:
-      #     ruby-version: 2.6
-      # - name: CFN-NAG Scan
-      #   run: |
-      #     gem install cfn-nag
-      #     cfn_nag -v
-      #     echo "CloudFormation template scanning utility installation complete `date`"
-      #     echo "Starting CloudFormation template scanning `date` in `pwd`"
-      #     cd ${{ github.workspace }}/source/constructs/cdk.out
-      #     export CFN_NAG_OPTS="--template-pattern ..*.template.json --print-suppression --fail-on-warnings"
-      #     if [ -f ".cfnnag_global_suppress_list" ]; then export CFN_NAG_OPTS="$CFN_NAG_OPTS -b .cfnnag_global_suppress_list"; fi
-      #     set -x; 
-      #     echo "<<<Admin.template.json>>>"
-      #     cfn_nag_scan $CFN_NAG_OPTS --input-path Admin.template.json
-      #     echo "<<<AdminExistVpc.template.json>>>"
-      #     cfn_nag_scan $CFN_NAG_OPTS --input-path AdminExistVpc.template.json
-      #     echo "<<<Agent.template.json>>>"
-      #     cfn_nag_scan $CFN_NAG_OPTS --input-path Agent.template.json
-      #     echo "<<<IT.template.json>>>"
-      #     cfn_nag_scan $CFN_NAG_OPTS --input-path IT.template.json
