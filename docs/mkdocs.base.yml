@@ -1,17 +1,23 @@
-site_name: <solution name>
+site_name: Sensitive Data Protection on AWS
 site_url: https://awslabs.github.io/sensitive-data-protection-on-aws/
 repo_url: https://github.com/awslabs/sensitive-data-protection-on-aws
 repo_name: awslabs/sensitive-data-protection-on-aws
 
 theme:
+  favicon: https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico
+  logo: https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico
   name: material
-  features:
-    - navigation.tabs
-  favicon: images/aws-solutions.png
-  logo: images/aws-solutions.png
-  icon:
-      repo: fontawesome/brands/github
-  language: en
+  palette:
+    - media: "(prefers-color-scheme: light)" 
+      scheme: default
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)" 
+      scheme: slate
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
 
 extra:
   generator: false
