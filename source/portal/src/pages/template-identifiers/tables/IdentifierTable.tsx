@@ -105,7 +105,6 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
           alertMsg(error.message, 'error');
           return;
         } else {
-          alertMsg(error.message, 'error');
           setShowErrorTips({
             template: error.ref.filter((i: any) => i === 'template').length > 0,
             catalog:

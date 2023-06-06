@@ -112,6 +112,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
 
   const getPageData = async () => {
     setIsLoading(true);
+    setSelectedItems([]);
     const requestParam = {
       page: currentPage,
       size: preferences.pageSize,

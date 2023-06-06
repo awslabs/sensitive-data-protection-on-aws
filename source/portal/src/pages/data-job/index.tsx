@@ -96,15 +96,12 @@ const DataJobContent: React.FC<any> = (props: any) => {
       navigate(RouterEnum.CreateJob.path, {
         state: { oldData: selectedItems[0] },
       });
-      return;
     } else if (selectedOption.id === 'execute_once') {
       await startJob({ id: selectedItems[0].id });
       alertMsg(t('startSuccess'), 'success');
-      return;
     } else if (selectedOption.id === 'continue') {
       await enableJob({ id: selectedItems[0].id });
       alertMsg(t('continueSuccess'), 'success');
-      return;
     }
     getPageData();
   };
