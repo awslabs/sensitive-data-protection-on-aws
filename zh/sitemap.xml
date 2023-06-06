@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
+         <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/</loc>
+         <lastmod>2023-06-06</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/contributors/</loc>
          <lastmod>2023-06-06</lastmod>
          <changefreq>daily</changefreq>
@@ -82,11 +87,6 @@
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/plan-deployment/security/</loc>
-         <lastmod>2023-06-06</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/solution-overview/</loc>
          <lastmod>2023-06-06</lastmod>
          <changefreq>daily</changefreq>
     </url>
