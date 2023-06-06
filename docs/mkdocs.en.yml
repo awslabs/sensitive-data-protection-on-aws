@@ -1,12 +1,14 @@
 INHERIT: ./mkdocs.base.yml
+site_name: Sensitive Data Protection on AWS
 docs_dir: en
 site_dir: ./site/en
+edit_uri: ''
 theme:
   language: en
 nav:
   - Implementation Guide:
     - Solution Overview:
-        - Overview: solution-overview/index.md
+        - Overview: index.md
         - Features and benefits: solution-overview/features-and-benefits.md
         - Concepts and definitions: solution-overview/concepts-and-definitions.md
     - Architecture Overview:
