@@ -234,10 +234,14 @@ const CreateIdentifierContent = () => {
     if (!simpleData || !patternRex) {
       return;
     }
-    if (new RegExp(patternRex).test(simpleData)) {
-      alertMsg(t('identifier:exampleConformsRegex'), 'success');
-    } else {
-      alertMsg(t('identifier:exampleNotConformRegex'), 'error');
+    try {
+      if (new RegExp(patternRex).test(simpleData)) {
+        alertMsg(t('identifier:exampleConformsRegex'), 'success');
+      } else {
+        alertMsg(t('identifier:exampleNotConformRegex'), 'error');
+      }
+    } catch (error: any) {
+      alertMsg(error.message, 'error');
     }
   };
 
