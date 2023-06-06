@@ -51,6 +51,7 @@ jobs:
       - name: pyflakes
         uses: reviewdog/action-pyflakes@master
         with:
+          node-version: '16.x'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
           level: error
@@ -67,6 +68,7 @@ jobs:
           repository: awslabs/git-secrets
           ref: master
           path: git-secrets
+          node-version: '16.x'
       - name: Install git-secrets
         run: cd git-secrets && sudo make install && cd ..
       - name: Run git-secrets
@@ -253,25 +255,3 @@ jobs:
           echo "Build BE END>>>>>>>>>>>>>>>"
           echo "BE Content is shown as below:"
           ls -L ${{ github.workspace }}/source/constructs/cdk.out
-      # - name: Setup Ruby 2.6
-      #   uses: ruby/setup-ruby@477b21f02be01bcb8030d50f37cfec92bfa615b6
-      #   with:
-      #     ruby-version: 2.6
-      # - name: CFN-NAG Scan
-      #   run: |
-      #     gem install cfn-nag
-      #     cfn_nag -v
-      #     echo "CloudFormation template scanning utility installation complete `date`"
-      #     echo "Starting CloudFormation template scanning `date` in `pwd`"
-      #     cd ${{ github.workspace }}/source/constructs/cdk.out
-      #     export CFN_NAG_OPTS="--template-pattern ..*.template.json --print-suppression --fail-on-warnings"
-      #     if [ -f ".cfnnag_global_suppress_list" ]; then export CFN_NAG_OPTS="$CFN_NAG_OPTS -b .cfnnag_global_suppress_list"; fi
-      #     set -x; 
-      #     echo "<<<Admin.template.json>>>"
-      #     cfn_nag_scan $CFN_NAG_OPTS --input-path Admin.template.json
-      #     echo "<<<AdminExistVpc.template.json>>>"
-      #     cfn_nag_scan $CFN_NAG_OPTS --input-path AdminExistVpc.template.json
-      #     echo "<<<Agent.template.json>>>"
-      #     cfn_nag_scan $CFN_NAG_OPTS --input-path Agent.template.json
-      #     echo "<<<IT.template.json>>>"
-      #     cfn_nag_scan $CFN_NAG_OPTS --input-path IT.template.json
