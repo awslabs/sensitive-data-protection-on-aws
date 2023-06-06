@@ -161,30 +161,6 @@ jobs:
       - name: demo test
         run: |
           true
-      # - name: Checkout
-      #   uses: actions/checkout@v3
-      # - name: Use Node.js 18.x
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: '18.x'
-      # - name: Run Typescript Unit Test
-      #   run: |
-      #     cd ${{ github.workspace }}/source/constructs
-      #     npm install --legacy-peer-deps
-      #     npm run test
-      # - name: Sed lcov report
-      #   if: always()
-      #   run: |
-      #     cd ${{ github.workspace }}/source/constructs/coverage
-      #     sed -i 's/source\/lib\//\/github\/workspace\/templates\/console\/source\/lib\//g' lcov.info
-      #     sed -i 's/source\/test\//\/github\/workspace\/templates\/console\/source\/test\//g' lcov.info
-      # - name: archive coverage report
-      #   uses: actions/upload-artifact@v3
-      #   if: always()
-      #   with:
-      #     name: cdk-coverage-report
-      #     path: |
-      #       templates/console/source/coverage/lcov.info
 
   api-unit-test:
     runs-on: ubuntu-latest
@@ -195,24 +171,7 @@ jobs:
       - name: demo test
         run: |
           true
-      # - name: Checkout
-      #   uses: actions/checkout@v3
-      # - name: Set up Python 3.9
-      #   uses: actions/setup-python@v4
-      #   with:
-      #     python-version: '3.9'
-      # - name: Run Saas Lambda Python Test
-      #   env:
-      #     AWS_DEFAULT_REGION: us-east-1
-      #   run: |
-      #     cd ${{ github.workspace }}/source/api
-      #     # pip install pytest
-      #     pip install poetry          
-      #     poetry install          
-      #     export PYTHONPATH=../ssl_for_saas
-      #     echo "PYTHONPATH=../ssl_for_saas" >> $GITHUB_ENV
-      #     poetry run pytest --cov --cov-config=.coveragerc -cov-report=term-missing --cov-report="xml:./ssl-for-saas.coverage.xml" test
-  
+
   code-build:
     needs: [cdk-unit-test, api-unit-test]
     runs-on: ubuntu-latest
