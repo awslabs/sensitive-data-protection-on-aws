@@ -22,11 +22,13 @@ The Sensitive Data Protection on AWS solution allows enterprise customers to cre
 
 The solution provides an automated approach to data protection with a self-service web application. You can perform regular or on-demand sensitive data discovery jobs using your own data classification templates. Moreover, you can access metrics such as the total number of sensitive data entries stored in all your AWS accounts, which accounts contain the most sensitive data, and the data source where the sensitive data is located. 
 
-<div align="center">
-    <img src="docs/en/images/portal-summary-256.png" width="400" />
-    <img src="docs/en/images/portal-identifiers-256.png" width="400" />
-    <img src="docs/en/images/portal-catalog-256.png" width="400" />
-</div>
+Summary Dashboard          |
+:-------------------------:|
+![](docs/en/images/portal-summary-256.png)  |
+
+PII Data Identifiers       |Data Catalog Management
+:-------------------------:|:-------------------------:|
+![](docs/en/images/portal-identifiers-256.png)|![](docs/en/images/portal-catalog-256.png)  |
 
 ## Quick deployment
 
