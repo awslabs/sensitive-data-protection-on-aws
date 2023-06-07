@@ -521,6 +521,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#monitoring-services-using-amazon-cloudwatch-alarms" class="md-nav__link">
+    Monitoring services using Amazon CloudWatch alarms
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1323,6 +1330,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#monitoring-services-using-amazon-cloudwatch-alarms" class="md-nav__link">
+    Monitoring services using Amazon CloudWatch alarms
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1342,6 +1356,22 @@
 <p>When you build solutions on Amazon Web Services, security responsibilities are shared between you and Amazon Cloud. This <a href="https://aws.amazon.com/compliance/shared-responsibility-model/">Shared Responsibility Model</a> reduces your operational burden due to the Amazon Web Services operations, management, and control components, including host operations The physical security of the system, the virtualization layer, and the facility where the service runs. For more information on Amazon Web Services, visit Amazon Web Services <a href="http://aws.amazon.com/security/">Cloud Security</a>.</p>
 <h2 id="iam-roles">IAM roles</h2>
 <p>AWS Identity and Access Management (IAM) roles allow customers to assign fine-grained access policies and permissions to services and users on AWS. This solution creates IAM roles that grant access between components of the solution.</p>
+<h2 id="monitoring-services-using-amazon-cloudwatch-alarms">Monitoring services using Amazon CloudWatch alarms</h2>
+<p>You can set up alarms to monitor and receive alerts about your AWS resources on the [alarms dashboard](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html in Amazon CloudWatch. Generally, we recommend configuring your alarms to notify you whenever a metric starts excessively over or under-utilizing a particular resource, such as high CPU or memory usage. This can be an indicator that your service is experiencing a DoS-style attack. Additionally, it may be valuable to set alarms for when your data storage container, such as RDS, approaches near 100% capacity utilization, as this could indicate a resource starvation or exhaustion-style attack.</p>
+<blockquote>
+<p>There would be additional cost for <a href="https://aws.amazon.com/cloudwatch/pricing/">CloudWatch alarms</a>.</p>
+</blockquote>
+<p>In China regions (cn-north-1, cn-northwest-1), you can create <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/monitoring-cloudwatch.html">RDS</a> and <a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway-cloudwatch.html">NAT Gateway</a> metrics in alarms. </p>
+<p>In all supported global regions, you can enable more services metrics like <a href="https://docs.aws.amazon.com/lambda/latest/dg/monitoring-metrics.html">Lambda</a>, <a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-monitoring-using-cloudwatch.html">SQS</a>, <a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-cloudwatch-metrics.html">ApplicationELB</a>.</p>
+<p>For example, if you want to create alarms to monitor ActiveConnectionCount in NATGateway using the CloudWatch console, please follow the steps below.
+1. Sign in to the AWS Management Console and open the CloudWatch console
+2. Choose <strong>Alarms</strong>, <strong>All alarms</strong>. Choose <strong>Create an alarm</strong>.
+3. Choose <strong>Select metric</strong> and choose <strong>NATGateway</strong> in metrics.
+4. Search for the metric <strong>ActiveConnectionCount</strong>.
+5. In <strong>Conditions</strong>, define the alarm condition whenever ActiveConnectionCount is greater than 100. Then choose Next.
+6. In the <strong>Notification</strong> configure CloudWatch to send you an email when the alarm state is reached.
+7. Choose <strong>Next</strong>.
+8. Enter a name and description for the alarm and <strong>Create alarm</strong>.</p>
 
 
 
