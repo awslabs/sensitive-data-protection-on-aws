@@ -7,9 +7,9 @@
 按照以下步骤在AWS上部署此解决方案。
 
 - 创建用户池和OIDC应用程序。
-- 将AWS CloudFormation的**管理员（Admin）**模板部署到您的AWS管理员账户。
+- 将AWS CloudFormation的**Admin**模板部署到您的AWS管理员账户。
 - （可选）如果您的账户都属于AWS组织，请在IT账户下部署**IT**模板。AWS组织根账户需要首先将IT账户注册为委派管理员。
-- 将AWS CloudFormation的**代理（Agent）**模板部署到需要检测的AWS账户。
+- 将AWS CloudFormation的**Agent**模板部署到需要检测的AWS账户。
 
 ## 部署步骤
 
