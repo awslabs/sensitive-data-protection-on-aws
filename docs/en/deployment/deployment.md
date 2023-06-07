@@ -136,4 +136,4 @@ The installation steps are the same as the Admin stack.
 
 [Global region agent template](https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/1.0.0/default/Agent.template.json)
 
-Fill in “Stack name”  in step 1 page, and parse your admin account(12 digits) in “AdminAccountId” parameter.
+Fill in "Stack name" in step 1 page, and parse your admin account(12 digits) in "AdminAccountId" parameter.
