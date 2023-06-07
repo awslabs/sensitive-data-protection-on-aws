@@ -15,15 +15,15 @@
 
 ### 创建用户池和OIDC应用程序
 
-您可以使用不同类型的OpenID Connector（OIDC）提供者。本节介绍了Option 1到Option 3的选项。
+您可以使用不同类型的OpenID Connector（OIDC）提供者。本节介绍了选项1到选项3的选项。
 
-- Option 1：使用Amazon Cognito作为OIDC提供者。
+- 选项 1：使用Amazon Cognito作为OIDC提供者。
 
-- Option 2：Authing，这是一个第三方认证提供者的示例。
+- 选项 2：Authing，这是一个第三方认证提供者的示例。
 
-- Option 3：OKTA，这是一个第三方认证提供者的示例。
+- 选项 3：OKTA，这是一个第三方认证提供者的示例。
 
-#### Option 1：Cognito
+#### 选项 1：Cognito
 您可以在支持的AWS区域中利用[Cognito用户池](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-identity-pools.html)作为OIDC提供者。
 1. 在AWS标准区域中，转到[Amazon Cognito控制台](https://us-east-1.console.aws.amazon.com/cognito/v2/idp/user-pools/create?region=us-east-1)。
 
@@ -46,7 +46,7 @@ p.${REGION}.amazonaws.com/${USER_POOL_ID}`
 ![Cognito User pool ID](images/CognitoUserpoolId.png)
 
 
-#### Option 2：Authing
+#### 选项 2：Authing
 1. 转到[Authing控制台](https://www.authing.cn/)。
 
 2. 在左侧导航栏中，选择Applications下的Self-built App。
@@ -63,7 +63,7 @@ p.${REGION}.amazonaws.com/${USER_POOL_ID}`
 
 7. 在访问授权选项卡中，选择可访问的用户。
 
-#### Option 3：OKTA
+#### 选项 3：OKTA
 1. 转到[OKTA控制台](https://developer.okta.com/login/)。
 
 2. 点击Applications → Create App Integration
@@ -90,14 +90,12 @@ Issuer URL可以在您的个人资料中找到。完整的Issuer URL为“https:
 
     |      参数       |    默认值    |                                                      描述                                                      |
     |:---------------:|:-----------:|:------------------------------------------------------------------------------------------------------------|
-    |Issuer URL||指定安全的OpenID Connect URL。最大长度为255个字符。URL
-
-必须以"https://"开头|
+    |Issuer URL||指定安全的OpenID Connect URL。最大长度为255个字符。URL必须以"https://"开头|
     |Client ID||指定身份提供商颁发的客户端ID。最大长度为255个字符。使用字母数字或?:_.-/?字符 |
     |Public Access | Yes |如果选择No，则只能在VPC中访问门户网站。如果要通过Internet访问门户网站，需要选择Yes |
     |Port|80|如果已添加ACM证书ARN，建议使用默认端口443作为HTTPS协议的端口。否则，可以将端口设置为80作为备用选项|
     |ACM Certificate ARN||(可选)为了通过加密实现安全通信并增强解决方案的安全性，可以添加来自ACM的公共证书ARN，以基于HTTPS协议创建门户网站URL|
-    |Custom Domain Name||(可选)通过添加您自己的域名（例如sdps.example.com），您可以在部署堆栈后通过将CNAME记录添加到该域名来直接访问门户网站。只填写域名，不要填写http(s)://|
+    |Custom Domain Name||(可选)通过添加您自己的域名（例如sdps.example.com），您可以在部署堆栈后通过将CNAME记录添加到该域名来直接访问门户网站。只填写域名，不要填写http(s) |
 
 
 6. 选择**Next**。
@@ -111,15 +109,15 @@ Issuer URL可以在您的个人资料中找到。完整的Issuer URL为“https:
 ### 配置OIDC应用程序（Configure OIDC application）
 
 将SigninRedirectUriHTTP(S)的值复制并配置到您的OIDC应用程序中。
-#### Option 1：Cognito
+#### 选项 1：Cognito
 **Your user pools** -> **App integration** -> **Your App**
 ![Cognito Callback URL](images/CognitoCallbackURL.jpg)
 
 
-#### Option 2：Authing
+#### 选项 2：Authing
 ![Authing Callback URL](images/AuthingCallbackURL.jpg)
 
-#### Option 3：OKTA
+#### 选项 3：OKTA
 ![Authing Callback URL](images/OktaCallbackURL.png)
 
 
