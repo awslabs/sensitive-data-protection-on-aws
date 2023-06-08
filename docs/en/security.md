@@ -7,7 +7,7 @@ AWS Identity and Access Management (IAM) roles allow customers to assign fine-gr
 
 ##  Monitoring services using Amazon CloudWatch alarms
 
-You can set up alarms to monitor and receive alerts about your AWS resources on the [alarms dashboard](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html in Amazon CloudWatch. Generally, we recommend configuring your alarms to notify you whenever a metric starts excessively over or under-utilizing a particular resource, such as high CPU or memory usage. This can be an indicator that your service is experiencing a DoS-style attack. Additionally, it may be valuable to set alarms for when your data storage container, such as RDS, approaches near 100% capacity utilization, as this could indicate a resource starvation or exhaustion-style attack.
+You can set up alarms to monitor and receive alerts about your AWS resources on the [alarms dashboard](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html) in Amazon CloudWatch. Generally, we recommend configuring your alarms to notify you whenever a metric starts excessively over or under-utilizing a particular resource, such as high CPU or memory usage. This can be an indicator that your service is experiencing a DoS-style attack. Additionally, it may be valuable to set alarms for when your data storage container, such as RDS, approaches near 100% capacity utilization, as this could indicate a resource starvation or exhaustion-style attack.
 
 > There would be additional cost for [CloudWatch alarms](https://aws.amazon.com/cloudwatch/pricing/).
 
