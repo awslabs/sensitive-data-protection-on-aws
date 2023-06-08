@@ -361,7 +361,7 @@
   
   
     <li class="md-nav__item">
-      <a href="solution-overview/use-cases/" class="md-nav__link">
+      <a href="solution-overview/use-cases.md" class="md-nav__link">
         客户用例
       </a>
     </li>
@@ -437,7 +437,7 @@
   
   
     <li class="md-nav__item">
-      <a href="architecture-overview/design-considerations/" class="md-nav__link">
+      <a href="architecture-overview/design-considerations.md" class="md-nav__link">
         架构设计思路
       </a>
     </li>
@@ -499,7 +499,7 @@
   
   
     <li class="md-nav__item">
-      <a href="plan-deployment/cost/" class="md-nav__link">
+      <a href="plan-deployment/cost.md" class="md-nav__link">
         成本预估
       </a>
     </li>
@@ -541,7 +541,7 @@
   
   
     <li class="md-nav__item">
-      <a href="plan-deployment/quotas/" class="md-nav__link">
+      <a href="plan-deployment/quotas.md" class="md-nav__link">
         配额信息
       </a>
     </li>
@@ -624,7 +624,7 @@
   
   
     <li class="md-nav__item">
-      <a href="update/" class="md-nav__link">
+      <a href="update.md" class="md-nav__link">
         更新解决方案
       </a>
     </li>
@@ -652,7 +652,7 @@
   
   
     <li class="md-nav__item">
-      <a href="user-guide/user-guide/" class="md-nav__link">
+      <a href="user-guide/user-guide.md" class="md-nav__link">
         用户指南
       </a>
     </li>
@@ -728,7 +728,7 @@
   
   
     <li class="md-nav__item">
-      <a href="faq/" class="md-nav__link">
+      <a href="faq.md" class="md-nav__link">
         常见问题解答
       </a>
     </li>
@@ -806,7 +806,49 @@
 
   <h1>概述</h1>
 
-<p>本解决方案旨在帮助客户XXX。</p>
+<p>AWS 上的敏感数据保护解决方案允许企业客户创建数据目录，发现、保护和可视化多个 AWS 账户中的敏感数据。该解决方案消除了手动标记以跟踪敏感数据（如个人身份信息（PII）和分类信息）的需求。</p>
+<p>该解决方案提供了一种自助式 Web 应用程序的自动化数据保护方法。您可以使用自己的数据分类模板执行定期或按需敏感数据发现作业。此外，您可以访问诸如所有 AWS 账户中存储的敏感数据条目总数、包含最多敏感数据的账户以及敏感数据所在的数据源等指标。</p>
+<p><img alt="工作原理" src="images/how-sdps-works.png" /></p>
+<p>该解决方案帮助企业客户（如安全或大数据业务公司）实施以下数据保护措施：</p>
+<ul>
+<li>对数百个 AWS 账户进行集中管理</li>
+<li>自动发现数据资产</li>
+<li>敏感数据检测和自动标记</li>
+<li>与其他 AWS 服务或应用程序集成</li>
+</ul>
+<p>本指南提供了解决方案、其参考架构和组件、部署规划考虑因素以及将解决方案部署到 Amazon Web Services (AWS) 云端的配置步骤的概述。</p>
+<p>使用此导航表快速查找这些问题的答案：</p>
+<table>
+<thead>
+<tr>
+<th>如果您想要……</th>
+<th>阅读……</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>了解运行此解决方案的成本</td>
+<td><a href="plan-deployment/cost">成本</a></td>
+</tr>
+<tr>
+<td>了解此解决方案的安全考虑因素</td>
+<td><a href="plan-deployment/security">安全</a></td>
+</tr>
+<tr>
+<td>了解如何为此解决方案规划配额</td>
+<td><a href="plan-deployment/quotas">配额</a></td>
+</tr>
+<tr>
+<td>了解此解决方案支持哪些 AWS 区域</td>
+<td><a href="plan-deployment/regions">支持的 AWS 区域</a></td>
+</tr>
+<tr>
+<td>查看或下载此解决方案中包含的 AWS CloudFormation 模板，以自动部署此解决方案的基础设施资源（“堆栈”）</td>
+<td><a href="deployment/template">AWS CloudFormation 模板</a></td>
+</tr>
+</tbody>
+</table>
+<p>本指南面向具有在 AWS 云上架构实践经验的 IT 架构师、开发人员、DevOps 和数据工程师。</p>
 
 
 

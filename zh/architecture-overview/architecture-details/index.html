@@ -13,10 +13,10 @@
         <link rel="canonical" href="https://awslabs.github.io/sensitive-data-protection-on-aws/architecture-overview/architecture-details/">
       
       
-        <link rel="prev" href="../design-considerations/">
+        <link rel="prev" href="../architecture/">
       
       
-        <link rel="next" href="../../plan-deployment/cost/">
+        <link rel="next" href="../../plan-deployment/security/">
       
       <link rel="icon" href="https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico">
       <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.15">
@@ -73,6 +73,11 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
+      
+        
+        <a href="#architecture-details" class="md-skip">
+          跳转至
+        </a>
       
     </div>
     <div data-md-component="announce">
@@ -353,7 +358,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../solution-overview/use-cases/" class="md-nav__link">
+      <a href="../../solution-overview/use-cases.md" class="md-nav__link">
         客户用例
       </a>
     </li>
@@ -431,7 +436,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../design-considerations/" class="md-nav__link">
+      <a href="../design-considerations.md" class="md-nav__link">
         架构设计思路
       </a>
     </li>
@@ -451,10 +456,50 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          架构细节
+          <span class="md-nav__icon md-icon"></span>
+        </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
         架构细节
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#modules-in-admin-account" class="md-nav__link">
+    Modules in Admin Account
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modules-in-monitored-accounts" class="md-nav__link">
+    Modules in Monitored Account(s)
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -501,7 +546,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../plan-deployment/cost/" class="md-nav__link">
+      <a href="../../plan-deployment/cost.md" class="md-nav__link">
         成本预估
       </a>
     </li>
@@ -543,7 +588,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../plan-deployment/quotas/" class="md-nav__link">
+      <a href="../../plan-deployment/quotas.md" class="md-nav__link">
         配额信息
       </a>
     </li>
@@ -626,7 +671,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../update/" class="md-nav__link">
+      <a href="../../update.md" class="md-nav__link">
         更新解决方案
       </a>
     </li>
@@ -654,7 +699,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/user-guide/" class="md-nav__link">
+      <a href="../../user-guide/user-guide.md" class="md-nav__link">
         用户指南
       </a>
     </li>
@@ -730,7 +775,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../faq/" class="md-nav__link">
+      <a href="../../faq.md" class="md-nav__link">
         常见问题解答
       </a>
     </li>
@@ -789,6 +834,30 @@
   
   
   
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#modules-in-admin-account" class="md-nav__link">
+    Modules in Admin Account
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modules-in-monitored-accounts" class="md-nav__link">
+    Modules in Monitored Account(s)
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -806,9 +875,42 @@
   
 
 
-  <h1>架构细节</h1>
-
-<p>This section describes the components and AWS services that make up this solution and the architecture details on how these components work together.</p>
+<h1 id="architecture-details">Architecture details</h1>
+<p>This section describes the components and AWS services that make up this solution and the high level system design.</p>
+<p><img alt="high-level-system-design" src="../../images/system-design.png" />
+<strong>Sensitive Data Protection on AWS high level system design</strong></p>
+<p>As shown in the diagram, the centralized sensitive data governance account is the admin account. Solution users, typically security auditors, can access the solution via a web portal. Users can browse the data catalog and execute sensitive data detection jobs in the monitored account(s) after logging into the web portal. </p>
+<p>Multiple monitored accounts are connected to the admin account with data source access and job execution privileges, so that the admin account can invoke the Job Processor model in the specified monitored account for sensitive data detection.</p>
+<h2 id="modules-in-admin-account">Modules in Admin Account</h2>
+<ul>
+<li>
+<p><strong>Web Portal (UI)</strong>: The solution administrator or normal users can access the solution through the web portal. It provides secure user access management and a web UI for the solution.</p>
+</li>
+<li>
+<p><strong>Data Source Management (DSM)</strong>: The DSM is responsible for retrieving the data sources from monitored accounts by the Data Source Detector and storing the data source structure. Users can explore the data storage in the monitored accounts, such as S3 buckets and RDS instances.</p>
+</li>
+<li>
+<p><strong>Data Catalog Management (DCM)</strong>: The DCM can discover the latest schema (normally called metadata) of the data sources in DSM. The schema includes information such as table columns in RDS databases and the sensitive data detection results after the detection job has run.</p>
+</li>
+<li>
+<p><strong>Job Controller (JC)</strong>: The Job Controller is responsible for executing the detection job in the monitored account and collecting the detection results back to the admin account. It can configure the job to run on a user-defined schedule or as needed.</p>
+</li>
+<li>
+<p><strong>Template Configuration (TC)</strong>: The detection templates are stored in the TC model. It contains built-in templates and custom-defined templates. The JC can retrieve the templates for running the job processor.</p>
+</li>
+<li>
+<p><strong>Account Management (AM)</strong>: The monitored AWS account(s) are managed by the AM model.</p>
+</li>
+</ul>
+<h2 id="modules-in-monitored-accounts">Modules in Monitored Account(s)</h2>
+<ul>
+<li>
+<p><strong>Job Processor</strong>: The Job Processor is the running container for sensitive data detection, invoked by the Job Controller. The Job Processor reads the raw data to the detection engine for detection and sends the analysis results and running state to the Job Controller.</p>
+</li>
+<li>
+<p><strong>Detection Engine</strong>: The Detection Engine model is the core sensitive data detection engine with AI/ML support features. It receives the data from the Job Processor to identify the sensitive data type using a pre-trained ML model or pattern.</p>
+</li>
+</ul>
 
 
 

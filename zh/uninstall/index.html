@@ -13,10 +13,10 @@
         <link rel="canonical" href="https://awslabs.github.io/sensitive-data-protection-on-aws/uninstall/">
       
       
-        <link rel="prev" href="../update/">
+        <link rel="prev" href="../deployment/deployment/">
       
       
-        <link rel="next" href="../user-guide/user-guide/">
+        <link rel="next" href="../developer-guide/source/">
       
       <link rel="icon" href="https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico">
       <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.15">
@@ -75,7 +75,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#_1" class="md-skip">
+        <a href="#aws" class="md-skip">
           跳转至
         </a>
       
@@ -358,7 +358,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../solution-overview/use-cases/" class="md-nav__link">
+      <a href="../solution-overview/use-cases.md" class="md-nav__link">
         客户用例
       </a>
     </li>
@@ -434,7 +434,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../architecture-overview/design-considerations/" class="md-nav__link">
+      <a href="../architecture-overview/design-considerations.md" class="md-nav__link">
         架构设计思路
       </a>
     </li>
@@ -496,7 +496,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../plan-deployment/cost/" class="md-nav__link">
+      <a href="../plan-deployment/cost.md" class="md-nav__link">
         成本预估
       </a>
     </li>
@@ -538,7 +538,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../plan-deployment/quotas/" class="md-nav__link">
+      <a href="../plan-deployment/quotas.md" class="md-nav__link">
         配额信息
       </a>
     </li>
@@ -621,7 +621,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../update/" class="md-nav__link">
+      <a href="../update.md" class="md-nav__link">
         更新解决方案
       </a>
     </li>
@@ -665,15 +665,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    使用亚马逊云科技管理控制台删除堆栈
+  <a href="#aws" class="md-nav__link">
+    使用 AWS 管理控制台卸载堆栈
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#cli" class="md-nav__link">
-    使用CLI删除堆栈
+  <a href="#aws_1" class="md-nav__link">
+    使用 AWS 命令行界面卸载堆栈
   </a>
   
 </li>
@@ -693,7 +693,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../user-guide/user-guide/" class="md-nav__link">
+      <a href="../user-guide/user-guide.md" class="md-nav__link">
         用户指南
       </a>
     </li>
@@ -769,7 +769,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../faq/" class="md-nav__link">
+      <a href="../faq.md" class="md-nav__link">
         常见问题解答
       </a>
     </li>
@@ -836,15 +836,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    使用亚马逊云科技管理控制台删除堆栈
+  <a href="#aws" class="md-nav__link">
+    使用 AWS 管理控制台卸载堆栈
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#cli" class="md-nav__link">
-    使用CLI删除堆栈
+  <a href="#aws_1" class="md-nav__link">
+    使用 AWS 命令行界面卸载堆栈
   </a>
   
 </li>
@@ -869,16 +869,18 @@
 
   <h1>卸载解决方案</h1>
 
-<p>要卸载XXXX解决方案，请删除CloudFormation堆栈。</p>
-<p>您可以使用亚马逊云科技管理控制台或CLI删除CloudFormation堆栈。</p>
-<h2 id="_1">使用亚马逊云科技管理控制台删除堆栈</h2>
+<p>要卸载解决方案，您必须删除 AWS CloudFormation 堆栈。</p>
+<p>您可以使用 AWS 管理控制台或 AWS 命令行界面（AWS CLI）删除 CloudFormation 堆栈。</p>
+<h2 id="aws">使用 AWS 管理控制台卸载堆栈</h2>
 <ol>
-<li></li>
+<li>登录 AWS CloudFormation 控制台。</li>
+<li>选择此解决方案的安装父堆栈。</li>
+<li>选择 <strong>删除</strong>。</li>
 </ol>
-<h2 id="cli">使用CLI删除堆栈</h2>
-<ol>
-<li>确定命令行在您的环境中是否可用。有关安装说明，请参阅CLI用户指南中的[CLI是什么][aws-cli]。</li>
-</ol>
+<h2 id="aws_1">使用 AWS 命令行界面卸载堆栈</h2>
+<p>确定您的环境中是否可用 AWS 命令行界面（AWS CLI）。有关安装说明，请参阅 <em>AWS CLI 用户指南</em> 中的 <a href="https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html">什么是 AWS 命令行界面</a>。确认 AWS CLI 可用后，运行以下命令。</p>
+<div class="highlight"><pre><span></span><code>aws<span class="w"> </span>cloudformation<span class="w"> </span>delete-stack<span class="w"> </span>--stack-name<span class="w"> </span>&lt;installation-stack-name&gt;<span class="w"> </span>--region<span class="w"> </span>&lt;aws-region&gt;
+</code></pre></div>
 
 
 

@@ -14,7 +14,7 @@
         <link rel="prev" href="../security/">
       
       
-        <link rel="next" href="../quotas/">
+        <link rel="next" href="../../deployment/template/">
       
       <link rel="icon" href="https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico">
       <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.15">
@@ -71,6 +71,11 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
+      
+        
+        <a href="#regional-deployment" class="md-skip">
+          Skip to content
+        </a>
       
     </div>
     <div data-md-component="announce">
@@ -441,7 +446,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture-overview/design-considerations/" class="md-nav__link">
+      <a href="../../architecture-overview/design-considerations.md" class="md-nav__link">
         Design Considerations
       </a>
     </li>
@@ -490,7 +495,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../regions/" class="md-nav__link">
+      <a href="../../regions.md" class="md-nav__link">
         Support Regions
       </a>
     </li>
@@ -533,7 +538,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cost/" class="md-nav__link">
+      <a href="../cost.md" class="md-nav__link">
         Cost
       </a>
     </li>
@@ -567,10 +572,50 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Supported regions
+          <span class="md-nav__icon md-icon"></span>
+        </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
         Supported regions
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#supported-regions-for-deployment-in-aws-global-regions" class="md-nav__link">
+    Supported regions for deployment in AWS Global Regions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supported-regions-for-deployment-in-aws-china-regions" class="md-nav__link">
+    Supported regions for deployment in AWS China Regions
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -583,7 +628,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../quotas/" class="md-nav__link">
+      <a href="../quotas.md" class="md-nav__link">
         Quotas
       </a>
     </li>
@@ -1198,7 +1243,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../faq/" class="md-nav__link">
+      <a href="../../faq.md" class="md-nav__link">
         FAQ
       </a>
     </li>
@@ -1271,6 +1316,30 @@
   
   
   
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#supported-regions-for-deployment-in-aws-global-regions" class="md-nav__link">
+    Supported regions for deployment in AWS Global Regions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supported-regions-for-deployment-in-aws-china-regions" class="md-nav__link">
+    Supported regions for deployment in AWS China Regions
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -1285,80 +1354,95 @@
                   
 
 
-  <h1>Supported regions</h1>
-
-<p>As of June 2023, this solution is supported in the following Amazon Web Services Regions:</p>
+<h1 id="regional-deployment">Regional Deployment</h1>
+<p>This solution uses services which may not be currently available in all AWS Regions. Launch this solution in an AWS Region where required services are available. For the most current availability by Region, refer to the AWS Regional Services List.</p>
+<h2 id="supported-regions-for-deployment-in-aws-global-regions">Supported regions for deployment in AWS Global Regions</h2>
 <table>
 <thead>
 <tr>
-<th>Region ID</th>
 <th>Region Name</th>
+<th>Region ID</th>
 </tr>
 </thead>
 <tbody>
 <tr>
+<td>US East (N. Virginia) Region</td>
 <td>us-east-1</td>
-<td>US East (N. Virginia)</td>
 </tr>
 <tr>
+<td>US East (Ohio) Region</td>
 <td>us-east-2</td>
-<td>US East (Ohio)</td>
 </tr>
 <tr>
+<td>US West (N. California) Region</td>
+<td>us-west-1</td>
+</tr>
+<tr>
+<td>US West (Oregon) Region</td>
 <td>us-west-2</td>
-<td>US West (Oregon)</td>
 </tr>
 <tr>
-<td>ca-central-1</td>
-<td>Canada</td>
-</tr>
-<tr>
-<td>sa-east-1</td>
-<td>South America (Sao Paulo)</td>
-</tr>
-<tr>
-<td>eu-west-1</td>
-<td>Europe (Ireland)</td>
-</tr>
-<tr>
-<td>eu-west-2</td>
-<td>Europe (London)</td>
-</tr>
-<tr>
-<td>eu-west-3</td>
-<td>Europe (Paris)</td>
-</tr>
-<tr>
-<td>eu-central-1</td>
-<td>Europe (Frankfurt)</td>
-</tr>
-<tr>
-<td>ap-northeast-1</td>
-<td>Asia Pacific (Tokyo)</td>
-</tr>
-<tr>
-<td>ap-northeast-2</td>
-<td>Asia Pacific (Seoul)</td>
-</tr>
-<tr>
-<td>ap-southeast-1</td>
-<td>Asia Pacific (Singapore)</td>
-</tr>
-<tr>
-<td>ap-southeast-2</td>
-<td>Asia Pacific (Sydney)</td>
-</tr>
-<tr>
+<td>Asia Pacific (Mumbai) Region</td>
 <td>ap-south-1</td>
-<td>Asia Pacific (Mumbai)</td>
 </tr>
 <tr>
-<td>cn-northwest-1</td>
-<td>China (Ningxia) Region operated by NWCD</td>
+<td>Asia Pacific (Tokyo) Region</td>
+<td>ap-northeast-1</td>
 </tr>
 <tr>
+<td>Asia Pacific (Seoul) Region</td>
+<td>ap-northeast-2</td>
+</tr>
+<tr>
+<td>Asia Pacific (Singapore) Region</td>
+<td>ap-southeast-1</td>
+</tr>
+<tr>
+<td>Asia Pacific (Sydney) Region</td>
+<td>ap-southeast-2</td>
+</tr>
+<tr>
+<td>Canada (Central) Region</td>
+<td>ca-central-1</td>
+</tr>
+<tr>
+<td>Europe (Ireland) Region</td>
+<td>eu-west-1</td>
+</tr>
+<tr>
+<td>Europe (London) Region</td>
+<td>eu-west-2</td>
+</tr>
+<tr>
+<td>Europe (Paris) Region</td>
+<td>eu-west-3</td>
+</tr>
+<tr>
+<td>Europe (Frankfurt) Region</td>
+<td>eu-central-1</td>
+</tr>
+<tr>
+<td>South America (Sao Paulo) Region</td>
+<td>sa-east-1</td>
+</tr>
+</tbody>
+</table>
+<h2 id="supported-regions-for-deployment-in-aws-china-regions">Supported regions for deployment in AWS China Regions</h2>
+<table>
+<thead>
+<tr>
+<th>Region Name</th>
+<th>Region ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AWS China (Beijing) Region operated by Sinnet</td>
 <td>cn-north-1</td>
-<td>China (Beijing) Region operated by Sinnet</td>
+</tr>
+<tr>
+<td>AWS China (Ningxia) Region operated by NWCD</td>
+<td>cn-northwest-1</td>
 </tr>
 </tbody>
 </table>

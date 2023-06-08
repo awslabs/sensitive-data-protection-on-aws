@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://awslabs.github.io/sensitive-data-protection-on-aws/deployment/template/">
       
       
-        <link rel="prev" href="../../plan-deployment/quotas/">
+        <link rel="prev" href="../../plan-deployment/regions/">
       
       
         <link rel="next" href="../deployment/">
@@ -73,6 +73,11 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          跳转至
+        </a>
       
     </div>
     <div data-md-component="announce">
@@ -353,7 +358,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../solution-overview/use-cases/" class="md-nav__link">
+      <a href="../../solution-overview/use-cases.md" class="md-nav__link">
         客户用例
       </a>
     </li>
@@ -429,7 +434,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture-overview/design-considerations/" class="md-nav__link">
+      <a href="../../architecture-overview/design-considerations.md" class="md-nav__link">
         架构设计思路
       </a>
     </li>
@@ -491,7 +496,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../plan-deployment/cost/" class="md-nav__link">
+      <a href="../../plan-deployment/cost.md" class="md-nav__link">
         成本预估
       </a>
     </li>
@@ -533,7 +538,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../plan-deployment/quotas/" class="md-nav__link">
+      <a href="../../plan-deployment/quotas.md" class="md-nav__link">
         配额信息
       </a>
     </li>
@@ -590,9 +595,45 @@
       
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          模板信息
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         模板信息
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    全球区域
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    中国区域
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -626,7 +667,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../update/" class="md-nav__link">
+      <a href="../../update.md" class="md-nav__link">
         更新解决方案
       </a>
     </li>
@@ -654,7 +695,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/user-guide/" class="md-nav__link">
+      <a href="../../user-guide/user-guide.md" class="md-nav__link">
         用户指南
       </a>
     </li>
@@ -730,7 +771,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../faq/" class="md-nav__link">
+      <a href="../../faq.md" class="md-nav__link">
         常见问题解答
       </a>
     </li>
@@ -790,6 +831,28 @@
   
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    全球区域
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    中国区域
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -808,7 +871,21 @@
 
   <h1>模板信息</h1>
 
-<p>部署解决方案之前，您可以下载解决方案使用的以下亚马逊云科技CloudFrormation模板。</p>
+<p>为了自动化部署，此解决方案使用以下 AWS CloudFormation 模板，您可以在部署前下载：</p>
+<h2 id="_1">全球区域</h2>
+<ul>
+<li>Admin（新 VPC）：https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/1.0.0/default/Admin.template.json</li>
+<li>Admin（现有 VPC）：https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/1.0.0/default/AdminExistVpc.template.json</li>
+<li>Agent：https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/1.0.0/default/Agent.template.json</li>
+<li>IT：https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/1.0.0/default/IT.template.json</li>
+</ul>
+<h2 id="_2">中国区域</h2>
+<ul>
+<li>Admin（新 VPC）：https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/1.0.0/cn/Admin.template.json</li>
+<li>Admin（现有 VPC）：https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/1.0.0/cn/AdminExistVpc.template.json</li>
+<li>Agent：https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/1.0.0/cn/Agent.template.json</li>
+<li>IT：https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/1.0.0/cn/IT.template.json</li>
+</ul>
 
 
 

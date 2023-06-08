@@ -16,7 +16,7 @@
         <link rel="prev" href="../../solution-overview/concepts/">
       
       
-        <link rel="next" href="../design-considerations/">
+        <link rel="next" href="../architecture-details/">
       
       <link rel="icon" href="https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico">
       <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.15">
@@ -353,7 +353,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../solution-overview/use-cases/" class="md-nav__link">
+      <a href="../../solution-overview/use-cases.md" class="md-nav__link">
         客户用例
       </a>
     </li>
@@ -439,7 +439,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../design-considerations/" class="md-nav__link">
+      <a href="../design-considerations.md" class="md-nav__link">
         架构设计思路
       </a>
     </li>
@@ -501,7 +501,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../plan-deployment/cost/" class="md-nav__link">
+      <a href="../../plan-deployment/cost.md" class="md-nav__link">
         成本预估
       </a>
     </li>
@@ -543,7 +543,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../plan-deployment/quotas/" class="md-nav__link">
+      <a href="../../plan-deployment/quotas.md" class="md-nav__link">
         配额信息
       </a>
     </li>
@@ -626,7 +626,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../update/" class="md-nav__link">
+      <a href="../../update.md" class="md-nav__link">
         更新解决方案
       </a>
     </li>
@@ -654,7 +654,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/user-guide/" class="md-nav__link">
+      <a href="../../user-guide/user-guide.md" class="md-nav__link">
         用户指南
       </a>
     </li>
@@ -730,7 +730,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../faq/" class="md-nav__link">
+      <a href="../../faq.md" class="md-nav__link">
         常见问题解答
       </a>
     </li>
@@ -808,15 +808,22 @@
 
   <h1>架构图</h1>
 
-<p>下图展示的是使用默认参数部署本解决方案在亚马逊云科技中构建的环境。</p>
-<p><img alt="architecture" src="./images/arch.png" /></p>
-<p>图：方案架构</p>
-<p>本解决方案在您的亚马逊云科技账户中部署Amazon CloudFormation模板并完成以下设置。</p>
+<p>使用默认参数部署此解决方案将在AWS云中构建以下环境。</p>
+<p><img alt="架构图" src="../../images/arch.png" />
+<strong>AWS上的敏感数据保护架构</strong></p>
 <ol>
-<li></li>
-<li></li>
-<li></li>
+<li><a href="https://aws.amazon.com/alb/">应用负载均衡器</a>用于分发托管在<a href="https://aws.amazon.com/lambda/">AWS Lambda</a>中的解决方案前端Web UI资源。</li>
+<li>用户身份验证的身份提供者。</li>
+<li>AWS Lambda函数打包为Docker镜像，并存储在<a href="https://aws.amazon.com/ecr/">Amazon ECR（弹性容器注册表）</a>中。</li>
+<li>后端Lambda函数是应用负载均衡器的目标。</li>
+<li>后端Lambda函数调用监控账户中的<a href="https://aws.amazon.com/step-functions/">AWS Step Functions</a>来进行敏感数据检测。</li>
+<li>在<a href="https://aws.amazon.com/step-functions/">AWS Step Functions</a>工作流中，<a href="https://aws.amazon.com/glue/">AWS Glue</a> Crawler运行以列出数据源，并将其作为元数据表存储在Glue数据库中。</li>
+<li>Glue作业运行后，Step Functions会将消息发送到<a href="https://aws.amazon.com/sqs/">Amazon SQS（简单队列服务）</a>中的检测作业队列。</li>
+<li>Lambda函数从Amazon SQS中处理消息。</li>
+<li><a href="https://aws.amazon.com/athena/">Amazon Athena</a>查询检测结果，并将其保存到<a href="https://aws.amazon.com/rds/">Amazon RDS（关系型数据库服务）</a>中的MySQL实例中。</li>
 </ol>
+<p>该解决方案使用AWS Glue服务作为构建受监视账户中的数据目录和调用Glue作业以检测敏感数据个人身份识别信息（PII）的核心。分布式的Glue作业在每个受监视的账户中运行，而管理员账户包含了跨AWS账户的集中式数据源数据目录。这是AWS推荐的数据网格（Data Mesh）概念的一种实现方式。</p>
+<p>更具体地说，该解决方案引入了事件驱动的流程，并使用AWS IAM角色在管理员账户和受监视账户之间触发和通信以进行敏感数据发现作业。管理员账户可以启动PII检测作业并检索数据目录。所有受监视的AWS账户都被允许连接到管理员账户，管理员账户能够区分和访问这些受监视的账户。</p>
 
 
 
