@@ -39,6 +39,27 @@ To send us a pull request, please:
 GitHub provides additional document on [forking a repository](https://help.github.com/articles/fork-a-repo/) and
 [creating a pull request](https://help.github.com/articles/creating-a-pull-request/).
 
+### Token validation for API modification
+Please follow the steps for API token validation
+Successful Login:
+* Navigate to the SDPS login page
+* Click on the login button
+* You will be redirected to the OIDC provider
+* Enter the username and password
+* You should be successfully redirected to the SDPS portal site
+
+Verify Invalid Access Token:
+* Retrieve a valid API request
+    * Log in to the SDPS Portal successfully
+    * Open the Developer Console in the Chrome browser by clicking F12
+    * Switch to the Network tab
+    * Refresh the page
+    * In the Network tab, find the coverage request, right-click on it, and select Copy: Copy as cURL from the pop-up window
+* Open a text editor and paste the copied content
+* Modify the signature to make it an invalid signature
+    * In the authorization line, the token is separated into three parts by two ".", with the third part being the signature. Modify the middle part of the signature.
+* Execute the modified cURL command in the command line. If the token is invalid, the result will be returned as follows.
+
 
 ## Finding contributions to work on
 Looking at the existing issues is a great way to find something to contribute on. As our projects, by default, use the default GitHub issue labels (enhancement/bug/duplicate/help wanted/invalid/question/wontfix), looking at any 'help wanted' issues is a great place to start.
