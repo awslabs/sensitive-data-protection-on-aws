@@ -13,17 +13,14 @@ nav:
         - Concepts and definitions: solution-overview/concepts-and-definitions.md
     - Architecture Overview:
         - Architecture diagram: architecture-overview/architecture.md
-        - AWS services in this solution: architecture-overview/services-in-the-solution.md
-        - How the solution works:  architecture-overview/architecture-details.md   
-        - Design Considerations: architecture-overview/design-considerations.md
-    - Cost: cost.md
-    - Security: security.md
-    - Support Regions: regions.md
+        - AWS Well-Architected pillars: architecture-overview/well-architected-pillars.md            
+    - Architecture details:
+        - AWS services in this solution: architecture-details/services-in-the-solution.md
+        - How the solution works:  architecture-details/architecture-details.md
     - Plan your deployment:
         - Cost: plan-deployment/cost.md
         - Security: plan-deployment/security.md
         - Supported regions: plan-deployment/regions.md
-        - Quotas: plan-deployment/quotas.md
     - Deploy the solution:
         - AWS CloudFormation template: deployment/template.md
         - Deployment: deployment/deployment.md
@@ -44,7 +41,6 @@ nav:
             - Pause/Continue job: user-guide/discovery-job-pause-and-cancel.md
         - Browse data catalogs: 
             - Synchronize data catalogs: user-guide/data-catalog-sync.md
-            - Export data catalogs: user-guide/data-catalog-export.md
             - Label data catalogs: user-guide/data-catalog-labels.md
     - Appendix: 
         - Built-in data identifiers: user-guide/appendix-built-in-identifiers.md
@@ -55,7 +51,6 @@ nav:
     - Developer guide:
         - Source code: developer-guide/source.md
     - Troubleshooting: troubleshooting.md
-    - FAQ: faq.md 
     - Revisions: revisions.md
     - Contributors: contributors.md
     - Notices: notices.md

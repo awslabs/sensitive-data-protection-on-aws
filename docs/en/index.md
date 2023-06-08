@@ -17,10 +17,9 @@ Use this navigation table to quickly find answers to these questions:
 
 | If you want to … | Read… |
 |----------|--------|
-| Know the cost for running this solution | [Cost](plan-deployment/cost) |
-| Understand the security considerations for this solution | [Security](plan-deployment/security) |
-| Know how to plan for quotas for this solution | [Quotas](plan-deployment/quotas) |
-| Know which AWS Regions are supported for this solution | [Supported AWS Regions](plan-deployment/regions) |
-| View or download the AWS CloudFormation template included in this solution to automatically deploy the infrastructure resources (the “stack”) for this solution | [AWS CloudFormation templates](deployment/template) |
+| Know the cost for running this solution | [Cost](plan-deployment/cost.md) |
+| Understand the security considerations for this solution | [Security](plan-deployment/security.md) |
+| Know which AWS Regions are supported for this solution | [Supported AWS Regions](plan-deployment/regions.md) |
+| View or download the AWS CloudFormation template included in this solution to automatically deploy the infrastructure resources (the “stack”) for this solution | [AWS CloudFormation templates](deployment/template.md) |
 
 The guide is intended for IT architects, developers, DevOps, data engineers with practical experience architecting on the AWS Cloud.

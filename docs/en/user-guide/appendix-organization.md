@@ -3,11 +3,11 @@ You can use [AWS Organizations](https://aws.amazon.com/organizations/) to manage
 ## Concepts
 ![orgs-ctrl](docs/../../images/orgs-ctrl.png)
 
-1. Deploy Admin CloudFormation stack in adminaccount
-2. Register delegated administrator in StackSets in Organization’s management account. [Register a delegated administrator](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/stacksets-orgs-delegated-admin.html)
-3. Deploy IT CloudFormation Stack
-4. Create role for SDPS Admin API
-5. Create StackSet for Agent CloudFormation Stack
-6. Deploy to Organization/OU(s)
-7. Add member account [via Organizations](../user-guide/data-source.md#add-aws-accounts-via-organization)
-8. Retrieve deployment stacks and member accounts
+1. Deploy Admin CloudFormation stack in the Admin account.
+2. Register delegated administrator in StackSets in Organization’s management account. For more information, refer to [Register a delegated administrator](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/stacksets-orgs-delegated-admin.html).
+3. Deploy IT CloudFormation Stack.
+4. Create a role for the solution Admin API.
+5. Create StackSet for Agent CloudFormation Stack.
+6. Deploy to Organization/OU(s).
+7. Add member account [via Organizations](../user-guide/data-source.md#add-aws-accounts-via-organization).
+8. Retrieve deployment stacks and member accounts.

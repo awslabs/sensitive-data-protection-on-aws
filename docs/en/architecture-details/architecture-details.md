@@ -1,11 +1,11 @@
-# Architecture details
+# How the solution works
 
-This section describes the components and AWS services that make up this solution and the high level system design.
+his section describes the components and AWS services that make up this solution and the high level system design.
 
 ![high-level-system-design](docs/../../images/system-design.png)
 **Sensitive Data Protection on AWS high level system design**
 
-As shown in the diagram, the centralized sensitive data governance account is the admin account. Solution users, typically security auditors, can access the solution via a web portal. Users can browse the data catalog and execute sensitive data detection jobs in the monitored account(s) after logging into the web portal. 
+As shown in the diagram, the centralized sensitive data governance account is the admin account. Solution users, typically security auditors, can access the solution via a web portal after deploying the **Admin** stack. Users can browse the data catalog and execute sensitive data detection jobs in the monitored account(s) after deploying the **Agent** stack and logging into the web portal. 
 
 Multiple monitored accounts are connected to the admin account with data source access and job execution privileges, so that the admin account can invoke the Job Processor model in the specified monitored account for sensitive data detection.
 
