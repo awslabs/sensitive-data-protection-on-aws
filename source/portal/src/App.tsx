@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
-import { Amplify } from 'aws-amplify';
-// import { Authenticator } from '@aws-amplify/ui-react';
 import { BrowserRouter } from 'react-router-dom';
 import { AmplifyConfigType, AppSyncAuthType } from './ts/types';
 import AppRouter from 'routers';
@@ -139,8 +137,6 @@ const App: React.FC = () => {
           : 'https://' + configData.aws_alb_url,
       };
       setOidcConfig(settings);
-    } else {
-      Amplify.configure(configData);
     }
   };
 

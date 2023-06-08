@@ -2,8 +2,6 @@
 
 The solution follows the least privilege principle to only create needed permissions. High level concept for permission:
 
-# Solution Stack
-
 # Agent Stack
 
 The Agent CloudFormation Stack automatically set AWS roles and policies to read data sources and setup necessary permissions in target accounts to authorize SDPS. 
@@ -17,4 +15,3 @@ The Agent CloudFormation Stack automatically set AWS roles and policies to read 
 - Amazon CloudWatch: write permission. Lambda logs will be stored in Cloudwatch.
 Note: AWS will provide the file of detailed IAM policy. [!!! TODO]
 
-# Organization Stack

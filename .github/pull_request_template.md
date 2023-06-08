@@ -13,3 +13,8 @@ Please check off the following items before submitting your pull request:
 - [ ] I have tested my changes.
 - [ ] No sensitive information is included.
 - [ ] I've reviewed my changes to ensure they won't cause any new issues that could affect the stability or performance of the codebase.
+
+Please check off the following items if this changes include API modefications:
+
+- [ ] I confirm this changes has been test with [authorization validation steps](https://github.com/awslabs/sensitive-data-protection-on-aws/blob/main/CONTRIBUTING.md#contributing-via-pull-requests), it won't break the authorization token verification mechanism.
+- [ ] I confirm this changes won't cause security issues.

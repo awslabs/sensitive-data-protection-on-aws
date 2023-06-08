@@ -1,3 +1,3 @@
-Visit our GitHub repository to download the templates and scripts for this solution. The XX template is generated using the [AWS Cloud Development Kit (CDK)][cdk]. Refer to the README.md file for additional information.
+Visit our [GitHub repository](https://github.com/awslabs/sensitive-data-protection-on-aws) to download the templates and scripts for this solution. The Sensitive Data Protection on AWS Solution template is generated using the [AWS Cloud Development Kit (CDK)][cdk]. Refer to the [README.md](https://github.com/awslabs/sensitive-data-protection-on-aws/blob/main/README.md) file for additional information.
 
 [cdk]: http://aws.amazon.com/cdk/
