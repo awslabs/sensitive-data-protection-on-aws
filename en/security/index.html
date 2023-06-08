@@ -1363,15 +1363,17 @@
 </blockquote>
 <p>In China regions (cn-north-1, cn-northwest-1), you can create <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/monitoring-cloudwatch.html">RDS</a> and <a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway-cloudwatch.html">NAT Gateway</a> metrics in alarms. </p>
 <p>In all supported global regions, you can enable more services metrics like <a href="https://docs.aws.amazon.com/lambda/latest/dg/monitoring-metrics.html">Lambda</a>, <a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-monitoring-using-cloudwatch.html">SQS</a>, <a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-cloudwatch-metrics.html">ApplicationELB</a>.</p>
-<p>For example, if you want to create alarms to monitor ActiveConnectionCount in NATGateway using the CloudWatch console, please follow the steps below.
-1. Sign in to the AWS Management Console and open the CloudWatch console
-2. Choose <strong>Alarms</strong>, <strong>All alarms</strong>. Choose <strong>Create an alarm</strong>.
-3. Choose <strong>Select metric</strong> and choose <strong>NATGateway</strong> in metrics.
-4. Search for the metric <strong>ActiveConnectionCount</strong>.
-5. In <strong>Conditions</strong>, define the alarm condition whenever ActiveConnectionCount is greater than 100. Then choose Next.
-6. In the <strong>Notification</strong> configure CloudWatch to send you an email when the alarm state is reached.
-7. Choose <strong>Next</strong>.
-8. Enter a name and description for the alarm and <strong>Create alarm</strong>.</p>
+<p>For example, if you want to create alarms to monitor ActiveConnectionCount in NATGateway using the CloudWatch console, please follow the steps below.</p>
+<ol>
+<li>Sign in to the AWS Management Console and open the CloudWatch console</li>
+<li>Choose <strong>Alarms</strong>, <strong>All alarms</strong>. Choose <strong>Create an alarm</strong>.</li>
+<li>Choose <strong>Select metric</strong> and choose <strong>NATGateway</strong> in metrics.</li>
+<li>Search for the metric <strong>ActiveConnectionCount</strong>.</li>
+<li>In <strong>Conditions</strong>, define the alarm condition whenever ActiveConnectionCount is greater than 100. Then choose Next.</li>
+<li>In the <strong>Notification</strong> configure CloudWatch to send you an email when the alarm state is reached.</li>
+<li>Choose <strong>Next</strong>.</li>
+<li>Enter a name and description for the alarm and <strong>Create alarm</strong>.</li>
+</ol>
 
 
 
