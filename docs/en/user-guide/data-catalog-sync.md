@@ -1,5 +1,5 @@
 ## What is data catalog?
-A data catalog is a repository of metadata of data source (S3, RDS). With data catalogs, you can view the column-level information of data. 
+A data catalog is a repository of metadata of data source (Amazon S3, Amazon RDS). With data catalogs, you can view the column-level information of data. 
 
 You can refer to [Appendix: Supported data types](appendix-supported-data-types.md) for more details.
 

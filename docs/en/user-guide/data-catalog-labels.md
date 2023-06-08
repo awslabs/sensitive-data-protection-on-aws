@@ -20,7 +20,7 @@ In the **Browse data catalogs** page:
 - In S3 tab, either on Bucket or Folder level, you can click the ![edit-icon](docs/../../images/edit-icon.png) to select Custom label from dropdown list.
 - In RDS tab, either on Instance or Table level, you can click the ![edit-icon](docs/../../images/edit-icon.png) to select Custom label from dropdown list. 
 
-At the bottom of dropdown list, click **Manage custom label** link, there will be a pop-up window, in which you can **Add/Edit/Delete** a custom label. 
+At the bottom of dropdown list, click **Manage custom label** link, and there will be a pop-up window, in which you can **Add/Edit/Delete** a custom label. 
 
 
 
