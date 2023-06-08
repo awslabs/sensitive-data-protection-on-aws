@@ -1,24 +1,28 @@
-Last updated at：2023/06/05
+You will be responsible for the cost of the AWS services used when running the solution. The main factors affecting the solution cost include:
 
-The cost for main AWS account running this solution with the default settings in the Ningxia (cn-northwest-1) Region is approximately **¥901.82 CNY a month.**
+- the number and size of datasets
+- the number and complexity of data structure
+- the frequency of discovery job updates
+
+For example, running a discovery job on a large dataset with a fully scanned range will result in higher costs than running the job on smaller datasets with increased scan range and limited scan depth that are run on demand.
+
+As of June 2023, the cost for main AWS account running this solution with the default settings in the AWS China Ningxia Region operated by NWCD (cn-northwest-1) is approximately **901.82 CNY a month.**
 
 
 ## Cost estimation
 
- Based on typical usage patterns, we have indicated a few scenarios to provide an estimation of monthly costs. The AWS services listed in the example cost tables below are billed on **a monthly basis.**
+Based on typical usage patterns, the following list a few scenarios to provide an estimation of monthly costs. The AWS services listed are billed on a monthly basis.
+ 
 
+### Base cost for Infra (in Admin account)
 
->The cost of running the Sensitive Data Protection solution is based on a variety of factors, such as the number and sizes of datasets, the number and complexity of data structures, and the frequency of discovery job updates. For example, running a discovery job on a large dataset with a fully scanned range will result in higher costs than running the job on smaller datasets with increased scan range and limited scan depth that are run on demand.
-
-### Base cost for Infra (in main account)
-
-|**Service**	|Usage Type	|**Usage Quantity**	|Monthly cost (CNY)	|	|
+|**Service**	|Usage type	|**Usage quantity**	|Monthly cost (CNY)	|Type	|
 |---	|---	|---	|---	|---	|
 |Amazon Relational Database Service for MySQL Community Edition	|CNY 0.8 per db.t3.medium Multi-AZ instance hour (or partial hour) running MySQL	|720 Hrs	|576	|Reserved	|
 |Amazon Relational Database Service Provisioned Storage	|CNY 1.5308 per GB-month of provisioned gp2 storage for Multi-AZ deployments running MySQL	|20 GB-Mo	|30.616	|On Demand	|
-|Amazon Elastic Compute Cloud NatGateway	|0.37 CNY per GB Data Processed by NAT Gateways	|30 GB-Mo	|11.1	|On Demand. Avg 80 url requests per day	|
+|Amazon Elastic Compute Cloud NatGateway	|CNY 0.37 per GB Data Processed by NAT Gateways	|30 GB-Mo	|11.1	|On Demand. Avg 80 url requests per day	|
 |0.37 CNY per NAT Gateway Hour	|720 Hrs	|266.4	|Reserved	|
-|Athena	|CNY34.34 per Terabytes for DataScannedInTB in China (Ningxia)	|0.010 Terabytes	|0.34	|On Demand	|
+|Athena	|CNY 34.34 per Terabytes for DataScannedInTB in China (Ningxia)	|0.010 Terabytes	|0.34	|On Demand	|
 |CloudWatch	|First 5GB-mo per month of logs storage is free. CNY 0.244 per GB archived per month	|0.100 GB-Mo	|0.244	|On Demand	|
 |EC2 Container Registry (ECR)	|500MB-month Free Tier, CNY 0.69 per GB-month	|0.003 GB-Mo	|0.69	|Reserved	|
 |Elastic Load Balancing - Application	|0.0 CNY per Application LoadBalancer-hour (or partial hour) under monthly free tier. CNY 0.156 per Application load balancer-hour (or partial hour)	|10 Hrs	|1.56	|On Demand	|
@@ -28,8 +32,7 @@ The cost for main AWS account running this solution with the default settings in
 |Simple Queue Service	|First 1,000,000 Amazon SQS Requests per month are free, CNY 3.33 (per Million requests)	|100,000 Requests	|3.33	|On Demand	|
 |Simple Storage Service	|First 2,000 PUTs free under free tier, CNY 0.00405 PUT, COPY, POST, LIST requests (per 1,000 requests)	|2,000 Requests	|0.0081	|On Demand	|
 |First 20,000 GETs free under free tier, CNY 0.0135 per 10,000 requests	|4,000 Requests	|0.0054	|On Demand	|
-|
-First 5 GB free under free tier, CNY 0.1755 per GB	|0.032 GB-Mo
+|First 5 GB free under free tier, CNY 0.1755 per GB	|0.032 GB-Mo
 CNY 0.00	|0.1755	|On Demand	|
 |**Total**	|	|	|901.819	|	|
 
