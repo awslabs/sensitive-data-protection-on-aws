@@ -16,6 +16,7 @@ In China regions (cn-north-1, cn-northwest-1), you can create [RDS](https://docs
 In all supported global regions, you can enable more services metrics like [Lambda](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-metrics.html), [SQS](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-monitoring-using-cloudwatch.html), [ApplicationELB](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-cloudwatch-metrics.html).
 
 For example, if you want to create alarms to monitor ActiveConnectionCount in NATGateway using the CloudWatch console, please follow the steps below.
+
 1. Sign in to the AWS Management Console and open the CloudWatch console
 2. Choose **Alarms**, **All alarms**. Choose **Create an alarm**.
 3. Choose **Select metric** and choose **NATGateway** in metrics.
