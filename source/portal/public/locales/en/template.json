@@ -21,12 +21,12 @@
   "deleteDataIdentifier": "Delete a data identifier",
   "removeDataIdentifier": "Remove this data identifier from template",
   "deleteIdentifierTips": "Delete this data identifier permanently? This action cannot be undone.",
-  "identifierBeingUsed": "This identifier is being used in the following place",
+  "identifierBeingUsed": "This identifier is being used in the following place(s)",
   "classficationTemplate": "Classification template, click ",
   "dataCatalog": "Data catalogs ",
   "dataS3": "Data catalog: S3 bucket ",
   "dataRDS": "Data catalog: RDS instance ",
-  "removeTheseAndDelete": "Please remove these identifier and then delete",
+  "removeTheseAndDelete": "Please remove the identifier and then delete",
   "toAvoidTips": "To avoid accidental deletions we ask you to provide additional written consent.",
   "typeConfirm": "Type “Confirm” to agree"
 }
