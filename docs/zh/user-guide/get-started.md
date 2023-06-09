@@ -1,5 +1,5 @@
 # 概述
-成功[部署解决方案](../deployment/deployment.md)后，您可以访问 Web 门户来检测敏感数据。
+成功[部署解决方案](../deployment/deployment.md)后，您可以访问控制台来检测敏感数据。
 
 ## 步骤
 
