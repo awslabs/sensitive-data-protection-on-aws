@@ -40,7 +40,7 @@ class CatalogTableLevelClassification(Base):
     database_type = sa.Column(sa.String(20), nullable=False)
     database_name = sa.Column(sa.String(255), nullable=False)
     table_name = sa.Column(sa.String(255), nullable=False, info={'searchable': True})
-    privacy = sa.Column(sa.SmallInteger())
+    privacy = sa.Column(sa.SmallInteger(), info={'searchable': True})
     sensitivity = sa.Column(sa.String(255))
     object_count = sa.Column(sa.BigInteger())
     size_key = sa.Column(sa.BigInteger())
