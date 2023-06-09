@@ -94,8 +94,27 @@ const ResourcesFilter: React.FC<ResourcesFilterProps> = (
       hideOperations={true}
       tokenLimit={3}
       expandToViewport
-      filteringOptions={filteringOptions} // 待筛选项
-      filteringProperties={isFreeText ? [] : (filterColumns as any)}
+      filteringOptions={
+        isFreeText
+          ? [
+              { propertyKey: 'privacy', value: 'Contain-PII' },
+              { propertyKey: 'privacy', value: 'Non-PII' },
+              { propertyKey: 'privacy', value: 'N/A' },
+            ]
+          : filteringOptions
+      } // 待筛选项
+      filteringProperties={
+        isFreeText
+          ? [
+              {
+                key: 'privacy',
+                operators: ['=', '!=', ':', '!:'],
+                propertyLabel: t('table.label.privacy'),
+                groupValuesLabel: t('table.label.privacy'),
+              },
+            ]
+          : (filterColumns as any)
+      }
       onLoadItems={handleLoadItems}
       filteringStatusType={filteringStatus as any}
     />
