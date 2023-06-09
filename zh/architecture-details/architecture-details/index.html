@@ -1,27 +1,29 @@
 
 <!doctype html>
-<html lang="en" class="no-js">
+<html lang="zh" class="no-js">
   <head>
     
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
+        <meta name="description" content="敏感数据保护解决方案实施指南">
       
       
-        <link rel="canonical" href="https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/discovery-job-details/">
+      
+        <link rel="canonical" href="https://awslabs.github.io/sensitive-data-protection-on-aws/architecture-details/architecture-details/">
       
       
-        <link rel="prev" href="../discovery-job-create/">
+        <link rel="prev" href="../services-in-the-solution/">
       
       
-        <link rel="next" href="../discovery-job-report/">
+        <link rel="next" href="../../plan-deployment/cost/">
       
       <link rel="icon" href="https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico">
       <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.15">
     
     
       
-        <title>View job details - Sensitive Data Protection on AWS</title>
+        <title>方案架构设计思路 - 敏感数据保护解决方案</title>
       
     
     
@@ -73,8 +75,8 @@
     <div data-md-component="skip">
       
         
-        <a href="#view-job-details" class="md-skip">
-          Skip to content
+        <a href="#architecture-details" class="md-skip">
+          跳转至
         </a>
       
     </div>
@@ -92,8 +94,8 @@
   
 
 <header class="md-header md-header--shadow" data-md-component="header">
-  <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Sensitive Data Protection on AWS" class="md-header__button md-logo" aria-label="Sensitive Data Protection on AWS" data-md-component="logo">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="敏感数据保护解决方案" class="md-header__button md-logo" aria-label="敏感数据保护解决方案" data-md-component="logo">
       
   <img src="https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico" alt="logo">
 
@@ -105,13 +107,13 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Sensitive Data Protection on AWS
+            敏感数据保护解决方案
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              View job details
+              方案架构设计思路
             
           </span>
         </div>
@@ -148,7 +150,7 @@
       <div class="md-header__option">
         <div class="md-select">
           
-          <button class="md-header__button md-icon" aria-label="Select language">
+          <button class="md-header__button md-icon" aria-label="选择当前语言">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04M18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12m-2.62 7 1.62-4.33L19.12 17h-3.24Z"/></svg>
           </button>
           <div class="md-select__inner">
@@ -179,14 +181,14 @@
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
       <label class="md-search__icon md-icon" for="__search">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
       </label>
-      <nav class="md-search__options" aria-label="Search">
+      <nav class="md-search__options" aria-label="查找">
         
-        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
         </button>
       </nav>
@@ -196,7 +198,7 @@
       <div class="md-search__scrollwrap" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
-            Initializing search
+            正在初始化搜索引擎
           </div>
           <ol class="md-search-result__list" role="presentation"></ol>
         </div>
@@ -207,7 +209,7 @@
     
     
       <div class="md-header__source">
-        <a href="https://github.com/awslabs/sensitive-data-protection-on-aws" title="Go to repository" class="md-source" data-md-component="source">
+        <a href="https://github.com/awslabs/sensitive-data-protection-on-aws" title="前往仓库" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
@@ -240,18 +242,18 @@
                     
 
 
-<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Sensitive Data Protection on AWS" class="md-nav__button md-logo" aria-label="Sensitive Data Protection on AWS" data-md-component="logo">
+    <a href="../.." title="敏感数据保护解决方案" class="md-nav__button md-logo" aria-label="敏感数据保护解决方案" data-md-component="logo">
       
   <img src="https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico" alt="logo">
 
     </a>
-    Sensitive Data Protection on AWS
+    敏感数据保护解决方案
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/awslabs/sensitive-data-protection-on-aws" title="Go to repository" class="md-source" data-md-component="source">
+      <a href="https://github.com/awslabs/sensitive-data-protection-on-aws" title="前往仓库" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
@@ -284,14 +286,14 @@
       
       
         <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
-          Implementation Guide
+          实施指南
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="true">
         <label class="md-nav__title" for="__nav_1">
           <span class="md-nav__icon md-icon"></span>
-          Implementation Guide
+          实施指南
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -311,14 +313,14 @@
       
       
         <label class="md-nav__link" for="__nav_1_1" id="__nav_1_1_label" tabindex="0">
-          Solution Overview
+          方案概述
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_1_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_1_1">
           <span class="md-nav__icon md-icon"></span>
-          Solution Overview
+          方案概述
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -329,7 +331,7 @@
   
     <li class="md-nav__item">
       <a href="../.." class="md-nav__link">
-        Overview
+        概述
       </a>
     </li>
   
@@ -343,7 +345,7 @@
   
     <li class="md-nav__item">
       <a href="../../solution-overview/features-and-benefits/" class="md-nav__link">
-        Features and benefits
+        功能和优势
       </a>
     </li>
   
@@ -356,8 +358,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../../solution-overview/concepts-and-definitions/" class="md-nav__link">
-        Concepts and definitions
+      <a href="../../solution-overview/concepts/" class="md-nav__link">
+        术语和概念
       </a>
     </li>
   
@@ -387,14 +389,14 @@
       
       
         <label class="md-nav__link" for="__nav_1_2" id="__nav_1_2_label" tabindex="0">
-          Architecture Overview
+          架构概览
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_2_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_1_2">
           <span class="md-nav__icon md-icon"></span>
-          Architecture Overview
+          架构概览
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -405,7 +407,7 @@
   
     <li class="md-nav__item">
       <a href="../../architecture-overview/architecture/" class="md-nav__link">
-        Architecture diagram
+        架构图
       </a>
     </li>
   
@@ -419,7 +421,7 @@
   
     <li class="md-nav__item">
       <a href="../../architecture-overview/well-architected-pillars/" class="md-nav__link">
-        AWS Well-Architected pillars
+        AWS Well-Architected 支柱
       </a>
     </li>
   
@@ -437,26 +439,28 @@
               
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_3" >
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_3" checked>
       
       
       
         <label class="md-nav__link" for="__nav_1_3" id="__nav_1_3_label" tabindex="0">
-          Architecture details
+          架构细节
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_3_label" aria-expanded="false">
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_3_label" aria-expanded="true">
         <label class="md-nav__title" for="__nav_1_3">
           <span class="md-nav__icon md-icon"></span>
-          Architecture details
+          架构细节
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -466,8 +470,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture-details/services-in-the-solution/" class="md-nav__link">
-        AWS services in this solution
+      <a href="../services-in-the-solution/" class="md-nav__link">
+        方案中的AWS服务
       </a>
     </li>
   
@@ -478,11 +482,59 @@
               
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../../architecture-details/architecture-details/" class="md-nav__link">
-        How the solution works
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          方案架构设计思路
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        方案架构设计思路
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#modules-in-admin-account" class="md-nav__link">
+    Modules in Admin Account
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modules-in-monitored-accounts" class="md-nav__link">
+    Modules in Monitored Account(s)
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -511,14 +563,14 @@
       
       
         <label class="md-nav__link" for="__nav_1_4" id="__nav_1_4_label" tabindex="0">
-          Plan your deployment
+          部署前的规划
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_4_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_1_4">
           <span class="md-nav__icon md-icon"></span>
-          Plan your deployment
+          部署前的规划
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -529,7 +581,7 @@
   
     <li class="md-nav__item">
       <a href="../../plan-deployment/cost/" class="md-nav__link">
-        Cost
+        成本预估
       </a>
     </li>
   
@@ -543,7 +595,7 @@
   
     <li class="md-nav__item">
       <a href="../../plan-deployment/security/" class="md-nav__link">
-        Security
+        安全信息
       </a>
     </li>
   
@@ -557,7 +609,7 @@
   
     <li class="md-nav__item">
       <a href="../../plan-deployment/regions/" class="md-nav__link">
-        Supported regions
+        区域支持
       </a>
     </li>
   
@@ -587,14 +639,14 @@
       
       
         <label class="md-nav__link" for="__nav_1_5" id="__nav_1_5_label" tabindex="0">
-          Deploy the solution
+          部署解决方案
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_5_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_1_5">
           <span class="md-nav__icon md-icon"></span>
-          Deploy the solution
+          部署解决方案
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -605,7 +657,7 @@
   
     <li class="md-nav__item">
       <a href="../../deployment/template/" class="md-nav__link">
-        AWS CloudFormation template
+        模板信息
       </a>
     </li>
   
@@ -619,7 +671,7 @@
   
     <li class="md-nav__item">
       <a href="../../deployment/deployment/" class="md-nav__link">
-        Deployment
+        部署步骤
       </a>
     </li>
   
@@ -637,28 +689,26 @@
               
   
   
-    
-  
   
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_6" checked>
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_6" >
       
       
       
         <label class="md-nav__link" for="__nav_1_6" id="__nav_1_6_label" tabindex="0">
-          Use the solution
+          用户指南
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_6_label" aria-expanded="true">
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_6_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_1_6">
           <span class="md-nav__icon md-icon"></span>
-          Use the solution
+          用户指南
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -668,8 +718,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../get-started/" class="md-nav__link">
-        Overview
+      <a href="../../user-guide/get-started/" class="md-nav__link">
+        概述
       </a>
     </li>
   
@@ -692,14 +742,14 @@
       
       
         <label class="md-nav__link" for="__nav_1_6_2" id="__nav_1_6_2_label" tabindex="0">
-          Connect to data source
+          连接到数据源
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_6_2_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_1_6_2">
           <span class="md-nav__icon md-icon"></span>
-          Connect to data source
+          连接到数据源
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -709,8 +759,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../data-source/" class="md-nav__link">
-        Add AWS accounts
+      <a href="../../user-guide/data-source/" class="md-nav__link">
+        添加AWS帐户
       </a>
     </li>
   
@@ -723,8 +773,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../data-catalog-create/" class="md-nav__link">
-        Create data catalogs
+      <a href="../../user-guide/data-catalog-create/" class="md-nav__link">
+        创建数据目录
       </a>
     </li>
   
@@ -737,8 +787,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../data-catalog-delete/" class="md-nav__link">
-        Delete data catalogs
+      <a href="../../user-guide/data-catalog-delete/" class="md-nav__link">
+        删除数据目录
       </a>
     </li>
   
@@ -768,14 +818,14 @@
       
       
         <label class="md-nav__link" for="__nav_1_6_3" id="__nav_1_6_3_label" tabindex="0">
-          Define classification template
+          定义数据分类模板
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_6_3_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_1_6_3">
           <span class="md-nav__icon md-icon"></span>
-          Define classification template
+          定义数据分类模板
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -785,8 +835,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../data-classification-template/" class="md-nav__link">
-        Define classification template
+      <a href="../../user-guide/data-classification-template/" class="md-nav__link">
+        数据分类模版
       </a>
     </li>
   
@@ -799,8 +849,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../data-identifiers/" class="md-nav__link">
-        Manage data identifiers
+      <a href="../../user-guide/data-identifiers/" class="md-nav__link">
+        数据标识符
       </a>
     </li>
   
@@ -818,28 +868,26 @@
               
   
   
-    
-  
   
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_6_4" checked>
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_6_4" >
       
       
       
         <label class="md-nav__link" for="__nav_1_6_4" id="__nav_1_6_4_label" tabindex="0">
-          Run sensitive data discovery jobs
+          运行敏感数据发现作业
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_6_4_label" aria-expanded="true">
+      <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_6_4_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_1_6_4">
           <span class="md-nav__icon md-icon"></span>
-          Run sensitive data discovery jobs
+          运行敏感数据发现作业
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -849,86 +897,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../discovery-job-create/" class="md-nav__link">
-        Create job
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-    
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          View job details
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        View job details
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#view-job-details" class="md-nav__link">
-    View job details
-  </a>
-  
-    <nav class="md-nav" aria-label="View job details">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#download-snapshot-of-classification-template-used-in-job" class="md-nav__link">
-    Download snapshot of classification template used in job
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../discovery-job-report/" class="md-nav__link">
-        Download job report
+      <a href="../../user-guide/discovery-job-create/" class="md-nav__link">
+        创建作业
       </a>
     </li>
   
@@ -941,8 +911,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../discovery-job-rerun-and-duplicate/" class="md-nav__link">
-        Re-run/Duplicate job
+      <a href="../../user-guide/discovery-job-details/" class="md-nav__link">
+        查看作业
       </a>
     </li>
   
@@ -955,8 +925,36 @@
   
   
     <li class="md-nav__item">
-      <a href="../discovery-job-pause-and-cancel/" class="md-nav__link">
-        Pause/Continue job
+      <a href="../../user-guide/discovery-job-report/" class="md-nav__link">
+        下载作业报告
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/discovery-job-rerun-and-duplicate/" class="md-nav__link">
+        重新运行/复制作业
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/discovery-job-pause-and-cancel/" class="md-nav__link">
+        暂停/重启作业
       </a>
     </li>
   
@@ -986,14 +984,14 @@
       
       
         <label class="md-nav__link" for="__nav_1_6_5" id="__nav_1_6_5_label" tabindex="0">
-          Browse data catalogs
+          浏览数据目录
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_6_5_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_1_6_5">
           <span class="md-nav__icon md-icon"></span>
-          Browse data catalogs
+          浏览数据目录
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -1003,8 +1001,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../data-catalog-sync/" class="md-nav__link">
-        Synchronize data catalogs
+      <a href="../../user-guide/data-catalog-sync/" class="md-nav__link">
+        同步数据目录
       </a>
     </li>
   
@@ -1017,8 +1015,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../data-catalog-labels/" class="md-nav__link">
-        Label data catalogs
+      <a href="../../user-guide/data-catalog-labels/" class="md-nav__link">
+        标记数据目录
       </a>
     </li>
   
@@ -1055,14 +1053,14 @@
       
       
         <label class="md-nav__link" for="__nav_1_7" id="__nav_1_7_label" tabindex="0">
-          Appendix
+          附录
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_7_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_1_7">
           <span class="md-nav__icon md-icon"></span>
-          Appendix
+          附录
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -1072,8 +1070,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../appendix-built-in-identifiers/" class="md-nav__link">
-        Built-in data identifiers
+      <a href="../../user-guide/appendix-built-in-identifiers/" class="md-nav__link">
+        内置的数据标识符
       </a>
     </li>
   
@@ -1086,8 +1084,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../appendix-supported-data-types/" class="md-nav__link">
-        Supported data types
+      <a href="../../user-guide/appendix-supported-data-types/" class="md-nav__link">
+        支持的数据类型
       </a>
     </li>
   
@@ -1100,8 +1098,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../appendix-permissions/" class="md-nav__link">
-        Permissions of CloudFormation Stacks
+      <a href="../../user-guide/appendix-permissions/" class="md-nav__link">
+        CloudFormation 堆栈的权限
       </a>
     </li>
   
@@ -1114,8 +1112,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../appendix-organization/" class="md-nav__link">
-        Add accounts via AWS Organization
+      <a href="../../user-guide/appendix-organization/" class="md-nav__link">
+        通过AWS Organization添加帐户
       </a>
     </li>
   
@@ -1136,7 +1134,7 @@
   
     <li class="md-nav__item">
       <a href="../../uninstall/" class="md-nav__link">
-        Uninstall the solution
+        卸载解决方案
       </a>
     </li>
   
@@ -1159,14 +1157,14 @@
       
       
         <label class="md-nav__link" for="__nav_1_9" id="__nav_1_9_label" tabindex="0">
-          Developer guide
+          开发者指南
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_9_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_1_9">
           <span class="md-nav__icon md-icon"></span>
-          Developer guide
+          开发者指南
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -1177,7 +1175,7 @@
   
     <li class="md-nav__item">
       <a href="../../developer-guide/source/" class="md-nav__link">
-        Source code
+        源代码
       </a>
     </li>
   
@@ -1197,22 +1195,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../../troubleshooting.md" class="md-nav__link">
-        Troubleshooting
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../revisions/" class="md-nav__link">
-        Revisions
+        文档修订信息
       </a>
     </li>
   
@@ -1226,21 +1210,7 @@
   
     <li class="md-nav__item">
       <a href="../../contributors/" class="md-nav__link">
-        Contributors
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../notices/" class="md-nav__link">
-        Notices
+        贡献人员
       </a>
     </li>
   
@@ -1266,34 +1236,30 @@
                   <div class="md-sidebar__inner">
                     
 
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+<nav class="md-nav md-nav--secondary" aria-label="目录">
   
   
+  
+    
   
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
-      Table of contents
+      目录
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#view-job-details" class="md-nav__link">
-    View job details
-  </a>
-  
-    <nav class="md-nav" aria-label="View job details">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#download-snapshot-of-classification-template-used-in-job" class="md-nav__link">
-    Download snapshot of classification template used in job
+  <a href="#modules-in-admin-account" class="md-nav__link">
+    Modules in Admin Account
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#modules-in-monitored-accounts" class="md-nav__link">
+    Modules in Monitored Account(s)
+  </a>
   
 </li>
       
@@ -1311,28 +1277,46 @@
                 
                   
 
+  
+  
 
-  <h1>View job details</h1>
 
-<p>A sensitive data discovery job consists of Glue jobs that run in monitored AWS accounts (the same account as the data source). </p>
-<p>For instance, if you run a discovery job for a RDS instance (the data source) in Account A, and the solution is installed in Account B, the Glue job runs in Account A and returns results and masked sample data to Account B.</p>
-<h2 id="view-job-details">View job details</h2>
-<ol>
-<li>Sign in to the solution's web portal.</li>
-<li>Choose <strong>Run sensitive data discovery jobs</strong> in the <strong>Summary</strong> area. Alternatively, from the left navigation pane, choose <strong>Run sensitive data discovery jobs</strong> to open its page. </li>
-<li>Click the job that you want to view details. A window pops up. </li>
-<li>In the <strong>Job history</strong> tab, choose a specific job. If needed, you can choose <strong>Download report</strong> to download a report. For details, refer to <a href="../discovery-job-report/">discovery job report</a>.</li>
+<h1 id="architecture-details">Architecture details</h1>
+<p>This section describes the components and AWS services that make up this solution and the high level system design.</p>
+<p><img alt="high-level-system-design" src="../../images/system-design.png" />
+<strong>Sensitive Data Protection on AWS high level system design</strong></p>
+<p>As shown in the diagram, the centralized sensitive data governance account is the admin account. Solution users, typically security auditors, can access the solution via a web portal. Users can browse the data catalog and execute sensitive data detection jobs in the monitored account(s) after logging into the web portal. </p>
+<p>Multiple monitored accounts are connected to the admin account with data source access and job execution privileges, so that the admin account can invoke the Job Processor model in the specified monitored account for sensitive data detection.</p>
+<h2 id="modules-in-admin-account">Modules in Admin Account</h2>
+<ul>
 <li>
-<p>Click <strong>Job run details</strong>. You will be redirected to <strong>job details</strong> page, where you can see the job information and a list of Glue jobs. </p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>In case a Glue job failed, you can click the FAILED status to view its error log.</p>
-</div>
+<p><strong>Web Portal (UI)</strong>: The solution administrator or normal users can access the solution through the web portal. It provides secure user access management and a web UI for the solution.</p>
 </li>
-</ol>
-<h3 id="download-snapshot-of-classification-template-used-in-job">Download snapshot of classification template used in job</h3>
-<p>You can download the template snapshot for the moment when the job starts to run. The snapshot shows what the job is using as data identifiers. </p>
-<p>On the <strong>job details</strong> page, choose <strong>Download snapshot</strong> to download the template snapshot in JSON format(.json). </p>
+<li>
+<p><strong>Data Source Management (DSM)</strong>: The DSM is responsible for retrieving the data sources from monitored accounts by the Data Source Detector and storing the data source structure. Users can explore the data storage in the monitored accounts, such as S3 buckets and RDS instances.</p>
+</li>
+<li>
+<p><strong>Data Catalog Management (DCM)</strong>: The DCM can discover the latest schema (normally called metadata) of the data sources in DSM. The schema includes information such as table columns in RDS databases and the sensitive data detection results after the detection job has run.</p>
+</li>
+<li>
+<p><strong>Job Controller (JC)</strong>: The Job Controller is responsible for executing the detection job in the monitored account and collecting the detection results back to the admin account. It can configure the job to run on a user-defined schedule or as needed.</p>
+</li>
+<li>
+<p><strong>Template Configuration (TC)</strong>: The detection templates are stored in the TC model. It contains built-in templates and custom-defined templates. The JC can retrieve the templates for running the job processor.</p>
+</li>
+<li>
+<p><strong>Account Management (AM)</strong>: The monitored AWS account(s) are managed by the AM model.</p>
+</li>
+</ul>
+<h2 id="modules-in-monitored-accounts">Modules in Monitored Account(s)</h2>
+<ul>
+<li>
+<p><strong>Job Processor</strong>: The Job Processor is the running container for sensitive data detection, invoked by the Job Controller. The Job Processor reads the raw data to the detection engine for detection and sends the analysis results and running state to the Job Controller.</p>
+</li>
+<li>
+<p><strong>Detection Engine</strong>: The Detection Engine model is the core sensitive data detection engine with AI/ML support features. It receives the data from the Job Processor to identify the sensitive data type using a pre-trained ML model or pattern.</p>
+</li>
+</ul>
 
 
 
@@ -1365,7 +1349,7 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": "develop"}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": "develop"}</script>
     
     
       <script src="../../assets/javascripts/bundle.b4d07000.min.js"></script>

@@ -21,11 +21,6 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/troubleshooting/</loc>
-         <lastmod>2023-06-09</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/uninstall/</loc>
          <lastmod>2023-06-09</lastmod>
          <changefreq>daily</changefreq>

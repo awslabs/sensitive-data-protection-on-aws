@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://awslabs.github.io/sensitive-data-protection-on-aws/plan-deployment/security/">
       
       
-        <link rel="prev" href="../../architecture-overview/well-architected-pillars/">
+        <link rel="prev" href="../cost/">
       
       
         <link rel="next" href="../regions/">
@@ -75,7 +75,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#iam" class="md-skip">
+        <a href="#_1" class="md-skip">
           跳转至
         </a>
       
@@ -359,7 +359,7 @@
   
     <li class="md-nav__item">
       <a href="../../solution-overview/concepts/" class="md-nav__link">
-        术语
+        术语和概念
       </a>
     </li>
   
@@ -468,7 +468,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture-details/services-in-the-solution.md" class="md-nav__link">
+      <a href="../../architecture-details/services-in-the-solution/" class="md-nav__link">
         方案中的AWS服务
       </a>
     </li>
@@ -482,7 +482,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture-details/architecture-details.md" class="md-nav__link">
+      <a href="../../architecture-details/architecture-details/" class="md-nav__link">
         方案架构设计思路
       </a>
     </li>
@@ -532,7 +532,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cost.md" class="md-nav__link">
+      <a href="../cost/" class="md-nav__link">
         成本预估
       </a>
     </li>
@@ -552,6 +552,8 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
           安全信息
@@ -568,6 +570,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -583,8 +587,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    安全组
+  <a href="#amazon-cloudwatch" class="md-nav__link">
+    使用Amazon CloudWatch警报监控服务
   </a>
   
 </li>
@@ -686,37 +690,23 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../../uninstall/" class="md-nav__link">
-        卸载解决方案
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
     
     <li class="md-nav__item md-nav__item--nested">
       
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7" >
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_6" >
       
       
       
-        <label class="md-nav__link" for="__nav_1_7" id="__nav_1_7_label" tabindex="0">
+        <label class="md-nav__link" for="__nav_1_6" id="__nav_1_6_label" tabindex="0">
           用户指南
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_7_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_1_7">
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_6_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_1_6">
           <span class="md-nav__icon md-icon"></span>
           用户指南
         </label>
@@ -747,17 +737,17 @@
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7_2" >
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_6_2" >
       
       
       
-        <label class="md-nav__link" for="__nav_1_7_2" id="__nav_1_7_2_label" tabindex="0">
+        <label class="md-nav__link" for="__nav_1_6_2" id="__nav_1_6_2_label" tabindex="0">
           连接到数据源
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_2_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_1_7_2">
+      <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_6_2_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_1_6_2">
           <span class="md-nav__icon md-icon"></span>
           连接到数据源
         </label>
@@ -823,17 +813,17 @@
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7_3" >
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_6_3" >
       
       
       
-        <label class="md-nav__link" for="__nav_1_7_3" id="__nav_1_7_3_label" tabindex="0">
+        <label class="md-nav__link" for="__nav_1_6_3" id="__nav_1_6_3_label" tabindex="0">
           定义数据分类模板
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_3_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_1_7_3">
+      <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_6_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_1_6_3">
           <span class="md-nav__icon md-icon"></span>
           定义数据分类模板
         </label>
@@ -885,17 +875,17 @@
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7_4" >
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_6_4" >
       
       
       
-        <label class="md-nav__link" for="__nav_1_7_4" id="__nav_1_7_4_label" tabindex="0">
+        <label class="md-nav__link" for="__nav_1_6_4" id="__nav_1_6_4_label" tabindex="0">
           运行敏感数据发现作业
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_4_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_1_7_4">
+      <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_6_4_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_1_6_4">
           <span class="md-nav__icon md-icon"></span>
           运行敏感数据发现作业
         </label>
@@ -989,17 +979,17 @@
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7_5" >
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_6_5" >
       
       
       
-        <label class="md-nav__link" for="__nav_1_7_5" id="__nav_1_7_5_label" tabindex="0">
+        <label class="md-nav__link" for="__nav_1_6_5" id="__nav_1_6_5_label" tabindex="0">
           浏览数据目录
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_5_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_1_7_5">
+      <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_6_5_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_1_6_5">
           <span class="md-nav__icon md-icon"></span>
           浏览数据目录
         </label>
@@ -1058,17 +1048,17 @@
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_8" >
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7" >
       
       
       
-        <label class="md-nav__link" for="__nav_1_8" id="__nav_1_8_label" tabindex="0">
+        <label class="md-nav__link" for="__nav_1_7" id="__nav_1_7_label" tabindex="0">
           附录
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_8_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_1_8">
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_7_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_1_7">
           <span class="md-nav__icon md-icon"></span>
           附录
         </label>
@@ -1162,17 +1152,17 @@
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_10" >
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_9" >
       
       
       
-        <label class="md-nav__link" for="__nav_1_10" id="__nav_1_10_label" tabindex="0">
+        <label class="md-nav__link" for="__nav_1_9" id="__nav_1_9_label" tabindex="0">
           开发者指南
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_10_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_1_10">
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_9_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_1_9">
           <span class="md-nav__icon md-icon"></span>
           开发者指南
         </label>
@@ -1194,20 +1184,6 @@
           
         </ul>
       </nav>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../troubleshooting/" class="md-nav__link">
-        故障排除
-      </a>
     </li>
   
 
@@ -1264,6 +1240,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -1279,8 +1257,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    安全组
+  <a href="#amazon-cloudwatch" class="md-nav__link">
+    使用Amazon CloudWatch警报监控服务
   </a>
   
 </li>
@@ -1303,13 +1281,31 @@
   
 
 
-  <h1>安全信息</h1>
-
-<p>当您在亚马逊云科技基础设施上构建解决方案时，安全责任由您和亚马逊云科技共同承担。此<a href="https://aws.amazon.com/compliance/shared-responsibility-model/">共享模型</a>减少了您的操作负担，这是由于亚马逊云科技操作、管理和控制组件，包括主机操作系统、虚拟化层以及服务运行所在设施的物理安全性。有关亚马逊云科技安全的更多信息，请访问亚马逊云科技<a href="http://aws.amazon.com/security/">云安全</a>。</p>
+<h1 id="_1">安全信息</h1>
+<p>在AWS基础设施上构建系统时，您和AWS共同承担安全责任。这种<a href="https://aws.amazon.com/compliance/shared-responsibility-model/">责任共担模式</a>减轻了您的运营负担，因为AWS操作、管理和控制组件，包括主机操作系统、虚拟化层和服务所在设施的物理安全。有关AWS安全的更多信息，请访问<a href="http://aws.amazon.com/security/">AWS 云安全性</a>。</p>
 <h2 id="iam">IAM角色</h2>
-<p>亚马逊云科技身份和访问管理（IAM）角色允许客户为亚马逊云科技上的服务和用户分配细粒度访问策略和权限。此解决方案创建IAM角色，这些角色授予解决方案各组件间的访问权限。</p>
-<h2 id="_1">安全组</h2>
-<p>此解决方案中创建的安全组旨在控制和隔离各组件间的网络流量。我们建议您检查安全组，并在部署启动并运行后根据需要进一步限制访问。</p>
+<p>AWS身份和访问管理(IAM)角色允许客户将细粒度的访问策略和权限分配给AWS上的服务和用户。此解决方案创建授予解决方案组件之间访问权限的IAM角色。</p>
+<h2 id="amazon-cloudwatch">使用Amazon CloudWatch警报监控服务</h2>
+<p>您可以在Amazon CloudWatch的<a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html">警报仪表板</a>上设置警报，以监控并接收有关您的AWS资源的警报。通常，我们建议配置您的警报，以在指标开始过度或低于使用特定资源（如高CPU或内存使用率）时通知您。这可能表明您的服务正在遭受DoS-style攻击。此外，当您的数据存储容器（如RDS）接近100％的</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>使用<a href="https://aws.amazon.com/cloudwatch/pricing/">CloudWatch alarms</a>可能会产生额外费用。</p>
+</div>
+<p>在AWS中国区域（cn-north-1和cn-northwest-1）中，您可以在警报中创建<a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/monitoring-cloudwatch.html">RDS</a>和<a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway-cloudwatch.html">NAT网关</a>的指标。</p>
+<p>在AWS区域中，您可以启用更多服务的指标，例如<a href="https://docs.aws.amazon.com/lambda/latest/dg/monitoring-metrics.html">Lambda</a>、<a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-monitoring-using-cloudwatch.html">SQS</a>和<a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-cloudwatch-metrics.html">应用程序负载均衡器</a>。</p>
+<p>例如，如果您想要创建警报以监控NAT网关中的ActiveConnectionCount，可以使用CloudWatch控制台按照以下步骤操作。</p>
+<ol>
+<li>登录<a href="https://console.amazonaws.cn/cloudwatch/">AWS管理控制台</a>。</li>
+<li>访问CloudWatch控制台。</li>
+<li>在导航窗格中，在<strong>警报</strong>下选择<strong>所有警报</strong>，然后选择<strong>创建警报</strong>。</li>
+<li>选择<strong>选择指标</strong>，在指标中选择<strong>NATGateway</strong>。</li>
+<li>搜索指标<strong>ActiveConnectionCount</strong>，单击并选择它。</li>
+<li>选择<strong>选择指标</strong>。</li>
+<li>在<strong>条件</strong>中，定义当ActiveConnectionCount大于100时的警报条件。然后选择<strong>下一步</strong>。</li>
+<li>在<strong>通知</strong>中，配置CloudWatch在触发警报状态时向您发送电子邮件。</li>
+<li>选择<strong>下一步</strong>。</li>
+<li>为警报输入名称和描述，然后选择<strong>创建警报</strong>。</li>
+</ol>
 
 
 

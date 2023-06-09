@@ -73,7 +73,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#global-region" class="md-skip">
+        <a href="#aws-global-regions" class="md-skip">
           Skip to content
         </a>
       
@@ -636,15 +636,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#global-region" class="md-nav__link">
-    Global Region
+  <a href="#aws-global-regions" class="md-nav__link">
+    AWS Global Regions
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#china-region" class="md-nav__link">
-    China Region
+  <a href="#aws-china-regions" class="md-nav__link">
+    AWS China Regions
   </a>
   
 </li>
@@ -1189,7 +1189,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../troubleshooting/" class="md-nav__link">
+      <a href="../../troubleshooting.md" class="md-nav__link">
         Troubleshooting
       </a>
     </li>
@@ -1270,15 +1270,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#global-region" class="md-nav__link">
-    Global Region
+  <a href="#aws-global-regions" class="md-nav__link">
+    AWS Global Regions
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#china-region" class="md-nav__link">
-    China Region
+  <a href="#aws-china-regions" class="md-nav__link">
+    AWS China Regions
   </a>
   
 </li>
@@ -1301,19 +1301,21 @@
   <h1>AWS CloudFormation template</h1>
 
 <p>To automate deployment, this solution uses the following AWS CloudFormation templates, which you can download before deployment:</p>
-<h2 id="global-region">Global Region</h2>
+<p>To use the solution, you need to deploy the Admin template on an admin account and the Agent template on one or multiple monitored accounts. Only the accounts which are deployed with the Agent template can be monitored, which are also called monitored account.</p>
+<p>If all your accounts are within AWS Organizations, you need to deploy the IT template on an IT account. The AWS organization root user needs to first register the IT account as a delegated administrator.</p>
+<h2 id="aws-global-regions">AWS Global Regions</h2>
 <ul>
-<li>Admin(New VPC):https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/1.0.0/default/Admin.template.json</li>
-<li>Admin(Exist VPC):https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/1.0.0/default/AdminExistVpc.template.json</li>
-<li>Agent:https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/1.0.0/default/Agent.template.json</li>
-<li>IT:https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/1.0.0/default/IT.template.json</li>
+<li><a href="https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/Admin.template.json">Template for Admin account (Admin template) in New VPC</a></li>
+<li><a href="https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/AdminExistVpc.template.json">Template for Admin account (Admin template) in Existing VPC</a></li>
+<li><a href="https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/Agent.template.json">Template for Monitored account (Agent template)</a></li>
+<li><a href="https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/IT.template.json">Template for IT account (IT template)</a></li>
 </ul>
-<h2 id="china-region">China Region</h2>
+<h2 id="aws-china-regions">AWS China Regions</h2>
 <ul>
-<li>Admin(New VPC):https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/1.0.0/cn/Admin.template.json</li>
-<li>Admin(Exist VPC):https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/1.0.0/cn/AdminExistVpc.template.json</li>
-<li>Agent:https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/1.0.0/cn/Agent.template.json</li>
-<li>IT:https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/1.0.0/cn/IT.template.json</li>
+<li><a href="https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/Admin.template.json">Template for Admin account (Admin template) in New VPC</a></li>
+<li><a href="https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/AdminExistVpc.template.json">Template for Admin account (Admin template) in Existing VPC</a></li>
+<li><a href="https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/Agent.template.json">Template for Monitored account (Agent template)</a></li>
+<li><a href="https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/IT.template.json">Template for IT account (IT template)</a></li>
 </ul>
 
 
