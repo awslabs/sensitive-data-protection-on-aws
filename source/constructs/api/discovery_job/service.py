@@ -187,6 +187,13 @@ def start_job(job_id: int):
         __start_run(job_id, run_id)
 
 
+def start_sample_job(job_id: int):
+    run_id = crud.init_run(job_id)
+    logger.info(run_id)
+    if run_id >= 0:
+        __start_sample_run(job_id, run_id)
+
+
 def __start_run(job_id: int, run_id: int):
     job = crud.get_job(job_id)
     run = crud.get_run(run_id)
@@ -253,7 +260,7 @@ def __start_run(job_id: int, run_id: int):
                 "QueueUrl": f'https://sqs.{run_database.region}.amazonaws.com{url_suffix}/{admin_account_id}/{const.SOLUTION_NAME}-DiscoveryJob',
             }
             run_database.start_time = mytime.get_time()
-            __create_job(run_database.database_type, run_database.account_id, run_database.region, run_database.database_name, job_name)
+            __create_job(run_database.database_type, run_database.account_id, run_database.region, run_database.database_name, job_name, False)
             __exec_run(execution_input, run_database.uuid)
             run_database.state = RunDatabaseState.RUNNING.value
         except Exception:
@@ -265,7 +272,56 @@ def __start_run(job_id: int, run_id: int):
     crud.save_run_databases(run_databases)
 
 
-def __create_job(database_type, account_id, region, database_name, job_name):
+def __start_sample_run(job_id: int, run_id: int):
+    job = crud.get_job(job_id)
+    run = crud.get_run(run_id)
+    run_databases = run.databases
+    logger.info(run_databases)
+    for run_database in run_databases:
+        try:
+            # job_bookmark_option = "job-bookmark-enable" if job.range == 1 else "job-bookmark-disable"
+            base_time = str(datetime.datetime.min)
+            if job.range == 1 and run_database.base_time is not None:
+                base_time = mytime.format_time(run_database.base_time)
+            crawler_name = run_database.database_type + "-" + run_database.database_name + "-crawler"
+            job_name = f"{const.SOLUTION_NAME}-Sample-Job-S3"
+            if run_database.database_type == DatabaseType.RDS.value:
+                job_name = f"{const.SOLUTION_NAME}-Sample-Job-RDS-" + run_database.database_name
+            execution_input = {
+                "--JobName": job_name,
+                # "CrawlerName": crawler_name,
+                # "JobId": str(job.id),
+                # "RunId": str(run_id),
+                # "RunDatabaseId": str(run_database.id),
+                "--AccountId": run_database.account_id,
+                "--Region": run_database.region,
+                "--DatabaseType": run_database.database_type,
+                "--DatabaseName": run_database.database_name,
+                # "TemplateId": str(job.template_id),
+                # "TemplateSnapshotNo": str(run.template_snapshot_no),
+                "--Depth": str(job.depth),
+                "--BaseTime": base_time,
+                # "OverWrite": str(job.overwrite),
+                # "AdminAccountId": admin_account_id,
+                # "BucketName": project_bucket_name,
+            }
+            run_database.start_time = mytime.get_time()
+            __create_job(run_database.database_type, run_database.account_id, run_database.region, run_database.database_name, job_name, True)
+            __exec_sample_run(execution_input)
+            run_database.state = RunDatabaseState.RUNNING.value
+        except Exception:
+            msg = traceback.format_exc()
+            run_database.state = RunDatabaseState.FAILED.value
+            run_database.end_time = mytime.get_time()
+            run_database.log = msg
+            logger.exception("Run StepFunction exception:%s" % msg)
+    crud.save_run_databases(run_databases)
+
+
+def __create_job(database_type, account_id, region, database_name, job_name, sample_job: bool):
+    script_name = 'glue-job.py'
+    if sample_job:
+        script_name = 'glue-sample-job.py'
     client_sts = boto3.client('sts')
     assumed_role_object = client_sts.assume_role(
         RoleArn=f'arn:{partition}:iam::{account_id}:role/{const.SOLUTION_NAME}RoleForAdmin-{region}',
@@ -281,34 +337,36 @@ def __create_job(database_type, account_id, region, database_name, job_name):
                                )
     try:
         response = client_glue.get_job(JobName=job_name)
+        logger.info(response)
     except client_glue.exceptions.EntityNotFoundException as e:
         if database_type == DatabaseType.RDS.value:
-            client_glue.create_job(Name=job_name,
-                                   Role=f'{const.SOLUTION_NAME}GlueDetectionJobRole-{region}',
-                                   GlueVersion='4.0',
-                                   Command={'Name': 'glueetl',
-                                            'ScriptLocation': f's3://{project_bucket_name}/job/script/glue-job.py'},
-                                   Tags={const.PROJECT_TAG_KEY: const.PROJECT_TAG_VALUE,
-                                         'AdminAccountId': admin_account_id,
-                                         const.VERSION: version},
-                                   Connections={'Connections': [f'rds-{database_name}-connection']},
-                                   ExecutionProperty={'MaxConcurrentRuns': 3},
-                                   NumberOfWorkers=2,
-                                   WorkerType='G.1X'
-                                   )
+            response = client_glue.create_job(Name=job_name,
+                                              Role=f'{const.SOLUTION_NAME}GlueDetectionJobRole-{region}',
+                                              GlueVersion='4.0',
+                                              Command={'Name': 'glueetl',
+                                                       'ScriptLocation': f's3://{project_bucket_name}/job/script/{script_name}'},
+                                              Tags={const.PROJECT_TAG_KEY: const.PROJECT_TAG_VALUE,
+                                                    'AdminAccountId': admin_account_id,
+                                                    const.VERSION: version},
+                                              Connections={'Connections': [f'rds-{database_name}-connection']},
+                                              ExecutionProperty={'MaxConcurrentRuns': 3},
+                                              NumberOfWorkers=2,
+                                              WorkerType='G.1X'
+                                              )
+            logger.info(response)
         else:
-            client_glue.create_job(Name=job_name,
-                                   Role=f'{const.SOLUTION_NAME}GlueDetectionJobRole-{region}',
-                                   GlueVersion='4.0',
-                                   Command={'Name': 'glueetl',
-                                            'ScriptLocation': f's3://{project_bucket_name}/job/script/glue-job.py'},
-                                   Tags={const.PROJECT_TAG_KEY: const.PROJECT_TAG_VALUE,
-                                         'AdminAccountId': admin_account_id,
-                                         const.VERSION: version},
-                                   ExecutionProperty={'MaxConcurrentRuns': 100},
-                                   NumberOfWorkers=2,
-                                   WorkerType='G.1X'
-                                   )
+            response = client_glue.create_job(Name=job_name,
+                                              Role=f'{const.SOLUTION_NAME}GlueDetectionJobRole-{region}',
+                                              GlueVersion='4.0',
+                                              Command={'Name': 'glueetl',
+                                                       'ScriptLocation': f's3://{project_bucket_name}/job/script/{script_name}'},
+                                              Tags={const.PROJECT_TAG_KEY: const.PROJECT_TAG_VALUE,
+                                                    'AdminAccountId': admin_account_id, const.VERSION: version},
+                                              ExecutionProperty={'MaxConcurrentRuns': 100},
+                                              NumberOfWorkers=2,
+                                              WorkerType='G.1X'
+                                              )
+            logger.info(response)
 
 
 def __exec_run(execution_input, current_uuid):
@@ -330,6 +388,25 @@ def __exec_run(execution_input, current_uuid):
         name=f'{const.SOLUTION_NAME}-{execution_input["RunId"]}-{execution_input["RunDatabaseId"]}-{current_uuid}',
         input=json.dumps(execution_input),
     )
+
+
+def __exec_sample_run(execution_input):
+    client_sts = boto3.client('sts')
+    assumed_role_object = client_sts.assume_role(
+        RoleArn=f'arn:{partition}:iam::{execution_input["--AccountId"]}:role/{const.SOLUTION_NAME}RoleForAdmin-{execution_input["--Region"]}',
+        RoleSessionName="AssumeRoleSession1"
+    )
+    credentials = assumed_role_object['Credentials']
+    client_glue = boto3.client('glue',
+                               aws_access_key_id=credentials['AccessKeyId'],
+                               aws_secret_access_key=credentials['SecretAccessKey'],
+                               aws_session_token=credentials['SessionToken'],
+                               region_name=execution_input["--Region"],
+                               )
+    logger.info(execution_input)
+    response = client_glue.start_job_run(JobName=execution_input["--JobName"],
+                                         Arguments=execution_input)
+    logger.info(response)
 
 
 def stop_job(job_id: int):
