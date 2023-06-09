@@ -453,8 +453,8 @@ def get_run_database_progress(job_id: int, run_id: int, run_database_id: int) ->
     current_table_count = -1
     if run_database.state == RunDatabaseState.READY.value:
         current_table_count = 0
-    elif run_database.state == RunDatabaseState.SUCCEEDED.value:
-        current_table_count = run_database.table_count
+    # elif run_database.state == RunDatabaseState.SUCCEEDED.value:
+    #     current_table_count = run_database.table_count
     elif run_database.state == RunDatabaseState.NOT_EXIST.value:
         current_table_count = -1
     else:
@@ -699,9 +699,9 @@ def __query_athena(sql: str):
         ResultConfiguration={"OutputLocation": f"s3://{project_bucket_name}/athena-output/"},
     )
 
-    query_id = queryStart["QueryExecutionId"]
+    query_execution_id = queryStart["QueryExecutionId"]
     while True:
-        response = client.get_query_execution(QueryExecutionId=query_id)
+        response = client.get_query_execution(QueryExecutionId=query_execution_id)
         query_execution_status = response["QueryExecution"]["Status"]["State"]
         if query_execution_status == AthenaQueryState.SUCCEEDED.value:
             break
@@ -711,8 +711,23 @@ def __query_athena(sql: str):
         else:
             time.sleep(1)
 
-    result = client.get_query_results(QueryExecutionId=query_id)
-    result = [x["Data"] for x in result["ResultSet"]["Rows"]]
+    results_paginator = client.get_paginator('get_query_results')
+    results_iterator = results_paginator.paginate(
+        QueryExecutionId=query_execution_id,
+        PaginationConfig={
+            'PageSize': 1000
+        }
+    )
+
+    first_page = True
+    result = []
+    for results_page in results_iterator:
+        tmp_result = [x["Data"] for x in results_page["ResultSet"]["Rows"]]
+        if first_page:
+            first_page = False
+            result += tmp_result
+        else:
+            result += tmp_result[1:]
     return result
 
 
