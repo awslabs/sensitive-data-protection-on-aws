@@ -96,22 +96,19 @@ const DataJobContent: React.FC<any> = (props: any) => {
       navigate(RouterEnum.CreateJob.path, {
         state: { oldData: selectedItems[0] },
       });
-      return;
     } else if (selectedOption.id === 'execute_once') {
       await startJob({ id: selectedItems[0].id });
       alertMsg(t('startSuccess'), 'success');
-      return;
     } else if (selectedOption.id === 'continue') {
       await enableJob({ id: selectedItems[0].id });
       alertMsg(t('continueSuccess'), 'success');
-      return;
     }
     getPageData();
   };
 
-  useEffect(() => {
-    getPageData();
-  }, []);
+  // useEffect(() => {
+  //   getPageData();
+  // }, []);
   const firstUpload = useRef(true); // 记录是否是首次加载页面
 
   useEffect(() => {
@@ -276,7 +273,9 @@ const DataJobContent: React.FC<any> = (props: any) => {
               actions={
                 <SpaceBetween direction="horizontal" size="xs">
                   <Button
-                    onClick={getPageData}
+                    onClick={() => {
+                      getPageData();
+                    }}
                     disabled={isLoading}
                     iconName="refresh"
                   />

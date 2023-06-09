@@ -33,7 +33,6 @@ const TemplateDelete = (props: any) => {
     setIsLoading(true);
     try {
       await confirmDelete();
-      setIsShowDelete(false);
     } catch (error) {
       console.warn(error);
     }

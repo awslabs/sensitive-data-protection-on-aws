@@ -27,7 +27,8 @@ create table template_identifier
     create_by       varchar(255)                null,
     modify_by       varchar(255)                null,
     modify_time     timestamp                   null,
-    create_time     timestamp                   null
+    create_time     timestamp                   null,
+    UNIQUE KEY unique_name (name)
 ) auto_increment=10001;
 
 

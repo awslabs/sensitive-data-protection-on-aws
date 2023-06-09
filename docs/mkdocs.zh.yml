@@ -1,0 +1,60 @@
+INHERIT: ./mkdocs.base.yml
+site_name: 敏感数据保护解决方案
+site_description: 敏感数据保护解决方案实施指南
+docs_dir: zh
+site_dir: ./site/zh
+theme:
+  language: zh
+nav:
+  - 实施指南:
+    - 方案概述:
+        - 概述: index.md
+        - 功能和优势: solution-overview/features-and-benefits.md
+        - 术语: solution-overview/concepts.md
+    - 架构概览:
+        - 架构图: architecture-overview/architecture.md
+        - AWS Well-Architected 支柱: architecture-overview/well-architected-pillars.md            
+    - 架构细节:
+        - 方案中的AWS服务: architecture-details/services-in-the-solution.md
+        - 方案架构设计思路:  architecture-details/architecture-details.md
+    - 部署前的规划:
+        - 成本预估: plan-deployment/cost.md
+        - 安全信息: plan-deployment/security.md
+        - 区域支持: plan-deployment/regions.md
+    - 部署解决方案:
+        - 模板信息: deployment/template.md
+        - 部署步骤: deployment/deployment.md
+    - 卸载解决方案: uninstall.md
+    - 用户指南: 
+        - 概述: user-guide/get-started.md
+        - 连接到数据源:
+            - 添加AWS帐户: user-guide/data-source.md
+            - 创建数据目录: user-guide/data-catalog-create.md
+            - 删除数据目录: user-guide/data-catalog-delete.md
+        - 定义数据分类模板: 
+            - 数据分类模版: user-guide/data-classification-template.md
+            - 数据标识符: user-guide/data-identifiers.md
+        - 运行敏感数据发现作业: 
+            - 创建作业: user-guide/discovery-job-create.md
+            - 查看作业: user-guide/discovery-job-details.md
+            - 下载作业报告: user-guide/discovery-job-report.md
+            - 重新运行/复制作业: user-guide/discovery-job-rerun-and-duplicate.md
+            - 暂停/重启作业: user-guide/discovery-job-pause-and-cancel.md
+        - 浏览数据目录: 
+            - 同步数据目录: user-guide/data-catalog-sync.md
+            - 标记数据目录: user-guide/data-catalog-labels.md
+    - 附录: 
+        - 内置的数据标识符: user-guide/appendix-built-in-identifiers.md
+        - 支持的数据类型: user-guide/appendix-supported-data-types.md
+        - CloudFormation 堆栈的权限: user-guide/appendix-permissions.md
+        - 通过AWS Organization添加帐户: user-guide/appendix-organization.md
+    - 卸载解决方案: uninstall.md
+    - 开发者指南:
+        - 源代码: developer-guide/source.md
+    - 故障排除: troubleshooting.md 
+    - 文档修订信息: revisions.md
+    - 贡献人员: contributors.md
+
+
+
+

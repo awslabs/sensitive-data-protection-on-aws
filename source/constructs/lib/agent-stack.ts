@@ -60,6 +60,7 @@ export class AgentStack extends Stack {
       statements: [new iam.PolicyStatement({
         actions: [
           'glue:CreateJob',
+          'glue:UpdateJob',
           'iam:PassRole',
           'glue:GetJob',
           'lambda:CreateFunction',

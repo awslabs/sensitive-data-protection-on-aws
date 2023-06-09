@@ -85,9 +85,9 @@ class ColumnDetector:
         result = []
         identifiers = self.broadcast_template.value.get('identifiers')
         ml_result = sdps_ner.predict(str(col_val)).get(str(col_val), [])
-        ml_label_mapping = {'CHINESE-NAME': 'CN_CHINESE_NAME',
-                            'ENGLISH-NAME': 'CN_ENGLISH_NAME',
-                            'ADDRESS': 'CN_ADDRESS'}
+        ml_label_mapping = {'CHINESE-NAME': 'CHINA_CHINESE_NAME',
+                            'ENGLISH-NAME': 'CHINA_ENGLISH_NAME',
+                            'ADDRESS': 'CHINA_ADDRESS'}
 
         for identifier in identifiers:
             identifier_type = identifier.get('type', -1)
@@ -271,6 +271,14 @@ def sdps_entity_detection(df, threshold, detect_column_udf):
     
     return result_df
 
+def preprocess_df(df):
+    df = df.select([sf.col(c).cast("string") for c in df.columns])
+
+    # Select first 128 characters of each string column
+    df = df.select([sf.substring(c, 1, 128).alias(c) if t == "string" else c for c, t in df.dtypes])
+
+    return df
+
 def detect_df(df, spark, glueContext, udf_dict, broadcast_template, table, region, args):
     """
     detect_table is the main function to perform PII detection in a crawler table.
@@ -292,6 +300,7 @@ def detect_df(df, spark, glueContext, udf_dict, broadcast_template, table, regio
             sample_rate = float(args['Depth'])
 
         df = df.sample(sample_rate)
+        df = preprocess_df(df)
         # print(rows)
         sample_df = df.limit(10)
         # sample_df.show()

@@ -292,7 +292,7 @@ def __create_job(database_type, account_id, region, database_name, job_name):
                                          'AdminAccountId': admin_account_id,
                                          const.VERSION: version},
                                    Connections={'Connections': [f'rds-{database_name}-connection']},
-                                   ExecutionProperty={'MaxConcurrentRuns': 3},
+                                   ExecutionProperty={'MaxConcurrentRuns': 100},
                                    NumberOfWorkers=2,
                                    WorkerType='G.1X'
                                    )
@@ -305,7 +305,7 @@ def __create_job(database_type, account_id, region, database_name, job_name):
                                    Tags={const.PROJECT_TAG_KEY: const.PROJECT_TAG_VALUE,
                                          'AdminAccountId': admin_account_id,
                                          const.VERSION: version},
-                                   ExecutionProperty={'MaxConcurrentRuns': 100},
+                                   ExecutionProperty={'MaxConcurrentRuns': 1000},
                                    NumberOfWorkers=2,
                                    WorkerType='G.1X'
                                    )

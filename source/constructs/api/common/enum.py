@@ -28,7 +28,7 @@ class MessageEnum(Enum):
     TEMPLATE_PROPS_NOT_EXISTS = {1407: "The category/regulation does not exist"}
     TEMPLATE_IDENTIFIER_RULES_EMPTY = {1408: "Identifier rules should not be empty"}
     TEMPLATE_HEADER_KEYWORDS_EMPTY = {1409: "Identify keywords in column headers should not contains empty str"}
-
+    TEMPLATE_IDENTIFIER_ALREADY_EXISTS = {1410: "This identifier already exists in the template"}
     # discovery job
     DISCOVERY_JOB_NON_EXIST = {1510: "The discovery job does non exist"}
     DISCOVERY_JOB_INVALID_PARAMETER = {1511: "Invalid parameter"}
