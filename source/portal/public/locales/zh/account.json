@@ -22,6 +22,8 @@
   "totalRDSInstance": "RDS 实例总数",
   "inputAccountId": "请输入账户 ID",
   "addSuccess": "添加成功",
+  "forChina": "中国区使用",
+  "forGlobal": "海外区使用",
   "add": {
     "addAWSAccount": "添加 AWS 账户",
     "addAWSAccountDesc": "设置和管理您希望平台发现敏感数据的 AWS 账户。",

@@ -22,6 +22,8 @@
   "totalRDSInstance": "Total RDS instances",
   "inputAccountId": "Please Input AccountId",
   "addSuccess": "Add Success",
+  "forChina": "For China Regions deployment",
+  "forGlobal": "For Global Regions deployment",
   "add": {
     "addAWSAccount": "Add AWS accounts",
     "addAWSAccountDesc": "Setup and manage the AWS accounts that you want the platform to discover sensitive data.",

@@ -10,8 +10,11 @@ import {
 import React, { memo, useState } from 'react';
 import {
   ADMIN_TEMPLATE_URL,
+  ADMIN_TEMPLATE_URL_GLOBAL,
   AGENT_TEMPLATE_URL,
+  AGENT_TEMPLATE_URL_GLOBAL,
   IT_TEMPLATE_URL,
+  IT_TEMPLATE_URL_GLOBAL,
   TAB_LIST,
 } from '../types/add_account_type';
 import { useNavigate } from 'react-router-dom';
@@ -38,13 +41,28 @@ const AddAccountInfo: React.FC<any> = memo((props: any) => {
     alertMsg(t('copied'), 'success');
   };
 
+  const clkDownloadGlobal = async () => {
+    await navigator.clipboard.writeText(ADMIN_TEMPLATE_URL_GLOBAL);
+    alertMsg(t('copied'), 'success');
+  };
+
   const clkAgentDownload = async () => {
     await navigator.clipboard.writeText(AGENT_TEMPLATE_URL);
     alertMsg(t('copied'), 'success');
   };
 
+  const clkAgentDownloadGlobal = async () => {
+    await navigator.clipboard.writeText(AGENT_TEMPLATE_URL_GLOBAL);
+    alertMsg(t('copied'), 'success');
+  };
+
   const clkItDownload = async () => {
     await navigator.clipboard.writeText(IT_TEMPLATE_URL);
+    alertMsg(t('copied'), 'success');
+  };
+
+  const clkItDownloadGlobal = async () => {
+    await navigator.clipboard.writeText(IT_TEMPLATE_URL_GLOBAL);
     alertMsg(t('copied'), 'success');
   };
 
@@ -101,7 +119,16 @@ const AddAccountInfo: React.FC<any> = memo((props: any) => {
             <div className="pointer-icon" onClick={clkDownload}>
               <Icon name="copy" />
               &nbsp;&nbsp;
-              <span>{t('account:add.org.step1Copy')}</span>
+              <span>
+                {t('account:add.org.step1Copy')} ({t('account:forChina')})
+              </span>
+            </div>
+            <div className="pointer-icon" onClick={clkDownloadGlobal}>
+              <Icon name="copy" />
+              &nbsp;&nbsp;
+              <span>
+                {t('account:add.org.step1Copy')} ({t('account:forGlobal')})
+              </span>
             </div>
           </Container>
 
@@ -152,7 +179,17 @@ const AddAccountInfo: React.FC<any> = memo((props: any) => {
             <div className="pointer-icon" onClick={clkAgentDownload}>
               <Icon name="copy" />
               &nbsp;&nbsp;
-              <span>{t('account:add.org.step3Copy')}</span>
+              <span>
+                {t('account:add.org.step3Copy')} ({t('account:forChina')})
+              </span>
+            </div>
+
+            <div className="pointer-icon" onClick={clkAgentDownloadGlobal}>
+              <Icon name="copy" />
+              &nbsp;&nbsp;
+              <span>
+                {t('account:add.org.step3Copy')} ({t('account:forGlobal')})
+              </span>
             </div>
           </Container>
 
@@ -169,7 +206,17 @@ const AddAccountInfo: React.FC<any> = memo((props: any) => {
             <div className="pointer-icon" onClick={clkItDownload}>
               <Icon name="copy" />
               &nbsp;&nbsp;
-              <span>{t('account:add.org.step4Copy')}</span>
+              <span>
+                {t('account:add.org.step4Copy')} (({t('account:forChina')}))
+              </span>
+            </div>
+
+            <div className="pointer-icon" onClick={clkItDownloadGlobal}>
+              <Icon name="copy" />
+              &nbsp;&nbsp;
+              <span>
+                {t('account:add.org.step4Copy')} (({t('account:forGlobal')}))
+              </span>
             </div>
           </Container>
           <Container
@@ -200,7 +247,16 @@ const AddAccountInfo: React.FC<any> = memo((props: any) => {
             <div className="pointer-icon" onClick={clkAgentDownload}>
               <Icon name="copy" />
               &nbsp;&nbsp;
-              <span>{t('account:add.account.step1Copy')}</span>
+              <span>
+                {t('account:add.account.step1Copy')} ({t('account:forChina')})
+              </span>
+            </div>
+            <div className="pointer-icon" onClick={clkAgentDownloadGlobal}>
+              <Icon name="copy" />
+              &nbsp;&nbsp;
+              <span>
+                {t('account:add.account.step1Copy')} ({t('account:forGlobal')})
+              </span>
             </div>
           </Container>
           <Container
