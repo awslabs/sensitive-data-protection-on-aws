@@ -96,18 +96,23 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
     s3: false,
     rds: false,
   });
+  const [loadingDelete, setLoadingDelete] = useState(false);
 
   const confirmDelete = async () => {
     const requestParam = {
       id: selectedItems[0].id,
     };
+
     try {
+      setLoadingDelete(true);
       await deleteIdentifiers(requestParam);
       setIsShowDelete(false);
       alertMsg(t('deleteSuccess'), 'success');
       setSelectedItems([]);
       getPageData();
+      setLoadingDelete(false);
     } catch (error: any) {
+      setLoadingDelete(false);
       if (error) {
         if (!error.ref || error.ref.length === 0) {
           alertMsg(error.message, 'error');
@@ -515,6 +520,7 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
           <Box float="right">
             <SpaceBetween direction="horizontal" size="xs">
               <Button
+                disabled={loadingDelete}
                 variant="link"
                 onClick={() => setIsShowDelete(false)}
                 loading={isLoading}
@@ -524,7 +530,7 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
               {!showErrorTips.template &&
                 !showErrorTips.s3 &&
                 !showErrorTips.rds && (
-                  <Button onClick={clkConfirmDelete} loading={isLoading}>
+                  <Button onClick={clkConfirmDelete} loading={loadingDelete}>
                     {t('button.delete')}
                   </Button>
                 )}
