@@ -90,7 +90,7 @@ export const RDS_MODAL_TABS = [
   },
   {
     id: COLUMN_OBJECT_STR.BucketProperties,
-    label: 'tab.bucketProperties',
+    label: 'tab.instanceProperties',
     detailDesHeader: '',
     detailDesInfo: '',
   },
@@ -112,7 +112,7 @@ export const S3_MODAL_TABS = [
   },
   {
     id: 'bucketProperties',
-    label: 'tab.foders',
+    label: 'tab.s3Properties',
     detailDesHeader: '',
     detailDesInfo: '',
   },

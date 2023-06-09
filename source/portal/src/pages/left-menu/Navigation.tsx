@@ -6,7 +6,7 @@ import React from 'react';
 import { RouterEnum } from 'routers/routerEnum';
 import './style.scss';
 import { useTranslation } from 'react-i18next';
-import { GIHUB_REPO_LINK } from 'ts/common';
+import { buildDocLink } from 'ts/common';
 
 interface INavigationProps {
   activeHref: string;
@@ -14,7 +14,7 @@ interface INavigationProps {
 
 const Navigation: React.FC<INavigationProps> = (props: INavigationProps) => {
   const { activeHref } = props;
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navHeader = { text: t('solution.title'), href: RouterEnum.Home.path };
   const navItems: SideNavigationProps.Item[] = [
     { type: 'link', text: t('nav.summary'), href: RouterEnum.Home.path },
@@ -53,7 +53,7 @@ const Navigation: React.FC<INavigationProps> = (props: INavigationProps) => {
     {
       type: 'link',
       text: t('nav.doc'),
-      href: GIHUB_REPO_LINK,
+      href: buildDocLink(i18n.language),
       external: true,
     },
   ];

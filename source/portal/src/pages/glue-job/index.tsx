@@ -362,13 +362,13 @@ const GlueJobContent = () => {
               <p>
                 {moment(jobDetailData.start_time)
                   .add(8, 'h')
-                  .format('YYYY-MM-DD HH:mm')}
+                  .format('YYYY-MM-DD HH:mm:ss')}
               </p>
               <p className="p-title">{t('job:detail.jobFinishedAt')}</p>
               <p>
                 {moment(jobDetailData.end_time)
                   .add(8, 'h')
-                  .format('YYYY-MM-DD HH:mm')}{' '}
+                  .format('YYYY-MM-DD HH:mm:ss')}{' '}
                 ({getTimeDiff(jobDetailData.start_time, jobDetailData.end_time)}
                 )
               </p>
@@ -537,7 +537,7 @@ const GlueJob: React.FC = () => {
       content={<GlueJobContent />}
       headerSelector="#header"
       breadcrumbs={<CustomBreadCrumb breadcrumbItems={breadcrumbItems} />}
-      navigation={<Navigation activeHref={RouterEnum.Home.path} />}
+      navigation={<Navigation activeHref={RouterEnum.GlueJob.path} />}
       navigationWidth={290}
     />
   );

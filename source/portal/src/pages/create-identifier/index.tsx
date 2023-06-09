@@ -176,11 +176,17 @@ const CreateIdentifierContent = () => {
     if (!clkValidate(false)) {
       return;
     }
-    setIsLoading(true);
+
     const tempHeadList =
       keywordList && Array.isArray(keywordList) && keywordList.length > 0
         ? JSON.stringify(keywordList)
         : '';
+
+    const containsEmpty = keywordList?.some((str: string) => str.trim() === '');
+    if (keywordToggle && containsEmpty) {
+      alertMsg(t('identifier:keywordAlert'), 'info');
+      return;
+    }
 
     const newProps = [];
     if (selectedCategory.value) {
@@ -189,6 +195,7 @@ const CreateIdentifierContent = () => {
     if (selectedLabel.value) {
       newProps.push(selectedLabel.value);
     }
+    setIsLoading(true);
     const requestParam: any = {
       description: identifierDescription,
       type: 1,
@@ -261,6 +268,7 @@ const CreateIdentifierContent = () => {
               constraintText={t('identifier:identNameConstraint')}
             >
               <Input
+                disabled={oldData.id}
                 value={identifierName}
                 onChange={({ detail }) =>
                   detail.value.length <= 60 && setIdentifierName(detail.value)
