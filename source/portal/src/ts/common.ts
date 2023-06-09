@@ -6,9 +6,9 @@ export const GIHUB_REPO_LINK =
   'https://github.com/awslabs/sensitive-data-protection-on-aws';
 
 export const CN_DOC_LINK =
-  'https://awslabs.github.io/sensitive-data-protection-on-aws/zh/';
+  'https://awslabs.github.io/sensitive-data-protection-on-aws/zh';
 export const EN_DOC_LINK =
-  'https://awslabs.github.io/sensitive-data-protection-on-aws/en/';
+  'https://awslabs.github.io/sensitive-data-protection-on-aws/en';
 export interface ColumnList {
   id: string;
   label: string;
@@ -16,11 +16,11 @@ export interface ColumnList {
   filter: boolean;
 }
 
-export const buildDocLink = (lang: string) => {
+export const buildDocLink = (lang: string, url?: string) => {
   if (ZH_LANGUAGE_LIST.includes(lang)) {
-    return CN_DOC_LINK;
+    return CN_DOC_LINK + (url ?? '');
   }
-  return EN_DOC_LINK;
+  return EN_DOC_LINK + (url ?? '');
 };
 
 export interface FilteringOptionsTypes {

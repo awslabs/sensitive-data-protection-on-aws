@@ -34,6 +34,8 @@ import ResourcesFilter from 'pages/resources-filter';
 import { alertMsg, useDidUpdateEffect } from 'tools/tools';
 import { useTranslation } from 'react-i18next';
 import GlueJobProgress from './componments/GlueJobProgress';
+import HelpInfo from 'common/HelpInfo';
+import { buildDocLink } from 'ts/common';
 
 const GULE_JOB_COLUMN = [
   {
@@ -526,7 +528,7 @@ const GlueJobContent = () => {
 };
 
 const GlueJob: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const breadcrumbItems = [
     { text: t('breadcrumb.home'), href: RouterEnum.Home.path },
     { text: t('breadcrumb.sensitiveJobs'), href: RouterEnum.Datajob.path },
@@ -534,6 +536,21 @@ const GlueJob: React.FC = () => {
   return (
     <AppLayout
       contentHeader={<HomeHeader />}
+      tools={
+        <HelpInfo
+          title={t('breadcrumb.sensitiveJobs')}
+          description={t('info:jobDetail.desc')}
+          linkItems={[
+            {
+              text: t('info:jobDetail.jobDetailPages'),
+              href: buildDocLink(
+                i18n.language,
+                '/user-guide/discovery-job-details/'
+              ),
+            },
+          ]}
+        />
+      }
       content={<GlueJobContent />}
       headerSelector="#header"
       breadcrumbs={<CustomBreadCrumb breadcrumbItems={breadcrumbItems} />}

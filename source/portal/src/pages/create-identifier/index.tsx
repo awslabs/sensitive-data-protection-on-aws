@@ -505,6 +505,7 @@ const CreateIdentifier: React.FC = () => {
   ];
   return (
     <AppLayout
+      toolsHide
       contentHeader={<CreateIdentifierHeader />}
       content={<CreateIdentifierContent />}
       headerSelector="#header"

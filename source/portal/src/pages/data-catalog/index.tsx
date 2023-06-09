@@ -14,6 +14,8 @@ import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import Navigation from 'pages/left-menu/Navigation';
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
+import HelpInfo from 'common/HelpInfo';
+import { buildDocLink } from 'ts/common';
 
 const CatalogListHeader: React.FC = () => {
   const { t } = useTranslation();
@@ -26,7 +28,7 @@ const CatalogListHeader: React.FC = () => {
 
 const DataCatalogList: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [activeTabId, setActiveTabId] = useState(
     searchParams.get('tagType') || TAB_LIST.S3.id
@@ -40,6 +42,28 @@ const DataCatalogList: React.FC = () => {
   return (
     <AppLayout
       contentHeader={<CatalogListHeader />}
+      tools={
+        <HelpInfo
+          title={t('breadcrumb.browserCatalog')}
+          description={t('info:catalog.desc')}
+          linkItems={[
+            {
+              text: t('info:catalog.catalogSync'),
+              href: buildDocLink(
+                i18n.language,
+                '/user-guide/data-catalog-sync/'
+              ),
+            },
+            {
+              text: t('info:catalog.useLabels'),
+              href: buildDocLink(
+                i18n.language,
+                '/user-guide/data-catalog-labels/'
+              ),
+            },
+          ]}
+        />
+      }
       content={
         <ContentLayout className="catalog-layout">
           <Container disableContentPaddings>

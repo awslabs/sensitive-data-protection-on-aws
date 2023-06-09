@@ -13,6 +13,8 @@ import Navigation from 'pages/left-menu/Navigation';
 import { RouterEnum } from 'routers/routerEnum';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import HelpInfo from 'common/HelpInfo';
+import { buildDocLink } from 'ts/common';
 
 const HomeHeader: React.FC = () => {
   const { t } = useTranslation();
@@ -92,7 +94,7 @@ const HomeContent: React.FC = () => {
 };
 
 const Home: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const breadcrumbItems = [
     {
       text: t('breadcrumb.home'),
@@ -105,6 +107,29 @@ const Home: React.FC = () => {
   ];
   return (
     <AppLayout
+      tools={
+        <HelpInfo
+          title={t('breadcrumb.summary')}
+          description={t('info:summary.desc')}
+          linkItems={[
+            {
+              text: t('info:summary.solutionDo'),
+              href: buildDocLink(i18n.language),
+            },
+            {
+              text: t('info:summary.getStarted'),
+              href: buildDocLink(i18n.language, '/user-guide/get-started/'),
+            },
+            {
+              text: t('info:summary.archOfSolution'),
+              href: buildDocLink(
+                i18n.language,
+                '/architecture-overview/architecture/'
+              ),
+            },
+          ]}
+        />
+      }
       contentHeader={<HomeHeader />}
       content={<HomeContent />}
       headerSelector="#header"
