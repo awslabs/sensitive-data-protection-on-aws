@@ -490,8 +490,7 @@ def __query_job_result_by_athena(
         query_execution_status = response["QueryExecution"]["Status"]["State"]
 
         if query_execution_status == AthenaQueryState.SUCCEEDED.value:
-            logger.info("__query_job_result_by_athena : " )
-            logger.info(response)
+            # logger.info("__query_job_result_by_athena : " + str(response))
             break
 
         if query_execution_status == AthenaQueryState.FAILED.value:
@@ -499,13 +498,26 @@ def __query_job_result_by_athena(
 
         else:
             time.sleep(1)
+    athena_result_list = []
+    next_token = ''
+    while True:
+        if next_token:
+            result = client.get_query_results(QueryExecutionId=query_id, NextToken=next_token)
+        else:
+            result = client.get_query_results(QueryExecutionId=query_id)
+        athena_result_list.append(result)
+        # logger.info(result)
+        if "NextToken" in result and result['NextToken']:
+            next_token = result['NextToken']
+        else:
+            break
 
-    result = client.get_query_results(QueryExecutionId=query_id)
+    # result = client.get_query_results(QueryExecutionId=query_id, NextToken='')
     # Remove Athena query result to save cost.
-    logger.info(result)
+    logger.info(athena_result_list)
     __remove_query_result_from_s3(query_id)
 
-    return result
+    return athena_result_list
 
 
 def __get_athena_column_value(value_dict: dict, type: str):
@@ -542,7 +554,7 @@ def sync_job_detection_result(
         job_run_id: str,
         overwrite=True
 ):
-    job_result = __query_job_result_by_athena(
+    job_result_list = __query_job_result_by_athena(
         account_id,
         region,
         database_type,
@@ -555,60 +567,62 @@ def sync_job_detection_result(
     table_size_dict = {}
     row_count = 0
     table_column_dict = {}
-    if "ResultSet" in job_result and "Rows" in job_result["ResultSet"]:
-        i = 0
-        for row in job_result["ResultSet"]["Rows"]:
-            if "Data" in row and i > 0:
-                table_name = __get_athena_column_value(row["Data"][0], "str")
-                column_name = __get_athena_column_value(row["Data"][1], "str")
-                identifier = __get_athena_column_value(row["Data"][2], "str")
-                column_sample_data = __get_athena_column_value(row["Data"][3], "str")
-                privacy = int(__get_athena_column_value(row["Data"][4], "int"))
-                table_size = int(__get_athena_column_value(row["Data"][5], "int"))
-                table_size_dict[table_name] = table_size
-                if table_name in table_column_dict:
-                    table_column_dict[table_name].append(column_name)
-                else:
-                    table_column_dict[table_name] = [column_name]
-                column_privacy = privacy
-                catalog_column = crud.get_catalog_column_level_classification_by_name(
-                    account_id,
-                    region,
-                    database_type,
-                    database_name,
-                    table_name,
-                    column_name,
-                )
-                identifier_dict = __convert_identifiers_to_dict(identifier)
-                if catalog_column is not None and (overwrite or (
-                        not overwrite and catalog_column.manual_tag != const.MANUAL)):
-                    column_dict = {
-                        "identifier": json.dumps(identifier_dict),
-                        "column_value_example": column_sample_data,
-                        "privacy": column_privacy,
-                        "state": CatalogState.DETECTED.value,
-                        "manual_tag": const.SYSTEM,
-                    }
-                    crud.update_catalog_column_level_classification_by_id(
-                        catalog_column.id, column_dict
+    m = 0
+    for job_result in job_result_list:
+        if "ResultSet" in job_result and "Rows" in job_result["ResultSet"]:
+            i = 0
+            for row in job_result["ResultSet"]["Rows"]:
+                if "Data" in row and i > 0:
+                    table_name = __get_athena_column_value(row["Data"][0], "str")
+                    column_name = __get_athena_column_value(row["Data"][1], "str")
+                    identifier = __get_athena_column_value(row["Data"][2], "str")
+                    column_sample_data = __get_athena_column_value(row["Data"][3], "str")
+                    privacy = int(__get_athena_column_value(row["Data"][4], "int"))
+                    table_size = int(__get_athena_column_value(row["Data"][5], "int"))
+                    table_size_dict[table_name] = table_size
+                    if table_name in table_column_dict:
+                        table_column_dict[table_name].append(column_name)
+                    else:
+                        table_column_dict[table_name] = [column_name]
+                    column_privacy = privacy
+                    catalog_column = crud.get_catalog_column_level_classification_by_name(
+                        account_id,
+                        region,
+                        database_type,
+                        database_name,
+                        table_name,
+                        column_name,
                     )
-                # Initialize table privacy with NON-PII
-                if table_name not in table_privacy_dict:
-                    table_privacy_dict[table_name] = Privacy.NON_PII.value
-                if column_privacy == Privacy.PII.value:
-                    table_privacy_dict[table_name] = column_privacy
+                    identifier_dict = __convert_identifiers_to_dict(identifier)
+                    if catalog_column is not None and (overwrite or (
+                            not overwrite and catalog_column.manual_tag != const.MANUAL)):
+                        column_dict = {
+                            "identifier": json.dumps(identifier_dict),
+                            "column_value_example": column_sample_data,
+                            "privacy": column_privacy,
+                            "state": CatalogState.DETECTED.value,
+                            "manual_tag": const.SYSTEM,
+                        }
+                        crud.update_catalog_column_level_classification_by_id(
+                            catalog_column.id, column_dict
+                        )
+                    # Initialize table privacy with NON-PII
+                    if table_name not in table_privacy_dict:
+                        table_privacy_dict[table_name] = Privacy.NON_PII.value
+                    if column_privacy == Privacy.PII.value:
+                        table_privacy_dict[table_name] = column_privacy
 
-                # A table maybe has more than one identifier from columns, so we use Set here.
-                if table_name not in table_identifier_dict:
-                    table_identifier_dict[table_name] = set()
-                for key in identifier_dict:
-                    table_identifier_dict[table_name].add(key)
-            i += 1
-        if i <= 1:
-            logger.info("sync_job_detection_result none data update because of i <= 1")
-            logger.info(i)
-            logger.info(job_result["ResultSet"]["Rows"])
-            return True
+                    # A table maybe has more than one identifier from columns, so we use Set here.
+                    if table_name not in table_identifier_dict:
+                        table_identifier_dict[table_name] = set()
+                    for key in identifier_dict:
+                        table_identifier_dict[table_name].add(key)
+                i += 1
+                m += 1
+    if m <= 1:
+        logger.info("sync_job_detection_result none data update because of m <= 1 and m is:" + str(m) + database_name)
+        return True
+    logger.info("sync_job_detection_result affected row count is :" + str(m) + database_name)
     if not table_size_dict:
         logger.info(
             "sync_job_detection_result - RESET NA TABLE AND COLUMNS WHEN TABLE_SIZE IS ZERO ")
