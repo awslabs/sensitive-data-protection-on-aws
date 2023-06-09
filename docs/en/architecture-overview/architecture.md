@@ -10,7 +10,7 @@ Deploying this solution with the default parameters builds the following environ
 5. The backend Lambda function invokes [AWS Step Functions](https://aws.amazon.com/step-functions/) in monitored accounts for sensitive data detection. 
 6. In [AWS Step Functions](https://aws.amazon.com/step-functions/) workflow, the [AWS Glue](https://aws.amazon.com/glue/) Crawler runs to take inventory of the data sources and is stored in the Glue Database as metadata tables.
 7. The Step Functions send [Amazon SQS](https://aws.amazon.com/sqs/) messages to the detection job queue after the Glue job has run. 
-8. Lambda function processs messages from Amazon SQS.
+8. Lambda function processes messages from Amazon SQS.
 9. The [Amazon Athena](https://aws.amazon.com/athena/) query detection results and save to MySQL instance in [Amazon RDS](https://aws.amazon.com/rds/).
 
 The solution uses the AWS Glue service as a core for building data catalog in the monitored account(s) and for invoking the Glue Job to detect sensitive data Personal Identifiable Information (PII). The distributed Glue job runs in each monitored account, and the admin account contains a centralized data catalog of data sources across AWS accounts. This is an implementation of the Data Mesh concept recommended by AWS.
