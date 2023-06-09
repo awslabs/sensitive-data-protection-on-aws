@@ -514,7 +514,7 @@ def __query_job_result_by_athena(
 
     # result = client.get_query_results(QueryExecutionId=query_id, NextToken='')
     # Remove Athena query result to save cost.
-    # logger.info(result)
+    logger.info(athena_result_list)
     __remove_query_result_from_s3(query_id)
 
     return athena_result_list
@@ -620,9 +620,9 @@ def sync_job_detection_result(
                 i += 1
                 m += 1
     if m <= 1:
-        logger.info("sync_job_detection_result none data update because of m <= 1 and m is:" + str(m))
+        logger.info("sync_job_detection_result none data update because of m <= 1 and m is:" + str(m) + database_name)
         return True
-    logger.info("sync_job_detection_result affected row count is :" + str(m))
+    logger.info("sync_job_detection_result affected row count is :" + str(m) + database_name)
     if not table_size_dict:
         logger.info(
             "sync_job_detection_result - RESET NA TABLE AND COLUMNS WHEN TABLE_SIZE IS ZERO ")
