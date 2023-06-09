@@ -1,14 +1,27 @@
 export const AMPLIFY_CONFIG_JSON = '__sdps_solution_amplify_config_json__';
 export const BACKEND_URL_KEY = 'BACKEND_URL';
 
+export const ZH_LANGUAGE_LIST = ['zh', 'zh-cn', 'zh_CN', 'zh-CN'];
 export const GIHUB_REPO_LINK =
   'https://github.com/awslabs/sensitive-data-protection-on-aws';
+
+export const CN_DOC_LINK =
+  'https://awslabs.github.io/sensitive-data-protection-on-aws/zh/';
+export const EN_DOC_LINK =
+  'https://awslabs.github.io/sensitive-data-protection-on-aws/en/';
 export interface ColumnList {
   id: string;
   label: string;
   sortingField?: any;
   filter: boolean;
 }
+
+export const buildDocLink = (lang: string) => {
+  if (ZH_LANGUAGE_LIST.includes(lang)) {
+    return CN_DOC_LINK;
+  }
+  return EN_DOC_LINK;
+};
 
 export interface FilteringOptionsTypes {
   propertyKey: string;

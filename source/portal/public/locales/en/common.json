@@ -169,7 +169,7 @@
       "foders": "Folders",
       "columns": "Columns",
       "folderName": "Folder name",
-      "items": "Items",
+      "items": "Rows",
       "property": "Property",
       "value": "Value",
       "s3Objects": "S3 objects",
@@ -225,7 +225,8 @@
     "bucketProperties": "Bucket properties",
     "jobHistory": "Job history",
     "jobProperties": "Job properties",
-    "dataCatalogs": "Data catalogs"
+    "dataCatalogs": "Data catalogs",
+    "s3Properties": "Bucket properties"
   },
   "step": {
     "step": "Step ",
