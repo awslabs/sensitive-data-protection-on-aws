@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import TopNavigation from '@cloudscape-design/components/top-navigation';
 import './style.scss';
 import { AmplifyConfigType, AppSyncAuthType } from 'ts/types';
-import { AMPLIFY_CONFIG_JSON, GIHUB_REPO_LINK } from 'ts/common';
+import { AMPLIFY_CONFIG_JSON, buildDocLink } from 'ts/common';
 import { User } from 'oidc-client-ts';
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
@@ -97,15 +97,14 @@ const LayoutHeader: React.FC<LayoutHeaderProps> = ({
           items: [
             {
               id: 'support-group',
-              text: t('header.support') || '',
+              // text: t('header.support') || '',
               items: [
                 {
                   id: 'documentation',
                   text: t('header.doc') || '',
-                  href: GIHUB_REPO_LINK,
+                  href: buildDocLink(i18n.language),
                   external: true,
                 },
-                { id: 'support', text: t('header.support') || '' },
               ],
             },
             { id: 'signout', text: t('header.signout') || '' },
