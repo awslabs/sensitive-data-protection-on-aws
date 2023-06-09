@@ -261,6 +261,7 @@ const CreateIdentifierContent = () => {
               constraintText={t('identifier:identNameConstraint')}
             >
               <Input
+                disabled={oldData.id}
                 value={identifierName}
                 onChange={({ detail }) =>
                   detail.value.length <= 60 && setIdentifierName(detail.value)

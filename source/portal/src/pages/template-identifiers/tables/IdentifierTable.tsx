@@ -70,7 +70,9 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
     filteringPlaceholder: t('template:filterByNameOrDesc'),
   };
 
-  const [curSortColumn, setCurSortColumn] = useState<any>('');
+  const [curSortColumn, setCurSortColumn] = useState<any>({
+    sortingField: 'name',
+  });
   const [isDescending, setIsDescending] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
@@ -171,7 +173,7 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
       const requestParam = {
         page: currentPage,
         size: preferences.pageSize,
-        sort_column: curSortColumn.id,
+        sort_column: curSortColumn?.sortingField,
         asc: !isDescending,
         conditions: [
           {

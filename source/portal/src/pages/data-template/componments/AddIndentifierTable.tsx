@@ -37,6 +37,10 @@ const AddIdentfierTable = (props: any) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [inUseIdentifiers, setInUseIdentifiers] = useState([] as any);
+  const [curSortColumn, setCurSortColumn] = useState<any>({
+    sortingField: 'name',
+  });
+  const [isDescending, setIsDescending] = useState(false);
   const [query, setQuery] = useState({
     tokens: [],
     operation: 'and',
@@ -68,13 +72,21 @@ const AddIdentfierTable = (props: any) => {
   useDidUpdateEffect(() => {
     setCurrentPage(1);
     getPageData();
-  }, [query, searchSelectedCategory, searchSelectedLabel]);
+  }, [
+    query,
+    searchSelectedCategory,
+    searchSelectedLabel,
+    isDescending,
+    curSortColumn,
+  ]);
 
   const getPageData = async () => {
     setIsLoading(true);
     const requestParam = {
       page: currentPage,
       size: preferences.pageSize,
+      sort_column: curSortColumn?.sortingField,
+      asc: !isDescending,
       conditions: [
         {
           column: 'type',
@@ -180,6 +192,7 @@ const AddIdentfierTable = (props: any) => {
         return {
           id: item.id,
           header: t(item.label),
+          sortingField: item.sortingField,
           cell: (e: any) => {
             if (item.id === 'category') {
               return (
@@ -203,6 +216,12 @@ const AddIdentfierTable = (props: any) => {
           },
         };
       })}
+      sortingColumn={curSortColumn}
+      sortingDescending={isDescending}
+      onSortingChange={(e) => {
+        setCurSortColumn(e.detail.sortingColumn);
+        setIsDescending(e.detail.isDescending || false);
+      }}
       header={
         <>
           <Header

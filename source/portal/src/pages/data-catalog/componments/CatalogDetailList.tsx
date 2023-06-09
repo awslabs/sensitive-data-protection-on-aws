@@ -466,6 +466,13 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                 return {
                   id: item.id,
                   header: t(item.label),
+                  width:
+                    tagId === COLUMN_OBJECT_STR.Schema &&
+                    item.id === COLUMN_OBJECT_STR.Identifier
+                      ? 300
+                      : item.id === COLUMN_OBJECT_STR.Identifier
+                      ? 220
+                      : '',
                   // different column tag
                   cell: (e: any) => {
                     if (
