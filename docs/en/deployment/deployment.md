@@ -12,9 +12,11 @@ Use the following steps to deploy this solution on AWS.
 
 - Step 3. Configure the OIDC application
 
-- Step 4. Deploy the Agent stack
+- Step 4. Configure custom domain name
 
 - Step 5. Launch the solution console
+
+- Step 6. Deploy the Agent stack
 
 ## Deployment steps
 ### Step 1. Create an OIDC application
