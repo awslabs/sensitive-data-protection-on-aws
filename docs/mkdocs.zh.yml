@@ -26,10 +26,13 @@ nav:
         - 部署步骤: deployment/deployment.md
     - 用户指南: 
         - 概述: user-guide/get-started.md
-        - 连接到数据源:
+        - 连接数据源:
             - 添加AWS帐户: user-guide/data-source.md
             - 创建数据目录: user-guide/data-catalog-create.md
             - 删除数据目录: user-guide/data-catalog-delete.md
+        - 浏览数据目录: 
+            - 同步数据目录: user-guide/data-catalog-sync.md
+            - 标记数据目录: user-guide/data-catalog-labels.md
         - 定义数据分类模板: 
             - 数据分类模版: user-guide/data-classification-template.md
             - 数据标识符: user-guide/data-identifiers.md
@@ -39,13 +42,10 @@ nav:
             - 下载作业报告: user-guide/discovery-job-report.md
             - 重新运行/复制作业: user-guide/discovery-job-rerun-and-duplicate.md
             - 暂停/重启作业: user-guide/discovery-job-pause-and-cancel.md
-        - 浏览数据目录: 
-            - 同步数据目录: user-guide/data-catalog-sync.md
-            - 标记数据目录: user-guide/data-catalog-labels.md
+
     - 附录: 
         - 内置的数据标识符: user-guide/appendix-built-in-identifiers.md
-        - 支持的数据类型: user-guide/appendix-supported-data-types.md
-        - CloudFormation 堆栈的权限: user-guide/appendix-permissions.md
+        - CloudFormation堆栈的权限: user-guide/appendix-permissions.md
         - 通过AWS Organization添加帐户: user-guide/appendix-organization.md
     - 卸载解决方案: uninstall.md
     - 开发者指南:

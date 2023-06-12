@@ -2,6 +2,8 @@ To uninstall the solution, you must delete the AWS CloudFormation stack.
 
 You can use either the AWS Management Console or the AWS Command Line Interface (AWS CLI) to delete the CloudFormation stack.
 
+**Time to uninstall:** Approximately 60 minutes
+
 ## Uninstall the stack using the AWS Management Console
 
 1. Sign in to the AWS CloudFormation console.
