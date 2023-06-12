@@ -1538,10 +1538,10 @@
 <p>Set up the hosted UI with the Amazon Cognito console based on this <a href="https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-app-integration.html#cognito-user-pools-create-an-app-integration">guide</a>.</p>
 </li>
 <li>
-<p>When creating a user pool, from Step 1 to Step 4, choose the options according to your needs.</p>
+<p>When creating a user pool, from Step 1 to Step 4, choose the options according to your needs. </p>
 </li>
 <li>
-<p>In <strong>Step 5 Integrate your app</strong>, for <strong>App type</strong>, choose <strong>Public client</strong>. Choose <strong>Don't generate a client secret</strong> under <strong>Client secret</strong>.
+<p>In <strong>Step 5 Integrate your app</strong>, make sure you have selected <strong>Use the Cognito Hosted UI</strong> in the <strong>Hosted authentication pages</strong> area. For <strong>App type</strong>, choose <strong>Public client</strong>. Choose <strong>Don't generate a client secret</strong> under <strong>Client secret</strong>.
 <img alt="Cognito App type" src="../images/CognitoAppType.jpg" /></p>
 </li>
 <li>
@@ -1553,11 +1553,11 @@
 <img alt="Cognito Hosted UI" src="../images/CognitoHostedUI.jpg" /></p>
 </li>
 <li>
-<p>Save the App <strong>Client ID</strong>, <strong>User pool ID</strong> and the <strong>AWS Region</strong> to a file, which will be used later.  </p>
+<p>Save the App <strong>Client ID</strong>, <strong>User pool ID</strong> and the <strong>AWS Region</strong> to a file, which will be used later. In <strong>Step 2. Deploy Admin template</strong>, the <strong>Client ID</strong> is the App <strong>Client ID</strong>, and <strong>Issuer URL</strong> is <code>https://cognito-idp.${REGION}.amazonaws.com/${USER_POOL_ID}</code></p>
 </li>
 </ol>
-<p>In <strong>Step 2. Deploy Admin template</strong>, the <strong>Client ID</strong> is the App <strong>Client ID</strong>, and <strong>Issuer URL</strong> is <code>https://cognito-idp.${REGION}.amazonaws.com/${USER_POOL_ID}</code>
-<img alt="Cognito Client ID" src="../images/CognitoClientId.png" />
+<p>Note: The <strong>Allowed callback URLs</strong> and <strong>Allowed sign-out URLs</strong> will be configured again later in <strong>Step 3 Configure the OIDC application</strong>.</p>
+<p><img alt="Cognito Client ID" src="../images/CognitoClientId.png" />
 <img alt="Cognito User pool ID" src="../images/CognitoUserpoolId.png" /></p>
 <h4 id="option-2-authing">Option 2: Authing</h4>
 <ol>

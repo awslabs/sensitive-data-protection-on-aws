@@ -1520,7 +1520,7 @@
 <p>创建用户池时，从步骤1到步骤4，根据您的需要进行配置。</p>
 </li>
 <li>
-<p>在选择<strong>App类型</strong>时选择<strong>Public client</strong>。在选择<strong>Client secret</strong>时选择<strong>Don't generate a client secret</strong>。
+<p>请确保您在<strong>托管身份验证页面</strong>区域选择了<strong>使用 Cognito 托管 UI</strong>。在选择<strong>App类型</strong>时选择<strong>Public client</strong>。在选择<strong>Client secret</strong>时选择<strong>Don't generate a client secret</strong>。
 <img alt="Cognito App类型" src="../images/CognitoAppType.jpg" /></p>
 </li>
 <li>
@@ -1532,12 +1532,11 @@
 <img alt="Cognito 托管的UI" src="../images/CognitoHostedUI.jpg" /></p>
 </li>
 <li>
-<p>将应用的<strong>Client ID</strong>、<strong>User pool ID</strong>和<strong>AWS区域</strong>保存到一个文件中，稍后将用到。</p>
+<p>将应用的<strong>Client ID</strong>、<strong>User pool ID</strong>和<strong>AWS区域</strong>保存到一个文件中，稍后将用到。在<strong>步骤二：部署管理员堆栈（Deploy admin stack）</strong>中，<strong>Client ID</strong>即为应用的<strong>Client ID</strong>，<strong>Issuer URL</strong>为<code>https://cognito-idp.${REGION}.amazonaws.com/${USER_POOL_ID}</code></p>
 </li>
 </ol>
-<p>在<strong>步骤二：部署管理员堆栈（Deploy admin stack）</strong>中，<strong>Client ID</strong>即为应用的<strong>Client ID</strong>，<strong>Issuer URL</strong>为`https://cognito-id</p>
-<p>p.${REGION}.amazonaws.com/${USER_POOL_ID}`
-<img alt="Cognito Client ID" src="../images/CognitoClientId.png" />
+<p>注意：该页面配置的参数<strong>Allowed callback URLs</strong>和<strong>Allowed sign-out URLs</strong>将会在<strong>步骤三：配置 OIDC 应用</strong>中重新配置.</p>
+<p><img alt="Cognito Client ID" src="../images/CognitoClientId.png" />
 <img alt="Cognito User pool ID" src="../images/CognitoUserpoolId.png" /></p>
 <h4 id="2authing">选项 2：Authing</h4>
 <ol>
