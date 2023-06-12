@@ -6,6 +6,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/about-premium-edition/</loc>
+         <lastmod>2023-06-12</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/contributors/</loc>
          <lastmod>2023-06-12</lastmod>
          <changefreq>daily</changefreq>
@@ -97,11 +102,6 @@
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/appendix-permissions/</loc>
-         <lastmod>2023-06-12</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/appendix-supported-data-types/</loc>
          <lastmod>2023-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
