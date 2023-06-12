@@ -1203,6 +1203,20 @@
 
             
           
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about-premium-edition/" class="md-nav__link">
+        关于 Premium Edition（又称 Data Customs)
+      </a>
+    </li>
+  
+
+            
+          
         </ul>
       </nav>
     </li>
@@ -1272,9 +1286,9 @@
 <h2 id="iam">IAM角色</h2>
 <p>AWS身份和访问管理(IAM)角色允许客户将细粒度的访问策略和权限分配给AWS上的服务和用户。此解决方案创建授予解决方案组件之间访问权限的IAM角色。</p>
 <h2 id="amazon-cloudwatch">使用Amazon CloudWatch警报监控服务</h2>
-<p>您可以在Amazon CloudWatch的<a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html">警报仪表板</a>上设置警报，以监控并接收有关您的AWS资源的警报。通常，我们建议配置您的警报，以在指标开始过度或低于使用特定资源（如高CPU或内存使用率）时通知您。这可能表明您的服务正在遭受DoS-style攻击。此外，当您的数据存储容器（如RDS）接近100％的</p>
+<p>您可以在Amazon CloudWatch的<a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html">警报仪表板</a>上设置警报，以监控并接收有关您的AWS资源的警报。通常，我们建议配置您的警报，以在指标开始过度或低于使用特定资源（如高CPU或内存使用率）时通知您。这可能表明您的服务正在遭受DoS-style攻击。此外，当您的数据存储容器（如RDS）接近100％的容量利用时，设置警报也是必要的，因为这表明可能存在资源耗尽或枯竭式攻击。</p>
 <div class="admonition warning">
-<p class="admonition-title">Warning</p>
+<p class="admonition-title">提醒</p>
 <p>使用<a href="https://aws.amazon.com/cloudwatch/pricing/">CloudWatch alarms</a>可能会产生额外费用。</p>
 </div>
 <p>在AWS中国区域（cn-north-1和cn-northwest-1）中，您可以在警报中创建<a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/monitoring-cloudwatch.html">RDS</a>和<a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway-cloudwatch.html">NAT网关</a>的指标。</p>

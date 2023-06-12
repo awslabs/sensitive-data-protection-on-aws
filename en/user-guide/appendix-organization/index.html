@@ -73,7 +73,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#concepts" class="md-skip">
+        <a href="#steps" class="md-skip">
           Skip to content
         </a>
       
@@ -1003,14 +1003,14 @@
       
       
         <label class="md-nav__link" for="__nav_1_7" id="__nav_1_7_label" tabindex="0">
-          Appendices
+          Appendix
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_7_label" aria-expanded="true">
         <label class="md-nav__title" for="__nav_1_7">
           <span class="md-nav__icon md-icon"></span>
-          Appendices
+          Appendix
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -1078,8 +1078,8 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#concepts" class="md-nav__link">
-    Concepts
+  <a href="#steps" class="md-nav__link">
+    Steps
   </a>
   
 </li>
@@ -1157,20 +1157,6 @@
           
         </ul>
       </nav>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../troubleshooting.md" class="md-nav__link">
-        Troubleshooting
-      </a>
     </li>
   
 
@@ -1263,8 +1249,8 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#concepts" class="md-nav__link">
-    Concepts
+  <a href="#steps" class="md-nav__link">
+    Steps
   </a>
   
 </li>
@@ -1287,8 +1273,8 @@
   <h1>Add accounts via AWS Organization</h1>
 
 <p>You can use <a href="https://aws.amazon.com/organizations/">AWS Organizations</a> to manage automated deployment of monitored accounts. In AWS CloudFormation, you can configure <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/what-is-cfnstacksets.html">StackSet</a> to deploy the Agent stack in the target Organizational Unit (OU). After you have configured the deployment, the Agent stack will be automatically deployed to the specified region of the account under the OU. Finally, you need to deploy the IT stack to the Organizations management account or the corresponding CloudFormation delegated account under Organizations, then, you can add member accounts <a href="../data-source/#add-aws-accounts-via-organization">via Organizations</a>.</p>
-<h2 id="concepts">Concepts</h2>
 <p><img alt="orgs-ctrl" src="../../images/orgs-ctrl.png" /></p>
+<h2 id="steps">Steps</h2>
 <ol>
 <li>Deploy Admin CloudFormation stack in the Admin account.</li>
 <li>Register delegated administrator in StackSets in Organization’s management account. For more information, refer to <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/stacksets-orgs-delegated-admin.html">Register a delegated administrator</a>.</li>

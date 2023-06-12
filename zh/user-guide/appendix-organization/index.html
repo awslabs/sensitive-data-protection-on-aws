@@ -1081,7 +1081,7 @@
       
         <li class="md-nav__item">
   <a href="#_1" class="md-nav__link">
-    概念
+    操作步骤
   </a>
   
 </li>
@@ -1192,6 +1192,20 @@
 
             
           
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about-premium-edition/" class="md-nav__link">
+        关于 Premium Edition（又称 Data Customs)
+      </a>
+    </li>
+  
+
+            
+          
         </ul>
       </nav>
     </li>
@@ -1224,7 +1238,7 @@
       
         <li class="md-nav__item">
   <a href="#_1" class="md-nav__link">
-    概念
+    操作步骤
   </a>
   
 </li>
@@ -1250,13 +1264,13 @@
   <h1>通过AWS Organization添加帐户</h1>
 
 <p>您可以使用 <a href="https://aws.amazon.com/organizations/">AWS Organizations</a> 管理监控帐户的自动化部署。在 AWS CloudFormation 中，您可以配置 <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/what-is-cfnstacksets.html">StackSet</a> 在目标组织单元（OU）中部署 Agent 堆栈。配置部署后，Agent 堆栈将自动部署到 OU 下帐户的指定区域。最后，您需要将 IT 堆栈部署到 Organizations 管理帐户或 Organizations 下的相应 CloudFormation 委托帐户，然后，您可以通过 Organizations <a href="../data-source/#add-aws-accounts-via-organization">添加成员帐户</a>。</p>
-<h2 id="_1">概念</h2>
 <p><img alt="orgs-ctrl" src="../../images/orgs-ctrl.png" /></p>
+<h2 id="_1">操作步骤</h2>
 <ol>
-<li>在 adminaccount 中部署 Admin CloudFormation 堆栈</li>
+<li>在 Admin account 中部署 Admin CloudFormation 堆栈</li>
 <li>在组织管理帐户中的 StackSets 中注册委托管理员。<a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/stacksets-orgs-delegated-admin.html">注册委托管理员</a></li>
 <li>部署 IT CloudFormation 堆栈</li>
-<li>为 SDPS Admin API 创建角色</li>
+<li>为 Admin API 创建角色</li>
 <li>为 Agent CloudFormation 堆栈创建 StackSet</li>
 <li>部署到组织/OU</li>
 <li>通过组织<a href="../data-source/#add-aws-accounts-via-organization">添加成员帐户</a></li>
