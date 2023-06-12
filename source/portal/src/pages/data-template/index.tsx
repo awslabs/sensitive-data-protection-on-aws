@@ -39,6 +39,8 @@ import { TABLE_NAME } from 'enum/common_types';
 import { useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
+import HelpInfo from 'common/HelpInfo';
+import { buildDocLink } from 'ts/common';
 
 const DataTemplateHeader: React.FC = () => {
   const navigate = useNavigate();
@@ -422,7 +424,7 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
 };
 
 const DataTemplate: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const breadcrumbItems = [
     { text: t('breadcrumb.home'), href: RouterEnum.Home.path },
     {
@@ -434,6 +436,21 @@ const DataTemplate: React.FC = () => {
   return (
     <AppLayout
       contentHeader={<DataTemplateHeader />}
+      tools={
+        <HelpInfo
+          title={t('breadcrumb.defineTemplate')}
+          description={t('info:template.desc')}
+          linkItems={[
+            {
+              text: t('info:template.addToTemplate'),
+              href: buildDocLink(
+                i18n.language,
+                '/user-guide/data-classification-template/'
+              ),
+            },
+          ]}
+        />
+      }
       content={
         <Tabs
           className="privacy-tab"

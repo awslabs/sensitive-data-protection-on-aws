@@ -13,6 +13,8 @@ import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import Navigation from 'pages/left-menu/Navigation';
 import { useTranslation } from 'react-i18next';
 import IdentifierTable from './tables/IdentifierTable';
+import HelpInfo from 'common/HelpInfo';
+import { buildDocLink } from 'ts/common';
 
 const TemplateIdentifiersHeader: React.FC = () => {
   const navigate = useNavigate();
@@ -33,7 +35,7 @@ const TemplateIdentifiersHeader: React.FC = () => {
 };
 
 const TemplateIdentifiers: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const {
@@ -52,6 +54,28 @@ const TemplateIdentifiers: React.FC = () => {
   return (
     <AppLayout
       contentHeader={<TemplateIdentifiersHeader />}
+      tools={
+        <HelpInfo
+          title={t('breadcrumb.manageIdentifier')}
+          description={t('info:identifier.desc')}
+          linkItems={[
+            {
+              text: t('info:identifier.howToCreate'),
+              href: buildDocLink(
+                i18n.language,
+                '/user-guide/data-identifiers/'
+              ),
+            },
+            {
+              text: t('info:identifier.builtInList'),
+              href: buildDocLink(
+                i18n.language,
+                '/user-guide/appendix-built-in-identifiers/'
+              ),
+            },
+          ]}
+        />
+      }
       content={
         <Container>
           <Tabs

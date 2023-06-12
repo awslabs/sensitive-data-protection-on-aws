@@ -104,6 +104,7 @@ const DataSourceConnection: React.FC = () => {
   ];
   return (
     <AppLayout
+      toolsHide
       contentHeader={<DataSourceConnectionHeader />}
       content={<DataSourceConnectionContent />}
       headerSelector="#header"

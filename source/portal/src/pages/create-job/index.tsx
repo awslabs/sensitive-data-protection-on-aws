@@ -1417,6 +1417,7 @@ const CreateJob: React.FC = () => {
   ];
   return (
     <AppLayout
+      toolsHide
       contentHeader={<CreateJobHeader />}
       content={<CreateJobContent />}
       headerSelector="#header"

@@ -36,6 +36,8 @@ import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import Navigation from 'pages/left-menu/Navigation';
 import { TABLE_NAME } from 'enum/common_types';
 import { useTranslation } from 'react-i18next';
+import HelpInfo from 'common/HelpInfo';
+import { buildDocLink } from 'ts/common';
 
 const DataJobHeader: React.FC = () => {
   const { t } = useTranslation();
@@ -432,7 +434,7 @@ const DataJobContent: React.FC<any> = (props: any) => {
 };
 
 const DataJob: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const breadcrumbItems = [
     { text: t('breadcrumb.home'), href: RouterEnum.Home.path },
     {
@@ -444,6 +446,42 @@ const DataJob: React.FC = () => {
   return (
     <AppLayout
       contentHeader={<DataJobHeader />}
+      tools={
+        <HelpInfo
+          title={t('breadcrumb.runJobs')}
+          description={t('info:runjob.desc')}
+          linkItems={[
+            {
+              text: t('info:runjob.jobSettings'),
+              href: buildDocLink(
+                i18n.language,
+                '/user-guide/discovery-job-create/'
+              ),
+            },
+            {
+              text: t('info:runjob.howToDownload'),
+              href: buildDocLink(
+                i18n.language,
+                '/user-guide/discovery-job-report/'
+              ),
+            },
+            {
+              text: t('info:runjob.rerunJob'),
+              href: buildDocLink(
+                i18n.language,
+                '/user-guide/discovery-job-rerun-and-duplicate/'
+              ),
+            },
+            {
+              text: t('info:runjob.howToPause'),
+              href: buildDocLink(
+                i18n.language,
+                '/user-guide/discovery-job-pause-and-cancel/'
+              ),
+            },
+          ]}
+        />
+      }
       content={
         <ContentLayout>
           <DataJobContent />
