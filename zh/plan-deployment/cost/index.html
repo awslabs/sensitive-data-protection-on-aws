@@ -585,7 +585,7 @@
         
           <li class="md-nav__item">
   <a href="#1" class="md-nav__link">
-    美国东部1区域成本
+    美国东部1区域成本示例
   </a>
   
 </li>
@@ -1287,7 +1287,7 @@
         
           <li class="md-nav__item">
   <a href="#1" class="md-nav__link">
-    美国东部1区域成本
+    美国东部1区域成本示例
   </a>
   
 </li>
@@ -1361,11 +1361,11 @@
 <td>按需</td>
 </tr>
 <tr>
+<td></td>
+<td></td>
 <td>0.37 CNY每个NAT网关小时</td>
 <td>720小时</td>
 <td>266.4</td>
-<td>预留</td>
-<td></td>
 </tr>
 <tr>
 <td>Athena</td>
@@ -1506,19 +1506,9 @@
 <td></td>
 </tr>
 <tr>
-<td>S3 Bucket A: 10000 CSV文件，1000行，10列，总大小1.7GiB</td>
-<td>Glue爬网程序：1.007</td>
+<td><li>S3 Bucket A: 10000 CSV文件，1000行，10列，总大小1.7GiB</li></li>S3 Bucket B: 10000 JSON文件，1000行，10个字段，总大小2.5GiB</li><li></li>S3 Bucket C: 1000 PARQUET文件，1000行，10个字段，总大小212Mb</li></td>
+<td><li>Glue爬网程序：1.007</li><li>Glue作业：2.3161</li></td>
 <td>3.3231</td>
-</tr>
-<tr>
-<td>S3 Bucket B: 10000 JSON文件，1000行，10个字段，总大小2.5GiB</td>
-<td>Glue作业：2.3161</td>
-<td></td>
-</tr>
-<tr>
-<td>S3 Bucket C: 1000 PARQUET文件，1000行，10个字段，总大小212Mb</td>
-<td></td>
-<td></td>
 </tr>
 <tr>
 <td><strong>帐户2，扫描频率每周，扫描深度1000</strong></td>
@@ -1526,14 +1516,9 @@
 <td></td>
 </tr>
 <tr>
-<td>RDS Aurora MySQL A: 10个表，10000行，10列，实例类型：db.r5.large（8vCPUs，64GiB RAM，网络：4,750 Mbps）</td>
-<td>Glue爬网程序：2.5175</td>
+<td><li>RDS Aurora MySQL A: 10个表，10000行，10列，实例类型：db.r5.large（8vCPUs，64GiB RAM，网络：4,750 Mbps）</li><li>RDS MySQL B: 10个表，1000000行，10列，实例类型：db.m5.12xlarge（48 vCPU，192 GiB RAM，网络：9500 Mbps）</li></td>
+<td><li>Glue爬网程序：2.5175</li><li>Glue作业：2.8196</li></td>
 <td>5.3371</td>
-</tr>
-<tr>
-<td>RDS MySQL B: 10个表，1000000行，10列，实例类型：db.m5.12xlarge（48 vCPU，192 GiB RAM，网络：9500 Mbps）</td>
-<td>Glue作业：2.8196</td>
-<td></td>
 </tr>
 <tr>
 <td><strong>帐户3，扫描频率每天，扫描深度1000</strong></td>
@@ -1541,24 +1526,9 @@
 <td></td>
 </tr>
 <tr>
-<td>S3 Bucket A: 10000 CSV文件，1000行，10列，总大小1.7GiB</td>
-<td>Glue爬网程序：15.6085</td>
+<td><li>S3 Bucket A: 10000 CSV文件，1000行，10列，总大小1.7GiB</li><li>S3 Bucket B: 10000 JSON文件，1000行，10个字段，总大小2.5GiB</li><li> S3 Bucket C: 1000 PARQUET文件，1000行，10个字段，总大小212Mb</li><li>RDS Aurora MySQL A: 10个表，10000行，10列，实例类型：db.r5.large（8vCPUs，64GiB RAM，网络：4,750 Mbps）</li></td>
+<td><li>Glue爬网程序：15.6085</li><li>Glue作业：70.9935</li></td>
 <td>86.602</td>
-</tr>
-<tr>
-<td>S3 Bucket B: 10000 JSON文件，1000行，10个字段，总大小2.5GiB</td>
-<td>Glue作业：70.9935</td>
-<td></td>
-</tr>
-<tr>
-<td>S3 Bucket C: 1000 PARQUET文件，1000行，10个字段，总大小212Mb</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>RDS Aurora MySQL A: 10个表，10000行，10列，实例类型：db.r5.large（8vCPUs，64GiB RAM，网络：4,750 Mbps）</td>
-<td></td>
-<td></td>
 </tr>
 <tr>
 <td><strong>上述三个帐户不同频率的每月总费用（CNY）</strong></td>
@@ -1568,7 +1538,7 @@
 </tbody>
 </table>
 <p>我们建议使用解决方案中的<a href="http://aws.amazon.com/aws-cost-management/aws-cost-explorer/">AWS Cost Explorer</a>功能来帮助管理成本。价格可能会有所变化。有关详细信息，请参阅本解决方案中使用的每个AWS服务的定价网页。</p>
-<h3 id="1">美国东部1区域成本</h3>
+<h3 id="1">美国东部1区域成本示例</h3>
 <table>
 <thead>
 <tr>
