@@ -1371,10 +1371,3 @@ def __delete_account(account_id: str, region: str):
     except Exception:
         logger.error(traceback.format_exc())
 
-
-def get_s3_folder_list(account: str, region: str, bucket_name: str):
-    return None
-
-
-def get_rds_table_list(account: str, region: str, instance_id: str):
-    return None

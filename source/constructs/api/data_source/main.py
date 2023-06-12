@@ -135,14 +135,3 @@ def delete_account(account: schemas.SourceNewAccount):
 def get_secrets(account: str, region: str):
     return service.get_secrets(account, region)
 
-
-@router.get("/s3/folder-list", response_model=BaseResponse, description="List folders for s3")
-@inject_session
-def get_s3_folder_list(account: str, region: str, bucket_name: str):
-    return service.get_s3_folder_list(account, region, bucket_name)
-
-
-@router.get("/rds/table-list", response_model=BaseResponse, description="List tables for rds")
-@inject_session
-def get_rds_table_list(account: str, region: str, instance_id: str):
-    return service.get_rds_table_list(account, region, instance_id)
