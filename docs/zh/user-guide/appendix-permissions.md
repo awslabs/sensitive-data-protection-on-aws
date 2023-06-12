@@ -1,16 +1,16 @@
-# 附录：Agent CloudFormation 堆栈的权限
+# 附录：代理 CloudFormation 堆栈的权限
 
-解决方案遵循最小权限原则，仅创建所需权限。权限的高级概念：
+本解决方案在部署代理 CloudFormation 模板时，遵循最小权限原则为受监控帐户授予权限。代理 CloudFormation 堆栈基本上会设置 AWS 角色和策略，以授权 SDPS 在目标帐户中获取必要的权限。
 
-# Agent 堆栈
+这些权限可以简要地描述如下：
 
-Agent CloudFormation 堆栈自动设置 AWS 角色和策略以读取数据源并在目标帐户中设置必要的权限以授权 SDPS。
-
-- （数据源）Amazon S3：仅读取数据源扫描的权限。
-- （数据源）Amazon RDS：仅读取数据源扫描的权限。
-- AWS SecretsManager：只读权限。如果 RDS 数据库使用 Secrets 进行保护，我们将从 Secret Manager 中读取凭据。
-- AWS Glue：写入权限。使用 Glue 数据目录、Glue 爬虫、Glue 作业。Glue 由 Step Functions 触发。
-- AWS StepFunctions：创建资源。Step Function 用于编排 Glue 作业进行数据发现。
+- (数据源) Amazon S3：对于数据源扫描，只有读取权限。
+- (数据源) Amazon RDS：对于数据源扫描，只有读取权限。
+- AWS SecretsManager：只有读取权限。如果 RDS 数据库受 Secrets 保护，该解决方案将从 Secret Manager 读取凭据。
+- AWS Glue：具有写入权限。使用 Glue 数据目录、Glue 爬虫和 Glue 作业。Glue 由 Step Functions 触发。
+- AWS StepFunctions：创建资源。使用 Step Function 编排 Glue 作业进行数据发现。
 - AWS Lambda：创建资源。
-- Amazon CloudWatch：写入权限。Lambda 日志将存储在 Cloudwatch 中。
-注意：AWS 将提供详细 IAM 策略的文件。
+- Amazon CloudWatch：具有写入权限。Lambda 日志将存储在 CloudWatch 中。
+
+!!! Info "获取更多信息"
+    要了解所需的受监控帐户具体权限，请在 [受监控帐户模板（代理模板）](template.md) 中查找详细信息（例如策略、角色）。
