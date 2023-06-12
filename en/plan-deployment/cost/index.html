@@ -568,15 +568,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#base-cost-for-infra-in-admin-account" class="md-nav__link">
-    Base cost for Infra (in Admin account)
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#base-cost-for-infra-in-monitored-account" class="md-nav__link">
-    Base cost for Infra (in monitored account)
+  <a href="#china-ningxia-region-cost" class="md-nav__link">
+    China Ningxia Region Cost
   </a>
   
 </li>
@@ -1298,15 +1291,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#base-cost-for-infra-in-admin-account" class="md-nav__link">
-    Base cost for Infra (in Admin account)
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#base-cost-for-infra-in-monitored-account" class="md-nav__link">
-    Base cost for Infra (in monitored account)
+  <a href="#china-ningxia-region-cost" class="md-nav__link">
+    China Ningxia Region Cost
   </a>
   
 </li>
@@ -1350,7 +1336,10 @@
 <p>As of June 2023, the cost for main AWS account running this solution with the default settings in the AWS China Ningxia Region operated by NWCD (cn-northwest-1) is approximately <strong>901.82 CNY a month.</strong></p>
 <h2 id="cost-estimation">Cost estimation</h2>
 <p>Based on typical usage patterns, the following list a few scenarios to provide an estimation of monthly costs. The AWS services listed are billed on a monthly basis.</p>
-<h3 id="base-cost-for-infra-in-admin-account">Base cost for Infra (in Admin account)</h3>
+<h3 id="china-ningxia-region-cost">China Ningxia Region Cost</h3>
+<ul>
+<li>Base cost for Infra (in Admin account)</li>
+</ul>
 <table>
 <thead>
 <tr>
@@ -1476,7 +1465,9 @@
 </tr>
 </tbody>
 </table>
-<h3 id="base-cost-for-infra-in-monitored-account">Base cost for Infra (in monitored account)</h3>
+<ul>
+<li>Base cost for Infra (in monitored account)</li>
+</ul>
 <table>
 <thead>
 <tr>
@@ -1511,13 +1502,11 @@
 <td>First 5GB-mo per month of logs storage is free. CNY 0.244 per GB archived per month</td>
 <td>On Demand</td>
 </tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-</tr>
 </tbody>
 </table>
+<ul>
+<li>Cost Example</li>
+</ul>
 <p>The AWS services listed in the example cost tables below are billed on a monthly basis in a monitored account. Glue Crawler minimum cost is 0.5035 (CNY), the crawler will be launched in data source connection creation and PII detection job execution, below cost table includes both of the connection creation and job execution cost with the example data sources.</p>
 <table>
 <thead>
@@ -1565,8 +1554,10 @@
 </tr>
 </tbody>
 </table>
-<p>We recommend using the <a href="http://aws.amazon.com/aws-cost-management/aws-cost-explorer/">AWS Cost Explorer</a> feature in the solution to help manage costs. Prices are subject to change. For full details, refer to the pricing webpage for each AWS service used in this solution. </p>
 <h3 id="us-east-1-region-cost">US East-1 Region Cost</h3>
+<ul>
+<li>Base cost for Infra (in Admin account)</li>
+</ul>
 <table>
 <thead>
 <tr>
@@ -1582,116 +1573,112 @@
 <td>Amazon Relational Database Service for MySQL Community Edition</td>
 <td>USD 0.136 per db.t3.medium Multi-AZ instance hour (or partial hour) running MySQL</td>
 <td>720 Hrs</td>
-<td>576</td>
+<td>97.92</td>
 <td>Reserved</td>
 </tr>
 <tr>
 <td>Amazon Relational Database Service Provisioned Storage</td>
 <td>USD 0.23 per GB-month of provisioned gp2 storage for Multi-AZ deployments running MySQL</td>
 <td>20 GB-Mo</td>
-<td>30.616</td>
+<td>4.6</td>
 <td>On Demand</td>
 </tr>
 <tr>
 <td>Amazon Elastic Compute Cloud NatGateway</td>
 <td>USD 0.045 per GB Data Processed by NAT Gateways</td>
 <td>30 GB-Mo</td>
-<td>11.1</td>
+<td>1.35</td>
 <td>On Demand. Avg 80 url requests per day</td>
 </tr>
 <tr>
 <td></td>
 <td>USD 0.045 per NAT Gateway Hour</td>
 <td>720 Hrs</td>
-<td>266.4</td>
+<td>32.4</td>
 <td>Reserved</td>
 </tr>
 <tr>
 <td>Athena</td>
-<td>CNY34.34 per Terabytes for DataScannedInTB in China (Ningxia)</td>
+<td>5.00 USD per Terabytes for DataScannedInTB in US East (N. Virginia)</td>
 <td>0.010 Terabytes</td>
-<td>0.34</td>
+<td>0.05</td>
 <td>On Demand</td>
 </tr>
 <tr>
 <td>CloudWatch</td>
-<td>First 5GB-mo per month of logs storage is free. CNY 0.244 per GB archived per month</td>
+<td>First 5GB per month of log data ingested is free. USD 0.5 per GB archived per month</td>
 <td>0.100 GB-Mo</td>
-<td>0.244</td>
+<td>0.05</td>
 <td>On Demand</td>
 </tr>
 <tr>
-<td>EC2 Container Registry (ECR)</td>
-<td>500MB-month Free Tier, CNY 0.69 per GB-month</td>
-<td>0.003 GB-Mo</td>
-<td>0.69</td>
-<td>Reserved</td>
-</tr>
-<tr>
 <td>Elastic Load Balancing - Application</td>
-<td>0.0 CNY per Application LoadBalancer-hour (or partial hour) under monthly free tier. CNY 0.156 per Application load balancer-hour (or partial hour)</td>
+<td>$0.0 per used Application load balancer capacity unit-hour (or partial hour) under monthly free tier</td>
 <td>10 Hrs</td>
-<td>1.56</td>
+<td>0</td>
 <td>On Demand</td>
 </tr>
 <tr>
 <td></td>
-<td>0.0 CNY per used Application load balancer capacity unit-hour (or partial hour) under monthly free tier. CNY 0.072 per LCU-hour (or partial hour)</td>
+<td>$0.00 per Application LoadBalancer-hour (or partial hour) under monthly free tier</td>
 <td>0.105 LCU-Hrs</td>
 <td>0</td>
 <td>On Demand</td>
 </tr>
 <tr>
 <td>Lambda</td>
-<td>CNY 0 for first 400K GB-second usage of AWS Lambda - Total Compute - China (Ningxia), CNY 0.0000001135 Price per 1ms  (Ningxia)</td>
-<td>100,000.000 Lambda-GB-Second</td>
-<td>11.35</td>
+<td>AWS Lambda - Compute Free Tier - 400,000 GB-Seconds - US East (Northern Virginia), after free tier $0.0000166667 for every GB-second</td>
+<td>5,0000 Lambda-GB-Second</td>
+<td>0.08333</td>
 <td>On Demand</td>
 </tr>
 <tr>
 <td></td>
-<td>CNY 0 for first 1M usage of AWS Lambda - Total Requests - China (Ningxia), CNY 1.36 per million requests</td>
+<td>AWS Lambda - Ephemeral Storage - US East (N. Virginia), after free tier $0.0000000309 for every GB-second</td>
 <td>10,000 Request</td>
 <td>0</td>
 <td>On Demand</td>
 </tr>
 <tr>
 <td>Simple Queue Service</td>
-<td>First 1,000,000 Amazon SQS Requests per month are free, CNY 3.33 (per Million requests)</td>
+<td>First 1,000,000 Amazon SQS Requests per month are free, after free tier $0.40 (per Million requests)</td>
 <td>100,000 Requests</td>
-<td>3.33</td>
+<td>0.04</td>
 <td>On Demand</td>
 </tr>
 <tr>
 <td>Simple Storage Service</td>
-<td>First 2,000 PUTs free under free tier, CNY 0.00405 PUT, COPY, POST, LIST requests (per 1,000 requests)</td>
+<td>First 2,000 PUTs free under free tier, CNY $0.005 per 1,000 PUT, COPY, POST, or LIST requests</td>
 <td>2,000 Requests</td>
-<td>0.0081</td>
+<td>0.01</td>
 <td>On Demand</td>
 </tr>
 <tr>
 <td></td>
-<td>First 20,000 GETs free under free tier, CNY 0.0135 per 10,000 requests</td>
+<td>First 20,000 GETs free under free tier, $0.0004 per 10,000 requests</td>
 <td>4,000 Requests</td>
-<td>0.0054</td>
+<td>0.0002</td>
 <td>On Demand</td>
 </tr>
 <tr>
 <td></td>
-<td>First 5 GB free under free tier, CNY 0.1755 per GB</td>
-<td>0.032 GB-Mo CNY 0.00</td>
-<td>0.1755</td>
+<td>First 5 GB free under free tier, $0.023 per GB</td>
+<td>1 GB</td>
+<td>0.023</td>
 <td>On Demand</td>
 </tr>
 <tr>
 <td><strong>Total</strong></td>
 <td></td>
 <td></td>
-<td>901.819</td>
+<td>136.52653</td>
 <td></td>
 </tr>
 </tbody>
 </table>
+<ul>
+<li>Base cost for Infra (in monitored account)</li>
+</ul>
 <table>
 <thead>
 <tr>
@@ -1718,21 +1705,18 @@
 </tr>
 <tr>
 <td>Step Functions</td>
-<td>US 0.00 for first 4,000 state transitions, CNY 0.0002102 per state transition thereafter</td>
+<td>US 0.00 for first 4,000 state transitions, $0.025 per 1,000 state transitions</td>
 <td>On Demand</td>
 </tr>
 <tr>
 <td>CloudWatch</td>
-<td>First 5GB-mo per month of logs storage is free. CNY 0.244 per GB archived per month</td>
+<td>First 5GB per month of log data ingested is free. USD 0.5 per GB archived per month</td>
 <td>On Demand</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
 </tr>
 </tbody>
 </table>
+<p>The basic cost of infrastructure in a monitored account is charged on a pay-as-you-go basis. This means that you only pay for the actual resources that you use, without having to purchase or reserve any capacity in advance. Additionally, AWS provides some free usage tiers to help you understand and evaluate the usage of the service.</p>
+<p>We recommend using the <a href="http://aws.amazon.com/aws-cost-management/aws-cost-explorer/">AWS Cost Explorer</a> feature in the solution to help manage costs. Prices are subject to change. For full details, refer to the pricing webpage for each AWS service used in this solution. </p>
 
 
 
