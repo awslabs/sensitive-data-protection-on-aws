@@ -48,9 +48,9 @@ def delete_identifier(id: int):
     if ref_templates:
         ref.append(IdentifierDependency.TEMPLATE.value)
     if ref_buckets:
-        ref.append(IdentifierDependency.S3.value)
+        ref.append(f'{IdentifierDependency.S3.value}:{len(ref_buckets)}')
     if ref_rds:
-        ref.append(IdentifierDependency.RDS.value)
+        ref.append(f'{IdentifierDependency.RDS.value}:{len(ref_rds)}')
     if not ref:
         crud.delete_identifier(id)
     else:

@@ -167,9 +167,9 @@
       "lastUpdateBy": "上次更新者",
       "dataIdentifiers": "数据标识符",
       "foders": "文件夹",
-      "columns": "列名",
+      "columns": "列数",
       "folderName": "文件夹名称",
-      "items": "项目",
+      "items": "行数",
       "property": "属性",
       "value": "值",
       "s3Objects": "S3 对象",
@@ -183,7 +183,7 @@
       "comments": "注释",
       "table": "数据表",
       "engineType": "引擎类型",
-      "rows": "行",
+      "rows": "行数",
       "label": "标签",
       "jobStatus": "作业状态",
       "jobStartedAt": "作业开始于",
@@ -225,7 +225,8 @@
     "bucketProperties": "存储分区属性",
     "jobHistory": "作业历史",
     "jobProperties": "作业属性",
-    "dataCatalogs": "数据目录"
+    "dataCatalogs": "数据目录",
+    "s3Properties": "存储桶属性"
   },
   "step": {
     "step": "步骤 ",
@@ -278,7 +279,7 @@
   "selectOneItem": "请选择一项",
   "copied": "已复制到剪贴板",
   "updateSuccess": "更新成功",
-  "createSuccess": "创造成功",
+  "createSuccess": "创建成功",
   "updateFailed": "更新失败",
   "createFailed": "创建失败",
   "submitSuccess": "提交成功",
@@ -328,5 +329,6 @@
   "rdsInstance": "RDS 实例",
   "privacy": "隐私",
   "allCategory": "所有类别",
-  "allLabel": "所有标签"
+  "allLabel": "所有标签",
+  "learnMore": "了解更多"
 }

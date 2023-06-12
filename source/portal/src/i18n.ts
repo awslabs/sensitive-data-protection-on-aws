@@ -39,6 +39,7 @@ i18n
       'job',
       'template',
       'identifier',
+      'info',
     ],
     defaultNS: 'common',
     fallbackLng: 'en',

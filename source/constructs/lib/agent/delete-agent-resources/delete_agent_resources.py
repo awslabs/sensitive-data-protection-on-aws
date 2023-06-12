@@ -136,18 +136,24 @@ def cleanup_crawlers():
 
 
 def remove_database(database: str):
-    response = glue.get_database(Name=database)
-    glue.delete_database(Name=database)
+    try:
+        glue.delete_database(Name=database)
+    except Exception as e:
+        logger.error(e)
 
 
 def remove_jdbc_connection(connection: str):
-    response = glue.get_connection(Name=connection)
-    glue.delete_connection(ConnectionName=connection)
+    try:
+        glue.delete_connection(ConnectionName=connection)
+    except Exception as e:
+        logger.error(e)
 
 
 def remove_crawler(crawler: str):
-    response = glue.get_crawler(Name=crawler)
-    glue.delete_crawler(Name=crawler)
+    try:
+        glue.delete_crawler(Name=crawler)
+    except Exception as e:
+        logger.error(e)
 
 
 def clean_jobs():

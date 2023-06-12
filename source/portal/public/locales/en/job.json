@@ -28,7 +28,7 @@
     "jobSettings": "Job settings",
     "jobBasicInfo": "Job basic information",
     "name": "Name",
-    "nameDesc": "The name can be up to 60 characters long. Valid characters are a-z, A-Z, 0-9, _ / ' '",
+    "nameDesc": "The name can be up to 60 characters long. Valid characters are a-z, A-Z, 0-9, . (period), _ (underscore) and - (hyphen).",
     "jobNamePlaceholder": "Job name",
     "desc": "Description - Optional",
     "descPlaceholder": "Description",

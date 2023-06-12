@@ -363,12 +363,26 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
           // account_id region database_type database_name table_name
           query.tokens &&
             query.tokens.forEach((item: any) => {
-              requestBody.conditions.push({
-                column: 'table_name',
-                values: [`${item.value}`],
-                condition: 'and',
-                operation: ':',
-              });
+              if (item.propertyKey === 'privacy') {
+                const convertMap: any = {
+                  'Contain-PII': 1,
+                  'Non-PII': 0,
+                  'N/A': -1,
+                };
+                requestBody.conditions.push({
+                  column: 'privacy',
+                  values: [convertMap[item.value]],
+                  condition: 'and',
+                  operation: item.operator,
+                });
+              } else {
+                requestBody.conditions.push({
+                  column: 'table_name',
+                  values: [`${item.value}`],
+                  condition: 'and',
+                  operation: ':',
+                });
+              }
             });
           result = await searchTablesByDatabase(requestBody);
         }
@@ -466,6 +480,13 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                 return {
                   id: item.id,
                   header: t(item.label),
+                  width:
+                    tagId === COLUMN_OBJECT_STR.Schema &&
+                    item.id === COLUMN_OBJECT_STR.Identifier
+                      ? 300
+                      : item.id === COLUMN_OBJECT_STR.Identifier
+                      ? 220
+                      : '',
                   // different column tag
                   cell: (e: any) => {
                     if (

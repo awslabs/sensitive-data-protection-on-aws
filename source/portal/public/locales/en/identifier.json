@@ -19,5 +19,7 @@
   "identProperties": "Identifier properties",
   "evaluateSampleData": "Evaluate with sample data",
   "selectCategory": "Select a category",
-  "selectLabel": "Select a label"
+  "selectLabel": "Select a label",
+  "deleteAlert": "If the identifier already exists in the data catalog, after running the sensitive data discovery job again, the identifier will be removed from the data catalog.",
+  "keywordAlert": "Please fill in Keywords or turn off the switch button for identifying by keywords"
 }
