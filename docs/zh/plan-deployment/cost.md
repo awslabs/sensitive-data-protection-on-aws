@@ -21,7 +21,7 @@
 | Amazon Relational Database Service for MySQL Community Edition | 运行MySQL的CNY 0.8每个db.t3.medium Multi-AZ实例小时（或部分小时） | 720小时      | 576                    | 预留         |
 | Amazon Relational Database Service Provisioned Storage        | 用于运行MySQL的Multi-AZ部署的CNY 1.5308每GB-month的预 provisioned gp2存储 | 20 GB-Mo     | 30.616                 | 按需         |
 | Amazon Elastic Compute Cloud NatGateway                       | NAT网关处理的CNY 0.37每GB数据                              | 30 GB-Mo     | 11.1                   | 按需 |
-| 0.37 CNY每个NAT网关小时                                     | 720小时      | 266.4                  | 预留         |
+||| 0.37 CNY每个NAT网关小时                                     | 720小时      | 266.4                  | 预留         |
 | Athena                                                       | 在中国（宁夏）每TB的DataScannedInTB为CNY 34.34             | 0.010 TB      | 0.34                   | 按需         |
 | CloudWatch                                                   | 每月前5GB日志存储免费。每月归档的CNY 0.244每GB                | 0.100 GB-Mo  | 0.244                  | 按需         |
 | EC2 Container Registry (ECR)                                 | 500MB每月免费，CNY 0.69每GB-month                          | 0.003 GB-Mo  | 0.69                   | 预留         |
@@ -50,23 +50,17 @@
 | **场景**                                                   | **服务运行成本（CNY）** | **每月费用（CNY）** |
 | ---------------------------------------------------------- | ------------------------ | ------------------- |
 | **帐户1，扫描频率每月，扫描深度1000**                    |                          |                     |
-| S3 Bucket A: 10000 CSV文件，1000行，10列，总大小1.7GiB      | Glue爬网程序：1.007      | 3.3231              |
-| S3 Bucket B: 10000 JSON文件，1000行，10个字段，总大小2.5GiB | Glue作业：2.3161        |                     |
-| S3 Bucket C: 1000 PARQUET文件，1000行，10个字段，总大小212Mb |                          |                     |
+|<li>S3 Bucket A: 10000 CSV文件，1000行，10列，总大小1.7GiB</li></li>S3 Bucket B: 10000 JSON文件，1000行，10个字段，总大小2.5GiB</li><li></li>S3 Bucket C: 1000 PARQUET文件，1000行，10个字段，总大小212Mb</li>| <li>Glue爬网程序：1.007</li><li>Glue作业：2.3161</li>      | 3.3231              |
 | **帐户2，扫描频率每周，扫描深度1000**                    |                          |                     |
-| RDS Aurora MySQL A: 10个表，10000行，10列，实例类型：db.r5.large（8vCPUs，64GiB RAM，网络：4,750 Mbps） | Glue爬网程序：2.5175     | 5.3371              |
-| RDS MySQL B: 10个表，1000000行，10列，实例类型：db.m5.12xlarge（48 vCPU，192 GiB RAM，网络：9500 Mbps） | Glue作业：2.8196        |                     |
+| <li>RDS Aurora MySQL A: 10个表，10000行，10列，实例类型：db.r5.large（8vCPUs，64GiB RAM，网络：4,750 Mbps）</li><li>RDS MySQL B: 10个表，1000000行，10列，实例类型：db.m5.12xlarge（48 vCPU，192 GiB RAM，网络：9500 Mbps）</li> | <li>Glue爬网程序：2.5175</li><li>Glue作业：2.8196</li>     | 5.3371              |
 | **帐户3，扫描频率每天，扫描深度1000**                    |                          |                     |
-| S3 Bucket A: 10000 CSV文件，1000行，10列，总大小1.7GiB      | Glue爬网程序：15.6085    | 86.602              |
-| S3 Bucket B: 10000 JSON文件，1000行，10个字段，总大小2.5GiB | Glue作业：70.9935       |                     |
-| S3 Bucket C: 1000 PARQUET文件，1000行，10个字段，总大小212Mb |                          |                     |
-| RDS Aurora MySQL A: 10个表，10000行，10列，实例类型：db.r5.large（8vCPUs，64GiB RAM，网络：4,750 Mbps） |                          |                     |
+| <li>S3 Bucket A: 10000 CSV文件，1000行，10列，总大小1.7GiB</li><li>S3 Bucket B: 10000 JSON文件，1000行，10个字段，总大小2.5GiB</li><li> S3 Bucket C: 1000 PARQUET文件，1000行，10个字段，总大小212Mb</li><li>RDS Aurora MySQL A: 10个表，10000行，10列，实例类型：db.r5.large（8vCPUs，64GiB RAM，网络：4,750 Mbps）</li>      | <li>Glue爬网程序：15.6085</li><li>Glue作业：70.9935</li>    | 86.602              |
 | **上述三个帐户不同频率的每月总费用（CNY）**              |                          | 95.2622             |
 
 我们建议使用解决方案中的[AWS Cost Explorer](http://aws.amazon.com/aws-cost-management/aws-cost-explorer/)功能来帮助管理成本。价格可能会有所变化。有关详细信息，请参阅本解决方案中使用的每个AWS服务的定价网页。
 
 
-### 美国东部1区域成本
+### 美国东部1区域成本示例
 
 | **服务**                                 | **使用类型**                                             | **使用数量** | **每月费用（美元）** |     |
 | ---------------------------------------- | -------------------------------------------------------- | ------------ | ------------------ | --- |
