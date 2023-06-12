@@ -7,9 +7,9 @@ AWS身份和访问管理(IAM)角色允许客户将细粒度的访问策略和权
 
 ## 使用Amazon CloudWatch警报监控服务
 
-您可以在Amazon CloudWatch的[警报仪表板](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html)上设置警报，以监控并接收有关您的AWS资源的警报。通常，我们建议配置您的警报，以在指标开始过度或低于使用特定资源（如高CPU或内存使用率）时通知您。这可能表明您的服务正在遭受DoS-style攻击。此外，当您的数据存储容器（如RDS）接近100％的
+您可以在Amazon CloudWatch的[警报仪表板](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html)上设置警报，以监控并接收有关您的AWS资源的警报。通常，我们建议配置您的警报，以在指标开始过度或低于使用特定资源（如高CPU或内存使用率）时通知您。这可能表明您的服务正在遭受DoS-style攻击。此外，当您的数据存储容器（如RDS）接近100％的容量利用时，设置警报也是必要的，因为这表明可能存在资源耗尽或枯竭式攻击。
 
-!!! Warning "Warning"
+!!! Warning "提醒"
     
     使用[CloudWatch alarms](https://aws.amazon.com/cloudwatch/pricing/)可能会产生额外费用。
 

@@ -6,15 +6,13 @@ You will be responsible for the cost of the AWS services used when running the s
 
 For example, running a discovery job on a large dataset with a fully scanned range will result in higher costs than running the job on smaller datasets with increased scan range and limited scan depth that are run on demand.
 
-As of June 2023, the cost for main AWS account running this solution with the default settings in the AWS China Ningxia Region operated by NWCD (cn-northwest-1) is approximately **901.82 CNY a month.**
-
-
 ## Cost estimation
 
 Based on typical usage patterns, the following list a few scenarios to provide an estimation of monthly costs. The AWS services listed are billed on a monthly basis.
 
+### Example 1
 
-### China Ningxia Region Cost
+As of June 2023, the cost for main AWS account running this solution with the default settings in the AWS China Ningxia Region operated by NWCD (cn-northwest-1) is approximately **901.82 CNY a month.**
 
 - Base cost for Infra (in Admin account)
 
@@ -62,7 +60,9 @@ The AWS services listed in the example cost tables below are billed on a monthly
 |Total monthly cost in the above three accounts with different frequency (CNY)	|	|95.2622	|
 
 
-### US East-1 Region Cost
+### Example 2
+
+As of June 2023, the cost for main AWS account running this solution with the default settings in the AWS US East (N. Virginia) Region (us-east-1) is approximately **136.53 USD a month.**
 
 - Base cost for Infra (in Admin account)
 
@@ -82,7 +82,7 @@ The AWS services listed in the example cost tables below are billed on a monthly
 |Simple Storage Service	|First 2,000 PUTs free under free tier, CNY $0.005 per 1,000 PUT, COPY, POST, or LIST requests	|2,000 Requests	|0.01	|On Demand	|
 ||First 20,000 GETs free under free tier, $0.0004 per 10,000 requests	|4,000 Requests	|0.0002	|On Demand	|
 ||First 5 GB free under free tier, $0.023 per GB	|1 GB	|0.023	|On Demand	|
-|**Total**	|	|	|136.52653	|	|
+|**Total**	|	|	|136.53	|	|
 
 
 - Base cost for Infra (in monitored account)

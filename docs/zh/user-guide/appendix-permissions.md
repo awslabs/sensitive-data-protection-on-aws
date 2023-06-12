@@ -1,6 +1,6 @@
 # 附录：代理 CloudFormation 堆栈的权限
 
-本解决方案在部署代理 CloudFormation 模板时，遵循最小权限原则为受监控帐户授予权限。代理 CloudFormation 堆栈基本上会设置 AWS 角色和策略，以授权 SDPS 在目标帐户中获取必要的权限。
+本解决方案在部署代理 CloudFormation 模板时，遵循最小权限原则为受监控帐户授予权限。代理 CloudFormation 堆栈基本上会设置 AWS 角色和策略，以授权 SDP 在目标帐户中获取必要的权限。
 
 这些权限可以简要地描述如下：
 

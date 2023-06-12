@@ -6,11 +6,13 @@
 
 按照以下步骤在AWS上部署此解决方案。
 
-- 步骤一：创建OIDC应用程序。
-- 步骤二：将AWS CloudFormation的**Admin**模板部署到您的AWS管理员账户。
-- 步骤三：配置OIDC应用程序。
-- 步骤四：将AWS CloudFormation的**Agent**模板部署到需要检测的AWS账户。
+- 步骤一：创建OIDC应用程序
+- 步骤二：将AWS CloudFormation的**Admin**模板部署到您的AWS管理员账户
+- 步骤三：配置OIDC应用程序
+- 步骤四：配置自定义域名
 - 步骤五：访问控制台
+- 步骤六：将AWS CloudFormation的**Agent**模板部署到需要检测的AWS账户
+
 
 ## 部署步骤
 
@@ -26,6 +28,7 @@
 
 #### 选项 1：Cognito
 您可以在支持的AWS区域中利用[Cognito用户池](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-identity-pools.html)作为OIDC提供者。
+
 1. 访问[Amazon Cognito控制台](https://us-east-1.console.aws.amazon.com/cognito/v2/idp/user-pools/create?region=us-east-1)。
 
 2. 根据此[指南](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-app-integration.html#cognito-user-pools-create-an-app-integration)，使用Amazon Cognito控制台设置托管的UI。
@@ -84,7 +87,7 @@ Issuer URL可以在您的个人资料中找到。完整的Issuer URL为“https:
 ![OKTA Issuer URL](images/OktaIssuerUrl.jpg)
 
 
-### 部署管理员堆栈（Deploy admin stack）
+### 步骤二：部署管理员堆栈（Deploy admin stack）
 
 1. 登录到AWS管理控制台，并使用以下按钮启动 AWS CloudFormation 模板。
 
@@ -95,13 +98,13 @@ Issuer URL可以在您的个人资料中找到。完整的Issuer URL为“https:
     | 在新VPC（AWS 中国区域）中启动解决方案                 | [![Launch Stack](../../images/launch-stack.png)](https://cn-north-1.console.amazonaws.cn/cloudformation/home#/stacks/create/template?stackName=SDPS-Admin&templateURL=https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/Admin.template.json){target=_blank}                                 |
     | 在现有VPC（AWS 中国区域）中启动解决方案           | [![Launch Stack](../../images/launch-stack.png)](https://cn-north-1.console.amazonaws.cn/cloudformation/home#/stacks/create/template?stackName=SDPS-Admin&templateURL=https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/AdminExistVpc.template.json){target=_blank} |
 
-    !!! Important "重要提示"
+!!! Important "重要提示"
 
-        使用现有VPC必须满足以下条件：
-            
-        - 至少有两个公有子网和两个私有子网。
-        - 该VPC必须有NAT gateway。 
-        - 两个私有子网都有到NAT gateway的路由。
+    使用现有VPC必须满足以下条件：
+                    
+    - 至少有两个公有子网和两个私有子网。
+    - 该VPC必须有NAT gateway。 
+    - 两个私有子网都有到NAT gateway的路由。
 
 2. 要在不同的AWS区域中启动此解决方案，请使用控制台导航栏中的区域选择器。
 3. 在**Create stack**页面上，验证**Amazon S3 URL**文本框中显示的正确模板URL，并选择**Next**。
@@ -126,7 +129,7 @@ Issuer URL可以在您的个人资料中找到。完整的Issuer URL为“https:
 10. 在“输出”选项卡中，您将看到门户网站的URL和SigninRedirectUri。
 ![Cloudformation Output](images/CloudformationOutput.png)
 
-### 配置OIDC应用程序（Configure OIDC application）
+### 步骤三：配置OIDC应用程序（Configure OIDC application）
 
 将SigninRedirectUriHTTP(S)的值复制并配置到您的OIDC应用程序中。
 #### 选项 1：Cognito
@@ -145,7 +148,7 @@ Issuer URL可以在您的个人资料中找到。完整的Issuer URL为“https:
 ![Authing Callback URL](images/OktaCallbackURL.png)
 
 
-### 配置自定义域名（Configure custom domain name）
+### 步骤四：配置自定义域名（Configure custom domain name）
 
 如果在创建堆栈时填写了自定义域名，请将自定义域名的CName设置为CloudFormation输出选项卡中的LoadBalancerDnsNameHTTP(S)值。
 
@@ -157,7 +160,7 @@ Issuer URL可以在您的个人资料中找到。完整的Issuer URL为“https:
 1. 从**Outputs**选项卡中获取**PortalUrlHTTP(S)**的值。
 2. 在浏览器中输入该值，启动解决方案的控制台。
 
-### 部署Agent堆栈（Deploy agent stack）
+### 步骤六：部署Agent堆栈（Deploy agent stack）
 
 您可以选择一个或多个账户部署Agent堆栈，从而检测敏感数据。
 
