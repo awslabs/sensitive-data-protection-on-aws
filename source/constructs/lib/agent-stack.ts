@@ -352,6 +352,7 @@ export class AgentStack extends Stack {
           's3:ListBucket',
           's3:GetObject',
           's3:PutObject',
+          's3:DeleteObject',
           'glue:CreateTable',
           'glue:UpdateTable',
           'glue:GetDatabase',

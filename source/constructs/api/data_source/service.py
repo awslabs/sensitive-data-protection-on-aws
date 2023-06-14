@@ -1138,6 +1138,7 @@ def __update_access_policy_for_account():
             "Action": [
                 "s3:GetObject",
                 "s3:PutObject",
+                "s3:DeleteObject"
             ],
             "Resource": f"arn:{partition}:s3:::{bucket_name}/glue-database/*"
         }
