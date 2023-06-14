@@ -945,4 +945,6 @@ def get_s3_folder_sample_data(account_id: str, region: str, bucket_name: str, re
 
 
 def get_database_sample_data(account_id: str, region: str, database_name: str, table_name: str, refresh: bool):
+    from .sample_service import init_rds_sample_job
+    init_rds_sample_job(account_id, region, database_name, table_name, refresh)
     return None

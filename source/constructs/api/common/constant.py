@@ -55,3 +55,4 @@ const.MSCK_REPAIR_DATE = 'MsckRepairDate'
 const.MSCK_REPAIR_START_TIME = 'MsckRepairStartTime'
 const.MANUAL = 'manual'
 const.SYSTEM = 'system'
+const.SAMPLE_LIMIT = 1000

@@ -115,6 +115,7 @@ export class ApiStack extends Construct {
         ControllerFunctionName: controllerFunctionName,
         OidcIssuer: props.oidcIssuer,
         OidcClientId: props.oidcClientId,
+        mode: 'dev',
       },
       role: this.apiRole,
       layers: [this.apiLayer],

@@ -187,11 +187,11 @@ def start_job(job_id: int):
         __start_run(job_id, run_id)
 
 
-def start_sample_job(job_id: int):
+def start_sample_job(job_id: int, table_name: str):
     run_id = crud.init_run(job_id)
     logger.info(run_id)
     if run_id >= 0:
-        __start_sample_run(job_id, run_id)
+        __start_sample_run(job_id, run_id, table_name)
 
 
 def __start_run(job_id: int, run_id: int):
@@ -272,7 +272,7 @@ def __start_run(job_id: int, run_id: int):
     crud.save_run_databases(run_databases)
 
 
-def __start_sample_run(job_id: int, run_id: int):
+def __start_sample_run(job_id: int, run_id: int, table_name: str):
     job = crud.get_job(job_id)
     run = crud.get_run(run_id)
     run_databases = run.databases
@@ -283,27 +283,22 @@ def __start_sample_run(job_id: int, run_id: int):
             base_time = str(datetime.datetime.min)
             if job.range == 1 and run_database.base_time is not None:
                 base_time = mytime.format_time(run_database.base_time)
-            crawler_name = run_database.database_type + "-" + run_database.database_name + "-crawler"
             job_name = f"{const.SOLUTION_NAME}-Sample-Job-S3"
             if run_database.database_type == DatabaseType.RDS.value:
                 job_name = f"{const.SOLUTION_NAME}-Sample-Job-RDS-" + run_database.database_name
             execution_input = {
                 "--JobName": job_name,
-                # "CrawlerName": crawler_name,
-                # "JobId": str(job.id),
-                # "RunId": str(run_id),
-                # "RunDatabaseId": str(run_database.id),
+                "--JobId": str(job.id),
+                "--RunId": str(run_id),
+                "--Limit": str(const.SAMPLE_LIMIT),
                 "--AccountId": run_database.account_id,
                 "--Region": run_database.region,
                 "--DatabaseType": run_database.database_type,
                 "--DatabaseName": run_database.database_name,
-                # "TemplateId": str(job.template_id),
-                # "TemplateSnapshotNo": str(run.template_snapshot_no),
+                "--TableName": table_name,
                 "--Depth": str(job.depth),
                 "--BaseTime": base_time,
-                # "OverWrite": str(job.overwrite),
-                # "AdminAccountId": admin_account_id,
-                # "BucketName": project_bucket_name,
+                "--BucketName": project_bucket_name,
             }
             run_database.start_time = mytime.get_time()
             __create_job(run_database.database_type, run_database.account_id, run_database.region, run_database.database_name, job_name, True)

@@ -26,6 +26,29 @@ def init_s3_sample_job(account_id: str, region: str, bucket_name: str, resource_
     logger.info(job)
     discovery_job = create_job(job)
     logger.info(discovery_job.id)
-    response = start_sample_job(discovery_job.id)
+    response = start_sample_job(discovery_job.id, resource_name)
+    logger.info(response)
+
+
+def init_rds_sample_job(account_id: str, region: str, instance_id: str, table_name: str, refresh: bool):
+    # 创建输入对象
+    job = schemas.DiscoveryJobCreate(
+        name='rds_' + instance_id + '_' + table_name + '_job',
+        description='get sample data',
+        range=0,
+        schedule=const.ON_DEMAND,
+        databases=[
+            schemas.DiscoveryJobDatabaseCreate(
+                account_id=account_id,
+                region=region,
+                database_type='rds',
+                database_name=instance_id
+            )
+        ]
+    )
+    logger.info(job)
+    discovery_job = create_job(job)
+    logger.info(discovery_job.id)
+    response = start_sample_job(discovery_job.id, table_name)
     logger.info(response)
 
