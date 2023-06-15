@@ -6,6 +6,7 @@ from discovery_job import schemas
 from common.constant import const
 from common.enum import DatabaseType
 import logging
+
 logger = logging.getLogger(const.LOGGER_API)
 caller_identity = boto3.client('sts').get_caller_identity()
 partition = caller_identity['Arn'].split(':')[1]
@@ -29,6 +30,7 @@ def get_sample_file_uri(database_type: str, database_name: str, table_name: str)
     file_folder_path = f"glue-database/{result_table}/{full_database_name}/{table_name}/"
     bucket_name = os.getenv(const.PROJECT_BUCKET_NAME, const.PROJECT_BUCKET_DEFAULT_NAME)
     file_uri = ''
+    creation_time = ''
     s3 = boto3.client('s3')
     response = s3.list_objects_v2(Bucket=bucket_name,
                                   Prefix=file_folder_path)
@@ -42,13 +44,17 @@ def get_sample_file_uri(database_type: str, database_name: str, table_name: str)
             key = file_folder_path + file_path
             logging.info(key)
             file_uri = key
+            logger.info(file_uri)
             break
     if file_uri:
-        return gen_s3_temp_uri(bucket_name, file_uri)
-    return file_uri
+        response = s3.head_object(Bucket=bucket_name, Key=file_uri)
+        creation_time = response['LastModified']
+        logger.info(creation_time)
+        return gen_s3_temp_uri(bucket_name, file_uri),creation_time
+    return file_uri, creation_time
 
 
-def get_glue_job_run(account_id, region, job_name):
+def get_glue_job_run_status(account_id, region, job_name):
     client_sts = boto3.client('sts')
     assumed_role_object = client_sts.assume_role(
         RoleArn=f'arn:{partition}:iam::{account_id}:role/{const.SOLUTION_NAME}RoleForAdmin-{region}',
@@ -74,72 +80,73 @@ def get_glue_job_run(account_id, region, job_name):
     return status
 
 
-def init_s3_sample_job(account_id: str, region: str, bucket_name: str, resource_name: str, refresh: bool):
-    result_list = []
-    if refresh:
-        job_name = f'{DatabaseType.S3.value}_{bucket_name}_{resource_name}_job'
-        job = schemas.DiscoveryJobCreate(
-            name=job_name,
-            description='get s3 sample data',
-            range=0,
-            schedule=const.ON_DEMAND,
-            databases=[
-                schemas.DiscoveryJobDatabaseCreate(
-                    account_id=account_id,
-                    region=region,
-                    database_type=DatabaseType.S3.value,
-                    database_name=bucket_name
-                )
-            ]
-        )
-        # start glue job
-        logger.info(job)
-        discovery_job = create_job(job)
-        logger.info(discovery_job.id)
-        response = start_sample_job(discovery_job.id, resource_name)
-        logger.info(response)
-        # get glue result
-        file_uri = ''
-        job_name = f"{const.SOLUTION_NAME}-Sample-Job-S3"
-        status = get_glue_job_run(account_id, region, job_name)
-        while status != 'SUCCEEDED' or status != 'FAILED':
-            status = get_glue_job_run(account_id, region, job_name)
-            if status == 'SUCCEEDED':
-                file_uri = get_sample_file_uri(DatabaseType.S3.value, bucket_name, resource_name)
-                while file_uri == '' or file_uri is None:
-                    file_uri = get_sample_file_uri(DatabaseType.S3.value, bucket_name, resource_name)
-                logger.info(file_uri)
-                break
-            elif status == 'FAILED':
-                logger.info(f"sample glue job failed {str(response)}")
-                break
-
-
-def init_rds_sample_job(account_id: str, region: str, instance_id: str, table_name: str, refresh: bool):
-    job_name = f'{DatabaseType.RDS.value}_{instance_id}_{table_name}_job'
+def create_sample_job(account_id: str, database_name: str,
+                      database_type: str, region: str, table_name: str):
+    job_name = f'{database_type}_{database_name}_{table_name}_job'
     job = schemas.DiscoveryJobCreate(
         name=job_name,
-        description='get rds sample data',
+        description=f'get {database_type} sample data',
         range=0,
         schedule=const.ON_DEMAND,
         databases=[
             schemas.DiscoveryJobDatabaseCreate(
                 account_id=account_id,
                 region=region,
-                database_type=DatabaseType.RDS.value,
-                database_name=instance_id
+                database_type=database_type,
+                database_name=database_name
             )
         ]
     )
+    # start glue job
     logger.info(job)
     discovery_job = create_job(job)
     logger.info(discovery_job.id)
     response = start_sample_job(discovery_job.id, table_name)
     logger.info(response)
+    return response
+
+
+def build_sample_data_response(state: str, creation_date: str, pre_uri: str):
+    result = {
+                "status": state,
+                "creation_date": creation_date,
+                "url": pre_uri
+    }
+    return result
+
+
+def init_s3_sample_job(account_id: str, region: str, bucket_name: str, resource_name: str, refresh: bool):
+    job_name = f"{const.SOLUTION_NAME}-Sample-Job-S3"
+    status = get_glue_job_run_status(account_id, region, job_name)
+    if status is None or refresh:
+        response = create_sample_job(account_id, bucket_name, DatabaseType.S3.value, region, resource_name)
+        logger.info(f" start to init sample job: {bucket_name},{resource_name},{response}")
+        status = get_glue_job_run_status(account_id, region, job_name)
+        logger.info(status)
+        if status == 'SUCCEEDED':
+            file_uri, creation_time = get_sample_file_uri(DatabaseType.S3.value, bucket_name, resource_name)
+            return build_sample_data_response(status, file_uri, creation_time)
+        else:
+            return build_sample_data_response(status, '', '')
+    else:
+        file_uri, creation_time = get_sample_file_uri(DatabaseType.S3.value, bucket_name, resource_name)
+        return build_sample_data_response(status, file_uri, creation_time)
+
+
+def init_rds_sample_job(account_id: str, region: str, instance_id: str, table_name: str, refresh: bool):
     job_name = f"{const.SOLUTION_NAME}-Sample-Job-RDS-" + instance_id
-    response = get_glue_job_run(account_id, region, job_name)
-    logger.info(response)
-    status = response['JobRuns'][0]['JobRunState']
-    if status == 'SUCCEEDED':
-        return 1
-    file_uri = get_sample_file_uri(DatabaseType.RDS.value, instance_id, table_name)
+    status = get_glue_job_run_status(account_id, region, job_name)
+    if status is None or refresh:
+        response = create_sample_job(account_id, instance_id, DatabaseType.RDS.value, region, table_name)
+        logger.info(f" start to init sample job: {instance_id},{table_name},{response}")
+        status = get_glue_job_run_status(account_id, region, job_name)
+        logger.info(status)
+        if status == 'SUCCEEDED':
+            file_uri, creation_time = get_sample_file_uri(DatabaseType.S3.value, instance_id, table_name)
+            return build_sample_data_response(status, file_uri, creation_time)
+        else:
+            return build_sample_data_response(status, '', '')
+    else:
+        file_uri, creation_time = get_sample_file_uri(DatabaseType.S3.value, instance_id, table_name)
+        return build_sample_data_response(status, file_uri, creation_time)
+
