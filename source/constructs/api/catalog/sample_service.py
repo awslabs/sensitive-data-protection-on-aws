@@ -11,6 +11,18 @@ caller_identity = boto3.client('sts').get_caller_identity()
 partition = caller_identity['Arn'].split(':')[1]
 
 
+def gen_s3_temp_uri(bucket_name: str, key: str):
+    s3_client = boto3.client('s3')
+    method_parameters = {'Bucket': bucket_name, 'Key': key}
+    pre_url = s3_client.generate_presigned_url(
+        ClientMethod="get_object",
+        Params=method_parameters,
+        ExpiresIn=600
+    )
+    logger.info(pre_url)
+    return pre_url
+
+
 def get_sample_file_uri(database_type: str, database_name: str, table_name: str):
     result_table = const.JOB_RESULT_TABLE_NAME
     full_database_name = f"{database_type}-{database_name}-database"
@@ -31,6 +43,8 @@ def get_sample_file_uri(database_type: str, database_name: str, table_name: str)
             logging.info(key)
             file_uri = key
             break
+    if file_uri:
+        return gen_s3_temp_uri(bucket_name, file_uri)
     return file_uri
 
 
@@ -48,50 +62,71 @@ def get_glue_job_run(account_id, region, job_name):
                                region_name=region,
                                )
     response = client_glue.get_job_runs(JobName=job_name, MaxResults=1)
-    return response
+    logger.info(response)
+    # 检查作业运行记录是否存在
+    status = None
+    if 'JobRuns' in response and len(response['JobRuns']) > 0:
+        # 获取第一个作业运行记录的执行状态
+        status = response['JobRuns'][0]['JobRunState']
+        logger.info(f"Job status: {status}")
+    else:
+        logger.info("No job runs found.")
+    return status
 
 
 def init_s3_sample_job(account_id: str, region: str, bucket_name: str, resource_name: str, refresh: bool):
+    result_list = []
     if refresh:
+        job_name = f'{DatabaseType.S3.value}_{bucket_name}_{resource_name}_job'
         job = schemas.DiscoveryJobCreate(
-            name='s3_' + bucket_name + '_' + resource_name + '_job',
-            description='get sample data',
+            name=job_name,
+            description='get s3 sample data',
             range=0,
             schedule=const.ON_DEMAND,
             databases=[
                 schemas.DiscoveryJobDatabaseCreate(
                     account_id=account_id,
                     region=region,
-                    database_type='s3',
+                    database_type=DatabaseType.S3.value,
                     database_name=bucket_name
                 )
             ]
         )
+        # start glue job
         logger.info(job)
         discovery_job = create_job(job)
         logger.info(discovery_job.id)
         response = start_sample_job(discovery_job.id, resource_name)
         logger.info(response)
+        # get glue result
+        file_uri = ''
         job_name = f"{const.SOLUTION_NAME}-Sample-Job-S3"
-        response = get_glue_job_run(account_id, region, job_name)
-        logger.info(response)
-        status = response['JobRuns'][0]['JobRunState']
-        if status == 'SUCCEEDED':
-            return 1
-    file_uri = get_sample_file_uri(DatabaseType.S3.value, bucket_name, resource_name)
+        status = get_glue_job_run(account_id, region, job_name)
+        while status != 'SUCCEEDED' or status != 'FAILED':
+            status = get_glue_job_run(account_id, region, job_name)
+            if status == 'SUCCEEDED':
+                file_uri = get_sample_file_uri(DatabaseType.S3.value, bucket_name, resource_name)
+                while file_uri == '' or file_uri is None:
+                    file_uri = get_sample_file_uri(DatabaseType.S3.value, bucket_name, resource_name)
+                logger.info(file_uri)
+                break
+            elif status == 'FAILED':
+                logger.info(f"sample glue job failed {str(response)}")
+                break
 
 
 def init_rds_sample_job(account_id: str, region: str, instance_id: str, table_name: str, refresh: bool):
+    job_name = f'{DatabaseType.RDS.value}_{instance_id}_{table_name}_job'
     job = schemas.DiscoveryJobCreate(
-        name='rds_' + instance_id + '_' + table_name + '_job',
-        description='get sample data',
+        name=job_name,
+        description='get rds sample data',
         range=0,
         schedule=const.ON_DEMAND,
         databases=[
             schemas.DiscoveryJobDatabaseCreate(
                 account_id=account_id,
                 region=region,
-                database_type='rds',
+                database_type=DatabaseType.RDS.value,
                 database_name=instance_id
             )
         ]

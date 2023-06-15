@@ -62,8 +62,30 @@ if __name__ == "__main__":
         limit_count = args["Limit"]
     table_name = args['TableName']
     num_crawler_tables = len(crawler_tables)
+    if num_crawler_tables < 0:
+        logging.info("sample job error because of none catalog")
+        raise Exception("sample job error because of none catalog")
+
+    s3 = boto3.client('s3')
+    file_folder_path = f"glue-database/{result_table}/{full_database_name}/{table_name}/"
+    # 获取文件夹中的所有对象
+    response = s3.list_objects_v2(Bucket=args['BucketName'],
+                                  Prefix=file_folder_path)
+    logging.info(response)
+    if 'Contents' in response and response['Contents']:
+        # 提取文件路径
+        file_paths = [obj['Key'] for obj in response['Contents']]
+        logging.info(file_paths)
+        # 打印文件路径
+        for file_path in file_paths:
+            key = file_folder_path + file_path
+            logging.info(key)
+            response = s3.delete_object(Bucket=args['BucketName'],
+                                        Key=key)
+            logging.info(response)
+
     for table_index, table in enumerate(crawler_tables):
-        if table['Name'] != table_name and table_name is not None:
+        if table_name is not None and table['Name'] != table_name:
             continue
         try:
             raw_df = glueContext.create_data_frame_from_catalog(
@@ -93,26 +115,10 @@ if __name__ == "__main__":
             logging.info(f'Error occured detecting table {table}')
             logging.info(e)
         if output:
-            s3 = boto3.client('s3')
-            """ :type : pyboto3.s3 """
-            file_folder_path = f"glue-database/{result_table}/{full_database_name}/{table_name}/"
-            # 获取文件夹中的所有对象
-            response = s3.list_objects_v2(Bucket=args['BucketName'],
-                                          Prefix=file_folder_path)
-            logging.info(response)
-            if 'Contents' in response and response['Contents']:
-                # 提取文件路径
-                file_paths = [obj['Key'] for obj in response['Contents']]
-                logging.info(file_paths)
-                # 打印文件路径
-                for file_path in file_paths:
-                    key = file_folder_path + file_path
-                    logging.info(key)
-                    response = s3.delete_object(Bucket=args['BucketName'],
-                                                Key=key)
-                    logging.info(response)
-
             df = reduce(DataFrame.unionAll, output)
-            output_file_path = f"{output_path}{full_database_name}/{table_name}/"
-            df.write.csv(output_file_path, header=True, mode="overwrite")
+            if table_name:
+                output_file_path = f"{output_path}{full_database_name}/{table_name}/"
+            else:
+                output_file_path = f"{output_path}{full_database_name}/"
+            df.write.csv(output_file_path, header=True, mode="append")
     job.commit()
