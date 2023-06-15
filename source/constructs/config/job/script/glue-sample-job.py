@@ -115,7 +115,4 @@ if __name__ == "__main__":
             df = reduce(DataFrame.unionAll, output)
             output_file_path = f"{output_path}{full_database_name}/{table_name}/"
             df.write.csv(output_file_path, header=True, mode="overwrite")
-
-
-
     job.commit()

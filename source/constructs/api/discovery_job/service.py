@@ -285,7 +285,7 @@ def __start_sample_run(job_id: int, run_id: int, table_name: str):
                 base_time = mytime.format_time(run_database.base_time)
             job_name = f"{const.SOLUTION_NAME}-Sample-Job-S3"
             if run_database.database_type == DatabaseType.RDS.value:
-                job_name = f"{const.SOLUTION_NAME}-Sample-Job-RDS-" + run_database.database_name
+                job_name = f"{const.SOLUTION_NAME}-Sample-Job-RDS" + run_database.database_name
             execution_input = {
                 "--JobName": job_name,
                 "--JobId": str(job.id),
@@ -304,12 +304,13 @@ def __start_sample_run(job_id: int, run_id: int, table_name: str):
             __create_job(run_database.database_type, run_database.account_id, run_database.region, run_database.database_name, job_name, True)
             __exec_sample_run(execution_input)
             run_database.state = RunDatabaseState.RUNNING.value
-        except Exception:
+        except Exception as e:
             msg = traceback.format_exc()
             run_database.state = RunDatabaseState.FAILED.value
             run_database.end_time = mytime.get_time()
             run_database.log = msg
-            logger.exception("Run StepFunction exception:%s" % msg)
+            logger.info(str(e))
+            logger.exception("start_sample_run exception:%s" % msg)
     crud.save_run_databases(run_databases)
 
 
