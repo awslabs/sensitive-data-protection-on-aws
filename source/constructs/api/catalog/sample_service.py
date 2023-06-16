@@ -25,7 +25,7 @@ def gen_s3_temp_uri(bucket_name: str, key: str):
 
 
 def get_sample_file_uri(database_type: str, database_name: str, table_name: str):
-    result_table = const.JOB_RESULT_TABLE_NAME
+    result_table = const.JOB_SAMPLE_RESULT_TABLE_NAME
     full_database_name = f"{database_type}-{database_name}-database"
     file_folder_path = f"glue-database/{result_table}/{full_database_name}/{table_name}/"
     bucket_name = os.getenv(const.PROJECT_BUCKET_NAME, const.PROJECT_BUCKET_DEFAULT_NAME)
@@ -34,24 +34,24 @@ def get_sample_file_uri(database_type: str, database_name: str, table_name: str)
     s3 = boto3.client('s3')
     response = s3.list_objects_v2(Bucket=bucket_name,
                                   Prefix=file_folder_path)
-    logging.info(response)
+    logging.debug(response)
     if 'Contents' in response and response['Contents']:
         # 提取文件路径
         file_paths = [obj['Key'] for obj in response['Contents']]
         logging.info(file_paths)
         # 打印文件路径
         for file_path in file_paths:
-            key = file_folder_path + file_path
-            logging.info(key)
-            file_uri = key
-            logger.info(file_uri)
+            file_uri = file_path
+            logging.info(file_uri)
             break
     if file_uri:
+        logger.info(f'{bucket_name}_{file_uri}')
         response = s3.head_object(Bucket=bucket_name, Key=file_uri)
+        logger.debug(response)
         creation_time = response['LastModified']
         logger.info(creation_time)
-        return gen_s3_temp_uri(bucket_name, file_uri), creation_time
-    return file_uri, creation_time
+        return f's3://{bucket_name}{file_uri}', gen_s3_temp_uri(bucket_name, file_uri), creation_time
+    return f's3://{bucket_name}/{file_uri}', '', creation_time
 
 
 def get_glue_job_run_status(account_id, region, job_name):
@@ -105,11 +105,12 @@ def create_sample_job(account_id: str, database_name: str,
     return response
 
 
-def build_sample_data_response(state: str, creation_date: str, pre_uri: str):
+def build_sample_data_response(state: str, pre_uri: str, real_uri: str, creation_date: str):
     result = {
                 "status": state,
                 "creation_date": creation_date,
-                "url": pre_uri
+                "pre_url": pre_uri,
+                "source_url": real_uri
     }
     return result
 
@@ -123,13 +124,13 @@ def init_s3_sample_job(account_id: str, region: str, bucket_name: str, resource_
         status = get_glue_job_run_status(account_id, region, job_name)
         logger.info(status)
         if status == 'SUCCEEDED':
-            file_uri, creation_time = get_sample_file_uri(DatabaseType.S3.value, bucket_name, resource_name)
-            return build_sample_data_response(status, file_uri, creation_time)
+            file_uri, pre_uri, creation_time = get_sample_file_uri(DatabaseType.S3.value, bucket_name, resource_name)
+            return build_sample_data_response(status, pre_uri, file_uri, creation_time)
         else:
-            return build_sample_data_response(status, '', '')
+            return build_sample_data_response(status, '', '', '')
     else:
-        file_uri, creation_time = get_sample_file_uri(DatabaseType.S3.value, bucket_name, resource_name)
-        return build_sample_data_response(status, file_uri, creation_time)
+        file_uri, pre_uri, creation_time = get_sample_file_uri(DatabaseType.S3.value, bucket_name, resource_name)
+        return build_sample_data_response(status, pre_uri, file_uri, creation_time)
 
 
 def init_rds_sample_job(account_id: str, region: str, instance_id: str, table_name: str, refresh: bool):
@@ -141,11 +142,11 @@ def init_rds_sample_job(account_id: str, region: str, instance_id: str, table_na
         status = get_glue_job_run_status(account_id, region, job_name)
         logger.info(status)
         if status == 'SUCCEEDED':
-            file_uri, creation_time = get_sample_file_uri(DatabaseType.S3.value, instance_id, table_name)
-            return build_sample_data_response(status, file_uri, creation_time)
+            file_uri, pre_uri, creation_time = get_sample_file_uri(DatabaseType.S3.value, instance_id, table_name)
+            return build_sample_data_response(status, pre_uri, file_uri, creation_time)
         else:
-            return build_sample_data_response(status, '', '')
+            return build_sample_data_response(status, '', '', '')
     else:
-        file_uri, creation_time = get_sample_file_uri(DatabaseType.S3.value, instance_id, table_name)
-        return build_sample_data_response(status, file_uri, creation_time)
+        file_uri, pre_uri, creation_time = get_sample_file_uri(DatabaseType.S3.value, instance_id, table_name)
+        return build_sample_data_response(status, pre_uri, file_uri, creation_time)
 
