@@ -514,7 +514,7 @@ def __query_job_result_by_athena(
 
     # result = client.get_query_results(QueryExecutionId=query_id, NextToken='')
     # Remove Athena query result to save cost.
-    logger.info(athena_result_list)
+    logger.debug(athena_result_list)
     __remove_query_result_from_s3(query_id)
 
     return athena_result_list
@@ -568,6 +568,7 @@ def sync_job_detection_result(
     row_count = 0
     table_column_dict = {}
     m = 0
+    column_dict_list = []
     for job_result in job_result_list:
         if "ResultSet" in job_result and "Rows" in job_result["ResultSet"]:
             i = 0
@@ -597,15 +598,14 @@ def sync_job_detection_result(
                     if catalog_column is not None and (overwrite or (
                             not overwrite and catalog_column.manual_tag != const.MANUAL)):
                         column_dict = {
+                            "id": catalog_column.id,
                             "identifier": json.dumps(identifier_dict),
                             "column_value_example": column_sample_data,
                             "privacy": column_privacy,
                             "state": CatalogState.DETECTED.value,
                             "manual_tag": const.SYSTEM,
                         }
-                        crud.update_catalog_column_level_classification_by_id(
-                            catalog_column.id, column_dict
-                        )
+                        column_dict_list.append(column_dict)
                     # Initialize table privacy with NON-PII
                     if table_name not in table_privacy_dict:
                         table_privacy_dict[table_name] = Privacy.NON_PII.value
@@ -619,6 +619,7 @@ def sync_job_detection_result(
                         table_identifier_dict[table_name].add(key)
                 i += 1
                 m += 1
+    crud.batch_update_catalog_column_level_classification_by_id(column_dict_list)
     if m <= 1:
         logger.info("sync_job_detection_result none data update because of m <= 1 and m is:" + str(m) + database_name)
         return True
@@ -633,6 +634,7 @@ def sync_job_detection_result(
     # Initialize database privacy with NON-PII
     database_privacy = Privacy.NON_PII.value
     # The two dict has all tables as key.
+    table_dict_list = []
     for table_name in table_size_dict:
         table_size = table_size_dict[table_name]
         if table_size <= 0:
@@ -648,18 +650,17 @@ def sync_job_detection_result(
             account_id, region, database_type, database_name, table_name
         )
         # columns = table_column_dict[table_name]
-        logger.info(
+        logger.debug(
             "sync_job_detection_result - RESET ADDITIONAL COLUMNS : " + json.dumps(table_column_dict[table_name]))
         # crud.update_catalog_column_none_privacy_by_table(account_id, region, database_type, database_name,
         #                                                  table_name, columns, overwrite)
         if table_name not in table_privacy_dict:
             if catalog_table is not None:
                 table_dict = {
+                    "id": catalog_table.id,
                     "row_count": table_size,
                 }
-                crud.update_catalog_table_level_classification_by_id(
-                    catalog_table.id, table_dict
-                )
+                table_dict_list.append(table_dict)
             continue
         else:
             privacy = table_privacy_dict[table_name]
@@ -673,15 +674,15 @@ def sync_job_detection_result(
             if catalog_table is not None and (overwrite or (
                         not overwrite and catalog_table.manual_tag != const.MANUAL)):
                 table_dict = {
+                    "id": catalog_table.id,
                     "privacy": privacy,
                     "identifiers": identifiers,
                     "state": CatalogState.DETECTED.value,
                     "row_count": table_size,
                     "manual_tag": const.SYSTEM,
                 }
-                crud.update_catalog_table_level_classification_by_id(
-                    catalog_table.id, table_dict
-                )
+                table_dict_list.append(table_dict)
+    crud.batch_update_catalog_table_level_classification_by_id(table_dict_list)
     catalog_database = crud.get_catalog_database_level_classification_by_name(
         account_id, region, database_type, database_name
     )
