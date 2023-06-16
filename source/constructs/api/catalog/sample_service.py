@@ -68,7 +68,7 @@ def get_glue_job_run_status(account_id, region, job_name):
                                region_name=region,
                                )
     response = client_glue.get_job_runs(JobName=job_name, MaxResults=1)
-    logger.info(response)
+    logger.debug(response)
     # 检查作业运行记录是否存在
     status = None
     if 'JobRuns' in response and len(response['JobRuns']) > 0:
@@ -98,11 +98,10 @@ def create_sample_job(account_id: str, database_name: str,
         ]
     )
     # start glue job
-    logger.info(job)
+    logger.debug(job)
     discovery_job = create_job(job)
     logger.info(discovery_job.id)
     response = start_sample_job(discovery_job.id, table_name)
-    logger.info(response)
     return response
 
 
