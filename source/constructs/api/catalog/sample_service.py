@@ -50,7 +50,7 @@ def get_sample_file_uri(database_type: str, database_name: str, table_name: str)
         response = s3.head_object(Bucket=bucket_name, Key=file_uri)
         creation_time = response['LastModified']
         logger.info(creation_time)
-        return gen_s3_temp_uri(bucket_name, file_uri),creation_time
+        return gen_s3_temp_uri(bucket_name, file_uri), creation_time
     return file_uri, creation_time
 
 
