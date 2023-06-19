@@ -1,6 +1,6 @@
 # 附录：代理 CloudFormation 堆栈的权限
 
-本解决方案在部署代理 CloudFormation 模板时，遵循最小权限原则为受监控帐户授予权限。代理 CloudFormation 堆栈基本上会设置 AWS 角色和策略，以授权 SDPS 在目标帐户中获取必要的权限。
+本解决方案在部署代理 CloudFormation 模板时，遵循最小权限原则为受监控帐户授予权限。代理 CloudFormation 堆栈基本上会设置 AWS 角色和策略，以授权 SDP 在目标帐户中获取必要的权限。
 
 这些权限可以简要地描述如下：
 
@@ -13,4 +13,4 @@
 - Amazon CloudWatch：具有写入权限。Lambda 日志将存储在 CloudWatch 中。
 
 !!! Info "获取更多信息"
-    要了解所需的受监控帐户具体权限，请在 [受监控帐户模板（代理模板）](template.md) 中查找详细信息（例如策略、角色）。
+    要了解所需的受监控帐户具体权限，请在 [受监控帐户模板（代理模板）](../deployment/template.md) 中查找详细信息（例如策略、角色）。

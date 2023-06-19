@@ -514,7 +514,7 @@ def __query_job_result_by_athena(
 
     # result = client.get_query_results(QueryExecutionId=query_id, NextToken='')
     # Remove Athena query result to save cost.
-    logger.info(athena_result_list)
+    logger.debug(athena_result_list)
     __remove_query_result_from_s3(query_id)
 
     return athena_result_list
@@ -650,7 +650,7 @@ def sync_job_detection_result(
             account_id, region, database_type, database_name, table_name
         )
         # columns = table_column_dict[table_name]
-        logger.info(
+        logger.debug(
             "sync_job_detection_result - RESET ADDITIONAL COLUMNS : " + json.dumps(table_column_dict[table_name]))
         # crud.update_catalog_column_none_privacy_by_table(account_id, region, database_type, database_name,
         #                                                  table_name, columns, overwrite)

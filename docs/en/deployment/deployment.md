@@ -12,9 +12,11 @@ Use the following steps to deploy this solution on AWS.
 
 - Step 3. Configure the OIDC application
 
-- Step 4. Deploy the Agent stack
+- Step 4. Configure custom domain name
 
 - Step 5. Launch the solution console
+
+- Step 6. Deploy the Agent stack
 
 ## Deployment steps
 ### Step 1. Create an OIDC application
@@ -34,9 +36,9 @@ You can leverage the [Cognito User Pool](https://docs.aws.amazon.com/cognito/lat
 
 1. Set up the hosted UI with the Amazon Cognito console based on this [guide](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-app-integration.html#cognito-user-pools-create-an-app-integration).
 
-1. When creating a user pool, from Step 1 to Step 4, choose the options according to your needs.
+1. When creating a user pool, from Step 1 to Step 4, choose the options according to your needs. 
 
-1. In **Step 5 Integrate your app**, for **App type**, choose **Public client**. Choose **Don't generate a client secret** under **Client secret**.
+1. In **Step 5 Integrate your app**, make sure you have selected **Use the Cognito Hosted UI** in the **Hosted authentication pages** area. For **App type**, choose **Public client**. Choose **Don't generate a client secret** under **Client secret**.
 ![Cognito App type](images/CognitoAppType.jpg)
 
 1. In **Advanced app client settings**, select **OpenID**, **Email** and **Profile** for **OpenID Connect scopes**.
@@ -45,9 +47,10 @@ You can leverage the [Cognito User Pool](https://docs.aws.amazon.com/cognito/lat
 1. Confirm that the **Hosted UI status** is **Available**, and confirm that the **OpenID Connect scopes** includes **email**, **openid**, and **profile**.
 ![Cognito Hosted UI](images/CognitoHostedUI.jpg)
 
-1. Save the App **Client ID**, **User pool ID** and the **AWS Region** to a file, which will be used later.  
+1. Save the App **Client ID**, **User pool ID** and the **AWS Region** to a file, which will be used later. In **Step 2. Deploy Admin template**, the **Client ID** is the App **Client ID**, and **Issuer URL** is `https://cognito-idp.${REGION}.amazonaws.com/${USER_POOL_ID}`
 
-In **Step 2. Deploy Admin template**, the **Client ID** is the App **Client ID**, and **Issuer URL** is `https://cognito-idp.${REGION}.amazonaws.com/${USER_POOL_ID}`
+Note: The **Allowed callback URLs** and **Allowed sign-out URLs** will be configured again later in **Step 3 Configure the OIDC application**.
+
 ![Cognito Client ID](images/CognitoClientId.png)
 ![Cognito User pool ID](images/CognitoUserpoolId.png)
 

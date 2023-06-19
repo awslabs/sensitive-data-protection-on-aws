@@ -362,7 +362,6 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
         rds_instance = rds.describe_db_instances(DBInstanceIdentifier=instance_name)['DBInstances'][0]
         logger.info("sync_rds_connection describe_db_instances ")
         logger.info(rds_instance)
-        public_access = rds_instance['PubliclyAccessible']
         engine = rds_instance['Engine']
         host = rds_instance['Endpoint']['Address']
         port = rds_instance['Endpoint']['Port']
@@ -387,20 +386,26 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
         response = ec2_client.describe_subnets(
             SubnetIds=subnet_ids
         )
-        rds_subnet_id = ""
         logger.info(response)
+        # Private subnet priority
+        rds_subnet_id = const.EMPTY_STR
+        public_subnet_id = const.EMPTY_STR
         for subnet_desc in response['Subnets']:
             subnet_map_public_ip = subnet_desc['MapPublicIpOnLaunch']
             if subnet_map_public_ip:
-                logger.info("RDS instance subnet is public")
+                public_subnet_id = subnet_desc['SubnetId']
+                logger.info(f"subnet({subnet_desc['SubnetId']}) is public")
             else:
                 rds_subnet_id = subnet_desc['SubnetId']
-                logger.info("RDS instance subnet is private" + str(rds_subnet_id))
+                logger.info(f"subnet({subnet_desc['SubnetId']}) is private")
                 break
 
-        if rds_subnet_id is None or len(rds_subnet_id) <= 0:
-            raise BizException(MessageEnum.SOURCE_RDS_NO_PRIVATE_ACCESSABLE.get_code(),
-                               MessageEnum.SOURCE_RDS_NO_PRIVATE_ACCESSABLE.get_msg())
+        if rds_subnet_id == const.EMPTY_STR:
+            if public_subnet_id == const.EMPTY_STR:
+                raise BizException(MessageEnum.SOURCE_RDS_NO_PRIVATE_ACCESSABLE.get_code(),
+                                   MessageEnum.SOURCE_RDS_NO_PRIVATE_ACCESSABLE.get_msg())
+            else:
+                rds_subnet_id = public_subnet_id
         # response = ec2_client.describe_security_groups(
         #     Filters=[
         #         {
@@ -417,9 +422,6 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
         #         logger.info("rds_security_groups change append new vpc sg:")
         #         logger.info(security_group['GroupId'])
 
-        if public_access:
-            raise BizException(MessageEnum.SOURCE_RDS_PUBLIC_ACCESSABLE.get_code(),
-                               MessageEnum.SOURCE_RDS_PUBLIC_ACCESSABLE.get_msg())
         check_link(credentials, region, rds_vpc_id, rds_secret_id)
         if rds_secret_id is not None:
             secretsmanager = boto3.client('secretsmanager',

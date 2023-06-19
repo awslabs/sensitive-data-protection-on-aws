@@ -116,20 +116,15 @@ const AddAccountInfo: React.FC<any> = memo((props: any) => {
               </Header>
             }
           >
-            <div className="pointer-icon" onClick={clkDownload}>
-              <Icon name="copy" />
-              &nbsp;&nbsp;
-              <span>
-                {t('account:add.org.step1Copy')} ({t('account:forChina')})
+            <ul>
+              <li>{t('account:add.org.step1list1')}</li>
+              <li>{t('account:add.org.step1list2')}</li>
+              <li>{t('account:add.org.step1list3')}</li>
+              <li>{t('account:add.org.step1list4')}</li>
+            </ul>
+            <span>
+                {t('account:add.org.step1check')}
               </span>
-            </div>
-            <div className="pointer-icon" onClick={clkDownloadGlobal}>
-              <Icon name="copy" />
-              &nbsp;&nbsp;
-              <span>
-                {t('account:add.org.step1Copy')} ({t('account:forGlobal')})
-              </span>
-            </div>
           </Container>
 
           <Container
@@ -142,6 +137,20 @@ const AddAccountInfo: React.FC<any> = memo((props: any) => {
               </Header>
             }
           >
+            <div className="pointer-icon" onClick={clkItDownload}>
+              <Icon name="copy" />
+              &nbsp;&nbsp;
+              <span>
+                {t('account:add.org.step1Copy')} ({t('account:forChina')})
+              </span>
+            </div>
+            <div className="pointer-icon" onClick={clkItDownloadGlobal}>
+              <Icon name="copy" />
+              &nbsp;&nbsp;
+              <span>
+                {t('account:add.org.step1Copy')} ({t('account:forGlobal')})
+              </span>
+            </div>
             <ul>
               <li>{t('account:add.org.step2list1')}</li>
               <li>{t('account:add.org.step2list2')}</li>
@@ -154,7 +163,6 @@ const AddAccountInfo: React.FC<any> = memo((props: any) => {
               </li>
               <li>
                 {t('account:add.org.step2list4_1')}
-                <b>{t('account:add.org.step2list4_2')}</b>.
               </li>
 
               <li>{t('account:add.org.step2list5')}</li>
@@ -170,7 +178,7 @@ const AddAccountInfo: React.FC<any> = memo((props: any) => {
             header={
               <Header
                 variant="h2"
-                description={<b>{t('account:add.org.stepDesc')}</b>}
+                description={<b>{t('account:add.org.step2DescStep3')}</b>}
               >
                 {t('account:add.org.step3')}
               </Header>
@@ -189,33 +197,6 @@ const AddAccountInfo: React.FC<any> = memo((props: any) => {
               &nbsp;&nbsp;
               <span>
                 {t('account:add.org.step3Copy')} ({t('account:forGlobal')})
-              </span>
-            </div>
-          </Container>
-
-          <Container
-            header={
-              <Header
-                variant="h2"
-                description={<b>{t('account:add.org.stepDesc')}</b>}
-              >
-                {t('account:add.org.step4')}
-              </Header>
-            }
-          >
-            <div className="pointer-icon" onClick={clkItDownload}>
-              <Icon name="copy" />
-              &nbsp;&nbsp;
-              <span>
-                {t('account:add.org.step4Copy')} (({t('account:forChina')}))
-              </span>
-            </div>
-
-            <div className="pointer-icon" onClick={clkItDownloadGlobal}>
-              <Icon name="copy" />
-              &nbsp;&nbsp;
-              <span>
-                {t('account:add.org.step4Copy')} (({t('account:forGlobal')}))
               </span>
             </div>
           </Container>
