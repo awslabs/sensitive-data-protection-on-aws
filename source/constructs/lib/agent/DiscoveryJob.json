@@ -44,7 +44,17 @@
       },
       "ResultPath": "$.StartCrawler",
       "Resource": "arn:${AWS::Partition}:states:::aws-sdk:glue:startCrawler",
-      "Next": "Wait"
+      "Next": "Wait",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "BackoffRate": 2,
+          "IntervalSeconds": 100,
+          "MaxAttempts": 3
+        }
+      ]
     },
     "GetCrawler2": {
       "Type": "Task",
