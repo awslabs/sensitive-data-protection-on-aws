@@ -14,6 +14,38 @@ from itertools import count
 from sqlalchemy import func, distinct
 
 
+def get_catalog_column_level_classification_by_database(
+    account_id: str,
+    region: str,
+    database_type: str,
+    database_name: str,
+    page_size: int = 100
+):
+    session = get_session()
+    page = 1
+    results = {}
+    while True:
+        query = (
+            session.query(models.CatalogColumnLevelClassification)
+            .filter(models.CatalogColumnLevelClassification.account_id == account_id)
+            .filter(models.CatalogColumnLevelClassification.region == region)
+            .filter(models.CatalogColumnLevelClassification.database_type == database_type)
+            .filter(models.CatalogColumnLevelClassification.database_name == database_name)
+            .limit(page_size)
+            .offset((page - 1) * page_size)
+            .all()
+        )
+        if not query:
+            break
+        for item in query:
+            column_name = item.column_name
+            if column_name not in results:
+                results[column_name] = []
+            results[column_name].append(item)
+        page += 1
+    return results
+
+
 def get_catalog_column_level_classification_by_table(
     account_id: str,
     region: str,
@@ -124,6 +156,38 @@ def search_catalog_table_level_classification_by_database(
     condition: QueryCondition
 ):
     return query_with_condition(get_session().query(models.CatalogTableLevelClassification), condition)
+
+
+def get_catalog_table_level_classification_by_database(
+    account_id: str,
+    region: str,
+    database_type: str,
+    database_name: str,
+    page_size: int = 100
+):
+    session = get_session()
+    page = 1
+    results = {}
+    while True:
+        query = (
+            session.query(models.CatalogTableLevelClassification)
+            .filter(models.CatalogTableLevelClassification.account_id == account_id)
+            .filter(models.CatalogTableLevelClassification.region == region)
+            .filter(models.CatalogTableLevelClassification.database_type == database_type)
+            .filter(models.CatalogTableLevelClassification.database_name == database_name)
+            .limit(page_size)
+            .offset((page - 1) * page_size)
+            .all()
+        )
+        if not query:
+            break
+        for item in query:
+            table_name = item.table_name
+            if table_name not in results:
+                results[table_name] = []
+            results[table_name].append(item)
+        page += 1
+    return results
 
 
 def get_catalog_table_level_classification_by_name(

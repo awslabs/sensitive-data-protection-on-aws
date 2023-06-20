@@ -569,6 +569,9 @@ def sync_job_detection_result(
     table_column_dict = {}
     m = 0
     column_dict_list = []
+    # query column by database
+    database_catalog_columns_dict = crud.get_catalog_column_level_classification_by_database(account_id, region,
+                                                                                             database_type, database_name)
     for job_result in job_result_list:
         if "ResultSet" in job_result and "Rows" in job_result["ResultSet"]:
             i = 0
@@ -586,14 +589,17 @@ def sync_job_detection_result(
                     else:
                         table_column_dict[table_name] = [column_name]
                     column_privacy = privacy
-                    catalog_column = crud.get_catalog_column_level_classification_by_name(
-                        account_id,
-                        region,
-                        database_type,
-                        database_name,
-                        table_name,
-                        column_name,
-                    )
+                    catalog_column = None
+                    if column_name in database_catalog_columns_dict:
+                        catalog_column = database_catalog_columns_dict[column_name]
+                    # catalog_column = crud.get_catalog_column_level_classification_by_name(
+                    #     account_id,
+                    #     region,
+                    #     database_type,
+                    #     database_name,
+                    #     table_name,
+                    #     column_name,
+                    # )
                     identifier_dict = __convert_identifiers_to_dict(identifier)
                     if catalog_column is not None and (overwrite or (
                             not overwrite and catalog_column.manual_tag != const.MANUAL)):
@@ -635,6 +641,8 @@ def sync_job_detection_result(
     database_privacy = Privacy.NON_PII.value
     # The two dict has all tables as key.
     table_dict_list = []
+    database_catalog_table_dict = crud.get_catalog_table_level_classification_by_database(account_id, region,
+                                                                                          database_type, database_name)
     for table_name in table_size_dict:
         table_size = table_size_dict[table_name]
         if table_size <= 0:
@@ -646,9 +654,12 @@ def sync_job_detection_result(
             #                                                  table_name, None, overwrite)
             continue
         row_count += table_size
-        catalog_table = crud.get_catalog_table_level_classification_by_name(
-            account_id, region, database_type, database_name, table_name
-        )
+        catalog_table = None
+        if table_name in database_catalog_table_dict:
+            catalog_table = database_catalog_table_dict[table_name]
+        # catalog_table = crud.get_catalog_table_level_classification_by_name(
+        #     account_id, region, database_type, database_name, table_name
+        # )
         # columns = table_column_dict[table_name]
         logger.debug(
             "sync_job_detection_result - RESET ADDITIONAL COLUMNS : " + json.dumps(table_column_dict[table_name]))
