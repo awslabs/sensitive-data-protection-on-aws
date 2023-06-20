@@ -213,9 +213,9 @@ def classifyColumnsAfterRowLevel(nonEmptySampledDf: DataFrame, thresholdFraction
         .withColumn("score", sf.lit(1.0)/rows)\
         .groupBy('column_name', 'entityType').agg(sf.sum('score').alias('score'))\
         .where(f'score > {thresholdFraction}')\
-        .withColumn('entityType', sf.struct('entityType', 'score'))\
-        .groupBy('column_name').agg(sf.collect_list('entityType').alias('entityType'))\
-        .withColumnRenamed("entityType", "identifiers")
+        .withColumnRenamed("entityType", "identifier")\
+        .withColumn('identifiers', sf.struct('identifier', 'score'))\
+        .groupBy('column_name').agg(sf.collect_list('identifiers').alias('identifiers'))\
 
     return glue_entities_df
 
