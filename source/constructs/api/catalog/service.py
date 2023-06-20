@@ -572,6 +572,7 @@ def sync_job_detection_result(
     # query column by database
     database_catalog_columns_dict = crud.get_catalog_column_level_classification_by_database(account_id, region,
                                                                                              database_type, database_name)
+    logger.info(database_catalog_columns_dict)
     for job_result in job_result_list:
         if "ResultSet" in job_result and "Rows" in job_result["ResultSet"]:
             i = 0
@@ -643,6 +644,7 @@ def sync_job_detection_result(
     table_dict_list = []
     database_catalog_table_dict = crud.get_catalog_table_level_classification_by_database(account_id, region,
                                                                                           database_type, database_name)
+    logger.info(database_catalog_table_dict)
     for table_name in table_size_dict:
         table_size = table_size_dict[table_name]
         if table_size <= 0:

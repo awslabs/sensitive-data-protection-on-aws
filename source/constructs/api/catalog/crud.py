@@ -40,8 +40,8 @@ def get_catalog_column_level_classification_by_database(
         for item in query:
             column_name = item.column_name
             if column_name not in results:
-                results[column_name] = []
-            results[column_name].append(item)
+                results[column_name] = None
+            results[column_name] = item
         page += 1
     return results
 
@@ -184,8 +184,8 @@ def get_catalog_table_level_classification_by_database(
         for item in query:
             table_name = item.table_name
             if table_name not in results:
-                results[table_name] = []
-            results[table_name].append(item)
+                results[table_name] = None
+            results[table_name] = item
         page += 1
     return results
 
