@@ -48,8 +48,6 @@ export interface ApiProps {
   readonly vpc: IVpc;
   readonly bucketName: string;
   readonly rdsClientSecurityGroup: SecurityGroup;
-  readonly oidcIssuer: string;
-  readonly oidcClientId: string;
 }
 
 
@@ -113,8 +111,6 @@ export class ApiStack extends Construct {
         ProjectBucketName: props.bucketName,
         Version: SolutionInfo.SOLUTION_VERSION,
         ControllerFunctionName: controllerFunctionName,
-        OidcIssuer: props.oidcIssuer,
-        OidcClientId: props.oidcClientId,
         mode: 'dev',
       },
       role: this.apiRole,
