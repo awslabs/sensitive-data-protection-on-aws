@@ -461,13 +461,14 @@ def __query_job_result_by_athena(
             (
                 """SELECT table_name,column_name,cast(identifiers as json) as identifiers_str,CASE WHEN sample_data is NULL then '' else array_join(sample_data, \'|\') end as sample_str, privacy, table_size
             FROM %s 
-            WHERE account_id='%s'
+            WHERE run_id='%s' 
+                AND account_id='%s'
                 AND region='%s' 
                 AND database_type='%s' 
                 AND database_name='%s' 
-                AND run_id='%s' """
+                """
             )
-            % (const.JOB_RESULT_TABLE_NAME, account_id, region, database_type, database_name, run_id)
+            % (const.JOB_RESULT_TABLE_NAME, run_id, account_id, region, database_type, database_name)
     )
     logger.debug("Athena SELECT SQL : " + select_sql)
 
@@ -554,6 +555,7 @@ def sync_job_detection_result(
         job_run_id: str,
         overwrite=True
 ):
+    logger.info("start time")
     job_result_list = __query_job_result_by_athena(
         account_id,
         region,
@@ -561,7 +563,7 @@ def sync_job_detection_result(
         database_name,
         job_run_id,
     )
-
+    logger.info("athena time")
     table_privacy_dict = {}
     table_identifier_dict = {}
     table_size_dict = {}
@@ -572,6 +574,7 @@ def sync_job_detection_result(
     # query column by database
     database_catalog_columns_dict = crud.get_catalog_column_level_classification_by_database(account_id, region,
                                                                                              database_type, database_name)
+    logger.info("column db time")
     logger.debug(database_catalog_columns_dict)
     for job_result in job_result_list:
         if "ResultSet" in job_result and "Rows" in job_result["ResultSet"]:
@@ -626,7 +629,9 @@ def sync_job_detection_result(
                         table_identifier_dict[table_name].add(key)
                 i += 1
                 m += 1
+    logger.info("column opt time")
     crud.batch_update_catalog_column_level_classification_by_id(column_dict_list)
+    logger.info("column update time")
     if m <= 1:
         logger.info("sync_job_detection_result none data update because of m <= 1 and m is:" + str(m) + database_name)
         return True
@@ -644,6 +649,7 @@ def sync_job_detection_result(
     table_dict_list = []
     database_catalog_table_dict = crud.get_catalog_table_level_classification_by_database(account_id, region,
                                                                                           database_type, database_name)
+    logger.info("table db time")
     logger.debug(database_catalog_table_dict)
     for table_name in table_size_dict:
         table_size = table_size_dict[table_name]
@@ -695,7 +701,9 @@ def sync_job_detection_result(
                     "manual_tag": const.SYSTEM,
                 }
                 table_dict_list.append(table_dict)
+    logger.info("table opt time")
     crud.batch_update_catalog_table_level_classification_by_id(table_dict_list)
+    logger.info("table update time")
     catalog_database = crud.get_catalog_database_level_classification_by_name(
         account_id, region, database_type, database_name
     )
@@ -711,6 +719,7 @@ def sync_job_detection_result(
             catalog_database.id, database_dict
         )
     logger.info("Sync detection result sucessfully!")
+    logger.info("end time")
     return True
 
 
