@@ -24,6 +24,7 @@ url_suffix = const.URL_SUFFIX_CN if partition == const.PARTITION_CN else ''
 admin_region = boto3.session.Session().region_name
 project_bucket_name = os.getenv(const.PROJECT_BUCKET_NAME, const.PROJECT_BUCKET_DEFAULT_NAME)
 version = os.getenv(const.VERSION, '')
+sqs_job = boto3.resource('sqs')
 
 sql_result = "SELECT database_type,account_id,region,s3_bucket,s3_location,rds_instance_id,table_name,column_name,identifiers,sample_data FROM job_detection_output_table where run_id='%d' and privacy = 1"
 sql_error = "SELECT account_id,region,database_type,database_name,table_name,error_message FROM job_detection_error_table where run_id='%d'"
@@ -37,7 +38,15 @@ def get_job(id: int):
     return crud.get_job(id)
 
 
+def __deduplicate_list_of_objects(lst):
+    deduplicated_set = set(lst)
+    deduplicated_list = list(deduplicated_set)
+    return deduplicated_list
+
+
 def create_job(job: schemas.DiscoveryJobCreate):
+    job.databases = __deduplicate_list_of_objects(job.databases)
+
     db_job = crud.create_job(job)
     if db_job.schedule != const.ON_DEMAND:
         create_event(db_job.id, db_job.schedule)
@@ -225,9 +234,7 @@ def __start_run(job_id: int, run_id: int):
             if job.range == 1 and run_database.base_time is not None:
                 base_time = mytime.format_time(run_database.base_time)
             crawler_name = run_database.database_type + "-" + run_database.database_name + "-crawler"
-            job_name = f"{const.SOLUTION_NAME}-Detection-Job-S3"
-            if run_database.database_type == DatabaseType.RDS.value:
-                job_name = f"{const.SOLUTION_NAME}-Detection-Job-RDS-" + run_database.database_name
+            job_name = f"{const.SOLUTION_NAME}-Detection-Job-{run_database.database_type.upper()}-{run_database.database_name}"
             execution_input = {
                 "JobName": job_name,
                 "CrawlerName": crawler_name,
@@ -291,10 +298,10 @@ def __create_job(database_type, account_id, region, database_name, job_name):
                                    Tags={const.PROJECT_TAG_KEY: const.PROJECT_TAG_VALUE,
                                          'AdminAccountId': admin_account_id,
                                          const.VERSION: version},
-                                   Connections={'Connections': [f'rds-{database_name}-connection']},
-                                   ExecutionProperty={'MaxConcurrentRuns': 100},
                                    NumberOfWorkers=2,
-                                   WorkerType='G.1X'
+                                   WorkerType='G.1X',
+                                   ExecutionProperty={'MaxConcurrentRuns': 100},
+                                   Connections={'Connections': [f'rds-{database_name}-connection']},
                                    )
         else:
             client_glue.create_job(Name=job_name,
@@ -305,9 +312,9 @@ def __create_job(database_type, account_id, region, database_name, job_name):
                                    Tags={const.PROJECT_TAG_KEY: const.PROJECT_TAG_VALUE,
                                          'AdminAccountId': admin_account_id,
                                          const.VERSION: version},
-                                   ExecutionProperty={'MaxConcurrentRuns': 1000},
                                    NumberOfWorkers=2,
-                                   WorkerType='G.1X'
+                                   WorkerType='G.1X',
+                                   ExecutionProperty={'MaxConcurrentRuns': 1000},
                                    )
 
 
@@ -347,15 +354,13 @@ def stop_job(job_id: int):
     crud.stop_run(job_id, db_run.id, True)
     job = crud.get_job(job_id)
     for run_database in run_databases:
+        logger.info(f"Stop job,JobId:{job_id},RunId:{run_database.run_id},RunDatabaseId:{run_database.id},"
+                    f"AccountId:{run_database.account_id},Region:{run_database.region},"
+                    f"DatabaseType:{run_database.database_type},DatabaseName:{run_database.database_name}")
         __stop_run(run_database)
-        sync_job_detection_result(run_database.account_id,
-                                  run_database.region,
-                                  run_database.database_type,
-                                  run_database.database_name,
-                                  run_database.run_id,
-                                  job.overwrite == 1,
-                                  )
-    crud.stop_run(job_id, db_run.id)
+        __send_complete_run_database_message(job_id, run_database.run_id, run_database.id, run_database.account_id,
+                                             run_database.region, run_database.database_type, run_database.database_name,
+                                             job.overwrite == 1, RunDatabaseState.STOPPED.value)
 
 
 def __stop_run(run_database: models.DiscoveryJobRunDatabase):
@@ -459,9 +464,49 @@ def get_run_database_progress(job_id: int, run_id: int, run_database_id: int) ->
         current_table_count = -1
     else:
         current_table_count = __get_current_table_count(run_database.id)
-    progress = schemas.DiscoveryJobRunDatabaseProgress(current_table_count=current_table_count,
+    progress = schemas.DiscoveryJobRunDatabaseProgress(run_database_id=run_database_id,
+                                                       current_table_count=current_table_count,
                                                        table_count=run_database.table_count)
     return progress
+
+
+def get_run_progress(job_id: int, run_id: int) -> list[schemas.DiscoveryJobRunDatabaseProgress]:
+    run = crud.get_run(run_id)
+    run_current_table_count = __get_run_current_table_count(run_id)
+    run_progress = []
+    for run_database in run.databases:
+        if run_database.table_count is None:
+            try:
+                run_database.table_count = __get_table_count_from_agent(run_database)
+                crud.save_run_database(run_database)
+            except Exception:
+                message = traceback.format_exc()
+                logger.exception(f"get table count from agent exception:{message}")
+                progress = schemas.DiscoveryJobRunDatabaseProgress(run_database_id=run_database.id,
+                                                                   current_table_count=-1,
+                                                                   table_count=-1)
+                run_progress.append(progress)
+                continue
+        current_table_count = run_current_table_count.get(run_database.id)
+        if current_table_count is None:
+            current_table_count = 0
+        progress = schemas.DiscoveryJobRunDatabaseProgress(run_database_id=run_database.id,
+                                                           current_table_count=current_table_count,
+                                                           table_count=run_database.table_count)
+        run_progress.append(progress)
+    return run_progress
+
+
+def __get_run_current_table_count(run_id: int):
+    sql = f"select run_database_id,count(distinct table_name) from sdps_database.job_detection_output_table where run_id='{run_id}' group by run_database_id"
+    current_table_count = __query_athena(sql)
+    logger.debug(current_table_count)
+    table_count = {}
+    for row in current_table_count[1:]:
+        row_result = [__get_cell_value(cell) for cell in row]
+        table_count[int(row_result[0])] = int(row_result[1])
+    logger.debug(table_count)
+    return table_count
 
 
 def __get_current_table_count(run_database_id: int):
@@ -498,6 +543,22 @@ def __get_table_count_from_agent(run_database: models.DiscoveryJobRunDatabase):
     return count
 
 
+def __send_complete_run_database_message(job_id, run_id, run_database_id, account_id, region,
+                                         database_type, database_name, over_write, state):
+    event = {'Result': {'State': state},
+             'JobId': job_id,
+             'RunId': run_id,
+             'RunDatabaseId': run_database_id,
+             'AccountId': account_id,
+             'Region': region,
+             'DatabaseType': database_type,
+             'DatabaseName': database_name,
+             'OverWrite': '1' if over_write else '0',
+             }
+    queue = sqs_job.get_queue_by_name(QueueName=const.JOB_QUEUE_NAME)
+    queue.send_message(MessageBody=json.dumps(event))
+
+
 def change_run_state(run_id: int):
     run_databases = crud.count_run_databases(run_id)
     # If there are running tasks, the state is running.
@@ -513,7 +574,7 @@ def complete_run_database(input_event):
     message = ""
     if "Message" in input_event["Result"]:
         message = input_event["Result"]["Message"]
-    if state == RunDatabaseState.SUCCEEDED.value:
+    if state == RunDatabaseState.SUCCEEDED.value or state == RunDatabaseState.STOPPED.value:
         try:
             sync_job_detection_result(input_event["AccountId"],
                                       input_event["Region"],
@@ -556,20 +617,13 @@ def check_running_run():
             error_log = __get_run_error_log(run_database)
             run_database.state = RunDatabaseState.FAILED.value
             run_database.log = error_log
-        try:
-            job = crud.get_job_by_run_id(run_database.run_id)
-            sync_job_detection_result(run_database.account_id,
-                                      run_database.region,
-                                      run_database.database_type,
-                                      run_database.database_name,
-                                      run_database.run_id,
-                                      job.overwrite == 1,
-                                      )
-        except Exception:
-            run_database.state = RunDatabaseState.FAILED.value
-            message = traceback.format_exc()
-            logger.exception("sync job detection result exception:%s" % message)
-            run_database.log = message
+
+        job = crud.get_job_by_run_id(run_database.run_id)
+        if run_database_state != RunDatabaseState.NOT_EXIST.value:
+            __send_complete_run_database_message(job.id, run_database.run_id, run_database.id, run_database.account_id,
+                                                 run_database.region, run_database.database_type,
+                                                 run_database.database_name,
+                                                 job.overwrite == 1, run_database.state)
         run_database.end_time = mytime.get_time()
         crud.save_run_database(run_database)
         change_run_state(run_database.run_id)
