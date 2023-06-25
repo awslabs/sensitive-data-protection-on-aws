@@ -22,6 +22,7 @@ import {
 } from 'pages/common-badge/types/badge_type';
 import moment from 'moment';
 import {
+  batchrequestJobProgress,
   getGuleJobDetailList,
   getGuleJobStatus,
   getJobTemplateUrl,
@@ -33,9 +34,14 @@ import HorizontalBarChart from 'pages/summary/comps/charts/items/HorizontalBarCh
 import ResourcesFilter from 'pages/resources-filter';
 import { alertMsg, useDidUpdateEffect } from 'tools/tools';
 import { useTranslation } from 'react-i18next';
-import GlueJobProgress from './componments/GlueJobProgress';
 import HelpInfo from 'common/HelpInfo';
 import { buildDocLink } from 'ts/common';
+
+interface ProgressType {
+  run_database_id: number;
+  current_table_count: number;
+  table_count: number;
+}
 
 const GULE_JOB_COLUMN = [
   {
@@ -116,6 +122,7 @@ const GlueJobContent = () => {
     wrapLines: true,
   } as any);
   const [currentPage, setCurrentPage] = useState(1);
+  const [jobProgressList, setJobProgressList] = useState<ProgressType[]>([]);
 
   const [processData, setProcessData] = useState<ColumnChartData[]>([]);
   const [query, setQuery] = useState({
@@ -195,6 +202,14 @@ const GlueJobContent = () => {
       });
     const detailResult: any = await getGuleJobDetailList(requestParam);
     if (detailResult && detailResult.items) {
+      // Batch to get JOB Progress
+      if (detailResult.items.length > 0) {
+        const progressDataList = await batchrequestJobProgress({
+          id: jobData.id,
+          run_id: detailResult.items[0].run_id,
+        });
+        setJobProgressList(progressDataList);
+      }
       setPageData(detailResult.items);
       setTotalCount(detailResult.total);
     }
@@ -339,6 +354,20 @@ const GlueJobContent = () => {
     return days + t('Days') + remainingHours + t('Hours');
   };
 
+  const displayJobProgress = (databaseId: number) => {
+    const curProgress = jobProgressList.find(
+      (element) => element.run_database_id === databaseId
+    );
+    if (!curProgress) {
+      return '-';
+    }
+    if (curProgress.current_table_count === -1) {
+      return t('pending');
+    } else {
+      return `${curProgress.current_table_count}/${curProgress.table_count}`;
+    }
+  };
+
   return (
     <>
       <SpaceBetween direction="vertical" size="xl">
@@ -435,10 +464,7 @@ const GlueJobContent = () => {
                   }
                   if (item.id === 'progress') {
                     return (
-                      <GlueJobProgress
-                        jobRowData={e}
-                        jobDetailData={jobDetailData}
-                      />
+                      <div>{displayJobProgress(parseInt((e as any).id))}</div>
                     );
                   }
                   if (item.id === 'database_name') {

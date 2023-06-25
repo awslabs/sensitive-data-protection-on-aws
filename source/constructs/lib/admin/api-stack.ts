@@ -102,7 +102,7 @@ export class ApiStack extends Construct {
       runtime: Runtime.PYTHON_3_9,
       handler: handler,
       code: this.code,
-      memorySize: 1024,
+      memorySize: 4096,
       timeout: Duration.seconds(timeout ?? 20),
       vpc: props.vpc,
       vpcSubnets: props.vpc.selectSubnets({
@@ -147,6 +147,7 @@ export class ApiStack extends Construct {
         'sqs:GetQueueUrl',
         'athena:StartQueryExecution',
         'events:EnableRule',
+        'sqs:SendMessage',
         'sqs:ReceiveMessage',
         'events:PutRule',
         'athena:GetQueryResults',

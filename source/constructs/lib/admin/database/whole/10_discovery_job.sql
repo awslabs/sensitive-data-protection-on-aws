@@ -38,7 +38,8 @@ create table discovery_job_database
     create_by     varchar(255) null,
     create_time   datetime     null,
     modify_by     varchar(255) null,
-    modify_time   datetime     null
+    modify_time   datetime     null,
+    UNIQUE KEY discovery_job_database_uindex (job_id, account_id, region, database_type, database_name)
 );
 
 create index job_id

@@ -43,6 +43,7 @@ const.MODE = 'mode'
 const.MODE_DEV = 'dev'
 const.EXCLUDE_PATH_LIST = ['/', '/docs', '/openapi.json']
 const.JOB_INTERVAL_WAIT = 10
+const.JOB_QUEUE_NAME = const.SOLUTION_NAME + '-DiscoveryJob'
 const.RDS_SUPPORTED_ENGINES = ['aurora-mysql', 'mysql', 'aurora-postgres', 'postgres']
 const.PARTITION_CN = 'aws-cn'
 const.URL_SUFFIX_CN = '.cn'
