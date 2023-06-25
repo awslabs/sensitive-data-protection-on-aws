@@ -209,7 +209,7 @@ def sync_crawler_result(
                 database_object_count += table_object_count
                 database_size += table_size_key
                 column_order_num = 0
-                logger.info("start to process glue columns")
+                logger.info(f"start to process glue columns: {table_name}")
                 for column in column_list:
                     column_order_num += 1
                     column_name = column["Name"].strip()
@@ -554,6 +554,7 @@ def sync_job_detection_result(
         job_run_id: str,
         overwrite=True
 ):
+    logger.info("start time")
     job_result_list = __query_job_result_by_athena(
         account_id,
         region,
@@ -561,7 +562,7 @@ def sync_job_detection_result(
         database_name,
         job_run_id,
     )
-
+    logger.info("athena time")
     table_privacy_dict = {}
     table_identifier_dict = {}
     table_size_dict = {}
@@ -569,6 +570,12 @@ def sync_job_detection_result(
     table_column_dict = {}
     m = 0
     column_dict_list = []
+    # query column by database
+    database_catalog_columns_dict = crud.get_catalog_column_level_classification_by_database(account_id, region,
+                                                                                             database_type, database_name)
+    logger.info("column db time")
+    logger.info(len(database_catalog_columns_dict))
+    logger.debug(database_catalog_columns_dict)
     for job_result in job_result_list:
         if "ResultSet" in job_result and "Rows" in job_result["ResultSet"]:
             i = 0
@@ -586,14 +593,18 @@ def sync_job_detection_result(
                     else:
                         table_column_dict[table_name] = [column_name]
                     column_privacy = privacy
-                    catalog_column = crud.get_catalog_column_level_classification_by_name(
-                        account_id,
-                        region,
-                        database_type,
-                        database_name,
-                        table_name,
-                        column_name,
-                    )
+                    key_name = f'{table_name}_{column_name}'
+                    if key_name not in database_catalog_columns_dict:
+                        continue
+                    catalog_column = database_catalog_columns_dict[key_name]
+                    # catalog_column = crud.get_catalog_column_level_classification_by_name(
+                    #     account_id,
+                    #     region,
+                    #     database_type,
+                    #     database_name,
+                    #     table_name,
+                    #     column_name,
+                    # )
                     identifier_dict = __convert_identifiers_to_dict(identifier)
                     if catalog_column is not None and (overwrite or (
                             not overwrite and catalog_column.manual_tag != const.MANUAL)):
@@ -619,7 +630,10 @@ def sync_job_detection_result(
                         table_identifier_dict[table_name].add(key)
                 i += 1
                 m += 1
+    logger.info("column opt time")
     crud.batch_update_catalog_column_level_classification_by_id(column_dict_list)
+    logger.info("column update time")
+    logger.info(len(column_dict_list))
     if m <= 1:
         logger.info("sync_job_detection_result none data update because of m <= 1 and m is:" + str(m) + database_name)
         return True
@@ -635,6 +649,10 @@ def sync_job_detection_result(
     database_privacy = Privacy.NON_PII.value
     # The two dict has all tables as key.
     table_dict_list = []
+    database_catalog_table_dict = crud.get_catalog_table_level_classification_by_database_all(account_id, region,
+                                                                                          database_type, database_name)
+    logger.info("table db time")
+    logger.debug(database_catalog_table_dict)
     for table_name in table_size_dict:
         table_size = table_size_dict[table_name]
         if table_size <= 0:
@@ -646,9 +664,12 @@ def sync_job_detection_result(
             #                                                  table_name, None, overwrite)
             continue
         row_count += table_size
-        catalog_table = crud.get_catalog_table_level_classification_by_name(
-            account_id, region, database_type, database_name, table_name
-        )
+        catalog_table = None
+        if table_name in database_catalog_table_dict:
+            catalog_table = database_catalog_table_dict[table_name]
+        # catalog_table = crud.get_catalog_table_level_classification_by_name(
+        #     account_id, region, database_type, database_name, table_name
+        # )
         # columns = table_column_dict[table_name]
         logger.debug(
             "sync_job_detection_result - RESET ADDITIONAL COLUMNS : " + json.dumps(table_column_dict[table_name]))
@@ -682,7 +703,10 @@ def sync_job_detection_result(
                     "manual_tag": const.SYSTEM,
                 }
                 table_dict_list.append(table_dict)
+    logger.info("table opt time")
     crud.batch_update_catalog_table_level_classification_by_id(table_dict_list)
+    logger.info(len(table_dict_list))
+    logger.info("table update time")
     catalog_database = crud.get_catalog_database_level_classification_by_name(
         account_id, region, database_type, database_name
     )
@@ -698,6 +722,7 @@ def sync_job_detection_result(
             catalog_database.id, database_dict
         )
     logger.info("Sync detection result sucessfully!")
+    logger.info("end time")
     return True
 
 
