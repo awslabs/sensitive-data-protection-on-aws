@@ -602,7 +602,7 @@ def check_running_run():
     run_databases = crud.get_running_run_databases()
     for run_database in run_databases:
         run_database_state = __get_run_database_state_from_agent(run_database)
-        logger.info(f"check running run,run database id:{run_database.id},run id:{run_database.run_id}"
+        logger.info(f"check running run,run id:{run_database.run_id},run database id:{run_database.id}"
                     f",account id:{run_database.account_id},region:{run_database.region}"
                     f",database type:{run_database.database_type},database name:{run_database.database_name}"
                     f",state:{run_database_state}")
@@ -617,6 +617,8 @@ def check_running_run():
             error_log = __get_run_error_log(run_database)
             run_database.state = RunDatabaseState.FAILED.value
             run_database.log = error_log
+        elif run_database_state == RunDatabaseState.ABORTED.value.upper():
+            run_database.state = RunDatabaseState.STOPPED.value
 
         job = crud.get_job_by_run_id(run_database.run_id)
         if run_database_state != RunDatabaseState.NOT_EXIST.value:
