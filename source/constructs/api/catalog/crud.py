@@ -19,7 +19,7 @@ def get_catalog_column_level_classification_by_database(
     region: str,
     database_type: str,
     database_name: str,
-    page_size: int = 100
+    page_size: int = 1000
 ):
     session = get_session()
     page = 1
@@ -38,10 +38,8 @@ def get_catalog_column_level_classification_by_database(
         if not query:
             break
         for item in query:
-            column_name = item.column_name
-            if column_name not in results:
-                results[column_name] = None
-            results[column_name] = item
+            key_name = f'{item.table_name}_{item.column_name}'
+            results[key_name] = item
         page += 1
     return results
 
@@ -158,12 +156,12 @@ def search_catalog_table_level_classification_by_database(
     return query_with_condition(get_session().query(models.CatalogTableLevelClassification), condition)
 
 
-def get_catalog_table_level_classification_by_database(
+def get_catalog_table_level_classification_by_database_all(
     account_id: str,
     region: str,
     database_type: str,
     database_name: str,
-    page_size: int = 100
+    page_size: int = 1000
 ):
     session = get_session()
     page = 1
@@ -183,8 +181,6 @@ def get_catalog_table_level_classification_by_database(
             break
         for item in query:
             table_name = item.table_name
-            if table_name not in results:
-                results[table_name] = None
             results[table_name] = item
         page += 1
     return results

@@ -209,7 +209,7 @@ def sync_crawler_result(
                 database_object_count += table_object_count
                 database_size += table_size_key
                 column_order_num = 0
-                logger.info("start to process glue columns")
+                logger.info(f"start to process glue columns: {table_name}")
                 for column in column_list:
                     column_order_num += 1
                     column_name = column["Name"].strip()
@@ -461,14 +461,13 @@ def __query_job_result_by_athena(
             (
                 """SELECT table_name,column_name,cast(identifiers as json) as identifiers_str,CASE WHEN sample_data is NULL then '' else array_join(sample_data, \'|\') end as sample_str, privacy, table_size
             FROM %s 
-            WHERE run_id='%s' 
-                AND account_id='%s'
+            WHERE account_id='%s'
                 AND region='%s' 
                 AND database_type='%s' 
                 AND database_name='%s' 
-                """
+                AND run_id='%s' """
             )
-            % (const.JOB_RESULT_TABLE_NAME, run_id, account_id, region, database_type, database_name)
+            % (const.JOB_RESULT_TABLE_NAME, account_id, region, database_type, database_name, run_id)
     )
     logger.debug("Athena SELECT SQL : " + select_sql)
 
@@ -575,6 +574,7 @@ def sync_job_detection_result(
     database_catalog_columns_dict = crud.get_catalog_column_level_classification_by_database(account_id, region,
                                                                                              database_type, database_name)
     logger.info("column db time")
+    logger.info(len(database_catalog_columns_dict))
     logger.debug(database_catalog_columns_dict)
     for job_result in job_result_list:
         if "ResultSet" in job_result and "Rows" in job_result["ResultSet"]:
@@ -593,9 +593,10 @@ def sync_job_detection_result(
                     else:
                         table_column_dict[table_name] = [column_name]
                     column_privacy = privacy
-                    catalog_column = None
-                    if column_name in database_catalog_columns_dict:
-                        catalog_column = database_catalog_columns_dict[column_name]
+                    key_name = f'{table_name}_{column_name}'
+                    if key_name not in database_catalog_columns_dict:
+                        continue
+                    catalog_column = database_catalog_columns_dict[key_name]
                     # catalog_column = crud.get_catalog_column_level_classification_by_name(
                     #     account_id,
                     #     region,
@@ -632,6 +633,7 @@ def sync_job_detection_result(
     logger.info("column opt time")
     crud.batch_update_catalog_column_level_classification_by_id(column_dict_list)
     logger.info("column update time")
+    logger.info(len(column_dict_list))
     if m <= 1:
         logger.info("sync_job_detection_result none data update because of m <= 1 and m is:" + str(m) + database_name)
         return True
@@ -647,7 +649,7 @@ def sync_job_detection_result(
     database_privacy = Privacy.NON_PII.value
     # The two dict has all tables as key.
     table_dict_list = []
-    database_catalog_table_dict = crud.get_catalog_table_level_classification_by_database(account_id, region,
+    database_catalog_table_dict = crud.get_catalog_table_level_classification_by_database_all(account_id, region,
                                                                                           database_type, database_name)
     logger.info("table db time")
     logger.debug(database_catalog_table_dict)
@@ -703,6 +705,7 @@ def sync_job_detection_result(
                 table_dict_list.append(table_dict)
     logger.info("table opt time")
     crud.batch_update_catalog_table_level_classification_by_id(table_dict_list)
+    logger.info(len(table_dict_list))
     logger.info("table update time")
     catalog_database = crud.get_catalog_database_level_classification_by_name(
         account_id, region, database_type, database_name
