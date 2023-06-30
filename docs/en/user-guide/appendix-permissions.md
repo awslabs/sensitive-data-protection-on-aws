@@ -15,4 +15,4 @@ The permissions can be described at a high-level:
 
 
 !!! Info "For more information"
-    You can view specific permission details in [Template for Monitored account (Agent template)](template.md)
+    You can view specific permission details in [Template for Monitored account (Agent template)](../deployment/template.md)

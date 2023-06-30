@@ -6,11 +6,13 @@
 
 按照以下步骤在AWS上部署此解决方案。
 
-- 步骤一：创建OIDC应用程序。
-- 步骤二：将AWS CloudFormation的**Admin**模板部署到您的AWS管理员账户。
-- 步骤三：配置OIDC应用程序。
-- 步骤四：将AWS CloudFormation的**Agent**模板部署到需要检测的AWS账户。
+- 步骤一：创建OIDC应用程序
+- 步骤二：将AWS CloudFormation的**Admin**模板部署到您的AWS管理员账户
+- 步骤三：配置OIDC应用程序
+- 步骤四：配置自定义域名
 - 步骤五：访问控制台
+- 步骤六：将AWS CloudFormation的**Agent**模板部署到需要检测的AWS账户
+
 
 ## 部署步骤
 
@@ -26,13 +28,14 @@
 
 #### 选项 1：Cognito
 您可以在支持的AWS区域中利用[Cognito用户池](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-identity-pools.html)作为OIDC提供者。
+
 1. 访问[Amazon Cognito控制台](https://us-east-1.console.aws.amazon.com/cognito/v2/idp/user-pools/create?region=us-east-1)。
 
 2. 根据此[指南](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-app-integration.html#cognito-user-pools-create-an-app-integration)，使用Amazon Cognito控制台设置托管的UI。
 
 3. 创建用户池时，从步骤1到步骤4，根据您的需要进行配置。
 
-4. 在选择**App类型**时选择**Public client**。在选择**Client secret**时选择**Don't generate a client secret**。
+4. 请确保您在**托管身份验证页面**区域选择了**使用 Cognito 托管 UI**。在选择**App类型**时选择**Public client**。在选择**Client secret**时选择**Don't generate a client secret**。
 ![Cognito App类型](images/CognitoAppType.jpg)
 
 5. 在**高级应用客户端设置**中，设置**OpenID Connect scopes**时选择**OpenID**、**Email**和**Profile**。
@@ -41,11 +44,10 @@
 5. 确认**托管的UI状态**为**Available**。确保**OpenID Connect scopes**包括**email**、**openid**和**profile**。
 ![Cognito 托管的UI](images/CognitoHostedUI.jpg)
 
-6. 将应用的**Client ID**、**User pool ID**和**AWS区域**保存到一个文件中，稍后将用到。
+6. 将应用的**Client ID**、**User pool ID**和**AWS区域**保存到一个文件中，稍后将用到。在**步骤二：部署管理员堆栈（Deploy admin stack）**中，**Client ID**即为应用的**Client ID**，**Issuer URL**为`https://cognito-idp.${REGION}.amazonaws.com/${USER_POOL_ID}`
 
-在**步骤二：部署管理员堆栈（Deploy admin stack）**中，**Client ID**即为应用的**Client ID**，**Issuer URL**为`https://cognito-id
+注意：该页面配置的参数**Allowed callback URLs**和**Allowed sign-out URLs**将会在**步骤三：配置 OIDC 应用**中重新配置.
 
-p.${REGION}.amazonaws.com/${USER_POOL_ID}`
 ![Cognito Client ID](images/CognitoClientId.png)
 ![Cognito User pool ID](images/CognitoUserpoolId.png)
 
@@ -84,7 +86,7 @@ Issuer URL可以在您的个人资料中找到。完整的Issuer URL为“https:
 ![OKTA Issuer URL](images/OktaIssuerUrl.jpg)
 
 
-### 部署管理员堆栈（Deploy admin stack）
+### 步骤二：部署管理员堆栈（Deploy admin stack）
 
 1. 登录到AWS管理控制台，并使用以下按钮启动 AWS CloudFormation 模板。
 
@@ -95,13 +97,13 @@ Issuer URL可以在您的个人资料中找到。完整的Issuer URL为“https:
     | 在新VPC（AWS 中国区域）中启动解决方案                 | [![Launch Stack](../../images/launch-stack.png)](https://cn-north-1.console.amazonaws.cn/cloudformation/home#/stacks/create/template?stackName=SDPS-Admin&templateURL=https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/Admin.template.json){target=_blank}                                 |
     | 在现有VPC（AWS 中国区域）中启动解决方案           | [![Launch Stack](../../images/launch-stack.png)](https://cn-north-1.console.amazonaws.cn/cloudformation/home#/stacks/create/template?stackName=SDPS-Admin&templateURL=https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/AdminExistVpc.template.json){target=_blank} |
 
-    !!! Important "重要提示"
+!!! Important "重要提示"
 
-        使用现有VPC必须满足以下条件：
-            
-        - 至少有两个公有子网和两个私有子网。
-        - 该VPC必须有NAT gateway。 
-        - 两个私有子网都有到NAT gateway的路由。
+    使用现有VPC必须满足以下条件：
+                    
+    - 至少有两个公有子网和两个私有子网。
+    - 该VPC必须有NAT gateway。 
+    - 两个私有子网都有到NAT gateway的路由。
 
 2. 要在不同的AWS区域中启动此解决方案，请使用控制台导航栏中的区域选择器。
 3. 在**Create stack**页面上，验证**Amazon S3 URL**文本框中显示的正确模板URL，并选择**Next**。
@@ -126,7 +128,7 @@ Issuer URL可以在您的个人资料中找到。完整的Issuer URL为“https:
 10. 在“输出”选项卡中，您将看到门户网站的URL和SigninRedirectUri。
 ![Cloudformation Output](images/CloudformationOutput.png)
 
-### 配置OIDC应用程序（Configure OIDC application）
+### 步骤三：配置OIDC应用程序（Configure OIDC application）
 
 将SigninRedirectUriHTTP(S)的值复制并配置到您的OIDC应用程序中。
 #### 选项 1：Cognito
@@ -145,7 +147,7 @@ Issuer URL可以在您的个人资料中找到。完整的Issuer URL为“https:
 ![Authing Callback URL](images/OktaCallbackURL.png)
 
 
-### 配置自定义域名（Configure custom domain name）
+### 步骤四：配置自定义域名（Configure custom domain name）
 
 如果在创建堆栈时填写了自定义域名，请将自定义域名的CName设置为CloudFormation输出选项卡中的LoadBalancerDnsNameHTTP(S)值。
 
@@ -157,7 +159,7 @@ Issuer URL可以在您的个人资料中找到。完整的Issuer URL为“https:
 1. 从**Outputs**选项卡中获取**PortalUrlHTTP(S)**的值。
 2. 在浏览器中输入该值，启动解决方案的控制台。
 
-### 部署Agent堆栈（Deploy agent stack）
+### 步骤六：部署Agent堆栈（Deploy agent stack）
 
 您可以选择一个或多个账户部署Agent堆栈，从而检测敏感数据。
 
