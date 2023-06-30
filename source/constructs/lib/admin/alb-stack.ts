@@ -64,6 +64,8 @@ export interface VpcProps {
   readonly vpcId: string;
   readonly privateSubnet1: string;
   readonly privateSubnet2: string;
+  readonly publicSubnet1: string;
+  readonly publicSubnet2: string;
 }
 
 
@@ -71,6 +73,7 @@ export interface AlbProps {
   readonly vpc?: IVpc;
   // Value of property Parameters must be an object with String (or simple type) properties in NestedStack.
   readonly vpcInfo?: VpcProps;
+  readonly publicSubnets?: string;
   readonly privateSubnets?: string;
   readonly bucket: IBucket;
   readonly apiFunction: Function;
@@ -97,6 +100,7 @@ export class AlbStack extends NestedStack {
       this.vpc = Vpc.fromVpcAttributes(this, 'AlbVpc', {
         vpcId: props.vpcInfo!.vpcId,
         availabilityZones: [0, 1].map(i => Fn.select(i, Fn.getAzs())),
+        publicSubnetIds: [props.vpcInfo!.publicSubnet1, props.vpcInfo!.publicSubnet2],
         privateSubnetIds: [props.vpcInfo!.privateSubnet1, props.vpcInfo!.privateSubnet2],
       });
     }

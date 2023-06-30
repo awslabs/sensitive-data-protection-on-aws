@@ -56,6 +56,8 @@ export interface VpcProps {
 export class VpcStack extends Construct {
   public vpc!: IVpc;
   public vpcId = '';
+  public publicSubnet1 = '';
+  public publicSubnet2 = '';
   public privateSubnet1 = '';
   public privateSubnet2 = '';
 
@@ -134,6 +136,16 @@ export class VpcStack extends Construct {
       constraintDescription: `VPC id must match pattern ${VPC_ID_PARRERN}`,
     });
 
+    const publicSubnet1 = new CfnParameter(scope, 'PublicSubnet1', {
+      description: 'Select one public subnet in Availability Zone 1.',
+      type: 'AWS::EC2::Subnet::Id',
+    });
+
+    const publicSubnet2 = new CfnParameter(scope, 'PublicSubnet2', {
+      description: 'Select one public subnet in Availability Zone 2.',
+      type: 'AWS::EC2::Subnet::Id',
+    });
+
     const privateSubnet1 = new CfnParameter(scope, 'PrivateSubnet1', {
       description: 'The private subnet must have a route to NatGateway.Select one private subnet in Availability Zone 1.',
       type: 'AWS::EC2::Subnet::Id',
@@ -147,6 +159,8 @@ export class VpcStack extends Construct {
     Parameter.addToParamGroups(
       'VPC Settings',
       vpcId.logicalId,
+      publicSubnet1.logicalId,
+      publicSubnet2.logicalId,
       privateSubnet1.logicalId,
       privateSubnet2.logicalId,
     );
@@ -155,8 +169,11 @@ export class VpcStack extends Construct {
       vpcId: vpcId.valueAsString,
       availabilityZones: [0, 1].map(i => Fn.select(i, Fn.getAzs())),
       privateSubnetIds: [privateSubnet1.valueAsString, privateSubnet2.valueAsString],
+      publicSubnetIds: [publicSubnet1.valueAsString, publicSubnet2.valueAsString],
     });
     this.vpcId = vpcId.valueAsString;
+    this.publicSubnet1 = publicSubnet1.valueAsString;
+    this.publicSubnet2 = publicSubnet2.valueAsString;
     this.privateSubnet1 = privateSubnet1.valueAsString;
     this.privateSubnet2 = privateSubnet2.valueAsString;
 

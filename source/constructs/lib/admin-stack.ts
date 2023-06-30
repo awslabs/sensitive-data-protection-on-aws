@@ -109,6 +109,8 @@ export class AdminStack extends Stack {
     const httpAlbStack = new AlbStack(this, 'HttpALB', {
       vpcInfo: {
         vpcId: vpcStack.vpcId,
+        publicSubnet1: vpcStack.publicSubnet1,
+        publicSubnet2: vpcStack.publicSubnet2,
         privateSubnet1: vpcStack.privateSubnet1,
         privateSubnet2: vpcStack.privateSubnet2,
       },
