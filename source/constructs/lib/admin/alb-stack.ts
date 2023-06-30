@@ -106,7 +106,7 @@ export class AlbStack extends NestedStack {
     const alb = new ApplicationLoadBalancer(this, 'ApplicationLoadBalancer', {
       // loadBalancerName: `${SolutionInfo.SOLUTION_NAME_ABBR}-ALB-${this.identifier}`,
       vpc: this.vpc,
-      internetFacing: false,
+      internetFacing: true,
       securityGroup: albSecurityGroup,
       http2Enabled: true,
     });
