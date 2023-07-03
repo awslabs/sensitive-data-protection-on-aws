@@ -81,8 +81,7 @@ def get_glue_job_run_status(account_id, region, job_name):
 
 
 def create_sample_job(account_id: str, database_name: str,
-                      database_type: str, region: str, table_name: str):
-    job_name = f'{database_type}_{database_name}_{table_name}_job'
+                      database_type: str, region: str, table_name: str, job_name: str):
     job = schemas.DiscoveryJobCreate(
         name=job_name,
         description=f'get {database_type} sample data',
@@ -119,7 +118,7 @@ def init_s3_sample_job(account_id: str, region: str, bucket_name: str, resource_
     job_name = f"{const.SOLUTION_NAME}-Sample-Job-S3"
     status = get_glue_job_run_status(account_id, region, job_name)
     if status is None or refresh:
-        response = create_sample_job(account_id, bucket_name, DatabaseType.S3.value, region, resource_name)
+        response = create_sample_job(account_id, bucket_name, DatabaseType.S3.value, region, resource_name, job_name)
         logger.info(f" start to init sample job: {bucket_name},{resource_name},{response}")
         status = get_glue_job_run_status(account_id, region, job_name)
         logger.info(status)
@@ -137,7 +136,7 @@ def init_rds_sample_job(account_id: str, region: str, instance_id: str, table_na
     job_name = f"{const.SOLUTION_NAME}-Sample-Job-RDS-" + instance_id
     status = get_glue_job_run_status(account_id, region, job_name)
     if status is None or refresh:
-        response = create_sample_job(account_id, instance_id, DatabaseType.RDS.value, region, table_name)
+        response = create_sample_job(account_id, instance_id, DatabaseType.RDS.value, region, table_name, job_name)
         logger.info(f" start to init sample job: {instance_id},{table_name},{response}")
         status = get_glue_job_run_status(account_id, region, job_name)
         logger.info(status)
