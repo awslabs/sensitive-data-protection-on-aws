@@ -30,6 +30,9 @@ nav:
             - Add AWS accounts: user-guide/data-source.md
             - Create data catalogs: user-guide/data-catalog-create.md
             - Delete data catalogs: user-guide/data-catalog-delete.md
+        - Browse data catalogs: 
+            - Synchronize data catalogs: user-guide/data-catalog-sync.md
+            - Label data catalogs: user-guide/data-catalog-labels.md
         - Define classification template: 
             - Define classification template: user-guide/data-classification-template.md
             - Manage data identifiers: user-guide/data-identifiers.md
@@ -39,19 +42,16 @@ nav:
             - Download job report: user-guide/discovery-job-report.md
             - Re-run/Duplicate job: user-guide/discovery-job-rerun-and-duplicate.md
             - Pause/Continue job: user-guide/discovery-job-pause-and-cancel.md
-        - Browse data catalogs: 
-            - Synchronize data catalogs: user-guide/data-catalog-sync.md
-            - Label data catalogs: user-guide/data-catalog-labels.md
+
     - Appendix: 
         - Built-in data identifiers: user-guide/appendix-built-in-identifiers.md
-        - Supported data types: user-guide/appendix-supported-data-types.md
         - Permissions of CloudFormation Stacks: user-guide/appendix-permissions.md
         - Add accounts via AWS Organization: user-guide/appendix-organization.md
     - Uninstall the solution: uninstall.md
     - Developer guide:
         - Source code: developer-guide/source.md
-    - Troubleshooting: troubleshooting.md
     - Revisions: revisions.md
     - Contributors: contributors.md
     - Notices: notices.md
+    - About Premium Edition: about-premium-edition.md
 

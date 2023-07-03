@@ -136,6 +136,7 @@ class RunDatabaseState(Enum):
     STOPPING = "Stopping"
     STOPPED = "Stopped"
     NOT_EXIST = "NotExist"
+    ABORTED = "Aborted"
 
 
 @unique

@@ -1,11 +1,11 @@
 # 连接到数据源
 使用敏感数据保护的第一步是上线 AWS 账户。为此，您需要在 AWS 账户中部署“Agent CloudFormation 堆栈”。
 
-有关Agent堆栈所需的权限，请参阅[附录：Agent CloudFormation 堆栈的权限](appendix-agent-stack.md)。
+有关Agent堆栈所需的权限，请参阅[附录：Agent CloudFormation 堆栈的权限](./appendix-permissions.md)。
 
 ## 添加 AWS 账户（单个）
 
-1. 登录解决方案的 Web 门户。
+1. 登录解决方案的控制台。
 2. 在**摘要**区域中选择**连接到数据源**。或者，从左侧导航窗格中选择**连接到数据源**。
 3. 选择**添加新账户**以打开**单个账户**标签页。
 4. 按照 **步骤1** 和 **步骤2** 中的说明安装 Agent CloudFormation 堆栈。

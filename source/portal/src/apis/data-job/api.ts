@@ -121,6 +121,18 @@ const requestJobProgress = async (params: {
   return result as any;
 };
 
+const batchrequestJobProgress = async (params: {
+  id: string;
+  run_id: string;
+}) => {
+  const result = await apiRequest(
+    'get',
+    `/discovery-jobs/${params.id}/runs/${params.run_id}/progress`,
+    ''
+  );
+  return result as any;
+};
+
 export {
   getDiscoveryJobs,
   getJobDetail,
@@ -136,4 +148,5 @@ export {
   getGuleJobStatus,
   getJobTemplateUrl,
   requestJobProgress,
+  batchrequestJobProgress,
 };

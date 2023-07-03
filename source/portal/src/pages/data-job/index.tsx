@@ -36,6 +36,8 @@ import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import Navigation from 'pages/left-menu/Navigation';
 import { TABLE_NAME } from 'enum/common_types';
 import { useTranslation } from 'react-i18next';
+import HelpInfo from 'common/HelpInfo';
+import { buildDocLink } from 'ts/common';
 
 const DataJobHeader: React.FC = () => {
   const { t } = useTranslation();
@@ -104,6 +106,40 @@ const DataJobContent: React.FC<any> = (props: any) => {
       alertMsg(t('continueSuccess'), 'success');
     }
     getPageData();
+  };
+
+  const getTimeDiff = (startTime: string, endTime: string) => {
+    if (!startTime || !endTime) {
+      return '-';
+    }
+    const start = new Date(startTime).getTime();
+    const end = new Date(endTime).getTime();
+    const diff = end - start;
+
+    if (diff < 0) {
+      return null; // 结束时间早于开始时间，返回 null
+    }
+
+    const seconds = Math.floor(diff / 1000);
+    if (seconds < 60) {
+      return seconds + t('Sec');
+    }
+
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    if (minutes < 60) {
+      return minutes + t('Min') + remainingSeconds + t('Sec');
+    }
+
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    if (hours < 24) {
+      return hours + t('Hours') + remainingMinutes + t('Min');
+    }
+
+    const days = Math.floor(hours / 24);
+    const remainingHours = hours % 24;
+    return days + t('Days') + remainingHours + t('Hours');
   };
 
   // useEffect(() => {
@@ -208,24 +244,19 @@ const DataJobContent: React.FC<any> = (props: any) => {
               if (item.id === 'last_end_time') {
                 let runTime = '';
                 if ((e as any)['last_start_time'] && (e as any)[item.id]) {
-                  const splitTime =
-                    +new Date((e as any)[item.id]) -
-                    +new Date((e as any)['last_start_time']);
-                  if (splitTime) {
-                    const min = ((splitTime % 3600000) / 60000).toFixed(0);
-                    const hour = (splitTime / 3600000).toFixed(0);
-                    runTime = `${min}min`;
-                    runTime =
-                      splitTime > 3600000
-                        ? `(${hour}h${min}min)`
-                        : `(${runTime})`;
-                  }
+                  const startTimeStr = moment((e as any)['last_start_time'])
+                    .add(8, 'h')
+                    .format('YYYY-MM-DD HH:mm:ss');
+                  const endTimeStr = moment((e as any)['last_end_time'])
+                    .add(8, 'h')
+                    .format('YYYY-MM-DD HH:mm:ss');
+                  runTime = getTimeDiff(startTimeStr, endTimeStr) || '';
                 }
 
                 return (e as any)[item.id]
                   ? `${moment((e as any)[item.id])
                       .add(8, 'h')
-                      .format('YYYY-MM-DD HH:mm')} ${runTime}`
+                      .format('YYYY-MM-DD HH:mm')} (${runTime})`
                   : '-';
               }
               if (item.id === 'name') {
@@ -403,7 +434,7 @@ const DataJobContent: React.FC<any> = (props: any) => {
 };
 
 const DataJob: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const breadcrumbItems = [
     { text: t('breadcrumb.home'), href: RouterEnum.Home.path },
     {
@@ -415,6 +446,42 @@ const DataJob: React.FC = () => {
   return (
     <AppLayout
       contentHeader={<DataJobHeader />}
+      tools={
+        <HelpInfo
+          title={t('breadcrumb.runJobs')}
+          description={t('info:runjob.desc')}
+          linkItems={[
+            {
+              text: t('info:runjob.jobSettings'),
+              href: buildDocLink(
+                i18n.language,
+                '/user-guide/discovery-job-create/'
+              ),
+            },
+            {
+              text: t('info:runjob.howToDownload'),
+              href: buildDocLink(
+                i18n.language,
+                '/user-guide/discovery-job-report/'
+              ),
+            },
+            {
+              text: t('info:runjob.rerunJob'),
+              href: buildDocLink(
+                i18n.language,
+                '/user-guide/discovery-job-rerun-and-duplicate/'
+              ),
+            },
+            {
+              text: t('info:runjob.howToPause'),
+              href: buildDocLink(
+                i18n.language,
+                '/user-guide/discovery-job-pause-and-cancel/'
+              ),
+            },
+          ]}
+        />
+      }
       content={
         <ContentLayout>
           <DataJobContent />

@@ -7,6 +7,8 @@ import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import Navigation from 'pages/left-menu/Navigation';
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
+import HelpInfo from 'common/HelpInfo';
+import { buildDocLink } from 'ts/common';
 
 const AddAccountHeader: React.FC = () => {
   const { t } = useTranslation();
@@ -40,7 +42,7 @@ const AddAccountContent = () => {
 };
 
 const AddAccount: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const breadcrumbItems = [
     { text: t('breadcrumb.home'), href: RouterEnum.Home.path },
     {
@@ -51,6 +53,25 @@ const AddAccount: React.FC = () => {
   return (
     <AppLayout
       contentHeader={<AddAccountHeader />}
+      tools={
+        <HelpInfo
+          title={t('breadcrumb.awsAccount')}
+          description={t('info:account.desc')}
+          linkItems={[
+            {
+              text: t('info:account.manualAdd'),
+              href: buildDocLink(i18n.language, '/user-guide/data-source/'),
+            },
+            {
+              text: t('info:account.batchAdd'),
+              href: buildDocLink(
+                i18n.language,
+                '/user-guide/appendix-organization/'
+              ),
+            },
+          ]}
+        />
+      }
       content={<AddAccountContent />}
       headerSelector="#header"
       breadcrumbs={<CustomBreadCrumb breadcrumbItems={breadcrumbItems} />}

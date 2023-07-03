@@ -19,5 +19,7 @@
   "identProperties": "标识符属性",
   "evaluateSampleData": "使用样本数据进行评估",
   "selectCategory": "选择一个类别",
-  "selectLabel": "选择一个标签"
+  "selectLabel": "选择一个标签",
+  "deleteAlert": "若这个identifier在已经存在在数据目录中，再次运行敏感数据发现作业后，这个identifier将从数据目录中移除",
+  "keywordAlert": "填写关键词或关闭按关键词识别按钮"
 }

@@ -53,8 +53,12 @@ async def detect_s3_data_source(session: Session, aws_account_id: str):
     s3_agent_bucket_name_list = []
     
     for bucket in resource.buckets.all():
+        try:
+            _region = client.get_bucket_location(Bucket=bucket.name)['LocationConstraint']
+        except Exception:
+            logger.warning(f"get bucket location error:{bucket.name}")
+            continue
         s3_agent_bucket_name_list.append(bucket.name)
-        _region = client.get_bucket_location(Bucket=bucket.name)['LocationConstraint']
         _region = "us-east-1" if _region is None else _region
         if _region in agent_regions:
             s3_bucket_source = session.query(S3BucketSource).filter(S3BucketSource.bucket_name == bucket.name,

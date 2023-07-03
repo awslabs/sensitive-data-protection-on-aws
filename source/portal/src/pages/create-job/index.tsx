@@ -572,7 +572,7 @@ const CreateJobContent = () => {
   };
 
   const checkChar = (name: string) => {
-    const re = /[^0-9a-zA-Z,\- |-]/g;
+    const re = /[^0-9a-zA-Z_.\- |-]/g;
     if (!re?.test(name)) {
       return true;
     }
@@ -1417,6 +1417,7 @@ const CreateJob: React.FC = () => {
   ];
   return (
     <AppLayout
+      toolsHide
       contentHeader={<CreateJobHeader />}
       content={<CreateJobContent />}
       headerSelector="#header"

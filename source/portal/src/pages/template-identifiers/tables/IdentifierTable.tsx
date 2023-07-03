@@ -1,9 +1,12 @@
 import {
+  Alert,
   Box,
   Button,
   CollectionPreferences,
   Header,
   Icon,
+  Input,
+  Modal,
   Pagination,
   SelectProps,
   SpaceBetween,
@@ -21,7 +24,6 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
 import { alertMsg, useDidUpdateEffect } from 'tools/tools';
-import TemplateDelete from 'pages/template-delete';
 import { TABLE_NAME } from 'enum/common_types';
 import { useTranslation } from 'react-i18next';
 import PropsModal, { Props } from 'common/PropsModal';
@@ -51,10 +53,8 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [isShowDelete, setIsShowDelete] = useState(false);
-  const [showErrorTips, setShowErrorTips] = useState({
-    template: false,
-    catalog: false,
-  });
+  const [s3ConflictCount, setS3ConflictCount] = useState(0);
+  const [rdsConflictCount, setrdsConflictCount] = useState(0);
 
   const [query, setQuery] = useState({
     tokens: [],
@@ -70,7 +70,9 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
     filteringPlaceholder: t('template:filterByNameOrDesc'),
   };
 
-  const [curSortColumn, setCurSortColumn] = useState<any>('');
+  const [curSortColumn, setCurSortColumn] = useState<any>({
+    sortingField: 'name',
+  });
   const [isDescending, setIsDescending] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
@@ -88,28 +90,59 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
     useState<SelectProps.Option | null>(null);
   const [cleanData, setCleanData] = useState(1);
 
+  const [confirmInput, setConfirmInput] = useState('');
+  const [showErrorTips, setShowErrorTips] = useState({
+    template: false,
+    s3: false,
+    rds: false,
+  });
+  const [loadingDelete, setLoadingDelete] = useState(false);
+
   const confirmDelete = async () => {
     const requestParam = {
       id: selectedItems[0].id,
     };
+
     try {
+      setLoadingDelete(true);
       await deleteIdentifiers(requestParam);
       setIsShowDelete(false);
       alertMsg(t('deleteSuccess'), 'success');
       setSelectedItems([]);
       getPageData();
+      setLoadingDelete(false);
     } catch (error: any) {
-      console.info('error:', error);
+      setLoadingDelete(false);
       if (error) {
         if (!error.ref || error.ref.length === 0) {
           alertMsg(error.message, 'error');
           return;
         } else {
+          const templateConflictStr = error.ref.find((i: string) =>
+            i.startsWith('template')
+          );
+          const s3ConflictStr = error.ref.find((i: string) =>
+            i.startsWith('s3')
+          );
+          const rdsConflictStr = error.ref.find((i: string) =>
+            i.startsWith('rds')
+          );
+          if (s3ConflictStr) {
+            const s3CountSplit = s3ConflictStr.split(':');
+            if (s3CountSplit.length > 1) {
+              setS3ConflictCount(s3CountSplit[1]);
+            }
+          }
+          if (rdsConflictStr) {
+            const rdsCountSplit = rdsConflictStr.split(':');
+            if (rdsCountSplit.length > 1) {
+              setrdsConflictCount(rdsCountSplit[1]);
+            }
+          }
           setShowErrorTips({
-            template: error.ref.filter((i: any) => i === 'template').length > 0,
-            catalog:
-              error.ref.filter((i: any) => i === 's3' || i === 'rds').length >
-              0,
+            template: templateConflictStr ? true : false,
+            s3: s3ConflictStr ? true : false,
+            rds: rdsConflictStr ? true : false,
           });
         }
       }
@@ -117,20 +150,16 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
     return;
   };
 
-  useEffect(() => {
-    isShowDelete &&
-      setShowErrorTips({
-        template: false,
-        catalog: false,
-      });
-  }, [isShowDelete]);
-
-  const deleteModalProps = {
-    isShowDelete,
-    setIsShowDelete,
-    confirmDelete,
-    showErrorTips,
-    title: t('template:deleteDataIdentifier'),
+  const clkConfirmDelete = async () => {
+    if (!confirmInput || confirmInput !== t('confirm')) {
+      alertMsg(t('confirmDelete'), 'warning');
+      return;
+    }
+    try {
+      await confirmDelete();
+    } catch (error) {
+      console.warn(error);
+    }
   };
 
   const clkDelete = async () => {
@@ -138,6 +167,12 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
       alertMsg(t('selectOneItem'), 'error');
       return;
     }
+    setConfirmInput('');
+    setShowErrorTips({
+      template: false,
+      rds: false,
+      s3: false,
+    });
     setIsShowDelete(true);
   };
 
@@ -171,7 +206,7 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
       const requestParam = {
         page: currentPage,
         size: preferences.pageSize,
-        sort_column: curSortColumn.id,
+        sort_column: curSortColumn?.sortingField,
         asc: !isDescending,
         conditions: [
           {
@@ -475,7 +510,105 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
         }
         loading={isLoading}
       />
-      <TemplateDelete {...deleteModalProps} />
+      <Modal
+        visible={isShowDelete}
+        onDismiss={() => setIsShowDelete(false)}
+        header={
+          <Header variant="h2">{t('template:deleteDataIdentifier')}</Header>
+        }
+        footer={
+          <Box float="right">
+            <SpaceBetween direction="horizontal" size="xs">
+              <Button
+                disabled={loadingDelete}
+                variant="link"
+                onClick={() => setIsShowDelete(false)}
+                loading={isLoading}
+              >
+                {t('button.cancel')}
+              </Button>
+              {!showErrorTips.template &&
+                !showErrorTips.s3 &&
+                !showErrorTips.rds && (
+                  <Button onClick={clkConfirmDelete} loading={loadingDelete}>
+                    {t('button.delete')}
+                  </Button>
+                )}
+            </SpaceBetween>
+          </Box>
+        }
+      >
+        <p className="delete-top">{t('template:deleteIdentifierTips')}</p>
+        {(showErrorTips.template || showErrorTips.s3 || showErrorTips.rds) && (
+          <>
+            <div className="delete-identifer">
+              <Icon
+                name="status-warning"
+                className="delete-identifer-warning"
+              />
+              <span className="warning-desc">
+                {t('template:identifierBeingUsed')}
+              </span>
+              <ul>
+                {showErrorTips.template && (
+                  <li>
+                    {t('template:classficationTemplate')}
+                    <a
+                      target="_blank"
+                      href={RouterEnum.Datatemplate.path}
+                      rel="noreferrer"
+                    >
+                      {t('here')}
+                    </a>
+                  </li>
+                )}
+                {showErrorTips.s3 && (
+                  <li>
+                    {t('template:dataS3')}(
+                    <a
+                      target="_blank"
+                      href={`/catalog?tagType=s3&identifiers=${selectedItems?.[0].name}`}
+                      rel="noreferrer"
+                    >
+                      {s3ConflictCount}
+                    </a>
+                    )
+                  </li>
+                )}
+                {showErrorTips.rds && (
+                  <li>
+                    {t('template:dataRDS')}(
+                    <a
+                      target="_blank"
+                      href={`/catalog?tagType=rds&identifiers=${selectedItems?.[0].name}`}
+                      rel="noreferrer"
+                    >
+                      {rdsConflictCount}
+                    </a>
+                    )
+                  </li>
+                )}
+              </ul>
+            </div>
+            <span className="confirm-top">
+              {t('template:removeTheseAndDelete')}
+            </span>
+          </>
+        )}
+        {!showErrorTips.template && !showErrorTips.s3 && !showErrorTips.rds && (
+          <>
+            <Alert type="info">{t('identifier:deleteAlert')}</Alert>
+            <div className="confirm-top">{t('template:toAvoidTips')}</div>
+            <div className="confirm-agree">{t('template:typeConfirm')}</div>
+            <Input
+              value={confirmInput}
+              onChange={({ detail }) => setConfirmInput(detail.value)}
+              placeholder={t('confirm') || ''}
+              className="confirm-input"
+            />
+          </>
+        )}
+      </Modal>
       <PropsModal
         propsType={modalType}
         showModal={showModal}

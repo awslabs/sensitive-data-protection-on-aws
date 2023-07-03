@@ -54,6 +54,7 @@ class DiscoveryJobRunDatabaseStatus(BaseModel):
 
 
 class DiscoveryJobRunDatabaseProgress(BaseModel):
+    run_database_id: int
     current_table_count: int
     table_count: int
 
@@ -87,6 +88,12 @@ class DiscoveryJobDatabaseBase(BaseModel):
 
 
 class DiscoveryJobDatabaseCreate(DiscoveryJobDatabaseBase):
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.account_id == other.account_id and self.region == other.region and self.database_type == other.database_type and self.database_name == other.database_name
+
+    def __hash__(self):
+        return hash((self.account_id, self.region, self.database_type, self.database_name))
+
     class Meta:
         orm_model = models.DiscoveryJobDatabase
 

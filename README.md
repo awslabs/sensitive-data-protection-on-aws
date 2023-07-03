@@ -12,6 +12,8 @@ English | [简体中文](README_zh.md)
 
 <p align="center">
   <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg" alt="Apache 2.0 License"></a>
+  <a href="https://github.com/awslabs/sensitive-data-protection-on-aws/releases"><img src="https://img.shields.io/github/v/release/awslabs/sensitive-data-protection-on-aws?include_prereleases"></a>
+  <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/awslabs/sensitive-data-protection-on-aws">
 </p>
 
 <br/>
@@ -21,6 +23,8 @@ English | [简体中文](README_zh.md)
 The Sensitive Data Protection on AWS solution allows enterprise customers to create data catalogs, discover, protect, and visualize sensitive data across multiple AWS accounts. The solution eliminates the need for manual tagging to track sensitive data such as Personal Identifiable Information (PII) and classified information.
 
 The solution provides an automated approach to data protection with a self-service web application. You can perform regular or on-demand sensitive data discovery jobs using your own data classification templates. Moreover, you can access metrics such as the total number of sensitive data entries stored in all your AWS accounts, which accounts contain the most sensitive data, and the data source where the sensitive data is located. 
+
+For more information about the solution, please refer to our [website](https://www.amazonaws.cn/en/solutions/technology/security/sensitive-data-protection-on-amazon-web-services/). 
 
 Summary Dashboard          |
 :-------------------------:|

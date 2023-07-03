@@ -14,6 +14,8 @@ import Navigation from 'pages/left-menu/Navigation';
 import { getAccountInfomation } from 'apis/dashboard/api';
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
+import HelpInfo from 'common/HelpInfo';
+import { buildDocLink } from 'ts/common';
 
 const AccountManagementHeader: React.FC = () => {
   const { t } = useTranslation();
@@ -93,7 +95,7 @@ const AccountManagementContent: React.FC = () => {
 };
 
 const AccountManagement: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const breadcrumbItems = [
     { text: t('breadcrumb.home'), href: RouterEnum.Home.path },
     {
@@ -103,6 +105,18 @@ const AccountManagement: React.FC = () => {
   ];
   return (
     <AppLayout
+      tools={
+        <HelpInfo
+          title={t('breadcrumb.connectSource')}
+          description={t('info:connect.desc')}
+          linkItems={[
+            {
+              text: t('info:connect.addAWSAccount'),
+              href: buildDocLink(i18n.language, '/user-guide/data-source/'),
+            },
+          ]}
+        />
+      }
       contentHeader={<AccountManagementHeader />}
       content={<AccountManagementContent />}
       headerSelector="#header"
