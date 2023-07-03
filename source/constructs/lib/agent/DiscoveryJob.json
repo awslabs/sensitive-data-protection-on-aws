@@ -156,7 +156,17 @@
               }
             },
             "End": true,
-            "ResultPath": "$.StartJobRun"
+            "ResultPath": "$.StartJobRun",
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "States.ALL"
+                ],
+                "BackoffRate": 2,
+                "IntervalSeconds": 100,
+                "MaxAttempts": 3
+              }
+            ]
           }
         }
       },
