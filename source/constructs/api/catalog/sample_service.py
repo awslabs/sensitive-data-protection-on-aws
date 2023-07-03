@@ -67,17 +67,21 @@ def get_glue_job_run_status(account_id, region, job_name):
                                aws_session_token=credentials['SessionToken'],
                                region_name=region,
                                )
-    response = client_glue.get_job_runs(JobName=job_name, MaxResults=1)
-    logger.debug(response)
-    # 检查作业运行记录是否存在
-    status = None
-    if 'JobRuns' in response and len(response['JobRuns']) > 0:
-        # 获取第一个作业运行记录的执行状态
-        status = response['JobRuns'][0]['JobRunState']
-        logger.info(f"Job status: {status}")
-    else:
-        logger.info("No job runs found.")
-    return status
+    try:
+        response = client_glue.get_job_runs(JobName=job_name, MaxResults=1)
+        logger.debug(response)
+        # 检查作业运行记录是否存在
+        status = None
+        if 'JobRuns' in response and len(response['JobRuns']) > 0:
+            # 获取第一个作业运行记录的执行状态
+            status = response['JobRuns'][0]['JobRunState']
+            logger.info(f"Job status: {status}")
+        else:
+            logger.info("No job runs found.")
+        return status
+    except Exception as err:
+        logger.info("get_job_runs error" + str(err))
+    return None
 
 
 def create_sample_job(account_id: str, database_name: str,
