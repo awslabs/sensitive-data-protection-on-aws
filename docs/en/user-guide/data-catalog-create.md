@@ -23,7 +23,8 @@ You can also choose **Sync ALL to data catalog** from the **Actions** list to qu
         
         - It has [VPC NAT Gateway](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html).
         - It has both [VPC Endpoints for S3](https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints-s3.html) and Glue Endpoint.
-  
+
+
 1. On the **Connect to data source** page, click one account to open its details page.
 2. Choose the **Amazon RDS** tab. You can see a list of RDS instances in the region where the solution is deployed. 
 3. Select a RDS instance, and choose **Sync to data catalog** to open a pop-up window asking for credentials. There are two options to enter the credentials:
