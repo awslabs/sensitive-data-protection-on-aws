@@ -17,7 +17,7 @@
         <link rel="next" href="../discovery-job-details/">
       
       <link rel="icon" href="https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico">
-      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.15">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.18">
     
     
       
@@ -952,6 +952,19 @@
     Job setting details
   </a>
   
+    <nav class="md-nav" aria-label="Job setting details">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#about-incremental-scanning" class="md-nav__link">
+    About Incremental Scanning:
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -1115,6 +1128,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        FAQ
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting/" class="md-nav__link">
+        Troubleshooting
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../uninstall/" class="md-nav__link">
         Uninstall the solution
       </a>
@@ -1134,17 +1175,17 @@
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_9" >
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_11" >
       
       
       
-        <label class="md-nav__link" for="__nav_1_9" id="__nav_1_9_label" tabindex="0">
+        <label class="md-nav__link" for="__nav_1_11" id="__nav_1_11_label" tabindex="0">
           Developer guide
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_9_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_1_9">
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_11_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_1_11">
           <span class="md-nav__icon md-icon"></span>
           Developer guide
         </label>
@@ -1269,6 +1310,19 @@
     Job setting details
   </a>
   
+    <nav class="md-nav" aria-label="Job setting details">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#about-incremental-scanning" class="md-nav__link">
+    About Incremental Scanning:
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -1343,6 +1397,26 @@
 </tr>
 </tbody>
 </table>
+<h3 id="about-incremental-scanning">About Incremental Scanning:</h3>
+<p>When the "Incremental Scan" setting is selected in the job, the scanning logic for S3 and RDS is slightly different, as follows:</p>
+<p>S3: When there is any change to an S3 object, the incremental scan will scan the Folder level of that path.</p>
+<ul>
+<li>
+<p>For example: there is 1 bucket with 3 folders, each containing a CSV file with a different schema. When the schema of the files in 1 folder is changed, during incremental scanning, the job will only scan the CSV files in that folder, not the other 2 folders.</p>
+</li>
+<li>
+<p>For example: there is 1 bucket with 3 folders, each containing a CSV file with a different schema. When the schema of the files in 1 folder remains the same but the number of rows is increased or the file is updated in any way, during incremental scanning, the job will only scan the CSV files in that folder, not the other 2 folders.</p>
+</li>
+</ul>
+<p>RDS: Only when there is a column-level change to an RDS table will the incremental scan scan that table.</p>
+<ul>
+<li>
+<p>For example: there is 1 RDS instance with 3 tables. When the schema of 1 table is changed (a column is added or deleted), during incremental scanning, only that table will be scanned, and the other two tables will be skipped.</p>
+</li>
+<li>
+<p>For example: there is 1 RDS instance with 3 tables. When the schema of 1 table remains the same but rows are added or deleted, during incremental scanning, none of the 3 tables will be scanned.</p>
+</li>
+</ul>
 
 
 
@@ -1375,10 +1449,10 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": "develop"}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.74e28a9f.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": "develop"}</script>
     
     
-      <script src="../../assets/javascripts/bundle.b4d07000.min.js"></script>
+      <script src="../../assets/javascripts/bundle.220ee61c.min.js"></script>
       
     
   </body>

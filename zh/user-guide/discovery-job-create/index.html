@@ -19,7 +19,7 @@
         <link rel="next" href="../discovery-job-details/">
       
       <link rel="icon" href="https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico">
-      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.15">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.18">
     
     
       
@@ -954,6 +954,19 @@
     作业设置详细信息
   </a>
   
+    <nav class="md-nav" aria-label="作业设置详细信息">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    关于增量扫描：
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -1117,6 +1130,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        常见问题
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting/" class="md-nav__link">
+        故障排查
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../uninstall/" class="md-nav__link">
         卸载解决方案
       </a>
@@ -1136,17 +1177,17 @@
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_9" >
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_11" >
       
       
       
-        <label class="md-nav__link" for="__nav_1_9" id="__nav_1_9_label" tabindex="0">
+        <label class="md-nav__link" for="__nav_1_11" id="__nav_1_11_label" tabindex="0">
           开发者指南
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_9_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_1_9">
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_11_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_1_11">
           <span class="md-nav__icon md-icon"></span>
           开发者指南
         </label>
@@ -1208,7 +1249,7 @@
   
     <li class="md-nav__item">
       <a href="../../about-premium-edition/" class="md-nav__link">
-        关于 Premium Edition（又称 Data Customs)
+        关于 Premium Edition（又称“数据海关”)
       </a>
     </li>
   
@@ -1256,6 +1297,19 @@
   <a href="#_2" class="md-nav__link">
     作业设置详细信息
   </a>
+  
+    <nav class="md-nav" aria-label="作业设置详细信息">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    关于增量扫描：
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1334,6 +1388,22 @@
 </tr>
 </tbody>
 </table>
+<h3 id="_3">关于增量扫描：</h3>
+<p>当在job选择“增量扫描”设置的时候，S3和RDS的扫描逻辑略有不同，如下：</p>
+<p>S3: 当S3对象有任何变化的情况下，增量扫描会对该路径Folder层面进行扫描</p>
+<ul>
+<li>
+<p>举例：1个桶，3个folder里面各含有一种csv文件（不同schema），当其中一个folder的文件schema有所更改。那么，在增量扫描的时候，Job只会对这个folder下面的csv文件进行扫描，不会扫描另外2个folder。</p>
+</li>
+<li>
+<p>举例：1个桶，3个folder里面各含有一种csv文件（不同schema），当其中一个folder的文件schema不变，但是增加了行数或者文件有任何更新。在增量扫描的时候，Job只会对这个folder下面的csv文件进行扫描，不会扫描另外2个folder。</p>
+</li>
+</ul>
+<p>RDS: 只有当RDS表有列级别变化的时候，增量扫描会对该表进行扫描</p>
+<ul>
+<li>举例：1个RDS instance，3个table，当其中一个table的表结构schema变化（新增或删除列）。那么，在增量扫描的时候，只会对这个table进行扫描，跳过另外2个table。</li>
+<li>举例：1个RDS instance，3个table，当其中一个table的表结构schema不变，但新增/删除了行，那么，在增量扫描的时候，这3个table都不会被扫描。</li>
+</ul>
 
 
 
@@ -1366,10 +1436,10 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": "develop"}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.74e28a9f.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": "develop"}</script>
     
     
-      <script src="../../assets/javascripts/bundle.b4d07000.min.js"></script>
+      <script src="../../assets/javascripts/bundle.220ee61c.min.js"></script>
       
     
   </body>

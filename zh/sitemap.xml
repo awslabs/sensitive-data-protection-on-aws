@@ -2,192 +2,197 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/about-premium-edition/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/contributors/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/faq/</loc>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/notices/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/revisions/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/troubleshooting/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/uninstall/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/architecture-details/architecture-details/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/architecture-details/services-in-the-solution/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/architecture-overview/architecture-details/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/architecture-overview/architecture/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/architecture-overview/well-architected-pillars/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/deployment/deployment/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/deployment/template/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/developer-guide/source/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/plan-deployment/cost/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/plan-deployment/regions/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/plan-deployment/security/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/solution-overview/concepts/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/solution-overview/features-and-benefits/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/appendix-built-in-identifiers/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/appendix-organization/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/appendix-permissions/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/data-catalog-create/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/data-catalog-delete/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/data-catalog-export/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/data-catalog-labels/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/data-catalog-sync/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/data-classification-template/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/data-identifiers/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/data-source/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/discovery-job-create/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/discovery-job-details/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/discovery-job-pause-and-cancel/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/discovery-job-report/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/discovery-job-rerun-and-duplicate/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/get-started/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/sensitive-data-discovery-job/</loc>
-         <lastmod>2023-06-13</lastmod>
+         <lastmod>2023-07-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
