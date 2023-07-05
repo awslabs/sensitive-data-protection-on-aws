@@ -47,6 +47,8 @@ nav:
         - Built-in data identifiers: user-guide/appendix-built-in-identifiers.md
         - Permissions of CloudFormation Stacks: user-guide/appendix-permissions.md
         - Add accounts via AWS Organization: user-guide/appendix-organization.md
+    - FAQ: faq.md
+    - Troubleshooting: troubleshooting.md
     - Uninstall the solution: uninstall.md
     - Developer guide:
         - Source code: developer-guide/source.md
