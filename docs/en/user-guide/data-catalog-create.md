@@ -23,6 +23,7 @@ You can also choose **Sync ALL to data catalog** from the **Actions** list to qu
         
         - It has [VPC NAT Gateway](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html).
         - It has both [VPC Endpoints for S3](https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints-s3.html) and Glue Endpoint.
+        - It has granted select permission to the database operation user corresponding to the solution.
 
 
 1. On the **Connect to data source** page, click one account to open its details page.
