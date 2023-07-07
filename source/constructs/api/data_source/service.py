@@ -257,19 +257,35 @@ def sync_s3_connection_by_region(account: str, region: str):
             logger.error(traceback.format_exc())
 
 
-# The routing of the RDS subnet is not checked
-def check_link(credentials, region_name: str, vpc_id: str, rds_secret_id: str):
-    ec2 = boto3.client('ec2',
-                       aws_access_key_id=credentials['AccessKeyId'],
-                       aws_secret_access_key=credentials['SecretAccessKey'],
-                       aws_session_token=credentials['SessionToken'],
-                       region_name=region_name)
+def check_subnet_has_nat_route(credentials, region_name: str, subnet_id: str):
+    ec2_client = boto3.client('ec2',
+                              aws_access_key_id=credentials['AccessKeyId'],
+                              aws_secret_access_key=credentials['SecretAccessKey'],
+                              aws_session_token=credentials['SessionToken'],
+                              region_name=region_name)
+    response = ec2_client.describe_route_tables(
+        Filters=[
+            {
+                'Name': 'association.subnet-id',
+                'Values': [subnet_id]
+            }
+        ]
+    )
 
-    nat_gateways = ec2.describe_nat_gateways(Filters=[{'Name': 'vpc-id', 'Values': [vpc_id]}])
-    for nat_gateway in nat_gateways['NatGateways']:
-        if nat_gateway['State'] == 'available':
-            return
-    endpoints = ec2.describe_vpc_endpoints(Filters=[{'Name': 'vpc-id', 'Values': [vpc_id]}])['VpcEndpoints']
+    for route_table in response['RouteTables']:
+        for route in route_table['Routes']:
+            if 'NatGatewayId' in route:
+                return True
+    return False
+
+
+def check_link(credentials, region_name: str, vpc_id: str, rds_secret_id: str):
+    ec2_client = boto3.client('ec2',
+                              aws_access_key_id=credentials['AccessKeyId'],
+                              aws_secret_access_key=credentials['SecretAccessKey'],
+                              aws_session_token=credentials['SessionToken'],
+                              region_name=region_name)
+    endpoints = ec2_client.describe_vpc_endpoints(Filters=[{'Name': 'vpc-id', 'Values': [vpc_id]}])['VpcEndpoints']
     s3_endpoint_exists = False
     glue_endpoint_exists = False
     secret_endpoint_exists = False
@@ -278,7 +294,7 @@ def check_link(credentials, region_name: str, vpc_id: str, rds_secret_id: str):
             s3_endpoint_exists = True
         elif endpoint['ServiceName'] == f'com.amazonaws.{region_name}.glue':
             glue_endpoint_exists = True
-        elif rds_secret_id is not None and endpoint['ServiceName'] == f'com.amazonaws.{region_name}.secretsmanager':
+        elif endpoint['ServiceName'] == f'com.amazonaws.{region_name}.secretsmanager':
             secret_endpoint_exists = True
 
     if not s3_endpoint_exists:
@@ -372,33 +388,39 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
             if vpc_sg['Status'] == 'active':
                 rds_security_groups.append(vpc_sg['VpcSecurityGroupId'])
 
-        subnet_ids = []
-        for subnet in rds_instance['DBSubnetGroup']['Subnets']:
-            if subnet['SubnetAvailabilityZone']['Name'] == rds_az:
-                rds_subnet_id_temp = subnet['SubnetIdentifier']
-                subnet_ids.append(rds_subnet_id_temp)
-        logger.info(subnet_ids)
         ec2_client = boto3.client('ec2',
                                   aws_access_key_id=credentials['AccessKeyId'],
                                   aws_secret_access_key=credentials['SecretAccessKey'],
                                   aws_session_token=credentials['SessionToken'],
                                   region_name=region)
         response = ec2_client.describe_subnets(
-            SubnetIds=subnet_ids
+            Filters=[
+                {
+                    'Name': 'vpc-id',
+                    'Values': [rds_vpc_id]
+                },
+                {
+                    'Name': 'availability-zone',
+                    'Values': [rds_az]
+                }
+            ]
         )
-        logger.info(response)
+        logger.debug(response)
         # Private subnet priority
         rds_subnet_id = const.EMPTY_STR
         public_subnet_id = const.EMPTY_STR
+        has_nat_route = False
         for subnet_desc in response['Subnets']:
             subnet_map_public_ip = subnet_desc['MapPublicIpOnLaunch']
             if subnet_map_public_ip:
-                public_subnet_id = subnet_desc['SubnetId']
                 logger.info(f"subnet({subnet_desc['SubnetId']}) is public")
+                public_subnet_id = subnet_desc['SubnetId']
             else:
-                rds_subnet_id = subnet_desc['SubnetId']
                 logger.info(f"subnet({subnet_desc['SubnetId']}) is private")
-                break
+                rds_subnet_id = subnet_desc['SubnetId']
+                has_nat_route = check_subnet_has_nat_route(credentials, region, subnet_desc['SubnetId'])
+                if has_nat_route:
+                    break
 
         if rds_subnet_id == const.EMPTY_STR:
             if public_subnet_id == const.EMPTY_STR:
@@ -406,23 +428,9 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                                    MessageEnum.SOURCE_RDS_NO_PRIVATE_ACCESSABLE.get_msg())
             else:
                 rds_subnet_id = public_subnet_id
-        # response = ec2_client.describe_security_groups(
-        #     Filters=[
-        #         {
-        #             'Name': 'vpc-id',
-        #             'Values': [rds_vpc_id]
-        #         }
-        #     ]
-        # )
-        # logger.info(response)
-        # security_groups = response['SecurityGroups']
-        # for security_group in security_groups:
-        #     if security_group['GroupId'] is not None and len(security_group['GroupId']) > 0:
-        #         rds_security_groups.append(security_group['GroupId'])
-        #         logger.info("rds_security_groups change append new vpc sg:")
-        #         logger.info(security_group['GroupId'])
 
-        check_link(credentials, region, rds_vpc_id, rds_secret_id)
+        if not has_nat_route:
+            check_link(credentials, region, rds_vpc_id, rds_secret_id)
         if rds_secret_id is not None:
             secretsmanager = boto3.client('secretsmanager',
                                           aws_access_key_id=credentials['AccessKeyId'],
@@ -1319,19 +1327,19 @@ def __list_rds_schema(account, region, credentials, instance_name, payload, rds_
                 'SecurityGroupIds': rds_security_groups
             },
         )
+        state = ''
+        time_elapsed = 0
+        timeout = 600
+        while state != 'Active':
+            response = lambda_.get_function(FunctionName=function_name)
+            logger.info("__list_rds_schema get lambda function:")
+            state = response['Configuration']['State']
+            logger.info(state)
+            sleep(SLEEP_TIME)
+            time_elapsed += SLEEP_TIME
+            if time_elapsed >= timeout:
+                break
 
-    state = ''
-    time_elapsed = 0
-    timeout = 600
-    while state != 'Active':
-        response = lambda_.get_function(FunctionName=function_name)
-        logger.info("__list_rds_schema get lambda function:")
-        state = response['Configuration']['State']
-        logger.info(state)
-        sleep(SLEEP_TIME)
-        time_elapsed += SLEEP_TIME
-        if time_elapsed >= timeout:
-            break
     logger.info("__list_rds_schema get lambda function invoke:")
     response = lambda_.invoke(
         FunctionName=function_name,
