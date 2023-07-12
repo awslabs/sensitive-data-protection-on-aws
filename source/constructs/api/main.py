@@ -15,6 +15,7 @@ from common.response_wrapper import resp_err
 from common.enum import MessageEnum
 from common.constant import const
 from template.main import router as template_router
+from version.main import router as version_router
 from common.exception_handler import biz_exception
 from label.main import router as label_router
 from fastapi_pagination import add_pagination
@@ -173,6 +174,7 @@ app.include_router(catalog_router)
 app.include_router(template_router)
 app.include_router(search)
 app.include_router(label_router)
+app.include_router(version_router)
 
 handler = Mangum(app)
 add_pagination(app)
