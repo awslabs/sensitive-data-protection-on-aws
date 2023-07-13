@@ -7,7 +7,7 @@ import LayoutHeader from 'pages/signed-in-page/LayoutHeader';
 import CommonAlert from 'pages/common-alert';
 import { WebStorageStateStore } from 'oidc-client-ts';
 import { AuthProvider, useAuth, AuthProviderProps } from 'react-oidc-context';
-import { AMPLIFY_CONFIG_JSON, BACKEND_URL_KEY } from 'ts/common';
+import { AMPLIFY_CONFIG_JSON, BACKEND_URL_KEY, CURRENT_VERSION } from 'ts/common';
 
 import './index.scss';
 import { Button, Spinner } from '@cloudscape-design/components';
@@ -25,6 +25,12 @@ const CONFIG_URL =
   process.env.REACT_APP_ENV === 'local'
     ? '/aws-exports.json'
     : '/config/getConfig';
+
+const VERSION_URL =
+  process.env.REACT_APP_ENV === 'development' ||
+  process.env.REACT_APP_ENV === 'local'
+    ? '/aws-exports.json'
+    : '/version/get-latest-version';
 
 const ERROR_TIME_KEY = 'OOPS_ERROR_TIMES';
 
@@ -155,6 +161,16 @@ const App: React.FC = () => {
       configData = res.data;
       configData.expired = +new Date() + configData.expired * 60 * 3600 * 1000;
     }
+
+    // Get version
+    let LATEST_VERSION = localStorage.getItem(CURRENT_VERSION);
+    if (!LATEST_VERSION) {
+      const ver_res = await Axios.get(`${VERSION_URL}?timestamp=${timeStamp}`);
+      LATEST_VERSION = ver_res.data;
+      console.log(LATEST_VERSION)
+      localStorage.setItem(CURRENT_VERSION, LATEST_VERSION || '');
+    }
+
 
     if (configData.backend_url) {
       localStorage.setItem(BACKEND_URL_KEY, configData.backend_url);

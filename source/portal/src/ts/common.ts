@@ -1,5 +1,6 @@
 export const AMPLIFY_CONFIG_JSON = '__sdps_solution_amplify_config_json__';
 export const BACKEND_URL_KEY = 'BACKEND_URL';
+export const CURRENT_VERSION = 'CURRENT_VERSION';
 
 export const ZH_LANGUAGE_LIST = ['zh', 'zh-cn', 'zh_CN', 'zh-CN'];
 export const GIHUB_REPO_LINK =
