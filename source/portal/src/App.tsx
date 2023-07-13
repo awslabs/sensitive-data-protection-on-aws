@@ -167,7 +167,6 @@ const App: React.FC = () => {
     if (!LATEST_VERSION) {
       const ver_res = await Axios.get(`${VERSION_URL}?timestamp=${timeStamp}`);
       LATEST_VERSION = ver_res.data;
-      console.log(LATEST_VERSION)
       localStorage.setItem(CURRENT_VERSION, LATEST_VERSION || '');
     }
 
