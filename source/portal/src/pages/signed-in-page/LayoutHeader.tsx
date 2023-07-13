@@ -29,7 +29,7 @@ const LayoutHeader: React.FC<LayoutHeaderProps> = ({
   const [fullLogoutUrl, setFullLogoutUrl] = useState('');
   const [oidcStorageId, setOidcStorageId] = useState('');
 
-  const version = localStorage.getItem(CURRENT_VERSION)?localStorage.getItem(CURRENT_VERSION):'';
+  const version = localStorage.getItem(CURRENT_VERSION)||'';
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
