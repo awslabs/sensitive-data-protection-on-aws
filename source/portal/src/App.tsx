@@ -26,11 +26,11 @@ const CONFIG_URL =
     ? '/aws-exports.json'
     : '/config/getConfig';
 
-const VERSION_URL =
-  process.env.REACT_APP_ENV === 'development' ||
-  process.env.REACT_APP_ENV === 'local'
-    ? '/aws-exports.json'
-    : '/version/get-latest-version';
+// const VERSION_URL =
+//   process.env.REACT_APP_ENV === 'development' ||
+//   process.env.REACT_APP_ENV === 'local'
+//     ? '/version/get-latest-version'
+//     : '/version/get-latest-version';
 
 const ERROR_TIME_KEY = 'OOPS_ERROR_TIMES';
 
@@ -165,8 +165,13 @@ const App: React.FC = () => {
     // Get version
     let LATEST_VERSION = localStorage.getItem(CURRENT_VERSION);
     if (!LATEST_VERSION) {
-      const ver_res = await Axios.get(`${VERSION_URL}?timestamp=${timeStamp}`);
-      LATEST_VERSION = ver_res.data;
+      if (process.env.REACT_APP_ENV === 'development' || process.env.REACT_APP_ENV === 'local') {
+        const ver_res = await Axios.get(`${CONFIG_URL}?timestamp=${timeStamp}`);
+        LATEST_VERSION = ver_res.data.version;
+      } else {
+        const ver_res = await Axios.get(`/version/get-latest-version?timestamp=${timeStamp}`);
+        LATEST_VERSION = ver_res.data;
+    }
       localStorage.setItem(CURRENT_VERSION, LATEST_VERSION || '');
     }
 

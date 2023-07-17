@@ -77,7 +77,7 @@ const LayoutHeader: React.FC<LayoutHeaderProps> = ({
       className="top-navigation"
       identity={{
         href: RouterEnum.Home.path,
-        title: t('solution.name')+" "+version || '',
+        title: t('solution.name') || '',
       }}
       utilities={[
         {
@@ -106,6 +106,11 @@ const LayoutHeader: React.FC<LayoutHeaderProps> = ({
                   text: t('header.doc') || '',
                   href: buildDocLink(i18n.language),
                   external: true,
+                },
+                {
+                  id: 'version',
+                  text: t('header.version')+" "+version || '',
+                  disabled: true,
                 },
               ],
             },
