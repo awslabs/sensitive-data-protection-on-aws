@@ -69,3 +69,12 @@ Yes. The definition of Score is the number of occurrences of the identifier in t
 - Example 1: In the total sample of 1000 rows, the scheme detected 120 sensitive data, so Score = 120/1000 = 0.12. Since 0.12 > 10%, this column is marked as a sensitive column and the corresponding data identifier is automatically labeled.
 - 
 - Example 2: In the total sample of 1000 rows, the scheme detected 80 sensitive data, so Score = 120/1000 = 0.08. Since 0.08 < 10%, this column is marked as non-sensitive and the data identifier is not automatically labeled.
+
+## About Cost Reduction
+**Is there any way to further reduce the cost?**
+
+When you do not need to detect sensitive data, you can enter the console to manually shut down the RDS database, and then restart it when there is a need for data detection. This can reduce the cost of the database instance when there is no need for data detection.
+
+If the database is deactivated, the background of the sensitive data solution will be unavailable; at the same time, the sample data of the detected JOB cannot be updated to the database, and there will be data loss. Be sure to confirm the risk and operate with caution.
+
+The database will be automatically restarted to install updates after 7 days of shutting down the database in the background. You can use [Instance Scheduler on AWS](https://aws.amazon.com/solutions/implementations/instance-scheduler-on-aws/?nc1=h_ls) to customize the shutdown/startup time window for the database.
