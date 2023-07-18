@@ -67,5 +67,4 @@ The list of built-in data identifiers can be found in [Appendix-Built-in Identif
 Yes. The definition of Score is the number of occurrences of the identifier in the sample divided by the total number of scanned rows (by default, 1000 rows). Only fields with a Score greater than the sensitivity threshold configured in the job (by default, 10% sensitivity threshold) will be defined as sensitive data. The value of Score will be included in the job report, and using this value, you can visually understand the percentage of sensitive data in the column.
 
 - Example 1: In the total sample of 1000 rows, the scheme detected 120 sensitive data, so Score = 120/1000 = 0.12. Since 0.12 > 10%, this column is marked as a sensitive column and the corresponding data identifier is automatically labeled.
-- 
 - Example 2: In the total sample of 1000 rows, the scheme detected 80 sensitive data, so Score = 120/1000 = 0.08. Since 0.08 < 10%, this column is marked as non-sensitive and the data identifier is not automatically labeled.
