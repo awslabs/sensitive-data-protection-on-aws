@@ -35,6 +35,11 @@ stackSuppressions(
       synthesizer: synthesizer(),
       existingVpc: true,
     }),
+    new AdminStack(app, 'AdminOnlyPrivateSubnets', {
+      synthesizer: synthesizer(),
+      existingVpc: true,
+      onlyPrivateSubnets: true,
+    }),
     new ITStack(app, 'IT', {
       synthesizer: synthesizer(),
     }),
