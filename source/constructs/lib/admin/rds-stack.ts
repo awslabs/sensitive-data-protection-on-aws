@@ -35,7 +35,7 @@ import {
   Credentials,
   DatabaseInstance,
   DatabaseInstanceEngine,
-  DatabaseSecret, MysqlEngineVersion,
+  DatabaseSecret, MysqlEngineVersion, StorageType,
 } from 'aws-cdk-lib/aws-rds';
 import {
   SecretRotation,
@@ -97,6 +97,9 @@ export class RdsStack extends Construct {
         InstanceClass.BURSTABLE3,
         InstanceSize.MEDIUM,
       ),
+      storageType: StorageType.GP3,
+      allocatedStorage: 100,
+      maxAllocatedStorage: 1000,
       databaseName: 'sdps', //Do not modify the value
       instanceIdentifier: `${SolutionInfo.SOLUTION_NAME_ABBR}-RDS`,
       vpc: props.vpc,

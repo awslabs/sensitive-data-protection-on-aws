@@ -73,6 +73,7 @@ export interface AlbProps {
   readonly vpc?: IVpc;
   // Value of property Parameters must be an object with String (or simple type) properties in NestedStack.
   readonly vpcInfo?: VpcProps;
+  readonly onlyPrivateSubnets?: boolean;
   readonly publicSubnets?: string;
   readonly privateSubnets?: string;
   readonly bucket: IBucket;
@@ -106,20 +107,30 @@ export class AlbStack extends NestedStack {
     if (props.vpc) {
       this.vpc = props.vpc;
     } else {
+      let publicSubnetIds = undefined;
+      const onlyPrivateSubnets = props.onlyPrivateSubnets ?? false;
+      if (!onlyPrivateSubnets) {
+        publicSubnetIds = [];
+        publicSubnetIds.push(props.vpcInfo!.publicSubnet1);
+        publicSubnetIds.push(props.vpcInfo!.publicSubnet2);
+      }
       this.vpc = Vpc.fromVpcAttributes(this, 'AlbVpc', {
         vpcId: props.vpcInfo!.vpcId,
         availabilityZones: [0, 1].map(i => Fn.select(i, Fn.getAzs())),
-        publicSubnetIds: [props.vpcInfo!.publicSubnet1, props.vpcInfo!.publicSubnet2],
+        publicSubnetIds: publicSubnetIds,
         privateSubnetIds: [props.vpcInfo!.privateSubnet1, props.vpcInfo!.privateSubnet2],
       });
     }
 
     const albSecurityGroup = this.createSecurityGroup(props.port);
-
+    let internetFacing = true;
+    if (props.onlyPrivateSubnets) {
+      internetFacing = false;
+    }
     const alb = new ApplicationLoadBalancer(this, 'ApplicationLoadBalancer', {
       // loadBalancerName: `${SolutionInfo.SOLUTION_NAME_ABBR}-ALB-${this.identifier}`,
       vpc: this.vpc,
-      internetFacing: true,
+      internetFacing: internetFacing,
       securityGroup: albSecurityGroup,
       http2Enabled: true,
     });
