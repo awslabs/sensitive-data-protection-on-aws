@@ -60,7 +60,7 @@ class TemplateIdentifierFullInfo(BaseColumn, TemplateIdentifier):
 class TemplateMapping(BaseModel):
 
     template_id: Optional[int]
-    identifier_id: Optional[int]
+    identifier_ids: Optional[list[int]]
     status: Optional[int]
 
 

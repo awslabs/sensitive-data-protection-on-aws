@@ -71,7 +71,7 @@ def list_mappings(condition: QueryCondition):
     ))
 
 
-@router.post("/template-mappings", response_model=BaseResponse[schemas.TemplateMappingFullInfo])
+@router.post("/template-mappings", response_model=BaseResponse[str])
 @inject_session
 def create_mapping(mapping: schemas.TemplateMapping):
     return service.create_mapping(mapping)

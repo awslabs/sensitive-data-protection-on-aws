@@ -33,10 +33,6 @@ def get_identifiers(condition: QueryCondition):
     return query
 
 
-# def get_identifier_by_names(names: list):
-#     return get_session().query()
-
-
 def get_mappings(id: int, condition: QueryCondition):
     template_mappings = {
         'name': (models.TemplateIdentifier.name, True),
@@ -133,18 +129,18 @@ def create_mapping(mapping: schemas.TemplateMapping) -> models.TemplateMapping:
     if not get_template(mapping.template_id):
         raise BizException(MessageEnum.TEMPLATE_NOT_EXISTS.get_code(),
                            MessageEnum.TEMPLATE_NOT_EXISTS.get_msg())
-    if not get_identifier(mapping.identifier_id):
-        raise BizException(MessageEnum.TEMPLATE_IDENTIFIER_NOT_EXISTS.get_code(),
-                           MessageEnum.TEMPLATE_IDENTIFIER_NOT_EXISTS.get_msg())
-    if get_mappings_by_identifier_temp(mapping.template_id, mapping.identifier_id):
-        raise BizException(MessageEnum.TEMPLATE_IDENTIFIER_ALREADY_EXISTS.get_code(),
-                           MessageEnum.TEMPLATE_IDENTIFIER_ALREADY_EXISTS.get_msg())
-    db_mapping = models.TemplateMapping(**(parse_pydantic_schema(mapping)))
-    snapshot_no = update_template_snapshot_no(mapping.template_id)
-    session.add(db_mapping)
+    for identifier_id in (mapping.identifier_ids or []):
+        if not get_identifier(identifier_id):
+            raise BizException(MessageEnum.TEMPLATE_IDENTIFIER_NOT_EXISTS.get_code(),
+                               MessageEnum.TEMPLATE_IDENTIFIER_NOT_EXISTS.get_msg())
+        if get_mappings_by_identifier_temp(mapping.template_id, identifier_id):
+            raise BizException(MessageEnum.TEMPLATE_IDENTIFIER_ALREADY_EXISTS.get_code(),
+                               MessageEnum.TEMPLATE_IDENTIFIER_ALREADY_EXISTS.get_msg())
+        template_mapping = models.TemplateMapping(template_id=mapping.template_id, identifier_id=identifier_id, status=mapping.status)
+        session.add(template_mapping)
     session.commit()
-    session.refresh(db_mapping)
-    return snapshot_no, db_mapping
+    snapshot_no = update_template_snapshot_no(mapping.template_id)
+    return snapshot_no
 
 
 def update_mapping(id: int, mapping: schemas.TemplateMapping):

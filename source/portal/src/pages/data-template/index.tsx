@@ -75,6 +75,23 @@ const buildTimeFormat = (dateString: string) => {
   return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
 };
 
+const buildTimeFormatWithLocalTimeZone = (dateString: string) => {
+  dateString= buildTimeFormat(dateString);
+  const date =new Date(dateString);
+  date.setMinutes(date.getMinutes()-date.getTimezoneOffset());
+  const month = formatDigit(date.getMonth() + 1);
+  const day = formatDigit(date.getDate());
+  const hour = formatDigit(date.getHours());
+  const min = formatDigit(date.getMinutes());
+  const sec = formatDigit(date.getSeconds());
+  return date.getFullYear()+"-"+month+"-"+day+" "+hour+":"+min+":"+sec;
+};
+
+const formatDigit = (value: number) => {
+   return value < 10 ? ('0'+value): value.toString()
+}
+
+
 const DataTemplateContent: React.FC<any> = (props: any) => {
   const columnList = TEMPLATE_COLUMN_LIST;
   const { t } = useTranslation();
@@ -163,7 +180,7 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
     try {
       const result: any = await getTemplateUpdateTime();
       if (result && result.length > 10) {
-        setLastUpdateTime(buildTimeFormat(result));
+        setLastUpdateTime(buildTimeFormatWithLocalTimeZone(result));
       }
     } catch (error) {
       console.error(error);
