@@ -76,9 +76,9 @@ def get_template(id: int):
 
 
 def create_mapping(mapping: schemas.TemplateMapping):
-    snapshot_no, res = crud.create_mapping(mapping)
+    snapshot_no = crud.create_mapping(mapping)
     sync_s3(snapshot_no)
-    return res
+    return snapshot_no
 
 
 def update_mapping(id: int, mapping: schemas.TemplateMapping):

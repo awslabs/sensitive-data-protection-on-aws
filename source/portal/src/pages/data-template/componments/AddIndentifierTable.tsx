@@ -134,14 +134,16 @@ const AddIdentfierTable = (props: any) => {
     }
     setIsLoading(true);
     const promiseList: any[] = [];
+    const identifierIds: any[] = [];
     selectedItems.forEach((item: { id: any }) => {
-      const requestParam = {
-        template_id: 1,
-        identifier_id: item.id,
-        status: 1,
-      };
-      promiseList.push(addMappingsToTemplate(requestParam));
+      identifierIds.push(item.id)
     });
+    const requestParam = {
+      template_id: 1,
+      identifier_ids: identifierIds,
+      status: 1,
+    };
+    promiseList.push(addMappingsToTemplate(requestParam));
     Promise.all(promiseList)
       .then((res) => {
         if (res && res.length === promiseList.length) {

@@ -6,6 +6,7 @@
   },
   "header": {
     "doc": "Documentation",
+    "version": "Version",
     "support": "Support",
     "signout": "Sign out"
   },

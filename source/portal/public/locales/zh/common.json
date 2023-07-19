@@ -6,6 +6,7 @@
   },
   "header": {
     "doc": "文档",
+    "version": "版本",
     "support": "支持",
     "signout": "登出"
   },
