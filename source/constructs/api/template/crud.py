@@ -138,8 +138,8 @@ def create_mapping(mapping: schemas.TemplateMapping) -> models.TemplateMapping:
                                MessageEnum.TEMPLATE_IDENTIFIER_ALREADY_EXISTS.get_msg())
         template_mapping = models.TemplateMapping(template_id=mapping.template_id, identifier_id=identifier_id, status=mapping.status)
         session.add(template_mapping)
-    session.commit()
     snapshot_no = update_template_snapshot_no(mapping.template_id)
+    session.commit()
     return snapshot_no
 
 

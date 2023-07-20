@@ -7,7 +7,7 @@ import LayoutHeader from 'pages/signed-in-page/LayoutHeader';
 import CommonAlert from 'pages/common-alert';
 import { WebStorageStateStore } from 'oidc-client-ts';
 import { AuthProvider, useAuth, AuthProviderProps } from 'react-oidc-context';
-import { AMPLIFY_CONFIG_JSON, BACKEND_URL_KEY, CURRENT_VERSION } from 'ts/common';
+import { AMPLIFY_CONFIG_JSON, BACKEND_URL_KEY } from 'ts/common';
 
 import './index.scss';
 import { Button, Spinner } from '@cloudscape-design/components';
@@ -162,18 +162,6 @@ const App: React.FC = () => {
       configData.expired = +new Date() + configData.expired * 60 * 3600 * 1000;
     }
 
-    // Get version
-    let LATEST_VERSION = localStorage.getItem(CURRENT_VERSION);
-    if (!LATEST_VERSION) {
-      if (process.env.REACT_APP_ENV === 'development' || process.env.REACT_APP_ENV === 'local') {
-        const ver_res = await Axios.get(`${CONFIG_URL}?timestamp=${timeStamp}`);
-        LATEST_VERSION = ver_res.data.version;
-      } else {
-        const ver_res = await Axios.get(`/version/get-latest-version?timestamp=${timeStamp}`);
-        LATEST_VERSION = ver_res.data;
-    }
-      localStorage.setItem(CURRENT_VERSION, LATEST_VERSION || '');
-    }
 
 
     if (configData.backend_url) {
