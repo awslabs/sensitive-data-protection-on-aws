@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import TopNavigation from '@cloudscape-design/components/top-navigation';
 import './style.scss';
 import { AmplifyConfigType, AppSyncAuthType } from 'ts/types';
-import { AMPLIFY_CONFIG_JSON, buildDocLink, CURRENT_VERSION } from 'ts/common';
+import { AMPLIFY_CONFIG_JSON, buildDocLink } from 'ts/common';
 import { User } from 'oidc-client-ts';
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
@@ -28,8 +28,8 @@ const LayoutHeader: React.FC<LayoutHeaderProps> = ({
   const { t, i18n } = useTranslation();
   const [fullLogoutUrl, setFullLogoutUrl] = useState('');
   const [oidcStorageId, setOidcStorageId] = useState('');
-
-  const version = localStorage.getItem(CURRENT_VERSION)||'';
+  const originConfig = localStorage.getItem(AMPLIFY_CONFIG_JSON);
+  const configData: AmplifyConfigType = JSON.parse(originConfig || '{}');
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
@@ -109,7 +109,7 @@ const LayoutHeader: React.FC<LayoutHeaderProps> = ({
                 },
                 {
                   id: 'version',
-                  text: t('header.version')+" "+version || '',
+                  text: t('header.version')+" "+configData.version || '',
                   disabled: true,
                 },
               ],
