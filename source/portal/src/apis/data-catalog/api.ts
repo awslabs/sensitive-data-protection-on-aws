@@ -154,6 +154,15 @@ const updateCatalogTableLabels = async (params: {
   return result;
 };
 
+const getExportS3Url = async (params: any) => {
+  const result = await apiRequest(
+    'get',
+    `catalog/data_catalog_export_url`,
+    ''
+  );
+  return result;
+};
+
 export {
   getTablesByDatabase,
   searchTablesByDatabase,
@@ -170,4 +179,5 @@ export {
   getDataBaseByIdentifier,
   updateCatalogLabels,
   updateCatalogTableLabels,
+  getExportS3Url,
 };

@@ -3,9 +3,11 @@ import Tabs from '@cloudscape-design/components/tabs';
 import CatalogList from './componments/CatalogList';
 import { TAB_LIST } from 'enum/common_types';
 import { useSearchParams } from 'react-router-dom';
+import { getExportS3Url } from 'apis/data-catalog/api';
 import './style.scss';
 import {
   AppLayout,
+  Button,
   Container,
   ContentLayout,
   Header,
@@ -16,11 +18,37 @@ import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
 import HelpInfo from 'common/HelpInfo';
 import { buildDocLink } from 'ts/common';
+import { alertMsg } from 'tools/tools';
 
 const CatalogListHeader: React.FC = () => {
   const { t } = useTranslation();
+  // const [isLoading, setIsloading] = useState(false);
+
+  const clkExportDataCatalog = async () => {
+    // setIsloading(true);
+    try {
+      const result: any = await getExportS3Url({});
+      // const result ="OOOK";
+      if (result) {
+        window.open(result, '_blank');
+      } else {
+        alertMsg(t('noReportFile'), 'error');
+      }
+    } catch {
+      alertMsg(t('noReportFile'), 'error');
+    }
+    // setIsloading(false);
+  };
+
   return (
-    <Header variant="h1" description={t('catalog:browserCatalogDesc')}>
+    <Header variant="h1" 
+      description={t('catalog:browserCatalogDesc')}
+      actions={
+        <Button onClick={() => clkExportDataCatalog()}>
+          {t('button.exportDataCatalogs')}
+        </Button>
+      }
+      >
       {t('catalog:browserCatalog')}
     </Header>
   );

@@ -85,7 +85,8 @@
     "dataCatalogs": "数据目录",
     "downloadSnapshot": "下载快照",
     "close": "关闭",
-    "actions": "操作"
+    "actions": "操作",
+    "exportDataCatalogs": "导出数据目录"
   },
   "label": {
     "label": "标签",
