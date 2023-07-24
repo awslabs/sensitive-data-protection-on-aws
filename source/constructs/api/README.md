@@ -32,6 +32,10 @@ The following command is to configure the bucket name.
 ```shell
 export ProjectBucketName="YourBucketName"
 ```
+The following command is to configure the name of controller.You can get the name of controller from lambda console.
+```shell
+export ControllerFunctionName="YourControllerName"
+```
 ### 5. Starting web services locally
 ```shell
 uvicorn main:app --reload
