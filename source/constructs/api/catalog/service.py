@@ -2,6 +2,7 @@ import boto3
 import os
 import json
 from . import crud, schemas
+# from label import crud as label_crud
 from data_source import crud as data_source_crud
 import time
 from time import sleep
@@ -21,7 +22,7 @@ from common.enum import (
 import logging
 from common.exception_handler import BizException
 import traceback
-from label.crud import get_labels_by_id_list
+from label.crud import (get_labels_by_id_list, get_all_labels)
 from openpyxl import Workbook
 from tempfile import NamedTemporaryFile
 
@@ -31,7 +32,7 @@ partition = caller_identity['Arn'].split(':')[1]
 project_bucket_name = os.getenv(const.PROJECT_BUCKET_NAME, const.PROJECT_BUCKET_DEFAULT_NAME)
 
 
-sql_result = "SELECT database_type,account_id,region,s3_bucket,s3_location,rds_instance_id,table_name,column_name,identifiers,sample_data FROM job_detection_output_table"
+sql_result = "SELECT database_type,account_id,region,s3_bucket,s3_location,rds_instance_id,table_name,column_name,identifiers,sample_data,'','','' FROM job_detection_output_table"
 
 def get_boto3_client(account_id: str, region: str, service: str):
     sts_connection = boto3.client("sts")
@@ -965,37 +966,30 @@ def fill_catalog_labels(catalogs):
     return catalogs
 
 def get_catalog_export_url() -> str:
-    run_result = __query_athena(sql_result)
+    run_result = crud.get_export_catalog_data()
+    all_labels = get_all_labels()
+    all_labels_dict = dict()
+    for item in all_labels:
+        all_labels_dict[item.id] = item.label_name
 
     wb = Workbook()
 
     ws1 = wb.active
     ws1.title = "Amazon S3"
     ws2 = wb.create_sheet("Amazon RDS")
-    ws1.append(["account_id", "region", "s3_bucket", "s3_location", "column_name", "identifiers", "sample_data", "bucket_catalog_label",
+    ws1.append(["account_id", "region", "s3_bucket", "folder_name", "column_name", "identifiers", "sample_data", "bucket_catalog_label",
                "folder_catalog_label", "comment"])
-    ws2.append(["account_id", "region", "rds_instance_id", "table_name,", "column_name", "identifiers", "sample_data", "bucket_catalog_label",
-               "folder_catalog_label", "comment"])
-
-    for row in run_result[1:]:
-        row_result = [__get_cell_value(cell) for cell in row]
-        database_type = row_result[0]
+    ws2.append(["account_id", "region", "rds_instance_id", "table_name", "column_name", "identifiers", "sample_data", "instance_catalog_label",
+               "table_catalog_label", "comment"])
+    for row in run_result:
+        row_result = [cell for cell in row]
+        if row_result[8]:
+            row_result[8] = ",".join([all_labels_dict.get(int(result)) for result in row_result[8].split(",")])
+        if row_result[9]:
+            row_result[9] = ",".join([all_labels_dict.get(int(result)) for result in row_result[9].split(",")])
         del row_result[0]
-        if database_type == DatabaseType.S3.value:
-            del row_result[4:6]
-            ws1.append(row_result)
-        else:
-            del row_result[2:4]
-            ws2.append(row_result)
-
-    # error_result = __query_athena(sql_error % run_id)
-    # if len(error_result) > 1:
-    #     ws3 = wb.create_sheet("Detect failed tables")
-    #     ws3.append(["account_id", "region", "database_type", "database_name", "table_name", "error_message"])
-    #     for row in error_result[1:]:
-    #         row_result = [__get_cell_value(cell) for cell in row]
-    #         ws3.append(row_result)
-
+        ws1.append(row_result)
+        ws2.append(row_result)
     filename = NamedTemporaryFile().name
     wb.save(filename)
     s3_client = boto3.client('s3')
@@ -1009,54 +1003,3 @@ def get_catalog_export_url() -> str:
         ExpiresIn=60
     )
     return pre_url
-
-
-def __query_athena(sql: str):
-    logger.debug(sql)
-    client = boto3.client("athena")
-    queryStart = client.start_query_execution(
-        QueryString=sql,
-        QueryExecutionContext={
-            "Database": const.JOB_RESULT_DATABASE_NAME,
-            "Catalog": "AwsDataCatalog",
-        },
-        ResultConfiguration={"OutputLocation": f"s3://{project_bucket_name}/athena-output/"},
-    )
-
-    query_execution_id = queryStart["QueryExecutionId"]
-    while True:
-        response = client.get_query_execution(QueryExecutionId=query_execution_id)
-        query_execution_status = response["QueryExecution"]["Status"]["State"]
-        if query_execution_status == AthenaQueryState.SUCCEEDED.value:
-            break
-        if query_execution_status == AthenaQueryState.FAILED.value:
-            logger.exception(response)
-            raise Exception("Query Asset STATUS:" + response["QueryExecution"]["Status"]["StateChangeReason"])
-        else:
-            time.sleep(1)
-
-    results_paginator = client.get_paginator('get_query_results')
-    results_iterator = results_paginator.paginate(
-        QueryExecutionId=query_execution_id,
-        PaginationConfig={
-            'PageSize': 1000
-        }
-    )
-
-    first_page = True
-    result = []
-    for results_page in results_iterator:
-        tmp_result = [x["Data"] for x in results_page["ResultSet"]["Rows"]]
-        if first_page:
-            first_page = False
-            result += tmp_result
-        else:
-            result += tmp_result[1:]
-    return result
-
-
-def __get_cell_value(cell: dict):
-    if "VarCharValue" in cell:
-        return cell["VarCharValue"]
-    else:
-        return ""

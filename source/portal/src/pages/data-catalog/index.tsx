@@ -22,10 +22,11 @@ import { alertMsg } from 'tools/tools';
 
 const CatalogListHeader: React.FC = () => {
   const { t } = useTranslation();
-  // const [isLoading, setIsloading] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const clkExportDataCatalog = async () => {
-    // setIsloading(true);
+    setIsExporting(true);
+    console.log("start time:"+ new Date())
     try {
       const result: any = await getExportS3Url({});
       // const result ="OOOK";
@@ -37,17 +38,18 @@ const CatalogListHeader: React.FC = () => {
     } catch {
       alertMsg(t('noReportFile'), 'error');
     }
-    // setIsloading(false);
+    console.log("finish time:"+ new Date())
+    setIsExporting(false);
   };
 
   return (
     <Header variant="h1" 
       description={t('catalog:browserCatalogDesc')}
-      actions={
-        <Button onClick={() => clkExportDataCatalog()}>
+      actions = {isExporting?(<Button disabled loading={isExporting} >
+      {t('button.exportProcessing')}
+    </Button>):(<Button onClick={() => clkExportDataCatalog()} >
           {t('button.exportDataCatalogs')}
-        </Button>
-      }
+        </Button>)}
       >
       {t('catalog:browserCatalog')}
     </Header>
