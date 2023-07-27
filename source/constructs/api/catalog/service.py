@@ -998,7 +998,7 @@ def get_catalog_export_url() -> str:
     filename = NamedTemporaryFile().name
     wb.save(filename)
     s3_client = boto3.client('s3')
-    key_name = "report/report-all.xlsx"
+    key_name = f"report/catalog_{time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))}.xlsx"
     s3_client.upload_file(filename, project_bucket_name, key_name)
     os.remove(filename)
     method_parameters = {'Bucket': project_bucket_name, 'Key': key_name}
