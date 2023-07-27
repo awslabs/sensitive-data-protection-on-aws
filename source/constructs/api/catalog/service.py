@@ -987,9 +987,14 @@ def get_catalog_export_url() -> str:
             row_result[8] = ",".join([all_labels_dict.get(int(result)) for result in row_result[8].split(",")])
         if row_result[9]:
             row_result[9] = ",".join([all_labels_dict.get(int(result)) for result in row_result[9].split(",")])
+        catalog_type = row_result[0]
         del row_result[0]
-        ws1.append(row_result)
-        ws2.append(row_result)
+        if catalog_type == DatabaseType.S3.value:
+            ws1.append(row_result)
+        elif catalog_type == DatabaseType.RDS.value:
+            ws2.append(row_result)
+        else:
+            pass
     filename = NamedTemporaryFile().name
     wb.save(filename)
     s3_client = boto3.client('s3')
