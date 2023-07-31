@@ -122,8 +122,11 @@ export class AlbStack extends NestedStack {
     });
 
     this.url = this.setUrl(scope, alb.loadBalancerDnsName, props, this.httpDefaultPort);
-
     this.createApi(listener, props);
+    new CfnOutput(scope, `PortalUrl${this.identifier}`, {
+      description: 'API URL',
+      value: this.url,
+    });
   };
 
   private setUrl(scope: Construct, dnsName: string, props: AlbProps, defaultPort: number) {
@@ -135,23 +138,6 @@ export class AlbStack extends NestedStack {
     const url = `${protocolShow}://${domainNameShow}:${props.port}`;
     return url;
   }
-
-  private setOutput(scope: Construct, dnsName: string, condition: CfnCondition) {
-    new CfnOutput(scope, `PortalUrl${this.identifier}`, {
-      description: 'Portal URL',
-      value: this.url,
-    }).condition = condition;
-
-    new CfnOutput(scope, `LoadBalancerDnsName${this.identifier}`, {
-      description: 'If you use a custom domain name, set the CName of the custom domain name to this value.',
-      value: dnsName,
-    }).condition = condition;
-
-    new CfnOutput(scope, `SigninRedirectUri${this.identifier}`, {
-      description: 'Sign-in/out redirect URI for OIDC',
-      value: `${this.url}/logincallback`,
-    }).condition = condition;
-  };
 
   private setLog(alb: ApplicationLoadBalancer, props: AlbProps) {
     const albLogPrefix = 'alb-log';
