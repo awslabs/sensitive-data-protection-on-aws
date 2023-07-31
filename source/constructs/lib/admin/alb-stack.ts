@@ -261,6 +261,7 @@ export class AlbStack extends NestedStack {
         aws_oidc_customer_domain: `${this.url}/logincallback`,
         backend_url: `${this.url}`,
         expired: '12',
+        version: SolutionInfo.SOLUTION_VERSION,
       },
     });
     const portalConfigTarget = [new LambdaTarget(portalConfigFunction)];
