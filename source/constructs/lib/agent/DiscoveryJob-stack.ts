@@ -12,12 +12,14 @@
  */
 
 import * as fs from 'fs';
+import path from 'path';
 import {
   aws_stepfunctions as sfn,
   aws_logs as logs,
   Aws,
   Fn,
   RemovalPolicy,
+  Duration,
 } from 'aws-cdk-lib';
 import {
   PolicyStatement,
@@ -26,7 +28,9 @@ import {
   Policy,
   Effect,
 } from 'aws-cdk-lib/aws-iam';
+import { Code, LayerVersion, Runtime, Function } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
+import { BuildConfig } from '../common/build-config';
 import { SolutionInfo } from '../common/solution-info';
 
 export interface DiscoveryJobProps {
@@ -42,6 +46,9 @@ export class DiscoveryJobStack extends Construct {
 
   constructor(scope: Construct, id: string, props: DiscoveryJobProps) {
     super(scope, id);
+
+    this.createFunction();
+
     let jsonDiscoveryJob = fs.readFileSync('lib/agent/DiscoveryJob.json').toString();
     jsonDiscoveryJob = Fn.sub(jsonDiscoveryJob);
 
@@ -191,5 +198,65 @@ export class DiscoveryJobStack extends Construct {
     );
 
     stepFunction.node.addDependency(discoveryJobRole);
+  }
+
+  private createFunction() {
+    const splitJobLayer = new LayerVersion(this, 'SplitJobLayer', {
+      code: Code.fromAsset(path.join(__dirname, './split-job'), {
+        bundling: {
+          image: Runtime.PYTHON_3_9.bundlingImage,
+          command: [
+            'bash',
+            '-c',
+            `pip install -r requirements.txt ${BuildConfig.PIP_MIRROR_PARAMETER} -t /asset-output/python`,
+          ],
+        },
+      }),
+      // layerVersionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-SplitJob`,
+      compatibleRuntimes: [Runtime.PYTHON_3_9],
+      description: `${SolutionInfo.SOLUTION_NAME} - SplitJob layer`,
+    });
+
+    const splitJobRole = new Role(this, 'SplitJobRole', {
+      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}SplitJobRole-${Aws.REGION}`, //Name must be specified
+      assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
+    });
+    splitJobRole.attachInlinePolicy(new Policy(this, 'SplitJobCommonPolicy', {
+      policyName: 'SplitJobPolicy',
+      statements: [
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: [
+            'glue:GetTables',
+          ],
+          resources: ['*'],
+        }),
+      ],
+    }));
+
+    splitJobRole.attachInlinePolicy(new Policy(this, 'SplitJobLogPolicy', {
+      statements: [
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: [
+            'logs:CreateLogGroup',
+            'logs:CreateLogStream',
+            'logs:PutLogEvents',
+          ],
+          resources: ['*'],
+        }),
+      ],
+    }));
+
+    new Function(this, 'SplitJobFunction', {
+      functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-SplitJob`, //Name must be specified
+      description: `${SolutionInfo.SOLUTION_NAME} - split job`,
+      runtime: Runtime.PYTHON_3_9,
+      handler: 'split_job.lambda_handler',
+      code: Code.fromAsset(path.join(__dirname, './split-job')),
+      timeout: Duration.minutes(1),
+      layers: [splitJobLayer],
+      role: splitJobRole,
+    });
   }
 }
