@@ -174,3 +174,7 @@ class DataSourceType(str, Enum):
 class NewDataSource(BaseModel):
     accounts: List[str]
     type: DataSourceType = DataSourceType.all
+
+class AdminAccountInfo(BaseModel):
+    account_id: str
+    region: str

@@ -962,3 +962,15 @@ def fill_catalog_labels(catalogs):
         labels_str = [{"id": label.id, "label_name": label.label_name} for label in labels]
         catalog.labels = labels_str
     return catalogs
+
+
+def get_s3_folder_sample_data(account_id: str, region: str, bucket_name: str, resource_name: str, refresh: bool):
+    from .sample_service import init_s3_sample_job
+    response = init_s3_sample_job(account_id, region, bucket_name, resource_name, refresh)
+    return response
+
+
+def get_database_sample_data(account_id: str, region: str, database_name: str, table_name: str, refresh: bool):
+    from .sample_service import init_rds_sample_job
+    response = init_rds_sample_job(account_id, region, database_name, table_name, refresh)
+    return response
