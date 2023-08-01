@@ -262,7 +262,7 @@ def __start_run(job_id: int, run_id: int):
             run_database.start_time = mytime.get_time()
             __create_job(run_database.database_type, run_database.account_id, run_database.region, run_database.database_name, job_name, False)
             __exec_run(execution_input, run_database.uuid)
-            run_database.state = RunDataxxbaseState.RUNNING.value
+            run_database.state = RunDatabaseState.RUNNING.value
         except Exception:
             msg = traceback.format_exc()
             run_database.state = RunDatabaseState.FAILED.value
