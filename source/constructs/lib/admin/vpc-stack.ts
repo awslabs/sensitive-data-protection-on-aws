@@ -47,6 +47,12 @@ export interface VpcProps {
    * @default - false.
    */
   existingVpc?: boolean;
+  /**
+   * When using an existing VPC, only use a private subnet
+   *
+   * @default - false.
+   */
+  onlyPrivateSubnets?: boolean;
   readonly internetFacing?: boolean;
 }
 
@@ -65,7 +71,7 @@ export class VpcStack extends Construct {
     super(scope, id);
 
     if (props?.existingVpc) {
-      this.selectExistingVpc(scope);
+      this.selectExistingVpc(scope, props.onlyPrivateSubnets ?? false);
     } else {
       this.createVpc(props);
     }
@@ -126,7 +132,10 @@ export class VpcStack extends Construct {
     });
   }
 
-  private selectExistingVpc(scope: Construct) {
+  private selectExistingVpc(scope: Construct, onlyPrivateSubnets: boolean) {
+    const param = [];
+    let publicSubnetIds = undefined;
+
     const VPC_ID_PARRERN = '^vpc-[a-f0-9]+$';
 
     const vpcId = new CfnParameter(scope, 'VpcId', {
@@ -135,45 +144,51 @@ export class VpcStack extends Construct {
       allowedPattern: `^${VPC_ID_PARRERN}$`,
       constraintDescription: `VPC id must match pattern ${VPC_ID_PARRERN}`,
     });
+    param.push(vpcId.logicalId);
+    this.vpcId = vpcId.valueAsString;
 
-    const publicSubnet1 = new CfnParameter(scope, 'PublicSubnet1', {
-      description: 'Select one public subnet in Availability Zone 1.',
-      type: 'AWS::EC2::Subnet::Id',
-    });
+    if (!onlyPrivateSubnets) {
+      publicSubnetIds = [];
+      const publicSubnet1 = new CfnParameter(scope, 'PublicSubnet1', {
+        description: 'Select one public subnet in Availability Zone 1.',
+        type: 'AWS::EC2::Subnet::Id',
+      });
+      param.push(publicSubnet1.logicalId);
+      publicSubnetIds.push(publicSubnet1.valueAsString);
+      this.publicSubnet1 = publicSubnet1.valueAsString;
 
-    const publicSubnet2 = new CfnParameter(scope, 'PublicSubnet2', {
-      description: 'Select one public subnet in Availability Zone 2.',
-      type: 'AWS::EC2::Subnet::Id',
-    });
+      const publicSubnet2 = new CfnParameter(scope, 'PublicSubnet2', {
+        description: 'Select one public subnet in Availability Zone 2.',
+        type: 'AWS::EC2::Subnet::Id',
+      });
+      param.push(publicSubnet2.logicalId);
+      publicSubnetIds.push(publicSubnet2.valueAsString);
+      this.publicSubnet2 = publicSubnet2.valueAsString;
+    }
 
     const privateSubnet1 = new CfnParameter(scope, 'PrivateSubnet1', {
       description: 'The private subnet must have a route to NatGateway.Select one private subnet in Availability Zone 1.',
       type: 'AWS::EC2::Subnet::Id',
     });
+    param.push(privateSubnet1.logicalId);
 
     const privateSubnet2 = new CfnParameter(scope, 'PrivateSubnet2', {
       description: 'The private subnet must have a route to NatGateway.Select one private subnet in Availability Zone 2.',
       type: 'AWS::EC2::Subnet::Id',
     });
+    param.push(privateSubnet2.logicalId);
 
     Parameter.addToParamGroups(
       'VPC Settings',
-      vpcId.logicalId,
-      publicSubnet1.logicalId,
-      publicSubnet2.logicalId,
-      privateSubnet1.logicalId,
-      privateSubnet2.logicalId,
+      ...param,
     );
 
     this.vpc = Vpc.fromVpcAttributes(scope, 'ExistingVpc', {
       vpcId: vpcId.valueAsString,
       availabilityZones: [0, 1].map(i => Fn.select(i, Fn.getAzs())),
       privateSubnetIds: [privateSubnet1.valueAsString, privateSubnet2.valueAsString],
-      publicSubnetIds: [publicSubnet1.valueAsString, publicSubnet2.valueAsString],
+      publicSubnetIds: publicSubnetIds,
     });
-    this.vpcId = vpcId.valueAsString;
-    this.publicSubnet1 = publicSubnet1.valueAsString;
-    this.publicSubnet2 = publicSubnet2.valueAsString;
     this.privateSubnet1 = privateSubnet1.valueAsString;
     this.privateSubnet2 = privateSubnet2.valueAsString;
 
@@ -186,5 +201,61 @@ export class VpcStack extends Construct {
         },
       ],
     });
+
+    if (onlyPrivateSubnets) {
+      new CfnRule(scope, 'SubnetsNoRepeat', {
+        assertions: [
+          {
+            assert: Fn.conditionNot(Fn.conditionContains([
+              this.privateSubnet2,
+            ],
+            this.privateSubnet1)),
+            assertDescription: 'All subnets must NOT Repeat',
+          },
+        ],
+      });
+    } else {
+      new CfnRule(scope, 'SubnetsNoRepeat', {
+        assertions: [
+          {
+            assert: Fn.conditionNot(Fn.conditionContains([
+              this.publicSubnet2,
+              this.privateSubnet1,
+              this.privateSubnet2,
+            ],
+            this.publicSubnet1)),
+            assertDescription: 'All subnets must NOT Repeat',
+          },
+          {
+            assert: Fn.conditionNot(Fn.conditionContains([
+              this.publicSubnet1,
+              this.privateSubnet1,
+              this.privateSubnet2,
+            ],
+            this.publicSubnet2)),
+            assertDescription: 'All subnets must NOT Repeat',
+          },
+          {
+            assert: Fn.conditionNot(Fn.conditionContains([
+              this.publicSubnet1,
+              this.publicSubnet2,
+              this.privateSubnet2,
+            ],
+            this.privateSubnet1)),
+            assertDescription: 'All subnets must NOT Repeat',
+          },
+          {
+            assert: Fn.conditionNot(Fn.conditionContains([
+              this.publicSubnet1,
+              this.publicSubnet2,
+              this.privateSubnet1,
+            ],
+            this.privateSubnet2)),
+            assertDescription: 'All subnets must NOT Repeat',
+          },
+        ],
+      });
+    }
+
   }
 }

@@ -48,6 +48,8 @@ export interface ApiProps {
   readonly vpc: IVpc;
   readonly bucketName: string;
   readonly rdsClientSecurityGroup: SecurityGroup;
+  readonly oidcIssuer: string;
+  readonly oidcClientId: string;
 }
 
 
@@ -100,7 +102,7 @@ export class ApiStack extends Construct {
       runtime: Runtime.PYTHON_3_9,
       handler: handler,
       code: this.code,
-      memorySize: 1024,
+      memorySize: 4096,
       timeout: Duration.seconds(timeout ?? 20),
       vpc: props.vpc,
       vpcSubnets: props.vpc.selectSubnets({
@@ -111,7 +113,8 @@ export class ApiStack extends Construct {
         ProjectBucketName: props.bucketName,
         Version: SolutionInfo.SOLUTION_VERSION,
         ControllerFunctionName: controllerFunctionName,
-        mode: 'dev',
+        OidcIssuer: props.oidcIssuer,
+        OidcClientId: props.oidcClientId,
       },
       role: this.apiRole,
       layers: [this.apiLayer],
@@ -144,6 +147,7 @@ export class ApiStack extends Construct {
         'sqs:GetQueueUrl',
         'athena:StartQueryExecution',
         'events:EnableRule',
+        'sqs:SendMessage',
         'sqs:ReceiveMessage',
         'events:PutRule',
         'athena:GetQueryResults',

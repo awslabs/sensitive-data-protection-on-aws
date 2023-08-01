@@ -28,16 +28,21 @@ Aspects.of(app).add(new AwsSolutionsChecks());
 
 stackSuppressions(
   [
-    // new AdminStack(app, 'Admin', {
-    //   synthesizer: synthesizer(),
-    // }),
+    new AdminStack(app, 'Admin', {
+      synthesizer: synthesizer(),
+    }),
     new AdminStack(app, 'AdminExistVpc', {
       synthesizer: synthesizer(),
       existingVpc: true,
     }),
-    // new ITStack(app, 'IT', {
-    //   synthesizer: synthesizer(),
-    // }),
+    new AdminStack(app, 'AdminOnlyPrivateSubnets', {
+      synthesizer: synthesizer(),
+      existingVpc: true,
+      onlyPrivateSubnets: true,
+    }),
+    new ITStack(app, 'IT', {
+      synthesizer: synthesizer(),
+    }),
     new AgentStack(app, 'Agent', {
       synthesizer: synthesizer(),
     }),

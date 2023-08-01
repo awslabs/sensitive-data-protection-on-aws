@@ -58,14 +58,18 @@ export interface AdminProps extends StackProps {
    * @default - false.
    */
   existingVpc?: boolean;
+
+  /**
+   * When using an existing VPC, only use a private subnet
+   *
+   * @default - false.
+   */
+  onlyPrivateSubnets?: boolean;
 }
 
-export const enum AuthType {
-  COGNITO = 'AMAZON_COGNITO_USER_POOLS',
-  OIDC = 'OPENID_CONNECT',
-}
 // Admin stack
 export class AdminStack extends Stack {
+  private internetFacing = 'Yes';
 
   constructor(scope: Construct, id: string, props?: AdminProps) {
     super(scope, id, props);
@@ -74,7 +78,40 @@ export class AdminStack extends Stack {
     Parameter.init();
     this.setBuildConfig();
 
-    // ALB Paramter
+    // Oidc Paramter
+    const oidcIssuer = new CfnParameter(this, 'OidcIssuer', {
+      type: 'String',
+      description: 'Specify the secure OpenID Connect URL. Maximum 255 characters. URL must begin with "https://"',
+      allowedPattern: '(https):\\/\\/[\\w\\-_]+(\\.[\\w\\-_]+)+([\\w\\-\\.,@?^=%&:/~\\+#]*[\\w\\-\\@?^=%&/~\\+#])?',
+    });
+    Parameter.addToParamLabels('Issuer URL', oidcIssuer.logicalId);
+    const oidcClientId = new CfnParameter(this, 'OidcClientId', {
+      type: 'String',
+      description: 'Specify the client ID issued by the identity provider. Maximum 255 characters. Use alphanumeric or ‘:_.-/’ characters',
+      allowedPattern: '^[^ ]+$',
+    });
+    Parameter.addToParamLabels('Client ID', oidcClientId.logicalId);
+    Parameter.addToParamGroups(
+      'OpenID Connect(OIDC) Identity Provider',
+      oidcIssuer.logicalId,
+      oidcClientId.logicalId,
+    );
+
+    const paramNetwork = [];
+    if (props?.onlyPrivateSubnets) {
+      this.internetFacing = 'No';
+    } else {
+      // ALB Paramter
+      const internetFacing = new CfnParameter(this, 'AlbInternetFacing', {
+        type: 'String',
+        default: 'Yes',
+        description: 'If you choose No, the portal website can be accessed ONLY in the VPC. If you want to access the portal website over Internet, you need to choose Yes',
+        allowedValues: ['Yes', 'No'],
+      });
+      Parameter.addToParamLabels('Public Access', internetFacing.logicalId);
+      paramNetwork.push(internetFacing.logicalId);
+      this.internetFacing = internetFacing.valueAsString;
+    }
     const port = new CfnParameter(this, 'AlbPort', {
       type: 'Number',
       default: 80,
@@ -83,9 +120,30 @@ export class AdminStack extends Stack {
       description: 'If an ACM certificate ARN has been added, we recommend using port 443 as the default port for HTTPS protocol. Otherwise, port 80 can be set as an alternative option',
     });
     Parameter.addToParamLabels('Port', port.logicalId);
+    paramNetwork.push(port.logicalId);
+    const certificate = new CfnParameter(this, 'AlbCertificate', {
+      type: 'String',
+      default: '',
+      allowedPattern: '^(arn:(aws|aws-cn):acm:[a-zA-Z0-9-_:/]+)?$',
+      description: 'To enable secure communication through encryption and enhancing the security of the solution, you can add a public certificate ARN from ACM to create the portal website URL based on the HTTPS protocol',
+    });
+    Parameter.addToParamLabels('ACM Certificate ARN (optional)', certificate.logicalId);
+    paramNetwork.push(certificate.logicalId);
+    const domainName = new CfnParameter(this, 'CustomDomainName', {
+      type: 'String',
+      default: '',
+      description: 'By adding your own domain name, such as sdps.example.com, you can directly access the portal website by adding a CNAME record to that domain name after deploying the stack.Only fill in the domain name, do not fill in http(s)://',
+    });
+    Parameter.addToParamLabels('Custom Domain Name (optional)', domainName.logicalId);
+    paramNetwork.push(domainName.logicalId);
+    Parameter.addToParamGroups(
+      'Network Access',
+      ...paramNetwork,
+    );
 
     const vpcStack = new VpcStack(this, 'VPC', {
       existingVpc: props?.existingVpc,
+      onlyPrivateSubnets: props?.onlyPrivateSubnets,
     });
 
     const rdsStack = new RdsStack(this, 'RDS', {
@@ -104,20 +162,81 @@ export class AdminStack extends Stack {
       vpc: vpcStack.vpc,
       bucketName: bucketStack.bucket.bucketName,
       rdsClientSecurityGroup: rdsStack.clientSecurityGroup,
+      oidcIssuer: oidcIssuer.valueAsString,
+      oidcClientId: oidcClientId.valueAsString,
     });
 
-    const httpAlbStack = new AlbStack(this, 'HttpALB', {
-      vpcInfo: {
-        vpcId: vpcStack.vpcId,
-        publicSubnet1: vpcStack.publicSubnet1,
-        publicSubnet2: vpcStack.publicSubnet2,
-        privateSubnet1: vpcStack.privateSubnet1,
-        privateSubnet2: vpcStack.privateSubnet2,
-      },
-      bucket: bucketStack.bucket,
-      apiFunction: apiStack.apiFunction,
-      port: port.valueAsNumber,
-    });
+    const isHttp = new CfnCondition(this, 'IsHttp', { expression: Fn.conditionEquals(certificate.valueAsString, '') });
+    const isHttps = new CfnCondition(this, 'IsHttps', { expression: Fn.conditionNot(isHttp) });
+
+    if (props?.existingVpc) {
+      const httpAlbStack = new AlbStack(this, 'HttpALB', {
+        vpcInfo: {
+          vpcId: vpcStack.vpcId,
+          publicSubnet1: vpcStack.publicSubnet1,
+          publicSubnet2: vpcStack.publicSubnet2,
+          privateSubnet1: vpcStack.privateSubnet1,
+          privateSubnet2: vpcStack.privateSubnet2,
+        },
+        onlyPrivateSubnets: props.onlyPrivateSubnets,
+        bucket: bucketStack.bucket,
+        apiFunction: apiStack.apiFunction,
+        port: port.valueAsNumber,
+        internetFacing: this.internetFacing,
+        certificateArn: '',
+        oidcIssuer: oidcIssuer.valueAsString,
+        oidcClientId: oidcClientId.valueAsString,
+        domainName: domainName.valueAsString,
+      });
+      (httpAlbStack.nestedStackResource as CfnStack).cfnOptions.condition = isHttp;
+
+      const httpsAlbStack = new AlbStack(this, 'HttpsALB', {
+        vpcInfo: {
+          vpcId: vpcStack.vpcId,
+          publicSubnet1: vpcStack.publicSubnet1,
+          publicSubnet2: vpcStack.publicSubnet2,
+          privateSubnet1: vpcStack.privateSubnet1,
+          privateSubnet2: vpcStack.privateSubnet2,
+        },
+        onlyPrivateSubnets: props.onlyPrivateSubnets,
+        bucket: bucketStack.bucket,
+        apiFunction: apiStack.apiFunction,
+        port: port.valueAsNumber,
+        internetFacing: this.internetFacing,
+        certificateArn: certificate.valueAsString,
+        oidcIssuer: oidcIssuer.valueAsString,
+        oidcClientId: oidcClientId.valueAsString,
+        domainName: domainName.valueAsString,
+      });
+      (httpsAlbStack.nestedStackResource as CfnStack).cfnOptions.condition = isHttps;
+    } else {
+      const httpAlbStack = new AlbStack(this, 'HttpALB', {
+        vpc: vpcStack.vpc,
+        bucket: bucketStack.bucket,
+        apiFunction: apiStack.apiFunction,
+        port: port.valueAsNumber,
+        internetFacing: this.internetFacing,
+        certificateArn: '',
+        oidcIssuer: oidcIssuer.valueAsString,
+        oidcClientId: oidcClientId.valueAsString,
+        domainName: domainName.valueAsString,
+      });
+      (httpAlbStack.nestedStackResource as CfnStack).cfnOptions.condition = isHttp;
+
+      const httpsAlbStack = new AlbStack(this, 'HttpsALB', {
+        vpc: vpcStack.vpc,
+        bucket: bucketStack.bucket,
+        apiFunction: apiStack.apiFunction,
+        port: port.valueAsNumber,
+        internetFacing: this.internetFacing,
+        certificateArn: certificate.valueAsString,
+        oidcIssuer: oidcIssuer.valueAsString,
+        oidcClientId: oidcClientId.valueAsString,
+        domainName: domainName.valueAsString,
+      });
+      (httpsAlbStack.nestedStackResource as CfnStack).cfnOptions.condition = isHttps;
+    }
+
 
     new DeleteResourcesStack(this, 'DeleteResources');
 

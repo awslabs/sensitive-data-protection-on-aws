@@ -73,11 +73,17 @@ export interface AlbProps {
   readonly vpc?: IVpc;
   // Value of property Parameters must be an object with String (or simple type) properties in NestedStack.
   readonly vpcInfo?: VpcProps;
+  readonly onlyPrivateSubnets?: boolean;
   readonly publicSubnets?: string;
   readonly privateSubnets?: string;
   readonly bucket: IBucket;
   readonly apiFunction: Function;
   readonly port: number;
+  readonly internetFacing: string;
+  readonly certificateArn: string;
+  readonly oidcIssuer: string;
+  readonly oidcClientId: string;
+  readonly domainName: string;
 }
 
 export class AlbStack extends NestedStack {
@@ -92,52 +98,115 @@ export class AlbStack extends NestedStack {
   constructor(scope: Construct, id: string, props: AlbProps) {
     super(scope, id);
 
-    this.identifier = ApplicationProtocol.HTTP.toString();
+    if (props.certificateArn == '') {
+      this.identifier = ApplicationProtocol.HTTP.toString();
+    } else {
+      this.identifier = ApplicationProtocol.HTTPS.toString();
+    }
 
     if (props.vpc) {
       this.vpc = props.vpc;
     } else {
+      let publicSubnetIds = undefined;
+      const onlyPrivateSubnets = props.onlyPrivateSubnets ?? false;
+      if (!onlyPrivateSubnets) {
+        publicSubnetIds = [];
+        publicSubnetIds.push(props.vpcInfo!.publicSubnet1);
+        publicSubnetIds.push(props.vpcInfo!.publicSubnet2);
+      }
       this.vpc = Vpc.fromVpcAttributes(this, 'AlbVpc', {
         vpcId: props.vpcInfo!.vpcId,
         availabilityZones: [0, 1].map(i => Fn.select(i, Fn.getAzs())),
-        publicSubnetIds: [props.vpcInfo!.publicSubnet1, props.vpcInfo!.publicSubnet2],
+        publicSubnetIds: publicSubnetIds,
         privateSubnetIds: [props.vpcInfo!.privateSubnet1, props.vpcInfo!.privateSubnet2],
       });
     }
 
     const albSecurityGroup = this.createSecurityGroup(props.port);
-
+    let internetFacing = true;
+    if (props.onlyPrivateSubnets) {
+      internetFacing = false;
+    }
     const alb = new ApplicationLoadBalancer(this, 'ApplicationLoadBalancer', {
       // loadBalancerName: `${SolutionInfo.SOLUTION_NAME_ABBR}-ALB-${this.identifier}`,
       vpc: this.vpc,
-      internetFacing: true,
+      internetFacing: internetFacing,
       securityGroup: albSecurityGroup,
       http2Enabled: true,
     });
+    // In NestedStack,Only directly using `props.internetFacing` will get an error.
+    new CfnCondition(this, 'IsInternetFacing', { expression: Fn.conditionEquals(props.internetFacing, 'Yes') });
+    const schemeOut = Fn.conditionIf('IsInternetFacing', 'internet-facing', 'internal');
+    const cfnAlb = alb.node.defaultChild as CfnLoadBalancer;
+    cfnAlb.addPropertyOverride('Scheme', schemeOut.toString());
 
     this.setLog(alb, props);
-    const listener = alb.addListener('HttpListener', {
-      protocol: ApplicationProtocol.HTTP,
-      port: props.port,
-    });
 
-    this.url = this.setUrl(scope, alb.loadBalancerDnsName, props, this.httpDefaultPort);
+    const isHttp = new CfnCondition(this, 'IsHttp', { expression: Fn.conditionEquals(props.certificateArn, '') });
+    const isHttps = new CfnCondition(this, 'IsHttps', { expression: Fn.conditionNot(isHttp) });
+
+    let listener;
+    if (props.certificateArn == '') {
+      listener = alb.addListener('HttpListener', {
+        protocol: ApplicationProtocol.HTTP,
+        port: props.port,
+      });
+
+      this.url = this.setUrl(scope, alb.loadBalancerDnsName, props, this.httpDefaultPort);
+      this.setOutput(scope, alb.loadBalancerDnsName, isHttp);
+    } else {
+      listener = alb.addListener('HttpsListener', {
+        protocol: ApplicationProtocol.HTTPS,
+        port: props.port,
+        certificates: [ListenerCertificate.fromArn(props.certificateArn)],
+        sslPolicy: SslPolicy.RECOMMENDED_TLS,
+      });
+
+      this.url = this.setUrl(scope, alb.loadBalancerDnsName, props, this.httpsDefaultPort);
+      this.setOutput(scope, alb.loadBalancerDnsName, isHttps);
+    }
+
     this.createApi(listener, props);
-    new CfnOutput(scope, `PortalUrl${this.identifier}`, {
-      description: 'API URL',
-      value: this.url,
-    });
+    this.createProtalConfig(listener, props);
+    this.createPortal(listener);
   };
 
   private setUrl(scope: Construct, dnsName: string, props: AlbProps, defaultPort: number) {
     // Both the main stack and this stack require these conditions
     const isDefaultPort = new CfnCondition(this, `IsDefaultPort${this.identifier}`, { expression: Fn.conditionEquals(props.port, defaultPort) });
     new CfnCondition(scope, `IsDefaultPort${this.identifier}`, { expression: isDefaultPort.expression });
+    const isCustomdomainName = new CfnCondition(this, `IsCustomdomainName${this.identifier}`, { expression: Fn.conditionNot(Fn.conditionEquals(props.domainName, '')) });
+    new CfnCondition(scope, `IsCustomdomainName${this.identifier}`, { expression: isCustomdomainName.expression });
     const protocolShow = this.identifier.toLowerCase();
-    const domainNameShow = dnsName;
-    const url = `${protocolShow}://${domainNameShow}:${props.port}`;
+    const domainNameShow = Fn.conditionIf(
+      `IsCustomdomainName${this.identifier}`,
+      props.domainName,
+      dnsName,
+    ).toString();
+    const url = Fn.conditionIf(
+      `IsDefaultPort${this.identifier}`,
+      `${protocolShow}://${domainNameShow}`,
+      `${protocolShow}://${domainNameShow}:${props.port}`,
+    ).toString();
     return url;
   }
+
+  private setOutput(scope: Construct, dnsName: string, condition: CfnCondition) {
+    new CfnOutput(scope, `PortalUrl${this.identifier}`, {
+      description: 'Portal URL',
+      value: this.url,
+    }).condition = condition;
+
+    new CfnOutput(scope, `LoadBalancerDnsName${this.identifier}`, {
+      description: 'If you use a custom domain name, set the CName of the custom domain name to this value.',
+      value: dnsName,
+    }).condition = condition;
+
+    new CfnOutput(scope, `SigninRedirectUri${this.identifier}`, {
+      description: 'Sign-in/out redirect URI for OIDC',
+      value: `${this.url}/logincallback`,
+    }).condition = condition;
+  };
 
   private setLog(alb: ApplicationLoadBalancer, props: AlbProps) {
     const albLogPrefix = 'alb-log';
@@ -166,10 +235,81 @@ export class AlbStack extends NestedStack {
     const apiTarget = [new LambdaTarget(props.apiFunction)];
     const apiTargetGroup = listener.addTargets('ApiTarget', {
       // targetGroupName: `${SolutionInfo.SOLUTION_NAME_ABBR}-API-Target-${this.identifier}`,
+      priority: this.apiPriority,
       targets: apiTarget,
+      conditions: [ListenerCondition.httpHeader('authorization', ['*'])],
     });
     Tags.of(apiTargetGroup).add(SolutionInfo.TAG_NAME, 'API');
   }
 
+  private createProtalConfig(listener: ApplicationListener, props: AlbProps) {
+    const portalConfigFunction = new Function(this, 'PortalConfigFunction', {
+      // functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-PortalConfig-${this.identifier}`,
+      description: `${SolutionInfo.SOLUTION_NAME} - set the configration to Lambda environment and portal will read it through ALB.`,
+      runtime: Runtime.PYTHON_3_9,
+      handler: 'portal_config.lambda_handler',
+      code: Code.fromAsset(path.join(__dirname, '../../api/lambda')),
+      memorySize: 1024,
+      timeout: Duration.seconds(10),
+      vpc: this.vpc,
+      vpcSubnets: this.vpc.selectSubnets({
+        subnetType: SubnetType.PRIVATE_WITH_EGRESS,
+      }),
+      environment: {
+        aws_oidc_issuer: props.oidcIssuer,
+        aws_oidc_client_id: props.oidcClientId,
+        aws_oidc_customer_domain: `${this.url}/logincallback`,
+        backend_url: `${this.url}`,
+        expired: '12',
+        version: SolutionInfo.SOLUTION_VERSION,
+      },
+    });
+    const portalConfigTarget = [new LambdaTarget(portalConfigFunction)];
+    const portalConfigTargetGroup = listener.addTargets('PortalConfigTarget', {
+      // targetGroupName: `${SolutionInfo.SOLUTION_NAME_ABBR}-PortalConfig-Target-${this.identifier}`,
+      priority: this.portalConfigPriority,
+      targets: portalConfigTarget,
+      conditions: [ListenerCondition.pathPatterns(['/config/getConfig'])],
+    });
+    Tags.of(portalConfigTargetGroup).add(SolutionInfo.TAG_NAME, 'PortalConfig');
+  }
+
+  private createPortal(listener: ApplicationListener) {
+    let portalFunction;
+    if (BuildConfig.PortalTag) {
+      portalFunction = new DockerImageFunction(this, 'PortalFunction', {
+        // functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-Portal-${this.identifier}`,
+        description: `${SolutionInfo.SOLUTION_NAME} - portal Lambda function`,
+        code: DockerImageCode.fromEcr(Repository.fromRepositoryArn(this, 'PortalRepository', BuildConfig.PortalRepository),
+          { tagOrDigest: BuildConfig.PortalTag }),
+        architecture: Architecture.X86_64,
+        vpc: this.vpc,
+        vpcSubnets: this.vpc.selectSubnets({
+          subnetType: SubnetType.PRIVATE_WITH_EGRESS,
+        }),
+      });
+    } else {
+      portalFunction = new DockerImageFunction(this, 'PortalFunction', {
+        // functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-Portal-${this.identifier}`,
+        description: `${SolutionInfo.SOLUTION_NAME} - portal Lambda function`,
+        code: DockerImageCode.fromImageAsset(path.join(__dirname, '../../../portal'), {
+          file: 'Dockerfile',
+          ignoreMode: IgnoreMode.DOCKER,
+          platform: Platform.LINUX_AMD64,
+        }),
+        architecture: Architecture.X86_64,
+        vpc: this.vpc,
+        vpcSubnets: this.vpc.selectSubnets({
+          subnetType: SubnetType.PRIVATE_WITH_EGRESS,
+        }),
+      });
+    }
+    const portalTarget = [new LambdaTarget(portalFunction)];
+    const protalTargetGroup = listener.addTargets('PortalTarget', {
+      // targetGroupName: `${SolutionInfo.SOLUTION_NAME_ABBR}-Portal-Target-${this.identifier}`,
+      targets: portalTarget,
+    });
+    Tags.of(protalTargetGroup).add(SolutionInfo.TAG_NAME, 'Portal');
+  }
 }
 
