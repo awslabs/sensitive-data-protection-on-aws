@@ -437,7 +437,7 @@ if __name__ == "__main__":
 
     args = getResolvedOptions(sys.argv, ["AccountId", "JOB_NAME", 'DatabaseName', 'DatabaseType', 'BucketName',
     'Depth', 'DetectionThreshold', 'JobId', 'RunId', 'RunDatabaseId', 'TemplateId', 'TemplateSnapshotNo', 
-    'AdminAccountId', 'BaseTime'])
+    'AdminAccountId', 'BaseTime', 'TableBegin', 'TableEnd'])
 
     full_database_name = f"{args['DatabaseType']}-{args['DatabaseName']}-database"
     output_path = f"s3://{args['BucketName']}/glue-database/{result_table}/"
@@ -459,6 +459,7 @@ if __name__ == "__main__":
     broadcast_template = sc.broadcast(template)
 
     crawler_tables = get_tables(full_database_name, region, base_time)
+    crawler_tables = crawler_tables[int(args["TableBegin"]):int(args['TableEnd'])]
 
     # Create UDFs
     column_detector = ColumnDetector(broadcast_template)

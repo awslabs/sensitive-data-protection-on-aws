@@ -44,7 +44,17 @@
       },
       "ResultPath": "$.StartCrawler",
       "Resource": "arn:${AWS::Partition}:states:::aws-sdk:glue:startCrawler",
-      "Next": "Wait"
+      "Next": "Wait",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "BackoffRate": 2,
+          "IntervalSeconds": 100,
+          "MaxAttempts": 3
+        }
+      ]
     },
     "GetCrawler2": {
       "Type": "Task",
@@ -71,7 +81,7 @@
         {
           "Variable": "$.GetCrawler.Crawler.State",
           "StringEquals": "READY",
-          "Next": "Glue StartJobRun"
+          "Next": "Lambda Invoke"
         },
         {
           "Or": [
@@ -88,6 +98,81 @@
         }
       ],
       "Default": "Wait"
+    },
+    "Lambda Invoke": {
+      "Type": "Task",
+      "Resource": "arn:${AWS::Partition}:states:::lambda:invoke",
+      "OutputPath": "$.Payload",
+      "Parameters": {
+        "Payload.$": "$",
+        "FunctionName": "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:SDPS-SplitJob:$LATEST"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "Map"
+    },
+    "Map": {
+      "Type": "Map",
+      "ItemProcessor": {
+        "ProcessorConfig": {
+          "Mode": "INLINE"
+        },
+        "StartAt": "Glue StartJobRun",
+        "States": {
+          "Glue StartJobRun": {
+            "Type": "Task",
+            "Resource": "arn:${AWS::Partition}:states:::glue:startJobRun.sync",
+            "Parameters": {
+              "JobName.$": "$.JobName",
+              "Arguments": {
+                "--JobId.$": "$.JobId",
+                "--RunId.$": "$.RunId",
+                "--RunDatabaseId.$": "$.RunDatabaseId",
+                "--AccountId.$": "$.AccountId",
+                "--Region.$": "$.Region",
+                "--DatabaseType.$": "$.DatabaseType",
+                "--DatabaseName.$": "$.DatabaseName",
+                "--TemplateId.$": "$.TemplateId",
+                "--TemplateSnapshotNo.$": "$.TemplateSnapshotNo",
+                "--Depth.$": "$.Depth",
+                "--BaseTime.$": "$.BaseTime",
+                "--DetectionThreshold.$": "$.DetectionThreshold",
+                "--AdminAccountId.$": "$.AdminAccountId",
+                "--BucketName.$": "$.BucketName",
+                "--TableBegin.$": "$.TableBegin",
+                "--TableEnd.$": "$.TableEnd",
+                "--additional-python-modules.$": "$.AdditionalPythonModules"
+              }
+            },
+            "End": true,
+            "ResultPath": "$.StartJobRun",
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "States.ALL"
+                ],
+                "BackoffRate": 2,
+                "IntervalSeconds": 100,
+                "MaxAttempts": 3
+              }
+            ]
+          }
+        }
+      },
+      "Next": "SuccessPass",
+      "ItemsPath": "$.JobItems",
+      "OutputPath": "$.[0]"
     },
     "GetCrawlerFail": {
       "Type": "Pass",
@@ -106,51 +191,6 @@
         "QueueUrl.$": "$.QueueUrl"
       },
       "Next": "Fail"
-    },
-    "Glue StartJobRun": {
-      "Type": "Task",
-      "Resource": "arn:${AWS::Partition}:states:::glue:startJobRun.sync",
-      "Parameters": {
-        "JobName.$": "$.JobName",
-        "Arguments": {
-          "--JobId.$": "$.JobId",
-          "--RunId.$": "$.RunId",
-          "--RunDatabaseId.$": "$.RunDatabaseId",
-          "--AccountId.$": "$.AccountId",
-          "--Region.$": "$.Region",
-          "--DatabaseType.$": "$.DatabaseType",
-          "--DatabaseName.$": "$.DatabaseName",
-          "--TemplateId.$": "$.TemplateId",
-          "--TemplateSnapshotNo.$": "$.TemplateSnapshotNo",
-          "--Depth.$": "$.Depth",
-          "--BaseTime.$": "$.BaseTime",
-          "--DetectionThreshold.$": "$.DetectionThreshold",
-          "--AdminAccountId.$": "$.AdminAccountId",
-          "--BucketName.$": "$.BucketName",
-          "--additional-python-modules.$": "$.AdditionalPythonModules"
-        }
-      },
-      "ResultPath": "$.StartJobRun",
-      "Next": "Choice3"
-    },
-    "Choice3": {
-      "Type": "Choice",
-      "Choices": [
-        {
-          "Variable": "$.StartJobRun.JobRunState",
-          "StringEquals": "SUCCEEDED",
-          "Next": "SuccessPass"
-        }
-      ],
-      "Default": "GetJobRunFail"
-    },
-    "GetJobRunFail": {
-      "Type": "Pass",
-      "Next": "SQS SendMessageFail",
-      "Result": {
-        "State": "Failed",
-        "Message": "The state of the JobRun is not Succeeded."
-      }
     },
     "SuccessPass": {
       "Type": "Pass",
