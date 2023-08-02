@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import Tabs from '@cloudscape-design/components/tabs';
+import ButtonDropdown from "@cloudscape-design/components/button-dropdown";
+import SpaceBetween from "@cloudscape-design/components/space-between";
 import CatalogList from './componments/CatalogList';
 import { TAB_LIST } from 'enum/common_types';
 import { useSearchParams } from 'react-router-dom';
-import { getExportS3Url } from 'apis/data-catalog/api';
+import format from 'date-fns/format';
+import { getExportS3Url, clearS3Object } from 'apis/data-catalog/api';
 import './style.scss';
 import {
   AppLayout,
@@ -23,33 +26,65 @@ import { alertMsg } from 'tools/tools';
 const CatalogListHeader: React.FC = () => {
   const { t } = useTranslation();
   const [isExporting, setIsExporting] = useState(false);
+  const [fileType, setFileType] = React.useState("xlsx");
 
-  const clkExportDataCatalog = async () => {
+  const clkExportDataCatalog = async (fileType: string) => {
+
     setIsExporting(true);
-    console.log("start time:"+ new Date())
+    const timeStr = format(new Date(), 'yyyyMMddHHmmss');
     try {
-      const result: any = await getExportS3Url({});
-      // const result ="OOOK";
+      const result:any = await getExportS3Url({fileType, timeStr});
       if (result) {
         window.open(result, '_blank');
+        setTimeout(() => {
+          clearS3Object(timeStr);
+        },2000)
+        
       } else {
         alertMsg(t('noReportFile'), 'error');
       }
+
     } catch {
       alertMsg(t('noReportFile'), 'error');
     }
     console.log("finish time:"+ new Date())
     setIsExporting(false);
+    
   };
 
   return (
     <Header variant="h1" 
       description={t('catalog:browserCatalogDesc')}
-      actions = {isExporting?(<Button disabled loading={isExporting} >
-      {t('button.exportProcessing')}
-    </Button>):(<Button onClick={() => clkExportDataCatalog()} >
+      actions = {isExporting?(
+      <SpaceBetween direction="horizontal" size="xs">
+        <Button disabled loading={isExporting} >
+          {t('button.exportProcessing')}
+        </Button>
+        <ButtonDropdown
+          disabled
+          items={[
+            { text: "xlsx", id: "xlsx", disabled: false },
+            { text: "csv", id: "csv", disabled: false },
+          ]}
+          onItemClick={({ detail }) => setFileType(detail.id)}
+         >
+           {fileType}
+         </ButtonDropdown>
+      </SpaceBetween>):(
+      <SpaceBetween direction="horizontal" size="xs">
+        <Button onClick={() => clkExportDataCatalog(fileType)}>
           {t('button.exportDataCatalogs')}
-        </Button>)}
+        </Button>
+        <ButtonDropdown
+          items={[
+            { text: "xlsx", id: "xlsx", disabled: false },
+            { text: "csv", id: "csv", disabled: false },
+          ]}
+          onItemClick={({ detail }) => setFileType(detail.id)}
+         >
+           {fileType}
+         </ButtonDropdown>
+      </SpaceBetween>)}
       >
       {t('catalog:browserCatalog')}
     </Header>

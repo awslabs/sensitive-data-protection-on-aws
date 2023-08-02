@@ -252,3 +252,8 @@ class OperationType(Enum):
 @unique
 class AutoSyncDataAction(Enum):
     DELETE_ACCOUNT = "DeleteAccount"
+
+@unique
+class ExportFileType(Enum):
+    XLSX = "xlsx"
+    CSV = "csv"

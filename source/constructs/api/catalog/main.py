@@ -302,22 +302,14 @@ def get_database_property(
                 "size": condition.size}
     return response
 
-@router.get("/data_catalog_export_url", response_model=BaseResponse[str])
+@router.get("/data_catalog_export_url/{fileType}/{timeStr}", response_model=BaseResponse[str])
 @inject_session
-def get_catalog_export_url():
-    url = service.get_catalog_export_url()
+def get_catalog_export_url(fileType: str, timeStr: str):
+    url = service.get_catalog_export_url(fileType, timeStr)
     return url
 
 
-@router.get("/report",
-            response_class=RedirectResponse,
-            responses={
-                200: {
-                    "content": {const.MIME_XLSX: {}},
-                    "description": "Return a report in xlsx format.",
-                }
-            },
-            )
-def download_report():
-    url = service.get_catalog_export_url()
-    return RedirectResponse(url)
+@router.get("/clear_s3_object/{timeStr}", response_model=BaseResponse[str])
+@inject_session
+def clear_s3_object(timeStr: str):
+    return service.clear_s3_object(timeStr)
