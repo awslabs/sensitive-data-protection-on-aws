@@ -970,25 +970,20 @@ def fill_catalog_labels(catalogs):
 
 def get_catalog_export_url(fileType: str, timeStr: str) -> str:
     run_result = crud.get_export_catalog_data()
-    logger.info(f"&&&&&&&&&&&&&&&&&&&&&& run_result size is {len(run_result)}")
     all_labels = get_all_labels()
     all_labels_dict = dict()
-    # time_str = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
     tmp_filename = f"/tmp/catalog_{timeStr}.zip"
     report_file = f"report/catalog_{timeStr}.zip"
-    # key_name = f"report/{filename}" 
     for item in all_labels:
         all_labels_dict[item.id] = item.label_name
     filtered_records = filter_records(run_result, all_labels_dict)
     column_header = {const.EXPORT_S3_MARK_STR: const.EXPORT_FILE_S3_COLUMNS, const.EXPORT_RDS_MARK_STR: const.EXPORT_FILE_RDS_COLUMNS}
     gen_zip_file(column_header, filtered_records, tmp_filename, fileType)
     stats = os.stat(tmp_filename)
-    logger.info(f"############ tmp_filename size is {stats.st_size}")
     s3_client = boto3.client('s3')
     if stats.st_size < 6 * 1024 * 1024:
         s3_client.upload_file(tmp_filename, project_bucket_name, report_file)
     else:
-        logger.info("%%%%%%%%%%%%%%%%%%%%%%%%%concurrent_upload")
         concurrent_upload(project_bucket_name, report_file, tmp_filename, s3_client)
     os.remove(tmp_filename)
     method_parameters = {'Bucket': project_bucket_name, 'Key': report_file}
