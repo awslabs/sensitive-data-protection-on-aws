@@ -154,6 +154,25 @@ const updateCatalogTableLabels = async (params: {
   return result;
 };
 
+const getExportS3Url = async (params: any) => {
+  const result = await apiRequest(
+    'get',
+    `catalog/data_catalog_export_url/${params.fileType}/${params.timeStr}`,
+    ''
+  );
+  return result;
+};
+
+const clearS3Object = async (timeStr: any) => {
+  console.log("delete start s3Object name is: "+timeStr)
+  const result = await apiRequest(
+    'get',
+    `catalog/clear_s3_object/${timeStr}`,
+    ''
+  );
+  return result;
+};
+
 export {
   getTablesByDatabase,
   searchTablesByDatabase,
@@ -170,4 +189,6 @@ export {
   getDataBaseByIdentifier,
   updateCatalogLabels,
   updateCatalogTableLabels,
+  getExportS3Url,
+  clearS3Object,
 };

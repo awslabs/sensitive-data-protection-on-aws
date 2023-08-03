@@ -1,4 +1,5 @@
 import db.models_catalog as models
+from sqlalchemy import (Column, or_, distinct, and_)
 from tools.pydantic_tool import parse_pydantic_schema
 import tools.mytime as mytime
 from db.database import get_session
@@ -738,3 +739,38 @@ def update_catalog_table_labels(
     )
     get_session().commit()
     return size > 0
+
+def get_export_catalog_data():
+    return get_session().query(models.CatalogColumnLevelClassification.database_type,
+                               models.CatalogColumnLevelClassification.account_id,
+                               models.CatalogColumnLevelClassification.region,
+                               models.CatalogColumnLevelClassification.database_name,
+                               models.CatalogColumnLevelClassification.table_name,
+                               models.CatalogColumnLevelClassification.column_name,
+                               models.CatalogColumnLevelClassification.identifier,
+                               models.CatalogColumnLevelClassification.column_value_example,
+                               models.CatalogDatabaseLevelClassification.label_ids,
+                               models.CatalogTableLevelClassification.label_ids,
+                               models.CatalogColumnLevelClassification.comments,
+                               ).join(models.CatalogTableLevelClassification,
+                                      models.CatalogColumnLevelClassification.account_id == models.CatalogTableLevelClassification.account_id
+                                      ).join(models.CatalogDatabaseLevelClassification,
+                                             models.CatalogColumnLevelClassification.account_id == models.CatalogDatabaseLevelClassification.account_id
+                                             ).filter(and_(models.CatalogColumnLevelClassification.region == models.CatalogTableLevelClassification.region,
+                                                      models.CatalogColumnLevelClassification.database_type == models.CatalogTableLevelClassification.database_type,
+                                                      models.CatalogColumnLevelClassification.database_name == models.CatalogTableLevelClassification.database_name,
+                                                      models.CatalogColumnLevelClassification.table_name == models.CatalogTableLevelClassification.table_name,
+                                                      models.CatalogColumnLevelClassification.region == models.CatalogDatabaseLevelClassification.region,
+                                                      models.CatalogColumnLevelClassification.database_type == models.CatalogDatabaseLevelClassification.database_type,
+                                                      models.CatalogColumnLevelClassification.database_name == models.CatalogDatabaseLevelClassification.database_name)
+                                                      ).distinct(models.CatalogColumnLevelClassification.database_type,
+                                                                 models.CatalogColumnLevelClassification.account_id,
+                                                                 models.CatalogColumnLevelClassification.region,
+                                                                 models.CatalogColumnLevelClassification.database_name,
+                                                                 models.CatalogColumnLevelClassification.table_name,
+                                                                 models.CatalogColumnLevelClassification.column_name,
+                                                                 models.CatalogColumnLevelClassification.identifier,
+                                                                 models.CatalogColumnLevelClassification.column_value_example,
+                                                                 models.CatalogTableLevelClassification.label_ids,
+                                                                 models.CatalogDatabaseLevelClassification.label_ids,
+                                                                 models.CatalogColumnLevelClassification.comments).all()

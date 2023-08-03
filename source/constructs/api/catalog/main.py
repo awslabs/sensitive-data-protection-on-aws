@@ -5,6 +5,7 @@ from common.response_wrapper import BaseResponse
 from common.query_condition import QueryCondition
 from fastapi_pagination import Page, Params
 from fastapi_pagination.ext.sqlalchemy import paginate
+from fastapi.responses import RedirectResponse
 from common.constant import const
 from common.enum import (
     CatalogDashboardAttribute
@@ -300,3 +301,15 @@ def get_database_property(
                 "page": condition.page, 
                 "size": condition.size}
     return response
+
+@router.get("/data_catalog_export_url/{fileType}/{timeStr}", response_model=BaseResponse[str])
+@inject_session
+def get_catalog_export_url(fileType: str, timeStr: str):
+    url = service.get_catalog_export_url(fileType, timeStr)
+    return url
+
+
+@router.get("/clear_s3_object/{timeStr}", response_model=BaseResponse[str])
+@inject_session
+def clear_s3_object(timeStr: str):
+    return service.clear_s3_object(timeStr)

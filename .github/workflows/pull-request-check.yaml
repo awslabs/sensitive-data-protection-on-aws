@@ -30,6 +30,7 @@ jobs:
           scopes: |
             be
             fe
+            be+fe
             others
           subjectPattern: ^[\s\w-\.]{5,100}$
           subjectPatternError: |
