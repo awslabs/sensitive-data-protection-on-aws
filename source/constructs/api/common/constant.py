@@ -38,6 +38,7 @@ const.USER = "user"
 const.USER_DEFAULT_NAME = "SDPS"
 const.JOB_RESULT_DATABASE_NAME = "sdps_database"
 const.JOB_RESULT_TABLE_NAME = "job_detection_output_table"
+const.JOB_SAMPLE_RESULT_TABLE_NAME = "job_sample_output_table"
 const.CATALOG_SAMPLE_ITEM_COUNT = 10
 const.MODE = 'mode'
 const.MODE_DEV = 'dev'
@@ -56,6 +57,7 @@ const.MSCK_REPAIR_DATE = 'MsckRepairDate'
 const.MSCK_REPAIR_START_TIME = 'MsckRepairStartTime'
 const.MANUAL = 'manual'
 const.SYSTEM = 'system'
+const.SAMPLE_LIMIT = 1000
 const.EXPORT_FILE_S3_COLUMNS = ["account_id", "region", "s3_bucket", "folder_name", "column_name", "identifiers", "sample_data",
                                 "bucket_catalog_label", "folder_catalog_label", "comment"]
 const.EXPORT_FILE_RDS_COLUMNS = ["account_id", "region", "rds_instance_id", "table_name", "column_name", "identifiers", "sample_data",
@@ -64,3 +66,4 @@ const.EXPORT_XLSX_MAX_LINES = 30000
 const.EXPORT_CSV_MAX_LINES = 60000
 const.EXPORT_S3_MARK_STR = "Amazon_S3"
 const.EXPORT_RDS_MARK_STR = "Amazon_RDS"
+
