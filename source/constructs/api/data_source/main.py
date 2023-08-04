@@ -134,3 +134,8 @@ def delete_account(account: schemas.SourceNewAccount):
 @inject_session
 def get_secrets(account: str, region: str):
     return service.get_secrets(account, region)
+
+@router.get("/admin_account_info", response_model=BaseResponse[schemas.AdminAccountInfo])
+@inject_session
+def get_admin_account_info():
+    return service.get_admin_account_info()

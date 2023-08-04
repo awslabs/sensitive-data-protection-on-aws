@@ -1025,6 +1025,9 @@ def get_secrets(account: str, region: str):
     return secrets
 
 
+def get_admin_account_info():
+    return schemas.AdminAccountInfo(account_id=_admin_account_id, region=_admin_account_region)
+
 def __glue(account: str, region: str):
     iam_role_name = crud.get_iam_role(account)
     assumed_role = sts.assume_role(
