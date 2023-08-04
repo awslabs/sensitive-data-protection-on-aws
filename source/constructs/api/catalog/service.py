@@ -1,11 +1,14 @@
 import boto3
 import os
 import json
+import csv
 from . import crud, schemas
+from zipfile import ZipFile
 from data_source import crud as data_source_crud
 import time
 from time import sleep
 from common.constant import const
+from common.concurrent_upload2s3 import concurrent_upload
 from template.service import get_identifiers
 from common.query_condition import QueryCondition
 from common.enum import (
@@ -16,17 +19,23 @@ from common.enum import (
     GlueCrawlerState,
     Privacy,
     MessageEnum,
-    ConnectionState
+    ConnectionState,
+    ExportFileType
 )
 import logging
 from common.exception_handler import BizException
 import traceback
-from label.crud import get_labels_by_id_list
+from label.crud import (get_labels_by_id_list, get_all_labels)
+from openpyxl import Workbook
+from tempfile import NamedTemporaryFile
 
 logger = logging.getLogger(const.LOGGER_API)
 caller_identity = boto3.client('sts').get_caller_identity()
 partition = caller_identity['Arn'].split(':')[1]
+project_bucket_name = os.getenv(const.PROJECT_BUCKET_NAME, const.PROJECT_BUCKET_DEFAULT_NAME)
 
+
+sql_result = "SELECT database_type,account_id,region,s3_bucket,s3_location,rds_instance_id,table_name,column_name,identifiers,sample_data,'','','' FROM job_detection_output_table"
 
 def get_boto3_client(account_id: str, region: str, service: str):
     sts_connection = boto3.client("sts")
@@ -974,3 +983,111 @@ def get_database_sample_data(account_id: str, region: str, database_name: str, t
     from .sample_service import init_rds_sample_job
     response = init_rds_sample_job(account_id, region, database_name, table_name, refresh)
     return response
+
+
+def get_catalog_export_url(fileType: str, timeStr: str) -> str:
+    run_result = crud.get_export_catalog_data()
+    all_labels = get_all_labels()
+    all_labels_dict = dict()
+    tmp_filename = f"/tmp/catalog_{timeStr}.zip"
+    report_file = f"report/catalog_{timeStr}.zip"
+    for item in all_labels:
+        all_labels_dict[item.id] = item.label_name
+    filtered_records = filter_records(run_result, all_labels_dict)
+    column_header = {const.EXPORT_S3_MARK_STR: const.EXPORT_FILE_S3_COLUMNS, const.EXPORT_RDS_MARK_STR: const.EXPORT_FILE_RDS_COLUMNS}
+    gen_zip_file(column_header, filtered_records, tmp_filename, fileType)
+    stats = os.stat(tmp_filename)
+    s3_client = boto3.client('s3')
+    if stats.st_size < 6 * 1024 * 1024:
+        s3_client.upload_file(tmp_filename, project_bucket_name, report_file)
+    else:
+        concurrent_upload(project_bucket_name, report_file, tmp_filename, s3_client)
+    os.remove(tmp_filename)
+    method_parameters = {'Bucket': project_bucket_name, 'Key': report_file}
+    pre_url = s3_client.generate_presigned_url(
+        ClientMethod="get_object",
+        Params=method_parameters,
+        ExpiresIn=60
+    )
+    return pre_url
+
+def filter_records(all_items: list, all_labels_dict: dict):
+    s3_records = []
+    rds_records = []
+    for row in all_items:
+        row_result = [cell for cell in row]
+        if row_result[8]:
+            row_result[8] = ",".join([all_labels_dict.get(int(result)) for result in row_result[8].split(",")])
+        if row_result[9]:
+            row_result[9] = ",".join([all_labels_dict.get(int(result)) for result in row_result[9].split(",")])
+        catalog_type = row_result[0]
+        del row_result[0]
+        if catalog_type == DatabaseType.S3.value:
+            s3_records.append([row_result])
+        elif catalog_type == DatabaseType.RDS.value:
+            rds_records.append([row_result])
+        else:
+            pass
+    return {const.EXPORT_S3_MARK_STR: s3_records, const.EXPORT_RDS_MARK_STR: rds_records}
+
+def gen_zip_file(header, record, tmp_filename, type):
+    with ZipFile(tmp_filename, 'w') as zipf:
+        for k, v in record.items():
+            if not v:
+                break
+            if type == ExportFileType.XLSX.value:
+                batches = int(len(v) / const.EXPORT_XLSX_MAX_LINES)
+                if batches < 1:
+                    wb = Workbook()
+                    ws1 = wb.active
+                    ws1.title = k
+                    ws1.append(header.get(k))
+                    for row_index in range(0, len(v)):
+                        ws1.append([__get_cell_value(cell) for cell in v[row_index]])
+                    file_name = f"/tmp/{k}.xlsx"
+                    wb.save(file_name)
+                    zipf.write(file_name, os.path.abspath(file_name))
+                    os.remove(os.path.basename(file_name))
+                else:
+                    for i in range(0, batches + 1):
+                        wb = Workbook()
+                        ws1 = wb.active
+                        ws1.title = k
+                        ws1.append(header.get(k))
+                        for row_index in range(const.EXPORT_XLSX_MAX_LINES * i, min(const.EXPORT_XLSX_MAX_LINES * (i + 1), len(v))):
+                            ws1.append([__get_cell_value(cell) for cell in v[row_index][0]])
+                        file_name = f"/tmp/{k}_{i+1}.xlsx"
+                        wb.save(file_name)
+                        zipf.write(file_name, os.path.basename(file_name))
+                        os.remove(file_name)
+            else:
+                batches = int(len(v) / const.EXPORT_CSV_MAX_LINES)
+                if batches < 1:
+                    file_name = f"/tmp/{k}.csv"
+                    with open(file_name, 'w', newline='') as csv_file:
+                        csv_writer = csv.writer(csv_file)
+                        csv_writer.writerow(header.get(k))
+                        for record in v:
+                            csv_writer.writerow([__get_cell_value(cell) for cell in record[0]])
+                    zipf.write(file_name, os.path.abspath(file_name))
+                    os.remove(os.path.basename(file_name))
+                else:
+                    for i in range(0, batches + 1):
+                        file_name = f"/tmp/{k}_{i+1}.csv"
+                        with open(file_name, 'w', newline='') as csv_file:
+                            csv_writer = csv.writer(csv_file)
+                            csv_writer.writerow(header.get(k))
+                            for record in v[const.EXPORT_CSV_MAX_LINES * i: min(const.EXPORT_CSV_MAX_LINES * (i + 1), len(v))]:
+                                csv_writer.writerow([__get_cell_value(cell) for cell in record[0]])
+                        zipf.write(file_name, os.path.abspath(file_name))
+                        os.remove(file_name)
+
+def __get_cell_value(cell: dict):
+    if cell and "VarCharValue" in cell:
+        return cell["VarCharValue"]
+    else:
+        return cell
+
+def clear_s3_object(time_str: str):
+    s3 = boto3.client('s3')
+    s3.delete_object(Bucket=project_bucket_name, Key=f"report/catalog_{time_str}.zip")
