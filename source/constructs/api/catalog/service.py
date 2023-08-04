@@ -1039,11 +1039,11 @@ def gen_zip_file(header, record, tmp_filename, type):
                     ws1.title = k
                     ws1.append(header.get(k))
                     for row_index in range(0, len(v)):
-                        ws1.append([__get_cell_value(cell) for cell in v[row_index]])
+                        ws1.append([__get_cell_value(cell) for cell in v[row_index][0]])
                     file_name = f"/tmp/{k}.xlsx"
                     wb.save(file_name)
                     zipf.write(file_name, os.path.abspath(file_name))
-                    os.remove(os.path.basename(file_name))
+                    os.remove(file_name)
                 else:
                     for i in range(0, batches + 1):
                         wb = Workbook()
@@ -1066,7 +1066,7 @@ def gen_zip_file(header, record, tmp_filename, type):
                         for record in v:
                             csv_writer.writerow([__get_cell_value(cell) for cell in record[0]])
                     zipf.write(file_name, os.path.abspath(file_name))
-                    os.remove(os.path.basename(file_name))
+                    os.remove(file_name)
                 else:
                     for i in range(0, batches + 1):
                         file_name = f"/tmp/{k}_{i+1}.csv"
