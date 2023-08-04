@@ -136,14 +136,10 @@ def sync_crawler_result(
 
     client = get_boto3_client(account_id, region, "glue")
     glue_database_name = (
-            database_type
-            + "-"
-            + database_name
-            + "-"
-            + GlueResourceNameSuffix.DATABASE.value
+        database_type + "-" + database_name + "-" + GlueResourceNameSuffix.DATABASE.value
     )
     glue_crawler_name = (
-            database_type + "-" + database_name + "-" + GlueResourceNameSuffix.CRAWLER.value
+        database_type + "-" + database_name + "-" + GlueResourceNameSuffix.CRAWLER.value
     )
 
     crawler_response = client.get_crawler(Name=glue_crawler_name)

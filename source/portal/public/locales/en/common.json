@@ -85,7 +85,9 @@
     "dataCatalogs": "Data catalogs",
     "downloadSnapshot": "Download snapshot",
     "close": "Close",
-    "actions": "Actions"
+    "actions": "Actions",
+    "exportDataCatalogs": "Export data catalogs",
+    "exportProcessing": "Export processing ..."
   },
   "label": {
     "label": "Custom label",

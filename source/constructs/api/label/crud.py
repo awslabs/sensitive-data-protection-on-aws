@@ -8,6 +8,9 @@ import datetime
 from typing import List
 
 
+def get_all_labels():
+    return get_session().query(models.Label).all()
+
 def get_labels_by_id_list(id_list: List[int]) -> List[models.Label]:
     session = get_session()
     query = session.query(models.Label).filter(models.Label.id.in_(id_list))
