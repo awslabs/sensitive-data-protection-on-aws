@@ -968,6 +968,19 @@ def fill_catalog_labels(catalogs):
         catalog.labels = labels_str
     return catalogs
 
+
+def get_s3_folder_sample_data(account_id: str, region: str, bucket_name: str, resource_name: str, refresh: bool):
+    from .sample_service import init_s3_sample_job
+    response = init_s3_sample_job(account_id, region, bucket_name, resource_name, refresh)
+    return response
+
+
+def get_database_sample_data(account_id: str, region: str, database_name: str, table_name: str, refresh: bool):
+    from .sample_service import init_rds_sample_job
+    response = init_rds_sample_job(account_id, region, database_name, table_name, refresh)
+    return response
+
+
 def get_catalog_export_url(fileType: str, timeStr: str) -> str:
     run_result = crud.get_export_catalog_data()
     all_labels = get_all_labels()
@@ -1026,11 +1039,11 @@ def gen_zip_file(header, record, tmp_filename, type):
                     ws1.title = k
                     ws1.append(header.get(k))
                     for row_index in range(0, len(v)):
-                        ws1.append([__get_cell_value(cell) for cell in v[row_index]])
+                        ws1.append([__get_cell_value(cell) for cell in v[row_index][0]])
                     file_name = f"/tmp/{k}.xlsx"
                     wb.save(file_name)
                     zipf.write(file_name, os.path.abspath(file_name))
-                    os.remove(os.path.basename(file_name))
+                    os.remove(file_name)
                 else:
                     for i in range(0, batches + 1):
                         wb = Workbook()
@@ -1053,7 +1066,7 @@ def gen_zip_file(header, record, tmp_filename, type):
                         for record in v:
                             csv_writer.writerow([__get_cell_value(cell) for cell in record[0]])
                     zipf.write(file_name, os.path.abspath(file_name))
-                    os.remove(os.path.basename(file_name))
+                    os.remove(file_name)
                 else:
                     for i in range(0, batches + 1):
                         file_name = f"/tmp/{k}_{i+1}.csv"
