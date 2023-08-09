@@ -18,7 +18,8 @@
     "classifiySetting": "Classification settings",
     "defineTemplate": "Define classification template",
     "manageIdentifier": "Manage data identifiers",
-    "doc": "Documentation"
+    "doc": "Documentation",
+    "version": "Version"
   },
   "breadcrumb": {
     "home": "Sensitive Data Protection Solution",
@@ -33,7 +34,8 @@
     "sensitiveJobs": "Sensitive data discovery jobs",
     "manageIdentifier": "Manage data identifiers",
     "showPath": "Show path",
-    "breadcrumb": "Breadcrumbs"
+    "breadcrumb": "Breadcrumbs",
+    "timeline": "Timeline"
   },
   "button": {
     "signin": "Sign In",
@@ -87,7 +89,9 @@
     "close": "Close",
     "actions": "Actions",
     "exportDataCatalogs": "Export data catalogs",
-    "exportProcessing": "Export processing ..."
+    "exportProcessing": "Export processing ...",
+    "savexlsx": "Download .xlsx file",
+    "savecsv": "Download .csv file"
   },
   "label": {
     "label": "Custom label",

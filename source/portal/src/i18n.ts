@@ -40,6 +40,7 @@ i18n
       'template',
       'identifier',
       'info',
+      'timeline',
     ],
     defaultNS: 'common',
     fallbackLng: 'en',

@@ -14,6 +14,7 @@ import { Button, Spinner } from '@cloudscape-design/components';
 import PageSpinner from 'pages/page-spinner';
 import NoAccess from 'pages/no-access';
 import { useTranslation } from 'react-i18next';
+import TimeLine from 'pages/time-line';
 
 interface SignedInPageProps {
   user: any;

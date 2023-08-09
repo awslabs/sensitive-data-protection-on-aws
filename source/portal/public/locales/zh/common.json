@@ -18,7 +18,8 @@
     "classifiySetting": "分类设置",
     "defineTemplate": "定义分类模版",
     "manageIdentifier": "管理数据识别规则",
-    "doc": "文档"
+    "doc": "文档",
+    "version": "版本"
   },
   "breadcrumb": {
     "home": "敏感数据保护解决方案",
@@ -33,7 +34,8 @@
     "sensitiveJobs": "敏感数据发现作业",
     "manageIdentifier": "管理数据识别规则",
     "showPath": "显示路径",
-    "breadcrumb": "面包屑"
+    "breadcrumb": "面包屑",
+    "timeline": "时间线"
   },
   "button": {
     "signin": "登录",
@@ -87,7 +89,9 @@
     "close": "关闭",
     "actions": "操作",
     "exportDataCatalogs": "导出数据目录",
-    "exportProcessing": "导出处理中 ..."
+    "exportProcessing": "导出处理中 ...",
+    "savexlsx": "下载 .xlsx 文件",
+    "savecsv": "下载 .csv 文件"
   },
   "label": {
     "label": "标签",

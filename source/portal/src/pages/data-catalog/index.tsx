@@ -56,10 +56,6 @@ const CatalogListHeader: React.FC = () => {
     <Header variant="h1" 
       description={t('catalog:browserCatalogDesc')}
       actions = {isExporting?(
-      <SpaceBetween direction="horizontal" size="xs">
-        <Button disabled loading={isExporting} >
-          {t('button.exportProcessing')}
-        </Button>
         <ButtonDropdown
           disabled
           items={[
@@ -68,23 +64,24 @@ const CatalogListHeader: React.FC = () => {
           ]}
           onItemClick={({ detail }) => setFileType(detail.id)}
          >
-           {fileType}
+           {t('button.exportDataCatalogs')}
          </ButtonDropdown>
-      </SpaceBetween>):(
-      <SpaceBetween direction="horizontal" size="xs">
-        <Button onClick={() => clkExportDataCatalog(fileType)}>
+        ):(
+        <>
+        {/* <Button onClick={() => clkExportDataCatalog(fileType)}>
           {t('button.exportDataCatalogs')}
-        </Button>
+        </Button> */}
         <ButtonDropdown
           items={[
-            { text: "xlsx", id: "xlsx", disabled: false },
-            { text: "csv", id: "csv", disabled: false },
+            { text: t('button.savexlsx').toString(), id: "xlsx", disabled: false },
+            { text: t('button.savecsv').toString(), id: "csv", disabled: false },
           ]}
-          onItemClick={({ detail }) => setFileType(detail.id)}
+          onItemClick={({ detail }) => clkExportDataCatalog(detail.id)}
          >
-           {fileType}
+           {t('button.exportDataCatalogs')}
          </ButtonDropdown>
-      </SpaceBetween>)}
+         </>
+      )}
       >
       {t('catalog:browserCatalog')}
     </Header>

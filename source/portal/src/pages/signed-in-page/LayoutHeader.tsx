@@ -111,6 +111,7 @@ const LayoutHeader: React.FC<LayoutHeaderProps> = ({
                   id: 'version',
                   text: t('header.version')+" "+configData.version || '',
                   disabled: true,
+                  // href: RouterEnum.TimeLine.path,
                 },
               ],
             },

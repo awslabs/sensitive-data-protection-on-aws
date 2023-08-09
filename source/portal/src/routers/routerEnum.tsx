@@ -11,6 +11,7 @@ import CreateIdentifier from 'pages/create-identifier';
 import CreateJob from 'pages/create-job';
 import GlueJob from 'pages/glue-job';
 import LoginCallback from 'pages/login-callback';
+import TimeLine from 'pages/time-line';
 
 interface RouterEnumType {
   path: string;
@@ -54,5 +55,9 @@ export const RouterEnum: Record<string, RouterEnumType> = {
   LoginCallback: {
     path: '/logincallback',
     element: <LoginCallback />,
+  },
+  TimeLine: {
+    path: '/time-line',
+    element: <TimeLine />,
   },
 };
