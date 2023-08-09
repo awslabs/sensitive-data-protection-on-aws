@@ -11,7 +11,7 @@ import {
   Grid,
 } from '@cloudscape-design/components';
 import React, { useState, useEffect } from 'react';
-import ReactMarkdown from 'react-markdown'
+// import ReactMarkdown from 'react-markdown'
 import './style.scss';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
@@ -91,9 +91,9 @@ const TimelineContent: React.FC = () => {
                 className="flex-v justify-spacebetween"
                 style={{ minWidth: 1000 }}
               >
-              <ReactMarkdown >
+              {/* <ReactMarkdown >
               {bodyStr.substring(0, endStr>-1?endStr:bodyStr.length)}
-              </ReactMarkdown>
+              </ReactMarkdown> */}
             </div>
 
 
