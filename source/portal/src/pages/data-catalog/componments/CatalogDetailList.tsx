@@ -87,6 +87,12 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       null as SelectProps.Option | null
     );
     const [nameFilterText, setNameFilterText] = useState('');
+    
+    const [curFolderSortColumn, setCurFolderSortColumn] = useState<any>({
+      sortingField: 'table_name',
+    });
+    const [isFolderDescending, setIsFolderDescending] = useState(false);
+
     const [preferences, setPreferences] = useState({
       pageSize: 20,
       wrapLines: true,
@@ -163,7 +169,13 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
 
     useEffect(() => {
       getPageData(nameFilterText);
-    }, [query, currentPage, nameFilterText, preferences.pageSize]);
+    }, [query, 
+        currentPage, 
+        nameFilterText, 
+        preferences.pageSize, 
+        isFolderDescending, 
+        curFolderSortColumn
+    ]);
 
     // useEffect(() => {
     //   if (currentPage !== 1) {
@@ -298,6 +310,8 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
         database_name: selectRowData.database_name,
         page: currentPage,
         size: preferences.pageSize,
+        sort_column: 'identifiers',
+        asc: true,
       };
       const result: any = await getDatabaseIdentifiers(requestParam);
       if (typeof result !== 'object') {
@@ -325,6 +339,8 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
           table_name: nameFilter,
           page: currentPage,
           size: preferences.pageSize,
+          sort_column: curFolderSortColumn?.sortingField,
+          asc: !isFolderDescending,
         };
 
         let result: any;
@@ -335,8 +351,8 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
           const requestBody: any = {
             page: currentPage,
             size: preferences.pageSize,
-            sort_column: '',
-            asc: true,
+            sort_column: curFolderSortColumn?.sortingField,
+            asc: !isFolderDescending,
             conditions: [
               {
                 column: 'account_id',
@@ -918,6 +934,12 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                 };
               }) as any
             }
+            sortingColumn={curFolderSortColumn}
+            sortingDescending={isFolderDescending}
+            onSortingChange={(e) => {
+              setCurFolderSortColumn(e.detail.sortingColumn);
+              setIsFolderDescending(e.detail.isDescending || false);
+            }}
             resizableColumns
             items={dataList}
             loadingText={t('table.loadingResources') || ''}
