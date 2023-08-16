@@ -23,14 +23,18 @@ import {
   Tags,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import { AcmStack } from './admin/acm-stack';
 import { AlbStack } from './admin/alb-stack';
 import { ApiStack } from './admin/api-stack';
 import { BucketStack } from './admin/bucket-stack';
+import { CognitoPostStack } from './admin/cognito-post-stack';
+import { CognitoStack } from './admin/cognito-stack';
 import { DeleteResourcesStack } from './admin/delete-resources-stack';
 import { GlueStack } from './admin/glue-stack';
 import { RdsStack } from './admin/rds-stack';
 import { VpcStack } from './admin/vpc-stack';
 import { BuildConfig } from './common/build-config';
+import { Constants } from './common/constants';
 import { Parameter } from './common/parameter';
 import { SolutionInfo } from './common/solution-info';
 
@@ -65,6 +69,13 @@ export interface AdminProps extends StackProps {
    * @default - false.
    */
   onlyPrivateSubnets?: boolean;
+
+  /**
+   * Indicate whether to use cognito
+   *
+   * @default - false.
+   */
+  useCognito?: boolean;
 }
 
 // Admin stack
@@ -78,24 +89,36 @@ export class AdminStack extends Stack {
     Parameter.init();
     this.setBuildConfig();
 
+    const bucketStack = new BucketStack(this, 'S3');
+
     // Oidc Paramter
-    const oidcIssuer = new CfnParameter(this, 'OidcIssuer', {
-      type: 'String',
-      description: 'Specify the secure OpenID Connect URL. Maximum 255 characters. URL must begin with "https://"',
-      allowedPattern: '(https):\\/\\/[\\w\\-_]+(\\.[\\w\\-_]+)+([\\w\\-\\.,@?^=%&:/~\\+#]*[\\w\\-\\@?^=%&/~\\+#])?',
-    });
-    Parameter.addToParamLabels('Issuer URL', oidcIssuer.logicalId);
-    const oidcClientId = new CfnParameter(this, 'OidcClientId', {
-      type: 'String',
-      description: 'Specify the client ID issued by the identity provider. Maximum 255 characters. Use alphanumeric or ‘:_.-/’ characters',
-      allowedPattern: '^[^ ]+$',
-    });
-    Parameter.addToParamLabels('Client ID', oidcClientId.logicalId);
-    Parameter.addToParamGroups(
-      'OpenID Connect(OIDC) Identity Provider',
-      oidcIssuer.logicalId,
-      oidcClientId.logicalId,
-    );
+    let oidcIssuerValue, oidcUserPoolIdValue = '', oidcClientIdValue;
+    if (props?.useCognito) {
+      const cognitoStack = new CognitoStack(this, 'Cognito');
+      oidcIssuerValue = cognitoStack.issuer;
+      oidcUserPoolIdValue = cognitoStack.userPoolId;
+      oidcClientIdValue = cognitoStack.userPoolClientId;
+    } else {
+      const oidcIssuer = new CfnParameter(this, 'OidcIssuer', {
+        type: 'String',
+        description: 'Specify the secure OpenID Connect URL. Maximum 255 characters. URL must begin with "https://"',
+        allowedPattern: '(https):\\/\\/[\\w\\-_]+(\\.[\\w\\-_]+)+([\\w\\-\\.,@?^=%&:/~\\+#]*[\\w\\-\\@?^=%&/~\\+#])?',
+      });
+      Parameter.addToParamLabels('Issuer URL', oidcIssuer.logicalId);
+      const oidcClientId = new CfnParameter(this, 'OidcClientId', {
+        type: 'String',
+        description: 'Specify the client ID issued by the identity provider. Maximum 255 characters. Use alphanumeric or ‘:_.-/’ characters',
+        allowedPattern: '^[^ ]+$',
+      });
+      Parameter.addToParamLabels('Client ID', oidcClientId.logicalId);
+      Parameter.addToParamGroups(
+        'OpenID Connect(OIDC) Identity Provider',
+        oidcIssuer.logicalId,
+        oidcClientId.logicalId,
+      );
+      oidcIssuerValue = oidcIssuer.valueAsString;
+      oidcClientIdValue = oidcClientId.valueAsString;
+    }
 
     const paramNetwork = [];
     if (props?.onlyPrivateSubnets) {
@@ -112,15 +135,22 @@ export class AdminStack extends Stack {
       paramNetwork.push(internetFacing.logicalId);
       this.internetFacing = internetFacing.valueAsString;
     }
-    const port = new CfnParameter(this, 'AlbPort', {
-      type: 'Number',
-      default: 80,
-      minValue: 1,
-      maxValue: 65535,
-      description: 'If an ACM certificate ARN has been added, we recommend using port 443 as the default port for HTTPS protocol. Otherwise, port 80 can be set as an alternative option',
-    });
-    Parameter.addToParamLabels('Port', port.logicalId);
-    paramNetwork.push(port.logicalId);
+
+    let portValue;
+    if (props?.useCognito) {
+      portValue = Constants.HttpsDefaultPort;
+    } else {
+      const port = new CfnParameter(this, 'AlbPort', {
+        type: 'Number',
+        default: Constants.HttpDefaultPort,
+        minValue: 1,
+        maxValue: 65535,
+        description: 'If an ACM certificate ARN has been added, we recommend using port 443 as the default port for HTTPS protocol. Otherwise, port 80 can be set as an alternative option',
+      });
+      Parameter.addToParamLabels('Port', port.logicalId);
+      paramNetwork.push(port.logicalId);
+      portValue = port.valueAsNumber;
+    }
     const certificate = new CfnParameter(this, 'AlbCertificate', {
       type: 'String',
       default: '',
@@ -140,6 +170,15 @@ export class AdminStack extends Stack {
       'Network Access',
       ...paramNetwork,
     );
+    let certificateValue = certificate.valueAsString;
+    if (props?.useCognito) {
+      // When using Cognito, if there is no certificate, generate a certificate
+      const acmStack = new AcmStack(this, 'Acm', {
+        certificateArn: certificateValue,
+        bucketName: bucketStack.bucket.bucketName,
+      });
+      certificateValue = acmStack.certificateArn;
+    }
 
     const vpcStack = new VpcStack(this, 'VPC', {
       existingVpc: props?.existingVpc,
@@ -151,8 +190,6 @@ export class AdminStack extends Stack {
       existingVpc: props?.existingVpc,
     });
 
-    const bucketStack = new BucketStack(this, 'S3');
-
     new GlueStack(this, 'Glue', {
       bucket: bucketStack.bucket,
     });
@@ -162,11 +199,16 @@ export class AdminStack extends Stack {
       vpc: vpcStack.vpc,
       bucketName: bucketStack.bucket.bucketName,
       rdsClientSecurityGroup: rdsStack.clientSecurityGroup,
-      oidcIssuer: oidcIssuer.valueAsString,
-      oidcClientId: oidcClientId.valueAsString,
+      oidcIssuer: oidcIssuerValue,
+      oidcClientId: oidcClientIdValue,
     });
 
-    const isHttp = new CfnCondition(this, 'IsHttp', { expression: Fn.conditionEquals(certificate.valueAsString, '') });
+    // Using certificateValue will get an error:Cannot reference resources in the Conditions block of the template
+    let certificateCondition = certificate.valueAsString;
+    if (props?.useCognito) {
+      certificateCondition = 'arn';
+    }
+    const isHttp = new CfnCondition(this, 'IsHttp', { expression: Fn.conditionEquals(certificateCondition, '') });
     const isHttps = new CfnCondition(this, 'IsHttps', { expression: Fn.conditionNot(isHttp) });
 
     if (props?.existingVpc) {
@@ -181,11 +223,11 @@ export class AdminStack extends Stack {
         onlyPrivateSubnets: props.onlyPrivateSubnets,
         bucket: bucketStack.bucket,
         apiFunction: apiStack.apiFunction,
-        port: port.valueAsNumber,
+        port: portValue,
         internetFacing: this.internetFacing,
         certificateArn: '',
-        oidcIssuer: oidcIssuer.valueAsString,
-        oidcClientId: oidcClientId.valueAsString,
+        oidcIssuer: oidcIssuerValue,
+        oidcClientId: oidcClientIdValue,
         domainName: domainName.valueAsString,
       });
       (httpAlbStack.nestedStackResource as CfnStack).cfnOptions.condition = isHttp;
@@ -201,24 +243,33 @@ export class AdminStack extends Stack {
         onlyPrivateSubnets: props.onlyPrivateSubnets,
         bucket: bucketStack.bucket,
         apiFunction: apiStack.apiFunction,
-        port: port.valueAsNumber,
+        port: portValue,
         internetFacing: this.internetFacing,
-        certificateArn: certificate.valueAsString,
-        oidcIssuer: oidcIssuer.valueAsString,
-        oidcClientId: oidcClientId.valueAsString,
+        certificateArn: certificateValue,
+        oidcIssuer: oidcIssuerValue,
+        oidcClientId: oidcClientIdValue,
         domainName: domainName.valueAsString,
       });
       (httpsAlbStack.nestedStackResource as CfnStack).cfnOptions.condition = isHttps;
+
+      if (props?.useCognito) {
+        // When using Cognito, assert as https
+        new CognitoPostStack(this, 'UpdateCallbackUrl', {
+          userPoolId: oidcUserPoolIdValue,
+          userPoolClientId: oidcClientIdValue,
+          callbackUrl: `${httpsAlbStack.url}${Constants.LoginCallbackUrlSuffix}`,
+        });
+      }
     } else {
       const httpAlbStack = new AlbStack(this, 'HttpALB', {
         vpc: vpcStack.vpc,
         bucket: bucketStack.bucket,
         apiFunction: apiStack.apiFunction,
-        port: port.valueAsNumber,
+        port: portValue,
         internetFacing: this.internetFacing,
         certificateArn: '',
-        oidcIssuer: oidcIssuer.valueAsString,
-        oidcClientId: oidcClientId.valueAsString,
+        oidcIssuer: oidcIssuerValue,
+        oidcClientId: oidcClientIdValue,
         domainName: domainName.valueAsString,
       });
       (httpAlbStack.nestedStackResource as CfnStack).cfnOptions.condition = isHttp;
@@ -227,14 +278,23 @@ export class AdminStack extends Stack {
         vpc: vpcStack.vpc,
         bucket: bucketStack.bucket,
         apiFunction: apiStack.apiFunction,
-        port: port.valueAsNumber,
+        port: portValue,
         internetFacing: this.internetFacing,
-        certificateArn: certificate.valueAsString,
-        oidcIssuer: oidcIssuer.valueAsString,
-        oidcClientId: oidcClientId.valueAsString,
+        certificateArn: certificateValue,
+        oidcIssuer: oidcIssuerValue,
+        oidcClientId: oidcClientIdValue,
         domainName: domainName.valueAsString,
       });
       (httpsAlbStack.nestedStackResource as CfnStack).cfnOptions.condition = isHttps;
+
+      if (props?.useCognito) {
+        // When using Cognito, assert as https
+        new CognitoPostStack(this, 'UpdateCallbackUrl', {
+          userPoolId: oidcUserPoolIdValue,
+          userPoolClientId: oidcClientIdValue,
+          callbackUrl: `${httpsAlbStack.url}${Constants.LoginCallbackUrlSuffix}`,
+        });
+      }
     }
 
 
