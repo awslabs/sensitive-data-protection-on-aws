@@ -88,8 +88,6 @@ export interface AlbProps {
 
 export class AlbStack extends NestedStack {
   public readonly url: string;
-  private readonly httpDefaultPort = 80;
-  private readonly httpsDefaultPort = 443;
   private readonly portalConfigPriority = 10;
   private readonly apiPriority = 20;
   private readonly identifier: string;
@@ -152,7 +150,7 @@ export class AlbStack extends NestedStack {
         port: props.port,
       });
 
-      this.url = this.setUrl(scope, alb.loadBalancerDnsName, props, this.httpDefaultPort);
+      this.url = this.setUrl(scope, alb.loadBalancerDnsName, props, Constants.HttpDefaultPort);
       this.setOutput(scope, alb.loadBalancerDnsName, isHttp);
     } else {
       listener = alb.addListener('HttpsListener', {
@@ -162,7 +160,7 @@ export class AlbStack extends NestedStack {
         sslPolicy: SslPolicy.RECOMMENDED_TLS,
       });
 
-      this.url = this.setUrl(scope, alb.loadBalancerDnsName, props, this.httpsDefaultPort);
+      this.url = this.setUrl(scope, alb.loadBalancerDnsName, props, Constants.HttpsDefaultPort);
       this.setOutput(scope, alb.loadBalancerDnsName, isHttps);
     }
 
@@ -204,7 +202,7 @@ export class AlbStack extends NestedStack {
 
     new CfnOutput(scope, `SigninRedirectUri${this.identifier}`, {
       description: 'Sign-in/out redirect URI for OIDC',
-      value: `${this.url}/logincallback`,
+      value: `${this.url}${Constants.LoginCallbackUrlSuffix}`,
     }).condition = condition;
   };
 
