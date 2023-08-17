@@ -83,10 +83,10 @@ def update_mapping(id: int, mapping: schemas.TemplateMapping):
     return service.update_mapping(id, mapping)
 
 
-@router.delete("/template-mappings/{id}", response_model=BaseResponse[bool])
+@router.post("/template-mappings/remove", response_model=BaseResponse[bool])
 @inject_session
-def delete_mapping(id: int):
-    service.delete_mapping(id)
+def delete_mapping(ids: list[int]):
+    service.delete_mapping(ids)
 
 
 @router.get("/list-props-by-type/{tid}",
