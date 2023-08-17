@@ -67,7 +67,10 @@ const CatalogList: React.FC<any> = memo((props: any) => {
   const tableTitle = `${t('catalog:dataCatalog')} ${t(
     (DATA_TYPE as any)[catalogType] || DATA_TYPE.rds
   )}`;
-
+  const [curSortColumn, setCurSortColumn] = useState<any>({
+    sortingField: 'database_name',
+  });
+  const [isDescending, setIsDescending] = useState(false);
   const getDefaultSearchParam = () => {
     const resultList = [];
     if (urlCatalog) {
@@ -127,7 +130,10 @@ const CatalogList: React.FC<any> = memo((props: any) => {
   useDidUpdateEffect(() => {
     setCurrentPage(1);
     getPageData();
-  }, [query]);
+  }, [query,
+      isDescending,
+      curSortColumn
+  ]);
 
   useDidUpdateEffect(() => {
     setCurrentPage(1);
@@ -151,13 +157,14 @@ const CatalogList: React.FC<any> = memo((props: any) => {
       const requestParam = {
         page: currentPage,
         size: preferences.pageSize,
-        sort_column: '',
-        asc: true,
+        sort_column: curSortColumn?.sortingField,
+        asc: !isDescending,
         conditions: [
           {
             column: 'database_type',
             values: [catalogType],
             condition: 'and',
+            operation: ':',
           },
         ] as any,
       };
@@ -248,6 +255,7 @@ const CatalogList: React.FC<any> = memo((props: any) => {
             return {
               id: item.id,
               header: t(item.label),
+              sortingField: item.sortingField,
               // different column tag
               cell: (e: any) => {
                 if (item.id === COLUMN_OBJECT_STR.DatabaseName) {
@@ -429,6 +437,12 @@ const CatalogList: React.FC<any> = memo((props: any) => {
           />
         }
         loading={isLoading}
+        sortingColumn={curSortColumn}
+        sortingDescending={isDescending}
+        onSortingChange={(e) => {
+          setCurSortColumn(e.detail.sortingColumn);
+          setIsDescending(e.detail.isDescending || false);
+        }}
       />
       {showDetailModal && <DetailModal {...modalProps} />}
     </>

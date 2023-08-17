@@ -40,6 +40,15 @@ stackSuppressions(
       existingVpc: true,
       onlyPrivateSubnets: true,
     }),
+    new AdminStack(app, 'AdminWithIdP', {
+      synthesizer: synthesizer(),
+      useCognito: true,
+    }),
+    new AdminStack(app, 'AdminExistVpcWithIdP', {
+      synthesizer: synthesizer(),
+      existingVpc: true,
+      useCognito: true,
+    }),
     new ITStack(app, 'IT', {
       synthesizer: synthesizer(),
     }),

@@ -26,6 +26,7 @@ export const COLUMN_OBJECT_STR = {
   Comments: 'comments',
   Category: 'category',
   IdentifierLabel: 'ident_label',
+  Region: 'region',
 };
 
 // S3 catalog column
@@ -33,38 +34,46 @@ export const S3_COLUMN_LIST = [
   {
     id: COLUMN_OBJECT_STR.DatabaseName,
     label: 'table.label.bucketName',
+    sortingField: COLUMN_OBJECT_STR.DatabaseName,
   },
   {
     id: COLUMN_OBJECT_STR.ObjectCount,
     label: 'table.label.objects',
+    sortingField: COLUMN_OBJECT_STR.ObjectCount,
   },
   {
     id: COLUMN_OBJECT_STR.Size,
     label: 'table.label.size',
+    sortingField: COLUMN_OBJECT_STR.Size,
   },
   {
     id: COLUMN_OBJECT_STR.Privacy,
     label: 'table.label.privacy',
+    sortingField: COLUMN_OBJECT_STR.Privacy,
   },
   {
     id: COLUMN_OBJECT_STR.AccountId,
     label: 'table.label.awsAccount',
+    sortingField: COLUMN_OBJECT_STR.AccountId,
   },
   {
-    id: 'region',
+    id: COLUMN_OBJECT_STR.Region,
     label: 'table.label.awsRegion',
+    sortingField: COLUMN_OBJECT_STR.Region,
   },
   {
-    id: 'labels',
+    id: COLUMN_OBJECT_STR.Labels,
     label: 'table.label.catalogLabels',
   },
   {
     id: COLUMN_OBJECT_STR.LastModifyAt,
     label: 'table.label.lastUpdateAt',
+    sortingField: COLUMN_OBJECT_STR.LastModifyAt,
   },
   {
     id: COLUMN_OBJECT_STR.LastModifyBy,
     label: 'table.label.lastUpdateBy',
+    sortingField: COLUMN_OBJECT_STR.LastModifyBy,
   },
 ];
 
@@ -184,26 +193,31 @@ export const FOLDERS_COLUMN = [
     id: COLUMN_OBJECT_STR.FolderName,
     label: 'table.label.folderName',
     filter: true,
+    sortingField: COLUMN_OBJECT_STR.FolderName,
   },
   {
     id: COLUMN_OBJECT_STR.ObjectCount,
     label: 'table.label.objects',
     filter: true,
+    sortingField: COLUMN_OBJECT_STR.ObjectCount,
   },
   {
     id: COLUMN_OBJECT_STR.RowCount,
     label: 'table.label.items',
     filter: true,
+    sortingField: COLUMN_OBJECT_STR.RowCount,
   },
   {
     id: COLUMN_OBJECT_STR.Size,
     label: 'table.label.size',
     filter: true,
+    sortingField: COLUMN_OBJECT_STR.Size,
   },
   {
     id: COLUMN_OBJECT_STR.Privacy,
     label: 'table.label.privacy',
     filter: true,
+    sortingField: COLUMN_OBJECT_STR.Privacy,
   },
   {
     id: COLUMN_OBJECT_STR.Labels,
@@ -214,11 +228,13 @@ export const FOLDERS_COLUMN = [
     id: 'modify_by',
     label: 'table.label.lastUpdateBy',
     filter: true,
+    sortingField: COLUMN_OBJECT_STR.LastModifyBy,
   },
   {
     id: COLUMN_OBJECT_STR.LastModifyAt,
     label: 'table.label.lastUpdateAt',
     filter: false,
+    sortingField: COLUMN_OBJECT_STR.LastModifyAt,
   },
 ];
 
@@ -334,28 +350,34 @@ export const DATA_PERVIEW_COLUMN = [
 
 export const RDS_COLUMN_LIST = [
   {
-    id: 'database_name',
+    id: COLUMN_OBJECT_STR.DatabaseName,
     label: 'table.label.instanceName',
+    sortingField: COLUMN_OBJECT_STR.DatabaseName,
   },
   {
-    id: 'table_count',
+    id: COLUMN_OBJECT_STR.TableCount,
     label: 'table.label.table',
+    sortingField: COLUMN_OBJECT_STR.TableCount,
   },
   {
     id: COLUMN_OBJECT_STR.Privacy,
     label: 'table.label.privacy',
+    sortingField: COLUMN_OBJECT_STR.Privacy,
   },
   {
     id: 'storage_location',
     label: 'table.label.engineType',
+    sortingField: 'storage_location',
   },
   {
     id: COLUMN_OBJECT_STR.AccountId,
     label: 'table.label.awsAccount',
+    sortingField: COLUMN_OBJECT_STR.AccountId,
   },
   {
-    id: 'region',
+    id: COLUMN_OBJECT_STR.Region,
     label: 'table.label.awsRegion',
+    sortingField: COLUMN_OBJECT_STR.Region,
   },
   {
     id: 'labels',
@@ -364,10 +386,12 @@ export const RDS_COLUMN_LIST = [
   {
     id: COLUMN_OBJECT_STR.LastModifyAt,
     label: 'table.label.lastUpdateAt',
+    sortingField: COLUMN_OBJECT_STR.LastModifyAt,
   },
   {
     id: COLUMN_OBJECT_STR.LastModifyBy,
     label: 'table.label.lastUpdateBy',
+    sortingField: COLUMN_OBJECT_STR.LastModifyBy,
   },
 ];
 

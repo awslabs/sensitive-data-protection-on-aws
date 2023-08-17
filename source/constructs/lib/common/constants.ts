@@ -97,4 +97,8 @@ export class Constants {
       },
     },
   };
+
+  public static readonly LoginCallbackUrlSuffix = '/logincallback';
+  public static readonly HttpDefaultPort = 80;
+  public static readonly HttpsDefaultPort = 443;
 }
