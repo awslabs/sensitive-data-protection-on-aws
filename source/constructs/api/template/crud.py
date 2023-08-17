@@ -154,12 +154,14 @@ def update_mapping(id: int, mapping: schemas.TemplateMapping):
     return snapshot_no, get_mapping(id)
 
 
-def delete_mapping(id: int):
+def delete_mapping(ids: list[int]):
     session = get_session()
-    template_id = session.query(models.TemplateMapping.template_id).filter(models.TemplateMapping.id == id).first()[0]
-    del_data = session.query(models.TemplateMapping).filter(models.TemplateMapping.id == id).delete()
+    template_id = session.query(models.TemplateMapping.template_id).filter(models.TemplateMapping.id == ids[0]).first()[0]
+    del_data = session.query(models.TemplateMapping).filter(models.TemplateMapping.id.in_(ids)).all()
     if not del_data:
         raise BizException(MessageEnum.BIZ_ITEM_NOT_EXISTS.get_code(), MessageEnum.BIZ_ITEM_NOT_EXISTS.get_msg())
+    else:
+        [session.delete(u) for u in del_data]
     snapshot_no = update_template_snapshot_no(template_id)
     session.commit()
     return snapshot_no
@@ -262,6 +264,7 @@ def update_prop(id: int, prop: schemas.TemplateIdentifierProp):
     return snapshot_no, get_identifier(id)
 
 
-def get_refs_by_prop(id: int):
+def get_refs_by_prop(ids: str):
+
     return get_session().query(models.TemplateIdentifierPropRef).filter(
-        models.TemplateIdentifierPropRef.prop_id == id).all()
+        models.TemplateIdentifierPropRef.prop_id in ids.split(",")).all()

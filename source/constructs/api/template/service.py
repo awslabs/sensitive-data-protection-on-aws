@@ -87,8 +87,8 @@ def update_mapping(id: int, mapping: schemas.TemplateMapping):
     return res
 
 
-def delete_mapping(id: int):
-    snapshot_no = crud.delete_mapping(id)
+def delete_mapping(ids: list[int]):
+    snapshot_no = crud.delete_mapping(ids)
     sync_s3(snapshot_no)
 
 

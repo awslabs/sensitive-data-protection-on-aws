@@ -1,0 +1,239 @@
+[
+    {
+        "provider_id": 1,
+        "provider_name": "Amazon Web Services",
+        "regions": [
+            {
+                "name": "Northern Virginia (US East)",
+                "region": "us-east-1",
+                "coordinates": [
+                    -77.0469,
+                    38.8048
+                ]
+            },
+            {
+                "name": "Ohio (US East)",
+                "region": "us-east-2",
+                "coordinates": [
+                    -83.0007,
+                    39.9623
+                ]
+            },
+            {
+                "name": "Northern California (US West)",
+                "region": "us-west-1",
+                "coordinates": [
+                    -122.4194,
+                    37.7749
+                ]
+            },
+            {
+                "name": "Oregon (US West)",
+                "region": "us-west-2",
+                "coordinates": [
+                    -123.0351,
+                    44.9429
+                ]
+            },
+            {
+                "name": "Hong Kong (Asia Pacific)",
+                "region": "ap-east-1",
+                "coordinates": [
+                    114.1694,
+                    22.3193
+                ]
+            },
+            {
+                "name": "Mumbai (Asia Pacific)",
+                "region": "ap-south-1",
+                "coordinates": [
+                    72.8777,
+                    19.076
+                ]
+            },
+            {
+                "name": "Osaka (Asia Pacific)",
+                "region": "ap-northeast-3",
+                "coordinates": [
+                    135.5023,
+                    34.6937
+                ]
+            },
+            {
+                "name": "Seoul (Asia Pacific)",
+                "region": "ap-northeast-2",
+                "coordinates": [
+                    126.978,
+                    37.5665
+                ]
+            },
+            {
+                "name": "Singapore (Asia Pacific)",
+                "region": "ap-southeast-1",
+                "coordinates": [
+                    103.8198,
+                    1.3521
+                ]
+            },
+            {
+                "name": "Sydney (Asia Pacific)",
+                "region": "ap-southeast-2",
+                "coordinates": [
+                    151.2093,
+                    -33.8688
+                ]
+            },
+            {
+                "name": "Tokyo (Asia Pacific)",
+                "region": "ap-northeast-1",
+                "coordinates": [
+                    139.6503,
+                    35.6762
+                ]
+            },
+            {
+                "name": "Montreal (Canada Central)",
+                "region": "ca-central-1",
+                "coordinates": [
+                    -73.5673,
+                    45.5017
+                ]
+            },
+            {
+                "name": "Frankfurt (EU Central)",
+                "region": "eu-central-1",
+                "coordinates": [
+                    8.6821,
+                    50.1109
+                ]
+            },
+            {
+                "name": "Dublin (EU West)",
+                "region": "eu-west-1",
+                "coordinates": [
+                    -6.2603,
+                    53.3498
+                ]
+            },
+            {
+                "name": "London (EU West)",
+                "region": "eu-west-2",
+                "coordinates": [
+                    -0.1278,
+                    51.5074
+                ]
+            },
+            {
+                "name": "Milan (EU South)",
+                "region": "eu-south-1",
+                "coordinates": [
+                    9.19,
+                    45.4642
+                ]
+            },
+            {
+                "name": "Paris (EU West)",
+                "region": "eu-west-3",
+                "coordinates": [
+                    2.3522,
+                    48.8566
+                ]
+            },
+            {
+                "name": "Stockholm (EU North)",
+                "region": "eu-north-1",
+                "coordinates": [
+                    18.0686,
+                    59.3293
+                ]
+            },
+            {
+                "name": "Bahrain (Middle East)",
+                "region": "me-south-1",
+                "coordinates": [
+                    50.5577,
+                    26.0667
+                ]
+            },
+            {
+                "name": "Sao Paulo (South America)",
+                "region": "sa-east-1",
+                "coordinates": [
+                    -46.6333,
+                    -23.5505
+                ]
+            },
+            {
+                "name": "Beijing (China North)",
+                "region": "cn-north-1",
+                "coordinates": [
+                    116.4074,
+                    39.9042
+                ]
+            },
+            {
+                "name": "Ningxia (China Northwest)",
+                "region": "cn-northwest-1",
+                "coordinates": [
+                    106.1581,
+                    37.1987
+                ]
+            },
+            {
+                "region name": "Africa (Cape Town)",
+                "region": "af-south-1",
+                "coordinates": [18.4241, -33.9249]
+            },
+            {
+                "region name": "Asia Pacific (Hyderabad)",
+                "region": "ap-south-2",
+                "coordinates": [72.8777, 19.0760]
+            },
+            {
+                "region name": "Asia Pacific (Jakarta)",
+                "region": "ap-southeast-3",
+                "coordinates": []
+            },
+            {
+                "region name": "Asia Pacific (Melbourne)",
+                "region": "ap-southeast-4",
+                "coordinates": []
+            },
+            {
+                "region name": "Europe (Spain)",
+                "region": "eu-south-2",
+                "coordinates": []
+            },
+            {
+                "region name": "Europe (Zurich)",
+                "region": "eu-central-2",
+                "coordinates": [50.1109, 8.6821]
+            },
+            {
+                "region name": "Israel (Tel Aviv)",
+                "region": "il-central-1",
+                "coordinates": []
+            },
+            {
+                "region name": "Middle East (UAE)",
+                "region": "me-central-1",
+                "coordinates": []
+            }
+        ],
+        "data stores": [
+            "Amazon Redshift",
+            "Amazon Aurora",
+            "Microsoft SQL Server",
+            "MySQL",
+            "Oracle",
+            "PostgreSQL",
+            "Snowflake",
+            "Amazon RDS for MariaDB"
+        ]
+    },
+    {
+        "provider_id": 2,
+        "provider_name": "Google cloud platform",
+        "regions": []
+    }
+]

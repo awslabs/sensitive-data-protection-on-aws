@@ -205,14 +205,15 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
 
   const confirmDelete = async () => {
     const requestParam = {
-      id: selectedItems[0].id,
+      ids: selectedItems.map(obj=>{return obj.id})
     };
     showHideSpinner(true);
     try {
-      await deleteTemplateMapping(requestParam);
+      await deleteTemplateMapping(requestParam.ids);
       alertMsg(t('deleteSuccess'), 'success');
       showHideSpinner(false);
       getPageData();
+      setIsShowDelete(false);
     } catch (error) {
       showHideSpinner(false);
     }
@@ -279,7 +280,7 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
       </Container>
       <Table
         className="template-table"
-        selectionType="single"
+        selectionType="multi"
         selectedItems={selectedItems}
         onSelectionChange={({ detail }) =>
           setSelectedItems(detail.selectedItems)

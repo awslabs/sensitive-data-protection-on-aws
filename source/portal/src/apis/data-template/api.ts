@@ -13,9 +13,9 @@ const getTemplateMappingList = async (params: any) => {
 // 删除template列表
 const deleteTemplateMapping = async (params: any) => {
   const result = await apiRequest(
-    'delete',
-    'template/template-mappings/' + params.id,
-    ''
+    'post',
+    'template/template-mappings/remove',
+    params
   );
   return result;
 };
