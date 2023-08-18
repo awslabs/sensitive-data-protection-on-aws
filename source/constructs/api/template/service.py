@@ -143,6 +143,7 @@ def sync_s3(snapshot_no):
         item_json['type'] = item[7]
         item_json['privacy'] = item[8]
         item_json['header_keywords'] = json.loads(item[9]) if item[9] else item[9]
+        item_json['exclude_keywords'] = json.loads(item[11]) if item[11] else item[11]
         item_json['description'] = item[10]
         identifiers.append(item_json)
     json_str = S3WrapEncoder.convert(template, ['id', 'name'])
@@ -165,3 +166,7 @@ def check_rule(identifier):
     if identifier.type == IdentifierType.CUSTOM.value and identifier.header_keywords and '""' in identifier.header_keywords[1:-1].split(","):
         raise BizException(MessageEnum.TEMPLATE_HEADER_KEYWORDS_EMPTY.get_code(),
                            MessageEnum.TEMPLATE_HEADER_KEYWORDS_EMPTY.get_msg())
+<<<<<<< HEAD
+=======
+
+>>>>>>> daf8901 (exclude keywords in identrifier)
