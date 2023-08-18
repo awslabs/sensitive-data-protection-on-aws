@@ -163,7 +163,7 @@ def init_run(job_id: int) -> int:
                                                       region=job_database.region,
                                                       database_type=job_database.database_type,
                                                       database_name=job_database.database_name,
-                                                      table_name=job_database.table_name,
+                                                      table_name=const.EMPTY_STR if job_database.table_name is None else job_database.table_name,
                                                       base_time=job_database.base_time,
                                                       state=RunDatabaseState.READY.value,
                                                       uuid=uuid.uuid4().hex)

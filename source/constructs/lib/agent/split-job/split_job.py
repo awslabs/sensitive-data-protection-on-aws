@@ -44,7 +44,7 @@ def lambda_handler(event, context):
     full_database_name=f"{event['DatabaseType']}-{event['DatabaseName']}-database"
     base_time = parse(event['BaseTime']).replace(tzinfo=pytz.timezone('UTC'))
     job_items = []
-    if not(event.get('TableName') is None or event.get('TableName') == ''):
+    if not(event.get('TableName') is None or event.get('TableName') == '' or event.get('TableName') == ','):
         job_item = event.copy()
         job_item["TableBegin"] = str(-1)
         job_item["TableEnd"] = str(-1)
