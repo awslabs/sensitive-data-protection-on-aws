@@ -45,6 +45,7 @@ class TemplateIdentifier(Base):
     privacy = Column(SmallInteger())
     rule = Column(String(1024))
     header_keywords = Column(String(255))
+    exclude_keywords = Column(String(255))
     props = relationship(
         'TemplateIdentifierProp',
         secondary='template_identifier_prop_ref',

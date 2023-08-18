@@ -45,6 +45,7 @@ class TemplateIdentifier(BaseModel):
     rule: Optional[str]
     header_keywords: Optional[str]
     props: Optional[list]
+    exclude_keywords: Optional[str]
 
     class Config:
         orm_mode = True
