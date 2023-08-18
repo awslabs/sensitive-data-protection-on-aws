@@ -161,6 +161,9 @@ const CreateJobContent = () => {
   const [frequencyStart, setFrequencyStart] = useState(
     null as SelectProps.Option | null
   );
+  const [frequencyTimeStart, setFrequencyTimeStart] = useState<SelectProps.Option>(
+    { label: '00:00', value: '0' }
+  );
   const hasOldData = oldData && Object.keys(oldData).length > 0;
 
   const s3FilterProps = {
@@ -209,6 +212,7 @@ const CreateJobContent = () => {
 
   useEffect(() => {
     setFrequencyStart(null);
+    setFrequencyTimeStart({ label: '00:00', value: '0' });
   }, [frequencyType]);
 
   const getCopyPropsData = async () => {
@@ -475,25 +479,36 @@ const CreateJobContent = () => {
     let tempFrequency =
       frequencyType === 'on_demand_run' ? 'OnDemand' : frequency;
 
+    let utcHourString = '0'
+    if (frequencyTimeStart.value != null) {
+      const [hour] = frequencyTimeStart.value.split(':');
+      const localDate = new Date();
+      const localOffset = localDate.getTimezoneOffset() / 60;
+      const utcHour = parseInt(hour) - localOffset;
+  
+      // Ensure the UTC hour is within the range 0-23
+      const utcHourNormalized = (utcHour + 24) % 24;
+  
+      // Format the UTC hour as a string
+      utcHourString = utcHourNormalized.toString().padStart(2, '0');
+    }
+
     if (frequencyType === 'daily') {
-      const tempTime = parseInt(frequencyStart?.value as any);
-      tempFrequency = `0 ${
-        tempTime >= 8 ? tempTime - 8 : tempTime + 16
-      } * * ? *`;
+      tempFrequency = `0 ${utcHourString} * * ? *`;
     }
     if (frequencyType === 'weekly') {
       const tempTime =
         frequencyStart?.value === DAY_OPTIONS[0].value
           ? 'L'
           : SUB_WEEK_CONFIG[frequencyStart?.value as any];
-      tempFrequency = `0 16 ? * ${tempTime} *`;
+      tempFrequency = `0 ${utcHourString} ? * ${tempTime} *`;
     }
     if (frequencyType === 'monthly') {
       const tempTime =
         frequencyStart?.value === MONTH_OPTIONS[0].value
           ? 'L'
           : parseInt(frequencyStart?.value as any) - 1;
-      tempFrequency = `0 16 * ${tempTime} ? *`;
+      tempFrequency = `0 ${utcHourString} * ${tempTime} ? *`;
     }
 
     const requestParamJob = {
@@ -1128,12 +1143,12 @@ const CreateJobContent = () => {
                         {frequencyType === 'daily' && (
                           <FormField label={t('job:create.startHourOfDay')}>
                             <Select
-                              selectedOption={frequencyStart}
+                              selectedOption={frequencyTimeStart}
                               triggerVariant="option"
                               selectedAriaLabel={t('selected') || ''}
                               options={HOUR_OPTIONS}
                               onChange={(select) => {
-                                setFrequencyStart(select.detail.selectedOption);
+                                setFrequencyTimeStart(select.detail.selectedOption);
                               }}
                               onBlur={clkFrequencyApply}
                             ></Select>
@@ -1151,7 +1166,22 @@ const CreateJobContent = () => {
                               }}
                               onBlur={clkFrequencyApply}
                             ></Select>
+                            <p/>
                           </FormField>
+                        )}
+                        {frequencyType === 'weekly' && (
+                          <FormField label={t('job:create.startHourOfDay')}>
+                          <Select
+                            selectedOption={frequencyTimeStart}
+                            triggerVariant="option"
+                            selectedAriaLabel={t('selected') || ''}
+                            options={HOUR_OPTIONS}
+                            onChange={(select) => {
+                              setFrequencyTimeStart(select.detail.selectedOption);
+                            }}
+                            onBlur={clkFrequencyApply}
+                          ></Select>
+                        </FormField>
                         )}
                         {frequencyType === 'monthly' && (
                           <FormField
@@ -1168,7 +1198,22 @@ const CreateJobContent = () => {
                               }}
                               onBlur={clkFrequencyApply}
                             ></Select>
+                            <p/>
                           </FormField>
+                        )}
+                        {frequencyType === 'monthly' && (
+                          <FormField label={t('job:create.startHourOfDay')}>
+                          <Select
+                            selectedOption={frequencyTimeStart}
+                            triggerVariant="option"
+                            selectedAriaLabel={t('selected') || ''}
+                            options={HOUR_OPTIONS}
+                            onChange={(select) => {
+                              setFrequencyTimeStart(select.detail.selectedOption);
+                            }}
+                            onBlur={clkFrequencyApply}
+                          ></Select>
+                        </FormField>
                         )}
                       </div>
 
