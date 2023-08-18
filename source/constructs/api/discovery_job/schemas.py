@@ -10,6 +10,7 @@ class DiscoveryJobRunDatabaseBase(BaseModel):
     region: str
     database_type: Optional[str]
     database_name: Optional[str]
+    table_name: Optional[str]
     base_time: Optional[datetime.datetime]
     start_time: Optional[datetime.datetime]
     end_time: Optional[datetime.datetime]
@@ -85,14 +86,17 @@ class DiscoveryJobDatabaseBase(BaseModel):
     region: str
     database_type: str
     database_name: str
+    table_name: Optional[str]
 
 
 class DiscoveryJobDatabaseCreate(DiscoveryJobDatabaseBase):
     def __eq__(self, other):
-        return isinstance(other, self.__class__) and self.account_id == other.account_id and self.region == other.region and self.database_type == other.database_type and self.database_name == other.database_name
+        return isinstance(other, self.__class__) and self.account_id == other.account_id and\
+               self.region == other.region and self.database_type == other.database_type and\
+               self.database_name == other.database_name and self.table_name == other.table_name
 
     def __hash__(self):
-        return hash((self.account_id, self.region, self.database_type, self.database_name))
+        return hash((self.account_id, self.region, self.database_type, self.database_name, self.table_name))
 
     class Meta:
         orm_model = models.DiscoveryJobDatabase
@@ -127,6 +131,7 @@ class DiscoveryJobBase(BaseModel):
     all_ddb: Optional[int]
     all_emr: Optional[int]
     overwrite: Optional[int]
+    exclude_keywords: Optional[str]
 
 
 class DiscoveryJobCreate(DiscoveryJobBase):
