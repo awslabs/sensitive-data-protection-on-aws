@@ -19,6 +19,7 @@ const TemplateDelete = (props: any) => {
     isShowDelete,
     setIsShowDelete,
     confirmDelete,
+    selectedNames,
     showErrorTips = {},
     confirmText,
   } = props;
@@ -67,7 +68,14 @@ const TemplateDelete = (props: any) => {
         </Box>
       }
     >
-      <p className="delete-top">{t('template:deleteIdentifierTips')}</p>
+      <p className="delete-top">{t('template:deleteIdentifierFromTemplateTipsA')} {selectedNames.length} {t('template:deleteIdentifierFromTemplateTipsB')}</p>
+      {
+        (selectedNames||[]).map((item: any) => {
+          return <div>· {item}</div>
+        })
+      }
+
+
       {(showErrorTips.template || showErrorTips.catalog) && (
         <>
           <div className="delete-identifer">

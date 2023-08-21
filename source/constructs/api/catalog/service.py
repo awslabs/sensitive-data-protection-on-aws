@@ -1013,9 +1013,9 @@ def filter_records(all_items: list, all_labels_dict: dict):
     for row in all_items:
         row_result = [cell for cell in row]
         if row_result[8]:
-            row_result[8] = ",".join([all_labels_dict.get(int(result)) for result in row_result[8].split(",")])
+            row_result[8] = ",".join(gen_labels(all_labels_dict, row_result[8]))
         if row_result[9]:
-            row_result[9] = ",".join([all_labels_dict.get(int(result)) for result in row_result[9].split(",")])
+            row_result[9] = ",".join(gen_labels(all_labels_dict, row_result[9]))
         catalog_type = row_result[0]
         del row_result[0]
         if catalog_type == DatabaseType.S3.value:
@@ -1025,6 +1025,10 @@ def filter_records(all_items: list, all_labels_dict: dict):
         else:
             pass
     return {const.EXPORT_S3_MARK_STR: s3_records, const.EXPORT_RDS_MARK_STR: rds_records}
+
+def gen_labels(all_labels_dict, row_result_item):
+    tmp = [all_labels_dict.get(int(result)) for result in row_result_item.split(",")]
+    return [item for item in tmp if item is not None]
 
 def gen_zip_file(header, record, tmp_filename, type):
     with ZipFile(tmp_filename, 'w') as zipf:

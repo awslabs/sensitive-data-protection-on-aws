@@ -165,12 +165,3 @@ def check_rule(identifier):
     if identifier.type == IdentifierType.CUSTOM.value and identifier.header_keywords and '""' in identifier.header_keywords[1:-1].split(","):
         raise BizException(MessageEnum.TEMPLATE_HEADER_KEYWORDS_EMPTY.get_code(),
                            MessageEnum.TEMPLATE_HEADER_KEYWORDS_EMPTY.get_msg())
-
-
-# def filter_identifier_by_props(identifiers, props: list):
-#     for item in props:
-#         print('++++++++++++++++++++++++++++')
-#         print(item.values)
-#         print('++++++++++++++++++++++++++++')
-#         if item.operation == OperationType.EQUAL:
-#             pass
