@@ -164,6 +164,9 @@ const CreateJobContent = () => {
   const [frequencyTimeStart, setFrequencyTimeStart] = useState<SelectProps.Option>(
     { label: '00:00', value: '0' }
   );
+
+  const [timezone, setTimezone] = useState('');
+
   const hasOldData = oldData && Object.keys(oldData).length > 0;
 
   const s3FilterProps = {
@@ -600,6 +603,16 @@ const CreateJobContent = () => {
       '_blank'
     );
   };
+
+  useEffect(() => {
+    const getTimezone = () => {
+      const offset = new Date().getTimezoneOffset();
+      const hours = Math.abs(Math.floor(offset / 60));
+      const offsetString = `UTC${offset < 0 ? '+' : '-'}${hours}`;
+      setTimezone(offsetString);
+    };
+    getTimezone();
+  }, []);
 
   return (
     <div>
@@ -1141,7 +1154,7 @@ const CreateJobContent = () => {
                       </FormField>
                       <div>
                         {frequencyType === 'daily' && (
-                          <FormField label={t('job:create.startHourOfDay')}>
+                          <FormField label={t('job:create.startHourOfDay')+' ('+timezone+')'}>
                             <Select
                               selectedOption={frequencyTimeStart}
                               triggerVariant="option"
@@ -1170,7 +1183,7 @@ const CreateJobContent = () => {
                           </FormField>
                         )}
                         {frequencyType === 'weekly' && (
-                          <FormField label={t('job:create.startHourOfDay')}>
+                          <FormField label={t('job:create.startHourOfDay')+' ('+timezone+')'}>
                           <Select
                             selectedOption={frequencyTimeStart}
                             triggerVariant="option"
@@ -1202,7 +1215,7 @@ const CreateJobContent = () => {
                           </FormField>
                         )}
                         {frequencyType === 'monthly' && (
-                          <FormField label={t('job:create.startHourOfDay')}>
+                          <FormField label={t('job:create.startHourOfDay')+' ('+timezone+')'}>
                           <Select
                             selectedOption={frequencyTimeStart}
                             triggerVariant="option"
