@@ -21,6 +21,8 @@
   "deleteDataIdentifier": "删除数据标识符",
   "removeDataIdentifier": "从模板中删除此数据标识符",
   "deleteIdentifierTips": "永久删除此数据标识符？此操作无法撤消。",
+  "deleteIdentifierFromTemplateTipsA": "你确定从模版永久移除下面",
+  "deleteIdentifierFromTemplateTipsB":"条数据标识符？此操作无法撤消。",
   "identifierBeingUsed": "此标识符用于以下地方",
   "classficationTemplate": "分类模板，单击 ",
   "dataCatalog": "数据目录 ",

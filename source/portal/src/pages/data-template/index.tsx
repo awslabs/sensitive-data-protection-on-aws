@@ -223,6 +223,7 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
     isShowDelete,
     setIsShowDelete,
     confirmDelete,
+    selectedNames: selectedItems.map(obj=>{return obj.name}),
     title: t('template:removeDataIdentifier'),
     confirmText: t('button.remove'),
   };

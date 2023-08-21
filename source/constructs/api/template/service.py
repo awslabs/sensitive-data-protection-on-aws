@@ -166,4 +166,3 @@ def check_rule(identifier):
     if identifier.type == IdentifierType.CUSTOM.value and identifier.header_keywords and '""' in identifier.header_keywords[1:-1].split(","):
         raise BizException(MessageEnum.TEMPLATE_HEADER_KEYWORDS_EMPTY.get_code(),
                            MessageEnum.TEMPLATE_HEADER_KEYWORDS_EMPTY.get_msg())
-
