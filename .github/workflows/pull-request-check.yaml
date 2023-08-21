@@ -153,9 +153,34 @@ jobs:
           viperlight scan -m files-contents -m files-aws -m files-binary -m files-entropy -m files-secrets
           echo "Completed content scanning `date`"
 
+  py-test:
+    runs-on: ubuntu-latest
+    needs: semantic-validate
+    env:
+      CI: 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: '${{ github.event.pull_request.head.ref }}'
+          repository: '${{ github.event.pull_request.head.repo.full_name }}'
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+      - name: Install dependencies
+        run: |
+          cd source/constructs/api
+          pip3 install -U pytest
+          pip3 install moto==3.0.5
+
+      - name: test python code
+        run: |
+          cd source/constructs/api
+          pytest
+
   cdk-unit-test:
     runs-on: ubuntu-latest
-    needs: [pyflakes, git-secrets, opensource-license-review, semgrep-scan, viperlight]
+    needs: [pyflakes, git-secrets, opensource-license-review, semgrep-scan, viperlight, py-test]
     env:
       CI: "false"
     steps:
@@ -165,7 +190,7 @@ jobs:
 
   api-unit-test:
     runs-on: ubuntu-latest
-    needs: [pyflakes, git-secrets, opensource-license-review, semgrep-scan, viperlight]
+    needs: [pyflakes, git-secrets, opensource-license-review, semgrep-scan, viperlight, py-test]
     env:
       CI: "false"
     steps:
