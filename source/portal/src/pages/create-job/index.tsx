@@ -18,6 +18,8 @@ import {
   Icon,
   Popover,
   StatusIndicator,
+  Textarea,
+  Toggle,
 } from '@cloudscape-design/components';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
@@ -167,6 +169,9 @@ const CreateJobContent = () => {
 
   const [timezone, setTimezone] = useState('');
 
+  const [exclusiveToggle, setExclusiveToggle] = useState(true);
+  const [exclusiveText, setExclusiveText] = useState('');
+
   const hasOldData = oldData && Object.keys(oldData).length > 0;
 
   const s3FilterProps = {
@@ -186,6 +191,12 @@ const CreateJobContent = () => {
     tableName: TABLE_NAME.CATALOG_DATABASE_LEVEL_CLASSIFICATION,
     filteringPlaceholder: t('job:filterInstances'),
   };
+
+  useEffect(() => {
+    if (!exclusiveToggle) {
+      setExclusiveText('');
+    }
+  }, [exclusiveToggle]);
 
   useEffect(() => {
     if (s3CatalogType === SELECT_S3 && activeStepIndex === 0 && !hasOldData) {
@@ -528,6 +539,7 @@ const CreateJobContent = () => {
       all_ddb: 0,
       all_emr: 0,
       overwrite: parseInt(overwrite?.value || '0'),
+      exclude_keywords: exclusiveText.replace(/(\r\n|\r|\n)/g, ','),
       databases: [],
     };
     if (s3CatalogType === SELECT_S3) {
@@ -1336,6 +1348,32 @@ const CreateJobContent = () => {
                       </FormField>
                     </SpaceBetween>
                   </Container>
+                  <Container
+                    header={
+                      <Header variant="h2" description={t('job:create.exclusiveRulesDesc')}>
+                        {t('job:create.exclusiveRules')}
+                      </Header>
+                    }
+                  >
+                    <Toggle
+                      onChange={({ detail }) => setExclusiveToggle(detail.checked)}
+                      checked={exclusiveToggle}
+                    >
+                      <b>{t('job:create.exclusiveRulesToggle')}</b>
+                    </Toggle>
+                    {exclusiveToggle && (
+                      <>
+                        <Textarea
+                          value={exclusiveText}
+                          onChange={({ detail }) => {
+                            setExclusiveText(detail.value);
+                          }}
+                          placeholder=""
+                          rows={6}
+                        />
+                      </>
+                    )}
+                  </Container>
                 </SpaceBetween>
               </div>
             ),
@@ -1453,6 +1491,9 @@ const CreateJobContent = () => {
                   </FormField>
                   <FormField label={t('job:create.override')}>
                     <span>{overwrite ? overwrite.label : ''}</span>
+                  </FormField>
+                  <FormField label={t('job:create.exclusives')}>
+                    <span><pre>{exclusiveText ? exclusiveText : ''}</pre></span>
                   </FormField>
                 </SpaceBetween>
               </Container>
