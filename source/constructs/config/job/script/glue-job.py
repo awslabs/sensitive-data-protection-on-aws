@@ -65,8 +65,39 @@ class ColumnDetector:
     """
     ColumnDetector is used to detect entities in a column.
     """
-    def __init__(self, broadcast_template):
+    def __init__(self, broadcast_template, job_exclude_keywords):
         self.broadcast_template = broadcast_template
+
+        raw_job_exclude_keywords = job_exclude_keywords.split(',') if job_exclude_keywords else []
+        self.job_exclude_keywords = list(filter(None, raw_job_exclude_keywords))
+    
+    def validate_column_name(self, column_name, identifier_include_keywords, identifier_exclude_keywords):
+        """
+        validate_column_name is used to check whether a column name is valid.
+        A column name is valid when it is not in the exclude keywords list.
+
+        Args:
+            column_name: The name of a column.
+        
+        Returns:
+            True if column_name is valid, False otherwise.
+        """
+        valid_column_header = False
+        
+        total_exclude_keywords = identifier_exclude_keywords + self.job_exclude_keywords
+        for exclude_keyword in total_exclude_keywords:
+            if re.search(exclude_keyword, column_name):
+                valid_column_header = False
+                return valid_column_header
+
+        if not identifier_include_keywords or len(identifier_include_keywords) == 0:
+            valid_column_header = True
+        else:
+            for keyword in identifier_include_keywords:
+                if re.search(keyword, column_name):
+                    valid_column_header = True
+                    break
+        return valid_column_header
     
     def detect_column(self, col_val, column_name):
         """
@@ -99,18 +130,13 @@ class ColumnDetector:
             if identifier_type == 2:
                 continue
 
-            header_keywords = identifier.get('header_keywords', [])
+            identifier_include_keywords = identifier.get('header_keywords', [])
+            identifier_include_keywords = list(filter(None, identifier_include_keywords)) if identifier_include_keywords else []
+            identifier_exclude_keywords = identifier.get('exclude_keywords', [])
+            identifier_exclude_keywords = list(filter(None, identifier_exclude_keywords)) if identifier_exclude_keywords else []
+            
             score = 0
-            valid_column_header = False
-
-            # column header is valid when no specific column header required for this identifier.
-            if not header_keywords or len(header_keywords) == 0:
-                valid_column_header = True
-            else:
-                for keyword in header_keywords:
-                    if re.search(keyword, column_name):
-                        valid_column_header = True
-                        break
+            valid_column_header = self.validate_column_name(column_name, identifier_include_keywords, identifier_exclude_keywords)
 
             # Only perform regex matching when this column has valid column header.
             if valid_column_header:
@@ -292,14 +318,22 @@ def sdps_entity_detection(df, threshold, detect_column_udf):
     
     return result_df
 
-def preprocess_df(df):
+def preprocess_df(df, table_depth):
     """
     preprocess_df function aims to preprocess the df before performing entity detection.
     Select first 128 characters of each string column.
     """
-    df = df.select([sf.col(c).cast("string") for c in df.columns])
+    # Sample the df to size of depth
+    if table_depth.isdigit():
+        depth = int(table_depth)
+        df = df.limit(depth*10)
+        rows = df.count()
+        sample_rate = 1.0 if rows <= depth else depth/rows
 
+    df = df.sample(sample_rate)
+    
     # Select first 128 characters of each string column
+    df = df.select([sf.col(c).cast("string") for c in df.columns])
     df = df.select([sf.substring(c, 1, 128).alias(c) if t == "string" else c for c, t in df.dtypes])
 
     return df
@@ -328,15 +362,8 @@ def detect_df(df, spark, glueContext, udf_dict, broadcast_template, table, regio
     table_size = df.count()
 
     if table_size > 0:
-        # Sample the df to size of depth
-        if args['Depth'].isdigit():
-            depth = int(args['Depth'])
-            df = df.limit(depth*10)
-            rows = df.count()
-            sample_rate = 1.0 if rows <= depth else depth/rows
-
-        df = df.sample(sample_rate)
-        df = preprocess_df(df)
+        
+        df = preprocess_df(df, args['Depth'])
         sample_df = df.limit(10)
 
         # Perform entity detection in Glue and SDPS
@@ -397,7 +424,7 @@ def detect_df(df, spark, glueContext, udf_dict, broadcast_template, table, regio
     return data_frame
     
 
-def get_tables(_database_name, region, _base_time):
+def get_tables(_database_name, region, _base_time, args):
     """
     get_tables detects all the crawler tables in one specified database.
     Only the tables updated after the base time will be returned.
@@ -408,20 +435,30 @@ def get_tables(_database_name, region, _base_time):
     Returns:
         tables: All the crawler tables.
     """
-    next_token = ""
     glue = boto3.client(service_name='glue', region_name=region)
     tables = []
-    while True:
-        response = glue.get_tables(
-            # CatalogId=catalog_id, 
-            DatabaseName=_database_name, 
-            NextToken=next_token)
-        for table in response['TableList']:
-            if table['UpdateTime'] > _base_time:
-                tables.append(table)
-        next_token = response.get('NextToken')
-        if next_token is None:
-            break
+    if str(args['TableBegin']) == '-1':
+        selected_tables = list(filter(None, args['TableName'].split(',')))
+        for table_name in selected_tables:
+            table = glue.get_table(
+                DatabaseName=_database_name,
+                Name=table_name
+            )
+            tables.append(table['Table'])
+    else:
+        next_token = ""
+        while True:
+            response = glue.get_tables(
+                # CatalogId=catalog_id, 
+                DatabaseName=_database_name, 
+                NextToken=next_token)
+            for table in response['TableList']:
+                if table['UpdateTime'] > _base_time:
+                    tables.append(table)
+            next_token = response.get('NextToken')
+            if next_token is None:
+                break
+        tables = tables[int(args["TableBegin"]):int(args['TableEnd'])]
     return tables
 
 if __name__ == "__main__":
@@ -437,7 +474,7 @@ if __name__ == "__main__":
 
     args = getResolvedOptions(sys.argv, ["AccountId", "JOB_NAME", 'DatabaseName', 'DatabaseType', 'BucketName',
     'Depth', 'DetectionThreshold', 'JobId', 'RunId', 'RunDatabaseId', 'TemplateId', 'TemplateSnapshotNo', 
-    'AdminAccountId', 'BaseTime', 'TableBegin', 'TableEnd'])
+    'AdminAccountId', 'BaseTime', 'TableBegin', 'TableEnd', 'TableName', 'ExcludeKeywords'])
 
     full_database_name = f"{args['DatabaseType']}-{args['DatabaseName']}-database"
     output_path = f"s3://{args['BucketName']}/glue-database/{result_table}/"
@@ -458,12 +495,12 @@ if __name__ == "__main__":
     template = get_template(s3, args['BucketName'], f"template/template-{args['TemplateId']}-{args['TemplateSnapshotNo']}.json")
     broadcast_template = sc.broadcast(template)
 
-    crawler_tables = get_tables(full_database_name, region, base_time)
-    crawler_tables = crawler_tables[int(args["TableBegin"]):int(args['TableEnd'])]
+    crawler_tables = get_tables(full_database_name, region, base_time, args)
 
     # Create UDFs
-    column_detector = ColumnDetector(broadcast_template)
+    column_detector = ColumnDetector(broadcast_template, args['ExcludeKeywords'])
     detect_column_udf = column_detector.create_detect_column_udf()
+
     mask_data_udf = create_mask_data_udf()
     udf_dict = dict()
     udf_dict['detect_column_udf'] = detect_column_udf
