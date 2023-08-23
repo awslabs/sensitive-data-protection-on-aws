@@ -58,7 +58,11 @@
     "jobPreview": "Job preview",
     "targetDataCatalogs": "Target data catalogs",
     "s3Bucket": "S3 bucket: ",
-    "rdsInstance": "RDS instance:  "
+    "rdsInstance": "RDS instance:  ",
+    "exclusiveRules": "Advanced settings: Exclusive rules",
+    "exclusiveRulesDesc": "Exclude keywords in column header and context. The solution will not mark data as PII.",
+    "exclusiveRulesToggle": "Ignore keywords in column header o context.",
+    "exclusives": "Exclude keywords in column header and context"
   },
   "cataLogOption": {
     "all": "All data catalogs",

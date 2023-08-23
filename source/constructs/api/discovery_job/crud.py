@@ -141,9 +141,11 @@ def init_run(job_id: int) -> int:
         models.DiscoveryJobDatabase.job_id == job_id).all()
     base_time_dict = __build_base_time(job_databases)
     template_snapshot_no = get_template_snapshot_no(job.template_id)
+    exclude_keywords = const.EMPTY_STR if job.exclude_keywords is None else job.exclude_keywords
     run = models.DiscoveryJobRun(job_id=job_id,
                                  template_id=job.template_id,
                                  template_snapshot_no=template_snapshot_no,
+                                 exclude_keywords=exclude_keywords,
                                  start_time=current_time,
                                  state=RunState.RUNNING.value)
     run.databases = []
@@ -161,6 +163,7 @@ def init_run(job_id: int) -> int:
                                                       region=job_database.region,
                                                       database_type=job_database.database_type,
                                                       database_name=job_database.database_name,
+                                                      table_name=const.EMPTY_STR if job_database.table_name is None else job_database.table_name,
                                                       base_time=job_database.base_time,
                                                       state=RunDatabaseState.READY.value,
                                                       uuid=uuid.uuid4().hex)
