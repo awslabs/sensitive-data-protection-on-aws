@@ -24,7 +24,7 @@ create table template_identifier
     privacy         smallint                    null comment '0: Non-PII 1:PII',
     rule            varchar(1024)               null,
     header_keywords varchar(255)                null,
-    exclude_keywords varchar(255)                null,    
+    exclude_keywords varchar(1024)                null,
     create_by       varchar(255)                null,
     modify_by       varchar(255)                null,
     modify_time     timestamp                   null,

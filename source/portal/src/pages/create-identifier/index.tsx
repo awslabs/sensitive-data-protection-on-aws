@@ -66,7 +66,7 @@ const CreateIdentifierHeader: React.FC = () => {
   );
 };
 
-const CreateIdentifierContent = () => {
+const CreateIdentifierContent = (props: any) => {
   const location = useLocation();
   const {
     oldData = {
@@ -82,6 +82,9 @@ const CreateIdentifierContent = () => {
   const [patternToggle, setPatternToggle] = useState(
     location.state ? !!oldData.rule || oldData.rule === '' : true
   );
+  const [excludeKeywordsToggle, setExcludeKeywordsToggle] = useState(
+    location.state ? !!oldData.exclude_keywords || oldData.exclude_keywords === '' : true
+  );
   const [keywordToggle, setKeywordToggle] = useState(
     location.state
       ? !!oldData.header_keywords || oldData.header_keywords === ''
@@ -91,7 +94,12 @@ const CreateIdentifierContent = () => {
   const [keywordList, setKeywordList] = useState(
     propKeyList ? propKeyList : ['']
   );
+  // const excludeKeyList = toJsonList(oldData.exclude_keywords);
+  // const [excludeKeywordList, setExcludeKeywordList] = useState(
+  //   excludeKeyList ? excludeKeyList : ['']
+  // );
   const [patternRex, setPatternRex] = useState(oldData.rule || '');
+  const [excludeKeyword, setExcludeKeyword] = useState(oldData.exclude_keywords || '');
   const [isLoading, setIsLoading] = useState(false);
 
   const [selectedCategory, setSelectedCategory] = useState<SelectProps.Option>(
@@ -116,6 +124,12 @@ const CreateIdentifierContent = () => {
       setPatternRex('');
     }
   }, [patternToggle]);
+
+  // useEffect(() => {
+  //   if (!excludeKeywordsToggle) {
+  //     setExcludeKeywordList(['']);
+  //   }
+  // }, [setExcludeKeywordsToggle]);
 
   useEffect(() => {
     if (!keywordToggle) {
@@ -181,6 +195,12 @@ const CreateIdentifierContent = () => {
       keywordList && Array.isArray(keywordList) && keywordList.length > 0
         ? JSON.stringify(keywordList)
         : '';
+    
+    // const excludeList = excludeKeyword?excludeKeyword.split("\n"):[];
+    // const  = excludeList && Array.isArray(excludeList) && excludeList.length > 0
+    // ? JSON.stringify(excludeList)
+    // : '';
+
 
     const containsEmpty = keywordList?.some((str: string) => str.trim() === '');
     if (keywordToggle && containsEmpty) {
@@ -204,6 +224,7 @@ const CreateIdentifierContent = () => {
       privacy: 0,
       rule: patternToggle ? patternRex : null,
       header_keywords: keywordToggle ? tempHeadList : null,
+      exclude_keywords: excludeKeywordsToggle ? excludeKeyword: null,
       props: newProps,
     };
     if (oldData.id) {
@@ -430,6 +451,38 @@ const CreateIdentifierContent = () => {
           </div>
         </Container>
 
+        <Container
+          header={
+            <Header
+              variant="h2"
+              description={t('identifier:excludeRulesDesc')}
+            >
+              {t('identifier:excludeRules')}
+            </Header>
+          }
+        >
+          <SpaceBetween direction="vertical" size="xs">
+            <Toggle
+              onChange={({ detail }) => setExcludeKeywordsToggle(detail.checked)}
+              checked={excludeKeywordsToggle}
+            >
+              <b>{t('identifier:ignoreToggle')}</b>
+            </Toggle>
+            {excludeKeywordsToggle && (
+              <>
+                <Textarea  
+                  value={excludeKeyword?JSON.parse(excludeKeyword).join("\n"):""}
+                  onChange={({ detail }) => {
+                    setExcludeKeyword(JSON.stringify(detail.value.split("\n")));
+                  }}
+                  placeholder={t('identifier:excludeRulesPlaceholder')??""}
+                  rows={10}
+                />
+              </>
+            )}
+          </SpaceBetween>
+        </Container>
+
         <div className="text-right">
           <Button className="identifier-opt-btn" onClick={backNavigate}>
             {t('button.back')}
@@ -494,7 +547,7 @@ const CreateIdentifierContent = () => {
   );
 };
 
-const CreateIdentifier: React.FC = () => {
+const CreateIdentifier: React.FC = (props:any) => {
   const { t } = useTranslation();
   const breadcrumbItems = [
     { text: t('breadcrumb.home'), href: RouterEnum.Home.path },
@@ -507,7 +560,7 @@ const CreateIdentifier: React.FC = () => {
     <AppLayout
       toolsHide
       contentHeader={<CreateIdentifierHeader />}
-      content={<CreateIdentifierContent />}
+      content={<CreateIdentifierContent intl={props.intl}/>}
       headerSelector="#header"
       breadcrumbs={<CustomBreadCrumb breadcrumbItems={breadcrumbItems} />}
       navigation={<Navigation activeHref={RouterEnum.Home.path} />}
