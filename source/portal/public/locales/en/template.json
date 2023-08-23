@@ -22,7 +22,7 @@
   "removeDataIdentifier": "Remove this data identifier from template",
   "deleteIdentifierTips": "Delete this data identifier permanently? This action cannot be undone.",
   "deleteIdentifierFromTemplateTipsA": "Are you sure you want to remove the following ",
-  "deleteIdentifierFromTemplateTipsB":" data identifiers from Template permanently? This action cannot be undone.",
+  "deleteIdentifierFromTemplateTipsB":" data identifiers from Template?",
   "identifierBeingUsed": "This identifier is being used in the following place(s)",
   "classficationTemplate": "Classification template, click ",
   "dataCatalog": "Data catalogs ",
