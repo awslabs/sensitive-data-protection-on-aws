@@ -157,6 +157,12 @@ def search_catalog_table_level_classification_by_database(
     return query_with_condition(get_session().query(models.CatalogTableLevelClassification), condition)
 
 
+def search_catalog_table_level_classification(
+    condition: QueryCondition
+):
+    return query_with_condition(get_session().query(models.CatalogTableLevelClassification), condition)
+
+
 def get_catalog_table_level_classification_by_database_all(
     account_id: str,
     region: str,
