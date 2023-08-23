@@ -90,7 +90,7 @@ class ColumnDetector:
                 valid_column_header = False
                 return valid_column_header
 
-        if not identifier_include_keywords or len(identifier_include_keywords) == 0:
+        if not identifier_include_keywords:
             valid_column_header = True
         else:
             for keyword in identifier_include_keywords:
