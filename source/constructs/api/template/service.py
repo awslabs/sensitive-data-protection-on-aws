@@ -143,6 +143,7 @@ def sync_s3(snapshot_no):
         item_json['type'] = item[7]
         item_json['privacy'] = item[8]
         item_json['header_keywords'] = json.loads(item[9]) if item[9] else item[9]
+        item_json['exclude_keywords'] = json.loads(item[11]) if item[11] else item[11]
         item_json['description'] = item[10]
         identifiers.append(item_json)
     json_str = S3WrapEncoder.convert(template, ['id', 'name'])
@@ -166,11 +167,3 @@ def check_rule(identifier):
         raise BizException(MessageEnum.TEMPLATE_HEADER_KEYWORDS_EMPTY.get_code(),
                            MessageEnum.TEMPLATE_HEADER_KEYWORDS_EMPTY.get_msg())
 
-
-# def filter_identifier_by_props(identifiers, props: list):
-#     for item in props:
-#         print('++++++++++++++++++++++++++++')
-#         print(item.values)
-#         print('++++++++++++++++++++++++++++')
-#         if item.operation == OperationType.EQUAL:
-#             pass
