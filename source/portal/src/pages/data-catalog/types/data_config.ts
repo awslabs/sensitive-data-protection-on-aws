@@ -400,31 +400,37 @@ export const TABLES_COLUMN = [
     id: COLUMN_OBJECT_STR.FolderName,
     label: 'table.label.tables',
     filter: true,
+    sortingField: COLUMN_OBJECT_STR.FolderName,
   },
   {
-    id: 'column_count',
+    id: COLUMN_OBJECT_STR.ColumnCount,
     label: 'table.label.columns',
     filter: true,
+    sortingField: COLUMN_OBJECT_STR.ColumnCount,
   },
   {
     id: COLUMN_OBJECT_STR.RowCount,
     label: 'table.label.rows',
     filter: true,
+    sortingField: COLUMN_OBJECT_STR.RowCount,
   },
   {
     id: COLUMN_OBJECT_STR.Privacy,
     label: 'table.label.privacy',
     filter: true,
+    sortingField: COLUMN_OBJECT_STR.Privacy,
   },
   {
     id: COLUMN_OBJECT_STR.LastModifyBy,
     label: 'table.label.lastUpdateBy',
     filter: true,
+    sortingField: COLUMN_OBJECT_STR.LastModifyBy,
   },
   {
     id: COLUMN_OBJECT_STR.LastModifyAt,
     label: 'table.label.lastUpdateAt',
     filter: false,
+    sortingField: COLUMN_OBJECT_STR.LastModifyAt,
   },
 ];
 

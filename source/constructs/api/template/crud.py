@@ -76,7 +76,6 @@ def create_identifier(identifier: schemas.TemplateIdentifier) -> models.Template
     for key, value in dict(identifier).items():
         if not key.startswith('__') and key != 'props':
             setattr(db_identifier, key, value)
-
     session.add(db_identifier)
     session.commit()
     session.refresh(db_identifier)
@@ -195,7 +194,8 @@ def get_ref_identifiers(id: int):
                                models.TemplateIdentifier.type,
                                models.TemplateIdentifier.privacy,
                                models.TemplateIdentifier.header_keywords,
-                               models.TemplateIdentifier.description
+                               models.TemplateIdentifier.description,
+                               models.TemplateIdentifier.exclude_keywords
                                ).filter(
         models.TemplateMapping.template_id == id).filter(models.TemplateMapping.status == 1).join(
         models.TemplateMapping, models.TemplateMapping.identifier_id == models.TemplateIdentifier.id).all()
