@@ -2,12 +2,23 @@ import React from 'react';
 import { PieChart } from '@cloudscape-design/components';
 import { IPieChartDataType } from 'ts/dashboard/types';
 import { useTranslation } from 'react-i18next';
+import { formatNumber } from 'tools/tools';
 
+export type ChartSourceType = 's3' | 'rds';
+export type ChartDataType =
+  | 'bucket'
+  | 'folder'
+  | 'file'
+  | 'instance'
+  | 'table'
+  | 'column';
 interface CommonPieChartProps {
-  sourceType: 's3' | 'rds';
+  sourceType: ChartSourceType;
+  dataType?: ChartDataType;
   circleType: 'pie' | 'donut' | undefined;
   chartData: IPieChartDataType[];
   sourceTotal?: number;
+  size?: 'small' | 'medium' | 'large';
 }
 
 export const percentageFormatter = (value: any) =>
@@ -16,32 +27,57 @@ export const percentageFormatter = (value: any) =>
 const CommonPieChart: React.FC<CommonPieChartProps> = (
   props: CommonPieChartProps
 ) => {
-  const { sourceType, sourceTotal, circleType, chartData } = props;
+  const { size, sourceType, dataType, sourceTotal, circleType, chartData } =
+    props;
   const { t } = useTranslation();
+
+  const buildLabelBySourceTypeAndDataType = (
+    sourceType: ChartSourceType,
+    dataType?: ChartDataType
+  ) => {
+    if (sourceType === 's3') {
+      switch (dataType) {
+        case 'bucket':
+          return t('summary:s3Buckets');
+        case 'folder':
+          return t('summary:folders');
+        case 'file':
+          return t('summary:objects');
+      }
+    }
+    if (sourceType === 'rds') {
+      switch (dataType) {
+        case 'instance':
+          return t('summary:instances');
+        case 'table':
+          return t('summary:tables');
+        case 'column':
+          return t('summary:columns');
+      }
+    }
+    return '';
+  };
+
   return (
     <PieChart
       variant={circleType}
-      size="medium"
-      innerMetricDescription={
-        (sourceType === 's3' ? t('summary:buckets') : t('summary:instances')) ||
-        ''
-      }
-      innerMetricValue={sourceTotal?.toString()}
+      size={size ?? 'medium'}
+      innerMetricDescription={buildLabelBySourceTypeAndDataType(
+        sourceType,
+        dataType
+      )}
+      innerMetricValue={formatNumber(sourceTotal ?? 0)}
       data={chartData}
       hideFilter={true}
       segmentDescription={(datum, sum) =>
-        `${datum.value} ${
-          sourceType === 's3'
-            ? t('summary:s3Buckets')
-            : t('summary:rdsInstances')
-        }, ${percentageFormatter(datum.value / sum)}`
+        `${datum.value} ${buildLabelBySourceTypeAndDataType(
+          sourceType,
+          dataType
+        )}, ${percentageFormatter(datum.value / sum)}`
       }
       detailPopoverContent={(datum, sum) => [
         {
-          key:
-            sourceType === 's3'
-              ? t('summary:s3Buckets')
-              : t('summary:rdsInstances'),
+          key: buildLabelBySourceTypeAndDataType(sourceType, dataType),
           value: datum.value,
         },
         {

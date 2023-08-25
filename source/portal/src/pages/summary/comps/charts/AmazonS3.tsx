@@ -88,8 +88,9 @@ const AmazonS3: React.FC<any> = memo(() => {
           { colspan: 6 },
           { colspan: 6 },
           { colspan: 12 },
-          { colspan: 6 },
-          { colspan: 6 },
+          // { colspan: 6 },
+          { colspan: 12 },
+          { colspan: 12 },
         ]}
       >
         <div className="mt-20 pd-10">
@@ -97,11 +98,12 @@ const AmazonS3: React.FC<any> = memo(() => {
         </div>
         <div className="mt-20 pd-10">
           <CircleChart
-            title={t('summary:privacyTagging')}
-            circleType="donut"
+            title={t('summary:lastUpdatedStatus')}
+            circleType="pie"
             sourceType="s3"
           />
         </div>
+
         <div className="mt-20 pd-10">
           {loadingTableData ? (
             <Spinner />
@@ -138,13 +140,36 @@ const AmazonS3: React.FC<any> = memo(() => {
             </>
           )}
         </div>
-
         <div className="mt-20 pd-10">
-          <CircleChart
-            title={t('summary:lastUpdatedStatus')}
-            circleType="pie"
-            sourceType="s3"
-          />
+          <Header variant="h3">{t('summary:privacyTagging')} </Header>
+          <Grid
+            gridDefinition={[{ colspan: 4 }, { colspan: 4 }, { colspan: 4 }]}
+          >
+            <div>
+              <CircleChart
+                title=""
+                circleType="donut"
+                sourceType="s3"
+                dataType="bucket"
+              />
+            </div>
+            <div>
+              <CircleChart
+                title=""
+                circleType="donut"
+                sourceType="s3"
+                dataType="folder"
+              />
+            </div>
+            <div>
+              <CircleChart
+                title=""
+                circleType="donut"
+                sourceType="s3"
+                dataType="file"
+              />
+            </div>
+          </Grid>
         </div>
       </Grid>
     </div>
