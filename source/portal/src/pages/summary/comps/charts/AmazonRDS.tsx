@@ -83,8 +83,9 @@ export const AmazonRDS: React.FC<any> = memo(() => {
           { colspan: 6 },
           { colspan: 6 },
           { colspan: 12 },
-          { colspan: 6 },
-          { colspan: 6 },
+          // { colspan: 6 },
+          { colspan: 12 },
+          { colspan: 12 },
         ]}
       >
         {/* <div className="mt-20 pd-10">
@@ -95,11 +96,12 @@ export const AmazonRDS: React.FC<any> = memo(() => {
         </div>
         <div className="mt-20 pd-10">
           <CircleChart
-            title={t('summary:privacyTagging')}
-            circleType="donut"
+            title={t('summary:lastUpdatedStatus')}
+            circleType="pie"
             sourceType="rds"
           />
         </div>
+
         <div className="mt-20 pd-10">
           {loadingTableData ? (
             <Spinner />
@@ -126,11 +128,35 @@ export const AmazonRDS: React.FC<any> = memo(() => {
         </div>
 
         <div className="mt-20 pd-10">
-          <CircleChart
-            title={t('summary:lastUpdatedStatus')}
-            circleType="pie"
-            sourceType="rds"
-          />
+          <Header variant="h3">{t('summary:privacyTagging')}</Header>
+          <Grid
+            gridDefinition={[{ colspan: 4 }, { colspan: 4 }, { colspan: 4 }]}
+          >
+            <div>
+              <CircleChart
+                title=""
+                circleType="donut"
+                sourceType="rds"
+                dataType="instance"
+              />
+            </div>
+            <div>
+              <CircleChart
+                title=""
+                circleType="donut"
+                sourceType="rds"
+                dataType="table"
+              />
+            </div>
+            <div>
+              <CircleChart
+                title=""
+                circleType="donut"
+                sourceType="rds"
+                dataType="column"
+              />
+            </div>
+          </Grid>
         </div>
       </Grid>
     </div>

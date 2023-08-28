@@ -72,6 +72,21 @@ def search_catalog_tables_by_database(condition: QueryCondition):
     return rlt
 
 
+@router.post(
+    "/search-tables",
+    # response_model=BaseResponse[Page[schemas.CatalogTableLevelClassification]],
+)
+@inject_session
+def search_catalog_tables(condition: QueryCondition):
+    catalogs = crud.search_catalog_table_level_classification(condition)
+    rlt = paginate(catalogs, Params(
+        size=condition.size,
+        page=condition.page,
+    ))
+    service.fill_catalog_labels(rlt.items)
+    return rlt
+
+
 @router.get(
     "/get-databases-by-account-region-type",
     # response_model=BaseResponse[Page[schemas.CatalogDatabaseLevelClassification]],

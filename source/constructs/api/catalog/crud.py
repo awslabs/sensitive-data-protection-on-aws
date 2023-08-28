@@ -157,6 +157,12 @@ def search_catalog_table_level_classification_by_database(
     return query_with_condition(get_session().query(models.CatalogTableLevelClassification), condition)
 
 
+def search_catalog_table_level_classification(
+    condition: QueryCondition
+):
+    return query_with_condition(get_session().query(models.CatalogTableLevelClassification), condition)
+
+
 def get_catalog_table_level_classification_by_database_all(
     account_id: str,
     region: str,
@@ -649,7 +655,8 @@ def get_rds_database_summary_with_attr(attribute: str):
     .query(getattr(models.CatalogDatabaseLevelClassification, attribute),
         func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label("instance_total"),
         func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label("database_total"), 
-        func.sum(models.CatalogDatabaseLevelClassification.table_count).label("table_total"))
+        func.sum(models.CatalogDatabaseLevelClassification.table_count).label("table_total"),
+        func.sum(models.CatalogDatabaseLevelClassification.column_count).label("row_total"))
     .filter(models.CatalogDatabaseLevelClassification.database_type == DatabaseType.RDS.value)
     .group_by(getattr(models.CatalogDatabaseLevelClassification, attribute))
     .all()
@@ -658,8 +665,8 @@ def get_rds_database_summary_with_attr(attribute: str):
 def get_s3_database_summary_with_attr(attribute: str):
     return (get_session()
     .query(getattr(models.CatalogDatabaseLevelClassification, attribute),
-        func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label("database_total"), 
-        func.sum(models.CatalogDatabaseLevelClassification.object_count).label("object_total"), 
+        func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label("database_total"),
+        func.sum(models.CatalogDatabaseLevelClassification.object_count).label("object_total"),
         func.sum(models.CatalogDatabaseLevelClassification.size_key).label("size_total"),
         func.sum(models.CatalogDatabaseLevelClassification.table_count).label("table_total"))
     .filter(models.CatalogDatabaseLevelClassification.database_type == DatabaseType.S3.value)

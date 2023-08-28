@@ -57,6 +57,7 @@ export interface IPrivacyPieChartType {
   privacy: number;
   size_total: number;
   table_total: number;
+  row_total: number;
 }
 
 export interface IModifierChartType {

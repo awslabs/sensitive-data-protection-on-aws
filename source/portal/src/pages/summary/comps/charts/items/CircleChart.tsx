@@ -4,7 +4,10 @@ import {
   getCatalogSummaryByModifier,
   getCatalogSummaryByPrivacy,
 } from 'apis/dashboard/api';
-import CommonPieChart from './CommonPieChart';
+import CommonPieChart, {
+  ChartDataType,
+  ChartSourceType,
+} from './CommonPieChart';
 import {
   IModifierChartType,
   IPieChartDataType,
@@ -13,8 +16,9 @@ import {
 
 interface CircleChartType {
   title: string;
-  sourceType: 's3' | 'rds';
+  sourceType: ChartSourceType;
   circleType: 'pie' | 'donut' | undefined;
+  dataType?: ChartDataType;
 }
 
 const COLOR_CONFIG: any = {
@@ -24,7 +28,7 @@ const COLOR_CONFIG: any = {
 };
 
 const CircleChart: React.FC<CircleChartType> = (props: CircleChartType) => {
-  const { title, sourceType, circleType } = props;
+  const { title, sourceType, circleType, dataType } = props;
   const [loadingPrivacy, setLoadingPrivacy] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState(false);
 
@@ -37,6 +41,86 @@ const CircleChart: React.FC<CircleChartType> = (props: CircleChartType) => {
     []
   );
 
+  const getTitleByPrivacy = (privacy: number) => {
+    switch (privacy) {
+      case 0:
+        return 'Non-PII';
+      case 1:
+        return 'Contains PII';
+      default:
+        return 'N/A';
+    }
+  };
+
+  const getValueBySourceTypeAndDataType = (
+    data: IPrivacyPieChartType,
+    sourceType: ChartSourceType,
+    dataType?: ChartDataType
+  ) => {
+    if (sourceType === 's3') {
+      switch (dataType) {
+        case 'bucket':
+          return data.database_total;
+        case 'folder':
+          return data.table_total;
+        case 'file':
+          return data.object_total;
+      }
+    }
+    if (sourceType === 'rds') {
+      switch (dataType) {
+        case 'instance':
+          return data.instance_total;
+        case 'table':
+          return data.table_total;
+        case 'column':
+          return data.row_total;
+      }
+    }
+    return 0;
+  };
+
+  const calculateSourceTotalBySourceTypeAndDataType = (
+    data: IPrivacyPieChartType[],
+    sourceType: ChartSourceType,
+    dataType?: ChartDataType
+  ) => {
+    const total = 0;
+    if (sourceType === 's3') {
+      switch (dataType) {
+        case 'bucket':
+          return data.reduce((accumulator: number, item) => {
+            return accumulator + item.database_total;
+          }, 0);
+        case 'folder':
+          return data.reduce((accumulator: number, item) => {
+            return accumulator + item.table_total;
+          }, 0);
+        case 'file':
+          return data.reduce((accumulator: number, item) => {
+            return accumulator + item.object_total;
+          }, 0);
+      }
+    }
+    if (sourceType === 'rds') {
+      switch (dataType) {
+        case 'instance':
+          return data.reduce((accumulator: number, item) => {
+            return accumulator + item.instance_total;
+          }, 0);
+        case 'table':
+          return data.reduce((accumulator: number, item) => {
+            return accumulator + item.table_total;
+          }, 0);
+        case 'column':
+          return data.reduce((accumulator: number, item) => {
+            return accumulator + item.row_total;
+          }, 0);
+      }
+    }
+    return total;
+  };
+
   const getPrivacyDataCatalog = async () => {
     setLoadingPrivacy(true);
     const res = (await getCatalogSummaryByPrivacy({
@@ -46,25 +130,16 @@ const CircleChart: React.FC<CircleChartType> = (props: CircleChartType) => {
     if (res && res.length > 0) {
       res.forEach((element) => {
         tmpDataList.push({
-          title:
-            element.privacy === 0
-              ? 'Non-PII'
-              : element.privacy === 1
-              ? 'Contains PII'
-              : 'N/A',
-          value:
-            sourceType === 's3'
-              ? element.database_total
-              : element.instance_total,
+          title: getTitleByPrivacy(element.privacy),
+          value: getValueBySourceTypeAndDataType(element, sourceType, dataType),
           color: COLOR_CONFIG[element.privacy],
         });
       });
-      const total = res.reduce((accumulator: number, item) => {
-        return (
-          accumulator +
-          (sourceType === 's3' ? item.database_total : item.instance_total)
-        );
-      }, 0);
+      const total = calculateSourceTotalBySourceTypeAndDataType(
+        res,
+        sourceType,
+        dataType
+      );
       setSourceTotal(total);
     }
     setPrivacyDataList(tmpDataList);
@@ -101,17 +176,21 @@ const CircleChart: React.FC<CircleChartType> = (props: CircleChartType) => {
 
   return (
     <div>
-      <Header variant="h3">{title}</Header>
+      {title && <Header variant="h3">{title}</Header>}
       {circleType === 'donut' &&
         (loadingPrivacy ? (
           <Spinner />
         ) : (
-          <CommonPieChart
-            sourceType={sourceType}
-            chartData={privacyDataList}
-            circleType="donut"
-            sourceTotal={sourceTotal}
-          />
+          <div>
+            <CommonPieChart
+              // size="small"
+              sourceType={sourceType}
+              dataType={dataType}
+              chartData={privacyDataList}
+              circleType="donut"
+              sourceTotal={sourceTotal}
+            />
+          </div>
         ))}
       {circleType === 'pie' &&
         (loadingStatus ? (

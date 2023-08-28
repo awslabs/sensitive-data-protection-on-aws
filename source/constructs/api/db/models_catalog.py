@@ -38,7 +38,7 @@ class CatalogTableLevelClassification(Base):
     account_id = sa.Column(sa.String(20), nullable=False)
     region = sa.Column(sa.String(20), nullable=False)
     database_type = sa.Column(sa.String(20), nullable=False)
-    database_name = sa.Column(sa.String(255), nullable=False)
+    database_name = sa.Column(sa.String(255), nullable=False, info={'searchable': True})
     table_name = sa.Column(sa.String(255), nullable=False, info={'searchable': True})
     privacy = sa.Column(sa.SmallInteger(), info={'searchable': True})
     sensitivity = sa.Column(sa.String(255))
