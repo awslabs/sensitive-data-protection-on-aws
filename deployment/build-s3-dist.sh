@@ -25,6 +25,7 @@ export BUCKET_NAME=$1
 export SOLUTION_NAME=$2
 export BUILD_VERSION=$3
 export GLOBAL_S3_ASSETS_PATH="${__dir}/global-s3-assets"
+export SOLUTION_VERSION=`echo $BUILD_VERSION | awk -F'-' '{print $1}'`
 
 title "init env"
 
@@ -33,11 +34,16 @@ run rm -rf ${GLOBAL_S3_ASSETS_PATH} && run mkdir -p ${GLOBAL_S3_ASSETS_PATH}
 echo "BUCKET_NAME=${BUCKET_NAME}"
 echo "SOLUTION_NAME=${SOLUTION_NAME}"
 echo "e=${BUILD_VERSION}"
+echo "SOLUTION_VERSION=${SOLUTION_VERSION}"
 echo "${BUILD_VERSION}" > ${GLOBAL_S3_ASSETS_PATH}/version
 
 title "cdk synth"
 
 run cd ${SRC_PATH}
+
+sed -i "s|@TEMPLATE_SOLUTION_VERSION@|$SOLUTION_VERSION|"g lib/admin/database/*/*.sql
+sed -i "s|@TEMPLATE_SOLUTION_VERSION@|$SOLUTION_VERSION|"g ../portal/src/pages/add-account/types/*.ts
+
 run npm install 
 # if [ "$BUILD_VERSION" != 'latest' ]; then
 # sed -i "1,210s/\"version\":.*$/\"version\": \"$BUILD_VERSION\",/g" package.json

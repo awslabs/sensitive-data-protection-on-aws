@@ -3,7 +3,7 @@ export const TAB_LIST = {
   individual: { id: 'individual', label: 'account:add.account.via' },
 };
 
-const TEMPLATE_VERSION = '1.0.0';
+const TEMPLATE_VERSION = '@TEMPLATE_SOLUTION_VERSION@';
 
 export const ADMIN_TEMPLATE_URL = `https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/${TEMPLATE_VERSION}/cn/Admin.template.json`;
 export const AGENT_TEMPLATE_URL = `https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/${TEMPLATE_VERSION}/cn/Agent.template.json`;
