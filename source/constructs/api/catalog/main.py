@@ -304,14 +304,14 @@ def agg_catalog_summay(database_type: str):
 @inject_session
 def agg_catalog_summary_by_region(database_type: str):
 
-    return service_dashboard.agg_catalog_summary_by_attr(database_type, CatalogDashboardAttribute.REGION.value)
+    return service_dashboard.agg_catalog_summary_by_attr(database_type, CatalogDashboardAttribute.REGION.value, False)
 
 
 @router.get("/dashboard/agg-catalog-summay-by-privacy", response_model=BaseResponse)
 @inject_session
 def agg_catalog_summary_by_privacy(database_type: str):
 
-    return service_dashboard.agg_catalog_summary_by_attr(database_type, CatalogDashboardAttribute.PRIVACY.value)
+    return service_dashboard.agg_catalog_summary_by_attr(database_type, CatalogDashboardAttribute.PRIVACY.value, True)
 
 
 @router.get("/dashboard/agg-catalog-top-n", response_model=BaseResponse)
