@@ -808,6 +808,7 @@ def get_s3_folder_summary_with_attr(attribute: str):
 
 
 def get_rds_column_summary_with_attr(attribute: str):
+    # row_total -> column_total
     return (get_session()
     .query(getattr(models.CatalogColumnLevelClassification, attribute),
         func.count(models.CatalogColumnLevelClassification.column_name).label("row_total"))
@@ -817,6 +818,7 @@ def get_rds_column_summary_with_attr(attribute: str):
     )
 
 def get_s3_object_summary_with_attr(attribute: str):
+    # object_total -> column_total
     return (get_session()
     .query(getattr(models.CatalogColumnLevelClassification, attribute),
         func.count(models.CatalogColumnLevelClassification.column_name).label("object_total"))
