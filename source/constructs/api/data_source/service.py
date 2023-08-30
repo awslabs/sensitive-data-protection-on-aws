@@ -9,13 +9,12 @@ import boto3
 from catalog.service import delete_catalog_by_account_region as delete_catalog_by_account
 from catalog.service import delete_catalog_by_database_region as delete_catalog_by_database_region
 from common.constant import const
-from common.enum import MessageEnum, ConnectionState
+from common.enum import MessageEnum, ConnectionState, Provider
 from common.exception_handler import BizException
 from common.query_condition import QueryCondition
 from discovery_job.service import delete_account as delete_job_by_account
 from discovery_job.service import can_delete_database as can_delete_job_database
 from discovery_job.service import delete_database as delete_job_database
-from source.constructs.api.common.enum import Provider
 from . import s3_detector, rds_detector, crud
 from . import schemas
 
