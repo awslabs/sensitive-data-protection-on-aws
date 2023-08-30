@@ -112,7 +112,7 @@ def list_accounts(condition: QueryCondition):
 
 
 @router.post("/reload_organization_account", response_model=BaseResponse,
-            description="Retrieve stacksets in the delegate account, and refresh account list by stackset status")
+             description="Retrieve stacksets in the delegate account, and refresh account list by stackset status")
 @inject_session
 def reload_organization_account(account: schemas.SourceOrgAccount):
     return service.reload_organization_account(account.organization_management_account_id)
@@ -122,13 +122,13 @@ def reload_organization_account(account: schemas.SourceOrgAccount):
              description="Add individual account")
 @inject_session
 def add_account(account: schemas.SourceNewAccount):
-    return service.add_account(account.account_id)
+    return service.add_account(account)
 
 @router.post("/delete_account", response_model=BaseResponse,
              description="Delete individual account")
 @inject_session
 def delete_account(account: schemas.SourceNewAccount):
-    return service.delete_account(account.account_id)
+    return service.delete_account(account.account_provider, account.account_id, account.region)
 
 @router.get("/secrets", response_model=BaseResponse, description="List Secrets for RDS")
 @inject_session

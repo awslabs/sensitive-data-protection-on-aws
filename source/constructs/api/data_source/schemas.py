@@ -15,10 +15,11 @@ class DataSource(BaseModel):
 
 class Account(BaseModel):
     id: int
-    aws_account_id: Optional[str]
-    aws_account_alias: Optional[str]
-    aws_account_email: Optional[str]
-    delegated_aws_account_id: Optional[str]
+    account_id: Optional[str]
+    account_alias: Optional[str]
+    account_email: Optional[str]
+    account_provider: Optional[str]
+    delegated_account_id: Optional[str]
     region: Optional[str]
     organization_unit_id: Optional[str]
     stack_id: Optional[str]
@@ -33,6 +34,8 @@ class Account(BaseModel):
     connected_s3_bucket: Optional[int]
     total_rds_instance: Optional[int]
     connect_rds_instance: Optional[int]
+    total_jdbc_instance: Optional[int]
+    connect_jdbc_instance: Optional[int]
     last_updated: Optional[datetime.datetime]
 
     class Config:
@@ -159,7 +162,9 @@ class SourceDeteteRdsConnection(BaseModel):
     instance: str
 
 class SourceNewAccount(BaseModel):
+    account_provider: str
     account_id: str
+    region: str
 
 class SourceOrgAccount(BaseModel):
     organization_management_account_id: str

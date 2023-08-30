@@ -15,6 +15,7 @@ from common.query_condition import QueryCondition
 from discovery_job.service import delete_account as delete_job_by_account
 from discovery_job.service import can_delete_database as can_delete_job_database
 from discovery_job.service import delete_database as delete_job_database
+from source.constructs.api.common.enum import Provider
 from . import s3_detector, rds_detector, crud
 from . import schemas
 
@@ -891,7 +892,7 @@ def reload_organization_account(it_account: str):
             # convert to unique account list
             member_accounts = list(set(item['Account'] for item in stack_instances))
             for account in member_accounts:
-                add_account(account)
+                add_aws_account(account)
         except Exception as e:
             logger.error(traceback.format_exc())
             raise BizException(MessageEnum.SOURCE_ORG_ADD_ACCOUNT_FAILED.get_code(), str(e))
@@ -901,7 +902,13 @@ def reload_organization_account(it_account: str):
     return member_accounts
 
 
-def add_account(account_id: str):
+def add_account(account):
+    if account.account_provider == Provider.AWS.value:
+        add_aws_account(account.account_id)
+    else:
+        add_third_account(account)
+
+def add_aws_account(account_id: str):
     # Open this loop for multiple region support
     # for region in const.CN_REGIONS:
     assumed_role = False
@@ -910,7 +917,7 @@ def add_account(account_id: str):
         if __assume_role(account_id, role_arn):
             assumed_role = True
             # raise BizException(MessageEnum.SOURCE_ASSUME_ROLE_FAILED.get_code(),
-            #                    MessageEnum.SOURCE_ASSUME_ROLE_FAILED.get_msg())
+            #  MessageEnum.SOURCE_ASSUME_ROLE_FAILED.get_msg())
             crud.add_account(
                 aws_account_id=account_id,
                 aws_account_alias=None,
@@ -936,8 +943,17 @@ def add_account(account_id: str):
         raise BizException(MessageEnum.SOURCE_ASSUME_ROLE_FAILED.get_code(),
                            MessageEnum.SOURCE_ASSUME_ROLE_FAILED.get_msg())
 
+def add_third_account(account):
+    crud.add_third_account(account)
 
-def delete_account(account_id: str):
+def delete_account(account_provider: str, account_id: str, region: str):
+    if account_provider == Provider.AWS:
+        delete_aws_account(account_id)
+    else:
+        delete_third_account(account_provider, account_id, region)
+
+
+def delete_aws_account(account_id):
     accounts_by_region = crud.list_all_accounts_by_region(region=_admin_account_region)
     list_accounts = [c[0] for c in accounts_by_region]
     if account_id not in list_accounts:
@@ -992,6 +1008,10 @@ def delete_account(account_id: str):
         # account agent exists, need uninsatll agent first
         raise BizException(MessageEnum.SOURCE_ACCOUNT_AGENT_EXIST.get_code(),
                            MessageEnum.SOURCE_ACCOUNT_AGENT_EXIST.get_msg())
+
+
+def delete_third_account(account_provider, account_id, region):
+    crud.delete_third_account(account_provider, account_id, region)
 
 
 def refresh_account():

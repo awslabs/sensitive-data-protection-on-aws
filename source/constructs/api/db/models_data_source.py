@@ -20,14 +20,45 @@ class DataSource(Base):
     modify_time = sa.Column(sa.DateTime())
 
 
+# class Account(Base):
+#     __tablename__ = 'source_account'
+
+#     id = sa.Column(sa.Integer(), autoincrement=True, primary_key=True)
+#     aws_account_id = sa.Column(sa.String(255), info={'searchable': True})
+#     aws_account_alias = sa.Column(sa.String(255), info={'searchable': True})
+#     aws_account_email = sa.Column(sa.String(255))
+#     delegated_aws_account_id = sa.Column(sa.String(64))
+#     region = sa.Column(sa.String(64))
+#     organization_unit_id = sa.Column(sa.String(255))
+#     stack_id = sa.Column(sa.String(255))
+#     stackset_id = sa.Column(sa.String(255))
+#     stackset_name = sa.Column(sa.String(255))
+#     status = sa.Column(sa.Integer())
+#     stack_status = sa.Column(sa.String(255))
+#     stack_instance_status = sa.Column(sa.String(128))
+#     detection_role_name = sa.Column(sa.String(255))
+#     # TODO fix to str
+#     detection_role_status = sa.Column(sa.Integer())
+#     total_s3_bucket = sa.Column(sa.Integer())
+#     connected_s3_bucket = sa.Column(sa.Integer())
+#     total_rds_instance = sa.Column(sa.Integer())
+#     connect_rds_instance = sa.Column(sa.Integer())
+#     last_updated = sa.Column(sa.DateTime)
+#     version = sa.Column(sa.Integer())
+#     create_by = sa.Column(sa.String(255))
+#     create_time = sa.Column(sa.DateTime())
+#     modify_by = sa.Column(sa.String(255))
+#     modify_time = sa.Column(sa.DateTime())
+
 class Account(Base):
     __tablename__ = 'source_account'
 
     id = sa.Column(sa.Integer(), autoincrement=True, primary_key=True)
-    aws_account_id = sa.Column(sa.String(255), info={'searchable': True})
-    aws_account_alias = sa.Column(sa.String(255), info={'searchable': True})
-    aws_account_email = sa.Column(sa.String(255))
-    delegated_aws_account_id = sa.Column(sa.String(64))
+    account_id = sa.Column(sa.String(255), info={'searchable': True})
+    account_alias = sa.Column(sa.String(255), info={'searchable': True})
+    account_email = sa.Column(sa.String(255))
+    account_provider = sa.Column(sa.String(255))
+    delegated_account_id = sa.Column(sa.String(64))
     region = sa.Column(sa.String(64))
     organization_unit_id = sa.Column(sa.String(255))
     stack_id = sa.Column(sa.String(255))
@@ -43,6 +74,8 @@ class Account(Base):
     connected_s3_bucket = sa.Column(sa.Integer())
     total_rds_instance = sa.Column(sa.Integer())
     connect_rds_instance = sa.Column(sa.Integer())
+    total_jdbc_instance = sa.Column(sa.Integer())
+    connected_jdbc_instance = sa.Column(sa.Integer())
     last_updated = sa.Column(sa.DateTime)
     version = sa.Column(sa.Integer())
     create_by = sa.Column(sa.String(255))

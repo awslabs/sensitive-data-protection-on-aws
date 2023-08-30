@@ -5,22 +5,26 @@ from common.enum import ConnectionState
 from common.query_condition import QueryCondition, query_with_condition
 from db.database import get_session
 from db.models_data_source import S3BucketSource, Account, RdsInstanceSource
+from source.constructs.api.common.enum import MessageEnum, Provider
+from source.constructs.api.common.exception_handler import BizException
 
 
 def list_accounts(condition: QueryCondition):
     return query_with_condition(get_session().query(Account).filter(Account.status == 1), condition).distinct(
-        Account.aws_account_id, Account.region)
+        Account.account_provider, Account.account_id, Account.region)
 
 
 def list_all_accounts_by_region(region: str):
     query = get_session().query(
-        Account.aws_account_id,
+        Account.account_id,
         Account.region
     ).filter(
+        Account.account_provider == Provider.AWS.value,
         Account.status == 1,
         Account.region == region
     ).distinct(
-        Account.aws_account_id,
+        Account.account_provider,
+        Account.account_id,
         Account.region
     ).all()
     return query
@@ -29,10 +33,10 @@ def list_all_accounts_by_region(region: str):
 def get_account_agent_regions(account_id: str):
     regions = []
     account_with_regions = get_session().query(Account).filter(
-        Account.aws_account_id == account_id,
+        Account.account_id == account_id,
         Account.status == 1
     ).distinct(
-        Account.aws_account_id
+        Account.account_id
     ).all()
     if account_with_regions is not None:
         for account in account_with_regions:
@@ -46,7 +50,7 @@ def list_s3_bucket_source(condition: QueryCondition):
     accounts = get_session().query(Account).filter(Account.status == 1).all()
     account_ids = []
     for account in accounts:
-        account_ids.append(account.aws_account_id)
+        account_ids.append(account.account_id)
     buckets = get_session().query(S3BucketSource).filter(S3BucketSource.aws_account.in_(account_ids))
     buckets = query_with_condition(buckets, condition)
     return buckets
@@ -85,7 +89,7 @@ def list_rds_instance_source(condition: QueryCondition):
     accounts = get_session().query(Account).filter(Account.status == 1).all()
     account_ids = []
     for account in accounts:
-        account_ids.append(account.aws_account_id)
+        account_ids.append(account.account_id)
     instances = get_session().query(RdsInstanceSource).filter(
         RdsInstanceSource.aws_account.in_(account_ids))
     instances = query_with_condition(instances, condition)
@@ -126,7 +130,7 @@ def update_rds_instance_count(account: str, region: str):
     total = session.query(RdsInstanceSource).filter(RdsInstanceSource.region == region,
                                                     RdsInstanceSource.aws_account == account).count()
 
-    account = session.query(Account).filter(Account.aws_account_id == account, Account.region == region).first()
+    account = session.query(Account).filter(Account.account_id == account, Account.region == region).first()
     if account is not None:
         account.connect_rds_instance = connected
         account.total_rds_instance = total
@@ -146,7 +150,7 @@ def get_s3_bucket_source(account: str, region: str, bucket_name: str):
                                                       S3BucketSource.bucket_name == bucket_name).scalar()
 
 def get_iam_role(account: str):
-    return get_session().query(Account).filter(Account.aws_account_id == account,
+    return get_session().query(Account).filter(Account.account_id == account,
                                                Account.detection_role_name != None).first().detection_role_name
 
 
@@ -201,7 +205,7 @@ def update_s3_bucket_count(account: str, region: str):
     total = session.query(S3BucketSource).filter(S3BucketSource.region == region,
                                                  S3BucketSource.aws_account == account).count()
 
-    account = session.query(Account).filter(Account.aws_account_id == account, Account.region == region).first()
+    account = session.query(Account).filter(Account.account_id == account, Account.region == region).first()
     if account is not None:
         account.connected_s3_bucket = connected
         account.total_s3_bucket = total
@@ -226,6 +230,13 @@ def create_rds_connection(account: str, region: str, instance: str, glue_connect
     rds_instance_source.glue_crawler_last_updated = datetime.datetime.utcnow()
     rds_instance_source.glue_state = ConnectionState.CRAWLING.value
     session.merge(rds_instance_source)
+    session.commit()
+
+def delete_third_account(account_provider, account_id, region):
+    session = get_session()
+    del_data = session.query(Account).filter(Account.account_provider == account_provider, Account.account_id == account_id, Account.region == region).delete()
+    if not del_data:
+        raise BizException(MessageEnum.BIZ_ITEM_NOT_EXISTS.get_code(), MessageEnum.BIZ_ITEM_NOT_EXISTS.get_msg())
     session.commit()
 
 
@@ -283,7 +294,7 @@ def get_connected_rds_instances_count():
 
 # def add_account(account_id: str, assumed_role_name: str):
 #     session = get_session()
-#     account = session.query(Account).filter(Account.aws_account_id == account_id, Account.status == 1).scalar()
+#     account = session.query(Account).filter(Account.account_id == account_id, Account.status == 1).scalar()
 #     if account is None:
 #         account = Account(aws_account_id=account_id)
 #
@@ -297,7 +308,8 @@ def get_connected_rds_instances_count():
 def delete_account_by_region(account_id: str, region: str):
     session = get_session()
     session.query(Account).filter(
-        Account.aws_account_id == account_id,
+        Account.account_provider == Provider.AWS.value,
+        Account.account_id == account_id,
         Account.region == region
     ).delete()
     session.commit()
@@ -343,7 +355,7 @@ def delete_rds_instance_source_by_instance_id(account_id: str, region: str, rds_
 
 def cleanup_delegated_account(delegated_account_id: str, service_managed_stack_name: str):
     session = get_session()
-    session.query(Account).filter(Account.delegated_aws_account_id == delegated_account_id,
+    session.query(Account).filter(Account.delegated_account_id == delegated_account_id,
                                   Account.stackset_name == service_managed_stack_name).delete()
     session.commit()
 
@@ -353,12 +365,13 @@ def add_account(aws_account_id: str, aws_account_alias: str, aws_account_email: 
                 status: str, stack_status: str,
                 stack_instance_status: str, detection_role_name: str, detection_role_status: str):
     session = get_session()
-    account = session.query(Account).filter(Account.aws_account_id == aws_account_id, Account.region == region).first()
+    account = session.query(Account).filter(Account.account_provider == Provider.AWS.value, Account.account_id == aws_account_id, Account.region == region).first()
     if account is None:
-        account = Account(aws_account_id=aws_account_id,
-                          aws_account_alias=aws_account_alias,
-                          aws_account_email=aws_account_email,
-                          delegated_aws_account_id=delegated_aws_account_id,
+        account = Account(account_provider=Provider.AWS.value,
+                          account_id=aws_account_id,
+                          account_alias=aws_account_alias,
+                          account_email=aws_account_email,
+                          delegated_account_id=delegated_aws_account_id,
                           region=region,
                           organization_unit_id=organization_unit_id,
                           stack_id=stack_id,
@@ -373,6 +386,8 @@ def add_account(aws_account_id: str, aws_account_alias: str, aws_account_email: 
                           connected_s3_bucket=0,
                           total_rds_instance=0,
                           connect_rds_instance=0,
+                          total_jdbc_instance=0,
+                          connect_jdbc_instance=0,
                           last_updated=datetime.datetime.utcnow())
 
     else:
@@ -390,6 +405,20 @@ def add_account(aws_account_id: str, aws_account_alias: str, aws_account_email: 
         account.detection_role_name = detection_role_name,
         account.detection_role_status = detection_role_status,
         account.last_updated = datetime.datetime.utcnow()
+    session.merge(account)
+    session.commit()
+    return True
+
+def add_third_account(account):
+    session = get_session()
+    account = session.query(Account).filter(Account.account_provider == Provider.AWS.value, Account.account_id == account.aws_account_id, Account.region == account.region).all()
+    if not account:
+        raise BizException(MessageEnum.SOURCE_ACCOUNT_ALREADY_EXISTS.get_code(),
+                           MessageEnum.SOURCE_ACCOUNT_ALREADY_EXISTS.get_msg())
+    target_account = Account()
+    target_account.account_provider = account.account_provider
+    target_account.account_id = account.account_id
+    target_account.region = account.region
     session.merge(account)
     session.commit()
     return True
