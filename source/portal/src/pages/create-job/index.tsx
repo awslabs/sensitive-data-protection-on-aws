@@ -20,6 +20,7 @@ import {
   StatusIndicator,
   Textarea,
   Toggle,
+  SegmentedControl,
 } from '@cloudscape-design/components';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
@@ -36,7 +37,7 @@ import {
   SCAN_DEPTH_OPTIONS,
   SCAN_RANGE_OPTIONS,
 } from './types/create_data_type';
-import { getDataBaseByType } from 'apis/data-catalog/api';
+import { getDataBaseByType, searchCatalogTables } from 'apis/data-catalog/api';
 import { createJob, getJobDetail, startJob } from 'apis/data-job/api';
 import { SUB_WEEK_CONFIG, alertMsg, formatSize } from 'tools/tools';
 import CommonBadge from 'pages/common-badge';
@@ -202,8 +203,13 @@ const CreateJobContent = () => {
     if (s3CatalogType === SELECT_S3 && activeStepIndex === 0 && !hasOldData) {
       getS3CatalogData();
     }
-    if (rdsCatalogType === SELECT_RDS && activeStepIndex === 1 && !hasOldData) {
+    if (rdsCatalogType === SELECT_RDS && activeStepIndex === 1 && !hasOldData && rdsSelectedView === "rds-instance-view") {
       getRdsCatalogData();
+      console.log(71212);
+    }
+    if (rdsCatalogType === SELECT_RDS && activeStepIndex === 1 && !hasOldData && rdsSelectedView === "rds-table-view") {
+      getRdsCatalogData();
+      console.log(7878);
     }
   }, [
     rdsCatalogType,
@@ -228,6 +234,23 @@ const CreateJobContent = () => {
     setFrequencyStart(null);
     setFrequencyTimeStart({ label: '00:00', value: '0' });
   }, [frequencyType]);
+
+  const getDataFolders = async (nameFilter?: string) => {
+    try {
+      const requestParam: any = {
+        page: currentPage,
+        size: preferences.pageSize,
+      };
+
+      const result = await searchCatalogTables(requestParam);
+      // account_id region database_type database_name table_name
+      setPageData((result as any)?.items);
+      setIsLoading(false);
+    } catch (e) {
+      console.error(e);
+      setIsLoading(false);
+    }
+  };
 
   const getCopyPropsData = async () => {
     setIsLoading(true);
@@ -615,6 +638,8 @@ const CreateJobContent = () => {
       '_blank'
     );
   };
+  
+  const [rdsSelectedView, setRdsSelectedView] = useState('rds-instance-view');
 
   useEffect(() => {
     const getTimezone = () => {
@@ -883,116 +908,125 @@ const CreateJobContent = () => {
                         ]}
                       />
                       {rdsCatalogType === SELECT_RDS && (
-                        <Table
-                          className="job-table-width"
-                          resizableColumns
-                          variant="embedded"
-                          selectionType="multi"
-                          selectedItems={selectedRdsItems}
-                          onSelectionChange={({ detail }) =>
-                            setSelectedRdsItems(detail.selectedItems)
-                          }
-                          ariaLabels={{
-                            selectionGroupLabel:
-                              t('table.itemsSelection') || '',
-                            allItemsSelectionLabel: ({ selectedItems }) =>
-                              `${selectedItems.length} ${
-                                selectedItems.length === 1
-                                  ? t('table.item')
-                                  : t('table.items')
-                              } ${t('table.selected')}`,
-                            itemSelectionLabel: ({ selectedItems }, item) => {
-                              const isItemSelected = selectedItems.filter(
-                                (i) =>
-                                  (i as any)[S3_CATALOG_COLUMS[0].id] ===
+                        <>
+                          <SegmentedControl
+                            selectedId={rdsSelectedView}
+                            options={[{ text: "Instance view", id: "rds-instance-view" }, { text: "Table view", id: "rds-table-view" }]}
+                            onChange={({ detail }) => 
+                            setRdsSelectedView(detail.selectedId)
+                            }
+                          />
+                          <Table
+                            className="job-table-width"
+                            resizableColumns
+                            variant="embedded"
+                            selectionType="multi"
+                            selectedItems={selectedRdsItems}
+                            onSelectionChange={({ detail }) =>
+                              setSelectedRdsItems(detail.selectedItems)
+                            }
+                            ariaLabels={{
+                              selectionGroupLabel:
+                                t('table.itemsSelection') || '',
+                              allItemsSelectionLabel: ({ selectedItems }) =>
+                                `${selectedItems.length} ${
+                                  selectedItems.length === 1
+                                    ? t('table.item')
+                                    : t('table.items')
+                                } ${t('table.selected')}`,
+                              itemSelectionLabel: ({ selectedItems }, item) => {
+                                const isItemSelected = selectedItems.filter(
+                                  (i) =>
+                                    (i as any)[S3_CATALOG_COLUMS[0].id] ===
+                                    (item as any)[S3_CATALOG_COLUMS[0].id]
+                                ).length;
+                                return `${
                                   (item as any)[S3_CATALOG_COLUMS[0].id]
-                              ).length;
-                              return `${
-                                (item as any)[S3_CATALOG_COLUMS[0].id]
-                              } ${t('table.is')} ${
-                                isItemSelected ? '' : t('table.not')
-                              } ${t('table.selected')}`;
-                            },
-                          }}
-                          items={rdsCatalogData}
-                          filter={<ResourcesFilter {...rdsFilterProps} />}
-                          columnDefinitions={RDS_CATALOG_COLUMS.map((item) => {
-                            return {
-                              id: item.id,
-                              header: t(item.label),
-                              cell: (e: any) => {
-                                if (item.id === 'size_key') {
-                                  return formatSize((e as any)[item.id]);
-                                }
-                                if (item.id === 'privacy') {
-                                  if (
-                                    (e as any)[item.id] &&
-                                    ((e as any)[item.id] === 'N/A' ||
-                                      (e as any)[item.id].toString() ===
-                                        PRIVARY_TYPE_INT_DATA['N/A'])
-                                  ) {
-                                    return 'N/A';
-                                  }
-                                  return (
-                                    <CommonBadge
-                                      badgeType={BADGE_TYPE.Privacy}
-                                      badgeLabel={(e as any)[item.id]}
-                                    />
-                                  );
-                                }
-                                return e[item.id];
+                                } ${t('table.is')} ${
+                                  isItemSelected ? '' : t('table.not')
+                                } ${t('table.selected')}`;
                               },
-                            };
-                          })}
-                          loading={isLoading}
-                          pagination={
-                            <Pagination
-                              currentPageIndex={currentPage}
-                              onChange={({ detail }) =>
-                                setCurrentPage(detail.currentPageIndex)
-                              }
-                              pagesCount={Math.ceil(
-                                rdsTotal / preferences.pageSize
-                              )}
-                              ariaLabels={{
-                                nextPageLabel: t('table.nextPage') || '',
-                                previousPageLabel:
-                                  t('table.previousPage') || '',
-                                pageLabel: (pageNumber) =>
-                                  `${t('table.pageLabel', {
-                                    pageNumber: pageNumber,
-                                  })}`,
-                              }}
-                            />
-                          }
-                          preferences={
-                            <CollectionPreferences
-                              onConfirm={({ detail }) => setPreferences(detail)}
-                              preferences={preferences}
-                              title={t('table.preferences')}
-                              confirmLabel={t('table.confirm')}
-                              cancelLabel={t('table.cancel')}
-                              pageSizePreference={{
-                                title: t('table.selectPageSize'),
-                                options: [
-                                  { value: 10, label: t('table.pageSize10') },
-                                  { value: 20, label: t('table.pageSize20') },
-                                  { value: 50, label: t('table.pageSize50') },
-                                  { value: 100, label: t('table.pageSize100') },
-                                ],
-                              }}
-                              visibleContentPreference={{
-                                title: t('table.selectVisibleContent'),
-                                options: [
-                                  {
-                                    label: t('table.mainDistributionProp'),
-                                    options: S3_CATALOG_COLUMS,
-                                  },
-                                ],
-                              }}
-                            />
-                          }
-                        />
+                            }}
+                            items={rdsCatalogData}
+                            filter={<ResourcesFilter {...rdsFilterProps} />}
+                            columnDefinitions={RDS_CATALOG_COLUMS.map((item) => {
+                              return {
+                                id: item.id,
+                                header: t(item.label),
+                                cell: (e: any) => {
+                                  if (item.id === 'size_key') {
+                                    return formatSize((e as any)[item.id]);
+                                  }
+                                  if (item.id === 'privacy') {
+                                    if (
+                                      (e as any)[item.id] &&
+                                      ((e as any)[item.id] === 'N/A' ||
+                                        (e as any)[item.id].toString() ===
+                                          PRIVARY_TYPE_INT_DATA['N/A'])
+                                    ) {
+                                      return 'N/A';
+                                    }
+                                    return (
+                                      <CommonBadge
+                                        badgeType={BADGE_TYPE.Privacy}
+                                        badgeLabel={(e as any)[item.id]}
+                                      />
+                                    );
+                                  }
+                                  return e[item.id];
+                                },
+                              };
+                            })}
+                            loading={isLoading}
+                            pagination={
+                              <Pagination
+                                currentPageIndex={currentPage}
+                                onChange={({ detail }) =>
+                                  setCurrentPage(detail.currentPageIndex)
+                                }
+                                pagesCount={Math.ceil(
+                                  rdsTotal / preferences.pageSize
+                                )}
+                                ariaLabels={{
+                                  nextPageLabel: t('table.nextPage') || '',
+                                  previousPageLabel:
+                                    t('table.previousPage') || '',
+                                  pageLabel: (pageNumber) =>
+                                    `${t('table.pageLabel', {
+                                      pageNumber: pageNumber,
+                                    })}`,
+                                }}
+                              />
+                            }
+                            preferences={
+                              <CollectionPreferences
+                                onConfirm={({ detail }) => setPreferences(detail)}
+                                preferences={preferences}
+                                title={t('table.preferences')}
+                                confirmLabel={t('table.confirm')}
+                                cancelLabel={t('table.cancel')}
+                                pageSizePreference={{
+                                  title: t('table.selectPageSize'),
+                                  options: [
+                                    { value: 10, label: t('table.pageSize10') },
+                                    { value: 20, label: t('table.pageSize20') },
+                                    { value: 50, label: t('table.pageSize50') },
+                                    { value: 100, label: t('table.pageSize100') },
+                                  ],
+                                }}
+                                visibleContentPreference={{
+                                  title: t('table.selectVisibleContent'),
+                                  options: [
+                                    {
+                                      label: t('table.mainDistributionProp'),
+                                      options: S3_CATALOG_COLUMS,
+                                    },
+                                  ],
+                                }}
+                              />
+                            }
+                          />
+                        </>
                       )}
                     </SpaceBetween>
                   )}

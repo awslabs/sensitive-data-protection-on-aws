@@ -7,6 +7,7 @@ import {
   Pagination,
   CollectionPreferences,
   Popover,
+  SegmentedControl,
 } from '@cloudscape-design/components';
 import CommonBadge from 'pages/common-badge';
 import DetailModal from './DetailModal';
@@ -24,11 +25,15 @@ import {
   S3_FILTER_COLUMN,
   RDS_FILTER_COLUMN,
   COLUMN_WIDTH,
+  FOLDERS_COLUMN,
+  RDS_TABLE_FILTER_COLUMN
 } from '../types/data_config';
 import { DATA_TYPE_ENUM, TABLE_NAME } from 'enum/common_types';
 import {
   getDataBaseByType,
   getDataBaseByIdentifier,
+  // getTablesByDatabase,
+  searchCatalogTables,
 } from 'apis/data-catalog/api';
 import '../style.scss';
 import { formatSize, useDidUpdateEffect } from 'tools/tools';
@@ -48,8 +53,9 @@ const CatalogList: React.FC<any> = memo((props: any) => {
   const urlAccountId = searchParams.get('accountId');
   const urlPrivacy = searchParams.get('privacy');
   const urlIdentifiers = searchParams.get('identifiers');
+  const [rdsSelectedView, setRdsSelectedView] = useState('rds-instance-view');
   const columnList =
-    catalogType === DATA_TYPE_ENUM.s3 ? S3_COLUMN_LIST : RDS_COLUMN_LIST;
+    catalogType === DATA_TYPE_ENUM.s3 ? S3_COLUMN_LIST : rdsSelectedView === "rds-table-view" ? FOLDERS_COLUMN : RDS_COLUMN_LIST;
   const [pageData, setPageData] = useState([] as any);
   // by page config
   const [preferences, setPreferences] = useState({
@@ -106,7 +112,7 @@ const CatalogList: React.FC<any> = memo((props: any) => {
   const TableName = TABLE_NAME.CATALOG_DATABASE_LEVEL_CLASSIFICATION;
 
   const filterColumn =
-    catalogType === DATA_TYPE_ENUM.s3 ? S3_FILTER_COLUMN : RDS_FILTER_COLUMN;
+    catalogType === DATA_TYPE_ENUM.s3 ? S3_FILTER_COLUMN : rdsSelectedView === "rds-table-view" ? RDS_TABLE_FILTER_COLUMN : RDS_FILTER_COLUMN;
 
   const resourcesFilterProps = {
     totalCount,
@@ -120,7 +126,7 @@ const CatalogList: React.FC<any> = memo((props: any) => {
   // onload data
   useEffect(() => {
     getPageData();
-  }, []);
+  }, [rdsSelectedView]);
 
   // change page data
   useDidUpdateEffect(() => {
@@ -142,7 +148,7 @@ const CatalogList: React.FC<any> = memo((props: any) => {
 
   // click single select show detail
   useDidUpdateEffect(() => {
-    if (selectedItems.length === 1) {
+    if (selectedItems.length === 1 && rdsSelectedView === "rds-instance-view") {
       !showDetailModal && clickRowName(selectedItems[0]);
     }
   }, [selectedItems]);
@@ -153,51 +159,74 @@ const CatalogList: React.FC<any> = memo((props: any) => {
 
   const getPageData = async () => {
     setIsLoading(true);
+    if (catalogType === DATA_TYPE_ENUM.rds && rdsSelectedView === "rds-table-view") {
+      getDataFolders();
+    } else {
+      try {
+        const requestParam = {
+          page: currentPage,
+          size: preferences.pageSize,
+          sort_column: curSortColumn?.sortingField,
+          asc: !isDescending,
+          conditions: [
+            {
+              column: 'database_type',
+              values: [catalogType],
+              condition: 'and',
+              operation: ':',
+            },
+          ] as any,
+        };
+        query.tokens &&
+          query.tokens.forEach((item: any) => {
+            const searchValues =
+              item.propertyKey === COLUMN_OBJECT_STR.Privacy
+                ? PRIVARY_TYPE_INT_DATA[item.value]
+                : item.value;
+            requestParam.conditions.push({
+              column: item.propertyKey,
+              values: [`${searchValues}`],
+              condition: query.operation,
+              operation: item.operator,
+            });
+          });
+
+        if (urlIdentifiers && !showFilter) {
+          requestParam.conditions.push({
+            column: COLUMN_OBJECT_STR.Identifiers,
+            values: [urlIdentifiers],
+            condition: 'and',
+          });
+        }
+        const queryResult =
+          urlIdentifiers && !showFilter
+            ? await getDataBaseByIdentifier(requestParam)
+            : await getDataBaseByType(requestParam);
+
+        setPageData((queryResult as any)?.items);
+        setTotalCount(queryResult ? (queryResult as any).total : 0);
+        setIsLoading(false);
+      } catch (error) {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const getDataFolders = async (nameFilter?: string) => {
     try {
-      const requestParam = {
+      const requestParam: any = {
         page: currentPage,
         size: preferences.pageSize,
         sort_column: curSortColumn?.sortingField,
         asc: !isDescending,
-        conditions: [
-          {
-            column: 'database_type',
-            values: [catalogType],
-            condition: 'and',
-            operation: ':',
-          },
-        ] as any,
       };
-      query.tokens &&
-        query.tokens.forEach((item: any) => {
-          const searchValues =
-            item.propertyKey === COLUMN_OBJECT_STR.Privacy
-              ? PRIVARY_TYPE_INT_DATA[item.value]
-              : item.value;
-          requestParam.conditions.push({
-            column: item.propertyKey,
-            values: [`${searchValues}`],
-            condition: query.operation,
-            operation: item.operator,
-          });
-        });
 
-      if (urlIdentifiers && !showFilter) {
-        requestParam.conditions.push({
-          column: COLUMN_OBJECT_STR.Identifiers,
-          values: [urlIdentifiers],
-          condition: 'and',
-        });
-      }
-      const queryResult =
-        urlIdentifiers && !showFilter
-          ? await getDataBaseByIdentifier(requestParam)
-          : await getDataBaseByType(requestParam);
-
-      setPageData((queryResult as any)?.items);
-      setTotalCount(queryResult ? (queryResult as any).total : 0);
+      const result = await searchCatalogTables(requestParam);
+      // account_id region database_type database_name table_name
+      setPageData((result as any)?.items);
       setIsLoading(false);
-    } catch (error) {
+    } catch (e) {
+      console.error(e);
       setIsLoading(false);
     }
   };
@@ -225,6 +254,17 @@ const CatalogList: React.FC<any> = memo((props: any) => {
 
   return (
     <>
+      {catalogType === DATA_TYPE_ENUM.rds && (
+        <div style={{paddingLeft:20}}>
+          <SegmentedControl
+            selectedId={rdsSelectedView}
+            options={[{ text: "Instance view", id: "rds-instance-view" }, { text: "Table view", id: "rds-table-view" }]}
+            onChange={({ detail }) => 
+            setRdsSelectedView(detail.selectedId)
+            }
+          />
+        </div>
+      )}
       <Table
         variant="embedded"
         className="no-shadow-list"
