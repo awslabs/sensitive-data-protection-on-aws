@@ -63,7 +63,7 @@
     "copyToNew": "Copy to new",
     "viewMore": "View more",
     "backToAWSAccount": "Back to AWS accounts view",
-    "connectAll": "Sync ALL to data catalog",
+    "connectAll": "Sync ALL to data catalogs",
     "connect": "Sync to data catalog",
     "manageDataIdentifiers": "Manage data identfiers",
     "addDataIdentifier": "Add data identifier",
