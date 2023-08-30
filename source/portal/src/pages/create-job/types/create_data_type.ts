@@ -185,7 +185,7 @@ export const FREQUENCY_TYPE = {
 
 export const OVERRIDE_OPTIONS = [
   {
-    label: 'Do not override (recommened)',
+    label: 'Do not override (recommended)',
     value: '0',
   },
   { label: 'Override', value: '1' },

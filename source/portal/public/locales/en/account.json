@@ -28,7 +28,7 @@
     "addAWSAccount": "Add AWS accounts",
     "addAWSAccountDesc": "Setup and manage the AWS accounts that you want the platform to discover sensitive data.",
     "org": {
-      "via": "Via Oraganization",
+      "via": "Via AWS Organization",
       "step1": "Step1: To register a delegated administrator (Optional)",
       "stepDesc": "With organization's management account, member accounts with delegated administrator permissions can create and manage stack sets with service-managed permissions for the organization.",
       "step2DescStep3": "You can use service-managed StackSets to centrally manage stack deployments to Amazon Web Services accounts in one or more organizational units (OUs).",

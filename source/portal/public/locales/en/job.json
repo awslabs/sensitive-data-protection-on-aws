@@ -59,10 +59,10 @@
     "targetDataCatalogs": "Target data catalogs",
     "s3Bucket": "S3 bucket: ",
     "rdsInstance": "RDS instance:  ",
-    "exclusiveRules": "Advanced settings: Exclusive rules",
-    "exclusiveRulesDesc": "Exclude keywords in column header and context. The solution will not mark data as PII.",
-    "exclusiveRulesToggle": "Ignore keywords in column header or context.",
-    "exclusives": "Exclude keywords in column header and context"
+    "exclusiveRules": "Advanced rules：Exclude keywords for this job",
+    "exclusiveRulesDesc": "If any of the following keywords appeared in column header, then the column will not be marked as Contains PII. This rule applies to all data catalogs selected in this job. This job rule will override identifier rule.",
+    "exclusiveRulesToggle": "Please list keywords to be excluded",
+    "exclusives": "Please list keywords to be excluded"
   },
   "cataLogOption": {
     "all": "All data catalogs",
@@ -78,7 +78,7 @@
     "jobId": "Job id",
     "jobStatus": "Job status",
     "jobStartedAt": "Job started at",
-    "jobFinishedAt": "Job finished at (Durantion)",
+    "jobFinishedAt": "Job finished at (Duration)",
     "classificationSnapshot": "Classification template snapshot",
     "glueJobStatus": "Glue job status",
     "glueJobs": "Glue jobs",

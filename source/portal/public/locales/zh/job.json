@@ -58,7 +58,11 @@
     "jobPreview": "作业预览",
     "targetDataCatalogs": "目标数据目录",
     "s3Bucket": "S3 存储桶： ",
-    "rdsInstance": "RDS 实例：  "
+    "rdsInstance": "RDS 实例：  ",
+    "exclusiveRules": "高级规则：在扫描任务中，排除关键词",
+    "exclusiveRulesDesc": "如果某一列的列名出现以下关键词，那么这一列将不会被标记为敏感数据。此适用于所有任务中的数据目录，可覆盖标识符中的规则。",
+    "exclusiveRulesToggle": "请列出您希望排除的关键词",
+    "exclusives": "请列出您希望排除的关键词"
   },
   "cataLogOption": {
     "all": "所有数据目录",
