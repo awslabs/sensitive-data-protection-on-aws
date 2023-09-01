@@ -56,13 +56,15 @@ export class GlueStack extends Construct {
       destinationKeyPrefix: 'job/script',
     });
 
-    new S3Deployment.BucketDeployment(this, 'DeploymentTemplate', {
-      memoryLimit: 512,
-      ephemeralStorageSize: Size.gibibytes(1),
-      sources: [S3Deployment.Source.asset('config/template')],
-      destinationBucket: props.bucket,
-      destinationKeyPrefix: 'template',
-    });
+    // When upgrading, files with template as the prefix will be deleted
+    // Therefore, the initial template file will no longer be deployed.
+    // new S3Deployment.BucketDeployment(this, 'DeploymentTemplate', {
+    //   memoryLimit: 512,
+    //   ephemeralStorageSize: Size.gibibytes(1),
+    //   sources: [S3Deployment.Source.asset('config/template')],
+    //   destinationBucket: props.bucket,
+    //   destinationKeyPrefix: 'template',
+    // });
 
     const databaseInput: CfnDatabase.DatabaseInputProperty = {
       name: `${SolutionInfo.SOLUTION_GLUE_DATABASE}`,
