@@ -43,7 +43,7 @@ from awsglueml.transforms import EntityDetector
 from awsglue.dynamicframe import DynamicFrame
 
 
-def get_template(s3, bucket_name, object_name):
+def get_template(s3, bucket_name, template_id, template_snapshot_no):
     """
     get_template is used to download regex template file from bucket name and 
     use json to load the contents.
@@ -51,15 +51,26 @@ def get_template(s3, bucket_name, object_name):
     Args:
         s3: The boto3 client used to download the template
         bucket_name: The bucket name to download template file from.
-        object_name: The path of regex template file in bucket_name.
+        template_id: The template id to download template file from.
+        template_snapshot_no: The template snapshot number to download template file from.
     
     Returns:
         the regex templates as a python dict.
     """
+
+    object_name = f"template/template-{template_id}-{template_snapshot_no}.json"
     with tempfile.TemporaryFile() as data:
-        s3.download_fileobj(bucket_name, object_name, data)
-        data.seek(0)
-        return json.loads(data.read().decode('utf-8'))
+        try:
+            s3.download_fileobj(bucket_name, object_name, data)
+            data.seek(0)
+            return json.loads(data.read().decode('utf-8'))
+        except Exception as e:
+            if template_snapshot_no == 'init':
+                print(f'It seems you did not choose any identifier in the template. Empty template will be used.')
+            else:
+                print(f'Error occured downloading template file from {bucket_name}/{object_name}. Might be caused by recent update to 1.0.1.')
+                print(e)
+            return {"template_id":1,"template_name":"empty-template","identifiers":[]}
 
 class ColumnDetector:
     """
@@ -501,7 +512,7 @@ if __name__ == "__main__":
     error = []
 
     # Get the template from s3 and broadcast it to all the executors
-    template = get_template(s3, args['BucketName'], f"template/template-{args['TemplateId']}-{args['TemplateSnapshotNo']}.json")
+    template = get_template(s3, args['BucketName'], args['TemplateId'], args['TemplateSnapshotNo'])
     broadcast_template = sc.broadcast(template)
 
     crawler_tables = get_tables(full_database_name, region, base_time, args)
