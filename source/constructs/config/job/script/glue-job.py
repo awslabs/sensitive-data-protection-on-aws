@@ -218,6 +218,14 @@ def get_table_info(table, args):
         rds_instance_id = args["DatabaseName"]
     return s3_location, s3_bucket, rds_instance_id
 
+def post_process_glue_result(glue_result_df):
+    """
+    post_process_glue_result function aims to filter false positive results in Glue.
+    More rules will be added in this function in the future.
+    """
+    processed_glue_result_df = glue_result_df.filter((sf.col('entityType') != 'PERSON_NAME') | (sf.col('column_name').rlike("name|姓名|^col")))
+    return processed_glue_result_df
+
 def classifyColumnsAfterRowLevel(nonEmptySampledDf: DataFrame, thresholdFraction: float):
     """
     classifyColumnsAfterRowLevel function aims to summarize column level detection results
@@ -235,8 +243,9 @@ def classifyColumnsAfterRowLevel(nonEmptySampledDf: DataFrame, thresholdFraction
 
     glue_entities_df = nonEmptySampledDf.select(sf.explode(sf.col("DetectedEntities")).alias("column_name", "entities"))\
         .selectExpr("column_name", "explode(entities) as entity")\
-        .selectExpr("column_name", "entity.entityType")\
-        .withColumn("score", sf.lit(1.0)/rows)\
+        .selectExpr("column_name", "entity.entityType")
+    glue_entities_df = post_process_glue_result(glue_entities_df)
+    glue_entities_df = glue_entities_df.withColumn("score", sf.lit(1.0)/rows)\
         .groupBy('column_name', 'entityType').agg(sf.sum('score').alias('score'))\
         .where(f'score > {thresholdFraction}')\
         .withColumnRenamed("entityType", "identifier")\
