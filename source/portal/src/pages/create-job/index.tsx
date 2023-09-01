@@ -28,6 +28,7 @@ import {
   COLUMN_OBJECT_STR,
   DETECTION_THRESHOLD_OPTIONS,
   DbItemInfo,
+  CombinedRDSDatabase,
   FREQUENCY_TYPE,
   OVERRIDE_OPTIONS,
   RDS_CATALOG_COLUMS,
@@ -36,6 +37,7 @@ import {
   S3_CATALOG_COLUMS_OLDDATA,
   SCAN_DEPTH_OPTIONS,
   SCAN_RANGE_OPTIONS,
+  RDS_FOLDER_COLUMS,
 } from './types/create_data_type';
 import { getDataBaseByType, searchCatalogTables } from 'apis/data-catalog/api';
 import { createJob, getJobDetail, startJob } from 'apis/data-job/api';
@@ -114,6 +116,7 @@ const CreateJobContent = () => {
   const [rdsCatalogType, setRdsCatalogType] = useState('');
   const [s3CatalogData, setS3CatalogData] = useState([] as any);
   const [rdsCatalogData, setRdsCatalogData] = useState([] as any);
+  const [rdsFolderData, setRdsFolderData] = useState([] as any);
   const [currentPage, setCurrentPage] = useState(1);
   const [s3Total, setS3Total] = useState(0);
   const [rdsTotal, setRdsTotal] = useState(0);
@@ -170,7 +173,7 @@ const CreateJobContent = () => {
 
   const [timezone, setTimezone] = useState('');
 
-  const [exclusiveToggle, setExclusiveToggle] = useState(true);
+  const [exclusiveToggle, setExclusiveToggle] = useState(false);
   const [exclusiveText, setExclusiveText] = useState('');
 
   const hasOldData = oldData && Object.keys(oldData).length > 0;
@@ -199,17 +202,19 @@ const CreateJobContent = () => {
     }
   }, [exclusiveToggle]);
 
+  const [rdsSelectedView, setRdsSelectedView] = useState('rds-instance-view');
+
   useEffect(() => {
     if (s3CatalogType === SELECT_S3 && activeStepIndex === 0 && !hasOldData) {
       getS3CatalogData();
     }
     if (rdsCatalogType === SELECT_RDS && activeStepIndex === 1 && !hasOldData && rdsSelectedView === "rds-instance-view") {
+      setSelectedRdsItems([]);
       getRdsCatalogData();
-      console.log(71212);
     }
     if (rdsCatalogType === SELECT_RDS && activeStepIndex === 1 && !hasOldData && rdsSelectedView === "rds-table-view") {
-      getRdsCatalogData();
-      console.log(7878);
+      setSelectedRdsItems([]);
+      getRdsFolderData();
     }
   }, [
     rdsCatalogType,
@@ -218,6 +223,7 @@ const CreateJobContent = () => {
     s3Query,
     currentPage,
     preferences.pageSize,
+    rdsSelectedView,
   ]);
 
   useEffect(() => {
@@ -235,7 +241,7 @@ const CreateJobContent = () => {
     setFrequencyTimeStart({ label: '00:00', value: '0' });
   }, [frequencyType]);
 
-  const getDataFolders = async (nameFilter?: string) => {
+  const getRdsFolderData = async (nameFilter?: string) => {
     try {
       const requestParam: any = {
         page: currentPage,
@@ -243,8 +249,7 @@ const CreateJobContent = () => {
       };
 
       const result = await searchCatalogTables(requestParam);
-      // account_id region database_type database_name table_name
-      setPageData((result as any)?.items);
+      setRdsFolderData((result as any)?.items);
       setIsLoading(false);
     } catch (e) {
       console.error(e);
@@ -426,6 +431,14 @@ const CreateJobContent = () => {
       return false;
     }
     if (
+      rdsCatalogType === SELECT_RDS &&
+      selectedRdsItems.length > 50 &&
+      requestedStepIndex !== 1
+    ) {
+      alertMsg(t('job:selectLessItems'), 'error');
+      return false;
+    }
+    if (
       rdsCatalogType === NONE_RDS &&
       s3CatalogType === NONE_S3 &&
       requestedStepIndex >= 2
@@ -577,13 +590,39 @@ const CreateJobContent = () => {
       requestParamJob.databases =
         requestParamJob.databases.concat(s3CatalogList);
     }
-    if (rdsCatalogType === SELECT_RDS) {
+    if (rdsCatalogType === SELECT_RDS && rdsSelectedView === 'rds-instance-view') {
       const rdsCatalogList = selectedRdsItems.map((item: DbItemInfo) => {
         return {
           account_id: item.account_id,
           region: item.region,
           database_type: 'rds',
           database_name: item.database_name,
+          table_name: '',
+        };
+      });
+      requestParamJob.databases =
+        requestParamJob.databases.concat(rdsCatalogList);
+    }
+    if (rdsCatalogType === SELECT_RDS && rdsSelectedView === 'rds-table-view') {
+
+      const combined: CombinedRDSDatabase = {};
+
+      selectedRdsItems.forEach((item: DbItemInfo) => {
+        if (Object.prototype.hasOwnProperty.call(combined, item.database_name)) {
+          combined[item.database_name].push(item);
+        } else {
+          combined[item.database_name] = [item];
+        }
+      });
+    
+      const rdsCatalogList: any = Object.entries(combined).map(([database_name, table_items]) => {
+        const table_names = Array.from(new Set(table_items.map(item => item.table_name))).join(',');
+        return {
+          account_id: table_items[0].account_id,
+          region: table_items[0].region,
+          database_type: 'rds',
+          database_name: database_name,
+          table_name: table_names,
         };
       });
       requestParamJob.databases =
@@ -639,8 +678,6 @@ const CreateJobContent = () => {
     );
   };
   
-  const [rdsSelectedView, setRdsSelectedView] = useState('rds-instance-view');
-
   useEffect(() => {
     const getTimezone = () => {
       const offset = new Date().getTimezoneOffset();
@@ -916,116 +953,230 @@ const CreateJobContent = () => {
                             setRdsSelectedView(detail.selectedId)
                             }
                           />
-                          <Table
-                            className="job-table-width"
-                            resizableColumns
-                            variant="embedded"
-                            selectionType="multi"
-                            selectedItems={selectedRdsItems}
-                            onSelectionChange={({ detail }) =>
-                              setSelectedRdsItems(detail.selectedItems)
-                            }
-                            ariaLabels={{
-                              selectionGroupLabel:
-                                t('table.itemsSelection') || '',
-                              allItemsSelectionLabel: ({ selectedItems }) =>
-                                `${selectedItems.length} ${
-                                  selectedItems.length === 1
-                                    ? t('table.item')
-                                    : t('table.items')
-                                } ${t('table.selected')}`,
-                              itemSelectionLabel: ({ selectedItems }, item) => {
-                                const isItemSelected = selectedItems.filter(
-                                  (i) =>
-                                    (i as any)[S3_CATALOG_COLUMS[0].id] ===
+                          {rdsSelectedView === "rds-instance-view" && (
+                            <Table
+                              className="job-table-width"
+                              resizableColumns
+                              variant="embedded"
+                              selectionType="multi"
+                              selectedItems={selectedRdsItems}
+                              onSelectionChange={({ detail }) =>
+                                setSelectedRdsItems(detail.selectedItems)
+                              }
+                              ariaLabels={{
+                                selectionGroupLabel:
+                                  t('table.itemsSelection') || '',
+                                allItemsSelectionLabel: ({ selectedItems }) =>
+                                  `${selectedItems.length} ${
+                                    selectedItems.length === 1
+                                      ? t('table.item')
+                                      : t('table.items')
+                                  } ${t('table.selected')}`,
+                                itemSelectionLabel: ({ selectedItems }, item) => {
+                                  const isItemSelected = selectedItems.filter(
+                                    (i) =>
+                                      (i as any)[S3_CATALOG_COLUMS[0].id] ===
+                                      (item as any)[S3_CATALOG_COLUMS[0].id]
+                                  ).length;
+                                  return `${
                                     (item as any)[S3_CATALOG_COLUMS[0].id]
-                                ).length;
-                                return `${
-                                  (item as any)[S3_CATALOG_COLUMS[0].id]
-                                } ${t('table.is')} ${
-                                  isItemSelected ? '' : t('table.not')
-                                } ${t('table.selected')}`;
-                              },
-                            }}
-                            items={rdsCatalogData}
-                            filter={<ResourcesFilter {...rdsFilterProps} />}
-                            columnDefinitions={RDS_CATALOG_COLUMS.map((item) => {
-                              return {
-                                id: item.id,
-                                header: t(item.label),
-                                cell: (e: any) => {
-                                  if (item.id === 'size_key') {
-                                    return formatSize((e as any)[item.id]);
-                                  }
-                                  if (item.id === 'privacy') {
-                                    if (
-                                      (e as any)[item.id] &&
-                                      ((e as any)[item.id] === 'N/A' ||
-                                        (e as any)[item.id].toString() ===
-                                          PRIVARY_TYPE_INT_DATA['N/A'])
-                                    ) {
-                                      return 'N/A';
-                                    }
-                                    return (
-                                      <CommonBadge
-                                        badgeType={BADGE_TYPE.Privacy}
-                                        badgeLabel={(e as any)[item.id]}
-                                      />
-                                    );
-                                  }
-                                  return e[item.id];
+                                  } ${t('table.is')} ${
+                                    isItemSelected ? '' : t('table.not')
+                                  } ${t('table.selected')}`;
                                 },
-                              };
-                            })}
-                            loading={isLoading}
-                            pagination={
-                              <Pagination
-                                currentPageIndex={currentPage}
-                                onChange={({ detail }) =>
-                                  setCurrentPage(detail.currentPageIndex)
-                                }
-                                pagesCount={Math.ceil(
-                                  rdsTotal / preferences.pageSize
-                                )}
-                                ariaLabels={{
-                                  nextPageLabel: t('table.nextPage') || '',
-                                  previousPageLabel:
-                                    t('table.previousPage') || '',
-                                  pageLabel: (pageNumber) =>
-                                    `${t('table.pageLabel', {
-                                      pageNumber: pageNumber,
-                                    })}`,
-                                }}
+                              }}
+                              items={rdsCatalogData}
+                              filter={<ResourcesFilter {...rdsFilterProps} />}
+                              columnDefinitions={RDS_CATALOG_COLUMS.map((item) => {
+                                return {
+                                  id: item.id,
+                                  header: t(item.label),
+                                  cell: (e: any) => {
+                                    if (item.id === 'size_key') {
+                                      return formatSize((e as any)[item.id]);
+                                    }
+                                    if (item.id === 'privacy') {
+                                      if (
+                                        (e as any)[item.id] &&
+                                        ((e as any)[item.id] === 'N/A' ||
+                                          (e as any)[item.id].toString() ===
+                                            PRIVARY_TYPE_INT_DATA['N/A'])
+                                      ) {
+                                        return 'N/A';
+                                      }
+                                      return (
+                                        <CommonBadge
+                                          badgeType={BADGE_TYPE.Privacy}
+                                          badgeLabel={(e as any)[item.id]}
+                                        />
+                                      );
+                                    }
+                                    return e[item.id];
+                                  },
+                                };
+                              })}
+                              loading={isLoading}
+                              pagination={
+                                <Pagination
+                                  currentPageIndex={currentPage}
+                                  onChange={({ detail }) =>
+                                    setCurrentPage(detail.currentPageIndex)
+                                  }
+                                  pagesCount={Math.ceil(
+                                    rdsTotal / preferences.pageSize
+                                  )}
+                                  ariaLabels={{
+                                    nextPageLabel: t('table.nextPage') || '',
+                                    previousPageLabel:
+                                      t('table.previousPage') || '',
+                                    pageLabel: (pageNumber) =>
+                                      `${t('table.pageLabel', {
+                                        pageNumber: pageNumber,
+                                      })}`,
+                                  }}
+                                />
+                              }
+                              preferences={
+                                <CollectionPreferences
+                                  onConfirm={({ detail }) => setPreferences(detail)}
+                                  preferences={preferences}
+                                  title={t('table.preferences')}
+                                  confirmLabel={t('table.confirm')}
+                                  cancelLabel={t('table.cancel')}
+                                  pageSizePreference={{
+                                    title: t('table.selectPageSize'),
+                                    options: [
+                                      { value: 10, label: t('table.pageSize10') },
+                                      { value: 20, label: t('table.pageSize20') },
+                                      { value: 50, label: t('table.pageSize50') },
+                                      { value: 100, label: t('table.pageSize100') },
+                                    ],
+                                  }}
+                                  visibleContentPreference={{
+                                    title: t('table.selectVisibleContent'),
+                                    options: [
+                                      {
+                                        label: t('table.mainDistributionProp'),
+                                        options: S3_CATALOG_COLUMS,
+                                      },
+                                    ],
+                                  }}
+                                />
+                              }
                               />
-                            }
-                            preferences={
-                              <CollectionPreferences
-                                onConfirm={({ detail }) => setPreferences(detail)}
-                                preferences={preferences}
-                                title={t('table.preferences')}
-                                confirmLabel={t('table.confirm')}
-                                cancelLabel={t('table.cancel')}
-                                pageSizePreference={{
-                                  title: t('table.selectPageSize'),
-                                  options: [
-                                    { value: 10, label: t('table.pageSize10') },
-                                    { value: 20, label: t('table.pageSize20') },
-                                    { value: 50, label: t('table.pageSize50') },
-                                    { value: 100, label: t('table.pageSize100') },
-                                  ],
-                                }}
-                                visibleContentPreference={{
-                                  title: t('table.selectVisibleContent'),
-                                  options: [
-                                    {
-                                      label: t('table.mainDistributionProp'),
-                                      options: S3_CATALOG_COLUMS,
-                                    },
-                                  ],
-                                }}
+                            )}
+                          {rdsSelectedView === "rds-table-view" && (
+                            <Table
+                              className="job-table-width"
+                              resizableColumns
+                              variant="embedded"
+                              selectionType="multi"
+                              selectedItems={selectedRdsItems}
+                              onSelectionChange={({ detail }) =>
+                                setSelectedRdsItems(detail.selectedItems)
+                              }
+                              ariaLabels={{
+                                selectionGroupLabel:
+                                  t('table.itemsSelection') || '',
+                                allItemsSelectionLabel: ({ selectedItems }) =>
+                                  `${selectedItems.length} ${
+                                    selectedItems.length === 1
+                                      ? t('table.item')
+                                      : t('table.items')
+                                  } ${t('table.selected')}`,
+                                itemSelectionLabel: ({ selectedItems }, item) => {
+                                  const isItemSelected = selectedItems.filter(
+                                    (i) =>
+                                      (i as any)[S3_CATALOG_COLUMS[0].id] ===
+                                      (item as any)[S3_CATALOG_COLUMS[0].id]
+                                  ).length;
+                                  return `${
+                                    (item as any)[S3_CATALOG_COLUMS[0].id]
+                                  } ${t('table.is')} ${
+                                    isItemSelected ? '' : t('table.not')
+                                  } ${t('table.selected')}`;
+                                },
+                              }}
+                              items={rdsFolderData}
+                              filter={<ResourcesFilter {...rdsFilterProps} />}
+                              columnDefinitions={RDS_FOLDER_COLUMS.map((item) => {
+                                return {
+                                  id: item.id,
+                                  header: t(item.label),
+                                  cell: (e: any) => {
+                                    if (item.id === 'size_key') {
+                                      return formatSize((e as any)[item.id]);
+                                    }
+                                    if (item.id === 'privacy') {
+                                      if (
+                                        (e as any)[item.id] &&
+                                        ((e as any)[item.id] === 'N/A' ||
+                                          (e as any)[item.id].toString() ===
+                                            PRIVARY_TYPE_INT_DATA['N/A'])
+                                      ) {
+                                        return 'N/A';
+                                      }
+                                      return (
+                                        <CommonBadge
+                                          badgeType={BADGE_TYPE.Privacy}
+                                          badgeLabel={(e as any)[item.id]}
+                                        />
+                                      );
+                                    }
+                                    return e[item.id];
+                                  },
+                                };
+                              })}
+                              loading={isLoading}
+                              pagination={
+                                <Pagination
+                                  currentPageIndex={currentPage}
+                                  onChange={({ detail }) =>
+                                    setCurrentPage(detail.currentPageIndex)
+                                  }
+                                  pagesCount={Math.ceil(
+                                    rdsTotal / preferences.pageSize
+                                  )}
+                                  ariaLabels={{
+                                    nextPageLabel: t('table.nextPage') || '',
+                                    previousPageLabel:
+                                      t('table.previousPage') || '',
+                                    pageLabel: (pageNumber) =>
+                                      `${t('table.pageLabel', {
+                                        pageNumber: pageNumber,
+                                      })}`,
+                                  }}
+                                />
+                              }
+                              preferences={
+                                <CollectionPreferences
+                                  onConfirm={({ detail }) => setPreferences(detail)}
+                                  preferences={preferences}
+                                  title={t('table.preferences')}
+                                  confirmLabel={t('table.confirm')}
+                                  cancelLabel={t('table.cancel')}
+                                  pageSizePreference={{
+                                    title: t('table.selectPageSize'),
+                                    options: [
+                                      { value: 10, label: t('table.pageSize10') },
+                                      { value: 20, label: t('table.pageSize20') },
+                                      { value: 50, label: t('table.pageSize50') },
+                                      { value: 100, label: t('table.pageSize100') },
+                                    ],
+                                  }}
+                                  visibleContentPreference={{
+                                    title: t('table.selectVisibleContent'),
+                                    options: [
+                                      {
+                                        label: t('table.mainDistributionProp'),
+                                        options: S3_CATALOG_COLUMS,
+                                      },
+                                    ],
+                                  }}
+                                />
+                              }
                               />
-                            }
-                          />
+                            )}
                         </>
                       )}
                     </SpaceBetween>
@@ -1423,7 +1574,7 @@ const CreateJobContent = () => {
                 <SpaceBetween direction="vertical" size="l">
                   <FormField label={t('job:create.targetDataCatalogs')}>
                     <span className="sources-title">
-                      {t('job:create.s3Bucket')} {S3_OPTION[s3CatalogType]}
+                      {t('job:create.s3Bucket')} ({S3_OPTION[s3CatalogType]}) :
                     </span>
                     {s3CatalogType === SELECT_S3 && (
                       <ul>
@@ -1459,38 +1610,76 @@ const CreateJobContent = () => {
                       </ul>
                     )}
                     <br></br>
-                    <span className="sources-title">
-                      {t('job:create.rdsInstance')} {RDS_OPTION[rdsCatalogType]}
-                    </span>
-                    {rdsCatalogType === SELECT_RDS &&
-                      selectedRdsItems.map(
-                        (
-                          item: {
-                            database_name:
-                              | string
-                              | number
-                              | boolean
-                              | React.ReactElement<
-                                  any,
-                                  string | React.JSXElementConstructor<any>
+                    {rdsSelectedView === "rds-instance-view" && (
+                      <>
+                        <span className="sources-title">
+                          {t('job:create.rdsInstance')} ({RDS_OPTION[rdsCatalogType]}) :
+                        </span>
+                        {rdsCatalogType === SELECT_RDS &&
+                          selectedRdsItems.map(
+                            (
+                              item: {
+                                database_name:
+                                  | string
+                                  | number
+                                  | boolean
+                                  | React.ReactElement<
+                                      any,
+                                      string | React.JSXElementConstructor<any>
+                                    >
+                                  | React.ReactFragment
+                                  | React.ReactPortal
+                                  | null
+                                  | undefined;
+                              },
+                              index: string
+                            ) => {
+                              return (
+                                <li
+                                  className="sources-title-detail"
+                                  key={SELECT_RDS + index}
                                 >
-                              | React.ReactFragment
-                              | React.ReactPortal
-                              | null
-                              | undefined;
-                          },
-                          index: string
-                        ) => {
-                          return (
-                            <span
-                              className="sources-title-detail"
-                              key={SELECT_RDS + index}
-                            >
-                              {item.database_name}
-                            </span>
-                          );
-                        }
-                      )}
+                                  {item.database_name}
+                                </li>
+                              );
+                            }
+                          )}
+                        </>)}
+                    {rdsSelectedView === "rds-table-view" && (
+                      <>
+                        <span className="sources-title">
+                          {t('job:create.rdsTable')} ({RDS_OPTION[rdsCatalogType]}) :
+                        </span>
+                        {rdsCatalogType === SELECT_RDS &&
+                          selectedRdsItems.map(
+                            (
+                              item: {
+                                table_name:
+                                  | string
+                                  | number
+                                  | boolean
+                                  | React.ReactElement<
+                                      any,
+                                      string | React.JSXElementConstructor<any>
+                                    >
+                                  | React.ReactFragment
+                                  | React.ReactPortal
+                                  | null
+                                  | undefined;
+                              },
+                              index: string
+                            ) => {
+                              return (
+                                <li
+                                  className="sources-title-detail"
+                                  key={SELECT_RDS + index}
+                                >
+                                  {item.table_name}
+                                </li>
+                              );
+                            }
+                          )}
+                        </>)}
                   </FormField>
                   <FormField label={t('job:create.name')}>
                     <span>{jobName}</span>

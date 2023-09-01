@@ -1,6 +1,6 @@
 {
   "filterBuckets": "Filter Buckets",
-  "filterInstances": "Filter instances",
+  "filterInstances": "Filter items",
   "selectOnCatalog": "You must selected one catalog at least!",
   "inputJobName": "Please input job name",
   "freqTypeError": "Frequency type error",
@@ -17,6 +17,7 @@
   "manageJobs": "Manage sensitive data discovery jobs.",
   "jobs": "Jobs",
   "jobsDesc": "Sensitive data discovery jobs.",
+  "selectLessItems": "Please do not select more than 50 items.",
   "create": {
     "title": "Create sensitive data discovery job",
     "seelctS3DataCatalog": "Select data catalogs (S3)",
@@ -58,7 +59,8 @@
     "jobPreview": "Job preview",
     "targetDataCatalogs": "Target data catalogs",
     "s3Bucket": "S3 bucket: ",
-    "rdsInstance": "RDS instance:  ",
+    "rdsInstance": "RDS instance",
+    "rdsTable": "RDS table",
     "exclusiveRules": "Advanced settings: Exclusive rules",
     "exclusiveRulesDesc": "Exclude keywords in column header and context. The solution will not mark data as PII.",
     "exclusiveRulesToggle": "Ignore keywords in column header o context.",

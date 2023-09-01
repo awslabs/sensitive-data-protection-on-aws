@@ -125,6 +125,7 @@ const CatalogList: React.FC<any> = memo((props: any) => {
 
   // onload data
   useEffect(() => {
+    preferences.visibleContent = columnList.map((o) => o.id);
     getPageData();
   }, [rdsSelectedView]);
 
