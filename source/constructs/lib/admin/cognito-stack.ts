@@ -42,7 +42,7 @@ export class CognitoStack extends Construct {
       allowedPattern: '^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$',
       description: 'Please fill in the administrator email, and the temporary password will be sent to this email.',
     });
-    Parameter.addToParamLabels('Administrator', adminEmail.logicalId);
+    Parameter.addToParamLabels('AdminEmail', adminEmail.logicalId);
     Parameter.addToParamGroups(
       'Administrator',
       adminEmail.logicalId,

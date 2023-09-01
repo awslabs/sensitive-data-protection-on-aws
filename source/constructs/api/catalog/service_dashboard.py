@@ -65,14 +65,14 @@ def agg_catalog_summay(database_type: str):
     return result_dict
 
 
-def agg_catalog_summary_by_attr(database_type: str,  agg_attribute: str):
+def agg_catalog_summary_by_attr(database_type: str,  agg_attribute: str, need_merge: bool):
     result_list = []
     if database_type == DatabaseType.S3.value:
-        attr_rows = crud.get_s3_database_summary_with_attr(agg_attribute)
+        attr_rows = crud.get_s3_database_summary_with_attr(agg_attribute, need_merge)
         return attr_rows
 
     elif database_type == DatabaseType.RDS.value:
-        attr_rows = crud.get_rds_database_summary_with_attr(agg_attribute)
+        attr_rows = crud.get_rds_database_summary_with_attr(agg_attribute, need_merge)
         return attr_rows
     else: 
         raise BizException(
@@ -164,7 +164,7 @@ def agg_catalog_summary_by_modifier(database_type: str):
             MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_msg(),
         )
     
-    attr_rows = crud.get_s3_database_summary_with_attr("modify_by") if database_type == DatabaseType.S3.value else crud.get_rds_database_summary_with_attr("modify_by")
+    attr_rows = crud.get_s3_database_summary_with_attr("modify_by", False) if database_type == DatabaseType.S3.value else crud.get_rds_database_summary_with_attr("modify_by", False)
     result_dict = {}
     for row in attr_rows:
         modifier = CatalogModifier.SYSTEM.value

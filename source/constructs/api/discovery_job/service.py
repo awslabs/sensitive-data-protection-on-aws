@@ -226,6 +226,7 @@ def __start_run(job_id: int, run_id: int):
         else:
             account_loop_wait[account_id] = const.JOB_INTERVAL_WAIT
 
+    job_placeholder = ","
     account_first_wait = {}
     for run_database in run_databases:
         try:
@@ -252,8 +253,10 @@ def __start_run(job_id: int, run_id: int):
                 "Region": run_database.region,
                 "DatabaseType": run_database.database_type,
                 "DatabaseName": run_database.database_name,
+                "TableName": job_placeholder if run_database.table_name == const.EMPTY_STR or run_database.table_name is None else run_database.table_name,
                 "TemplateId": str(job.template_id),
                 "TemplateSnapshotNo": str(run.template_snapshot_no),
+                "ExcludeKeywords": job_placeholder if run.exclude_keywords == const.EMPTY_STR or run.exclude_keywords is None else run.exclude_keywords,
                 "Depth": str(job.depth),
                 "BaseTime": base_time,
                 # "JobBookmarkOption": job_bookmark_option,

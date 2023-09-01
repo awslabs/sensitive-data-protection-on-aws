@@ -113,11 +113,11 @@ export class AcmStack extends Construct {
     acmTrigger.node.addDependency(acmFunction);
     this.certificateArn = acmTrigger.getAttString('CertificateArn');
 
-    const showCertificate = new CfnCondition(this, 'IsHttp', { expression: Fn.conditionEquals(props.certificateArn, '') });
-    const certificateS3Key = acmTrigger.getAttString('CertificateS3Key');
-    new CfnOutput(scope, 'ServerRootCertificate', {
-      description: 'Server Root Certificate',
-      value: certificateS3Key,
-    }).condition = showCertificate;
+    // const showCertificate = new CfnCondition(this, 'IsHttp', { expression: Fn.conditionEquals(props.certificateArn, '') });
+    // const certificateS3Key = acmTrigger.getAttString('CertificateS3Key');
+    // new CfnOutput(scope, 'ServerRootCertificate', {
+    //   description: 'Server Root Certificate',
+    //   value: certificateS3Key,
+    // }).condition = showCertificate;
   }
 }

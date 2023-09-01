@@ -72,6 +72,21 @@ def search_catalog_tables_by_database(condition: QueryCondition):
     return rlt
 
 
+@router.post(
+    "/search-tables",
+    # response_model=BaseResponse[Page[schemas.CatalogTableLevelClassification]],
+)
+@inject_session
+def search_catalog_tables(condition: QueryCondition):
+    catalogs = crud.search_catalog_table_level_classification(condition)
+    rlt = paginate(catalogs, Params(
+        size=condition.size,
+        page=condition.page,
+    ))
+    service.fill_catalog_labels(rlt.items)
+    return rlt
+
+
 @router.get(
     "/get-databases-by-account-region-type",
     # response_model=BaseResponse[Page[schemas.CatalogDatabaseLevelClassification]],
@@ -289,14 +304,14 @@ def agg_catalog_summay(database_type: str):
 @inject_session
 def agg_catalog_summary_by_region(database_type: str):
 
-    return service_dashboard.agg_catalog_summary_by_attr(database_type, CatalogDashboardAttribute.REGION.value)
+    return service_dashboard.agg_catalog_summary_by_attr(database_type, CatalogDashboardAttribute.REGION.value, False)
 
 
 @router.get("/dashboard/agg-catalog-summay-by-privacy", response_model=BaseResponse)
 @inject_session
 def agg_catalog_summary_by_privacy(database_type: str):
 
-    return service_dashboard.agg_catalog_summary_by_attr(database_type, CatalogDashboardAttribute.PRIVACY.value)
+    return service_dashboard.agg_catalog_summary_by_attr(database_type, CatalogDashboardAttribute.PRIVACY.value, True)
 
 
 @router.get("/dashboard/agg-catalog-top-n", response_model=BaseResponse)
