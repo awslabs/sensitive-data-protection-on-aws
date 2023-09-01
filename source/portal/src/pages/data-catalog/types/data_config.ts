@@ -462,6 +462,39 @@ export const S3_FILTER_COLUMN = [
   },
 ];
 
+export const RDS_TABLE_FILTER_COLUMN = [
+  {
+    id: COLUMN_OBJECT_STR.FolderName,
+    label: 'table.label.tables',
+    filter: true,
+  },
+  {
+    id: 'table_count',
+    label: 'table.label.table',
+    filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.Privacy,
+    label: 'table.label.privacy',
+    filter: true,
+  },
+  {
+    id: 'storage_location',
+    label: 'table.label.engineType',
+    filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.AccountId,
+    label: 'table.label.awsAccount',
+    filter: true,
+  },
+  {
+    id: 'region',
+    label: 'table.label.awsRegion',
+    filter: true,
+  },
+];
+
 export const RDS_FILTER_COLUMN = [
   {
     id: 'database_name',
