@@ -47,12 +47,6 @@ import { SolutionInfo } from '../common/solution-info';
 
 export interface RdsProps {
   vpc: IVpc;
-  /**
-   * Indicate whether to create a new VPC or use existing VPC for this Solution.
-   *
-   * @default - false.
-   */
-  existingVpc?: boolean;
 }
 
 /**

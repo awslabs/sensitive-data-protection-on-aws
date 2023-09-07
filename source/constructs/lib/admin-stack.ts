@@ -187,7 +187,6 @@ export class AdminStack extends Stack {
 
     const rdsStack = new RdsStack(this, 'RDS', {
       vpc: vpcStack.vpc,
-      existingVpc: props?.existingVpc,
     });
 
     new GlueStack(this, 'Glue', {

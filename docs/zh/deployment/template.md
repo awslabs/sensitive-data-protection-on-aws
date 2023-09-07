@@ -6,15 +6,17 @@
 
 ## 亚马逊云科技全球区域
 
-- [在新 VPC 中启动解决方案的管理员帐户模板 (Admin template)](https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/Admin.template.json)
-- [在现有 VPC 中启动解决方案的管理员帐户模板 (Admin template)](https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/AdminExistVpc.template.json)
+- [在新 VPC 中启动带身份提供商的管理员帐户模板 (Admin template)](https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/AdminWithIdP.template.json)
+- [在现有 VPC 中启动带身份提供商的管理员帐户模板 (Admin template)](https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/AdminExistVpcWithIdP.template.json)
+- [在新 VPC 中启动管理员帐户模板 (Admin template)](https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/Admin.template.json)
+- [在现有 VPC 中启动管理员帐户模板 (Admin template)](https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/AdminExistVpc.template.json)
 - [被监控帐户的模板 (Agent template)](https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/Agent.template.json)
 - [IT 帐户的模板 (IT template)](https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/IT.template.json)
 
 ## 亚马逊云科技中国区域
 
-- [在新 VPC 中启动解决方案的管理员帐户模板 (Admin template)](https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/Admin.template.json)
-- [在现有 VPC 中启动解决方案的管理员帐户模板 (Admin template)](https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/AdminExistVpc.template.json)
+- [在新 VPC 中启动管理员帐户模板 (Admin template)](https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/Admin.template.json)
+- [在现有 VPC 中启动管理员帐户模板 (Admin template)](https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/AdminExistVpc.template.json)
 - [被监控帐户的模板 (Agent template)](https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/Agent.template.json)
 - [IT 帐户的模板 (IT template)](https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/IT.template.json)
 
