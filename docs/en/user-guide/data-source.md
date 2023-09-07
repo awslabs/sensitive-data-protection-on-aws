@@ -1,7 +1,7 @@
 # Connect to data source
 The first step for using Sensitive Data Protection is to onboard AWS accounts. To do so, you need to deploy an "Agent CloudFormation Stack" in the AWS account.
 
-For the permissions required by the agent stack, refer to [Appendix: Permissions for agent Cloudformation stack](appendix-agent-stack.md).
+For the permissions required by the agent stack, refer to [Appendix: Permissions for agent Cloudformation stack](appendix-permissions.md).
 
 ## Add AWS accounts (individually)
 
