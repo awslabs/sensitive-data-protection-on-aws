@@ -248,6 +248,7 @@ export class AdminStack extends Stack {
         oidcIssuer: oidcIssuerValue,
         oidcClientId: oidcClientIdValue,
         domainName: domainName.valueAsString,
+        useCognito: props?.useCognito,
       });
       (httpsAlbStack.nestedStackResource as CfnStack).cfnOptions.condition = isHttps;
 
@@ -283,6 +284,7 @@ export class AdminStack extends Stack {
         oidcIssuer: oidcIssuerValue,
         oidcClientId: oidcClientIdValue,
         domainName: domainName.valueAsString,
+        useCognito: props?.useCognito,
       });
       (httpsAlbStack.nestedStackResource as CfnStack).cfnOptions.condition = isHttps;
 

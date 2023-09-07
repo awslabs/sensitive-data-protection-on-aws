@@ -42,6 +42,7 @@ title "cdk synth"
 run cd ${SRC_PATH}
 
 sed -i "s|@TEMPLATE_SOLUTION_VERSION@|$SOLUTION_VERSION|"g lib/admin/database/*/*.sql
+sed -i "s|@TEMPLATE_SOLUTION_VERSION@|$SOLUTION_VERSION|"g lib/agent/DiscoveryJob.json
 sed -i "s|@TEMPLATE_SOLUTION_VERSION@|$SOLUTION_VERSION|"g ../portal/src/pages/add-account/types/*.ts
 
 run npm install 

@@ -11,21 +11,13 @@
  *  and limitations under the License.
  */
 
-import * as path from 'path';
 import {
   Aws, CfnOutput, CfnParameter, CustomResource, Duration, RemovalPolicy,
 } from 'aws-cdk-lib';
-import { UserPool, VerificationEmailStyle, AdvancedSecurityMode, UserPoolDomain, OAuthScope, CfnUserPoolUser } from 'aws-cdk-lib/aws-cognito';
-import { PolicyStatement, Effect, Role, ServicePrincipal, Policy } from 'aws-cdk-lib/aws-iam';
-import {
-  Code, Function,
-  LayerVersion,
-  Runtime,
-} from 'aws-cdk-lib/aws-lambda';
+import { UserPool, VerificationEmailStyle, AdvancedSecurityMode, UserPoolDomain, OAuthScope, CfnUserPoolUser, AccountRecovery } from 'aws-cdk-lib/aws-cognito';
 import { Construct } from 'constructs';
-import { BuildConfig } from '../common/build-config';
-import { SolutionInfo } from '../common/solution-info';
 import { Parameter } from '../common/parameter';
+import { SolutionInfo } from '../common/solution-info';
 
 export interface CognitoProps {
 }
@@ -51,6 +43,7 @@ export class CognitoStack extends Construct {
     const userPool = new UserPool(this, 'UserPool', {
       selfSignUpEnabled: false,
       signInCaseSensitive: false,
+      accountRecovery: AccountRecovery.EMAIL_ONLY,
       removalPolicy: RemovalPolicy.DESTROY,
       signInAliases: {
         email: true,
@@ -99,6 +92,10 @@ export class CognitoStack extends Construct {
         {
           name: 'email',
           value: email,
+        },
+        {
+          name: 'email_verified',
+          value: 'true',
         },
       ],
     });

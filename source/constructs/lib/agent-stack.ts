@@ -86,6 +86,7 @@ export class AgentStack extends Stack {
           'states:GetExecutionHistory',
           'states:StartExecution',
           'states:StopExecution',
+          'states:DescribeStateMachine',
           'states:UpdateStateMachine',
           'states:DeleteStateMachine',
           'states:CreateStateMachine',
