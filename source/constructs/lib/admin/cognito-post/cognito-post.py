@@ -58,7 +58,7 @@ def send_response(event, response_status = "SUCCESS", reason = "OK", data = {}):
 def on_create(event):
     logger.info("Got create")
     properties = event["ResourceProperties"]
-    update_user_pool_client(properties["UserPoolId"], properties["UserPoolClientId"], properties["CallbackUrl"])
+    update_user_pool_client(properties["UserPoolId"], properties["UserPoolClientId"], properties["CallbackUrl"], properties["LogoutUrl"])
 
 
 def on_update(event):
@@ -70,17 +70,16 @@ def on_delete(event):
     logger.info("Got Delete")
 
 
-def update_user_pool_client(user_pool_id: str, client_id: str, url):
+def update_user_pool_client(user_pool_id: str, client_id: str, callback_url: str, logout_url: str):
     cognito_client = boto3.client('cognito-idp')
     describe_response = cognito_client.describe_user_pool_client(UserPoolId=user_pool_id,
         ClientId=client_id,)
     user_pool_client = describe_response['UserPoolClient']
-    urls = [url]
     update_response = cognito_client.update_user_pool_client(
         UserPoolId=user_pool_id,
         ClientId=client_id,
-        CallbackURLs=urls,
-        LogoutURLs=urls,
+        CallbackURLs=[callback_url],
+        LogoutURLs=[logout_url],
         SupportedIdentityProviders=user_pool_client['SupportedIdentityProviders'],
         AllowedOAuthFlows=user_pool_client['AllowedOAuthFlows'],
         AllowedOAuthScopes=user_pool_client['AllowedOAuthScopes'],
