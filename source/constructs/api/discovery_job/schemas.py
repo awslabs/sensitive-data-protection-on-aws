@@ -15,13 +15,13 @@ class DiscoveryJobRunDatabaseBase(BaseModel):
     start_time: Optional[datetime.datetime]
     end_time: Optional[datetime.datetime]
     state: Optional[str]
-    log: Optional[str]
+    error_log: Optional[str]
 
 
 class DiscoveryJobRunDatabaseUpdate(BaseModel):
     end_time: Optional[datetime.datetime]
     state: Optional[str]
-    log: Optional[str]
+    error_log: Optional[str]
 
 
 class DiscoveryJobRunDatabase(DiscoveryJobRunDatabaseBase):

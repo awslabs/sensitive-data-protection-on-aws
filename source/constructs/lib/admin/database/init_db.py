@@ -61,6 +61,7 @@ def on_create(event):
 def on_update(event):
     logger.info("Got Update")
     main(event,"1.0.0-1.0.1")
+    main(event,"1.0.1-1.0.2")
 
 
 def on_delete(event):
