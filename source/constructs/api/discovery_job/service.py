@@ -277,7 +277,7 @@ def __start_run(job_id: int, run_id: int):
             msg = traceback.format_exc()
             run_database.state = RunDatabaseState.FAILED.value
             run_database.end_time = mytime.get_time()
-            run_database.log = msg
+            run_database.error_log = msg
             logger.exception("Run StepFunction exception:%s" % msg)
     crud.save_run_databases(run_databases)
 
@@ -318,7 +318,7 @@ def __start_sample_run(job_id: int, run_id: int, table_name: str):
             msg = traceback.format_exc()
             run_database.state = RunDatabaseState.FAILED.value
             run_database.end_time = mytime.get_time()
-            run_database.log = msg
+            run_database.error_log = msg
             logger.info(str(e))
             logger.exception("start_sample_run exception:%s" % msg)
     crud.save_run_databases(run_databases)
@@ -684,13 +684,13 @@ def check_running_run():
             continue
         if run_database_state == RunDatabaseState.NOT_EXIST.value:
             run_database.state = RunDatabaseState.NOT_EXIST.value
-            run_database.log = 'Execution Does Not Exist'
+            run_database.error_log = 'Execution Does Not Exist'
         elif run_database_state == RunDatabaseState.SUCCEEDED.value.upper():
             run_database.state = RunDatabaseState.SUCCEEDED.value
         elif run_database_state == RunDatabaseState.FAILED.value.upper():
             error_log = __get_run_error_log(run_database)
             run_database.state = RunDatabaseState.FAILED.value
-            run_database.log = error_log
+            run_database.error_log = error_log
         elif run_database_state == RunDatabaseState.ABORTED.value.upper():
             run_database.state = RunDatabaseState.STOPPED.value
 

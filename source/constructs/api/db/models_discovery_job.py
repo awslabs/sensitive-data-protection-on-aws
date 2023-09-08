@@ -87,7 +87,7 @@ class DiscoveryJobRunDatabase(Base):
     start_time = sa.Column(sa.DateTime())
     end_time = sa.Column(sa.DateTime())
     state = sa.Column(sa.String(10))
-    log = sa.Column(sa.String(8000))
+    error_log = sa.Column(sa.Text())
     uuid = sa.Column(sa.String(32))
     table_count = sa.Column(sa.Integer())
     version = sa.Column(sa.Integer())
