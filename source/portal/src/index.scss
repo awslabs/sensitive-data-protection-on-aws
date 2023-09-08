@@ -10,6 +10,13 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
+.hand-pointer {
+  cursor: pointer;
+  span {
+    text-decoration: underline;
+  }
+}
+
 .pt-10 {
   padding-top: 10px;
 }

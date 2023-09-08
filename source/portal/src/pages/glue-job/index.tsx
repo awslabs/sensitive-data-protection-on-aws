@@ -139,7 +139,7 @@ const GlueJobContent = () => {
     filteringPlaceholder: t('job:filterJobs'),
   };
 
-  const Badge = ({ jobRowData, needToUpper }: any) => {
+  const Badge = ({ className, jobRowData, needToUpper }: any) => {
     let tempType = CLSAAIFIED_TYPE.Success;
     if (jobRowData.state === 'Active (idle)') {
       tempType = CLSAAIFIED_TYPE.SystemMark;
@@ -158,6 +158,7 @@ const GlueJobContent = () => {
     }
     return (
       <CommonBadge
+        className={className}
         badgeType={BADGE_TYPE.Classified}
         badgeLabel={
           needToUpper ? jobRowData.state.toUpperCase() : jobRowData.state
@@ -289,11 +290,10 @@ const GlueJobContent = () => {
   };
 
   const showErrlogModal = (rowData: any) => {
-    if (!rowData.log) {
-      return;
+    if (rowData.state === 'Failed') {
+      setErrlogModal(true);
+      setErrrowData(rowData);
     }
-    setErrlogModal(true);
-    setErrrowData(rowData);
   };
 
   const clkCatalog = (rowData: any) => {
@@ -455,7 +455,13 @@ const GlueJobContent = () => {
                   if (item.id === 'state') {
                     return (
                       <div onClick={() => showErrlogModal(e)} className="h">
-                        <Badge jobRowData={e as any} needToUpper />
+                        <Badge
+                          className={
+                            (e as any).state === 'Failed' ? 'hand-pointer' : ''
+                          }
+                          jobRowData={e as any}
+                          needToUpper
+                        />
                       </div>
                     );
                   }
