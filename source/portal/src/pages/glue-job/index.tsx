@@ -289,9 +289,6 @@ const GlueJobContent = () => {
   };
 
   const showErrlogModal = (rowData: any) => {
-    if (!rowData.log) {
-      return;
-    }
     setErrlogModal(true);
     setErrrowData(rowData);
   };

@@ -54,7 +54,7 @@ const LayoutHeader: React.FC<LayoutHeaderProps> = ({
         : 'https://' + configData.aws_alb_url;
       const queryParams = new URLSearchParams({
         client_id: configJSONObj.aws_oidc_client_id,
-        id_token_hint: user.id_token,
+        id_token_hint: user?.id_token,
         logout_uri: redirectUrl,
         redirect_uri: redirectUrl,
         response_type: 'code',
