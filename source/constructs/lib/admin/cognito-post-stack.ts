@@ -30,6 +30,7 @@ export interface CognitoPostProps {
   readonly userPoolId: string;
   readonly userPoolClientId: string;
   readonly callbackUrl: string;
+  readonly logoutUrl: string;
 }
 
 export class CognitoPostStack extends Construct {
@@ -100,6 +101,7 @@ export class CognitoPostStack extends Construct {
         UserPoolId: props.userPoolId,
         UserPoolClientId: props.userPoolClientId,
         CallbackUrl: props.callbackUrl,
+        LogoutUrl: props.logoutUrl,
       },
     });
     acmTrigger.node.addDependency(cognitoPostFunction);

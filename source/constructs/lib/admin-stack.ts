@@ -258,6 +258,7 @@ export class AdminStack extends Stack {
           userPoolId: oidcUserPoolIdValue,
           userPoolClientId: oidcClientIdValue,
           callbackUrl: `${httpsAlbStack.url}${Constants.LoginCallbackUrlSuffix}`,
+          logoutUrl: httpsAlbStack.url,
         });
       }
     } else {
@@ -294,6 +295,7 @@ export class AdminStack extends Stack {
           userPoolId: oidcUserPoolIdValue,
           userPoolClientId: oidcClientIdValue,
           callbackUrl: `${httpsAlbStack.url}${Constants.LoginCallbackUrlSuffix}`,
+          logoutUrl: httpsAlbStack.url,
         });
       }
     }
