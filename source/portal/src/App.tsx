@@ -27,12 +27,6 @@ const CONFIG_URL =
     ? '/aws-exports.json'
     : '/config/getConfig';
 
-// const VERSION_URL =
-//   process.env.REACT_APP_ENV === 'development' ||
-//   process.env.REACT_APP_ENV === 'local'
-//     ? '/version/get-latest-version'
-//     : '/version/get-latest-version';
-
 const ERROR_TIME_KEY = 'OOPS_ERROR_TIMES';
 
 const AppBody: React.FC<SignedInPageProps> = ({ signOut, user }) => {
@@ -163,22 +157,22 @@ const App: React.FC = () => {
       configData.expired = +new Date() + configData.expired * 60 * 3600 * 1000;
     }
 
-
-
     if (configData.backend_url) {
       localStorage.setItem(BACKEND_URL_KEY, configData.backend_url);
     }
 
     // Get oidc logout url from openid configuration
     if (configData.aws_authenticationType === AppSyncAuthType.OPEN_ID) {
-      Axios.get(
-        `${configData.aws_oidc_issuer}/.well-known/openid-configuration`
-      ).then((res) => {
-        configData.aws_oidc_logout_endpoint = res.data.end_session_endpoint;
-        localStorage.setItem(AMPLIFY_CONFIG_JSON, JSON.stringify(configData));
-        initAuthentication(configData);
-        setLoadingConfig(false);
-      });
+      if (!configData.aws_oidc_logout) {
+        await Axios.get(
+          `${configData.aws_oidc_issuer}/.well-known/openid-configuration`
+        ).then((res) => {
+          configData.aws_oidc_logout = res.data.end_session_endpoint;
+        });
+      }
+      localStorage.setItem(AMPLIFY_CONFIG_JSON, JSON.stringify(configData));
+      initAuthentication(configData);
+      setLoadingConfig(false);
     } else {
       !originConfig &&
         localStorage.setItem(AMPLIFY_CONFIG_JSON, JSON.stringify(configData));
