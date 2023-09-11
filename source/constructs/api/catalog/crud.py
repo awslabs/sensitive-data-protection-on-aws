@@ -677,6 +677,7 @@ def get_rds_database_summary_with_attr(attribute: str, need_merge: bool):
             updated_database_list.append({
                 attribute: privacy,
                 "database_total": database["database_total"],
+                "instance_total": database["database_total"],
                 "row_total": row_total,
                 "size_total": database["size_total"],
                 "table_total": table_total
@@ -688,6 +689,7 @@ def get_rds_database_summary_with_attr(attribute: str, need_merge: bool):
                 updated_database_list.append({
                     attribute: privacy,
                     "database_total": 0,
+                    "instance_total": 0,
                     "row_total": row_total,
                     "size_total": 0,
                     "table_total": entry["table_total"]
@@ -700,6 +702,7 @@ def get_rds_database_summary_with_attr(attribute: str, need_merge: bool):
                 updated_database_list.append({
                     attribute: privacy,
                     "database_total": 0,
+                    "instance_total": 0,
                     "row_total": entry["row_total"],
                     "size_total": 0,
                     "table_total": table_total
