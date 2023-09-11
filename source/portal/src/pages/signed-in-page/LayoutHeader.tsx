@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import TopNavigation from '@cloudscape-design/components/top-navigation';
 import './style.scss';
-import { AmplifyConfigType, AppSyncAuthType } from 'ts/types';
+import { AmplifyConfigType } from 'ts/types';
 import { AMPLIFY_CONFIG_JSON, buildDocLink } from 'ts/common';
-import { User } from 'oidc-client-ts';
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
 
@@ -30,6 +29,7 @@ const LayoutHeader: React.FC<LayoutHeaderProps> = ({
   const [oidcStorageId, setOidcStorageId] = useState('');
   const originConfig = localStorage.getItem(AMPLIFY_CONFIG_JSON);
   const configData: AmplifyConfigType = JSON.parse(originConfig || '{}');
+  const [displayName, setDisplayName] = useState('');
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
@@ -48,29 +48,37 @@ const LayoutHeader: React.FC<LayoutHeaderProps> = ({
     )
       ? JSON.parse(localStorage.getItem(AMPLIFY_CONFIG_JSON) || '')
       : {};
-
-    if (configJSONObj.aws_authenticationType === AppSyncAuthType.OPEN_ID) {
-      const idToken =
-        process.env.REACT_APP_ENV === 'local' ||
-        process.env.REACT_APP_ENV === 'development'
-          ? ''
-          : User.fromStorageString(
-              localStorage.getItem(
-                `oidc.user:${configJSONObj.aws_oidc_issuer}:${configJSONObj.aws_oidc_client_id}`
-              ) || ''
-            )?.id_token;
-      setFullLogoutUrl(
-        `${
-          configJSONObj.aws_oidc_logout_endpoint
-        }?id_token_hint=${idToken}&post_logout_redirect_uri=${
-          configJSONObj.aws_oidc_customer_domain || configJSONObj.aws_alb_url
-        }`
-      );
+    if (configJSONObj.aws_oidc_logout) {
+      const redirectUrl = configJSONObj.aws_oidc_customer_domain
+        ? configJSONObj.aws_oidc_customer_domain.replace('/logincallback', '')
+        : 'https://' + configData.aws_alb_url;
+      const queryParams = new URLSearchParams({
+        client_id: configJSONObj.aws_oidc_client_id,
+        id_token_hint: user?.id_token,
+        logout_uri: redirectUrl,
+        redirect_uri: redirectUrl,
+        response_type: 'code',
+        post_logout_redirect_uri: redirectUrl,
+      });
+      const logoutUrl = new URL(configJSONObj.aws_oidc_logout);
+      logoutUrl.search = queryParams.toString();
+      setFullLogoutUrl(decodeURIComponent(logoutUrl.toString()));
       setOidcStorageId(
         `oidc.user:${configJSONObj.aws_oidc_issuer}:${configJSONObj.aws_oidc_client_id}`
       );
     }
   }, []);
+
+  useEffect(() => {
+    setDisplayName(
+      user?.profile?.email ||
+        user?.profile?.name ||
+        user?.profile?.preferred_username ||
+        user?.profile?.nickname ||
+        user?.profile?.sub ||
+        ''
+    );
+  }, [user]);
 
   return (
     <TopNavigation
@@ -93,8 +101,8 @@ const LayoutHeader: React.FC<LayoutHeaderProps> = ({
         },
         {
           type: 'menu-dropdown',
-          text: user?.profile?.email,
-          description: user?.profile?.email,
+          text: displayName,
+          description: displayName,
           iconName: 'user-profile',
           items: [
             {
@@ -109,7 +117,7 @@ const LayoutHeader: React.FC<LayoutHeaderProps> = ({
                 },
                 {
                   id: 'version',
-                  text: t('header.version')+" "+configData.version || '',
+                  text: t('header.version') + ' ' + configData.version || '',
                   disabled: true,
                   // href: RouterEnum.TimeLine.path,
                 },
@@ -119,9 +127,13 @@ const LayoutHeader: React.FC<LayoutHeaderProps> = ({
           ],
           onItemClick: (item) => {
             if (item.detail.id === 'signout') {
-              if (oidcStorageId && fullLogoutUrl) {
-                localStorage.removeItem(oidcStorageId);
+              localStorage.removeItem(oidcStorageId);
+              localStorage.removeItem(AMPLIFY_CONFIG_JSON);
+              if (fullLogoutUrl) {
+                signOut?.();
                 window.location.href = fullLogoutUrl;
+              } else {
+                signOut?.();
               }
             }
           },

@@ -187,7 +187,6 @@ export class AdminStack extends Stack {
 
     const rdsStack = new RdsStack(this, 'RDS', {
       vpc: vpcStack.vpc,
-      existingVpc: props?.existingVpc,
     });
 
     new GlueStack(this, 'Glue', {
@@ -249,6 +248,7 @@ export class AdminStack extends Stack {
         oidcIssuer: oidcIssuerValue,
         oidcClientId: oidcClientIdValue,
         domainName: domainName.valueAsString,
+        useCognito: props?.useCognito,
       });
       (httpsAlbStack.nestedStackResource as CfnStack).cfnOptions.condition = isHttps;
 
@@ -258,6 +258,7 @@ export class AdminStack extends Stack {
           userPoolId: oidcUserPoolIdValue,
           userPoolClientId: oidcClientIdValue,
           callbackUrl: `${httpsAlbStack.url}${Constants.LoginCallbackUrlSuffix}`,
+          logoutUrl: httpsAlbStack.url,
         });
       }
     } else {
@@ -284,6 +285,7 @@ export class AdminStack extends Stack {
         oidcIssuer: oidcIssuerValue,
         oidcClientId: oidcClientIdValue,
         domainName: domainName.valueAsString,
+        useCognito: props?.useCognito,
       });
       (httpsAlbStack.nestedStackResource as CfnStack).cfnOptions.condition = isHttps;
 
@@ -293,6 +295,7 @@ export class AdminStack extends Stack {
           userPoolId: oidcUserPoolIdValue,
           userPoolClientId: oidcClientIdValue,
           callbackUrl: `${httpsAlbStack.url}${Constants.LoginCallbackUrlSuffix}`,
+          logoutUrl: httpsAlbStack.url,
         });
       }
     }

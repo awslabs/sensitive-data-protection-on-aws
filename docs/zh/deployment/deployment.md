@@ -6,9 +6,9 @@
 
 按照以下步骤在AWS上部署此解决方案。
 
-- 步骤一：创建OIDC应用程序
+- 步骤一：创建OIDC应用程序（使用带身份提供商的模板可跳过此步）
 - 步骤二：将AWS CloudFormation的**Admin**模板部署到您的AWS管理员账户
-- 步骤三：配置OIDC应用程序
+- 步骤三：配置OIDC应用程序（使用带身份提供商的模板可跳过此步）
 - 步骤四：配置自定义域名
 - 步骤五：访问控制台
 - 步骤六：将AWS CloudFormation的**Agent**模板部署到需要检测的AWS账户
@@ -17,7 +17,8 @@
 ## 部署步骤
 
 ### 步骤一：创建OIDC应用程序
-
+!!! Info "提醒"
+    使用带身份提供商的模板可跳过此步
 您可以使用不同类型的OpenID Connector（OIDC）提供者。本节介绍了选项1到选项3的选项。
 
 - 选项 1：Cognito，使用Amazon Cognito作为OIDC提供者。
@@ -92,10 +93,10 @@ Issuer URL可以在您的个人资料中找到。完整的Issuer URL为“https:
 
    |                                       | 从 AWS 控制台中启动                                                                                                                                                                                                                                                            |
     |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| ------------------------- |
-    | 在新VPC （AWS全球区域）中启动解决方案       | [![Launch Stack](../../images/launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/template?stackName=SDPS-Admin&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/Admin.template.json){target=_blank}                               |
-    | 在现有VPC （AWS全球区域）中启动解决方案 | [![Launch Stack](../../images/launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/template?stackName=SDPS-Admin&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/AdminExistVpc.template.json){target=_blank}                |
-    | 在新VPC（AWS 中国区域）中启动解决方案                 | [![Launch Stack](../../images/launch-stack.png)](https://cn-north-1.console.amazonaws.cn/cloudformation/home#/stacks/create/template?stackName=SDPS-Admin&templateURL=https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/Admin.template.json){target=_blank}                                 |
-    | 在现有VPC（AWS 中国区域）中启动解决方案           | [![Launch Stack](../../images/launch-stack.png)](https://cn-north-1.console.amazonaws.cn/cloudformation/home#/stacks/create/template?stackName=SDPS-Admin&templateURL=https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/AdminExistVpc.template.json){target=_blank} |
+    | 在新VPC （AWS全球区域）中启动解决方案       | [![Launch Stack](../images/launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/template?stackName=SDPS-Admin&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/Admin.template.json){target=_blank}                               |
+    | 在现有VPC （AWS全球区域）中启动解决方案 | [![Launch Stack](../images/launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/template?stackName=SDPS-Admin&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/AdminExistVpc.template.json){target=_blank}                |
+    | 在新VPC（AWS 中国区域）中启动解决方案                 | [![Launch Stack](../images/launch-stack.png)](https://cn-north-1.console.amazonaws.cn/cloudformation/home#/stacks/create/template?stackName=SDPS-Admin&templateURL=https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/Admin.template.json){target=_blank}                                 |
+    | 在现有VPC（AWS 中国区域）中启动解决方案           | [![Launch Stack](../images/launch-stack.png)](https://cn-north-1.console.amazonaws.cn/cloudformation/home#/stacks/create/template?stackName=SDPS-Admin&templateURL=https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/AdminExistVpc.template.json){target=_blank} |
 
 !!! Important "重要提示"
 
@@ -122,7 +123,7 @@ Issuer URL可以在您的个人资料中找到。完整的Issuer URL为“https:
 
 6. 选择**Next**。
 7. 在**Configure stack options**页面上，选择**Next**。
-8. 在**Review**页面上，查看并确认设置。选中3个“我承认”的复选框。
+8. 在**Review**页面上，查看并确认设置。选中3个“我确认”的复选框。
 9. 选择**Create stack**以部署堆栈。  
 等待约20分钟，以确保创建了所有相关资源。您可以选择“资源”和“事件”选项卡查看堆栈的状态。
 10. 在“输出”选项卡中，您将看到门户网站的URL和SigninRedirectUri。
@@ -130,7 +131,9 @@ Issuer URL可以在您的个人资料中找到。完整的Issuer URL为“https:
 
 ### 步骤三：配置OIDC应用程序（Configure OIDC application）
 
-将SigninRedirectUriHTTP(S)的值复制并配置到您的OIDC应用程序中。
+!!! Info "提醒"
+    使用带身份提供商的模板可跳过此步
+将SigninRedirectUriHTTP(S)和PortalUrlHTTP(S)的值分别填入您的OIDC应用程序中的登录回调地址和退出回调地址中。
 #### 选项 1：Cognito
 
 1. 访问您的用户池。
@@ -144,7 +147,7 @@ Issuer URL可以在您的个人资料中找到。完整的Issuer URL为“https:
 ![Authing Callback URL](images/AuthingCallbackURL.jpg)
 
 #### 选项 3：OKTA
-![Authing Callback URL](images/OktaCallbackURL.png)
+![Authing Callback URL](images/OktaCallbackURL.jpg)
 
 
 ### 步骤四：配置自定义域名（Configure custom domain name）
@@ -167,8 +170,8 @@ Issuer URL可以在您的个人资料中找到。完整的Issuer URL为“https:
 
     |                                       | 从 AWS 控制台中启动                                                                                                                                                                                                                                                            |
     |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| ------------------------- |
-    | 从AWS全球区域部署 Agent template       | [![Launch Stack](../../images/launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/template?stackName=SDPS-Agent&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/Agent.template.json){target=_blank}                               |
-    | 从AWS中国区域部署 Agent template                  | [![Launch Stack](../../images/launch-stack.png)](https://cn-north-1.console.amazonaws.cn/cloudformation/home#/stacks/create/template?stackName=SDPS-Agent&templateURL=https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/Agent.template.json){target=_blank}                                 |
+    | 从AWS全球区域部署 Agent template       | [![Launch Stack](../images/launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/template?stackName=SDPS-Agent&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/Agent.template.json){target=_blank}                               |
+    | 从AWS中国区域部署 Agent template                  | [![Launch Stack](../images/launch-stack.png)](https://cn-north-1.console.amazonaws.cn/cloudformation/home#/stacks/create/template?stackName=SDPS-Agent&templateURL=https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/Agent.template.json){target=_blank}                                 |
 
 2. 要在其他AWS区域中启动此解决方案，请使用控制台导航栏中的区域选择器。
 3. 在创建堆栈页面上，确认在Amazon S3 URL文本框中显示了正确的模板URL，并选择下一步。

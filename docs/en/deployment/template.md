@@ -7,6 +7,8 @@ If all your accounts are within AWS Organizations, you need to deploy the IT tem
 
 ## AWS Global Regions
 
+- [Template for Admin account with IdP (Admin template) in New VPC](https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/AdminWithIdP.template.json)
+- [Template for Admin account With IdP (Admin template) in Existing VPC](https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/AdminExistVpcWithIdP.template.json)
 - [Template for Admin account (Admin template) in New VPC](https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/Admin.template.json)
 - [Template for Admin account (Admin template) in Existing VPC](https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/AdminExistVpc.template.json)
 - [Template for Monitored account (Agent template)](https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/Agent.template.json)

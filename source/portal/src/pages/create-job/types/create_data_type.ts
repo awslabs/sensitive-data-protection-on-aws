@@ -64,6 +64,39 @@ export const RDS_CATALOG_COLUMS = [
   },
 ];
 
+export const RDS_FOLDER_COLUMS = [
+  {
+    id: 'table_name',
+    label: 'table.label.folderName',
+    filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.DatabaseName,
+    label: 'table.label.instanceName',
+    filter: true,
+  },
+  {
+    id: 'row_count',
+    label: 'table.label.items',
+    filter: true,
+  },
+  {
+    id: 'privacy',
+    label: 'table.label.privacy',
+    filter: true,
+  },
+  {
+    id: 'account_id',
+    label: 'table.label.awsAccount',
+    filter: true,
+  },
+  {
+    id: 'region',
+    label: 'table.label.awsRegion',
+    filter: true,
+  },
+];
+
 export const S3_CATALOG_COLUMS_OLDDATA = [
   ...S3_CATALOG_COLUMS,
   {
@@ -155,6 +188,11 @@ export interface DbItemInfo {
   account_id: any;
   region: any;
   database_name: any;
+  table_name: any;
+}
+
+export interface CombinedRDSDatabase {
+  [key: string]: DbItemInfo[];
 }
 
 export const SCAN_DEPTH_OPTIONS = [

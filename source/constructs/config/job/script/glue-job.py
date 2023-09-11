@@ -43,7 +43,7 @@ from awsglueml.transforms import EntityDetector
 from awsglue.dynamicframe import DynamicFrame
 
 
-def get_template(s3, bucket_name, object_name):
+def get_template(s3, bucket_name, template_id, template_snapshot_no):
     """
     get_template is used to download regex template file from bucket name and 
     use json to load the contents.
@@ -51,15 +51,26 @@ def get_template(s3, bucket_name, object_name):
     Args:
         s3: The boto3 client used to download the template
         bucket_name: The bucket name to download template file from.
-        object_name: The path of regex template file in bucket_name.
+        template_id: The template id to download template file from.
+        template_snapshot_no: The template snapshot number to download template file from.
     
     Returns:
         the regex templates as a python dict.
     """
+
+    object_name = f"template/template-{template_id}-{template_snapshot_no}.json"
     with tempfile.TemporaryFile() as data:
-        s3.download_fileobj(bucket_name, object_name, data)
-        data.seek(0)
-        return json.loads(data.read().decode('utf-8'))
+        try:
+            s3.download_fileobj(bucket_name, object_name, data)
+            data.seek(0)
+            return json.loads(data.read().decode('utf-8'))
+        except Exception as e:
+            if template_snapshot_no == 'init':
+                print(f'It seems you did not choose any identifier in the template. Empty template will be used.')
+            else:
+                print(f'Error occured downloading template file from {bucket_name}/{object_name}. Might be caused by recent update to 1.0.1.')
+                print(e)
+            return {"template_id":1,"template_name":"empty-template","identifiers":[]}
 
 class ColumnDetector:
     """
@@ -218,6 +229,14 @@ def get_table_info(table, args):
         rds_instance_id = args["DatabaseName"]
     return s3_location, s3_bucket, rds_instance_id
 
+def post_process_glue_result(glue_result_df):
+    """
+    post_process_glue_result function aims to filter false positive results in Glue.
+    More rules will be added in this function in the future.
+    """
+    processed_glue_result_df = glue_result_df.filter((sf.col('entityType') != 'PERSON_NAME') | (sf.col('column_name').rlike("name|姓名|^col")))
+    return processed_glue_result_df
+
 def classifyColumnsAfterRowLevel(nonEmptySampledDf: DataFrame, thresholdFraction: float):
     """
     classifyColumnsAfterRowLevel function aims to summarize column level detection results
@@ -235,8 +254,9 @@ def classifyColumnsAfterRowLevel(nonEmptySampledDf: DataFrame, thresholdFraction
 
     glue_entities_df = nonEmptySampledDf.select(sf.explode(sf.col("DetectedEntities")).alias("column_name", "entities"))\
         .selectExpr("column_name", "explode(entities) as entity")\
-        .selectExpr("column_name", "entity.entityType")\
-        .withColumn("score", sf.lit(1.0)/rows)\
+        .selectExpr("column_name", "entity.entityType")
+    glue_entities_df = post_process_glue_result(glue_entities_df)
+    glue_entities_df = glue_entities_df.withColumn("score", sf.lit(1.0)/rows)\
         .groupBy('column_name', 'entityType').agg(sf.sum('score').alias('score'))\
         .where(f'score > {thresholdFraction}')\
         .withColumnRenamed("entityType", "identifier")\
@@ -492,7 +512,7 @@ if __name__ == "__main__":
     error = []
 
     # Get the template from s3 and broadcast it to all the executors
-    template = get_template(s3, args['BucketName'], f"template/template-{args['TemplateId']}-{args['TemplateSnapshotNo']}.json")
+    template = get_template(s3, args['BucketName'], args['TemplateId'], args['TemplateSnapshotNo'])
     broadcast_template = sc.broadcast(template)
 
     crawler_tables = get_tables(full_database_name, region, base_time, args)

@@ -25,6 +25,7 @@ def lambda_handler(event, context):
 	aws_oidc_issuer = __get_env_with_defaults('aws_oidc_issuer', '')
 	aws_oidc_client_id = __get_env_with_defaults('aws_oidc_client_id', '')
 	aws_oidc_customer_domain = __get_env_with_defaults('aws_oidc_customer_domain', '')
+	aws_oidc_logout = __get_env_with_defaults('aws_oidc_logout', '')
 	aws_alb_url = __get_env_with_defaults('aws_alb_url', '')
 	aws_cognito_region = __get_env_with_defaults('aws_cognito_region', '')
 	aws_user_pools_id = __get_env_with_defaults('aws_user_pools_id', '')
@@ -43,6 +44,7 @@ def lambda_handler(event, context):
 		"aws_oidc_issuer": aws_oidc_issuer,
 		"aws_oidc_client_id": aws_oidc_client_id,
 		"aws_oidc_customer_domain": aws_oidc_customer_domain,
+		"aws_oidc_logout": aws_oidc_logout,
 		"aws_alb_url": aws_alb_url,
 		"aws_cognito_region": aws_cognito_region,
 		"aws_user_pools_id": aws_user_pools_id,

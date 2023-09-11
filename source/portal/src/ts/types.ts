@@ -10,7 +10,7 @@ export interface AmplifyConfigType {
   aws_oidc_issuer: string;
   aws_oidc_client_id: string;
   aws_oidc_customer_domain: string;
-  aws_oidc_logout_endpoint: string;
+  aws_oidc_logout: string;
   aws_alb_url: string;
   aws_cognito_region: string;
   aws_user_pools_id: string;

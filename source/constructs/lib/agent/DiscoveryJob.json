@@ -1,5 +1,5 @@
 {
-  "Comment": "Sensitive data protection",
+  "Comment": "Sensitive Data Protection on AWS (Version:@TEMPLATE_SOLUTION_VERSION@)",
   "StartAt": "FirstWait",
   "States": {
     "FirstWait": {

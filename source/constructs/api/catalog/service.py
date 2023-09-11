@@ -1076,7 +1076,7 @@ def gen_zip_file(header, record, tmp_filename, type):
                 batches = int(len(v) / const.EXPORT_CSV_MAX_LINES)
                 if batches < 1:
                     file_name = f"/tmp/{k}.csv"
-                    with open(file_name, 'w', newline='') as csv_file:
+                    with open(file_name, 'w', encoding="utf-8-sig", newline='') as csv_file:
                         csv_writer = csv.writer(csv_file)
                         csv_writer.writerow(header.get(k))
                         for record in v:
@@ -1086,7 +1086,7 @@ def gen_zip_file(header, record, tmp_filename, type):
                 else:
                     for i in range(0, batches + 1):
                         file_name = f"/tmp/{k}_{i+1}.csv"
-                        with open(file_name, 'w', newline='') as csv_file:
+                        with open(file_name, 'w', encoding="utf-8-sig", newline='') as csv_file:
                             csv_writer = csv.writer(csv_file)
                             csv_writer.writerow(header.get(k))
                             for record in v[const.EXPORT_CSV_MAX_LINES * i: min(const.EXPORT_CSV_MAX_LINES * (i + 1), len(v))]:

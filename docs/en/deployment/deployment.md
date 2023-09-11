@@ -6,11 +6,11 @@ Before you launch the solution, review the architecture, supported regions, and 
 
 Use the following steps to deploy this solution on AWS. 
 
-- Step 1. Create an OpenID Connector (OIDC) application
+- Step 1. Create an OpenID Connector (OIDC) application(Skip this step by using the template with an identity provider)
 
 - Step 2. Deploy the Admin stack
 
-- Step 3. Configure the OIDC application
+- Step 3. Configure the OIDC application(Skip this step by using the template with an identity provider)
 
 - Step 4. Configure custom domain name
 
@@ -20,7 +20,8 @@ Use the following steps to deploy this solution on AWS.
 
 ## Deployment steps
 ### Step 1. Create an OIDC application
-
+!!! Info "Remind"
+    Skip this step by using the template with an identity provider
 You can use different kinds of OIDC providers. This section introduces Option 1 to Option 3.
 
 - Option 1: Cognito, which uses Amazon Cognito as OIDC provider
@@ -97,10 +98,10 @@ Deploy the AWS CloudFormation **Admin** template into your AWS admin account.
 
     |                                       | Launch in AWS Console                                                                                                                                                                                                                                                            |
     |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| ------------------------- |
-    | Deploy the Admin template with a new VPC in AWS Regions       | [![Launch Stack](../../images/launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/template?stackName=SDPS-Admin&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/Admin.template.json){target=_blank}                               |
-    | Deploy the Admin template with an existing VPC in AWS Regions | [![Launch Stack](../../images/launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/template?stackName=SDPS-Admin&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/AdminExistVpc.template.json){target=_blank}                |
-    | Deploy the Admin template with a new VPC in AWS China Regions                 | [![Launch Stack](../../images/launch-stack.png)](https://cn-north-1.console.amazonaws.cn/cloudformation/home#/stacks/create/template?stackName=SDPS-Admin&templateURL=https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/Admin.template.json){target=_blank}                                 |
-    | Deploy the Admin template with an existing VPC in AWS China Regions            | [![Launch Stack](../../images/launch-stack.png)](https://cn-north-1.console.amazonaws.cn/cloudformation/home#/stacks/create/template?stackName=SDPS-Admin&templateURL=https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/AdminExistVpc.template.json){target=_blank} |
+    | Deploy the Admin template with a new VPC in AWS Regions       | [![Launch Stack](../images/launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/template?stackName=SDPS-Admin&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/Admin.template.json){target=_blank}                               |
+    | Deploy the Admin template with an existing VPC in AWS Regions | [![Launch Stack](../images/launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/template?stackName=SDPS-Admin&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/AdminExistVpc.template.json){target=_blank}                |
+    | Deploy the Admin template with a new VPC in AWS China Regions                 | [![Launch Stack](../images/launch-stack.png)](https://cn-north-1.console.amazonaws.cn/cloudformation/home#/stacks/create/template?stackName=SDPS-Admin&templateURL=https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/Admin.template.json){target=_blank}                                 |
+    | Deploy the Admin template with an existing VPC in AWS China Regions            | [![Launch Stack](../images/launch-stack.png)](https://cn-north-1.console.amazonaws.cn/cloudformation/home#/stacks/create/template?stackName=SDPS-Admin&templateURL=https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/AdminExistVpc.template.json){target=_blank} |
 
     !!! Important "Important"
 
@@ -133,8 +134,9 @@ Deploy the AWS CloudFormation **Admin** template into your AWS admin account.
 ![Cloudformation Output](images/CloudformationOutput.png)
 
 ### Step 3. Configure the OIDC application
-
-Copy the value of `SigninRedirectUriHTTP(S)` and configure it into your OIDC application.
+!!! Info "Remind"
+    Skip this step by using the template with an identity provider
+Fill the values of SigninRedirectUriHTTP(S) and PortalUrlHTTP(S) into the login callback url and logout callback url in your OIDC application, respectively.
 
 #### Option 1: Cognito
 
@@ -148,7 +150,7 @@ Copy the value of `SigninRedirectUriHTTP(S)` and configure it into your OIDC app
 ![Authing Callback URL](images/AuthingCallbackURL.jpg)
 
 #### Option 3: OTKA
-![Authing Callback URL](images/OktaCallbackURL.png)
+![Authing Callback URL](images/OktaCallbackURL.jpg)
 
 ### Step 4. Configure custom domain name
 
@@ -174,8 +176,8 @@ Deploy the AWS CloudFormation **Agent** template into your AWS monitored account
 
     |                                       | Launch in AWS Console                                                                                                                                                                                                                                                            |
     |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| ------------------------- |
-    | Deploy the Agent template in AWS Regions       | [![Launch Stack](../../images/launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/template?stackName=SDPS-Agent&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/Agent.template.json){target=_blank}                               |
-    | Deploy the Agent template in AWS China Regions                 | [![Launch Stack](../../images/launch-stack.png)](https://cn-north-1.console.amazonaws.cn/cloudformation/home#/stacks/create/template?stackName=SDPS-Agent&templateURL=https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/Agent.template.json){target=_blank}                                 |
+    | Deploy the Agent template in AWS Regions       | [![Launch Stack](../images/launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/template?stackName=SDPS-Agent&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/Agent.template.json){target=_blank}                               |
+    | Deploy the Agent template in AWS China Regions                 | [![Launch Stack](../images/launch-stack.png)](https://cn-north-1.console.amazonaws.cn/cloudformation/home#/stacks/create/template?stackName=SDPS-Agent&templateURL=https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/Agent.template.json){target=_blank}                                 |
 
 2. To launch this solution in a different AWS Region, use the Region selector in the console navigation bar.
 3. On the **Create stack** page, verify that the correct template URL is shown in the **Amazon S3 URL** text box and choose **Next**.

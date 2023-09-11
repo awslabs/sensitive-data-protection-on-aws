@@ -257,7 +257,7 @@ def sync_s3_connection_by_region(account: str, region: str):
             logger.error(traceback.format_exc())
 
 
-def check_subnet_has_nat_route(credentials, region_name: str, subnet_id: str):
+def check_subnet_has_outbound_route(credentials, region_name: str, subnet_id: str):
     ec2_client = boto3.client('ec2',
                               aws_access_key_id=credentials['AccessKeyId'],
                               aws_secret_access_key=credentials['SecretAccessKey'],
@@ -274,7 +274,8 @@ def check_subnet_has_nat_route(credentials, region_name: str, subnet_id: str):
 
     for route_table in response['RouteTables']:
         for route in route_table['Routes']:
-            if 'NatGatewayId' in route:
+            if route.get('DestinationCidrBlock') == '0.0.0.0/0':
+                logger.info("Has 0.0.0.0/0 route.")
                 return True
     return False
 
@@ -461,7 +462,7 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
         # Private subnet priority
         rds_subnet_id = const.EMPTY_STR
         public_subnet_id = const.EMPTY_STR
-        has_nat_route = False
+        has_outbound_route = False
         for subnet_desc in response['Subnets']:
             subnet_map_public_ip = subnet_desc['MapPublicIpOnLaunch']
             if subnet_map_public_ip:
@@ -470,8 +471,8 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
             else:
                 logger.info(f"subnet({subnet_desc['SubnetId']}) is private")
                 rds_subnet_id = subnet_desc['SubnetId']
-                has_nat_route = check_subnet_has_nat_route(credentials, region, subnet_desc['SubnetId'])
-                if has_nat_route:
+                has_outbound_route = check_subnet_has_outbound_route(credentials, region, subnet_desc['SubnetId'])
+                if has_outbound_route:
                     break
 
         if rds_subnet_id == const.EMPTY_STR:
@@ -481,7 +482,7 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
             else:
                 rds_subnet_id = public_subnet_id
 
-        if not has_nat_route:
+        if not has_outbound_route:
             check_link(credentials, region, rds_vpc_id, rds_secret_id)
         if rds_secret_id is not None:
             secretsmanager = boto3.client('secretsmanager',
