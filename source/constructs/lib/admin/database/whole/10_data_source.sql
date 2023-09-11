@@ -153,6 +153,38 @@ create table source_rds_instance
     modify_time               timestamp    null
 );
 
+create table source_jdbc_instance
+(
+    id                        int auto_increment primary key,
+    instance_id               varchar(255) null,
+    instance_class            varchar(255) null,
+    engine                    varchar(255) null,
+    instance_status           varchar(255) null,
+    address                   varchar(255) null,
+    port                      int          null,
+    account_provider          varchar(64) null,
+    account_id                varchar(255) null,
+    region                    varchar(255) null,
+    master_username           varchar(255) null,
+    created_time              datetime     null,
+    data_source_id            int          null,
+    detection_history_id      int          null,
+    glue_database             varchar(255) null,
+    glue_connection           varchar(255) null,
+    glue_vpc_endpoint         varchar(255) null,
+    glue_crawler              varchar(255) null,
+    glue_crawler_last_updated datetime     null,
+    glue_state                varchar(255) null,
+    create_type               int          null comment '1: ADD, 0: IMPORT',
+    jdbc_driver_class         varchar(255) null,
+    jdbc_driver_S3_path       varchar(255) null,
+    version                   int          null,
+    create_by                 varchar(255) null,
+    create_time               timestamp    null,
+    modify_by                 varchar(255) null,
+    modify_time               timestamp    null
+);
+
 create index detection_history_id
     on source_rds_instance (detection_history_id);
 

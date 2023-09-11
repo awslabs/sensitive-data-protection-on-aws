@@ -33,6 +33,17 @@ def list_rds_instances(condition: QueryCondition):
         page=condition.page,
     ))
 
+@router.post("/list-jdbc", response_model=BaseResponse[Page[schemas.JDBCInstanceSource]])
+@inject_session
+def list_jdbc_instances(condition: QueryCondition):
+    instances = crud.list_jdbc_instance_source(condition)
+    if instances is None:
+        return None
+    return paginate(instances, Params(
+        size=condition.size,
+        page=condition.page,
+    ))
+
 
 @router.post("/sync-s3", response_model=BaseResponse)
 @inject_session
@@ -80,6 +91,32 @@ def sync_rds_connection(rds: schemas.SourceRdsConnection):
         rds.rds_user,
         rds.rds_password,
         rds.rds_secret
+    )
+
+@router.post("/delete-jdbc", response_model=BaseResponse)
+@inject_session
+def delete_jdbc_connection(jdbc: schemas.SourceDeteteJDBCConnection):
+    return service.delete_jdbc_connection(
+        jdbc.account_id,
+        jdbc.region,
+        jdbc.instance
+    )
+
+
+@router.post("/sync-jdbc", response_model=BaseResponse)
+@inject_session
+def sync_jdbc_connection(jdbc: schemas.SourceJDBCConnection):
+    return service.sync_jdbc_connection(
+        jdbc.account_provider,
+        jdbc.account_id,
+        jdbc.region,
+        jdbc.instance,
+        jdbc.address,
+        jdbc.engine,
+        jdbc.port,
+        jdbc.username,
+        jdbc.password,
+        jdbc.secret
     )
 
 
@@ -139,3 +176,19 @@ def get_secrets(account: str, region: str):
 @inject_session
 def get_admin_account_info():
     return service.get_admin_account_info()
+
+@router.get("/add-jdbc-conn", response_model=BaseResponse)
+@inject_session
+def add_jdbc_conn(jdbcConn: schemas.JDBCInstanceSource):
+    return service.add_jdbc_conn(jdbcConn)
+
+@router.get("/query-glue-connections", response_model=BaseResponse)
+@inject_session
+def query_glue_connections(account: schemas.AdminAccountInfo):
+    return service.query_glue_connections(account)
+
+
+@router.get("/query-account-network", response_model=BaseResponse)
+@inject_session
+def query_account_network(account: schemas.AdminAccountInfo):
+    return service.query_account_network(account)

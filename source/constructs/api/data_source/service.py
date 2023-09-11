@@ -311,6 +311,57 @@ def check_link(credentials, region_name: str, vpc_id: str, rds_secret_id: str):
     logger.info(glue_endpoint_exists)
     logger.info(secret_endpoint_exists)
 
+def sync_jdbc_connection(
+        account_provider,
+        account_id,
+        region,
+        instance,
+        address,
+        engine,
+        port,
+        username,
+        password,
+        secret):
+    glue_connection_name = f"jdbc-{account_provider}-{account_id}-{region}-{instance}-connection"
+    glue_database_name = f"rds-{account_provider}-{account_id}-{region}-{instance}-database"
+    crawler_name = f"rds-{account_provider}-{account_id}-{region}-{instance}-crawler"
+    if not username:
+        raise BizException(MessageEnum.SOURCE_JDBC_NO_CREDENTIAL.get_code(),
+                           MessageEnum.SOURCE_JDBC_NO_CREDENTIAL.get_msg())
+
+    if not password and not secret:
+        raise BizException(MessageEnum.SOURCE_JDBC_NO_AUTH.get_code(),
+                           MessageEnum.SOURCE_JDBC_NO_AUTH.get_msg())
+
+    if password and secret:
+        raise BizException(MessageEnum.SOURCE_JDBC_DUPLICATE_AUTH.get_code(),
+                           MessageEnum.SOURCE_JDBC_DUPLICATE_AUTH.get_msg())
+    state = crud.get_jdbc_instance_source_glue_state(account_provider, account_id, region, instance)
+    if state == ConnectionState.PENDING.value:
+        raise BizException(MessageEnum.SOURCE_CONNECTION_NOT_FINISHED.get_code(),
+                           MessageEnum.SOURCE_CONNECTION_NOT_FINISHED.get_msg())
+
+    elif state == ConnectionState.CRAWLING.value:
+        raise BizException(MessageEnum.SOURCE_CONNECTION_CRAWLING.get_code(),
+                           MessageEnum.SOURCE_CONNECTION_CRAWLING.get_msg())
+    
+    credentials = None
+    try:
+        iam_role_name = crud.get_iam_role(account_id)
+
+        assumed_role = sts.assume_role(
+            RoleArn=f"{iam_role_name}",
+            RoleSessionName="glue-rds-connection"
+        )
+        credentials = assumed_role['Credentials']
+    except Exception as err:
+        raise BizException(MessageEnum.SOURCE_ASSUME_ROLE_FAILED.get_code(),
+                           MessageEnum.SOURCE_ASSUME_ROLE_FAILED.get_msg())
+    if credentials is None:
+        raise BizException(MessageEnum.SOURCE_ASSUME_ROLE_FAILED.get_code(),
+                           MessageEnum.SOURCE_ASSUME_ROLE_FAILED.get_msg())
+
+    # TODO
 
 # Create crawler, connection and database and start crawler
 def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=None, rds_password=None,
@@ -340,6 +391,7 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
     elif state == ConnectionState.CRAWLING.value:
         raise BizException(MessageEnum.SOURCE_CONNECTION_CRAWLING.get_code(),
                            MessageEnum.SOURCE_CONNECTION_CRAWLING.get_msg())
+    # TODO
 
     # else:
     #     delete_glue_connection(account, region, crawler_name, glue_database_name, glue_connection_name)
@@ -1047,6 +1099,9 @@ def get_secrets(account: str, region: str):
 def get_admin_account_info():
     return schemas.AdminAccountInfo(account_id=_admin_account_id, region=_admin_account_region)
 
+def add_jdbc_conn(jdbcConn: schemas.JDBCInstanceSource):
+    crud.add_jdbc_conn(jdbcConn)
+
 def __glue(account: str, region: str):
     iam_role_name = crud.get_iam_role(account)
     assumed_role = sts.assume_role(
@@ -1402,3 +1457,17 @@ def __delete_account(account_id: str, region: str):
         crud.delete_account_by_region(account_id=account_id, region=region)
     except Exception:
         logger.error(traceback.format_exc())
+
+
+def query_glue_connections(account: schemas.AdminAccountInfo):                         
+    return boto3.client('glue', region_name=account.region).get_connections(CatalogId=account.account_id, Filter={
+        'ConnectionType': 'JDBC'
+    },
+        HidePassword=True,
+    )
+
+def query_account_network(account: schemas.AdminAccountInfo):
+    ec2_client = boto3.client('ec2', region_name=account.region)
+    response = ec2_client.describe_security_groups(GroupIds="")
+    vpc_ids = [item['VpcId'] for item in response['SecurityGroups']]
+    return ec2_client.describe_vpcs(VpcIds=[vpc_ids[0]]), ec2_client.describe_subnets(Filters=[{'Name': 'vpc-id', 'Values': [vpc_ids[0]]}])

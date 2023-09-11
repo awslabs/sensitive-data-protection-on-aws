@@ -4,8 +4,9 @@ from sqlalchemy import desc
 from common.enum import ConnectionState, MessageEnum, Provider
 from common.query_condition import QueryCondition, query_with_condition
 from db.database import get_session
-from db.models_data_source import S3BucketSource, Account, RdsInstanceSource
+from db.models_data_source import S3BucketSource, Account, RdsInstanceSource, JDBCInstanceSource
 from common.exception_handler import BizException
+from . import schemas
 
 
 def list_accounts(condition: QueryCondition):
@@ -46,7 +47,7 @@ def get_account_agent_regions(account_id: str):
 def list_s3_bucket_source(condition: QueryCondition):
     # status = 0 : admin
     # status = 1 : monitored account
-    accounts = get_session().query(Account).filter(Account.status == 1).all()
+    accounts = get_session().query(Account).filter(Account.account_provider == Provider.AWS.value, Account.status == 1).all()
     account_ids = []
     for account in accounts:
         account_ids.append(account.account_id)
@@ -85,7 +86,7 @@ def list_rds_instance_source(condition: QueryCondition):
     # status = 0 : admin
     # status = 1 : monitored account
     instances = None
-    accounts = get_session().query(Account).filter(Account.status == 1).all()
+    accounts = get_session().query(Account).filter(Account.account_provider == Provider.AWS.value, Account.status == 1).all()
     account_ids = []
     for account in accounts:
         account_ids.append(account.account_id)
@@ -93,6 +94,18 @@ def list_rds_instance_source(condition: QueryCondition):
         RdsInstanceSource.aws_account.in_(account_ids))
     instances = query_with_condition(instances, condition)
     return instances
+
+
+def list_jdbc_instance_source(condition: QueryCondition):
+    # instances = Nonex
+    # account_provider = filter(lambda item: item.column == "account_provider", condition.conditions)[0]
+    # account_id = filter(lambda item: item.column == "account_id", condition.conditions)[0]
+    # instances_tmp = get_session().query(JDBCInstanceSource).filter(
+    #     JDBCInstanceSource.account_provider == account_provider, JDBCInstanceSource.account_id == account_id)
+    # instances = query_with_condition(instances_tmp, condition)
+
+    # return instances
+    return query_with_condition(get_session().query(JDBCInstanceSource), condition)
 
 
 def set_rds_instance_source_glue_state(account: str, region: str, instance_id: str, state: str):
@@ -114,6 +127,18 @@ def get_rds_instance_source_glue_state(account: str, region: str, instance_id: s
                                                         RdsInstanceSource.region == region,
                                                         RdsInstanceSource.aws_account == account).order_by(
         desc(RdsInstanceSource.detection_history_id)).first()
+    if rds is not None:
+        return rds.glue_state
+    else:
+        return None
+
+def get_jdbc_instance_source_glue_state(provider: str, account: str, region: str, instance_id: str):
+    account_tmp = get_session().query(Account.id).filter(Account.account_provider == provider, Account.account_id == account).first()
+    rds = get_session().query(JDBCInstanceSource).filter(JDBCInstanceSource.data_source_id == account_tmp[0],
+                                                         JDBCInstanceSource.instance_id == instance_id,
+                                                         JDBCInstanceSource.region == region,
+                                                         JDBCInstanceSource.aws_account == account).order_by(
+        desc(JDBCInstanceSource.detection_history_id)).first()
     if rds is not None:
         return rds.glue_state
     else:
@@ -142,6 +167,11 @@ def get_rds_instance_source(account: str, region: str, instance_id: str):
                                                          RdsInstanceSource.region == region,
                                                          RdsInstanceSource.instance_id == instance_id).scalar()
 
+def get_jdbc_instance_source(provider: str, account: str, region: str, instance_id: str):
+    return get_session().query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider == provider,
+                                                          JDBCInstanceSource.account_id == account,
+                                                          JDBCInstanceSource.region == region,
+                                                          JDBCInstanceSource.instance_id == instance_id).scalar()
 
 def get_s3_bucket_source(account: str, region: str, bucket_name: str):
     return get_session().query(S3BucketSource).filter(S3BucketSource.aws_account == account,
@@ -437,3 +467,23 @@ def get_source_rds_account_region():
             .distinct()
             .all()
             )
+
+def add_jdbc_conn(jdbcConn: schemas.JDBCInstanceSource):
+    session = get_session()
+
+    jdbc_instance_source = JDBCInstanceSource()
+    jdbc_instance_source.instance_id = jdbcConn.instance_id
+    jdbc_instance_source.create_type = jdbcConn.create_type
+    jdbc_instance_source.engine = jdbcConn.engine
+    jdbc_instance_source.address = jdbcConn.address
+    jdbc_instance_source.port = jdbcConn.port
+    jdbc_instance_source.jdbc_driver_class = jdbcConn.jdbc_driver_class
+    jdbc_instance_source.jdbc_driver_S3_path = jdbcConn.jdbc_driver_S3_path
+    jdbc_instance_source.master_username = jdbcConn.master_username
+    # jdbc_instance_source.
+
+    session.add(jdbc_instance_source)
+    session.commit()
+    session.refresh(jdbc_instance_source)
+
+    return jdbc_instance_source

@@ -172,6 +172,39 @@ class RdsInstanceSource(Base):
     modify_by = sa.Column(sa.String(255))
     modify_time = sa.Column(sa.DateTime())
 
+class JDBCInstanceSource(Base):
+    __tablename__ = 'source_jdbc_instance'
+
+    id = sa.Column(sa.Integer(), autoincrement=True, primary_key=True)
+    instance_id = sa.Column(sa.String(255), info={'searchable': True})
+    instance_class = sa.Column(sa.String(255))
+    engine = sa.Column(sa.String(255), info={'searchable': True})
+    instance_status = sa.Column(sa.String(255))
+    address = sa.Column(sa.String(255))
+    port = sa.Column(sa.Integer())
+    master_username = sa.Column(sa.String(255))
+    created_time = sa.Column(sa.DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    account_provider = sa.Column(sa.String(255), info={'searchable': True})
+    account_id = sa.Column(sa.String(255), info={'searchable': True})
+    region = sa.Column(sa.String(255), info={'searchable': True})
+    data_source_id = sa.Column(sa.Integer())
+    detection_history_id = sa.Column(sa.Integer(), sa.ForeignKey('source_detection_history.id'))
+    glue_database = sa.Column(sa.String(255))
+    glue_crawler = sa.Column(sa.String(255))
+    glue_connection = sa.Column(sa.String(255))
+    glue_vpc_endpoint = sa.Column(sa.String(255))
+    glue_crawler_last_updated = sa.Column(sa.DateTime)
+    glue_state = sa.Column(sa.String(255), info={'searchable': True})
+    create_type = sa.Column(sa.Integer())
+    jdbc_driver_class = sa.Column(sa.String(255))
+    jdbc_driver_S3_path = sa.Column(sa.String(255))
+    detection_history = relationship("DetectionHistory")
+    version = sa.Column(sa.Integer())
+    create_by = sa.Column(sa.String(255))
+    create_time = sa.Column(sa.DateTime())
+    modify_by = sa.Column(sa.String(255))
+    modify_time = sa.Column(sa.DateTime())
+
 
 class DynamodbTableSource(Base):
     __tablename__ = 'source_dynamodb_table'

@@ -120,7 +120,11 @@ def sync_crawler_result(
         database_type: str,
         database_name: str,
 ):
-    if database_type not in [DatabaseType.RDS.value, DatabaseType.S3.value]:
+    if database_type not in [DatabaseType.RDS.value, 
+                             DatabaseType.S3.value,
+                             DatabaseType.CUSTOM_JDBC_AWS.value,
+                             DatabaseType.CUSTOM_JDBC_ALIYUN.value,
+                             DatabaseType.CUSTOM_JDBC_TENCENT.value]:
         raise BizException(
             MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_code(),
             MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_msg(),
@@ -133,6 +137,15 @@ def sync_crawler_result(
         )
         if rds_database is not None:
             rds_engine_type = rds_database.engine
+    
+    if database_type in [DatabaseType.CUSTOM_JDBC_AWS.value,
+                         DatabaseType.CUSTOM_JDBC_ALIYUN.value,
+                         DatabaseType.CUSTOM_JDBC_TENCENT.value]:
+        jdbc_database = data_source_crud.get_jdbc_instance_source(
+            database_type.split("_")[2], account_id, region, database_name
+        )
+        if jdbc_database:
+            jdbc_engine_type = jdbc_database.engine
 
     client = get_boto3_client(account_id, region, "glue")
     glue_database_name = (
@@ -210,6 +223,10 @@ def sync_crawler_result(
                     ]
                 elif database_type == DatabaseType.RDS.value:
                     table_classification = rds_engine_type
+                elif database_type in [DatabaseType.CUSTOM_JDBC_AWS.value,
+                                       DatabaseType.CUSTOM_JDBC_ALIYUN.value,
+                                       DatabaseType.CUSTOM_JDBC_TENCENT.value]:
+                    table_classification = jdbc_engine_type
 
                 database_object_count += table_object_count
                 database_size += table_size_key
@@ -276,11 +293,6 @@ def sync_crawler_result(
                     # crud.update_catalog_table_level_classification_by_id(original_table.id, catalog_table_dict)
                 table_name_list.append(table_name)
                 database_column_count += column_order_num
-                # update_catalog_table_and_database_level_privacy(account_id,
-                #                                                 region,
-                #                                                 database_type,
-                #                                                 database_name,
-                #                                                 table_name)
             try:
                 logger.info("batch delete glue tables" + json.dumps(delete_glue_table_names))
                 client.batch_delete_table(DatabaseName=glue_database_name,

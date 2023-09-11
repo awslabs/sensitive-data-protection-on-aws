@@ -11,6 +11,7 @@ CONTRIBUTING.md:51
 portal/node_modules
 constructs/lib/common/constants.ts
 constructs/lib/admin/database/1.0.0-1.0.x/20_update.sql
+constructs/lib/admin/database/1.0.x-1.1.0/20_update.sql
 
 constructs/lib/admin/database/whole/
 portal/package-lock.json

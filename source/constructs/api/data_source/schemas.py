@@ -117,6 +117,35 @@ class RdsInstanceSource(BaseModel):
         orm_mode = True
 
 
+class JDBCInstanceSource(BaseModel):
+    id: int
+    instance_id: Optional[str]
+    engine: Optional[str]
+    address: Optional[str]
+    port: Optional[int]
+    master_username: Optional[str]
+    instance_status: Optional[str]
+    account_provider: Optional[str]
+    account_id: Optional[str]
+    region: Optional[str]
+    data_source_id: Optional[int]
+    detection_history_id: Optional[int]
+    created_time: Optional[datetime.datetime]
+    glue_database: Optional[str]
+    glue_connection: Optional[str]
+    glue_vpc_endpoint: Optional[str]
+    glue_crawler: Optional[str]
+    glue_state: Optional[str]
+    create_type: int
+
+    jdbc_driver_class: Optional[str]
+    jdbc_driver_S3_path: Optional[str]
+    glue_crawler_last_updated: Optional[datetime.datetime]
+
+    class Config:
+        orm_mode = True
+
+
 class Region(BaseModel):
     id: Optional[int]
     region: Optional[str]
@@ -150,6 +179,25 @@ class SourceRdsConnection(BaseModel):
     rds_user: Optional[str]
     rds_password: Optional[str]
     rds_secret: Optional[str]
+
+class SourceJDBCConnection(BaseModel):
+    account_provider: str
+    account_id: str
+    region: str
+    instance: str
+    engine: Optional[str]
+    address: Optional[str]
+    port: Optional[int]
+    username: Optional[str]
+    password: Optional[str]
+    secret: Optional[str]
+
+
+class SourceDeteteJDBCConnection(BaseModel):
+    account_provider: str
+    account_id: str
+    region: str
+    instance: str
 
 class SourceDeteteS3Connection(BaseModel):
     account_id: str
