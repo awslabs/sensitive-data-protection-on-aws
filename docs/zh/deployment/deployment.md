@@ -133,7 +133,7 @@ Issuer URL可以在您的个人资料中找到。完整的Issuer URL为“https:
 
 !!! Info "提醒"
     使用带身份提供商的模板可跳过此步
-将SigninRedirectUriHTTP(S)的值复制并配置到您的OIDC应用程序中。
+将SigninRedirectUriHTTP(S)和PortalUrlHTTP(S)的值分别填入您的OIDC应用程序中的登录回调地址和退出回调地址中。
 #### 选项 1：Cognito
 
 1. 访问您的用户池。
@@ -147,7 +147,7 @@ Issuer URL可以在您的个人资料中找到。完整的Issuer URL为“https:
 ![Authing Callback URL](images/AuthingCallbackURL.jpg)
 
 #### 选项 3：OKTA
-![Authing Callback URL](images/OktaCallbackURL.png)
+![Authing Callback URL](images/OktaCallbackURL.jpg)
 
 
 ### 步骤四：配置自定义域名（Configure custom domain name）

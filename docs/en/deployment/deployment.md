@@ -136,7 +136,7 @@ Deploy the AWS CloudFormation **Admin** template into your AWS admin account.
 ### Step 3. Configure the OIDC application
 !!! Info "Remind"
     Skip this step by using the template with an identity provider
-Copy the value of `SigninRedirectUriHTTP(S)` and configure it into your OIDC application.
+Fill the values of SigninRedirectUriHTTP(S) and PortalUrlHTTP(S) into the login callback url and logout callback url in your OIDC application, respectively.
 
 #### Option 1: Cognito
 
@@ -150,7 +150,7 @@ Copy the value of `SigninRedirectUriHTTP(S)` and configure it into your OIDC app
 ![Authing Callback URL](images/AuthingCallbackURL.jpg)
 
 #### Option 3: OTKA
-![Authing Callback URL](images/OktaCallbackURL.png)
+![Authing Callback URL](images/OktaCallbackURL.jpg)
 
 ### Step 4. Configure custom domain name
 
