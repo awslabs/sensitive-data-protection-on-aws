@@ -190,7 +190,7 @@ export class AlbStack extends NestedStack {
 
   private setOutput(scope: Construct, dnsName: string, condition: CfnCondition) {
     new CfnOutput(scope, `PortalUrl${this.identifier}`, {
-      description: 'Portal URL',
+      description: 'Portal URL/Sign out redirect URI for OIDC',
       value: this.url,
     }).condition = condition;
 
@@ -200,7 +200,7 @@ export class AlbStack extends NestedStack {
     }).condition = condition;
 
     new CfnOutput(scope, `SigninRedirectUri${this.identifier}`, {
-      description: 'Sign-in/out redirect URI for OIDC',
+      description: 'Sign in redirect URI for OIDC',
       value: `${this.url}${Constants.LoginCallbackUrlSuffix}`,
     }).condition = condition;
   };
