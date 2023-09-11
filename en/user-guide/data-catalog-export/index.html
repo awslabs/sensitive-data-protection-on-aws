@@ -11,6 +11,10 @@
         <link rel="canonical" href="https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/data-catalog-export/">
       
       
+        <link rel="prev" href="../data-catalog-sync/">
+      
+      
+        <link rel="next" href="../data-catalog-labels/">
       
       
       <link rel="icon" href="https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico">
@@ -18,7 +22,7 @@
     
     
       
-        <title>Data catalog export - Sensitive Data Protection on AWS</title>
+        <title>Export data catalogs - Sensitive Data Protection on AWS</title>
       
     
     
@@ -107,7 +111,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Data catalog export
+              Export data catalogs
             
           </span>
         </div>
@@ -269,17 +273,19 @@
       
   
   
+    
+  
   
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" checked>
         
           <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
             
@@ -292,7 +298,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_1">
             <span class="md-nav__icon md-icon"></span>
             Implementation Guide
@@ -773,17 +779,19 @@
                 
   
   
+    
+  
   
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7" checked>
         
           <label class="md-nav__link" for="__nav_1_7" id="__nav_1_7_label" tabindex="0">
             
@@ -796,7 +804,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_7_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_7_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_1_7">
             <span class="md-nav__icon md-icon"></span>
             Use the solution
@@ -929,17 +937,19 @@
                 
   
   
+    
+  
   
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7_3" checked>
         
           <label class="md-nav__link" for="__nav_1_7_3" id="__nav_1_7_3_label" tabindex="0">
             
@@ -952,7 +962,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_1_7_3">
             <span class="md-nav__icon md-icon"></span>
             Browse data catalogs
@@ -974,6 +984,34 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Export data catalogs
+  </span>
+  
+
+      </a>
+      
     </li>
   
 
@@ -1581,9 +1619,64 @@
                   
 
 
-  <h1>Data catalog export</h1>
+  <h1>Export data catalogs</h1>
 
-
+<p>You can export the latest data catalogs</p>
+<ol>
+<li>On the <strong>Browse data catalogs</strong> page, click button <strong>Export data catalogs</strong> button.</li>
+<li>Choose either <strong>Download .xlsx file</strong> for Microsoft Excel file or <strong>Download . csv file</strong></li>
+</ol>
+<p>The exported files contains all the details at column level of current data catalogs, the file schema is shown as below. </p>
+<table>
+<thead>
+<tr>
+<th>S3</th>
+<th>RDS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>account_id</td>
+<td>account_id</td>
+</tr>
+<tr>
+<td>region</td>
+<td>region</td>
+</tr>
+<tr>
+<td>s3_bucket</td>
+<td>rds_instance_id</td>
+</tr>
+<tr>
+<td>folder_name</td>
+<td>table_name</td>
+</tr>
+<tr>
+<td>column_name</td>
+<td>column_name</td>
+</tr>
+<tr>
+<td>identifiers</td>
+<td>identifiers</td>
+</tr>
+<tr>
+<td>sample_data</td>
+<td>sample_data</td>
+</tr>
+<tr>
+<td>bucket_catalog_label</td>
+<td>instance_catalog_label</td>
+</tr>
+<tr>
+<td>folder_catalog_label</td>
+<td>table_catalog_label</td>
+</tr>
+<tr>
+<td>comment</td>
+<td>comment</td>
+</tr>
+</tbody>
+</table>
 
 
 

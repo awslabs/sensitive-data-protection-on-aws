@@ -1056,6 +1056,26 @@
   
   
     <li class="md-nav__item">
+      <a href="../data-catalog-export/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    导出数据目录
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../data-catalog-labels/" class="md-nav__link">
         
   
@@ -1682,7 +1702,6 @@
 <ul>
 <li>它具有 <a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html">VPC NAT 网关</a>。</li>
 <li>它同时具有 <a href="https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints-s3.html">S3 的 VPC 终端节点</a> 和 Glue 终端节点。</li>
-<li>它已经授予解决方案对应的数据库操作用户select权限。</li>
 </ul>
 </p>
 </div>
@@ -1692,7 +1711,7 @@
 <li>
 <p>选择一个 RDS 实例，然后选择 <strong>同步至数据目录</strong> 以打开一个弹出窗口，要求输入凭据。有两种输入凭据的选项：</p>
 <ul>
-<li>选择 <strong>用户名/密码</strong> 并输入 RDS 实例的用户名和密码。</li>
+<li>选择 <strong>用户名/密码</strong> 并输入 RDS 实例的用户名和密码。注意：该用户需要有SELECT权限，建议为使用SDP方案创建只读的DB user。</li>
 <li>选择 <strong>Secret Manager</strong> 并选择 RDS 的 Secret。它将列出 Secret Manager 中与 RDS 相同帐户的所有 Secret。</li>
 </ul>
 </li>
