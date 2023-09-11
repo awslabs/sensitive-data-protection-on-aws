@@ -102,7 +102,7 @@ const CommonBadge: React.FC<CommonBadgeProps> = (props: CommonBadgeProps) => {
   }
 
   return (
-    <div className={badgeCls}>
+    <div className={badgeCls + ' ' + className}>
       <Icon name={iconName} size="small" className="classified-icon" />
       <span className="classified-span">{badgeLabel}</span>
     </div>

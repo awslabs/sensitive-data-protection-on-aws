@@ -17,6 +17,7 @@
   "manageJobs": "管理敏感数据发现作业。",
   "jobs": "作业",
   "jobsDesc": "敏感数据发现作业。",
+  "selectLessItems": "请不要选择超过50个数据目录",
   "create": {
     "title": "创建敏感数据发现作业",
     "seelctS3DataCatalog": "选择数据目录 (S3)",
@@ -57,8 +58,13 @@
     "override": "覆盖手动更新的隐私标签",
     "jobPreview": "作业预览",
     "targetDataCatalogs": "目标数据目录",
-    "s3Bucket": "S3 存储桶： ",
-    "rdsInstance": "RDS 实例：  "
+    "s3Bucket": "S3 存储桶",
+    "rdsInstance": "RDS 实例",
+    "rdsTable": "RDS 数据表",
+    "exclusiveRules": "高级规则：在扫描任务中，排除关键词",
+    "exclusiveRulesDesc": "如果某一列的列名出现以下关键词，那么这一列将不会被标记为敏感数据。此适用于所有任务中的数据目录，可覆盖标识符中的规则。",
+    "exclusiveRulesToggle": "请列出您希望排除的关键词",
+    "exclusives": "请列出您希望排除的关键词"
   },
   "cataLogOption": {
     "all": "所有数据目录",

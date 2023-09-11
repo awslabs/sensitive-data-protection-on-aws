@@ -220,6 +220,10 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
   };
 
   const connectRDS = async () => {
+    if (!selectedItems || selectedItems.length === 0) {
+      alertMsg(t('selectOneItem'), 'error');
+      return;
+    }
     if (cedentialType === 'username_pwd') {
       if (!rdsUser || !rdsUserPwd) {
         alertMsg(t('inputRDSUserOrPassword'), 'error');

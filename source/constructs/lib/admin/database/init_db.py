@@ -55,11 +55,13 @@ def send_response(event, response_status = "SUCCESS", reason = "OK"):
 
 
 def on_create(event):
-    main(event,"./whole")
+    main(event,"whole")
 
 
 def on_update(event):
     logger.info("Got Update")
+    main(event,"1.0.0-1.0.1")
+    main(event,"1.0.1-1.0.2")
 
 
 def on_delete(event):
@@ -88,6 +90,24 @@ def __exec_file(cursor, sql_file):
         cursor.execute(sql)
 
 
+def __check_version(cursor, path):
+    if path == 'whole':
+        logger.info('Whole install')
+        return True
+    sql = 'select value from version'
+    check = True
+    to_version = path.split("-")[1]
+    logger.info(f"To Version:{to_version}")
+    cursor.execute(sql)
+    results = cursor.fetchall()
+    for row in results:
+        if row[0] == to_version:
+            check = False
+            break
+    logger.info(f"Check result:{check}")
+    return check
+
+
 def main(event,path):
     secret_id = os.getenv("SecretId", event["ResourceProperties"]["SolutionNameAbbr"])
     secrets_client = boto3.client('secretsmanager')
@@ -100,7 +120,14 @@ def main(event,path):
                          database=secrets['dbname'])
     db.autocommit(True)
     cursor = db.cursor()
-    sql_files = __get_sql_files(path)
-    for sql_file in sql_files:
-        __exec_file(cursor, sql_file)
-    db.close()
+    try:
+        check_result = __check_version(cursor, path)
+        if not check_result:
+            logger.info("The upgrade script is currently included")
+            return
+        sql_files = __get_sql_files(path)
+        for sql_file in sql_files:
+            __exec_file(cursor, sql_file)
+    finally:
+        cursor.close()
+        db.close()

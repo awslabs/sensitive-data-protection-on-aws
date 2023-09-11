@@ -40,6 +40,16 @@ const getTablesByDatabaseIdentifier = async (params: any) => {
   return result;
 };
 
+// search_catalog_tables_catalog_search_tables_post
+const searchCatalogTables = async (params: any) => {
+  const result = await apiRequest(
+    'post',
+    'catalog/search-tables',
+    params
+  );
+  return result;
+};
+
 // 更新database信息
 const updateCatalogDatabase = async (params: any) => {
   const result = await apiRequest(
@@ -191,4 +201,5 @@ export {
   updateCatalogTableLabels,
   getExportS3Url,
   clearS3Object,
+  searchCatalogTables,
 };

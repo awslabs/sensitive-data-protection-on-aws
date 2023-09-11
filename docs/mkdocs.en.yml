@@ -24,6 +24,7 @@ nav:
     - Deploy the solution:
         - AWS CloudFormation template: deployment/template.md
         - Deployment: deployment/deployment.md
+    - Update the solution: update/update.md
     - Use the solution: 
         - Overview: user-guide/get-started.md
         - Connect to data source:

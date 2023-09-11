@@ -74,8 +74,6 @@ export interface AlbProps {
   // Value of property Parameters must be an object with String (or simple type) properties in NestedStack.
   readonly vpcInfo?: VpcProps;
   readonly onlyPrivateSubnets?: boolean;
-  readonly publicSubnets?: string;
-  readonly privateSubnets?: string;
   readonly bucket: IBucket;
   readonly apiFunction: Function;
   readonly port: number;
@@ -84,6 +82,7 @@ export interface AlbProps {
   readonly oidcIssuer: string;
   readonly oidcClientId: string;
   readonly domainName: string;
+  readonly useCognito?: boolean;
 }
 
 export class AlbStack extends NestedStack {
@@ -241,6 +240,10 @@ export class AlbStack extends NestedStack {
   }
 
   private createProtalConfig(listener: ApplicationListener, props: AlbProps) {
+    let logoutUrl = '';
+    if (props?.useCognito) {
+      logoutUrl = `https://${SolutionInfo.SOLUTION_NAME_ABBR.toLowerCase()}-${Aws.ACCOUNT_ID}.auth.${Aws.REGION}.amazoncognito.com/logout`;
+    }
     const portalConfigFunction = new Function(this, 'PortalConfigFunction', {
       // functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-PortalConfig-${this.identifier}`,
       description: `${SolutionInfo.SOLUTION_NAME} - set the configration to Lambda environment and portal will read it through ALB.`,
@@ -257,8 +260,8 @@ export class AlbStack extends NestedStack {
         aws_oidc_issuer: props.oidcIssuer,
         aws_oidc_client_id: props.oidcClientId,
         aws_oidc_customer_domain: `${this.url}/logincallback`,
+        aws_oidc_logout: logoutUrl,
         backend_url: `${this.url}`,
-        expired: '12',
         version: SolutionInfo.SOLUTION_VERSION,
       },
     });

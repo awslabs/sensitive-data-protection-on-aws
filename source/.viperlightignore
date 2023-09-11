@@ -10,9 +10,7 @@ CONTRIBUTING.md:51
 .typescript/package-lock.json
 portal/node_modules
 constructs/lib/common/constants.ts
-constructs/lib/admin/database/1.0.0-1.0.x/20_update.sql
-
-constructs/lib/admin/database/whole/
+constructs/lib/admin/database/
 portal/package-lock.json
 constructs/api/README.md:24
 constructs/api/catalog/service.py:45

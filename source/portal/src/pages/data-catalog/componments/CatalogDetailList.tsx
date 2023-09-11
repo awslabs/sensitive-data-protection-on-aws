@@ -87,7 +87,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       null as SelectProps.Option | null
     );
     const [nameFilterText, setNameFilterText] = useState('');
-    
+
     const [curFolderSortColumn, setCurFolderSortColumn] = useState<any>({
       sortingField: 'table_name',
     });
@@ -169,12 +169,13 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
 
     useEffect(() => {
       getPageData(nameFilterText);
-    }, [query, 
-        currentPage, 
-        nameFilterText, 
-        preferences.pageSize, 
-        isFolderDescending, 
-        curFolderSortColumn
+    }, [
+      query,
+      currentPage,
+      nameFilterText,
+      preferences.pageSize,
+      isFolderDescending,
+      curFolderSortColumn,
     ]);
 
     // useEffect(() => {
@@ -510,15 +511,19 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                       e.isTag &&
                       item.id === 'value'
                     ) {
-                      if (e.value !== 'N/A') {
+                      if (e.value && e.value !== 'N/A') {
                         const tags = JSON.parse(JSON.stringify(e.value));
-                        return tags.map((element: any, index: number) => {
-                          return (
-                            <div key={index} className="mb-5">
-                              <Badge>{JSON.stringify(element)}</Badge>
-                            </div>
-                          );
-                        });
+                        if (Array.isArray(tags)) {
+                          return tags.map((element: any, index: number) => {
+                            return (
+                              <div key={index} className="mb-5">
+                                <Badge>{JSON.stringify(element)}</Badge>
+                              </div>
+                            );
+                          });
+                        } else {
+                          return 'Tag Format Invalid';
+                        }
                       } else {
                         return 'N/A';
                       }
