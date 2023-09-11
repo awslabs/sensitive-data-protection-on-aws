@@ -23,12 +23,11 @@
         
         - 它具有 [VPC NAT 网关](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html)。
         - 它同时具有 [S3 的 VPC 终端节点](https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints-s3.html) 和 Glue 终端节点。
-        - 它已经授予解决方案对应的数据库操作用户select权限。
 
 1. 在 **连接数据源** 页面上，单击一个帐户以打开其详细信息页面。
 2. 选择 **Amazon RDS** 标签页。您可以看到解决方案部署区域中的 RDS 实例列表。
 3. 选择一个 RDS 实例，然后选择 **同步至数据目录** 以打开一个弹出窗口，要求输入凭据。有两种输入凭据的选项：
-    - 选择 **用户名/密码** 并输入 RDS 实例的用户名和密码。
+    - 选择 **用户名/密码** 并输入 RDS 实例的用户名和密码。注意：该用户需要有SELECT权限，建议为使用SDP方案创建只读的DB user。
     - 选择 **Secret Manager** 并选择 RDS 的 Secret。它将列出 Secret Manager 中与 RDS 相同帐户的所有 Secret。
 
 4. 选择 **连接**。解决方案将开始测试连接，可能需要几分钟时间。
