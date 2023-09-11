@@ -33,6 +33,7 @@ nav:
             - Delete data catalogs: user-guide/data-catalog-delete.md
         - Browse data catalogs: 
             - Synchronize data catalogs: user-guide/data-catalog-sync.md
+            - Export data catalogs: user-guide/data-catalog-export.md
             - Label data catalogs: user-guide/data-catalog-labels.md
         - Define classification template: 
             - Define classification template: user-guide/data-classification-template.md
