@@ -2068,7 +2068,7 @@ Issuer URL可以在您的个人资料中找到。完整的Issuer URL为“https:
 <p class="admonition-title">提醒</p>
 <p>使用带身份提供商的模板可跳过此步</p>
 </div>
-<p>将SigninRedirectUriHTTP(S)的值复制并配置到您的OIDC应用程序中。</p>
+<p>将SigninRedirectUriHTTP(S)和PortalUrlHTTP(S)的值分别填入您的OIDC应用程序中的登录回调地址和退出回调地址中。</p>
 <h4 id="1cognito_1">选项 1：Cognito</h4>
 <ol>
 <li>访问您的用户池。</li>
@@ -2080,7 +2080,7 @@ Issuer URL可以在您的个人资料中找到。完整的Issuer URL为“https:
 <h4 id="2authing_1">选项 2：Authing</h4>
 <p><img alt="Authing Callback URL" src="../images/AuthingCallbackURL.jpg" /></p>
 <h4 id="3okta_1">选项 3：OKTA</h4>
-<p><img alt="Authing Callback URL" src="../images/OktaCallbackURL.png" /></p>
+<p><img alt="Authing Callback URL" src="../images/OktaCallbackURL.jpg" /></p>
 <h3 id="configure-custom-domain-name">步骤四：配置自定义域名（Configure custom domain name）</h3>
 <p>如果在创建堆栈时填写了自定义域名，请将自定义域名的CName设置为CloudFormation输出选项卡中的LoadBalancerDnsNameHTTP(S)值。</p>
 <ol>

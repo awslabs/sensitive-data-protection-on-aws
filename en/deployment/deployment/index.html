@@ -2095,7 +2095,7 @@ The Issuer URL is in your profile. The full Issuer URL is “https://dev-xxx.okt
 <p class="admonition-title">Remind</p>
 <p>Skip this step by using the template with an identity provider</p>
 </div>
-<p>Copy the value of <code>SigninRedirectUriHTTP(S)</code> and configure it into your OIDC application.</p>
+<p>Fill the values of SigninRedirectUriHTTP(S) and PortalUrlHTTP(S) into the login callback url and logout callback url in your OIDC application, respectively.</p>
 <h4 id="option-1-cognito_1">Option 1: Cognito</h4>
 <ol>
 <li>Go to your user pools.</li>
@@ -2107,7 +2107,7 @@ The Issuer URL is in your profile. The full Issuer URL is “https://dev-xxx.okt
 <h4 id="option-2-authing_1">Option 2: Authing</h4>
 <p><img alt="Authing Callback URL" src="../images/AuthingCallbackURL.jpg" /></p>
 <h4 id="option-3-otka">Option 3: OTKA</h4>
-<p><img alt="Authing Callback URL" src="../images/OktaCallbackURL.png" /></p>
+<p><img alt="Authing Callback URL" src="../images/OktaCallbackURL.jpg" /></p>
 <h3 id="step-4-configure-custom-domain-name">Step 4. Configure custom domain name</h3>
 <p>If you entered a custom domain name when deploying the Admin stack, set the CName of the custom domain name to LoadBalancerDnsNameHTTP(S) value on the Output tab of CloudFormat.</p>
 <ol>
