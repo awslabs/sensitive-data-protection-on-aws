@@ -241,6 +241,21 @@ def update_s3_bucket_count(account: str, region: str):
     session.merge(account)
     session.commit()
 
+def update_jdbc_instance_count(account: str, region: str):
+    session = get_session()
+
+    connected = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.region == region,
+                                                     JDBCInstanceSource.aws_account == account,
+                                                     JDBCInstanceSource.glue_state == ConnectionState.ACTIVE.value).count()
+    total = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.region == region,
+                                                 JDBCInstanceSource.aws_account == account).count()
+
+    account = session.query(Account).filter(Account.account_id == account, Account.region == region).first()
+    if account is not None:
+        account.connected_jdbc_instance = connected
+        account.total_jdbc_instance = total
+    session.merge(account)
+    session.commit()
 
 def create_rds_connection(account: str, region: str, instance: str, glue_connection: str, glue_database: str
                           , glue_vpc_endpoint_id: str, crawler_name: str):
@@ -298,6 +313,22 @@ def delete_rds_connection(account: str, region: str, instance: str):
     rds_instance_source.glue_crawler_last_updated = datetime.datetime.utcnow()
     rds_instance_source.glue_state = None
     session.merge(rds_instance_source)
+    session.commit()
+
+def delete_jdbc_connection(provider: str, account: str, region: str, instance: str):
+    session = get_session()
+    jdbc_instance_source = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.instance_id == instance,
+                                                                  JDBCInstanceSource.region == region,
+                                                                  JDBCInstanceSource.aws_account == account,
+                                                                  JDBCInstanceSource.account_provider == provider).order_by(
+        desc(RdsInstanceSource.detection_history_id)).first()
+    jdbc_instance_source.glue_database = None
+    jdbc_instance_source.glue_crawler = None
+    jdbc_instance_source.glue_connection = None
+    jdbc_instance_source.glue_vpc_endpoint = None
+    jdbc_instance_source.glue_crawler_last_updated = datetime.datetime.utcnow()
+    jdbc_instance_source.glue_state = None
+    session.merge(jdbc_instance_source)
     session.commit()
 
 

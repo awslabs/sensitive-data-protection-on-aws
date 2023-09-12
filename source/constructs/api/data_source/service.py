@@ -364,6 +364,76 @@ def sync_jdbc_connection(
 
     # TODO
 
+# Delete third-party connection
+def before_delete_jdbc_connection(provider, account, region, instance_id):
+    jdbc_instance = crud.get_jdbc_instance_source(provider, account, region, instance_id)
+    if jdbc_instance is None:
+        raise BizException(MessageEnum.SOURCE_RDS_NO_INSTANCE.get_code(),
+                           MessageEnum.SOURCE_RDS_NO_INSTANCE.get_msg())
+    # if rds_instance.glue_crawler is None:
+    #     raise BizException(MessageEnum.SOURCE_RDS_NO_CRAWLER.get_code(),
+    #                        MessageEnum.SOURCE_RDS_NO_CRAWLER.get_msg())
+    # if rds_instance.glue_database is None:
+    #     raise BizException(MessageEnum.SOURCE_RDS_NO_DATABASE.get_code(),
+    #                        MessageEnum.SOURCE_RDS_NO_DATABASE.get_msg())
+    # crawler, if crawling try to stop and raise, if pending raise directly
+    state = crud.get_jdbc_instance_source_glue_state(provider, account, region, instance_id)
+    if state == ConnectionState.PENDING.value:
+        raise BizException(MessageEnum.SOURCE_DELETE_WHEN_CONNECTING.get_code(),
+                           MessageEnum.SOURCE_DELETE_WHEN_CONNECTING.get_msg())
+    elif state == ConnectionState.CRAWLING.value:
+        try:
+            # Stop the crawler
+            __glue(account=account, region=region).stop_crawler(Name=jdbc_instance.glue_crawler)
+        except Exception as e:
+            logger.error(traceback.format_exc())
+        raise BizException(MessageEnum.SOURCE_DELETE_WHEN_CONNECTING.get_code(),
+                           MessageEnum.SOURCE_DELETE_WHEN_CONNECTING.get_msg())
+    elif state == ConnectionState.ACTIVE.value:
+        # if job running, do not stop but raising
+        if not can_delete_job_database(account_id=account, region=region, database_type='rds',
+                                       database_name=jdbc_instance):
+            raise BizException(MessageEnum.DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE.get_code(),
+                               MessageEnum.DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE.get_msg())
+
+
+def delete_jdbc_connection(provider: str, account: str, region: str, instance_id: str):
+    before_delete_jdbc_connection(provider, account, region, instance_id)
+    err = []
+    # 1/3 delete job database
+    try:
+        delete_job_database(account_id=account, region=region, database_type='s3', database_name=instance_id)
+    except Exception as e:
+        err.append(str(e))
+    # 2/3 delete catalog
+    try:
+        delete_catalog_by_database_region(database=instance_id, region=region, type='jdbc')
+    except Exception as e:
+        err.append(str(e))
+    # 3/3 delete source
+    s3_bucket = crud.get_jdbc_instance_source(provider, account, region, instance_id)
+    glue = __glue(account=account, region=region)
+    try:
+        glue.delete_crawler(Name=s3_bucket.glue_crawler)
+    except Exception as e:
+        err.append(str(e))
+    try:
+        glue.delete_database(Name=s3_bucket.glue_database)
+    except Exception as e:
+        err.append(str(e))
+
+    crud.delete_jdbc_connection(provider, account, region, instance_id)
+    try:
+        crud.update_jdbc_instance_count(account, region)
+    except Exception as e:
+        err.append(str(e))
+
+    if err is not None:
+        logger.error(traceback.format_exc())
+        # raise BizException(MessageEnum.SOURCE_S3_CONNECTION_DELETE_ERROR.get_code(), err)
+
+    return True
+
 # Create crawler, connection and database and start crawler
 def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=None, rds_password=None,
                         rds_secret_id=None):
