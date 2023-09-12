@@ -1101,7 +1101,41 @@ def get_admin_account_info():
     return schemas.AdminAccountInfo(account_id=_admin_account_id, region=_admin_account_region)
 
 def add_jdbc_conn(jdbcConn: schemas.JDBCInstanceSource):
-    crud.add_jdbc_conn(jdbcConn)
+    response = boto3.client('glue', region_name=jdbcConn.region).create_connection(
+        CatalogId=jdbcConn.account_id,
+        ConnectionInput={
+            'Name': jdbcConn.instance_id,
+            'Description': jdbcConn.description,
+            'ConnectionType': 'JDBC',
+            'ConnectionProperties': {
+                # 'CUSTOM_JDBC_CERT': jdbcConn.custom_jdbc_cert,
+                # 'CUSTOM_JDBC_CERT_STRING': jdbcConn.custom_jdbc_cert_string,
+                'JDBC_CONNECTION_URL': jdbcConn.jdbc_connection_url,
+                'JDBC_ENFORCE_SSL': jdbcConn.jdbc_enforce_ssl,
+                # 'KAFKA_SSL_ENABLED': jdbcConn.kafka_ssl_enabled,
+                # 'SKIP_CUSTOM_JDBC_CERT_VALIDATION': jdbcConn.skip_custom_jdbc_cert_validation,
+                'USERNAME': jdbcConn.master_username,
+                'PASSWORD': jdbcConn.password,
+                # 'JDBC_DRIVER_CLASS_NAME': jdbcConn.jdbc_driver_class_name,
+                # 'JDBC_DRIVER_JAR_URI': jdbcConn.jdbc_driver_jar_uri
+            },
+            'PhysicalConnectionRequirements': {
+                'SubnetId': jdbcConn.network_subnet_id,
+                'SecurityGroupIdList': [
+                    jdbcConn.network_sg_id
+                ],
+                'AvailabilityZone': jdbcConn.network_availability_zone
+            }
+        }
+    )
+
+#     {
+#     "FromFederationSource": null,
+#     "Message": "Validation for connection properties failed (Service: AWSGlue; Status Code: 400; Error Code: InvalidInputException; Request ID: f8afe2b1-4e68-4e43-a769-936b28346fe6; Proxy: null)"
+# }
+
+    if response['ResponseMetadata']['HTTPStatusCode'] == 200:
+        crud.add_jdbc_conn(jdbcConn)
 
 def __glue(account: str, region: str):
     iam_role_name = crud.get_iam_role(account)
@@ -1460,15 +1494,24 @@ def __delete_account(account_id: str, region: str):
         logger.error(traceback.format_exc())
 
 
-def query_glue_connections(account: schemas.AdminAccountInfo):                         
-    return boto3.client('glue', region_name=account.region).get_connections(CatalogId=account.account_id, Filter={
-        'ConnectionType': 'JDBC'
-    },
-        HidePassword=True,
-    )
+def query_glue_connections(account: schemas.AdminAccountInfo):
+    return boto3.client('glue',
+                        region_name=_admin_account_region).get_connections(CatalogId=account.account_id,
+                                                                           Filter={'ConnectionType': 'JDBC'},
+                                                                           MaxResults=100,
+                                                                           HidePassword=True)['ConnectionList']
 
 def query_account_network(account: schemas.AdminAccountInfo):
     ec2_client = boto3.client('ec2', region_name=account.region)
-    response = ec2_client.describe_security_groups(GroupIds="")
+    response = ec2_client.describe_security_groups(GroupNames=["SDPS-CustomDB"])
     vpc_ids = [item['VpcId'] for item in response['SecurityGroups']]
-    return ec2_client.describe_vpcs(VpcIds=[vpc_ids[0]]), ec2_client.describe_subnets(Filters=[{'Name': 'vpc-id', 'Values': [vpc_ids[0]]}])
+    subnets = ec2_client.describe_subnets(Filters=[{'Name': 'vpc-id', 'Values': [vpc_ids[0]]}])['Subnets']
+    private_subnet = list(filter(lambda x: not x["MapPublicIpOnLaunch"], subnets))
+    return ec2_client.describe_vpcs(VpcIds=[vpc_ids[0]])['Vpcs'][0], private_subnet[0] if private_subnet else subnets[0]
+
+
+def test_glue_conn(account, connection):
+    return boto3.client('glue').start_connection_test(
+        CatalogId=account,
+        ConnectionName=connection
+    )['ConnectionTest']['Status']

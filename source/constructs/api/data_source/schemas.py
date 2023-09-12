@@ -118,29 +118,34 @@ class RdsInstanceSource(BaseModel):
 
 
 class JDBCInstanceSource(BaseModel):
-    id: int
     instance_id: Optional[str]
-    engine: Optional[str]
-    address: Optional[str]
-    port: Optional[int]
+    description: Optional[str]
+    jdbc_connection_url: Optional[str]   # "jdbc:mysql://81.70.179.114:9000/"
+    jdbc_enforce_ssl: Optional[str]  # "false" Require SSL connection  如果连不上connection会报错
+    kafka_ssl_enabled: Optional[str]  # "false"
     master_username: Optional[str]
-    instance_status: Optional[str]
-    account_provider: Optional[str]
-    account_id: Optional[str]
-    region: Optional[str]
+    password: Optional[str]
+    skip_custom_jdbc_cert_validation: Optional[str] # "false"
+    custom_jdbc_cert: Optional[str]  # SSL证书地址
+    custom_jdbc_cert_string: Optional[str]  # For Oracle Database this maps to SSL_SERVER_CERT_DN, and for SQL Server it maps to hostNameInCertificate.
+    network_availability_zone: Optional[str]
+    network_subnet_id: Optional[str]
+    network_sg_id: Optional[str]
+    jdbc_driver_class_name: Optional[str]
+    jdbc_driver_jar_uri: Optional[str]  # s3://mysql-connector-2023/mysql-connector-j-8.1.0.jar  必须校验为jar文件
     data_source_id: Optional[int]
     detection_history_id: Optional[int]
-    created_time: Optional[datetime.datetime]
     glue_database: Optional[str]
     glue_connection: Optional[str]
     glue_vpc_endpoint: Optional[str]
     glue_crawler: Optional[str]
     glue_state: Optional[str]
     create_type: int
-
-    jdbc_driver_class: Optional[str]
-    jdbc_driver_S3_path: Optional[str]
-    glue_crawler_last_updated: Optional[datetime.datetime]
+    instance_class: Optional[str]
+    instance_status: Optional[str]
+    account_provider: Optional[str]
+    account_id: Optional[str]
+    region: Optional[str]
 
     class Config:
         orm_mode = True

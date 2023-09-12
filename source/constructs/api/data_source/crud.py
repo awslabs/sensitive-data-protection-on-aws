@@ -473,13 +473,32 @@ def add_jdbc_conn(jdbcConn: schemas.JDBCInstanceSource):
 
     jdbc_instance_source = JDBCInstanceSource()
     jdbc_instance_source.instance_id = jdbcConn.instance_id
-    jdbc_instance_source.create_type = jdbcConn.create_type
-    jdbc_instance_source.engine = jdbcConn.engine
-    jdbc_instance_source.address = jdbcConn.address
-    jdbc_instance_source.port = jdbcConn.port
-    jdbc_instance_source.jdbc_driver_class = jdbcConn.jdbc_driver_class
-    jdbc_instance_source.jdbc_driver_S3_path = jdbcConn.jdbc_driver_S3_path
+    jdbc_instance_source.description = jdbcConn.description
+    jdbc_instance_source.jdbc_connection_url = jdbcConn.jdbc_connection_url
+    jdbc_instance_source.jdbc_enforce_ssl = jdbcConn.jdbc_enforce_ssl
+    jdbc_instance_source.kafka_ssl_enabled = jdbcConn.kafka_ssl_enabled
     jdbc_instance_source.master_username = jdbcConn.master_username
+    jdbc_instance_source.skip_custom_jdbc_cert_validation = jdbcConn.skip_custom_jdbc_cert_validation
+    jdbc_instance_source.custom_jdbc_cert = jdbcConn.custom_jdbc_cert
+    jdbc_instance_source.custom_jdbc_cert_string = jdbcConn.custom_jdbc_cert_string
+    jdbc_instance_source.network_availability_zone = jdbcConn.network_availability_zone
+    jdbc_instance_source.network_subnet_id = jdbcConn.network_subnet_id
+    jdbc_instance_source.network_sg_id = jdbcConn.network_sg_id
+    jdbc_instance_source.jdbc_driver_class_name = jdbcConn.jdbc_driver_class_name
+    jdbc_instance_source.jdbc_driver_jar_uri = jdbcConn.jdbc_driver_jar_uri
+    jdbc_instance_source.instance_class = jdbcConn.instance_class
+    jdbc_instance_source.instance_status = jdbcConn.instance_status
+    jdbc_instance_source.account_provider = jdbcConn.account_provider
+    jdbc_instance_source.account_id = jdbcConn.account_id
+    jdbc_instance_source.region = jdbcConn.region
+    jdbc_instance_source.data_source_id = jdbcConn.data_source_id
+    jdbc_instance_source.detection_history_id = jdbcConn.detection_history_id
+    jdbc_instance_source.glue_database = jdbcConn.glue_database
+    jdbc_instance_source.glue_crawler = jdbcConn.glue_crawler
+    jdbc_instance_source.glue_connection = jdbcConn.glue_connection
+    jdbc_instance_source.glue_vpc_endpoint = jdbcConn.glue_vpc_endpoint
+    jdbc_instance_source.glue_state = jdbcConn.glue_state
+    jdbc_instance_source.create_type = jdbcConn.create_type
     # jdbc_instance_source.
 
     session.add(jdbc_instance_source)

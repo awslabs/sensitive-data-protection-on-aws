@@ -177,18 +177,23 @@ def get_secrets(account: str, region: str):
 def get_admin_account_info():
     return service.get_admin_account_info()
 
-@router.get("/add-jdbc-conn", response_model=BaseResponse)
+@router.post("/add-jdbc-conn", response_model=BaseResponse)
 @inject_session
 def add_jdbc_conn(jdbcConn: schemas.JDBCInstanceSource):
     return service.add_jdbc_conn(jdbcConn)
 
-@router.get("/query-glue-connections", response_model=BaseResponse)
+@router.post("/query-glue-connections", response_model=BaseResponse)
 @inject_session
 def query_glue_connections(account: schemas.AdminAccountInfo):
     return service.query_glue_connections(account)
 
 
-@router.get("/query-account-network", response_model=BaseResponse)
+@router.post("/query-account-network", response_model=BaseResponse)
 @inject_session
 def query_account_network(account: schemas.AdminAccountInfo):
     return service.query_account_network(account)
+
+@router.post("/test-glue-conn", response_model=BaseResponse)
+@inject_session
+def test_glue_conn(account: str, connection: str):
+    return service.test_glue_conn(account, connection)
