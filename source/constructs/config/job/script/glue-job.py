@@ -97,7 +97,7 @@ class ColumnDetector:
         
         total_exclude_keywords = identifier_exclude_keywords + self.job_exclude_keywords
         for exclude_keyword in total_exclude_keywords:
-            if re.search(exclude_keyword, column_name):
+            if exclude_keyword in column_name:
                 valid_column_header = False
                 return valid_column_header
 
