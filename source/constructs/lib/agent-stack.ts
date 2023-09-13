@@ -20,9 +20,16 @@ import { DiscoveryJobStack } from './agent/DiscoveryJob-stack';
 import { Parameter } from './common/parameter';
 import { SolutionInfo } from './common/solution-info';
 
+export interface AgentProps extends StackProps {
+  /**
+   * Account ID as input
+   */
+  accountID?: string;
+}
+
 // Operator agent stack
 export class AgentStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
+  constructor(scope: Construct, id: string, props?: AgentProps) {
     super(scope, id, props);
 
     this.templateOptions.description = SolutionInfo.AGENT_DESCRIPTION;
@@ -30,14 +37,18 @@ export class AgentStack extends Stack {
 
     const trustedRoleName = `${SolutionInfo.SOLUTION_NAME_ABBR}APIRole`;
 
-    const adminAccountIdParameter = new CfnParameter(this, 'AdminAccountId', {
-      type: 'String',
-      description: 'The account id of Admin',
-      allowedPattern:
-        '\\d{12}',
-    });
-    Parameter.addToParamLabels('Admin Account ID', adminAccountIdParameter.logicalId);
-    const adminAccountId = adminAccountIdParameter.valueAsString;
+    let adminAccountId = '';
+    if (!props?.accountID) {
+      const adminAccountIdParameter = new CfnParameter(this, 'AdminAccountId', {
+        type: 'String',
+        description: 'The account id of Admin',
+        allowedPattern: '\\d{12}',
+      });
+      Parameter.addToParamLabels('Admin Account ID', adminAccountIdParameter.logicalId);
+      adminAccountId = adminAccountIdParameter.valueAsString;
+    } else {
+      adminAccountId = props?.accountID;
+    }
 
     new DiscoveryJobStack(this, 'DiscoveryJobStateMachine', {
       adminAccountId: adminAccountId,

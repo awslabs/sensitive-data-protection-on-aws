@@ -33,6 +33,7 @@ import { DeleteResourcesStack } from './admin/delete-resources-stack';
 import { GlueStack } from './admin/glue-stack';
 import { RdsStack } from './admin/rds-stack';
 import { VpcStack } from './admin/vpc-stack';
+import { AgentStack } from './agent-stack';
 import { BuildConfig } from './common/build-config';
 import { Constants } from './common/constants';
 import { Parameter } from './common/parameter';
@@ -301,9 +302,15 @@ export class AdminStack extends Stack {
     }
 
 
-    new DeleteResourcesStack(this, 'DeleteResources');
+    const deleteStack = new DeleteResourcesStack(this, 'DeleteResources');
 
     // new CallRegionStack(this, "CallRegion");
+
+    const agent = new AgentStack(this, 'AgentStack', {
+      accountID: Stack.of(this).account,
+    });
+
+    agent.node.addDependency(deleteStack);
 
     this.templateOptions.metadata = {
       'AWS::CloudFormation::Interface': {
