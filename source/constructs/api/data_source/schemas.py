@@ -15,10 +15,11 @@ class DataSource(BaseModel):
 
 class Account(BaseModel):
     id: int
-    aws_account_id: Optional[str]
-    aws_account_alias: Optional[str]
-    aws_account_email: Optional[str]
-    delegated_aws_account_id: Optional[str]
+    account_id: Optional[str]
+    account_alias: Optional[str]
+    account_email: Optional[str]
+    account_provider: Optional[str]
+    delegated_account_id: Optional[str]
     region: Optional[str]
     organization_unit_id: Optional[str]
     stack_id: Optional[str]
@@ -33,6 +34,8 @@ class Account(BaseModel):
     connected_s3_bucket: Optional[int]
     total_rds_instance: Optional[int]
     connect_rds_instance: Optional[int]
+    total_jdbc_instance: Optional[int]
+    connect_jdbc_instance: Optional[int]
     last_updated: Optional[datetime.datetime]
 
     class Config:
@@ -114,6 +117,40 @@ class RdsInstanceSource(BaseModel):
         orm_mode = True
 
 
+class JDBCInstanceSource(BaseModel):
+    instance_id: Optional[str]
+    description: Optional[str]
+    jdbc_connection_url: Optional[str]   # "jdbc:mysql://81.70.179.114:9000/"
+    jdbc_enforce_ssl: Optional[str]  # "false" Require SSL connection  如果连不上connection会报错
+    kafka_ssl_enabled: Optional[str]  # "false"
+    master_username: Optional[str]
+    password: Optional[str]
+    skip_custom_jdbc_cert_validation: Optional[str] # "false"
+    custom_jdbc_cert: Optional[str]  # SSL证书地址
+    custom_jdbc_cert_string: Optional[str]  # For Oracle Database this maps to SSL_SERVER_CERT_DN, and for SQL Server it maps to hostNameInCertificate.
+    network_availability_zone: Optional[str]
+    network_subnet_id: Optional[str]
+    network_sg_id: Optional[str]
+    jdbc_driver_class_name: Optional[str]
+    jdbc_driver_jar_uri: Optional[str]  # s3://mysql-connector-2023/mysql-connector-j-8.1.0.jar  必须校验为jar文件
+    data_source_id: Optional[int]
+    detection_history_id: Optional[int]
+    glue_database: Optional[str]
+    glue_connection: Optional[str]
+    glue_vpc_endpoint: Optional[str]
+    glue_crawler: Optional[str]
+    glue_state: Optional[str]
+    create_type: int
+    instance_class: Optional[str]
+    instance_status: Optional[str]
+    account_provider: Optional[str]
+    account_id: Optional[str]
+    region: Optional[str]
+
+    class Config:
+        orm_mode = True
+
+
 class Region(BaseModel):
     id: Optional[int]
     region: Optional[str]
@@ -148,6 +185,25 @@ class SourceRdsConnection(BaseModel):
     rds_password: Optional[str]
     rds_secret: Optional[str]
 
+class SourceJDBCConnection(BaseModel):
+    account_provider: str
+    account_id: str
+    region: str
+    instance: str
+    engine: Optional[str]
+    address: Optional[str]
+    port: Optional[int]
+    username: Optional[str]
+    password: Optional[str]
+    secret: Optional[str]
+
+
+class SourceDeteteJDBCConnection(BaseModel):
+    account_provider: str
+    account_id: str
+    region: str
+    instance: str
+
 class SourceDeteteS3Connection(BaseModel):
     account_id: str
     region: str
@@ -159,7 +215,9 @@ class SourceDeteteRdsConnection(BaseModel):
     instance: str
 
 class SourceNewAccount(BaseModel):
+    account_provider: str
     account_id: str
+    region: str
 
 class SourceOrgAccount(BaseModel):
     organization_management_account_id: str

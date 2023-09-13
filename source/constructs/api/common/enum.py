@@ -90,7 +90,10 @@ class MessageEnum(Enum):
     SOURCE_RDS_NO_VPC_SECRET_MANAGER_ENDPOINT = {1228: "Could not find secret manager endpoint or NAT gateway for "
                                                        "subnetId in VPC"}
     SOURCE_RDS_NO_PRIVATE_ACCESSABLE = {1229: "Could not connect to an accessible database with no private subnets"}
-
+    SOURCE_ACCOUNT_ALREADY_EXISTS = {1230: "An account with the same provider and the same region already exists"}
+    SOURCE_JDBC_NO_CREDENTIAL = {1231: "No credential"}
+    SOURCE_JDBC_NO_AUTH = {1232: "No authorization"}
+    SOURCE_JDBC_DUPLICATE_AUTH = {1233: "Duplicate authorization"}
     # label
     LABEL_EXIST_FAILED = {1611: "Cannot create duplicated label"}
 
@@ -145,6 +148,9 @@ class DatabaseType(Enum):
     S3 = "s3"
     DDB = "ddb"
     EMR = "emr"
+    CUSTOM_JDBC_AWS = "custom_jdbc_aws"
+    CUSTOM_JDBC_TENCENT = "custom_jdbc_tencent"
+    CUSTOM_JDBC_ALIYUN = "custom_jdbc_aliyun"
 
 
 @unique
@@ -257,3 +263,13 @@ class AutoSyncDataAction(Enum):
 class ExportFileType(Enum):
     XLSX = "xlsx"
     CSV = "csv"
+
+@unique
+class Provider(Enum):
+    AWS = "aws"
+    TENCENT_CLOUD = "tencent_cloud"
+
+@unique
+class SourceCreateType(Enum):
+    ADD = 1
+    IMPORT = 0

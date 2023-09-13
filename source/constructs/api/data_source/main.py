@@ -33,6 +33,17 @@ def list_rds_instances(condition: QueryCondition):
         page=condition.page,
     ))
 
+@router.post("/list-jdbc", response_model=BaseResponse[Page[schemas.JDBCInstanceSource]])
+@inject_session
+def list_jdbc_instances(condition: QueryCondition):
+    instances = crud.list_jdbc_instance_source(condition)
+    if instances is None:
+        return None
+    return paginate(instances, Params(
+        size=condition.size,
+        page=condition.page,
+    ))
+
 
 @router.post("/sync-s3", response_model=BaseResponse)
 @inject_session
@@ -82,6 +93,32 @@ def sync_rds_connection(rds: schemas.SourceRdsConnection):
         rds.rds_secret
     )
 
+@router.post("/delete-jdbc", response_model=BaseResponse)
+@inject_session
+def delete_jdbc_connection(jdbc: schemas.SourceDeteteJDBCConnection):
+    return service.delete_jdbc_connection(
+        jdbc.account_id,
+        jdbc.region,
+        jdbc.instance
+    )
+
+
+@router.post("/sync-jdbc", response_model=BaseResponse)
+@inject_session
+def sync_jdbc_connection(jdbc: schemas.SourceJDBCConnection):
+    return service.sync_jdbc_connection(
+        jdbc.account_provider,
+        jdbc.account_id,
+        jdbc.region,
+        jdbc.instance,
+        jdbc.address,
+        jdbc.engine,
+        jdbc.port,
+        jdbc.username,
+        jdbc.password,
+        jdbc.secret
+    )
+
 
 @router.post("/refresh", response_model=BaseResponse)
 @inject_session
@@ -112,7 +149,7 @@ def list_accounts(condition: QueryCondition):
 
 
 @router.post("/reload_organization_account", response_model=BaseResponse,
-            description="Retrieve stacksets in the delegate account, and refresh account list by stackset status")
+             description="Retrieve stacksets in the delegate account, and refresh account list by stackset status")
 @inject_session
 def reload_organization_account(account: schemas.SourceOrgAccount):
     return service.reload_organization_account(account.organization_management_account_id)
@@ -122,13 +159,13 @@ def reload_organization_account(account: schemas.SourceOrgAccount):
              description="Add individual account")
 @inject_session
 def add_account(account: schemas.SourceNewAccount):
-    return service.add_account(account.account_id)
+    return service.add_account(account)
 
 @router.post("/delete_account", response_model=BaseResponse,
              description="Delete individual account")
 @inject_session
 def delete_account(account: schemas.SourceNewAccount):
-    return service.delete_account(account.account_id)
+    return service.delete_account(account.account_provider, account.account_id, account.region)
 
 @router.get("/secrets", response_model=BaseResponse, description="List Secrets for RDS")
 @inject_session
@@ -139,3 +176,24 @@ def get_secrets(account: str, region: str):
 @inject_session
 def get_admin_account_info():
     return service.get_admin_account_info()
+
+@router.post("/add-jdbc-conn", response_model=BaseResponse)
+@inject_session
+def add_jdbc_conn(jdbcConn: schemas.JDBCInstanceSource):
+    return service.add_jdbc_conn(jdbcConn)
+
+@router.post("/query-glue-connections", response_model=BaseResponse)
+@inject_session
+def query_glue_connections(account: schemas.AdminAccountInfo):
+    return service.query_glue_connections(account)
+
+
+@router.post("/query-account-network", response_model=BaseResponse)
+@inject_session
+def query_account_network(account: schemas.AdminAccountInfo):
+    return service.query_account_network(account)
+
+@router.post("/test-glue-conn", response_model=BaseResponse)
+@inject_session
+def test_glue_conn(account: str, connection: str):
+    return service.test_glue_conn(account, connection)
