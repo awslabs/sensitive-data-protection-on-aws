@@ -26,6 +26,8 @@ import {
   IVpc,
   SubnetType,
   Vpc,
+  SecurityGroup,
+  Port,
 } from 'aws-cdk-lib/aws-ec2';
 import { CfnLogGroup, LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
@@ -77,6 +79,18 @@ export class VpcStack extends Construct {
     }
   }
 
+  private createSecurityGroup(vpc: IVpc) {
+    // Create Security Group
+    const securityGroup = new SecurityGroup(this, 'SecurityGroup', {
+      vpc: vpc,
+      securityGroupName: 'SDPS-CustomDB',
+      description: 'Allow all TCP ingress traffic',
+    });
+
+    // Allow ingress on all TCP ports from the same security group
+    securityGroup.addIngressRule(securityGroup, Port.allTcp());
+  }
+
   private createVpc(props?: VpcProps) {
     const cidr = props?.cidr ?? '10.0.0.0/16';
 
@@ -120,6 +134,8 @@ export class VpcStack extends Construct {
         },
       },
     });
+
+    this.createSecurityGroup(this.vpc);
 
     this.vpc.publicSubnets.forEach((subnet) => {
       const cfnSubnet = subnet.node.defaultChild as CfnSubnet;
@@ -191,6 +207,8 @@ export class VpcStack extends Construct {
     });
     this.privateSubnet1 = privateSubnet1.valueAsString;
     this.privateSubnet2 = privateSubnet2.valueAsString;
+
+    this.createSecurityGroup(this.vpc);
 
     new CfnRule(scope, 'SubnetsInVpc', {
       assertions: [
