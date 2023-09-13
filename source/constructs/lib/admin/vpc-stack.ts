@@ -227,7 +227,7 @@ export class VpcStack extends Construct {
             assert: Fn.conditionNot(Fn.conditionContains([
               this.privateSubnet2,
             ],
-              this.privateSubnet1)),
+            this.privateSubnet1)),
             assertDescription: 'All subnets must NOT Repeat',
           },
         ],
@@ -241,7 +241,7 @@ export class VpcStack extends Construct {
               this.privateSubnet1,
               this.privateSubnet2,
             ],
-              this.publicSubnet1)),
+            this.publicSubnet1)),
             assertDescription: 'All subnets must NOT Repeat',
           },
           {
@@ -250,7 +250,7 @@ export class VpcStack extends Construct {
               this.privateSubnet1,
               this.privateSubnet2,
             ],
-              this.publicSubnet2)),
+            this.publicSubnet2)),
             assertDescription: 'All subnets must NOT Repeat',
           },
           {
@@ -259,7 +259,7 @@ export class VpcStack extends Construct {
               this.publicSubnet2,
               this.privateSubnet2,
             ],
-              this.privateSubnet1)),
+            this.privateSubnet1)),
             assertDescription: 'All subnets must NOT Repeat',
           },
           {
@@ -268,7 +268,7 @@ export class VpcStack extends Construct {
               this.publicSubnet2,
               this.privateSubnet1,
             ],
-              this.privateSubnet2)),
+            this.privateSubnet2)),
             assertDescription: 'All subnets must NOT Repeat',
           },
         ],
