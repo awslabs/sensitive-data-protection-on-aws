@@ -27,6 +27,51 @@
 --     modify_time              timestamp     null
 -- );
 
+create table source_provider
+(
+    id          int auto_increment primary key,
+    provider_name varchar(255) null,
+    description varchar(255) null,
+    status      int          default 1 comment '1: enabled, 0: disabled',
+    version     int          null,
+    create_by   varchar(255) null,
+    create_time timestamp    null,
+    modify_by   varchar(255) null,
+    modify_time timestamp    null
+);
+
+create table source_region
+(
+    id          int auto_increment primary key,
+    region_name varchar(255) null,
+    region_alias varchar(255) null,
+    region_cord varchar(255) null,
+    provider_id int          null,
+    description varchar(255) null,
+    status      int          default 1 comment '1: enabled, 0: disabled',
+    version     int          null,
+    create_by   varchar(255) null,
+    create_time timestamp    null,
+    modify_by   varchar(255) null,
+    modify_time timestamp    null
+);
+
+create table source_resource
+(
+    id          int auto_increment primary key,
+    resource_name varchar(255) null,
+    resource_alias varchar(255) null,
+    provider_id    int          null,
+    apply_region_ids varchar(1000) default 'all',
+    description varchar(255) null,
+    status      int          default 1 comment '1: enabled, 0: disabled',
+    version     int          null,
+    create_by   varchar(255) null,
+    create_time timestamp    null,
+    modify_by   varchar(255) null,
+    modify_time timestamp    null
+);
+
 create table source_account
 (
     id                       int auto_increment primary key,

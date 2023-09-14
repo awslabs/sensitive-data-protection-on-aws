@@ -197,3 +197,14 @@ def query_account_network(account: schemas.AdminAccountInfo):
 @inject_session
 def test_glue_conn(account: str, connection: str):
     return service.test_glue_conn(account, connection)
+
+
+@router.post("/query-regions-by-provider", response_model=BaseResponse)
+@inject_session
+def query_regions_by_provider(provider_id: int):
+    return service.query_regions_by_provider(provider_id)
+
+@router.post("/query-full-provider-infos", response_model=BaseResponse)
+@inject_session
+def query_full_provider_infos():
+    return service.query_full_provider_resource_infos()

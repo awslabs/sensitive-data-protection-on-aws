@@ -3,8 +3,7 @@ import datetime
 from typing import Optional
 from pydantic import BaseModel
 from typing import List
-from enum import Enum
-
+from common.enum import DataSourceType
 
 class DataSource(BaseModel):
     id: int
@@ -222,13 +221,6 @@ class SourceNewAccount(BaseModel):
 class SourceOrgAccount(BaseModel):
     organization_management_account_id: str
 
-class DataSourceType(str, Enum):
-    s3 = "s3"
-    rds = "rds"
-    ddb = "ddb"
-    all = "all"
-
-
 class NewDataSource(BaseModel):
     accounts: List[str]
     type: DataSourceType = DataSourceType.all
@@ -236,3 +228,54 @@ class NewDataSource(BaseModel):
 class AdminAccountInfo(BaseModel):
     account_id: str
     region: str
+
+class SourceProvider(BaseModel):
+
+    id: int
+    provider_name: Optional[str]
+    description: Optional[str]
+    status: Optional[int]
+    version: Optional[int]
+    create_by: Optional[str]
+    create_time: Optional[datetime.datetime]
+    modify_by: Optional[str]
+    modify_time: Optional[datetime.datetime]
+
+
+class SourceRegion(BaseModel):
+
+    id: int
+    region_name: Optional[str]
+    region_alias: Optional[str]
+    region_cord: Optional[str]
+    provider_id: Optional[int]
+    description: Optional[str]
+    status: Optional[int]
+    version: Optional[int]
+    create_by: Optional[str]
+    create_time: Optional[datetime.datetime]
+    modify_by: Optional[str]
+    modify_time: Optional[datetime.datetime]
+
+class SourceResourceBase(BaseModel):
+    resource_name: Optional[str]
+    resource_alias: Optional[str]
+    description: Optional[str]
+    status: Optional[int]
+    apply_region_ids: Optional[str]
+
+class SourceResource(SourceResourceBase):
+    id: int
+    provider_id: Optional[int]
+    version: Optional[int]
+    create_by: Optional[str]
+    create_time: Optional[datetime.datetime]
+    modify_by: Optional[str]
+    modify_time: Optional[datetime.datetime]
+
+
+class ProviderResourceFullInfo(BaseModel):
+    provider_id: Optional[int]
+    provider_name: Optional[str]
+    description: Optional[str]
+    resources: Optional[list[SourceResourceBase]]

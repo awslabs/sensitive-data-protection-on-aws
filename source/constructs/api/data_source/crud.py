@@ -1,10 +1,10 @@
 import datetime
 
 from sqlalchemy import desc
-from common.enum import ConnectionState, MessageEnum, Provider
+from common.enum import ConnectionState, MessageEnum, Provider, SourceRegionStatus, SourceProviderStatus, SourceResourcesStatus
 from common.query_condition import QueryCondition, query_with_condition
 from db.database import get_session
-from db.models_data_source import S3BucketSource, Account, RdsInstanceSource, JDBCInstanceSource
+from db.models_data_source import S3BucketSource, Account, RdsInstanceSource, JDBCInstanceSource, SourceRegion, SourceProvider, SourceResource
 from common.exception_handler import BizException
 from . import schemas
 
@@ -537,3 +537,14 @@ def add_jdbc_conn(jdbcConn: schemas.JDBCInstanceSource):
     session.refresh(jdbc_instance_source)
 
     return jdbc_instance_source
+
+def query_regions_by_provider(provider_id: int):
+    return get_session().query(SourceRegion).filter(SourceRegion.provider_id == provider_id,
+                                                    SourceRegion.status == SourceRegionStatus.ENABLE.value).all()
+
+def query_provider_list() -> list[SourceProvider]:
+    return get_session().query(SourceProvider).filter(SourceProvider.status == SourceProviderStatus.ENABLE.value).all()
+
+def query_resources_by_provider(provider_id: int) -> list[SourceResource]:
+    return get_session().query(SourceResource).filter(SourceResource.status == SourceResourcesStatus.ENABLE.value,
+                                                      SourceResource.provider_id == provider_id).all()

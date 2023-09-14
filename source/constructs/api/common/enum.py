@@ -268,8 +268,31 @@ class ExportFileType(Enum):
 class Provider(Enum):
     AWS = "aws"
     TENCENT_CLOUD = "tencent_cloud"
+    ALIYUN = "aliyun"
 
 @unique
 class SourceCreateType(Enum):
     ADD = 1
     IMPORT = 0
+
+@unique
+class SourceRegionStatus(Enum):
+    ENABLE = 1
+    DISABLE = 0
+
+@unique
+class SourceProviderStatus(Enum):
+    ENABLE = 1
+    DISABLE = 0
+
+@unique
+class SourceResourcesStatus(Enum):
+    ENABLE = 1
+    DISABLE = 0
+
+@unique
+class DataSourceType(str, Enum):
+    s3 = "s3"
+    rds = "rds"
+    ddb = "ddb"
+    all = "all"
