@@ -1,7 +1,7 @@
 import datetime
 
 from sqlalchemy import desc
-from common.enum import ConnectionState, MessageEnum, Provider, SourceRegionStatus, SourceProviderStatus, SourceResourcesStatus
+from common.enum import ConnectionState, MessageEnum, Provider, SourceRegionStatus, SourceProviderStatus, SourceResourcesStatus, SourceAccountStatus
 from common.query_condition import QueryCondition, query_with_condition
 from db.database import get_session
 from db.models_data_source import S3BucketSource, Account, RdsInstanceSource, JDBCInstanceSource, SourceRegion, SourceProvider, SourceResource
@@ -11,7 +11,7 @@ from . import schemas
 
 def list_accounts(condition: QueryCondition):
     return query_with_condition(get_session().query(Account).filter(Account.status == 1), condition).distinct(
-        Account.account_provider, Account.account_id, Account.region)
+        Account.account_provider_id, Account.account_id, Account.region)
 
 
 def list_all_accounts_by_region(region: str):
@@ -19,11 +19,11 @@ def list_all_accounts_by_region(region: str):
         Account.account_id,
         Account.region
     ).filter(
-        Account.account_provider == Provider.AWS.value,
+        Account.account_provider_id == Provider.AWS_CLOUD.value,
         Account.status == 1,
         Account.region == region
     ).distinct(
-        Account.account_provider,
+        Account.account_provider_id,
         Account.account_id,
         Account.region
     ).all()
@@ -47,7 +47,7 @@ def get_account_agent_regions(account_id: str):
 def list_s3_bucket_source(condition: QueryCondition):
     # status = 0 : admin
     # status = 1 : monitored account
-    accounts = get_session().query(Account).filter(Account.account_provider == Provider.AWS.value, Account.status == 1).all()
+    accounts = get_session().query(Account).filter(Account.account_provider_id == Provider.AWS_CLOUD.value, Account.status == 1).all()
     account_ids = []
     for account in accounts:
         account_ids.append(account.account_id)
@@ -86,7 +86,7 @@ def list_rds_instance_source(condition: QueryCondition):
     # status = 0 : admin
     # status = 1 : monitored account
     instances = None
-    accounts = get_session().query(Account).filter(Account.account_provider == Provider.AWS.value, Account.status == 1).all()
+    accounts = get_session().query(Account).filter(Account.account_provider_id == Provider.AWS_CLOUD.value, Account.status == 1).all()
     account_ids = []
     for account in accounts:
         account_ids.append(account.account_id)
@@ -96,7 +96,7 @@ def list_rds_instance_source(condition: QueryCondition):
     return instances
 
 
-def list_jdbc_instance_source(condition: QueryCondition):
+def list_jdbc_instance_source(provider_id: int):
     # instances = Nonex
     # account_provider = filter(lambda item: item.column == "account_provider", condition.conditions)[0]
     # account_id = filter(lambda item: item.column == "account_id", condition.conditions)[0]
@@ -105,8 +105,13 @@ def list_jdbc_instance_source(condition: QueryCondition):
     # instances = query_with_condition(instances_tmp, condition)
 
     # return instances
-    return query_with_condition(get_session().query(JDBCInstanceSource), condition)
-
+    instances = None
+    accounts = get_session().query(Account).filter(Account.account_provider_id == provider_id, Account.status == 1).all()
+    account_ids = []
+    for account in accounts:
+        account_ids.append(account.account_id)
+    return get_session().query(JDBCInstanceSource).filter(
+        JDBCInstanceSource.account_id.in_(account_ids), JDBCInstanceSource.account_provider_id == provider_id)
 
 def set_rds_instance_source_glue_state(account: str, region: str, instance_id: str, state: str):
     session = get_session()
@@ -132,8 +137,8 @@ def get_rds_instance_source_glue_state(account: str, region: str, instance_id: s
     else:
         return None
 
-def get_jdbc_instance_source_glue_state(provider: str, account: str, region: str, instance_id: str):
-    account_tmp = get_session().query(Account.id).filter(Account.account_provider == provider, Account.account_id == account).first()
+def get_jdbc_instance_source_glue_state(provider_id: int, account: str, region: str, instance_id: str):
+    account_tmp = get_session().query(Account.id).filter(Account.account_provider_id == provider_id, Account.account_id == account).first()
     rds = get_session().query(JDBCInstanceSource).filter(JDBCInstanceSource.data_source_id == account_tmp[0],
                                                          JDBCInstanceSource.instance_id == instance_id,
                                                          JDBCInstanceSource.region == region,
@@ -168,7 +173,7 @@ def get_rds_instance_source(account: str, region: str, instance_id: str):
                                                          RdsInstanceSource.instance_id == instance_id).scalar()
 
 def get_jdbc_instance_source(provider: str, account: str, region: str, instance_id: str):
-    return get_session().query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider == provider,
+    return get_session().query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == provider,
                                                           JDBCInstanceSource.account_id == account,
                                                           JDBCInstanceSource.region == region,
                                                           JDBCInstanceSource.instance_id == instance_id).scalar()
@@ -278,7 +283,7 @@ def create_rds_connection(account: str, region: str, instance: str, glue_connect
 
 def delete_third_account(account_provider, account_id, region):
     session = get_session()
-    del_data = session.query(Account).filter(Account.account_provider == account_provider, Account.account_id == account_id, Account.region == region).delete()
+    del_data = session.query(Account).filter(Account.account_provider_id == account_provider, Account.account_id == account_id, Account.region == region).delete()
     if not del_data:
         raise BizException(MessageEnum.BIZ_ITEM_NOT_EXISTS.get_code(), MessageEnum.BIZ_ITEM_NOT_EXISTS.get_msg())
     session.commit()
@@ -318,9 +323,9 @@ def delete_rds_connection(account: str, region: str, instance: str):
 def delete_jdbc_connection(provider: str, account: str, region: str, instance: str):
     session = get_session()
     jdbc_instance_source = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.instance_id == instance,
-                                                                  JDBCInstanceSource.region == region,
-                                                                  JDBCInstanceSource.aws_account == account,
-                                                                  JDBCInstanceSource.account_provider == provider).order_by(
+                                                                    JDBCInstanceSource.region == region,
+                                                                    JDBCInstanceSource.account_id == account,
+                                                                    JDBCInstanceSource.account_provider_id == provider).order_by(
         desc(RdsInstanceSource.detection_history_id)).first()
     jdbc_instance_source.glue_database = None
     jdbc_instance_source.glue_crawler = None
@@ -368,7 +373,7 @@ def get_connected_rds_instances_count():
 def delete_account_by_region(account_id: str, region: str):
     session = get_session()
     session.query(Account).filter(
-        Account.account_provider == Provider.AWS.value,
+        Account.account_provider_id == Provider.AWS_CLOUD.value,
         Account.account_id == account_id,
         Account.region == region
     ).delete()
@@ -425,9 +430,9 @@ def add_account(aws_account_id: str, aws_account_alias: str, aws_account_email: 
                 status: str, stack_status: str,
                 stack_instance_status: str, detection_role_name: str, detection_role_status: str):
     session = get_session()
-    account = session.query(Account).filter(Account.account_provider == Provider.AWS.value, Account.account_id == aws_account_id, Account.region == region).first()
+    account = session.query(Account).filter(Account.account_provider_id == Provider.AWS_CLOUD.value, Account.account_id == aws_account_id, Account.region == region).first()
     if account is None:
-        account = Account(account_provider=Provider.AWS.value,
+        account = Account(account_provider_id=Provider.AWS_CLOUD.value,
                           account_id=aws_account_id,
                           account_alias=aws_account_alias,
                           account_email=aws_account_email,
@@ -470,16 +475,20 @@ def add_account(aws_account_id: str, aws_account_alias: str, aws_account_email: 
     return True
 
 def add_third_account(account):
+    print("##########")
     session = get_session()
-    account = session.query(Account).filter(Account.account_provider == Provider.AWS.value, Account.account_id == account.aws_account_id, Account.region == account.region).all()
-    if not account:
+    tmp_account = session.query(Account).filter(Account.account_provider_id == account.account_provider,
+                                                Account.account_id == account.account_id,
+                                                Account.region == account.region).all()
+    
+    if tmp_account:
         raise BizException(MessageEnum.SOURCE_ACCOUNT_ALREADY_EXISTS.get_code(),
                            MessageEnum.SOURCE_ACCOUNT_ALREADY_EXISTS.get_msg())
     target_account = Account()
-    target_account.account_provider = account.account_provider
+    target_account.account_provider_id = account.account_provider
     target_account.account_id = account.account_id
     target_account.region = account.region
-    session.merge(account)
+    session.merge(target_account)
     session.commit()
     return True
 
@@ -548,3 +557,19 @@ def query_provider_list() -> list[SourceProvider]:
 def query_resources_by_provider(provider_id: int) -> list[SourceResource]:
     return get_session().query(SourceResource).filter(SourceResource.status == SourceResourcesStatus.ENABLE.value,
                                                       SourceResource.provider_id == provider_id).all()
+
+def get_account_list_by_provider(provider_id):
+    return get_session().query(Account).filter(Account.account_provider_id == provider_id, Account.status == SourceAccountStatus.ENABLE.value).all()
+
+def get_region_list_by_provider(provider_id):
+    return get_session().query(SourceRegion).filter(SourceRegion.provider_id == provider_id,
+                                                    SourceRegion.status == SourceRegionStatus.ENABLE.value).all()
+
+def get_total_jdbc_instances_count(provider_id):
+    list = list_jdbc_instance_source(provider_id)
+    return 0 if list is None else list.count()
+
+def get_connected_jdbc_instances_count(provider_id):
+    list = list_jdbc_instance_source(provider_id)
+    return 0 if list is None else list.filter(JDBCInstanceSource.glue_state == ConnectionState.ACTIVE.value).count()
+

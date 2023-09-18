@@ -17,7 +17,7 @@ class Account(BaseModel):
     account_id: Optional[str]
     account_alias: Optional[str]
     account_email: Optional[str]
-    account_provider: Optional[str]
+    account_provider_id: Optional[int]
     delegated_account_id: Optional[str]
     region: Optional[str]
     organization_unit_id: Optional[str]
@@ -169,6 +169,8 @@ class SourceCoverage(BaseModel):
     s3_total: Optional[int]
     rds_connected: Optional[int]
     rds_total: Optional[int]
+    jdbc_connected: Optional[int]
+    jdbc_total: Optional[int]
 
 
 class SourceS3Connection(BaseModel):
@@ -185,7 +187,7 @@ class SourceRdsConnection(BaseModel):
     rds_secret: Optional[str]
 
 class SourceJDBCConnection(BaseModel):
-    account_provider: str
+    account_provider: int
     account_id: str
     region: str
     instance: str
@@ -198,7 +200,7 @@ class SourceJDBCConnection(BaseModel):
 
 
 class SourceDeteteJDBCConnection(BaseModel):
-    account_provider: str
+    account_provider: int
     account_id: str
     region: str
     instance: str
@@ -214,7 +216,7 @@ class SourceDeteteRdsConnection(BaseModel):
     instance: str
 
 class SourceNewAccount(BaseModel):
-    account_provider: str
+    account_provider: int
     account_id: str
     region: str
 
@@ -222,6 +224,7 @@ class SourceOrgAccount(BaseModel):
     organization_management_account_id: str
 
 class NewDataSource(BaseModel):
+    provider: Optional[str]
     accounts: List[str]
     type: DataSourceType = DataSourceType.all
 

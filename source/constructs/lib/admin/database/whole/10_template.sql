@@ -16,6 +16,7 @@ create table template_identifier
 (
     id              int auto_increment
         primary key,
+    base_type   smallint                    null comment '1: text based 0:image based',
     description     varchar(255)                null,
     type            smallint                    null comment '0: built 1:custom 2:glue',
     version         int                         null,
@@ -25,6 +26,8 @@ create table template_identifier
     rule            varchar(1024)               null,
     header_keywords varchar(255)                null,
     exclude_keywords varchar(1024)                null,
+    max_distance int  null,
+    min_occurrence int null,
     create_by       varchar(255)                null,
     modify_by       varchar(255)                null,
     modify_time     timestamp                   null,

@@ -266,14 +266,19 @@ class ExportFileType(Enum):
 
 @unique
 class Provider(Enum):
-    AWS = "aws"
-    TENCENT_CLOUD = "tencent_cloud"
-    ALIYUN = "aliyun"
+    AWS_CLOUD = 1
+    TENCENT_CLOUD = 2
+    GOOGLE_CLOUD = 3
 
 @unique
 class SourceCreateType(Enum):
     ADD = 1
     IMPORT = 0
+
+@unique
+class SourceAccountStatus(Enum):
+    ENABLE = 1
+    DISABLE = 0
 
 @unique
 class SourceRegionStatus(Enum):

@@ -5,7 +5,10 @@ alter table source_account change column aws_account_email account_email varchar
 alter table source_account change column delegated_aws_account_id delegated_account_id varchar(64);
 alter table source_account add total_jdbc_instance int default 0 after connect_rds_instance;
 alter table source_account add connected_jdbc_instance int default 0 after total_jdbc_instance;
-alter table source_account add account_provider varchar(64) default 'aws' after id;
+alter table source_account add account_provider_id int default 1 after id;
+alter table template_identifier add base_type int default 1 after id;
+alter table template_identifier add max_distance int default null after exclude_keywords;
+alter table template_identifier add min_occurrence int default null after exclude_keywords;
 
 create table source_jdbc_instance
 (
@@ -26,7 +29,7 @@ create table source_jdbc_instance
     jdbc_driver_jar_uri                varchar(2048) null,
     instance_class                     varchar(255) null,
     instance_status                    varchar(255) null,
-    account_provider                   varchar(255) null,
+    account_provider_id                   int null,
     account_id                         varchar(255) null,
     region                             varchar(255) null,
     data_source_id                     int          null,
@@ -94,9 +97,9 @@ create table source_resource
     modify_time timestamp    null
 );
 
-INSERT INTO source_provider (id, provider_name) VALUES (1, 'aws');
-INSERT INTO source_provider (id, provider_name) VALUES (2, 'tencent_cloud');
-INSERT INTO source_provider (id, provider_name) VALUES (3, 'aliyun');
+INSERT INTO source_provider (id, provider_name) VALUES (1, 'AWS Cloud');
+INSERT INTO source_provider (id, provider_name) VALUES (2, 'Tencent Cloud');
+INSERT INTO source_provider (id, provider_name) VALUES (3, 'Google Cloud');
 INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('us-east-1','Northern Virginia (US East)','-77.0469,38.8048',1);
 INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('us-east-2','Ohio (US East)','-83.0007,39.9623',1);
 INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('us-west-1','Northern California (US West)','-122.4194,37.7749',1);

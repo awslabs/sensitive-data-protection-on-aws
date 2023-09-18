@@ -946,11 +946,21 @@ def refresh_data_source(accounts: list[str], type: str):
         raise BizException(MessageEnum.SOURCE_CONNECTION_FAILED.get_code(), str(e))
 
 
-def get_data_source_coverage():
-    return SourceCoverage(s3_total=crud.get_total_s3_buckets_count(),
-                                  s3_connected=crud.get_connected_s3_buckets_size(),
-                                  rds_total=crud.get_total_rds_instances_count(),
-                                  rds_connected=crud.get_connected_rds_instances_count())
+def get_data_source_coverage(provider_id):
+    provider_id = int(provider_id)
+    if provider_id == Provider.AWS_CLOUD.value:
+        res = SourceCoverage(s3_total=crud.get_total_s3_buckets_count(),
+                             s3_connected=crud.get_connected_s3_buckets_size(),
+                             rds_total=crud.get_total_rds_instances_count(),
+                             rds_connected=crud.get_connected_rds_instances_count(),
+                             jdbc_total=crud.get_total_jdbc_instances_count(provider_id),
+                             jdbc_connected=crud.get_connected_jdbc_instances_count(provider_id)
+                             )
+    else:
+        res = SourceCoverage(jdbc_total=crud.get_total_jdbc_instances_count(provider_id),
+                             jdbc_connected=crud.get_connected_jdbc_instances_count(provider_id)
+                             )
+    return res
 
 
 # Update account list by stackset state
@@ -1027,7 +1037,7 @@ def reload_organization_account(it_account: str):
 
 
 def add_account(account):
-    if account.account_provider == Provider.AWS.value:
+    if account.account_provider == Provider.AWS_CLOUD.value:
         add_aws_account(account.account_id)
     else:
         add_third_account(account)
@@ -1070,8 +1080,8 @@ def add_aws_account(account_id: str):
 def add_third_account(account):
     crud.add_third_account(account)
 
-def delete_account(account_provider: str, account_id: str, region: str):
-    if account_provider == Provider.AWS:
+def delete_account(account_provider: int, account_id: str, region: str):
+    if account_provider == Provider.AWS_CLOUD.value:
         delete_aws_account(account_id)
     else:
         delete_third_account(account_provider, account_id, region)
@@ -1611,3 +1621,6 @@ def query_full_provider_resource_infos():
             provider.resources.append(resource)
         res.append(provider)
     return res
+
+def list_providers():
+    return crud.query_provider_list()
