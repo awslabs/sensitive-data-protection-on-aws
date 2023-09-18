@@ -224,62 +224,62 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
     }
   };
 
-  const clkQueryRegions = async () => {
-    console.log("IMPORT!!!!")
-    const result: any = await queryRegions({provider_id: 1})
-      console.log("==================")
-      console.log(result)
-  }
+  // const clkQueryRegions = async () => {
+  //   console.log("IMPORT!!!!")
+  //   const result: any = await queryRegions({provider_id: 1})
+  //     console.log("==================")
+  //     console.log(result)
+  // }
 
-  const clkQueryProviders = async () => {
-    console.log("IMPORT!!!!")
-    const result: any = await queryProviders()
-      console.log("==================")
-      console.log(result)
-  }
+  // const clkQueryProviders = async () => {
+  //   console.log("IMPORT!!!!")
+  //   const result: any = await queryProviders()
+  //     console.log("==================")
+  //     console.log(result)
+  // }
 
-  const clkImportForTest = async () => {
-    console.log("IMPORT!!!!")
-    const result: any = await queryGlueConns({account_id: "691104259771",
-      region: "cn-northwest-1"})
-      console.log("==================")
-      console.log(result)
-  }
+  // const clkImportForTest = async () => {
+  //   console.log("IMPORT!!!!")
+  //   const result: any = await queryGlueConns({account_id: "691104259771",
+  //     region: "cn-northwest-1"})
+  //     console.log("==================")
+  //     console.log(result)
+  // }
 
-  const clkAddForTest = async () => {
-    console.log("ADD!!!!")
-    const result: any = await addGlueConn({
-      instance_id: "test-add-jdbc-by-hubin-26",
-      description: "ttetstsssss",
-      jdbc_connection_url: "jdbc:mysql://81.70.179.114:9000/mysql",
-      custom_jdbc_cert:"",
-      custom_jdbc_cert_string:"",
-      jdbc_driver_class_name:"",
-      jdbc_driver_jar_uri:"",
-      jdbc_enforce_ssl: "false",
-      kafka_ssl_enabled: "false",
-      master_username: "root",
-      password: "Temp123456!",
-      skip_custom_jdbc_cert_validation: "true",
-      network_availability_zone: "cn-northwest-1a",
-      network_subnet_id: "subnet-08acce3f5e112c5d5",
-      network_sg_id: "sg-097ab0fe3539adbba",
-      create_type: 1,
-      account_id:"691104259771",
-      region:"cn-northwest-1"
-    })
-    console.log("==================")
-    console.log(result)
+  // const clkAddForTest = async () => {
+  //   console.log("ADD!!!!")
+  //   const result: any = await addGlueConn({
+  //     instance_id: "test-add-jdbc-by-hubin-26",
+  //     description: "ttetstsssss",
+  //     jdbc_connection_url: "jdbc:mysql://81.70.179.114:9000/mysql",
+  //     custom_jdbc_cert:"",
+  //     custom_jdbc_cert_string:"",
+  //     jdbc_driver_class_name:"",
+  //     jdbc_driver_jar_uri:"",
+  //     jdbc_enforce_ssl: "false",
+  //     kafka_ssl_enabled: "false",
+  //     master_username: "root",
+  //     password: "Temp123456!",
+  //     skip_custom_jdbc_cert_validation: "true",
+  //     network_availability_zone: "cn-northwest-1a",
+  //     network_subnet_id: "subnet-08acce3f5e112c5d5",
+  //     network_sg_id: "sg-097ab0fe3539adbba",
+  //     create_type: 1,
+  //     account_id:"691104259771",
+  //     region:"cn-northwest-1"
+  //   })
+  //   console.log("==================")
+  //   console.log(result)
 
-  }
+  // }
 
-  const clkTestForTest = async () => {
-    console.log("TEST!!!!")
-    const result: any = await testGlueConns({account: "691104259771",
-       connection: "glue-tencent-host-mysql-5.7"})
-    console.log("==================")
-    console.log(result)
-  }
+  // const clkTestForTest = async () => {
+  //   console.log("TEST!!!!")
+  //   const result: any = await testGlueConns({account: "691104259771",
+  //      connection: "glue-tencent-host-mysql-5.7"})
+  //   console.log("==================")
+  //   console.log(result)
+  // }
 
   const connectRDS = async () => {
     if (!selectedItems || selectedItems.length === 0) {
