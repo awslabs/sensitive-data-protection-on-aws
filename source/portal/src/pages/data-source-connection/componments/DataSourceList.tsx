@@ -466,7 +466,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
               counter={`(${totalCount})`}
               actions={
                 <SpaceBetween direction="horizontal" size="xs">
-                  <Button
+                  {/* <Button
                    
                    onClick={clkQueryProviders}
                  >
@@ -495,7 +495,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                     onClick={clkAddForTest}
                   >
                     Add Conns
-                  </Button>
+                  </Button> */}
                   <Button
                     onClick={() => {
                       getPageData();
