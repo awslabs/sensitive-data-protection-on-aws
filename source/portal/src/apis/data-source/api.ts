@@ -1,5 +1,32 @@
 import { apiRequest } from 'tools/apiRequest';
 
+const queryRegions = async (params: any) => {
+  const result = await apiRequest('post', 'data-source/query-regions-by-provider', params);
+  return result;
+};
+
+const queryProviders = async () => {
+  const result = await apiRequest('post', 'data-source/query-full-provider-infos', '');
+  return result;
+};
+
+const queryGlueConns = async (params: any) => {
+  const result = await apiRequest('post', 'data-source/query-glue-connections', params);
+  return result;
+};
+
+const testGlueConns = async (params: any) => {
+  const result = await apiRequest('post', 'data-source/test-glue-conn', params);
+  return result;
+};
+
+const addGlueConn = async (params: any) => {
+  const result = await apiRequest('post', 'data-source/add-jdbc-conn', params);
+  return result;
+};
+
+
+
 // 分页获取DataSource S3列表
 const getDataSourceS3ByPage = async (params: any) => {
   const result = await apiRequest('post', 'data-source/list-s3', params);
@@ -37,8 +64,8 @@ const disconnectDataSourceS3 = async (params: any) => {
 };
 
 // 获取SourceCoverage
-const getSourceCoverage = async () => {
-  const result = await apiRequest('get', 'data-source/coverage', '');
+const getSourceCoverage = async (params: any) => {
+  const result = await apiRequest('get', 'data-source/coverage', params);
   return result;
 };
 
@@ -52,6 +79,11 @@ const getSecrets = async (params: any) => {
   return result;
 };
 
+const getSourceProviders = async (params: any) => {
+  const result = await apiRequest('post', 'data-source/list-providers', params);
+  return result;
+};
+
 export {
   getDataSourceS3ByPage,
   getDataSourceRdsByPage,
@@ -62,4 +94,10 @@ export {
   getSourceCoverage,
   refreshDataSource,
   getSecrets,
+  queryGlueConns,
+  testGlueConns,
+  addGlueConn,
+  queryRegions,
+  queryProviders,
+  getSourceProviders
 };

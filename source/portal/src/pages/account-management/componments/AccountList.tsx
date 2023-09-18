@@ -27,7 +27,7 @@ import { alertMsg, useDidUpdateEffect } from 'tools/tools';
 import { useTranslation } from 'react-i18next';
 
 const AccountList: React.FC<any> = (props: any) => {
-  const { setTotalAccount } = props;
+  const { setTotalAccount, provider } = props;
   const columnList = ACCOUNT_COLUMN_LIST;
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -74,7 +74,8 @@ const AccountList: React.FC<any> = (props: any) => {
     try {
       // call refresh all account api
       const requestRefreshAccountParam = {
-        accounts: accountData?.map((element: any) => element.aws_account_id),
+        provider: provider,
+        accounts: accountData?.map((element: any) => element.account_id),
         type: 'all',
       };
       await refreshDataSource(requestRefreshAccountParam);
@@ -105,6 +106,16 @@ const AccountList: React.FC<any> = (props: any) => {
             operation: item.operator,
             condition: query.operation,
           });
+
+          
+
+        });
+        requestParam.conditions.push({
+          column: 'account_provider_id',
+          values:[Number(provider)],
+          operation: '=',
+          condition: 'and',
+
         });
       const getAccountListresult: any = await getAccountList(requestParam);
       if (getAccountListresult?.items?.length > 0) {
@@ -137,7 +148,7 @@ const AccountList: React.FC<any> = (props: any) => {
   const clkRefreshDatasource = async (rowData: any) => {
     setIsLoading(true);
     const requestParam = {
-      accounts: [rowData.aws_account_id],
+      accounts: [rowData.account_id],
       type: 'all',
     };
     try {
@@ -156,7 +167,7 @@ const AccountList: React.FC<any> = (props: any) => {
       return;
     }
     setDeleteLoading(true);
-    const requestParam = { account_id: selectedItems[0].aws_account_id };
+    const requestParam = { account_id: selectedItems[0].account_id };
     await deleteAccount(requestParam);
     alertMsg(t('account:deleteSuccess'), 'success');
     setDeleteLoading(false);
@@ -234,7 +245,7 @@ const AccountList: React.FC<any> = (props: any) => {
                 );
               }
 
-              if (item.id === 'aws_account_id') {
+              if (item.id === 'account_id') {
                 return (
                   <span
                     className="account-id"

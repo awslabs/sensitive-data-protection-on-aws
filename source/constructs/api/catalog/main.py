@@ -117,7 +117,7 @@ def get_catalog_database_by_type(condition: QueryCondition):
         page=condition.page,
     ))
     service.fill_catalog_labels(rlt.items)
-    return rlt
+    return rlt  
 
 @router.get(
     "/get-tables-by-database-identifier",
@@ -288,9 +288,9 @@ def get_database_property(
 
 @router.get("/dashboard/agg-data-source-summary", response_model=BaseResponse)
 @inject_session
-def agg_data_source_summary():
+def agg_data_source_summary(provider_id: str):
 
-    return service_dashboard.agg_data_source_summary()
+    return service_dashboard.agg_data_source_summary(provider_id)
 
 
 @router.get("/dashboard/agg-catalog-summay", response_model=BaseResponse)

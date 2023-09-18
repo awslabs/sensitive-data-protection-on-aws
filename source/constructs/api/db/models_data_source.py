@@ -5,6 +5,55 @@ from sqlalchemy.orm import relationship
 
 from db.database import Base
 
+class SourceProvider(Base):
+
+    __tablename__ = 'source_provider'
+
+    id = sa.Column(sa.Integer(), primary_key=True)
+    provider_name = sa.Column(sa.String(255))
+    description = sa.Column(sa.String(255))
+    status = sa.Column(sa.Integer(), server_default='1')
+    version = sa.Column(sa.Integer())
+    create_by = sa.Column(sa.String(255))
+    create_time = sa.Column(sa.TIMESTAMP())
+    modify_by = sa.Column(sa.String(255))
+    modify_time = sa.Column(sa.TIMESTAMP())
+
+
+class SourceRegion(Base):
+
+    __tablename__ = 'source_region'
+
+    id = sa.Column(sa.Integer(), primary_key=True)
+    region_name = sa.Column(sa.String(255))
+    region_alias = sa.Column(sa.String(255))
+    region_cord = sa.Column(sa.String(255))
+    provider_id = sa.Column(sa.Integer())
+    description = sa.Column(sa.String(255))
+    status = sa.Column(sa.Integer(), server_default='1')
+    version = sa.Column(sa.Integer())
+    create_by = sa.Column(sa.String(255))
+    create_time = sa.Column(sa.TIMESTAMP())
+    modify_by = sa.Column(sa.String(255))
+    modify_time = sa.Column(sa.TIMESTAMP())
+
+
+class SourceResource(Base):
+
+    __tablename__ = 'source_resource'
+
+    id = sa.Column(sa.Integer(), primary_key=True)
+    resource_name = sa.Column(sa.String(255))
+    resource_alias = sa.Column(sa.String(255))
+    provider_id = sa.Column(sa.Integer())
+    apply_region_ids = sa.Column(sa.String(1000), server_default='all')
+    description = sa.Column(sa.String(255))
+    status = sa.Column(sa.Integer(), server_default='1')
+    version = sa.Column(sa.Integer())
+    create_by = sa.Column(sa.String(255))
+    create_time = sa.Column(sa.TIMESTAMP())
+    modify_by = sa.Column(sa.String(255))
+    modify_time = sa.Column(sa.TIMESTAMP())
 
 class DataSource(Base):
     __tablename__ = 'source_data_source'
@@ -18,8 +67,6 @@ class DataSource(Base):
     create_time = sa.Column(sa.DateTime())
     modify_by = sa.Column(sa.String(255))
     modify_time = sa.Column(sa.DateTime())
-
-
 # class Account(Base):
 #     __tablename__ = 'source_account'
 
@@ -57,7 +104,7 @@ class Account(Base):
     account_id = sa.Column(sa.String(255), info={'searchable': True})
     account_alias = sa.Column(sa.String(255), info={'searchable': True})
     account_email = sa.Column(sa.String(255))
-    account_provider = sa.Column(sa.String(255))
+    account_provider_id = sa.Column(sa.Integer())
     delegated_account_id = sa.Column(sa.String(64))
     region = sa.Column(sa.String(64))
     organization_unit_id = sa.Column(sa.String(255))
@@ -192,7 +239,7 @@ class JDBCInstanceSource(Base):
     jdbc_driver_jar_uri = sa.Column(sa.String(2048))  
     instance_class = sa.Column(sa.String(255))
     instance_status = sa.Column(sa.String(255))
-    account_provider = sa.Column(sa.String(255), info={'searchable': True})
+    account_provider_id = sa.Column(sa.Integer())
     account_id = sa.Column(sa.String(255), info={'searchable': True})
     region = sa.Column(sa.String(255), info={'searchable': True})
     data_source_id = sa.Column(sa.Integer())

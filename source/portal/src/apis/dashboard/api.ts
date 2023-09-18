@@ -5,11 +5,11 @@ import { apiRequest } from 'tools/apiRequest';
  * @param params
  * @returns
  */
-const getAccountInfomation = async () => {
+const getAccountInfomation = async (params: any) => {
   const result = await apiRequest(
     'get',
     'catalog/dashboard/agg-data-source-summary',
-    ''
+    params
   );
   return result;
 };
