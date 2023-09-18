@@ -11,7 +11,7 @@ export const TYPE_COLUMN = {
   FRONT_OPERATE: 'front_operate',
 };
 export const ACCOUNT_COLUMN_LIST = [
-  { id: 'aws_account_id', label: 'account:awsAccount', filter: true },
+  { id: 'account_id', label: 'account:awsAccount', filter: true },
   { id: 'region', label: 'account:region', filter: true },
   { id: TYPE_COLUMN.STATUS, label: 'account:auth', filter: true },
   {

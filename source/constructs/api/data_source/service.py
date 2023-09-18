@@ -927,7 +927,14 @@ def delete_glue_connection(account: str, region: str, glue_crawler: str,
     return True
 
 
-def refresh_data_source(accounts: list[str], type: str):
+def refresh_data_source(provider: str, accounts: list[str], type: str):
+    tmp_provider = int(provider)
+    if tmp_provider == Provider.AWS_CLOUD.value:
+        refresh_aws_data_source(accounts, type)
+    else:
+        pass
+
+def refresh_aws_data_source(accounts: list[str], type: str):
     if type is None or len(accounts) == 0:
         raise BizException(MessageEnum.SOURCE_REFRESH_FAILED.get_code(),
                            MessageEnum.SOURCE_REFRESH_FAILED.get_msg())

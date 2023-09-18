@@ -301,3 +301,4 @@ class DataSourceType(str, Enum):
     rds = "rds"
     ddb = "ddb"
     all = "all"
+    jdbc = "jdbc"

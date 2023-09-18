@@ -475,7 +475,6 @@ def add_account(aws_account_id: str, aws_account_alias: str, aws_account_email: 
     return True
 
 def add_third_account(account):
-    print("##########")
     session = get_session()
     tmp_account = session.query(Account).filter(Account.account_provider_id == account.account_provider,
                                                 Account.account_id == account.account_id,
@@ -488,6 +487,7 @@ def add_third_account(account):
     target_account.account_provider_id = account.account_provider
     target_account.account_id = account.account_id
     target_account.region = account.region
+    target_account.status = SourceAccountStatus.ENABLE.value
     session.merge(target_account)
     session.commit()
     return True
