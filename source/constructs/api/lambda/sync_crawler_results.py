@@ -18,16 +18,22 @@ def sync_result(input_event):
     state = ConnectionState.ACTIVE.value
     if input_event['detail']['state'] == 'Failed':
         state = input_event['detail']['errorMessage']
-    crawler_name = input_event['detail']['crawlerName']
-    if not crawler_name.endswith(crawler_suffix):
-        return
 
-    # add type support for jdbc
-    # @see common/enum.py
-    is_jdbc = crawler_name.startswith(DatabaseType.JDBC.value)
-    parts = crawler_name.split('-')
-    database_type = '-'.join(parts[:2]) if is_jdbc else parts[0]
-    database_name = parts[2] if is_jdbc else parts[1]
+
+    if 'detail' in input_event and 'crawlerName' in input_event['detail']:
+        crawler_name = input_event['detail']['crawlerName']
+        if not crawler_name.endswith(crawler_suffix):
+            return
+        # add type support for jdbc
+        # @see common/enum.py
+        is_jdbc = crawler_name.startswith(DatabaseType.JDBC.value)
+        parts = crawler_name.split('-')
+        database_type = '-'.join(parts[:2]) if is_jdbc else parts[0]
+        database_name = parts[2] if is_jdbc else parts[1]
+    elif 'detail' in input_event and 'databaseName' in input_event['detail']:
+        # glue database type
+        database_type = DatabaseType.GLUE.value
+        database_name = input_event['detail']['databaseName']
 
     try:
         if catalog_service.sync_crawler_result(account_id=input_event['detail']['accountId'],
