@@ -10,7 +10,49 @@
           "Next": "FirstWait"
         }
       ],
+      "Default": "IsGlue"
+    },
+    "IsGlue": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.DatabaseType",
+          "StringEquals": "glue",
+          "Next": "SendGlueSchemaMessage"
+        }
+      ],
       "Default": "SplitJob"
+    },
+    "SendGlueSchemaMessage": {
+      "Type": "Task",
+      "Resource": "arn:${AWS::Partition}:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:SDPS-CrawlerTrigger:$LATEST",
+        "Payload": {
+          "detail": {
+            "accountId.$": "$.AccountId",
+            "databaseType": "glue",
+            "crawlerName.$": "$.DatabaseName",
+            "state": "Succeeded"
+          },
+          "region.$": "$.Region"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "SplitJob",
+      "ResultPath": "$.SendGlueSchemaMessage"
     },
     "FirstWait": {
       "Type": "Wait",
