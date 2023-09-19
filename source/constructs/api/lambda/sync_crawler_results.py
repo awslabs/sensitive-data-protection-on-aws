@@ -15,18 +15,19 @@ crawler_suffix = '-' + GlueResourceNameSuffix.CRAWLER.value
 
 
 def sync_result(input_event):
-    logger.debug(input_event)
     state = ConnectionState.ACTIVE.value
     if input_event['detail']['state'] == 'Failed':
         state = input_event['detail']['errorMessage']
-    logger.debug(state)
     crawler_name = input_event['detail']['crawlerName']
     if not crawler_name.endswith(crawler_suffix):
         return
 
+    # add type support for jdbc
+    # @see common/enum.py
+    is_jdbc = crawler_name.startswith(DatabaseType.JDBC.value)
     parts = crawler_name.split('-')
-    database_type = parts[0]
-    database_name = parts[1]
+    database_type = '-'.join(parts[:2]) if is_jdbc else parts[0]
+    database_name = parts[2] if is_jdbc else parts[1]
 
     try:
         if catalog_service.sync_crawler_result(account_id=input_event['detail']['accountId'],
@@ -57,17 +58,6 @@ def sync_result(input_event):
                 instance_id=database_name,
                 state=state
             )
-        elif database_type == DatabaseType.JDBC.value:
-            data_source_crud.update_jdbc_instance_count(
-                account=input_event['detail']['accountId'],
-                region=input_event['region'],
-            )
-            data_source_crud.set_jdbc_instance_glue_state(
-                account=input_event['detail']['accountId'],
-                region=input_event['region'],
-                bucket=database_name,
-                state=state
-            )
         elif database_type == DatabaseType.GLUE.value:
             data_source_crud.update_custom_glue_database_count(
                 account=input_event['detail']['accountId'],
@@ -77,6 +67,17 @@ def sync_result(input_event):
                 account=input_event['detail']['accountId'],
                 region=input_event['region'],
                 database=database_name,
+                state=state
+            )
+        elif database_type.startswith(DatabaseType.JDBC.value):
+            data_source_crud.update_jdbc_instance_count(
+                account=input_event['detail']['accountId'],
+                region=input_event['region'],
+            )
+            data_source_crud.set_jdbc_instance_glue_state(
+                account=input_event['detail']['accountId'],
+                region=input_event['region'],
+                bucket=database_name,
                 state=state
             )
 
