@@ -154,9 +154,11 @@ class DatabaseType(Enum):
     GLUE = "glue"
     DDB = "ddb"
     EMR = "emr"
-    CUSTOM_JDBC_AWS = "custom_jdbc_aws"
-    CUSTOM_JDBC_TENCENT = "custom_jdbc_tencent"
-    CUSTOM_JDBC_ALIYUN = "custom_jdbc_aliyun"
+    # JDBC is a virtual type
+    JDBC = "jdbc"
+    JDBC_AWS = "jdbc-aws"
+    JDBC_TENCENT = "jdbc-tencent"
+    JDBC_ALIYUN = "jdbc-aliyun"
 
 
 @unique
