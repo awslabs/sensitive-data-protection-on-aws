@@ -422,7 +422,7 @@ def delete_jdbc_connection(provider_id: int, account: str, region: str, instance
     except Exception as e:
         err.append(str(e))
     # 3/3 delete source
-    s3_bucket = crud.get_jdbc_instance_source(provider, account, region, instance_id)
+    s3_bucket = crud.get_jdbc_instance_source(provider_id, account, region, instance_id)
     glue = __glue(account=account, region=region)
     try:
         glue.delete_crawler(Name=s3_bucket.glue_crawler)
@@ -433,7 +433,7 @@ def delete_jdbc_connection(provider_id: int, account: str, region: str, instance
     except Exception as e:
         err.append(str(e))
 
-    crud.delete_jdbc_connection(provider, account, region, instance_id)
+    crud.delete_jdbc_connection(provider_id, account, region, instance_id)
     try:
         crud.update_jdbc_instance_count(account, region)
     except Exception as e:
