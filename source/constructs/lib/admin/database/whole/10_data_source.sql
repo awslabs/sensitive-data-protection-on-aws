@@ -198,6 +198,23 @@ create table source_rds_instance
     modify_time               timestamp    null
 );
 
+create table source_glue_database
+(
+    id                        int auto_increment primary key,
+    glue_database_name               varchar(255) null,
+    glue_database_description            varchar(255) null,
+    glue_database_location_uri                    varchar(255) null,
+    glue_database_create_time          varchar(255) null,
+    glue_database_catalog_id                   varchar(255) null,
+    account_id                varchar(255) null,
+    region                    varchar(255) null,
+    version                   int          null,
+    create_by                 varchar(255) null,
+    create_time               timestamp    null,
+    modify_by                 varchar(255) null,
+    modify_time               timestamp    null
+);
+
 create table source_jdbc_instance
 (
     id                                 int auto_increment primary key,

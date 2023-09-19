@@ -58,14 +58,17 @@ const AccountList: React.FC<any> = (props: any) => {
   };
 
   useEffect(() => {
+    console.log("useEffect-----------")
     getPageData();
   }, []);
 
   useDidUpdateEffect(() => {
+    console.log("useDidUpdateEffect1-----------")
     getPageData();
   }, [currentPage, preferences.pageSize]);
 
   useDidUpdateEffect(() => {
+    console.log("useDidUpdateEffect2-----------")
     setCurrentPage(1);
     getPageData();
   }, [query]);

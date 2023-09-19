@@ -1,10 +1,23 @@
 import datetime
 
 from sqlalchemy import desc
-from common.enum import ConnectionState, MessageEnum, Provider, SourceRegionStatus, SourceProviderStatus, SourceResourcesStatus, SourceAccountStatus
+from common.enum import (ConnectionState,
+                         MessageEnum,
+                         Provider,
+                         SourceRegionStatus,
+                         SourceProviderStatus,
+                         SourceResourcesStatus,
+                         SourceAccountStatus)
 from common.query_condition import QueryCondition, query_with_condition
 from db.database import get_session
-from db.models_data_source import S3BucketSource, Account, RdsInstanceSource, JDBCInstanceSource, SourceRegion, SourceProvider, SourceResource
+from db.models_data_source import (S3BucketSource,
+                                   Account,
+                                   RdsInstanceSource,
+                                   JDBCInstanceSource,
+                                   SourceRegion,
+                                   SourceProvider,
+                                   SourceResource,
+                                   SourceGlueDatabase)
 from common.exception_handler import BizException
 from . import schemas
 
@@ -95,6 +108,11 @@ def list_rds_instance_source(condition: QueryCondition):
     instances = query_with_condition(instances, condition)
     return instances
 
+def list_glue_database_by_name(name: str):
+    return get_session().query(SourceGlueDatabase).filter(SourceGlueDatabase.glue_database_name == name).all()
+
+def list_jdbc_instance_source_by_instance_id(instance_id: str):
+    return get_session().query(JDBCInstanceSource).filter(JDBCInstanceSource.instance_id == instance_id).all()
 
 def list_jdbc_instance_source(provider_id: int):
     # instances = Nonex
@@ -142,7 +160,7 @@ def get_jdbc_instance_source_glue_state(provider_id: int, account: str, region: 
     rds = get_session().query(JDBCInstanceSource).filter(JDBCInstanceSource.data_source_id == account_tmp[0],
                                                          JDBCInstanceSource.instance_id == instance_id,
                                                          JDBCInstanceSource.region == region,
-                                                         JDBCInstanceSource.aws_account == account).order_by(
+                                                         JDBCInstanceSource.account_id == account).order_by(
         desc(JDBCInstanceSource.detection_history_id)).first()
     if rds is not None:
         return rds.glue_state
@@ -172,7 +190,10 @@ def get_rds_instance_source(account: str, region: str, instance_id: str):
                                                          RdsInstanceSource.region == region,
                                                          RdsInstanceSource.instance_id == instance_id).scalar()
 
-def get_jdbc_instance_source(provider: str, account: str, region: str, instance_id: str):
+def get_glue_database_source(provider: int, account: str, region: str, instance_id: str):
+    pass
+
+def get_jdbc_instance_source(provider: int, account: str, region: str, instance_id: str):
     return get_session().query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == provider,
                                                           JDBCInstanceSource.account_id == account,
                                                           JDBCInstanceSource.region == region,
@@ -508,6 +529,24 @@ def get_source_rds_account_region():
             .all()
             )
 
+def add_glue_database(glueDatabase: schemas.SourceGlueDatabase):
+    session = get_session()
+
+    glue_database = SourceGlueDatabase()
+    glue_database.glue_database_name = glueDatabase.glue_database_name
+    glue_database.glue_database_location_uri = glueDatabase.glue_database_location_uri
+    glue_database.glue_database_description = glueDatabase.glue_database_description
+    glue_database.glue_database_create_time = glueDatabase.glue_database_create_time
+    glue_database.glue_database_catalog_id = glueDatabase.glue_database_catalog_id
+    glue_database.region = glueDatabase.region
+    glue_database.account_id = glueDatabase.account_id
+
+    session.add(glue_database)
+    session.commit()
+    session.refresh(glue_database)
+
+    return glue_database
+
 def add_jdbc_conn(jdbcConn: schemas.JDBCInstanceSource):
     session = get_session()
 
@@ -528,7 +567,7 @@ def add_jdbc_conn(jdbcConn: schemas.JDBCInstanceSource):
     jdbc_instance_source.jdbc_driver_jar_uri = jdbcConn.jdbc_driver_jar_uri
     jdbc_instance_source.instance_class = jdbcConn.instance_class
     jdbc_instance_source.instance_status = jdbcConn.instance_status
-    jdbc_instance_source.account_provider = jdbcConn.account_provider
+    jdbc_instance_source.account_provider_id = jdbcConn.account_provider
     jdbc_instance_source.account_id = jdbcConn.account_id
     jdbc_instance_source.region = jdbcConn.region
     jdbc_instance_source.data_source_id = jdbcConn.data_source_id

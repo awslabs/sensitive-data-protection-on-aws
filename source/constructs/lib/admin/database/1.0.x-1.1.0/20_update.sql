@@ -6,7 +6,6 @@ alter table source_account change column delegated_aws_account_id delegated_acco
 alter table source_account add total_jdbc_instance int default 0 after connect_rds_instance;
 alter table source_account add connected_jdbc_instance int default 0 after total_jdbc_instance;
 alter table source_account add account_provider_id int default 1 after id;
-alter table template_identifier add base_type int default 1 after id;
 alter table template_identifier add max_distance int default null after exclude_keywords;
 alter table template_identifier add min_occurrence int default null after exclude_keywords;
 
@@ -136,3 +135,8 @@ INSERT INTO source_resource (resource_name, provider_id) VALUES ('GlueData', 1);
 INSERT INTO source_resource (resource_name, provider_id) VALUES ('CustomJDBC', 1);
 INSERT INTO source_resource (resource_name, provider_id) VALUES ('CustomJDBC', 2);
 INSERT INTO source_resource (resource_name, provider_id) VALUES ('CustomJDBC', 3);
+
+INSERT INTO template_identifier (description, type, name, create_by) VALUES ('Face identifier for image detecting (Built-in)',3,'FACE','SDPS');
+INSERT INTO template_identifier (description, type, name, create_by) VALUES ('Business license identifier for image detecting (Built-in)',3,'Business License','SDPS');
+INSERT INTO template_identifier (description, type, name, create_by) VALUES ('Car license identifier for image detecting (Built-in)',3,'Car_License','SDPS');
+INSERT INTO template_identifier (description, type, name, create_by) VALUES ('ID card identifier for image detecting (Built-in)',3,'ID_Card','SDPS');
