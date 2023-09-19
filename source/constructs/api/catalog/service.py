@@ -196,7 +196,7 @@ def sync_crawler_result(
                 # glue can't crawl them correctly
                 # So there is no sizeKey in Parameters, we set the default value is 0
                 table_size_key = 0
-                if "sizeKey" in table["StorageDescriptor"]["Parameters"]:
+                if "Parameters" in table["StorageDescriptor"] and "sizeKey" in table["StorageDescriptor"]["Parameters"]:
                     table_size_key = int(
                         table["StorageDescriptor"]["Parameters"]["sizeKey"]
                     )
@@ -213,13 +213,13 @@ def sync_crawler_result(
                 table_location = table["StorageDescriptor"]["Location"]
                 # If a table is a specific S3 object, there is no objectCount in Parameters, and the object count is 1
                 table_object_count = 1
-                if "objectCount" in table["StorageDescriptor"]["Parameters"]:
+                if "Parameters" in table["StorageDescriptor"] and "objectCount" in table["StorageDescriptor"]["Parameters"]:
                     table_object_count = int(
                         table["StorageDescriptor"]["Parameters"]["objectCount"]
                     )
                 # For a s3 table, the classification is the file type of the table objects, csv/json/...
                 table_classification = const.NA
-                if "classification" in table["StorageDescriptor"]["Parameters"]:
+                if "Parameters" in table["StorageDescriptor"] and "classification" in table["StorageDescriptor"]["Parameters"]:
                     table_classification = table["StorageDescriptor"]["Parameters"][
                         "classification"
                     ]
@@ -355,7 +355,7 @@ def sync_crawler_result(
             storage_location = rds_engine_type
         elif database_type.startswith(DatabaseType.JDBC.value):
             storage_location = rds_engine_type
-        elif database_type == DatabaseType.CUSTOM_GLUE:
+        elif database_type == DatabaseType.GLUE.value:
             storage_location = const.NA
 
         catalog_database_dict = {
