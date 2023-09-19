@@ -341,6 +341,7 @@ def delete_rds_connection(account: str, region: str, instance: str):
     session.merge(rds_instance_source)
     session.commit()
 
+
 def delete_jdbc_connection(provider: str, account: str, region: str, instance: str):
     session = get_session()
     jdbc_instance_source = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.instance_id == instance,
@@ -599,6 +600,13 @@ def query_resources_by_provider(provider_id: int) -> list[SourceResource]:
 
 def get_account_list_by_provider(provider_id):
     return get_session().query(Account).filter(Account.account_provider_id == provider_id, Account.status == SourceAccountStatus.ENABLE.value).all()
+
+
+def list_account_by_provider_and_region(provider_id, region):
+    return get_session().query(Account).filter(Account.account_provider_id == provider_id,
+                                               Account.region == region,
+                                               Account.status == SourceAccountStatus.ENABLE.value).all()
+
 
 def get_region_list_by_provider(provider_id):
     return get_session().query(SourceRegion).filter(SourceRegion.provider_id == provider_id,

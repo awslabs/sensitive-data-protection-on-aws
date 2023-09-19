@@ -6,6 +6,7 @@ from time import sleep
 
 import boto3
 
+import common.enum
 from catalog.service import delete_catalog_by_account_region as delete_catalog_by_account
 from catalog.service import delete_catalog_by_database_region as delete_catalog_by_database_region
 from common.constant import const
@@ -16,7 +17,8 @@ from discovery_job.service import delete_account as delete_job_by_account
 from discovery_job.service import can_delete_database as can_delete_job_database
 from discovery_job.service import delete_database as delete_job_database
 from . import s3_detector, rds_detector, crud
-from .schemas import AdminAccountInfo, JDBCInstanceSource, ProviderResourceFullInfo, SourceResourceBase, SourceCoverage, SourceGlueDatabase
+from .schemas import AdminAccountInfo, JDBCInstanceSource, ProviderResourceFullInfo, SourceResourceBase, SourceCoverage, \
+    SourceGlueDatabase, DataLocationInfo
 
 SLEEP_TIME = 5
 SLEEP_MIN_TIME = 2
@@ -312,6 +314,7 @@ def check_link(credentials, region_name: str, vpc_id: str, rds_secret_id: str):
     logger.info(glue_endpoint_exists)
     logger.info(secret_endpoint_exists)
 
+
 def sync_jdbc_connection(
         account_provider,
         account_id,
@@ -345,7 +348,7 @@ def sync_jdbc_connection(
     elif state == ConnectionState.CRAWLING.value:
         raise BizException(MessageEnum.SOURCE_CONNECTION_CRAWLING.get_code(),
                            MessageEnum.SOURCE_CONNECTION_CRAWLING.get_msg())
-    
+
     credentials = None
     try:
         iam_role_name = crud.get_iam_role(account_id)
@@ -942,6 +945,7 @@ def refresh_data_source(provider: str, accounts: list[str], type: str):
     else:
         pass
 
+
 def refresh_aws_data_source(accounts: list[str], type: str):
     if type is None or len(accounts) == 0:
         raise BizException(MessageEnum.SOURCE_REFRESH_FAILED.get_code(),
@@ -1056,6 +1060,7 @@ def add_account(account):
         add_aws_account(account.account_id)
     else:
         add_third_account(account)
+
 
 def add_aws_account(account_id: str):
     # Open this loop for multiple region support
@@ -1620,6 +1625,37 @@ def test_glue_conn(account, connection):
         CatalogId=account,
         ConnectionName=connection
     )['ConnectionTest']['Status']
+
+
+def list_data_location():
+    res = []
+    provider_list = crud.query_provider_list()
+    for item in provider_list:
+        location = DataLocationInfo()
+        location.source = item.provider_name
+        regions = crud.get_region_list_by_provider(item.id)
+        if not regions:
+            location.region = None
+            location.account_count = 0
+            res.append(location)
+            continue
+        for subItem in regions:
+            location.region = subItem.region_name
+            accounts = crud.list_account_by_provider_and_region(item.id, subItem)
+            location.account_count = len(accounts)
+            res.append(location)
+    return res
+
+
+def list_data_provider():
+    return crud.query_provider_list()
+
+
+def list_data_source_type():
+    data_source_type_mapping = {}
+    for index, db_type in enumerate(common.enum.DatabaseType, start=1):
+        data_source_type_mapping[db_type] = db_type.value
+    return data_source_type_mapping
 
 
 def query_regions_by_provider(provider_id: int):
