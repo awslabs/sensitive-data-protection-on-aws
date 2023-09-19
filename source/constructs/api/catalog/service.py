@@ -130,7 +130,7 @@ def sync_crawler_result(
         if rds_database is not None:
             rds_engine_type = rds_database.engine
     
-    if database_type == DatabaseType.JDBC.value:
+    if database_type.startswith(DatabaseType.JDBC.value):
         jdbc_database = data_source_crud.get_jdbc_instance_source(
             account_id, region, database_name
         )
@@ -170,7 +170,7 @@ def sync_crawler_result(
     table_count = 0  # Count each table
     need_clean_database = False
     if crawler_last_run_status == GlueCrawlerState.SUCCEEDED.value:
-        if database_type == DatabaseType.JDBC.value:
+        if database_type.startswith(DatabaseType.JDBC.value):
             provider_id = data_source_crud.get_jdbc_provider_id(
                 account_id, region, database_name
             )
@@ -227,7 +227,7 @@ def sync_crawler_result(
                     table_classification = rds_engine_type
                 elif database_type == DatabaseType.GLUE.value:
                     table_classification = rds_engine_type
-                elif database_type == DatabaseType.JDBC.value:
+                elif database_type.startswith(DatabaseType.JDBC.value):
                     table_classification = jdbc_engine_type
 
                 database_object_count += table_object_count
@@ -334,7 +334,7 @@ def sync_crawler_result(
         elif database_type == DatabaseType.S3.value:
             data_source_crud.set_s3_bucket_source_glue_state(account_id, region, database_name,
                                                              ConnectionState.UNSUPPORTED.value)
-        elif database_type == DatabaseType.JDBC.value:
+        elif database_type.startswith(DatabaseType.JDBC.value):
             data_source_crud.set_jdbc_instance_glue_state(account_id, region, database_name,
                                                                 ConnectionState.UNSUPPORTED.value)
         elif database_type == DatabaseType.GLUE.value:
@@ -353,7 +353,7 @@ def sync_crawler_result(
             storage_location = "s3://" + database_name + "/"
         elif database_type == DatabaseType.RDS.value:
             storage_location = rds_engine_type
-        elif database_type == DatabaseType.JDBC.value:
+        elif database_type.startswith(DatabaseType.JDBC.value):
             storage_location = rds_engine_type
         elif database_type == DatabaseType.CUSTOM_GLUE:
             storage_location = const.NA
