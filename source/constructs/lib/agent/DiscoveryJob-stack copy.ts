@@ -158,6 +158,7 @@ export class DiscoveryJobStack extends Construct {
             'xray:PutTelemetryRecords',
             'xray:GetSamplingRules',
             'xray:GetSamplingTargets',
+            'events:*',
             'logs:*',
             'events:PutTargets',
             'events:PutRule',
@@ -229,7 +230,7 @@ export class DiscoveryJobStack extends Construct {
       {
         roleArn: discoveryJobRole.roleArn,
         definitionString: jsonDiscoveryJobStructured,
-        stateMachineName: `${SolutionInfo.SOLUTION_NAME_ABBR}-DiscoveryJob-Structured`, //Name must be specified
+        stateMachineName: `${SolutionInfo.SOLUTION_NAME_ABBR}-DiscoveryJob`, //Name must be specified
         // loggingConfiguration: {
         //   destinations: [{
         //     cloudWatchLogsLogGroup: {

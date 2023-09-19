@@ -1,7 +1,17 @@
 {
-  "Comment": "Sensitive Data Protection on AWS (Version:@TEMPLATE_SOLUTION_VERSION@)",
-  "StartAt": "FirstWait",
+  "StartAt": "NeedRunCrawler",
   "States": {
+    "NeedRunCrawler": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.NeedRunCrawler",
+          "BooleanEquals": true,
+          "Next": "FirstWait"
+        }
+      ],
+      "Default": "SplitJob"
+    },
     "FirstWait": {
       "Type": "Wait",
       "Next": "GetCrawler",
@@ -14,7 +24,7 @@
       },
       "Resource": "arn:${AWS::Partition}:states:::aws-sdk:glue:getCrawler",
       "ResultPath": "$.GetCrawler",
-      "Next": "Choice",
+      "Next": "NeedStartCrawler",
       "Retry": [
         {
           "ErrorEquals": [
@@ -26,7 +36,7 @@
         }
       ]
     },
-    "Choice": {
+    "NeedStartCrawler": {
       "Type": "Choice",
       "Choices": [
         {
@@ -62,7 +72,7 @@
         "Name.$": "$.CrawlerName"
       },
       "Resource": "arn:${AWS::Partition}:states:::aws-sdk:glue:getCrawler",
-      "Next": "Choice2",
+      "Next": "CheckCrawlerState",
       "ResultPath": "$.GetCrawler",
       "Retry": [
         {
@@ -75,13 +85,13 @@
         }
       ]
     },
-    "Choice2": {
+    "CheckCrawlerState": {
       "Type": "Choice",
       "Choices": [
         {
           "Variable": "$.GetCrawler.Crawler.State",
           "StringEquals": "READY",
-          "Next": "Lambda Invoke"
+          "Next": "SplitJob"
         },
         {
           "Or": [
@@ -99,7 +109,7 @@
       ],
       "Default": "Wait"
     },
-    "Lambda Invoke": {
+    "SplitJob": {
       "Type": "Task",
       "Resource": "arn:${AWS::Partition}:states:::lambda:invoke",
       "OutputPath": "$.Payload",
@@ -134,7 +144,7 @@
             "Type": "Task",
             "Resource": "arn:${AWS::Partition}:states:::glue:startJobRun.sync",
             "Parameters": {
-              "JobName.$": "$.JobName",
+              "JobName.$": "$.JobNameStructured",
               "Arguments": {
                 "--JobId.$": "$.JobId",
                 "--RunId.$": "$.RunId",
@@ -143,11 +153,15 @@
                 "--Region.$": "$.Region",
                 "--DatabaseType.$": "$.DatabaseType",
                 "--DatabaseName.$": "$.DatabaseName",
+                "--GlueDatabaseName.$": "$.GlueDatabaseName",
                 "--TableName.$": "$.TableName",
                 "--TemplateId.$": "$.TemplateId",
                 "--TemplateSnapshotNo.$": "$.TemplateSnapshotNo",
+                "--Depth.$": "$.DepthStructured",
                 "--ExcludeKeywords.$": "$.ExcludeKeywords",
-                "--Depth.$": "$.Depth",
+                "--IncludeKeywords.$": "$.IncludeKeywords",
+                "--ExcludeFileExtensions.$": "$.ExcludeFileExtensions",
+                "--IncludeFileExtensions.$": "$.IncludeFileExtensions",
                 "--BaseTime.$": "$.BaseTime",
                 "--DetectionThreshold.$": "$.DetectionThreshold",
                 "--AdminAccountId.$": "$.AdminAccountId",
@@ -178,21 +192,12 @@
     },
     "GetCrawlerFail": {
       "Type": "Pass",
-      "Next": "SQS SendMessageFail",
+      "Next": "Fail",
       "Result": {
-        "Status": "Failed",
+        "State": "Failed",
         "Message": "The state of the crawler is not ready."
       },
       "ResultPath": "$.Result"
-    },
-    "SQS SendMessageFail": {
-      "Type": "Task",
-      "Resource": "arn:${AWS::Partition}:states:::sqs:sendMessage",
-      "Parameters": {
-        "MessageBody.$": "$",
-        "QueueUrl.$": "$.QueueUrl"
-      },
-      "Next": "Fail"
     },
     "SuccessPass": {
       "Type": "Pass",
@@ -200,15 +205,6 @@
         "State": "Succeeded"
       },
       "ResultPath": "$.Result",
-      "Next": "SQS SendMessage"
-    },
-    "SQS SendMessage": {
-      "Type": "Task",
-      "Resource": "arn:${AWS::Partition}:states:::sqs:sendMessage",
-      "Parameters": {
-        "MessageBody.$": "$",
-        "QueueUrl.$": "$.QueueUrl"
-      },
       "End": true
     },
     "Wait": {

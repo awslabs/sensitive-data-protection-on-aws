@@ -143,14 +143,19 @@ class RunDatabaseState(Enum):
 
 
 @unique
+class RunTaskType(Enum):
+    STRUCTURED = "Structured"
+    UNSTRUCTURED = "Unstructured"
+
+
+@unique
 class DatabaseType(Enum):
     RDS = "rds"
     S3 = "s3"
+    GLUE = "glue"
     DDB = "ddb"
     EMR = "emr"
-    CUSTOM_JDBC_AWS = "custom_jdbc_aws"
-    CUSTOM_JDBC_TENCENT = "custom_jdbc_tencent"
-    CUSTOM_JDBC_ALIYUN = "custom_jdbc_aliyun"
+    JDBC = "jdbc"
 
 
 @unique
