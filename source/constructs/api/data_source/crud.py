@@ -567,14 +567,6 @@ def add_jdbc_conn(jdbcConn: schemas.JDBCInstanceSource):
     return jdbc_instance_source
 
 
-def list_data_location():
-    return None
-
-
-def list_data_provider():
-    return None
-
-
 def query_regions_by_provider(provider_id: int):
     return get_session().query(SourceRegion).filter(SourceRegion.provider_id == provider_id,
                                                     SourceRegion.status == SourceRegionStatus.ENABLE.value).all()
@@ -591,6 +583,12 @@ def query_resources_by_provider(provider_id: int) -> list[SourceResource]:
 
 def get_account_list_by_provider(provider_id):
     return get_session().query(Account).filter(Account.account_provider_id == provider_id,
+                                               Account.status == SourceAccountStatus.ENABLE.value).all()
+
+
+def list_account_by_provider_and_region(provider_id, region):
+    return get_session().query(Account).filter(Account.account_provider_id == provider_id,
+                                               Account.region == region,
                                                Account.status == SourceAccountStatus.ENABLE.value).all()
 
 

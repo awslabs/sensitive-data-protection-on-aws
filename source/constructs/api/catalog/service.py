@@ -2,6 +2,8 @@ import boto3
 import os
 import json
 import csv
+
+import label.crud
 from . import crud, schemas
 from zipfile import ZipFile
 from data_source import crud as data_source_crud
@@ -813,7 +815,56 @@ def get_database_prorpery(account_id: str,
 
 
 def get_folder_property(table_id: str):
-    return None
+    catalog_table = crud.get_catalog_table_level_classification_by_id()
+    if not catalog_table:
+        return {}
+    result_list = []
+    try:
+        client = get_boto3_client(catalog_table.account_id, catalog_table.region, catalog_table.database_type)
+        labels = get_labels_by_id_list(catalog_table.label_ids)
+        labels_str = ""
+        if labels is not None:
+            labels_str = [{"id": label.id, "label_name": label.label_name} for label in labels]
+        result_list.append(["ResourceTags", labels_str])
+        if catalog_table.database_type == DatabaseType.S3.value:
+            result_list.append(["Account", catalog_table.account_id])
+            result_list.append(["Region", catalog_table.region])
+            result_list.append(["Objects", catalog_table.object_count])
+            result_list.append(["Size", catalog_table.size_key])
+            result_list.append(["Rows", catalog_table.row_count])
+            result_list.append(["S3Location", catalog_table.storage_location])
+            # TODO
+            result_list.append(["LastUpdated", catalog_table.region])
+            result_list.append(["Tags", __get_s3_tagging(catalog_table.database_name, client)])
+        elif catalog_table.database_type == DatabaseType.RDS.value or catalog_table.database_type == DatabaseType.GLUE.value:
+            response = client.describe_db_instances(DBInstanceIdentifier=catalog_table.database_name)
+            if "DBInstances" in response and len(response["DBInstances"]) > 0:
+                instance_info = response["DBInstances"][0]
+                logger.info(instance_info)
+                # TODO name
+                # result_list.append(["InstanceName", instance_info[""]])
+                result_list.append(["Engine", instance_info["Engine"]])
+            result_list.append(["Account", catalog_table.account_id])
+            result_list.append(["Region", catalog_table.region])
+            result_list.append(["GlueDatabase", catalog_table.row_count])
+            result_list.append(["GlueTable", catalog_table.storage_location])
+            result_list.append(["Location", catalog_table.storage_location])
+            # TODO
+            result_list.append(["LastUpdated", catalog_table.region])
+            # TODO
+            result_list.append(["SerdeParameters", catalog_table.region])
+        else:
+            raise BizException(
+                MessageEnum.CATALOG_TABLE_TYPE_ERR.get_code(),
+                MessageEnum.CATALOG_TABLE_TYPE_ERR.get_msg(),
+            )
+    except Exception as e:
+        logger.error(''.join(traceback.TracebackException.from_exception(e).format()))
+        raise BizException(
+            MessageEnum.CATALOG_TABLE_PROPERTY_GET_FAILED.get_code(),
+            MessageEnum.CATALOG_TABLE_PROPERTY_GET_FAILED.get_msg(),
+        )
+    return result_list
 
 
 def update_catalog_column_level_classification(new_column: schemas.CatalogColumnLevelClassification):

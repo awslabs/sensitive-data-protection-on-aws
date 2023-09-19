@@ -193,6 +193,18 @@ def get_catalog_table_level_classification_by_database_all(
     return results
 
 
+def get_catalog_table_level_classification_by_id(
+    table_id: str
+):
+    result = (
+        get_session()
+        .query(models.CatalogTableLevelClassification)
+        .filter(models.CatalogTableLevelClassification.id == table_id)
+        .first()
+    )
+    return result
+
+
 def get_catalog_table_level_classification_by_name(
     account_id: str,
     region: str,

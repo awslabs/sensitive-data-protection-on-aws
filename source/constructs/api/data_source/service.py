@@ -17,7 +17,7 @@ from discovery_job.service import delete_account as delete_job_by_account
 from discovery_job.service import can_delete_database as can_delete_job_database
 from discovery_job.service import delete_database as delete_job_database
 from . import s3_detector, rds_detector, crud
-from .schemas import AdminAccountInfo, JDBCInstanceSource, ProviderResourceFullInfo, SourceResourceBase, SourceCoverage
+from .schemas import AdminAccountInfo, JDBCInstanceSource, ProviderResourceFullInfo, SourceResourceBase, SourceCoverage, DataLocationInfo
 
 SLEEP_TIME = 5
 SLEEP_MIN_TIME = 2
@@ -1617,18 +1617,34 @@ def test_glue_conn(account, connection):
 
 
 def list_data_location():
-    return crud.list_data_location()
+    res = []
+    provider_list = crud.query_provider_list()
+    for item in provider_list:
+        location = DataLocationInfo()
+        location.source = item.provider_name
+        regions = crud.get_region_list_by_provider(item.id)
+        if not regions:
+            location.region = None
+            location.account_count = 0
+            res.append(location)
+            continue
+        for subItem in regions:
+            location.region = subItem.region_name
+            accounts = crud.list_account_by_provider_and_region(item.id, subItem)
+            location.account_count = len(accounts)
+            res.append(location)
+    return res
 
 
 def list_data_provider():
-    return crud.list_data_provider()
+    return crud.query_provider_list()
 
 
 def list_data_source_type():
     data_source_type_mapping = {}
     for index, db_type in enumerate(common.enum.DatabaseType, start=1):
-        data_source_type_mapping[index] = db_type.value
-    return common.enum.DatabaseType
+        data_source_type_mapping[db_type] = db_type.value
+    return data_source_type_mapping
 
 
 def query_regions_by_provider(provider_id: int):
