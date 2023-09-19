@@ -33,6 +33,17 @@ def list_rds_instances(condition: QueryCondition):
         page=condition.page,
     ))
 
+@router.post("/list-glue-database", response_model=BaseResponse[Page[schemas.JDBCInstanceSource]])
+@inject_session
+def list_glue_databases(condition: QueryCondition):
+    instances = service.list_glue_databases(condition)
+    if instances is None:
+        return None
+    return paginate(instances, Params(
+        size=condition.size,
+        page=condition.page,
+    ))
+
 @router.post("/list-jdbc", response_model=BaseResponse[Page[schemas.JDBCInstanceSource]])
 @inject_session
 def list_jdbc_instances(condition: QueryCondition):
@@ -93,16 +104,37 @@ def sync_rds_connection(rds: schemas.SourceRdsConnection):
         rds.rds_secret
     )
 
-@router.post("/delete-jdbc", response_model=BaseResponse)
+@router.post("/delete-glue-database", response_model=BaseResponse)
 @inject_session
-def delete_jdbc_connection(jdbc: schemas.SourceDeteteJDBCConnection):
-    return service.delete_jdbc_connection(
+def delete_glue_database(glueDatabase: schemas.SourceDeteteGlueDatabase):
+    return service.delete_glue_database(
+        int(glueDatabase.account_provider),
+        glueDatabase.account_id,
+        glueDatabase.region,
+        glueDatabase.name
+    )
+
+# TODO
+@router.post("/sync-glue-database", response_model=BaseResponse)
+@inject_session
+def sync_glue_database(jdbc: schemas.SourceGlueDatabase):
+    return service.sync_glue_database(
         jdbc.account_id,
         jdbc.region,
         jdbc.instance
     )
 
+@router.post("/delete-jdbc", response_model=BaseResponse)
+@inject_session
+def delete_jdbc_connection(jdbc: schemas.SourceDeteteJDBCConnection):
+    return service.delete_jdbc_connection(
+        int(jdbc.account_provider),
+        jdbc.account_id,
+        jdbc.region,
+        jdbc.instance
+    )
 
+# TODO
 @router.post("/sync-jdbc", response_model=BaseResponse)
 @inject_session
 def sync_jdbc_connection(jdbc: schemas.SourceJDBCConnection):
@@ -133,8 +165,8 @@ def refresh_data_source(type: schemas.NewDataSource):
 
 @router.get("/coverage", response_model=BaseResponse[schemas.SourceCoverage])
 @inject_session
-def get_data_source_coverage(provider_id:int):
-    return service.get_data_source_coverage()
+def get_data_source_coverage(provider_id: int):
+    return service.get_data_source_coverage(provider_id)
 
 
 @router.post("/list-account", response_model=BaseResponse[Page[schemas.Account]])
@@ -178,6 +210,11 @@ def get_secrets(account: str, region: str):
 def get_admin_account_info():
     return service.get_admin_account_info()
 
+@router.post("/add-glue-database", response_model=BaseResponse)
+@inject_session
+def add_glue_database(glueDataBase: schemas.SourceGlueDatabase):
+    return service.add_glue_database(glueDataBase)
+
 @router.post("/add-jdbc-conn", response_model=BaseResponse)
 @inject_session
 def add_jdbc_conn(jdbcConn: schemas.JDBCInstanceSource):
@@ -188,6 +225,10 @@ def add_jdbc_conn(jdbcConn: schemas.JDBCInstanceSource):
 def query_glue_connections(account: schemas.AdminAccountInfo):
     return service.query_glue_connections(account)
 
+@router.post("/query-glue-databases", response_model=BaseResponse)
+@inject_session
+def query_glue_databases(account: schemas.AdminAccountInfo):
+    return service.query_glue_databases(account)
 
 @router.post("/query-account-network", response_model=BaseResponse)
 @inject_session

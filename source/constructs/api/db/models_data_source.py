@@ -258,6 +258,23 @@ class JDBCInstanceSource(Base):
     modify_by = sa.Column(sa.String(255))
     modify_time = sa.Column(sa.DateTime())
 
+class SourceGlueDatabase(Base):
+
+    __tablename__ = 'source_glue_database'
+
+    id = sa.Column(sa.Integer(), primary_key=True)
+    glue_database_name = sa.Column(sa.String(255))
+    glue_database_description = sa.Column(sa.String(255))
+    glue_database_location_uri = sa.Column(sa.String(255))
+    glue_database_create_time = sa.Column(sa.String(255))
+    glue_database_catalog_id = sa.Column(sa.String(255))
+    account_id = sa.Column(sa.String(255))
+    region = sa.Column(sa.String(255))
+    version = sa.Column(sa.Integer())
+    create_by = sa.Column(sa.String(255))
+    create_time = sa.Column(sa.TIMESTAMP())
+    modify_by = sa.Column(sa.String(255))
+    modify_time = sa.Column(sa.TIMESTAMP())
 
 class DynamodbTableSource(Base):
     __tablename__ = 'source_dynamodb_table'
