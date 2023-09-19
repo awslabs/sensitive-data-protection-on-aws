@@ -18,9 +18,9 @@ admin_account_region = boto3.session.Session().region_name
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-async def detect_rds_data_source(session: Session, aws_account_id: str):
+async def detect_glue_database_connection(session: Session, aws_account_id: str):
     iam_role_name = crud.get_iam_role(aws_account_id)
-    history = DetectionHistory(aws_account=aws_account_id, source_type='rds', state=0)
+    history = DetectionHistory(aws_account=aws_account_id, source_type='jdbc', state=0)
     session.add(history)
     session.commit()
     assumed_role_object = sts_client.assume_role(
@@ -116,7 +116,7 @@ async def detect_multiple_account_in_async(accounts):
     tasks = []
 
     for aws_account_id in accounts:
-        task = asyncio.create_task(detect_rds_data_source(session, aws_account_id))
+        task = asyncio.create_task(detect_glue_database_connection(session, aws_account_id))
         tasks.append(task)
     await asyncio.gather(*tasks)
 

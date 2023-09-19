@@ -23,7 +23,7 @@ const DataSourceConnectionHeader: React.FC = () => {
   const { t } = useTranslation();
   const {
     accountData = {
-      aws_account_id: '',
+      account_id: '',
     },
   } = location.state || {};
   return (
@@ -37,7 +37,7 @@ const DataSourceConnectionHeader: React.FC = () => {
       }
     >
       {t('datasource:connectToDataSourceForAccount')}{' '}
-      {accountData.aws_account_id}
+      {accountData.account_id}
     </Header>
   );
 };
@@ -47,8 +47,8 @@ const DataSourceConnectionContent: React.FC = () => {
   const { t } = useTranslation();
   const {
     accountData = {
-      aws_account_email: '',
-      aws_account_id: '',
+      account_email: '',
+      account_id: '',
       region: '',
       stack_instance_status: '',
       stack_status: '',
@@ -59,7 +59,7 @@ const DataSourceConnectionContent: React.FC = () => {
   return (
     <SpaceBetween direction="vertical" size="xl" className="connect-container">
       <div>
-        {accountData && accountData.aws_account_id && (
+        {accountData && accountData.account_id && (
           <DataSourceInfo accountData={accountData} />
         )}
       </div>

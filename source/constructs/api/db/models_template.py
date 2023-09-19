@@ -39,6 +39,8 @@ class TemplateIdentifier(Base):
     id = Column(Integer(), autoincrement=True, primary_key=True)
     description = Column(String(255), info={'searchable': True})
     type = Column(SmallInteger())
+    max_distance = Column(Integer())
+    min_occurrence = Column(Integer())
     version = Column(Integer())
     name = Column(String(255), nullable=False, info={'searchable': True})
     classification = Column(SmallInteger())

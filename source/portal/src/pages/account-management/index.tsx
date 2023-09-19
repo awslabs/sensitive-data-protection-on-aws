@@ -8,10 +8,12 @@ import {
   Grid,
   Header,
   SpaceBetween,
+  Tabs,
 } from '@cloudscape-design/components';
 import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import Navigation from 'pages/left-menu/Navigation';
 import { getAccountInfomation } from 'apis/dashboard/api';
+import { getSourceProviders } from 'apis/data-source/api';
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
 import HelpInfo from 'common/HelpInfo';
@@ -33,21 +35,34 @@ const AccountManagementContent: React.FC = () => {
     rds_total: 0,
     s3_connected: 0,
     s3_total: 0,
+    jdbc_connected: 0,
+    jdbc_total: 0
   });
   const [totalAccount, setTotalAccount] = useState(0);
   const [totalRegion, setTotalRegion] = useState(0);
+  const [providers, setProviders] = useState([]);
+  const [currentProvider, setCurrentProvider] = useState('1');
 
   useEffect(() => {
-    getSourceCoverageData();
+    getProviders();
   }, []);
 
-  const getSourceCoverageData = async () => {
+  useEffect(() => {
+    getSourceCoverageData(currentProvider);
+  }, [currentProvider]);
+
+  const getProviders = async () => {
+    const providers: any = await getSourceProviders({});
+    setProviders(providers)
+  }
+
+  const getSourceCoverageData = async (currentProvider: string) => {
     try {
-      const result: any = await getSourceCoverage();
+      const result: any = await getSourceCoverage({"provider_id":currentProvider});
       if (result) {
         setCoverageData(result);
       }
-      const accountData: any = await getAccountInfomation();
+      const accountData: any = await getAccountInfomation({"provider_id":currentProvider});
       if (accountData) {
         setTotalAccount(accountData.account_total);
         setTotalRegion(accountData.region_total);
@@ -56,6 +71,28 @@ const AccountManagementContent: React.FC = () => {
       console.error(error);
     }
   };
+  const changeProvider =(tabId:any)=>{
+    setCurrentProvider(tabId);
+  }
+  const genTabs = () => {
+    const tabs:any = [];
+    providers.forEach(item=> {
+        tabs.push({
+          label: item['provider_name'],
+          id: item['id']+'',
+          content: (
+          <SpaceBetween direction="vertical" size="l" className="account-container">
+            <Grid gridDefinition={[{ colspan: 6 }, { colspan: 6 }]}>
+             <TopDataCoverage {...topLeftCoverageData} />
+             <TopDataCoverage {...topRightCoverageData} />
+            </Grid>
+            <AccountList setTotalAccount={setTotalAccount} provider={currentProvider}/>
+          </SpaceBetween>
+          )
+        }) 
+    })
+    return tabs;
+  }
 
   const topLeftCoverageData = {
     header: t('account:awsAccountInfo'),
@@ -79,18 +116,22 @@ const AccountManagementContent: React.FC = () => {
     // leftChildTotal: `${coverageData?.s3_total || 0}`,
     rightChildHeader: t('account:totalRDSInstance'),
     rightChildData: `${coverageData?.rds_total || 0}`,
+    jdbcChildHeader: t('account:totalJDBCConn'),
+    jdbcChildData: `${coverageData?.jdbc_total || 0}`,
     // rightChildTotal: `${coverageData?.rds_total || 0}`,
     isRowMore: true,
   };
 
+   
+
+
+
   return (
-    <SpaceBetween direction="vertical" size="xl" className="account-container">
-      <Grid gridDefinition={[{ colspan: 6 }, { colspan: 6 }]}>
-        <TopDataCoverage {...topLeftCoverageData} />
-        <TopDataCoverage {...topRightCoverageData} />
-      </Grid>
-      <AccountList setTotalAccount={setTotalAccount} />
+    <div style={{marginTop:30}}>
+    <SpaceBetween direction="vertical" size="xxl" className="account-container">
+      <Tabs tabs={genTabs()} onChange={({detail})=>changeProvider(detail.activeTabId)} activeTabId={currentProvider}/>
     </SpaceBetween>
+    </div>
   );
 };
 

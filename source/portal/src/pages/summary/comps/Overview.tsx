@@ -18,10 +18,11 @@ const Overview: React.FC = () => {
   const [loadingCoverage, setLoadingCoverage] = useState(true);
   const [accountInfo, setAccountInfo] = useState<IAccountInfo>();
   const [coverageInfo, setCoverageInfo] = useState<ISourceCoverage>();
+  const [currentProvider, setCurrentProvider] = useState('1');
   const { t } = useTranslation();
   const getOverviewData = async () => {
     setLoadingOverview(true);
-    const res = await getAccountInfomation();
+    const res = await getAccountInfomation({"provider_id":currentProvider});
     setAccountInfo(res as IAccountInfo);
     setLoadingOverview(false);
   };
@@ -29,7 +30,7 @@ const Overview: React.FC = () => {
   const getDashbaordSourceCoverage = async () => {
     setLoadingCoverage(true);
     try {
-      const res = await getSourceCoverage();
+      const res = await getSourceCoverage({"provider_id":currentProvider});
       setCoverageInfo(res as ISourceCoverage);
       setLoadingCoverage(false);
     } catch (error) {

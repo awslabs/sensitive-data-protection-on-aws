@@ -3,8 +3,7 @@ import datetime
 from typing import Optional
 from pydantic import BaseModel
 from typing import List
-from enum import Enum
-
+from common.enum import DataSourceType
 
 class DataSource(BaseModel):
     id: int
@@ -18,7 +17,7 @@ class Account(BaseModel):
     account_id: Optional[str]
     account_alias: Optional[str]
     account_email: Optional[str]
-    account_provider: Optional[str]
+    account_provider_id: Optional[int]
     delegated_account_id: Optional[str]
     region: Optional[str]
     organization_unit_id: Optional[str]
@@ -90,6 +89,21 @@ class DynamodbTableSource(BaseModel):
     class Config:
         orm_mode = True
 
+class SourceGlueDatabase(BaseModel):
+
+    id: int
+    glue_database_name: Optional[str]
+    glue_database_description: Optional[str]
+    glue_database_location_uri: Optional[str]
+    glue_database_create_time: Optional[str]
+    glue_database_catalog_id: Optional[str]
+    account_id: Optional[str]
+    region: Optional[str]
+    version: Optional[int]
+    create_by: Optional[str]
+    create_time: Optional[datetime.datetime]
+    modify_by: Optional[str]
+    modify_time: Optional[datetime.datetime]
 
 class RdsInstanceSource(BaseModel):
     id: int
@@ -170,6 +184,8 @@ class SourceCoverage(BaseModel):
     s3_total: Optional[int]
     rds_connected: Optional[int]
     rds_total: Optional[int]
+    jdbc_connected: Optional[int]
+    jdbc_total: Optional[int]
 
 
 class SourceS3Connection(BaseModel):
@@ -186,7 +202,7 @@ class SourceRdsConnection(BaseModel):
     rds_secret: Optional[str]
 
 class SourceJDBCConnection(BaseModel):
-    account_provider: str
+    account_provider: int
     account_id: str
     region: str
     instance: str
@@ -197,9 +213,14 @@ class SourceJDBCConnection(BaseModel):
     password: Optional[str]
     secret: Optional[str]
 
+class SourceDeteteGlueDatabase(BaseModel):
+    account_provider: int
+    account_id: str
+    region: str
+    name: str
 
 class SourceDeteteJDBCConnection(BaseModel):
-    account_provider: str
+    account_provider: int
     account_id: str
     region: str
     instance: str
@@ -215,24 +236,69 @@ class SourceDeteteRdsConnection(BaseModel):
     instance: str
 
 class SourceNewAccount(BaseModel):
-    account_provider: str
+    account_provider: int
     account_id: str
     region: str
 
 class SourceOrgAccount(BaseModel):
     organization_management_account_id: str
 
-class DataSourceType(str, Enum):
-    s3 = "s3"
-    rds = "rds"
-    ddb = "ddb"
-    all = "all"
-
-
 class NewDataSource(BaseModel):
+    provider: Optional[str]
     accounts: List[str]
     type: DataSourceType = DataSourceType.all
 
 class AdminAccountInfo(BaseModel):
     account_id: str
     region: str
+
+class SourceProvider(BaseModel):
+
+    id: int
+    provider_name: Optional[str]
+    description: Optional[str]
+    status: Optional[int]
+    version: Optional[int]
+    create_by: Optional[str]
+    create_time: Optional[datetime.datetime]
+    modify_by: Optional[str]
+    modify_time: Optional[datetime.datetime]
+
+
+class SourceRegion(BaseModel):
+
+    id: int
+    region_name: Optional[str]
+    region_alias: Optional[str]
+    region_cord: Optional[str]
+    provider_id: Optional[int]
+    description: Optional[str]
+    status: Optional[int]
+    version: Optional[int]
+    create_by: Optional[str]
+    create_time: Optional[datetime.datetime]
+    modify_by: Optional[str]
+    modify_time: Optional[datetime.datetime]
+
+class SourceResourceBase(BaseModel):
+    resource_name: Optional[str]
+    resource_alias: Optional[str]
+    description: Optional[str]
+    status: Optional[int]
+    apply_region_ids: Optional[str]
+
+class SourceResource(SourceResourceBase):
+    id: int
+    provider_id: Optional[int]
+    version: Optional[int]
+    create_by: Optional[str]
+    create_time: Optional[datetime.datetime]
+    modify_by: Optional[str]
+    modify_time: Optional[datetime.datetime]
+
+
+class ProviderResourceFullInfo(BaseModel):
+    provider_id: Optional[int]
+    provider_name: Optional[str]
+    description: Optional[str]
+    resources: Optional[list[SourceResourceBase]]

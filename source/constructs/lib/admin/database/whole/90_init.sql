@@ -1,3 +1,4 @@
+-- Template
 DELETE FROM template WHERE id=1;
 INSERT INTO template (id, name, snapshot_no, status, version, create_by, create_time, modify_by, modify_time) VALUES (1, 'default-template', 'init', 1, 1, null, null, null, null);
 DELETE FROM template_identifier_prop WHERE id in (1, 2, 3, 4, 5);
@@ -274,6 +275,12 @@ INSERT INTO template_identifier (id, description, type, name, classification, pr
 INSERT INTO template_identifier (id, description, type, name, classification, privacy, rule, header_keywords, create_by) VALUES (271,'Regex-based identifier for detecting China province (Built-in)',0,'CHINA_PROVINCE',1, 1,'^(((中国)?(((北京|天津|上海|重庆)市?)|((河北|山西|辽宁|吉林|黑龙江|江苏|浙江|安徽|福建|江西|山东|河南|湖北|湖南|广东|海南|四川|贵州|云南|陕西|甘肃|青海|台湾)省?)|内蒙|内蒙古|内蒙古自治区|广西|广西壮族自治区|西藏|西藏自治区|宁夏|宁夏回族自治区|新疆|新疆维吾尔自治区|香港|香港特别行政区|澳门|澳门特别行政区))|(?i)(bei ?jing|tian ?jin|shang ?hai|chong ?qing|he ?bei|shan ?xi|liao ?ning|ji ?lin|hei ?long ?jiang|jiang ?su|zhe ?jiang|an ?hui|fu ?jian|jiang ?xi|shan ?dong|he ?nan|hu ?bei|hu ?nan|guang ?dong|guang ?xi|hai ?nan|si ?chuan|gui ?zhou|yun ?nan|shaan ?xi|gan ?su|qing ?hai|tai ?wan|inner mongolia|nei ?meng ?gu|nei ?meng|tibet|xi ?zang|ning ?xia|xin ?jiang|hong ?kong|xiang ?gang|macao|ao ?men))$','[\"province\",\"provincial\",\"area\",\"location\",\"省\",\"地区\",\"sheng\",\"diqu\"]','SDPS');
 INSERT INTO template_identifier (id, description, type, name, classification, privacy, rule, header_keywords, create_by) VALUES (272,'Regex-based identifier for detecting Gender (Built-in)',0,'CHINA_GENDER',1, 1,'^(男|女|男生|女生|男性|女性|transgender|male|female|man|woman|men|women)$','[\"sex\",\"gender\",\"xingbie\",\"性别\"]','SDPS');
 INSERT INTO template_identifier (id, description, type, name, classification, privacy, rule, header_keywords, create_by) VALUES (273,'Regex-based identifier for detecting for Id Card type (Built-in)',0,'CHINA_ID_TYPE',1, 1,'^(.+证|.+证明|.+证明书|.+证书|户口簿|户口本|驾照|驾驶本|行驶本|护照|社会保障卡|社保卡|居民死亡医学证明\(推断\)书|.+一卡通|居住卡|医保卡)$','[\"id type\",\"id card type\",\"id card\",\"id_type\",\"id_card_type\",\"id_card\",\"identification\",\"identity\",\"document\",\"license\",\"certificate\",\"registration\",\"card\",\"证明\",\"证件\",\"zhengming\",\"zhengjian\"]','SDPS');
+
+INSERT INTO template_identifier (id, description, type, name, create_by) VALUES (274,'Face identifier for image detecting (Built-in)',3,'FACE','SDPS');
+INSERT INTO template_identifier (id, description, type, name, create_by) VALUES (275,'Business license identifier for image detecting (Built-in)',3,'Business License','SDPS');
+INSERT INTO template_identifier (id, description, type, name, create_by) VALUES (276,'Car license identifier for image detecting (Built-in)',3,'Car_License','SDPS');
+INSERT INTO template_identifier (id, description, type, name, create_by) VALUES (277,'ID card identifier for image detecting (Built-in)',3,'ID_Card','SDPS');
+
 DELETE FROM template_identifier_prop_ref WHERE id < 10001;
 -- buildin identifier-category mapping
 INSERT INTO template_identifier_prop_ref (identifier_id, prop_id) VALUES (1,1);
@@ -815,3 +822,44 @@ INSERT INTO template_identifier_prop_ref (identifier_id, prop_id) VALUES (270,5)
 INSERT INTO template_identifier_prop_ref (identifier_id, prop_id) VALUES (271,3);
 INSERT INTO template_identifier_prop_ref (identifier_id, prop_id) VALUES (272,3);
 INSERT INTO template_identifier_prop_ref (identifier_id, prop_id) VALUES (273,3);
+
+-- Data_source
+INSERT INTO source_provider (id, provider_name) VALUES (1, 'AWS Cloud');
+INSERT INTO source_provider (id, provider_name) VALUES (2, 'Tencent Cloud');
+INSERT INTO source_provider (id, provider_name) VALUES (3, 'Google Cloud');
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('us-east-1','Northern Virginia (US East)','-77.0469,38.8048',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('us-east-2','Ohio (US East)','-83.0007,39.9623',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('us-west-1','Northern California (US West)','-122.4194,37.7749',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('us-west-2','Oregon (US West)','-123.0351,44.9429',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('ap-east-1','Hong Kong (Asia Pacific)','114.1694,22.3193',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('ap-south-1','Mumbai (Asia Pacific)','72.8777,19.076',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('ap-northeast-3','Osaka (Asia Pacific)','135.5023,34.6937',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('ap-northeast-2','Seoul (Asia Pacific)','126.978,37.5665',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('ap-southeast-1','Singapore (Asia Pacific)','103.8198,1.3521',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('ap-southeast-2','Sydney (Asia Pacific)','151.2093,-33.8688',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('ap-northeast-1','Tokyo (Asia Pacific)','139.6503,35.6762',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('ca-central-1','Montreal (Canada Central)','-73.5673,45.5017',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('eu-central-1','Frankfurt (EU Central)','8.6821,50.1109',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('eu-west-1','Dublin (EU West)','-6.2603,53.3498',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('eu-west-2','London (EU West)','-0.1278,51.5074',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('eu-south-1','Milan (EU South)','9.19,45.4642',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('eu-west-3','Paris (EU West)','2.3522,48.8566',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('eu-north-1','Stockholm (EU North)','18.0686,59.3293',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('me-south-1','Bahrain (Middle East)','50.5577,26.0667',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('sa-east-1','Sao Paulo (South America)','-46.6333,-23.5505',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('cn-north-1','Beijing (China North)','116.4074,39.9042',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('cn-northwest-1','Ningxia (China Northwest)','106.1581,37.1987',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('af-south-1','Africa (Cape Town)','18.4241, -33.9249',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('ap-south-2','Asia Pacific (Hyderabad)','72.8777, 19.0760',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('ap-southeast-3','Asia Pacific (Jakarta)','',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('ap-southeast-4','Asia Pacific (Melbourne)','',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('eu-south-2','Europe (Spain)','',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('eu-central-2','Europe (Zurich)','50.1109, 8.6821',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('il-central-1','Israel (Tel Aviv)','',1);
+INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('me-central-1','Middle East (UAE)','',1);
+INSERT INTO source_resource (resource_name, provider_id) VALUES ('S3', 1);
+INSERT INTO source_resource (resource_name, provider_id) VALUES ('RDS', 1);
+INSERT INTO source_resource (resource_name, provider_id) VALUES ('GlueData', 1);
+INSERT INTO source_resource (resource_name, provider_id) VALUES ('CustomJDBC', 1);
+INSERT INTO source_resource (resource_name, provider_id) VALUES ('CustomJDBC', 2);
+INSERT INTO source_resource (resource_name, provider_id) VALUES ('CustomJDBC', 3);

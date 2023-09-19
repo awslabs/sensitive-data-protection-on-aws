@@ -120,17 +120,9 @@ def sync_crawler_result(
         database_type: str,
         database_name: str,
 ):
-    if database_type not in [DatabaseType.RDS.value, 
-                             DatabaseType.S3.value,
-                             DatabaseType.CUSTOM_JDBC_AWS.value,
-                             DatabaseType.CUSTOM_JDBC_ALIYUN.value,
-                             DatabaseType.CUSTOM_JDBC_TENCENT.value]:
-        raise BizException(
-            MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_code(),
-            MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_msg(),
-        )
-
     rds_engine_type = const.NA
+    # custom glue type will not use crawler, just syncing the catalog from existing glue tables
+    is_custom_glue = database_type == DatabaseType.GLUE.value
     if database_type == DatabaseType.RDS.value:
         rds_database = data_source_crud.get_rds_instance_source(
             account_id, region, database_name
@@ -138,48 +130,48 @@ def sync_crawler_result(
         if rds_database is not None:
             rds_engine_type = rds_database.engine
     
-    if database_type in [DatabaseType.CUSTOM_JDBC_AWS.value,
-                         DatabaseType.CUSTOM_JDBC_ALIYUN.value,
-                         DatabaseType.CUSTOM_JDBC_TENCENT.value]:
+    if database_type.startswith(DatabaseType.JDBC.value):
         jdbc_database = data_source_crud.get_jdbc_instance_source(
-            database_type.split("_")[2], account_id, region, database_name
+            account_id, region, database_name
         )
         if jdbc_database:
             jdbc_engine_type = jdbc_database.engine
 
-    client = get_boto3_client(account_id, region, "glue")
-    glue_database_name = (
+    glue_client = get_boto3_client(account_id, region, "glue")
+    glue_database_name = database_name if is_custom_glue else (
         database_type + "-" + database_name + "-" + GlueResourceNameSuffix.DATABASE.value
     )
-    glue_crawler_name = (
-        database_type + "-" + database_name + "-" + GlueResourceNameSuffix.CRAWLER.value
-    )
-
-    crawler_response = client.get_crawler(Name=glue_crawler_name)
-    state = crawler_response["Crawler"]["State"]
-    while state == 'STOPPING':
-        crawler_response = client.get_crawler(Name=glue_crawler_name)
+    if is_custom_glue:
+        crawler_last_run_status = GlueCrawlerState.SUCCEEDED.value
+    else:
+        glue_crawler_name = (
+            database_type + "-" + database_name + "-" + GlueResourceNameSuffix.CRAWLER.value
+        )
+        crawler_response = glue_client.get_crawler(Name=glue_crawler_name)
         state = crawler_response["Crawler"]["State"]
-        sleep(2)
+        while state == 'STOPPING':
+            crawler_response = glue_client.get_crawler(Name=glue_crawler_name)
+            state = crawler_response["Crawler"]["State"]
+            sleep(2)
 
-    crawler_last_run_status = crawler_response["Crawler"]["LastCrawl"]["Status"]
-    logger.info(
-        """Cralwer status in crawler_response["Crawler"]["LastCrawl"]["Status"] is : """
-        + crawler_last_run_status
-    )
+        crawler_last_run_status = crawler_response["Crawler"]["LastCrawl"]["Status"]
+        logger.info(
+            """Cralwer status in crawler_response["Crawler"]["LastCrawl"]["Status"] is : """
+            + crawler_last_run_status
+        )
+
     database_object_count = 0  # Aggregate from each table
     database_size = 0  # Aggregate from each table
     database_column_count = 0  # Aggregate from each table
     table_count = 0  # Count each table
     need_clean_database = False
     if crawler_last_run_status == GlueCrawlerState.SUCCEEDED.value:
-
         # Next token is a continuation token, present if the current list segment is not the last.
         next_token = ""
         table_name_list = []
         table_column_dict = {}
         while True:
-            tables_response = client.get_tables(
+            tables_response = glue_client.get_tables(
                 DatabaseName=glue_database_name, NextToken=next_token
             )
             # logger.info("get glue tables" + str(tables_response))
@@ -194,7 +186,7 @@ def sync_crawler_result(
                 # glue can't crawl them correctly
                 # So there is no sizeKey in Parameters, we set the default value is 0
                 table_size_key = 0
-                if "sizeKey" in table["StorageDescriptor"]["Parameters"]:
+                if "Parameters" in table["StorageDescriptor"] and "sizeKey" in table["StorageDescriptor"]["Parameters"]:
                     table_size_key = int(
                         table["StorageDescriptor"]["Parameters"]["sizeKey"]
                     )
@@ -211,21 +203,21 @@ def sync_crawler_result(
                 table_location = table["StorageDescriptor"]["Location"]
                 # If a table is a specific S3 object, there is no objectCount in Parameters, and the object count is 1
                 table_object_count = 1
-                if "objectCount" in table["StorageDescriptor"]["Parameters"]:
+                if "Parameters" in table["StorageDescriptor"] and "objectCount" in table["StorageDescriptor"]["Parameters"]:
                     table_object_count = int(
                         table["StorageDescriptor"]["Parameters"]["objectCount"]
                     )
                 # For a s3 table, the classification is the file type of the table objects, csv/json/...
                 table_classification = const.NA
-                if "classification" in table["StorageDescriptor"]["Parameters"]:
+                if "Parameters" in table["StorageDescriptor"] and "classification" in table["StorageDescriptor"]["Parameters"]:
                     table_classification = table["StorageDescriptor"]["Parameters"][
                         "classification"
                     ]
                 elif database_type == DatabaseType.RDS.value:
                     table_classification = rds_engine_type
-                elif database_type in [DatabaseType.CUSTOM_JDBC_AWS.value,
-                                       DatabaseType.CUSTOM_JDBC_ALIYUN.value,
-                                       DatabaseType.CUSTOM_JDBC_TENCENT.value]:
+                elif database_type == DatabaseType.GLUE.value:
+                    table_classification = rds_engine_type
+                elif database_type.startswith(DatabaseType.JDBC.value):
                     table_classification = jdbc_engine_type
 
                 database_object_count += table_object_count
@@ -238,7 +230,7 @@ def sync_crawler_result(
                     column_type = column["Type"].strip()
                     # To avoid too long embedded type like : struct<struct<xxxxxx.....>>
                     # In the testing process we found a type longer than 2048
-                    if len(column_type) > 200 and database_type == "s3":
+                    if len(column_type) > 200 and database_type == DatabaseType.S3.value:
                         column_type = column_type.split("<")[0]
                     # Create column
                     catalog_column_dict = {
@@ -295,7 +287,7 @@ def sync_crawler_result(
                 database_column_count += column_order_num
             try:
                 logger.info("batch delete glue tables" + json.dumps(delete_glue_table_names))
-                client.batch_delete_table(DatabaseName=glue_database_name,
+                glue_client.batch_delete_table(DatabaseName=glue_database_name,
                                           TablesToDelete=delete_glue_table_names)
             except Exception as err:
                 logger.info("batch delete glue tables error" + str(err))
@@ -332,6 +324,12 @@ def sync_crawler_result(
         elif database_type == DatabaseType.S3.value:
             data_source_crud.set_s3_bucket_source_glue_state(account_id, region, database_name,
                                                              ConnectionState.UNSUPPORTED.value)
+        elif database_type.startswith(DatabaseType.JDBC.value):
+            data_source_crud.set_jdbc_instance_glue_state(account_id, region, database_name,
+                                                                ConnectionState.UNSUPPORTED.value)
+        elif database_type == DatabaseType.GLUE.value:
+            data_source_crud.set_custom_glue_glue_state(account_id, region, database_name,
+                                                                ConnectionState.UNSUPPORTED.value)
         original_database = crud.get_catalog_database_level_classification_by_name(account_id, region,
                                                                                    database_type,
                                                                                    database_name)
@@ -341,6 +339,15 @@ def sync_crawler_result(
 
     # create database
     if table_count > 0:
+        if database_type == DatabaseType.S3.value:
+            storage_location = "s3://" + database_name + "/"
+        elif database_type == DatabaseType.RDS.value:
+            storage_location = rds_engine_type
+        elif database_type.startswith(DatabaseType.JDBC.value):
+            storage_location = rds_engine_type
+        elif database_type == DatabaseType.GLUE.value:
+            storage_location = const.NA
+
         catalog_database_dict = {
             "account_id": account_id,
             "region": region,

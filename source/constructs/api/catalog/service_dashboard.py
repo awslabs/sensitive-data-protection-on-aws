@@ -4,7 +4,8 @@ from common.enum import (
     DatabaseType,
     MessageEnum,
     Privacy,
-    CatalogModifier
+    CatalogModifier,
+    Provider
 )
 from common.constant import const
 import logging
@@ -16,8 +17,17 @@ from common.query_condition import QueryCondition
 logger = logging.getLogger("api")
 
 
-def agg_data_source_summary():
+def agg_data_source_summary(provider_id):
+    if provider_id == Provider.AWS_CLOUD.value:
+        account_set, region_set = count_aws_account_region()
     # Get data source total region.
+    else:
+        account_set, region_set = count_third_account_region(provider_id)
+
+    result_dict = {'account_total': len(account_set), 'region_total': len(region_set)}
+    return result_dict
+
+def count_aws_account_region():
     s3_account_region = data_source_crud.get_source_s3_account_region()
     rds_account_region = data_source_crud.get_source_rds_account_region()
 
@@ -30,10 +40,13 @@ def agg_data_source_summary():
     for d in rds_account_region:
         account_set.add(d['aws_account'])
         region_set.add(d['region'])
+    return account_set, region_set
 
-    result_dict = {'account_total': len(account_set), 'region_total': len(region_set)}
-    return result_dict
-
+def count_third_account_region(provider_id):
+    provider_id = int(provider_id)
+    account = data_source_crud.get_account_list_by_provider(provider_id)
+    region = data_source_crud.get_region_list_by_provider(provider_id)
+    return account, region
 
 def agg_catalog_summay(database_type: str):
     result_dict = {}
