@@ -22,7 +22,7 @@ const Overview: React.FC = () => {
   const { t } = useTranslation();
   const getOverviewData = async () => {
     setLoadingOverview(true);
-    const res = await getAccountInfomation(currentProvider);
+    const res = await getAccountInfomation({"provider_id":currentProvider});
     setAccountInfo(res as IAccountInfo);
     setLoadingOverview(false);
   };
@@ -30,7 +30,7 @@ const Overview: React.FC = () => {
   const getDashbaordSourceCoverage = async () => {
     setLoadingCoverage(true);
     try {
-      const res = await getSourceCoverage(currentProvider);
+      const res = await getSourceCoverage({"provider_id":currentProvider});
       setCoverageInfo(res as ISourceCoverage);
       setLoadingCoverage(false);
     } catch (error) {

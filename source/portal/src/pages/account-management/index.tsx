@@ -35,6 +35,8 @@ const AccountManagementContent: React.FC = () => {
     rds_total: 0,
     s3_connected: 0,
     s3_total: 0,
+    jdbc_connected: 0,
+    jdbc_total: 0
   });
   const [totalAccount, setTotalAccount] = useState(0);
   const [totalRegion, setTotalRegion] = useState(0);
@@ -114,6 +116,8 @@ const AccountManagementContent: React.FC = () => {
     // leftChildTotal: `${coverageData?.s3_total || 0}`,
     rightChildHeader: t('account:totalRDSInstance'),
     rightChildData: `${coverageData?.rds_total || 0}`,
+    jdbcChildHeader: t('account:totalJDBCConn'),
+    jdbcChildData: `${coverageData?.jdbc_total || 0}`,
     // rightChildTotal: `${coverageData?.rds_total || 0}`,
     isRowMore: true,
   };

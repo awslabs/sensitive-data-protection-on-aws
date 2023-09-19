@@ -89,6 +89,21 @@ class DynamodbTableSource(BaseModel):
     class Config:
         orm_mode = True
 
+class SourceGlueDatabase(BaseModel):
+
+    id: int
+    glue_database_name: Optional[str]
+    glue_database_description: Optional[str]
+    glue_database_location_uri: Optional[str]
+    glue_database_create_time: Optional[str]
+    glue_database_catalog_id: Optional[str]
+    account_id: Optional[str]
+    region: Optional[str]
+    version: Optional[int]
+    create_by: Optional[str]
+    create_time: Optional[datetime.datetime]
+    modify_by: Optional[str]
+    modify_time: Optional[datetime.datetime]
 
 class RdsInstanceSource(BaseModel):
     id: int
@@ -198,6 +213,11 @@ class SourceJDBCConnection(BaseModel):
     password: Optional[str]
     secret: Optional[str]
 
+class SourceDeteteGlueDatabase(BaseModel):
+    account_provider: int
+    account_id: str
+    region: str
+    name: str
 
 class SourceDeteteJDBCConnection(BaseModel):
     account_provider: int

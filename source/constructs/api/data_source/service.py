@@ -16,7 +16,7 @@ from discovery_job.service import delete_account as delete_job_by_account
 from discovery_job.service import can_delete_database as can_delete_job_database
 from discovery_job.service import delete_database as delete_job_database
 from . import s3_detector, rds_detector, crud
-from .schemas import AdminAccountInfo, JDBCInstanceSource, ProviderResourceFullInfo, SourceResourceBase, SourceCoverage
+from .schemas import AdminAccountInfo, JDBCInstanceSource, ProviderResourceFullInfo, SourceResourceBase, SourceCoverage, SourceGlueDatabase
 
 SLEEP_TIME = 5
 SLEEP_MIN_TIME = 2
@@ -363,10 +363,16 @@ def sync_jdbc_connection(
                            MessageEnum.SOURCE_ASSUME_ROLE_FAILED.get_msg())
 
     # TODO
+def before_delete_glue_database(provider, account, region, name):
+    glue_database = crud.get_glue_database_source(provider, account, region, name)
+    if glue_database is None:
+        raise BizException(MessageEnum.SOURCE_GLUE_DATABASE_NO_INSTANCE.get_code(),
+                           MessageEnum.SOURCE_GLUE_DATABASE_NO_INSTANCE.get_msg())
+
 
 # Delete third-party connection
-def before_delete_jdbc_connection(provider, account, region, instance_id):
-    jdbc_instance = crud.get_jdbc_instance_source(provider, account, region, instance_id)
+def before_delete_jdbc_connection(provider_id, account, region, instance_id):
+    jdbc_instance = crud.get_jdbc_instance_source(provider_id, account, region, instance_id)
     if jdbc_instance is None:
         raise BizException(MessageEnum.SOURCE_RDS_NO_INSTANCE.get_code(),
                            MessageEnum.SOURCE_RDS_NO_INSTANCE.get_msg())
@@ -377,7 +383,7 @@ def before_delete_jdbc_connection(provider, account, region, instance_id):
     #     raise BizException(MessageEnum.SOURCE_RDS_NO_DATABASE.get_code(),
     #                        MessageEnum.SOURCE_RDS_NO_DATABASE.get_msg())
     # crawler, if crawling try to stop and raise, if pending raise directly
-    state = crud.get_jdbc_instance_source_glue_state(provider, account, region, instance_id)
+    state = crud.get_jdbc_instance_source_glue_state(provider_id, account, region, instance_id)
     if state == ConnectionState.PENDING.value:
         raise BizException(MessageEnum.SOURCE_DELETE_WHEN_CONNECTING.get_code(),
                            MessageEnum.SOURCE_DELETE_WHEN_CONNECTING.get_msg())
@@ -395,10 +401,12 @@ def before_delete_jdbc_connection(provider, account, region, instance_id):
                                        database_name=jdbc_instance):
             raise BizException(MessageEnum.DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE.get_code(),
                                MessageEnum.DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE.get_msg())
+        
+def delete_glue_database(provider_id: int, account: str, region: str, name: str):
+    before_delete_glue_database(provider_id, account, region, name)
 
-
-def delete_jdbc_connection(provider: str, account: str, region: str, instance_id: str):
-    before_delete_jdbc_connection(provider, account, region, instance_id)
+def delete_jdbc_connection(provider_id: int, account: str, region: str, instance_id: str):
+    before_delete_jdbc_connection(provider_id, account, region, instance_id)
     err = []
     # 1/3 delete job database
     try:
@@ -1189,7 +1197,18 @@ def get_secrets(account: str, region: str):
 def get_admin_account_info():
     return AdminAccountInfo(account_id=_admin_account_id, region=_admin_account_region)
 
+def add_glue_database(glueDataBase: SourceGlueDatabase):
+    list = crud.list_glue_database_by_name(glueDataBase.glue_database_name)
+    if list:
+        raise BizException(MessageEnum.SOURCE_GLUE_DATABASE_EXISTS.get_code(),
+                           MessageEnum.SOURCE_GLUE_DATABASE_EXISTS.get_msg())
+    crud.add_glue_database(glueDataBase)
+
 def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
+    list = crud.list_jdbc_instance_source_by_instance_id(jdbcConn.instance_id)
+    if list:
+        raise BizException(MessageEnum.SOURCE_JDBC_ALREADY_EXISTS.get_code(),
+                           MessageEnum.SOURCE_JDBC_ALREADY_EXISTS.get_msg())
     response = boto3.client('glue', region_name=jdbcConn.region).create_connection(
         CatalogId=jdbcConn.account_id,
         ConnectionInput={
@@ -1217,12 +1236,6 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
             }
         }
     )
-
-#     {
-#     "FromFederationSource": null,
-#     "Message": "Validation for connection properties failed (Service: AWSGlue; Status Code: 400; Error Code: InvalidInputException; Request ID: f8afe2b1-4e68-4e43-a769-936b28346fe6; Proxy: null)"
-# }
-
     if response['ResponseMetadata']['HTTPStatusCode'] == 200:
         crud.add_jdbc_conn(jdbcConn)
 
@@ -1588,6 +1601,10 @@ def query_glue_connections(account: AdminAccountInfo):
                                                                            Filter={'ConnectionType': 'JDBC'},
                                                                            MaxResults=100,
                                                                            HidePassword=True)['ConnectionList']
+
+def query_glue_databases(account: AdminAccountInfo):
+    glue_client = boto3.client('glue', region_name=_admin_account_region)
+    return glue_client.get_databases()['DatabaseList']
 
 def query_account_network(account: AdminAccountInfo):
     ec2_client = boto3.client('ec2', region_name=account.region)

@@ -44,6 +44,8 @@ class TemplateIdentifier(BaseModel):
     privacy: Optional[int]
     rule: Optional[str]
     header_keywords: Optional[str]
+    max_distance: Optional[int]
+    min_occurrence: Optional[int]
     props: Optional[list]
     exclude_keywords: Optional[str]
 
