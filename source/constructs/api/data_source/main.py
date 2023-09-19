@@ -124,6 +124,7 @@ def sync_jdbc_connection(jdbc: schemas.SourceJDBCConnection):
 @inject_session
 def refresh_data_source(type: schemas.NewDataSource):
     service.refresh_data_source(
+        type.provider,
         type.accounts,
         type.type
     )
@@ -132,7 +133,7 @@ def refresh_data_source(type: schemas.NewDataSource):
 
 @router.get("/coverage", response_model=BaseResponse[schemas.SourceCoverage])
 @inject_session
-def get_data_source_coverage():
+def get_data_source_coverage(provider_id:int):
     return service.get_data_source_coverage()
 
 
@@ -216,3 +217,20 @@ def get_data_provider_list():
 def get_data_source_type_list():
     return service.list_data_source_type()
 
+
+@router.post("/query-regions-by-provider", response_model=BaseResponse)
+@inject_session
+def query_regions_by_provider(provider_id: int):
+    return service.query_regions_by_provider(provider_id)
+
+
+@router.post("/query-full-provider-infos", response_model=BaseResponse)
+@inject_session
+def query_full_provider_infos():
+    return service.query_full_provider_resource_infos()
+
+
+@router.post("/list-providers", response_model=BaseResponse)
+@inject_session
+def list_providers():
+    return service.list_providers()

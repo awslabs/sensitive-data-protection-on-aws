@@ -14,7 +14,7 @@ secret_response = secrets_client.get_secret_value(SecretId=secret_id)
 secrets = json.loads(secret_response['SecretString'])
 SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{secrets['username']}:{secrets['password']}@{secrets['host']}:{secrets['port']}/{secrets['dbname']}"
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=False, pool_size=1, max_overflow=0)
+engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=True, pool_size=1, max_overflow=0)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 

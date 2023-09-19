@@ -4,7 +4,7 @@ import boto3
 import logging
 
 from common.constant import const
-from common.enum import ConnectionState, DatabaseType
+from common.enum import ConnectionState, DatabaseType, Provider
 from db.database import get_session
 from db.models_data_source import DetectionHistory, RdsInstanceSource, Account
 from . import crud
@@ -104,7 +104,8 @@ async def detect_rds_data_source(session: Session, aws_account_id: str):
             except Exception as e:
                 logger.error(str(e))
             crud.delete_rds_instance_source_by_instance_id(aws_account_id, deleted_rds_region, deleted_rds_instance)
-        account = session.query(Account).filter(Account.aws_account_id == aws_account_id,
+        account = session.query(Account).filter(Account.account_provider_id == Provider.AWS_CLOUD.value,
+                                                Account.account_id == aws_account_id,
                                                 Account.region == region).first()
         # TODO support multiple regions
         crud.update_rds_instance_count(account=aws_account_id, region=admin_account_region)

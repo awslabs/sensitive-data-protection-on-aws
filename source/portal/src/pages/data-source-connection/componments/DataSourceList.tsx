@@ -40,6 +40,11 @@ import {
   disconnectDataSourceRDS,
   disconnectDataSourceS3,
   getSecrets,
+  queryGlueConns,
+  testGlueConns,
+  addGlueConn,
+  queryRegions,
+  queryProviders
 } from 'apis/data-source/api';
 import { alertMsg, showHideSpinner } from 'tools/tools';
 import SourceBadge from './SourceBadge';
@@ -124,10 +129,10 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       conditions: [] as any,
     };
     accountData &&
-      accountData.aws_account_id &&
+      accountData.account_id &&
       requestParam.conditions.push({
         column: COLUMN_OBJECT_STR.AWSAccount,
-        values: [`${accountData.aws_account_id}`], // accountData.aws_account_id,
+        values: [`${accountData.account_id}`], // accountData.aws_account_id,
         condition: query.operation,
       });
     query.tokens &&
@@ -174,7 +179,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
   const clkAllS3Connected = async () => {
     if (tagType === DATA_TYPE_ENUM.s3) {
       const requestParam = {
-        account_id: accountData.aws_account_id,
+        account_id: accountData.account_id,
         region: accountData.region,
         bucket: '*',
       };
@@ -461,6 +466,36 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
               counter={`(${totalCount})`}
               actions={
                 <SpaceBetween direction="horizontal" size="xs">
+                  {/* <Button
+                   
+                   onClick={clkQueryProviders}
+                 >
+                   Query Providers
+                 </Button>
+                  <Button
+                   
+                   onClick={clkQueryRegions}
+                 >
+                   Query regions
+                 </Button>
+                   <Button
+                   
+                   onClick={clkImportForTest}
+                 >
+                   Query Conns
+                 </Button>
+                  <Button
+                   
+                    onClick={clkTestForTest}
+                  >
+                    Test Conns
+                  </Button>
+                  <Button
+                    
+                    onClick={clkAddForTest}
+                  >
+                    Add Conns
+                  </Button> */}
                   <Button
                     onClick={() => {
                       getPageData();
