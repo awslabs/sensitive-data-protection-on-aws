@@ -197,3 +197,22 @@ def query_account_network(account: schemas.AdminAccountInfo):
 @inject_session
 def test_glue_conn(account: str, connection: str):
     return service.test_glue_conn(account, connection)
+
+
+@router.get("/dashboard/agg-data-location-list", response_model=BaseResponse)
+@inject_session
+def get_data_location_list():
+    return service.list_data_location()
+
+
+@router.get("/dashboard/agg-data-provider-list", response_model=BaseResponse)
+@inject_session
+def get_data_provider_list():
+    return service.list_data_provider()
+
+
+@router.get("/dashboard/agg-data-source-type-list", response_model=BaseResponse)
+@inject_session
+def get_data_source_type_list():
+    return service.list_data_source_type()
+

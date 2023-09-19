@@ -6,6 +6,7 @@ from time import sleep
 
 import boto3
 
+import common.enum
 from catalog.service import delete_catalog_by_account_region as delete_catalog_by_account
 from catalog.service import delete_catalog_by_database_region as delete_catalog_by_database_region
 from common.constant import const
@@ -1585,3 +1586,18 @@ def test_glue_conn(account, connection):
         CatalogId=account,
         ConnectionName=connection
     )['ConnectionTest']['Status']
+
+
+def list_data_location():
+    return crud.list_data_location()
+
+
+def list_data_provider():
+    return crud.list_data_provider()
+
+
+def list_data_source_type():
+    data_source_type_mapping = {}
+    for index, db_type in enumerate(common.enum.DatabaseType, start=1):
+        data_source_type_mapping[index] = db_type.value
+    return common.enum.DatabaseType

@@ -537,3 +537,11 @@ def add_jdbc_conn(jdbcConn: schemas.JDBCInstanceSource):
     session.refresh(jdbc_instance_source)
 
     return jdbc_instance_source
+
+
+def list_data_location():
+    return None
+
+
+def list_data_provider():
+    return None

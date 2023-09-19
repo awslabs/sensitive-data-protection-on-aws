@@ -812,6 +812,10 @@ def get_database_prorpery(account_id: str,
     return result_list
 
 
+def get_folder_property(table_id: str):
+    return None
+
+
 def update_catalog_column_level_classification(new_column: schemas.CatalogColumnLevelClassification):
     original_column = crud.get_catalog_column_level_classification_by_name(new_column.account_id,
                                                                            new_column.region,

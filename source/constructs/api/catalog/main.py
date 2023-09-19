@@ -286,6 +286,14 @@ def get_database_property(
     return service.get_database_prorpery(account_id, region, database_type, database_name)
 
 
+@router.get("/get-folder-property", response_model=BaseResponse)
+@inject_session
+def get_folder_property(
+    table_id: str,
+):
+    return service.get_folder_property(table_id)
+
+
 @router.get("/dashboard/agg-data-source-summary", response_model=BaseResponse)
 @inject_session
 def agg_data_source_summary():
