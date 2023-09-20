@@ -51,6 +51,8 @@ create table catalog_table_level_classification
     manual_tag       varchar(20)   null,
     state            varchar(20)   null,
     classification   varchar(255)  null,
+    struct_type      varchar(20)   null,
+    detected_time    datetime      null,
     version          int           null,
     create_by        varchar(255)  null,
     create_time      datetime      null,

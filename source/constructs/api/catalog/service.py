@@ -1,3 +1,5 @@
+import datetime
+
 import boto3
 import os
 import json
@@ -273,6 +275,9 @@ def sync_crawler_result(
                     "column_count": column_order_num,
                     "storage_location": table_location,
                     "classification": table_classification,
+                    # TODO
+                    "struct_type": "",
+                    "detected_time": datetime.datetime.now(),
                 }
                 original_table = crud.get_catalog_table_level_classification_by_name(account_id, region, database_type,
                                                                                      database_name, table_name)
@@ -821,7 +826,7 @@ def get_database_prorpery(account_id: str,
     return result_list
 
 
-def get_folder_property(table_id: str):
+def get_table_property(table_id: str):
     catalog_table = crud.get_catalog_table_level_classification_by_id(table_id)
     if not catalog_table:
         return {}

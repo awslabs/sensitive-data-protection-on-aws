@@ -291,7 +291,7 @@ def get_database_property(
 def get_folder_property(
     table_id: str,
 ):
-    return service.get_folder_property(table_id)
+    return service.get_table_property(table_id)
 
 
 @router.get("/dashboard/agg-data-source-summary", response_model=BaseResponse)

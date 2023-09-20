@@ -52,6 +52,8 @@ class CatalogTableLevelClassification(Base):
     manual_tag = sa.Column(sa.String(20))
     state = sa.Column(sa.String(20))
     classification = sa.Column(sa.String(255))
+    struct_type = sa.Column(sa.String(20), info={'searchable': True})
+    detected_time = sa.Column(sa.DateTime())
     version = sa.Column(sa.Integer())
     create_by = sa.Column(sa.String(255))
     create_time = sa.Column(sa.DateTime())
