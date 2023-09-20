@@ -151,6 +151,7 @@ class DatabaseType(Enum):
     S3 = "s3"
     DDB = "ddb"
     EMR = "emr"
+    GLUE_DATABASE = "glue_database"
     CUSTOM_JDBC_AWS = "custom_jdbc_aws"
     CUSTOM_JDBC_TENCENT = "custom_jdbc_tencent"
     CUSTOM_JDBC_ALIYUN = "custom_jdbc_aliyun"
@@ -297,11 +298,3 @@ class SourceProviderStatus(Enum):
 class SourceResourcesStatus(Enum):
     ENABLE = 1
     DISABLE = 0
-
-@unique
-class DataSourceType(str, Enum):
-    s3 = "s3"
-    rds = "rds"
-    ddb = "ddb"
-    all = "all"
-    jdbc = "jdbc"

@@ -190,8 +190,10 @@ def get_rds_instance_source(account: str, region: str, instance_id: str):
                                                          RdsInstanceSource.region == region,
                                                          RdsInstanceSource.instance_id == instance_id).scalar()
 
-def get_glue_database_source(provider: int, account: str, region: str, instance_id: str):
-    pass
+def get_glue_database_source(account: str, region: str, name: str):
+    return get_session().query(SourceGlueDatabase).filter(SourceGlueDatabase.account_id == account,
+                                                          SourceGlueDatabase.region == region,
+                                                          SourceGlueDatabase.glue_database_name == name).scalar()
 
 def get_jdbc_instance_source(provider: int, account: str, region: str, instance_id: str):
     return get_session().query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == provider,
@@ -267,14 +269,26 @@ def update_s3_bucket_count(account: str, region: str):
     session.merge(account)
     session.commit()
 
+def update_glue_database_count(account: str, region: str):
+    session = get_session()
+    total = session.query(SourceGlueDatabase).filter(SourceGlueDatabase.region == region,
+                                                     SourceGlueDatabase.account_id == account).count()
+
+    account = session.query(Account).filter(Account.account_id == account, Account.region == region).first()
+    if account is not None:
+        account.connected_jdbc_instance = total
+        account.total_jdbc_instance = total
+    session.merge(account)
+    session.commit()
+
 def update_jdbc_instance_count(account: str, region: str):
     session = get_session()
 
     connected = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.region == region,
-                                                     JDBCInstanceSource.aws_account == account,
-                                                     JDBCInstanceSource.glue_state == ConnectionState.ACTIVE.value).count()
+                                                         JDBCInstanceSource.account_id == account,
+                                                         JDBCInstanceSource.glue_state == ConnectionState.ACTIVE.value).count()
     total = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.region == region,
-                                                 JDBCInstanceSource.aws_account == account).count()
+                                                     JDBCInstanceSource.account_id == account).count()
 
     account = session.query(Account).filter(Account.account_id == account, Account.region == region).first()
     if account is not None:
@@ -340,6 +354,20 @@ def delete_rds_connection(account: str, region: str, instance: str):
     rds_instance_source.glue_state = None
     session.merge(rds_instance_source)
     session.commit()
+
+def delete_glue_database(account: str, region: str, instance: str):
+    session = get_session()
+    glue_database_source: SourceGlueDatabase = session.query(SourceGlueDatabase).filter(SourceGlueDatabase.glue_database_name == instance,
+                                                                                        SourceGlueDatabase.region == region,
+                                                                                        SourceGlueDatabase.account_id == account).order_by(
+        desc(RdsInstanceSource.detection_history_id)).first()
+    glue_database_source.glue_database_catalog_id = None
+    glue_database_source.glue_database_create_time = None
+    glue_database_source.glue_database_description = None
+    glue_database_source.glue_database_location_uri = None
+    session.merge(glue_database_source)
+    session.commit()
+
 
 def delete_jdbc_connection(provider: str, account: str, region: str, instance: str):
     session = get_session()

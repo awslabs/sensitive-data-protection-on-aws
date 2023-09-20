@@ -114,14 +114,13 @@ def delete_glue_database(glueDatabase: schemas.SourceDeteteGlueDatabase):
         glueDatabase.name
     )
 
-# TODO
 @router.post("/sync-glue-database", response_model=BaseResponse)
 @inject_session
-def sync_glue_database(jdbc: schemas.SourceGlueDatabase):
+def sync_glue_database(glueDatabase: schemas.SourceGlueDatabase):
     return service.sync_glue_database(
-        jdbc.account_id,
-        jdbc.region,
-        jdbc.instance
+        glueDatabase.account_id,
+        glueDatabase.region,
+        glueDatabase.glue_database_name
     )
 
 @router.post("/delete-jdbc", response_model=BaseResponse)
@@ -134,7 +133,6 @@ def delete_jdbc_connection(jdbc: schemas.SourceDeteteJDBCConnection):
         jdbc.instance
     )
 
-# TODO
 @router.post("/sync-jdbc", response_model=BaseResponse)
 @inject_session
 def sync_jdbc_connection(jdbc: schemas.SourceJDBCConnection):

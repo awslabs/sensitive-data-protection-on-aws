@@ -9,14 +9,23 @@ import boto3
 from catalog.service import delete_catalog_by_account_region as delete_catalog_by_account
 from catalog.service import delete_catalog_by_database_region as delete_catalog_by_database_region
 from common.constant import const
-from common.enum import MessageEnum, ConnectionState, Provider, DataSourceType
+from common.enum import (MessageEnum,
+                         ConnectionState,
+                         Provider,
+                         DataSourceType,
+                         DatabaseType)
 from common.exception_handler import BizException
 from common.query_condition import QueryCondition
 from discovery_job.service import delete_account as delete_job_by_account
 from discovery_job.service import can_delete_database as can_delete_job_database
 from discovery_job.service import delete_database as delete_job_database
 from . import s3_detector, rds_detector, crud
-from .schemas import AdminAccountInfo, JDBCInstanceSource, ProviderResourceFullInfo, SourceResourceBase, SourceCoverage, SourceGlueDatabase
+from .schemas import (AdminAccountInfo,
+                      JDBCInstanceSource,
+                      ProviderResourceFullInfo,
+                      SourceResourceBase,
+                      SourceCoverage,
+                      SourceGlueDatabase)
 
 SLEEP_TIME = 5
 SLEEP_MIN_TIME = 2
@@ -312,6 +321,9 @@ def check_link(credentials, region_name: str, vpc_id: str, rds_secret_id: str):
     logger.info(glue_endpoint_exists)
     logger.info(secret_endpoint_exists)
 
+def sync_glue_database(account_id, region, glue_database_name):
+    pass
+
 def sync_jdbc_connection(
         account_provider,
         account_id,
@@ -362,12 +374,29 @@ def sync_jdbc_connection(
         raise BizException(MessageEnum.SOURCE_ASSUME_ROLE_FAILED.get_code(),
                            MessageEnum.SOURCE_ASSUME_ROLE_FAILED.get_msg())
 
-    # TODO
 def before_delete_glue_database(provider, account, region, name):
     glue_database = crud.get_glue_database_source(provider, account, region, name)
     if glue_database is None:
         raise BizException(MessageEnum.SOURCE_GLUE_DATABASE_NO_INSTANCE.get_code(),
                            MessageEnum.SOURCE_GLUE_DATABASE_NO_INSTANCE.get_msg())
+    # state = crud.get_jdbc_instance_source_glue_state(provider_id, account, region, instance_id)
+    # if state == ConnectionState.PENDING.value:
+    #     raise BizException(MessageEnum.SOURCE_DELETE_WHEN_CONNECTING.get_code(),
+    #                        MessageEnum.SOURCE_DELETE_WHEN_CONNECTING.get_msg())
+    # elif state == ConnectionState.CRAWLING.value:
+    #     try:
+    #         # Stop the crawler
+    #         __glue(account=account, region=region).stop_crawler(Name=jdbc_instance.glue_crawler)
+    #     except Exception as e:
+    #         logger.error(traceback.format_exc())
+    #     raise BizException(MessageEnum.SOURCE_DELETE_WHEN_CONNECTING.get_code(),
+    #                        MessageEnum.SOURCE_DELETE_WHEN_CONNECTING.get_msg())
+    # elif state == ConnectionState.ACTIVE.value:
+        # if job running, do not stop but raising
+    if not can_delete_job_database(account_id=account, region=region, database_type=DatabaseType.GLUE_DATABASE.value,
+                                   database_name=name):
+        raise BizException(MessageEnum.DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE.get_code(),
+                           MessageEnum.DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE.get_msg())
 
 
 # Delete third-party connection
@@ -401,9 +430,43 @@ def before_delete_jdbc_connection(provider_id, account, region, instance_id):
                                        database_name=jdbc_instance):
             raise BizException(MessageEnum.DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE.get_code(),
                                MessageEnum.DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE.get_msg())
-        
+
 def delete_glue_database(provider_id: int, account: str, region: str, name: str):
     before_delete_glue_database(provider_id, account, region, name)
+    err = []
+    # 1/3 delete job database
+    try:
+        delete_job_database(account_id=account, region=region, database_type=DatabaseType.GLUE_DATABASE.value, database_name=name)
+    except Exception as e:
+        err.append(str(e))
+    # 2/3 delete catalog
+    try:
+        delete_catalog_by_database_region(database=name, region=region, type=DatabaseType.GLUE_DATABASE.value)
+    except Exception as e:
+        err.append(str(e))
+    # 3/3 delete source
+    s3_bucket = crud.get_glue_database_source(provider_id, account, region, name)
+    glue = __glue(account=account, region=region)
+    try:
+        glue.delete_crawler(Name=s3_bucket.glue_crawler)
+    except Exception as e:
+        err.append(str(e))
+    try:
+        glue.delete_database(Name=s3_bucket.glue_database)
+    except Exception as e:
+        err.append(str(e))
+
+    crud.delete_glue_database(provider_id, account, region, name)
+    try:
+        crud.update_glue_database_count(account, region)
+    except Exception as e:
+        err.append(str(e))
+
+    if err is not None:
+        logger.error(traceback.format_exc())
+        # raise BizException(MessageEnum.SOURCE_S3_CONNECTION_DELETE_ERROR.get_code(), err)
+
+    return True
 
 def delete_jdbc_connection(provider_id: int, account: str, region: str, instance_id: str):
     before_delete_jdbc_connection(provider_id, account, region, instance_id)
@@ -419,7 +482,7 @@ def delete_jdbc_connection(provider_id: int, account: str, region: str, instance
     except Exception as e:
         err.append(str(e))
     # 3/3 delete source
-    s3_bucket = crud.get_jdbc_instance_source(provider, account, region, instance_id)
+    s3_bucket = crud.get_jdbc_instance_source(provider_id, account, region, instance_id)
     glue = __glue(account=account, region=region)
     try:
         glue.delete_crawler(Name=s3_bucket.glue_crawler)
@@ -430,7 +493,7 @@ def delete_jdbc_connection(provider_id: int, account: str, region: str, instance
     except Exception as e:
         err.append(str(e))
 
-    crud.delete_jdbc_connection(provider, account, region, instance_id)
+    crud.delete_jdbc_connection(provider_id, account, region, instance_id)
     try:
         crud.update_jdbc_instance_count(account, region)
     except Exception as e:
