@@ -300,3 +300,11 @@ class SourceProviderStatus(Enum):
 class SourceResourcesStatus(Enum):
     ENABLE = 1
     DISABLE = 0
+
+@unique
+class DataSourceType(str, Enum):
+    s3 = "s3"
+    rds = "rds"
+    ddb = "ddb"
+    all = "all"
+    jdbc = "jdbc"

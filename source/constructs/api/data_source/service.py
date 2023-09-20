@@ -335,9 +335,9 @@ def sync_jdbc_connection(
         username,
         password,
         secret):
-    glue_connection_name = f"jdbc-{account_provider}-{account_id}-{region}-{instance}-connection"
-    glue_database_name = f"rds-{account_provider}-{account_id}-{region}-{instance}-database"
-    crawler_name = f"rds-{account_provider}-{account_id}-{region}-{instance}-crawler"
+    glue_connection_name = f"jdbc-{account_provider}-{instance}-connection"
+    glue_database_name = f"jdbc-{account_provider}-{instance}-database"
+    crawler_name = f"jdbc-{account_provider}-{instance}-crawler"
     if not username:
         raise BizException(MessageEnum.SOURCE_JDBC_NO_CREDENTIAL.get_code(),
                            MessageEnum.SOURCE_JDBC_NO_CREDENTIAL.get_msg())
