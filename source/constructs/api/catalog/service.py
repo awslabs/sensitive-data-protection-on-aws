@@ -822,16 +822,17 @@ def get_database_prorpery(account_id: str,
 
 
 def get_folder_property(table_id: str):
-    catalog_table = crud.get_catalog_table_level_classification_by_id()
+    catalog_table = crud.get_catalog_table_level_classification_by_id(table_id)
     if not catalog_table:
         return {}
     result_list = []
     try:
         client = get_boto3_client(catalog_table.account_id, catalog_table.region, catalog_table.database_type)
-        labels = get_labels_by_id_list(catalog_table.label_ids)
         labels_str = ""
-        if labels is not None:
-            labels_str = [{"id": label.id, "label_name": label.label_name} for label in labels]
+        if catalog_table.label_ids:
+            labels = get_labels_by_id_list(catalog_table.label_ids)
+            if labels is not None:
+                labels_str = [{"id": label.id, "label_name": label.label_name} for label in labels]
         result_list.append(["ResourceTags", labels_str])
         if catalog_table.database_type == DatabaseType.S3.value:
             result_list.append(["Account", catalog_table.account_id])
