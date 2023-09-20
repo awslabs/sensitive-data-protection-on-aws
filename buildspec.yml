@@ -30,7 +30,7 @@ phases:
         __dir="${CODEBUILD_SRC_DIR}/deployment"
         function join_by { local IFS="$1"; shift; echo "$*"; }
         export CN_ECR_REPOS=$(join_by , `cat "${__dir}/cn-ecr-repos"`)
-      - export GLOBAL_ASSETS='default/'
+      - export GLOBAL_ASSETS='custom-domain/,default/'
   build:
     commands:
       - echo "Starting build `date` in `pwd`"
