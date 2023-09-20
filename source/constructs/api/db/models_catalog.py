@@ -22,6 +22,7 @@ class CatalogColumnLevelClassification(Base):
     sensitivity = sa.Column(sa.String(255), nullable=False)
     comments = sa.Column(sa.String(255))
     manual_tag = sa.Column(sa.String(20))
+    job_keyword = sa.Column(sa.String(255))
     state = sa.Column(sa.String(20))
     version = sa.Column(sa.Integer())
     create_by = sa.Column(sa.String(255))

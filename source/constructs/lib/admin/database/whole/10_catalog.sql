@@ -16,6 +16,7 @@ create table catalog_column_level_classification
     sensitivity          varchar(255)  not null,
     comments             varchar(255)  null,
     manual_tag           varchar(20)   null,
+    job_keyword          varchar(255)  null,
     state                varchar(20)   null,
     version              int           null,
     create_by            varchar(255)  null,

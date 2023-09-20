@@ -21,6 +21,7 @@ class CatalogColumnLevelClassification(BaseModel):
     sensitivity: str
     comments: Optional[str]
     manual_tag: Optional[str]
+    job_keyword: Optional[str]
     state: Optional[str]
     version: Optional[int]
     create_by: Optional[str]
@@ -52,6 +53,8 @@ class CatalogTableLevelClassification(BaseModel):
     manual_tag: Optional[str]
     state: Optional[str]
     classification: Optional[str]
+    struct_type: Optional[str]
+    detected_time: Optional[datetime.datetime]
     version: Optional[int]
     create_by: Optional[str]
     create_time: Optional[datetime.datetime]

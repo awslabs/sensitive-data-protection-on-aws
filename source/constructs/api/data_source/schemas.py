@@ -308,3 +308,4 @@ class DataLocationInfo(BaseModel):
     source: Optional[str]
     region: Optional[str]
     account_count: Optional[int]
+    coordinate: Optional[str]

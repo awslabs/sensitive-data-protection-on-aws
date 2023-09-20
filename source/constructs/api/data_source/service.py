@@ -1636,6 +1636,7 @@ def list_data_location():
             location = DataLocationInfo()
             location.source = item.provider_name
             location.region = None
+            location.coordinate = None
             location.account_count = 0
             res.append(location)
             continue
@@ -1643,6 +1644,7 @@ def list_data_location():
             location = DataLocationInfo()
             location.source = item.provider_name
             location.region = subItem.region_name
+            location.coordinate = subItem.region_cord
             accounts = crud.list_account_by_provider_and_region(item.id, subItem.region_name)
             location.account_count = len(accounts)
             res.append(location)

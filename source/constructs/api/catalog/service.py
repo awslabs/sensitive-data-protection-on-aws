@@ -839,6 +839,7 @@ def get_table_property(table_id: str):
             if labels is not None:
                 labels_str = [{"id": label.id, "label_name": label.label_name} for label in labels]
         result_list.append(["ResourceTags", labels_str])
+        result_list.append(["LastUpdated", catalog_table.detected_time])
         if catalog_table.database_type == DatabaseType.S3.value:
             result_list.append(["Account", catalog_table.account_id])
             result_list.append(["Region", catalog_table.region])
@@ -846,8 +847,6 @@ def get_table_property(table_id: str):
             result_list.append(["Size", catalog_table.size_key])
             result_list.append(["Rows", catalog_table.row_count])
             result_list.append(["S3Location", catalog_table.storage_location])
-            # TODO
-            result_list.append(["LastUpdated", catalog_table.region])
             result_list.append(["Tags", __get_s3_tagging(catalog_table.database_name, client)])
         elif catalog_table.database_type == DatabaseType.RDS.value or catalog_table.database_type == DatabaseType.GLUE.value:
             response = client.describe_db_instances(DBInstanceIdentifier=catalog_table.database_name)
@@ -862,8 +861,6 @@ def get_table_property(table_id: str):
             result_list.append(["GlueDatabase", catalog_table.row_count])
             result_list.append(["GlueTable", catalog_table.storage_location])
             result_list.append(["Location", catalog_table.storage_location])
-            # TODO
-            result_list.append(["LastUpdated", catalog_table.region])
             # TODO
             result_list.append(["SerdeParameters", catalog_table.region])
         else:
