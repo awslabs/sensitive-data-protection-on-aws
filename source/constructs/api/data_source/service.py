@@ -1629,11 +1629,11 @@ def test_glue_conn(account, connection):
 
 def list_data_location():
     res = []
-    provider_list = crud.query_provider_list()
+    provider_list = crud.list_distinct_provider()
     for item in provider_list:
         location = DataLocationInfo()
         location.source = item.provider_name
-        regions = crud.get_region_list_by_provider(item.id)
+        regions = crud.list_distinct_region_by_provider(item.id)
         if not regions:
             location.region = None
             location.account_count = 0
@@ -1641,7 +1641,7 @@ def list_data_location():
             continue
         for subItem in regions:
             location.region = subItem.region_name
-            accounts = crud.list_account_by_provider_and_region(item.id, subItem)
+            accounts = crud.list_account_by_provider_and_region(item.id, subItem.region_name)
             location.account_count = len(accounts)
             res.append(location)
     return res

@@ -594,6 +594,11 @@ def query_regions_by_provider(provider_id: int):
 def query_provider_list() -> list[SourceProvider]:
     return get_session().query(SourceProvider).filter(SourceProvider.status == SourceProviderStatus.ENABLE.value).all()
 
+
+def list_distinct_provider() -> list[SourceProvider]:
+    return get_session().query(SourceProvider).filter(SourceProvider.status == SourceProviderStatus.ENABLE.value).distinct(SourceProvider.provider_name).all()
+
+
 def query_resources_by_provider(provider_id: int) -> list[SourceResource]:
     return get_session().query(SourceResource).filter(SourceResource.status == SourceResourcesStatus.ENABLE.value,
                                                       SourceResource.provider_id == provider_id).all()
@@ -606,6 +611,11 @@ def list_account_by_provider_and_region(provider_id, region):
     return get_session().query(Account).filter(Account.account_provider_id == provider_id,
                                                Account.region == region,
                                                Account.status == SourceAccountStatus.ENABLE.value).all()
+
+
+def list_distinct_region_by_provider(provider_id):
+    return get_session().query(SourceRegion).filter(SourceRegion.provider_id == provider_id,
+                                                    SourceRegion.status == SourceRegionStatus.ENABLE.value).distinct(SourceRegion.region_name).all()
 
 
 def get_region_list_by_provider(provider_id):
