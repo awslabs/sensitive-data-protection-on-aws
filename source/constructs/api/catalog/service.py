@@ -136,10 +136,6 @@ def sync_crawler_result(
         )
         if jdbc_database:
             jdbc_engine_type = jdbc_database.engine
-        provider_id = data_source_crud.get_jdbc_provider_id(
-            account_id, region, database_name
-        )
-        database_type = database_type + provider_id
 
     glue_client = get_boto3_client(account_id, region, "glue")
     glue_database_name = database_name if is_custom_glue else (
@@ -170,12 +166,6 @@ def sync_crawler_result(
     table_count = 0  # Count each table
     need_clean_database = False
     if crawler_last_run_status == GlueCrawlerState.SUCCEEDED.value:
-        if database_type.startswith(DatabaseType.JDBC.value):
-            provider_id = data_source_crud.get_jdbc_provider_id(
-                account_id, region, database_name
-            )
-            # update database type for 'jdbc-'+[provider_id: num]
-            database_type = database_type + '-' + provider_id
         # Next token is a continuation token, present if the current list segment is not the last.
         next_token = ""
         table_name_list = []
