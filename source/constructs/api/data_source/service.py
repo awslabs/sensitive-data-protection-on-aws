@@ -1631,15 +1631,17 @@ def list_data_location():
     res = []
     provider_list = crud.list_distinct_provider()
     for item in provider_list:
-        location = DataLocationInfo()
-        location.source = item.provider_name
         regions = crud.list_distinct_region_by_provider(item.id)
         if not regions:
+            location = DataLocationInfo()
+            location.source = item.provider_name
             location.region = None
             location.account_count = 0
             res.append(location)
             continue
         for subItem in regions:
+            location = DataLocationInfo()
+            location.source = item.provider_name
             location.region = subItem.region_name
             accounts = crud.list_account_by_provider_and_region(item.id, subItem.region_name)
             location.account_count = len(accounts)
@@ -1652,9 +1654,12 @@ def list_data_provider():
 
 
 def list_data_source_type():
+    # enum_dict = {member.name: member.value for member in common.enum.DatabaseType}
+    # json_response = json.dumps(enum_dict)
+    #
     data_source_type_mapping = {}
     for index, db_type in enumerate(common.enum.DatabaseType, start=1):
-        data_source_type_mapping[db_type] = db_type.value
+        data_source_type_mapping[db_type.name] = db_type.value
     return data_source_type_mapping
 
 
