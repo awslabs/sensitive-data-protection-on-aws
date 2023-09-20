@@ -286,7 +286,7 @@ def get_database_property(
     return service.get_database_prorpery(account_id, region, database_type, database_name)
 
 
-@router.get("/get-folder-property", response_model=BaseResponse)
+@router.get("/get-table-property", response_model=BaseResponse)
 @inject_session
 def get_folder_property(
     table_id: str,
