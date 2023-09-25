@@ -21,7 +21,6 @@ import {
   RemovalPolicy,
   Duration,
 } from 'aws-cdk-lib';
-import { Rule } from 'aws-cdk-lib/aws-events';
 import {
   PolicyStatement,
   Role,
@@ -48,14 +47,9 @@ export class DiscoveryJobStack extends Construct {
   constructor(scope: Construct, id: string, props: DiscoveryJobProps) {
     super(scope, id);
 
-    this.createFunction();
-
-    let jsonDiscoveryJobEntry = fs.readFileSync('lib/agent/DiscoveryJob-Entry.json').toString();
-    jsonDiscoveryJobEntry = Fn.sub(jsonDiscoveryJobEntry);
-    let jsonDiscoveryJobStructured = fs.readFileSync('lib/agent/DiscoveryJob-Structured.json').toString();
-    jsonDiscoveryJobStructured = Fn.sub(jsonDiscoveryJobStructured);
-    let jsonDiscoveryJobUnstructured = fs.readFileSync('lib/agent/DiscoveryJob-Unstructured.json').toString();
-    jsonDiscoveryJobUnstructured = Fn.sub(jsonDiscoveryJobUnstructured);
+    this.createSplitJobFunction();
+    this.createUnstructuredCrawlerFunction();
+    this.createUnstructuredParserRole();
 
     const discoveryJobRole = new Role(this, 'DiscoveryJobRole', {
       assumedBy: new ServicePrincipal('states.amazonaws.com'),
@@ -162,15 +156,10 @@ export class DiscoveryJobStack extends Construct {
             'events:PutTargets',
             'events:PutRule',
             'events:DescribeRule',
+            'iam:PassRole',
           ],
           resources: ['*'],
         }),
-        // new PolicyStatement({
-        //   actions: [
-        //     'iam:PassRole',
-        //   ],
-        //   resources: ['*'],
-        // }),
         new PolicyStatement({
           actions: [
             'sagemaker:CreateProcessingJob',
@@ -192,48 +181,25 @@ export class DiscoveryJobStack extends Construct {
     }));
 
     // State machine log group
-    const logGroupEntry = new logs.LogGroup(this, 'EntryLogGroup', {
+    const CreateLogGroup = new logs.LogGroup(this, 'LogGroup', {
       retention: logs.RetentionDays.ONE_MONTH,
-      logGroupName: '/aws/vendedlogs/states/SDPSLogGroupEntry',
+      logGroupName: `/aws/vendedlogs/states/${SolutionInfo.SOLUTION_NAME_ABBR}LogGroup`,
       removalPolicy: RemovalPolicy.DESTROY,
     });
-    const stepFunctionEntry = new sfn.CfnStateMachine(
-      this,
-      'EntryStateMachine',
-      {
-        roleArn: discoveryJobRole.roleArn,
-        definitionString: jsonDiscoveryJobEntry,
-        stateMachineName: `${SolutionInfo.SOLUTION_NAME_ABBR}-DiscoveryJob-Entry`, //Name must be specified
-        // loggingConfiguration: {
-        //   destinations: [{
-        //     cloudWatchLogsLogGroup: {
-        //       logGroupArn: logGroupEntry.logGroupArn,
-        //     },
-        //   }],
-        //   includeExecutionData: true,
-        //   level: 'ALL',
-        // },
-        tags: [{ key: 'Version', value: SolutionInfo.SOLUTION_VERSION }],
-      },
-    );
-    stepFunctionEntry.node.addDependency(discoveryJobRole);
 
-    const logGroupStructured = new logs.LogGroup(this, 'StructuredLogGroup', {
-      retention: logs.RetentionDays.ONE_MONTH,
-      logGroupName: '/aws/vendedlogs/states/SDPSLogGroupStructured',
-      removalPolicy: RemovalPolicy.DESTROY,
-    });
-    const stepFunctionStructured = new sfn.CfnStateMachine(
+    let jsonDiscoveryJob = fs.readFileSync('lib/agent/DiscoveryJob.json').toString();
+    jsonDiscoveryJob = Fn.sub(jsonDiscoveryJob);
+    const stepFunction = new sfn.CfnStateMachine(
       this,
-      'StructuredStateMachine',
+      'StateMachine',
       {
         roleArn: discoveryJobRole.roleArn,
-        definitionString: jsonDiscoveryJobStructured,
-        stateMachineName: `${SolutionInfo.SOLUTION_NAME_ABBR}-DiscoveryJob-Structured`, //Name must be specified
+        definitionString: jsonDiscoveryJob,
+        stateMachineName: `${SolutionInfo.SOLUTION_NAME_ABBR}-DiscoveryJob`, //Name must be specified
         // loggingConfiguration: {
         //   destinations: [{
         //     cloudWatchLogsLogGroup: {
-        //       logGroupArn: logGroupStructured.logGroupArn,
+        //       logGroupArn: logGroup.logGroupArn,
         //     },
         //   }],
         //   includeExecutionData: true,
@@ -242,36 +208,10 @@ export class DiscoveryJobStack extends Construct {
         tags: [{ key: 'Version', value: SolutionInfo.SOLUTION_VERSION }],
       },
     );
-    stepFunctionStructured.node.addDependency(discoveryJobRole);
-
-    const logGroupUnstructured = new logs.LogGroup(this, 'UnstructuredLogGroup', {
-      retention: logs.RetentionDays.ONE_MONTH,
-      logGroupName: '/aws/vendedlogs/states/SDPSLogGroupUnstructured',
-      removalPolicy: RemovalPolicy.DESTROY,
-    });
-    const stepFunctionUnstructured = new sfn.CfnStateMachine(
-      this,
-      'UnstructuredStateMachine',
-      {
-        roleArn: discoveryJobRole.roleArn,
-        definitionString: jsonDiscoveryJobUnstructured,
-        stateMachineName: `${SolutionInfo.SOLUTION_NAME_ABBR}-DiscoveryJob-Unstructured`, //Name must be specified
-        // loggingConfiguration: {
-        //   destinations: [{
-        //     cloudWatchLogsLogGroup: {
-        //       logGroupArn: logGroupUnstructured.logGroupArn,
-        //     },
-        //   }],
-        //   includeExecutionData: true,
-        //   level: 'ALL',
-        // },
-        tags: [{ key: 'Version', value: SolutionInfo.SOLUTION_VERSION }],
-      },
-    );
-    stepFunctionUnstructured.node.addDependency(discoveryJobRole);
+    stepFunction.node.addDependency(discoveryJobRole);
   }
 
-  private createFunction() {
+  private createSplitJobFunction() {
     const splitJobLayer = new LayerVersion(this, 'SplitJobLayer', {
       code: Code.fromAsset(path.join(__dirname, './split-job'), {
         bundling: {
@@ -329,5 +269,331 @@ export class DiscoveryJobStack extends Construct {
       layers: [splitJobLayer],
       role: splitJobRole,
     });
+  }
+
+  private createUnstructuredCrawlerFunction() {
+    const unstructuredCrawlerRole = new Role(this, 'UnstructuredCrawlerRole', {
+      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}UnstructuredCrawlerRole-${Aws.REGION}`,
+      assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
+    });
+    unstructuredCrawlerRole.attachInlinePolicy(new Policy(this, 'UnstructuredCrawlerCommonPolicy', {
+      policyName: 'UnstructuredCrawlerCommonPolicy',
+      statements: [
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: [
+            's3:ListBucket',
+          ],
+          resources: ['*'],
+        }),
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: [
+            's3:PutObject',
+          ],
+          resources: [`arn:${Aws.PARTITION}:s3:::${SolutionInfo.SOLUTION_AGENT_S3_BUCKET}-${Aws.ACCOUNT_ID}-${Aws.REGION}/*`],
+        }),
+      ],
+    }));
+
+    unstructuredCrawlerRole.attachInlinePolicy(new Policy(this, 'UnstructuredCrawlerLogPolicy', {
+      policyName: 'UnstructuredCrawlerLogPolicy',
+      statements: [
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: [
+            'logs:CreateLogGroup',
+            'logs:CreateLogStream',
+            'logs:PutLogEvents',
+          ],
+          resources: ['*'],
+        }),
+      ],
+    }));
+
+    new Function(this, 'UnstructuredCrawlerFunction', {
+      functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-UnstructuredCrawler`, //Name must be specified
+      description: `${SolutionInfo.SOLUTION_NAME} - Unstructured Crawler`,
+      runtime: Runtime.PYTHON_3_9,
+      handler: 'UnstructuredCrawler.lambda_handler',
+      code: Code.fromAsset(path.join(__dirname, './unstructured-crawler')),
+      timeout: Duration.minutes(1),
+      role: unstructuredCrawlerRole,
+    });
+  }
+
+  private createUnstructuredParserRole() {
+    const unstructuredParserRole = new Role(this, 'UnstructuredParserRole', {
+      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}UnstructuredParserRole-${Aws.REGION}`, //Name must be specified
+      assumedBy: new ServicePrincipal('sagemaker.amazonaws.com'),
+    });
+
+    // Copy from AmazonS3FullAccess, do not modify
+    unstructuredParserRole.attachInlinePolicy(new Policy(this, 'AmazonS3FullAccessPolicy', {
+      policyName: 'AmazonS3FullAccessPolicy',
+      statements: [
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: [
+            's3:*',
+            's3-object-lambda:*',
+          ],
+          resources: ['*'],
+        }),
+      ],
+    }));
+    // Copy from AmazonSageMakerFullAccess, do not modify
+    unstructuredParserRole.attachInlinePolicy(new Policy(this, 'AmazonSageMakerFullAccessPolicy', {
+      policyName: 'AmazonSageMakerFullAccessPolicy',
+      statements: [
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: [
+            'sagemaker:*',
+          ],
+          notResources: [
+            `arn:${Aws.PARTITION}:sagemaker:*:*:domain/*`,
+            `arn:${Aws.PARTITION}:sagemaker:*:*:user-profile/*`,
+            `arn:${Aws.PARTITION}:sagemaker:*:*:app/*`,
+            `arn:${Aws.PARTITION}:sagemaker:*:*:flow-definition/*`,
+          ],
+        }),
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: [
+            'sagemaker:CreatePresignedDomainUrl',
+            'sagemaker:DescribeDomain',
+            'sagemaker:ListDomains',
+            'sagemaker:DescribeUserProfile',
+            'sagemaker:ListUserProfiles',
+            'sagemaker:*App',
+            'sagemaker:ListApps',
+          ],
+          resources: ['*'],
+        }),
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: [
+            'sagemaker:*',
+          ],
+          resources: [`arn:${Aws.PARTITION}:sagemaker:*:*:flow-definition/*`],
+          conditions: {
+            StringEqualsIfExists: {
+              'sagemaker:WorkteamType': [
+                'private-crowd',
+                'vendor-crowd',
+              ],
+            },
+          },
+        }),
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: [
+            'application-autoscaling:DeleteScalingPolicy',
+            'application-autoscaling:DeleteScheduledAction',
+            'application-autoscaling:DeregisterScalableTarget',
+            'application-autoscaling:DescribeScalableTargets',
+            'application-autoscaling:DescribeScalingActivities',
+            'application-autoscaling:DescribeScalingPolicies',
+            'application-autoscaling:DescribeScheduledActions',
+            'application-autoscaling:PutScalingPolicy',
+            'application-autoscaling:PutScheduledAction',
+            'application-autoscaling:RegisterScalableTarget',
+            'aws-marketplace:ViewSubscriptions',
+            'cloudformation:GetTemplateSummary',
+            'cloudwatch:DeleteAlarms',
+            'cloudwatch:DescribeAlarms',
+            'cloudwatch:GetMetricData',
+            'cloudwatch:GetMetricStatistics',
+            'cloudwatch:ListMetrics',
+            'cloudwatch:PutMetricAlarm',
+            'cloudwatch:PutMetricData',
+            'codecommit:BatchGetRepositories',
+            'codecommit:CreateRepository',
+            'codecommit:GetRepository',
+            'codecommit:List*',
+            'cognito-idp:AdminAddUserToGroup',
+            'cognito-idp:AdminCreateUser',
+            'cognito-idp:AdminDeleteUser',
+            'cognito-idp:AdminDisableUser',
+            'cognito-idp:AdminEnableUser',
+            'cognito-idp:AdminRemoveUserFromGroup',
+            'cognito-idp:CreateGroup',
+            'cognito-idp:CreateUserPool',
+            'cognito-idp:CreateUserPoolClient',
+            'cognito-idp:CreateUserPoolDomain',
+            'cognito-idp:DescribeUserPool',
+            'cognito-idp:DescribeUserPoolClient',
+            'cognito-idp:List*',
+            'cognito-idp:UpdateUserPool',
+            'cognito-idp:UpdateUserPoolClient',
+            'ec2:CreateNetworkInterface',
+            'ec2:CreateNetworkInterfacePermission',
+            'ec2:CreateVpcEndpoint',
+            'ec2:DeleteNetworkInterface',
+            'ec2:DeleteNetworkInterfacePermission',
+            'ec2:DescribeDhcpOptions',
+            'ec2:DescribeNetworkInterfaces',
+            'ec2:DescribeRouteTables',
+            'ec2:DescribeSecurityGroups',
+            'ec2:DescribeSubnets',
+            'ec2:DescribeVpcEndpoints',
+            'ec2:DescribeVpcs',
+            'ecr:BatchCheckLayerAvailability',
+            'ecr:BatchGetImage',
+            'ecr:CreateRepository',
+            'ecr:Describe*',
+            'ecr:GetAuthorizationToken',
+            'ecr:GetDownloadUrlForLayer',
+            'ecr:StartImageScan',
+            'elastic-inference:Connect',
+            'elasticfilesystem:DescribeFileSystems',
+            'elasticfilesystem:DescribeMountTargets',
+            'fsx:DescribeFileSystems',
+            'glue:CreateJob',
+            'glue:DeleteJob',
+            'glue:GetJob*',
+            'glue:GetTable*',
+            'glue:GetWorkflowRun',
+            'glue:ResetJobBookmark',
+            'glue:StartJobRun',
+            'glue:StartWorkflowRun',
+            'glue:UpdateJob',
+            'groundtruthlabeling:*',
+            'iam:ListRoles',
+            'kms:DescribeKey',
+            'kms:ListAliases',
+            'lambda:ListFunctions',
+            'logs:CreateLogDelivery',
+            'logs:CreateLogGroup',
+            'logs:CreateLogStream',
+            'logs:DeleteLogDelivery',
+            'logs:Describe*',
+            'logs:GetLogDelivery',
+            'logs:GetLogEvents',
+            'logs:ListLogDeliveries',
+            'logs:PutLogEvents',
+            'logs:PutResourcePolicy',
+            'logs:UpdateLogDelivery',
+            'robomaker:CreateSimulationApplication',
+            'robomaker:DescribeSimulationApplication',
+            'robomaker:DeleteSimulationApplication',
+            'robomaker:CreateSimulationJob',
+            'robomaker:DescribeSimulationJob',
+            'robomaker:CancelSimulationJob',
+            'secretsmanager:ListSecrets',
+            'servicecatalog:Describe*',
+            'servicecatalog:List*',
+            'servicecatalog:ScanProvisionedProducts',
+            'servicecatalog:SearchProducts',
+            'servicecatalog:SearchProvisionedProducts',
+            'sns:ListTopics',
+            'tag:GetResources',
+          ],
+          resources: ['*'],
+        }),
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: [
+            'ecr:SetRepositoryPolicy',
+            'ecr:CompleteLayerUpload',
+            'ecr:BatchDeleteImage',
+            'ecr:UploadLayerPart',
+            'ecr:DeleteRepositoryPolicy',
+            'ecr:InitiateLayerUpload',
+            'ecr:DeleteRepository',
+            'ecr:PutImage',
+          ],
+          resources: [`arn:${Aws.PARTITION}:ecr:*:*:repository/*sagemaker*`],
+        }),
+        // From here down, there is no copy
+      ],
+    }));
+    // Copy from AWSGlueServiceRole, do not modify
+    unstructuredParserRole.attachInlinePolicy(new Policy(this, 'AWSGlueServicePolicy2', {
+      policyName: 'AWSGlueServicePolicy',
+      statements: [
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: [
+            'glue:*',
+            's3:GetBucketLocation',
+            's3:ListBucket',
+            's3:ListAllMyBuckets',
+            's3:GetBucketAcl',
+            'ec2:DescribeVpcEndpoints',
+            'ec2:DescribeRouteTables',
+            'ec2:CreateNetworkInterface',
+            'ec2:DeleteNetworkInterface',
+            'ec2:DescribeNetworkInterfaces',
+            'ec2:DescribeSecurityGroups',
+            'ec2:DescribeSubnets',
+            'ec2:DescribeVpcAttribute',
+            'iam:ListRolePolicies',
+            'iam:GetRole',
+            'iam:GetRolePolicy',
+            'cloudwatch:PutMetricData',
+          ],
+          resources: ['*'],
+        }),
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: ['s3:CreateBucket'],
+          resources: [
+            `arn:${Aws.PARTITION}:s3:::aws-glue-*`,
+          ],
+        }),
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: [
+            's3:GetObject',
+            's3:PutObject',
+            's3:DeleteObject',
+          ],
+          resources: [
+            `arn:${Aws.PARTITION}:s3:::aws-glue-*/*`,
+            `arn:${Aws.PARTITION}:s3:::*/*aws-glue-*/*`,
+          ],
+        }),
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: [
+            's3:GetObject',
+          ],
+          resources: [
+            `arn:${Aws.PARTITION}:s3:::crawler-public*`,
+            `arn:${Aws.PARTITION}:s3:::aws-glue-*`,
+          ],
+        }),
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: [
+            'logs:CreateLogGroup',
+            'logs:CreateLogStream',
+            'logs:PutLogEvents',
+          ],
+          resources: [
+            `arn:${Aws.PARTITION}:logs:*:*:/aws-glue/*`,
+          ],
+        }),
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: [
+            'ec2:CreateTags',
+            'ec2:DeleteTags',
+          ],
+          conditions: {
+            StringEquals: {
+              'aws:TagKeys': 'aws-glue-service-resource',
+            },
+          },
+          resources: [
+            `arn:${Aws.PARTITION}:ec2:*:*:network-interface/*`,
+            `arn:${Aws.PARTITION}:ec2:*:*:security-group/*`,
+            `arn:${Aws.PARTITION}:ec2:*:*:instance/*`,
+          ],
+        }),
+      ],
+    }));
   }
 }

@@ -17,6 +17,8 @@ const = _const()
 
 const.SOLUTION_FULL_NAME = "Sensitive Data Protect Solution"
 const.SOLUTION_NAME = "SDPS"
+const.ADMIN_BUCKET_NAME_PREFIX = "sdps-admin"
+const.AGENT_BUCKET_NAME_PREFIX = "sdps-agent"
 
 const.LOGGER_API = "api"
 

@@ -17,6 +17,7 @@ import { Construct } from 'constructs';
 import { CrawlerEventbridgeStack } from './agent/CrawlerEventbridge-stack';
 import { DeleteAgentResourcesStack } from './agent/DeleteAgentResources-stack';
 import { DiscoveryJobStack } from './agent/DiscoveryJob-stack';
+import { BucketStack } from './common/bucket-stack';
 import { Parameter } from './common/parameter';
 import { SolutionInfo } from './common/solution-info';
 
@@ -90,6 +91,7 @@ export class AgentStack extends Stack {
             'glue:GetSecurityConfiguration',
             'glue:GetSecurityConfigurations',
             'glue:CreateCrawler',
+            'glue:StartCrawler',
           ],
           resources: ['*'],
         }),
@@ -120,15 +122,15 @@ export class AgentStack extends Stack {
             `arn:${Aws.PARTITION}:glue:${Aws.REGION}:${Aws.ACCOUNT_ID}:job/${SolutionInfo.SOLUTION_NAME_ABBR}-*`,
             `arn:${Aws.PARTITION}:glue:${Aws.REGION}:${Aws.ACCOUNT_ID}:connection/${SolutionInfo.SOLUTION_NAME_ABBR}-*`,
             `arn:${Aws.PARTITION}:lambda:${Aws.REGION}:${Aws.ACCOUNT_ID}:function:${SolutionInfo.SOLUTION_NAME_ABBR}-*`,
-            `arn:${Aws.PARTITION}:states:${Aws.REGION}:${Aws.ACCOUNT_ID}:stateMachine:${SolutionInfo.SOLUTION_NAME_ABBR}-DiscoveryJob-*`,
-            `arn:${Aws.PARTITION}:states:${Aws.REGION}:${Aws.ACCOUNT_ID}:execution:${SolutionInfo.SOLUTION_NAME_ABBR}-DiscoveryJob-*:*`,
+            `arn:${Aws.PARTITION}:states:${Aws.REGION}:${Aws.ACCOUNT_ID}:stateMachine:${SolutionInfo.SOLUTION_NAME_ABBR}-DiscoveryJob*`,
+            `arn:${Aws.PARTITION}:states:${Aws.REGION}:${Aws.ACCOUNT_ID}:execution:${SolutionInfo.SOLUTION_NAME_ABBR}-DiscoveryJob*:*`,
           ],
         }),
       ],
     }));
     // Copy from AmazonS3ReadOnlyAccess, do not modify
     roleForAdmin.attachInlinePolicy(new iam.Policy(this, 'AmazonS3ReadOnlyAccessPolicy', {
-      // policyName: 'AmazonS3ReadOnlyAccessPolicy',
+      policyName: 'AmazonS3ReadOnlyAccessPolicy',
       statements: [
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
@@ -314,6 +316,10 @@ export class AgentStack extends Stack {
         resources: ['*'],
       })],
     }));
+
+    new BucketStack(this, 'AgentS3', {
+      prefix: SolutionInfo.SOLUTION_AGENT_S3_BUCKET,
+    });
 
     new DeleteAgentResourcesStack(this, 'DeleteAgentResources', {
       adminAccountId: adminAccountId,

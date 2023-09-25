@@ -14,9 +14,10 @@
 import { RemovalPolicy, Aws } from 'aws-cdk-lib';
 import { BucketEncryption, BlockPublicAccess, Bucket, ObjectOwnership } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
-import { SolutionInfo } from '../common/solution-info';
+import { SolutionInfo } from './solution-info';
 
 export interface BucketProps {
+  prefix?: string;
   encryption?: BucketEncryption;
   enforceSSL?: boolean;
   versioned?: boolean;
@@ -31,8 +32,10 @@ export class BucketStack extends Construct {
   constructor(scope: Construct, id: string, props?: BucketProps) {
     super(scope, id);
 
+    const bucketPrefix = props?.prefix ?? SolutionInfo.SOLUTION_ADMIN_S3_BUCKET;
+
     this.bucket = new Bucket(this, 'Bucket', {
-      bucketName: `${SolutionInfo.SOLUTION_ADMIN_S3_BUCKET}-${Aws.ACCOUNT_ID}-${Aws.REGION}`,
+      bucketName: `${bucketPrefix}-${Aws.ACCOUNT_ID}-${Aws.REGION}`,
       objectOwnership: ObjectOwnership.BUCKET_OWNER_ENFORCED,
       encryption: props?.encryption ?? BucketEncryption.S3_MANAGED,
       enforceSSL: props?.enforceSSL ?? true,

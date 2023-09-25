@@ -32,7 +32,7 @@
           "detail": {
             "accountId.$": "$.AccountId",
             "databaseType": "glue",
-            "crawlerName.$": "$.DatabaseName",
+            "databaseName.$": "$.DatabaseName",
             "state": "Succeeded"
           },
           "region.$": "$.Region"

@@ -29,6 +29,7 @@ sqs_job = boto3.resource('sqs')
 
 sql_result = "SELECT database_type,account_id,region,s3_bucket,s3_location,rds_instance_id,table_name,column_name,identifiers,sample_data FROM job_detection_output_table where run_id='%d' and privacy = 1"
 sql_error = "SELECT account_id,region,database_type,database_name,table_name,error_message FROM job_detection_error_table where run_id='%d'"
+extra_py_files = f"s3://{const.ADMIN_BUCKET_NAME_PREFIX}-{admin_account_id}-{admin_region}/job/script/job_extra_files.zip"
 
 
 def list_jobs(condition: QueryCondition):
@@ -214,7 +215,7 @@ def __start_run(job_id: int, run_id: int):
               "flatbuffers-23.3.3-py2.py3-none-any.whl",
               "coloredlogs-15.0.1-py2.py3-none-any.whl",
               "onnxruntime-1.13.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
-              "sdps_ner-0.9.0-py3-none-any.whl",
+              "sdpsner-1.0.0-py3-none-any.whl",
               ]
 
     account_loop_wait = {}
@@ -253,6 +254,9 @@ def __start_run(job_id: int, run_id: int):
             job_name_structured = f"{job_name_prefix}-{RunTaskType.STRUCTURED.value}"
             job_name_unstructured = f"{job_name_prefix}-{RunTaskType.UNSTRUCTURED.value}"
             run_name = f'{const.SOLUTION_NAME}-{run_id}-{run_database.id}-{run_database.uuid}'
+            agent_bucket_name = f"{const.AGENT_BUCKET_NAME_PREFIX}-{run_database.account_id}-{run_database.region}"
+            unstructured_parser_job_image_uri = f"{run_database.account_id}.dkr.ecr.{run_database.region}.amazonaws.com.cn/sdp_test_data_parser:latest"
+            unstructured_parser_job_role = f"arn:{partition}:iam::{run_database.account_id}:role/{const.SOLUTION_NAME}UnstructuredParserRole-{run_database.region}"
             execution_input = {
                 "RunName": run_name,
                 "JobNameStructured": job_name_structured,
@@ -280,12 +284,16 @@ def __start_run(job_id: int, run_id: int):
                 # "JobBookmarkOption": job_bookmark_option,
                 "DetectionThreshold": str(job.detection_threshold),
                 "OverWrite": str(job.overwrite),
+                "AgentBucketName": agent_bucket_name,
                 "AdminAccountId": admin_account_id,
-                "BucketName": project_bucket_name,
+                "AdminBucketName": project_bucket_name,
                 "AdditionalPythonModules": ','.join([module_path + w for w in wheels]),
+                "ExtraPyFiles": extra_py_files,
                 "FirstWait": str(account_first_wait[account_id]),
                 "LoopWait": str(account_loop_wait[account_id]),
                 "QueueUrl": f'https://sqs.{run_database.region}.amazonaws.com{url_suffix}/{admin_account_id}/{const.SOLUTION_NAME}-DiscoveryJob',
+                "UnstructuredParserJobImageUri": unstructured_parser_job_image_uri,
+                "UnstructuredParserJobRole": unstructured_parser_job_role,
             }
             run_database.start_time = mytime.get_time()
             __create_job(run_database.database_type, run_database.account_id, run_database.region, run_database.database_name, job_name_structured, 'glue-job.py')
@@ -405,7 +413,7 @@ def __exec_run(execution_input):
                               region_name=execution_input["Region"],
                               )
     client_sfn.start_execution(
-        stateMachineArn=f'arn:{partition}:states:{execution_input["Region"]}:{execution_input["AccountId"]}:stateMachine:{const.SOLUTION_NAME}-DiscoveryJob-Entry',
+        stateMachineArn=f'arn:{partition}:states:{execution_input["Region"]}:{execution_input["AccountId"]}:stateMachine:{const.SOLUTION_NAME}-DiscoveryJob',
         name=execution_input["RunName"],
         input=json.dumps(execution_input),
     )
@@ -470,7 +478,7 @@ def __stop_run(run_database: models.DiscoveryJobRunDatabase):
                               )
     try:
         client_sfn.stop_execution(
-            executionArn=f'arn:{partition}:states:{run_database.region}:{run_database.account_id}:execution:{const.SOLUTION_NAME}-DiscoveryJob-Entry:{const.SOLUTION_NAME}-{run_database.run_id}-{run_database.id}-{run_database.uuid}',
+            executionArn=f'arn:{partition}:states:{run_database.region}:{run_database.account_id}:execution:{const.SOLUTION_NAME}-DiscoveryJob:{const.SOLUTION_NAME}-{run_database.run_id}-{run_database.id}-{run_database.uuid}',
             )
     except client_sfn.exceptions.ExecutionDoesNotExist as e:
         logger.warning(e)
@@ -748,7 +756,7 @@ def __get_run_database_state_from_agent(run_database: models.DiscoveryJobRunData
 
     try:
         response = client_sfn.describe_execution(
-            executionArn=f'arn:{partition}:states:{run_database.region}:{run_database.account_id}:execution:{const.SOLUTION_NAME}-DiscoveryJob-Entry:{const.SOLUTION_NAME}-{run_database.run_id}-{run_database.id}-{run_database.uuid}',
+            executionArn=f'arn:{partition}:states:{run_database.region}:{run_database.account_id}:execution:{const.SOLUTION_NAME}-DiscoveryJob:{const.SOLUTION_NAME}-{run_database.run_id}-{run_database.id}-{run_database.uuid}',
         )
         return response["status"]
     except client_sfn.exceptions.ExecutionDoesNotExist as e:
@@ -771,7 +779,7 @@ def __get_run_error_log(run_database: models.DiscoveryJobRunDatabase) -> str:
                               )
     try:
         response = client_sfn.get_execution_history(
-            executionArn=f'arn:{partition}:states:{run_database.region}:{run_database.account_id}:execution:{const.SOLUTION_NAME}-DiscoveryJob-Entry:{const.SOLUTION_NAME}-{run_database.run_id}-{run_database.id}-{run_database.uuid}',
+            executionArn=f'arn:{partition}:states:{run_database.region}:{run_database.account_id}:execution:{const.SOLUTION_NAME}-DiscoveryJob:{const.SOLUTION_NAME}-{run_database.run_id}-{run_database.id}-{run_database.uuid}',
             reverseOrder=True,
             maxResults=1,
         )
