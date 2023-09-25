@@ -121,6 +121,8 @@ class Account(Base):
     connected_s3_bucket = sa.Column(sa.Integer())
     total_rds_instance = sa.Column(sa.Integer())
     connect_rds_instance = sa.Column(sa.Integer())
+    total_glue_database = sa.Column(sa.Integer())
+    connected_glue_database = sa.Column(sa.Integer())
     total_jdbc_instance = sa.Column(sa.Integer())
     connected_jdbc_instance = sa.Column(sa.Integer())
     last_updated = sa.Column(sa.DateTime)

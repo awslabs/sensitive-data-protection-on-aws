@@ -36,7 +36,7 @@ def list_rds_instances(condition: QueryCondition):
 @router.post("/list-glue-database", response_model=BaseResponse[Page[schemas.JDBCInstanceSource]])
 @inject_session
 def list_glue_databases(condition: QueryCondition):
-    instances = service.list_glue_databases(condition)
+    instances = crud.list_glue_database(condition)
     if instances is None:
         return None
     return paginate(instances, Params(
@@ -242,8 +242,7 @@ def query_full_provider_infos():
 def list_providers():
     return service.list_providers()
 
-# @router.post("/list-jdbc-schemas", response_model=BaseResponse)
-# @inject_session
-# def list_jdbc_schema():
-#     print("$$$$$$$$$$$$$$$")
-#     return service.list_jdbc_schema("691104259771")
+@router.post("/list-jdbc-schemas", response_model=BaseResponse)
+@inject_session
+def list_jdbc_schema(account_id: str):
+    return service.list_jdbc_schema(account_id)

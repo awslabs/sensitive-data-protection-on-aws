@@ -314,5 +314,6 @@ class DataSourceType(str, Enum):
     s3 = "s3"
     rds = "rds"
     ddb = "ddb"
-    all = "all"
+    glue_database = "glue_database"
     jdbc = "jdbc"
+    all = "all"

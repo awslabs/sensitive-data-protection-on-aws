@@ -33,6 +33,8 @@ class Account(BaseModel):
     connected_s3_bucket: Optional[int]
     total_rds_instance: Optional[int]
     connect_rds_instance: Optional[int]
+    total_glue_database: Optional[int]
+    connected_glue_database: Optional[int]
     total_jdbc_instance: Optional[int]
     connect_jdbc_instance: Optional[int]
     last_updated: Optional[datetime.datetime]

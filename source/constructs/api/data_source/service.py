@@ -19,7 +19,7 @@ from common.query_condition import QueryCondition
 from discovery_job.service import delete_account as delete_job_by_account
 from discovery_job.service import can_delete_database as can_delete_job_database
 from discovery_job.service import delete_database as delete_job_database
-from . import s3_detector, rds_detector, crud
+from . import s3_detector, rds_detector, glue_database_detector, crud
 from .schemas import (AdminAccountInfo,
                       JDBCInstanceSource,
                       ProviderResourceFullInfo,
@@ -322,10 +322,17 @@ def check_link(credentials, region_name: str, vpc_id: str, rds_secret_id: str):
     logger.info(secret_endpoint_exists)
 
 def sync_glue_database(account_id, region, glue_database_name):
+    crud.create_glue_connection(
+        account_id,
+        region,
+        glue_database_name,
+        None,
+        crawler_name)
+
     sqs = boto3.client(
-            'sqs',
-            region_name=_admin_account_region
-        )
+        'sqs',
+        region_name=_admin_account_region
+    )
     message = {
         "detail": {
             "databaseName": glue_database_name,
@@ -335,7 +342,7 @@ def sync_glue_database(account_id, region, glue_database_name):
         },
         "region": region
     }
-    response = sqs.send_message(
+    sqs.send_message(
         QueueUrl=sqs.get_queue_url(QueueName=f"{const.SOLUTION_NAME}-Crawler"),
         MessageBody=json.dumps(message)
     )
@@ -638,56 +645,24 @@ def sync(jdbc: SourceJDBCConnection):
         raise BizException(MessageEnum.SOURCE_CONNECTION_FAILED.get_code(),
                            str(err))
 
-# def post_sync():
-#     pass
-
-# def list_jdbc_schema(account_id: str):
-#     credentials = gen_credentials(account_id)
-#     logger.info(credentials)
-#     # 创建 Glue 客户端
-#     glue_client = boto3.client('glue',
-#                                aws_access_key_id=credentials['AccessKeyId'],
-#                                aws_secret_access_key=credentials['SecretAccessKey'],
-#                                aws_session_token=credentials['SessionToken'],
-#                                region_name="cn-northwest-1")
-
-#     # 指定要获取 schema 的连接名称
-#     connection_name = 'glue-tencent-host-mysql-5.7'
-#     # connection_name = jdbc.instance
-#     schemas = None
-#     # 使用 get_connection 方法获取连接详细信息
-#     try:
-#         response = glue_client.get_connection(
-#             Name=connection_name
-#         )
-#         # connection_properties = response['Connection']['ConnectionProperties']
-        
-#         # 检索 schema 信息
-#         if 'JDBC_SCHEMAS' in connection_properties:
-#             schemas = connection_properties['JDBC_SCHEMAS'].split(',')
-#             print(f"连接 {connection_name} 的 schema 列表：")
-#             for schema in schemas:
-#                 print(schema)
-#         else:
-#             print(f"连接 {connection_name} 没有指定 schema 信息。")
-#     except glue_client.exceptions.EntityNotFoundException as e:
-#         print(f"连接 {connection_name} 不存在。")
-#     except Exception as e:
-#         print(f"获取连接信息时出现错误：{e}")
-#     return response
-
-#     # # 使用 JDBC 连接信息连接到数据库
-#     # conn = jaydebeapi.connect(jclassname='com.mysql.cj.jdbc.Driver',
-#     #                           url="jdbc:mysql://81.70.179.114:9000/mysql",
-#     #                           driver_args=['root', 'Temp123456!'])
-
-#     # # 获取 schema 列表
-#     # cursor = conn.cursor()
-#     # cursor.execute('SHOW SCHEMAS')  # 根据数据库类型和 SQL 查询语法更改
-#     # schemas = [row[0] for row in cursor.fetchall()]
-#     # cursor.close()
-#     # conn.close()
-#     return schemas
+def list_jdbc_schema(account_id: str):
+    credentials = gen_credentials(account_id)
+    logger.info(credentials)
+    glue_client = boto3.client('glue',
+                               aws_access_key_id=credentials['AccessKeyId'],
+                               aws_secret_access_key=credentials['SecretAccessKey'],
+                               aws_session_token=credentials['SessionToken'],
+                               region_name="cn-northwest-1")
+    connection_name = 'glue-tencent-host-mysql-5.7'
+    # connection_name = jdbc.instance
+    schemas = None
+    response = glue_client.get_connection(
+        Name=connection_name
+    )
+    connection_properties = response['Connection']['ConnectionProperties']
+    if 'JDBC_SCHEMAS' in connection_properties:
+        schemas = connection_properties['JDBC_SCHEMAS'].split(',')
+    return schemas
 
 
 def before_delete_glue_database(provider, account, region, name):
@@ -823,8 +798,8 @@ def delete_jdbc_connection(provider_id: int, account: str, region: str, instance
 
 def gen_credentials(account: str):
     try:
-        # iam_role_name = crud.get_iam_role(account)
-        iam_role_name = "arn:aws-cn:iam::691104259771:role/SDPSRoleForAdmin-cn-northwest-1"
+        iam_role_name = crud.get_iam_role(account)
+
         assumed_role = sts.assume_role(
             RoleArn=f"{iam_role_name}",
             RoleSessionName="glue-rds-connection"
@@ -1328,10 +1303,14 @@ def refresh_aws_data_source(accounts: list[str], type: str):
 
         elif type == DataSourceType.rds.value:
             rds_detector.detect(accounts)
+        
+        elif type == DataSourceType.glue_database.value:
+            glue_database_detector.detect(accounts)
 
         elif type == DataSourceType.all.value:
             s3_detector.detect(accounts)
             rds_detector.detect(accounts)
+            glue_database_detector.detect(accounts)
     except Exception as e:
         logger.error(traceback.format_exc())
         raise BizException(MessageEnum.SOURCE_CONNECTION_FAILED.get_code(), str(e))
@@ -1568,7 +1547,6 @@ def get_secrets(account: str, region: str):
             }
         )
     return secrets
-
 
 def get_admin_account_info():
     return AdminAccountInfo(account_id=_admin_account_id, region=_admin_account_region)
