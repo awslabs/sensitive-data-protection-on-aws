@@ -3,8 +3,11 @@ import logging
 import os
 import traceback
 from time import sleep
-
+import psycopg2
+import cx_Oracle
+   
 import boto3
+import pymysql
 
 from catalog.service import delete_catalog_by_account_region as delete_catalog_by_account
 from catalog.service import delete_catalog_by_database_region as delete_catalog_by_database_region
@@ -322,13 +325,6 @@ def check_link(credentials, region_name: str, vpc_id: str, rds_secret_id: str):
     logger.info(secret_endpoint_exists)
 
 def sync_glue_database(account_id, region, glue_database_name):
-    crud.create_glue_connection(
-        account_id,
-        region,
-        glue_database_name,
-        None,
-        crawler_name)
-
     sqs = boto3.client(
         'sqs',
         region_name=_admin_account_region
@@ -646,22 +642,57 @@ def sync(jdbc: SourceJDBCConnection):
                            str(err))
 
 def list_jdbc_schema(account_id: str):
-    credentials = gen_credentials(account_id)
-    logger.info(credentials)
-    glue_client = boto3.client('glue',
-                               aws_access_key_id=credentials['AccessKeyId'],
-                               aws_secret_access_key=credentials['SecretAccessKey'],
-                               aws_session_token=credentials['SessionToken'],
-                               region_name="cn-northwest-1")
-    connection_name = 'glue-tencent-host-mysql-5.7'
-    # connection_name = jdbc.instance
-    schemas = None
-    response = glue_client.get_connection(
-        Name=connection_name
-    )
-    connection_properties = response['Connection']['ConnectionProperties']
-    if 'JDBC_SCHEMAS' in connection_properties:
-        schemas = connection_properties['JDBC_SCHEMAS'].split(',')
+    schemas = []
+    # postgreSQL
+    # conn = psycopg2.connect(database="数据库名", 
+    #                            user="数据库账号",
+    #                            password="数据库密码",
+    #                            host="xx.xx.xx.xx", 
+    #                            port="端口号")
+    # mysql
+    conn = psycopg2.connect(host='81.70.179.114',
+                            port=9000,
+                            user='root',
+                            password='Temp123456!')
+    # oracle
+    # username="用户名"
+    # userpwd="用户名密码"
+    # host="主机IP"
+    # port=1521
+    # dbname="数据库名称"
+    # dsn=cx_Oracle.makedsn(host, port)
+    # connection=cx_Oracle.connect(username, userpwd, dsn)
+    # cursor = connection.cursor()  
+
+    try:
+        # 创建一个新的游标
+        cursor = conn.cursor()
+        # 执行SQL查询
+        cursor.execute("SHOW DATABASES")
+        # 获取所有的行
+        rows = cursor.fetchall()
+        for row in rows:
+            print(row[0])
+            schemas.append(row[0])
+    finally:
+        # 关闭连接
+        conn.close()
+    # credentials = gen_credentials(account_id)
+    # logger.info(credentials)
+    # glue_client = boto3.client('glue',
+    #                            aws_access_key_id=credentials['AccessKeyId'],
+    #                            aws_secret_access_key=credentials['SecretAccessKey'],
+    #                            aws_session_token=credentials['SessionToken'],
+    #                            region_name="cn-northwest-1")
+    # connection_name = 'glue-tencent-host-mysql-5.7'
+    # # connection_name = jdbc.instance
+    # schemas = None
+    # response = glue_client.get_connection(
+    #     Name=connection_name
+    # )
+    # connection_properties = response['Connection']['ConnectionProperties']
+    # if 'JDBC_SCHEMAS' in connection_properties:
+    #     schemas = connection_properties['JDBC_SCHEMAS'].split(',')
     return schemas
 
 

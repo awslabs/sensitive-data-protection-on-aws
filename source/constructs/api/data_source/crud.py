@@ -196,6 +196,10 @@ def get_jdbc_instance_source_glue_state(provider_id: int, account: str, region: 
     else:
         return None
 
+def delete_not_exist_glue_database(refresh_list: list[str]):
+    get_session().query(SourceGlueDatabase).filter(SourceGlueDatabase.glue_database_name.in_(refresh_list)).delete()
+
+
 def update_glue_database_count(account: str, region: str):
     session = get_session()
 
