@@ -136,19 +136,7 @@ def delete_jdbc_connection(jdbc: schemas.SourceDeteteJDBCConnection):
 @router.post("/sync-jdbc", response_model=BaseResponse)
 @inject_session
 def sync_jdbc_connection(jdbc: schemas.SourceJDBCConnection):
-    return service.sync_jdbc_connection(
-        jdbc.account_provider,
-        jdbc.account_id,
-        jdbc.region,
-        jdbc.instance,
-        jdbc.address,
-        jdbc.engine,
-        jdbc.port,
-        jdbc.username,
-        jdbc.password,
-        jdbc.secret
-    )
-
+    return service.sync_jdbc_connection(jdbc)
 
 @router.post("/refresh", response_model=BaseResponse)
 @inject_session
@@ -253,3 +241,9 @@ def query_full_provider_infos():
 @inject_session
 def list_providers():
     return service.list_providers()
+
+# @router.post("/list-jdbc-schemas", response_model=BaseResponse)
+# @inject_session
+# def list_jdbc_schema():
+#     print("$$$$$$$$$$$$$$$")
+#     return service.list_jdbc_schema("691104259771")

@@ -97,8 +97,10 @@ class SourceGlueDatabase(BaseModel):
     glue_database_location_uri: Optional[str]
     glue_database_create_time: Optional[str]
     glue_database_catalog_id: Optional[str]
+    glue_state: Optional[str]
     account_id: Optional[str]
     region: Optional[str]
+    detection_history_id: Optional[int]
     version: Optional[int]
     create_by: Optional[str]
     create_time: Optional[datetime.datetime]
@@ -212,6 +214,18 @@ class SourceJDBCConnection(BaseModel):
     username: Optional[str]
     password: Optional[str]
     secret: Optional[str]
+    network_availability_zone: Optional[str]
+    network_subnet_id: Optional[str]
+    network_sg_id: Optional[str]
+    jdbc_connection_url: Optional[str]   # "jdbc:mysql://81.70.179.114:9000/"
+    jdbc_enforce_ssl: Optional[str]  # "false" Require SSL connection  如果连不上connection会报错
+    kafka_ssl_enabled: Optional[str]  # "false"
+    master_username: Optional[str]
+    password: Optional[str]
+    skip_custom_jdbc_cert_validation: Optional[str] # "false"
+    custom_jdbc_cert: Optional[str]  # SSL证书地址
+    custom_jdbc_cert_string: Optional[str]  # For Oracle Database this maps to SSL_SERVER_CERT_DN, and for SQL Server it maps to hostNameInCertificate.
+    
 
 class SourceDeteteGlueDatabase(BaseModel):
     account_provider: int

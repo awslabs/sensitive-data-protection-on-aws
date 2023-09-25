@@ -77,10 +77,12 @@ def sync_result(input_event):
             )
         elif database_type.startswith(DatabaseType.JDBC.value):
             data_source_crud.update_jdbc_instance_count(
+                provider=input_event['provider_id'],
                 account=input_event['detail']['accountId'],
                 region=input_event['region'],
             )
-            data_source_crud.set_jdbc_instance_glue_state(
+            data_source_crud.set_jdbc_connection_glue_state(
+                provider=input_event['provider_id'],
                 account=input_event['detail']['accountId'],
                 region=input_event['region'],
                 bucket=database_name,
