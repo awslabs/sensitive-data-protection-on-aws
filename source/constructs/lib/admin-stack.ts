@@ -22,6 +22,7 @@ import {
   CfnStack,
   Tags,
 } from 'aws-cdk-lib';
+import { BootstraplessStackSynthesizer } from 'cdk-bootstrapless-synthesizer';
 import { Construct } from 'constructs';
 import { AcmStack } from './admin/acm-stack';
 import { AlbStack } from './admin/alb-stack';
@@ -308,6 +309,7 @@ export class AdminStack extends Stack {
 
     const agent = new AgentStack(this, 'AgentStack', {
       accountID: Stack.of(this).account,
+      synthesizer: process.env.USE_BSS ? new BootstraplessStackSynthesizer() : undefined,
     });
 
     agent.node.addDependency(deleteStack);
@@ -339,4 +341,5 @@ export class AdminStack extends Stack {
       BuildConfig.PIP_MIRROR_PARAMETER = `-i ${BuildConfig.PIP_MIRROR_CHINA_URL}`;
     }
   }
+
 }
