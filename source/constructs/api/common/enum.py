@@ -99,6 +99,14 @@ class MessageEnum(Enum):
     SOURCE_JDBC_ALREADY_EXISTS = {1234: "JDBC connection with the same instance already exists"}
     SOURCE_GLUE_DATABASE_EXISTS = {1235: "Glue database with the same name already exists"}
     SOURCE_GLUE_DATABASE_NO_INSTANCE = {1236: "Glue database does not exist"}
+    SOURCE_SECURITY_GROUP_NOT_EXISTS = {1237: "Security for jdbc connection is not existed"}
+    SOURCE_SG_INBOUND_ROUTE_NOT_VALID = {1238: "Inbound route of security group is not valid"}
+    SOURCE_SG_OUTBOUND_ROUTE_NOT_VALID = {1239: "Outbound route of security group is not valid"}
+    SOURCE_SUBNET_JDBC_NOT_EXISTS = {1240: "Subnet for jdbc connection is not existed"}
+    SOURCE_AVAILABILITY_ZONE_NOT_EXISTS = {1241: "AZ for jdbc connection is not existed"}
+    SOURCE_SUBNET_NOT_PRIVATE = {1242: "Subnet for jdbc connection is not private subnet"}
+    SOURCE_SUBNET_NOT_CONTAIN_NAT = {1243: "Subnet for jdbc connection not contain NAT Gateway"}
+    SOURCE_JDBC_NO_SCHEMA = {1244: "There is no user created schema found in the jdbc connection"}
     # label
     LABEL_EXIST_FAILED = {1611: "Cannot create duplicated label"}
 
@@ -152,9 +160,9 @@ class DatabaseType(Enum):
     RDS = "rds"
     S3 = "s3"
     S3_UNSTRUCTURED = "unstructured"
-    GLUE = "glue"
     DDB = "ddb"
     EMR = "emr"
+    GLUE_DATABASE = "glue_database"
     # JDBC is a virtual type
     JDBC = "jdbc"
     JDBC_AWS = "jdbc-aws"
@@ -309,5 +317,6 @@ class DataSourceType(str, Enum):
     s3 = "s3"
     rds = "rds"
     ddb = "ddb"
-    all = "all"
+    glue_database = "glue_database"
     jdbc = "jdbc"
+    all = "all"

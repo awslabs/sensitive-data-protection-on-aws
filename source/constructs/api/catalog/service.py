@@ -196,7 +196,7 @@ def sync_crawler_result(
                     )
                 # Delete empty table when Glue crawler not supported the S3 file type
                 # s3 can return directly ,but rds cannot
-                if database_type == DatabaseType.S3.value and table_size_key == 0:
+                if (database_type == DatabaseType.S3.value or database_type == DatabaseType.S3_UNSTRUCTURED.value) and table_size_key == 0:
                     delete_glue_table_names.append(table_name)
                     # client.delete_table(DatabaseName=glue_database_name,
                     #                     Name=table_name)
@@ -234,7 +234,7 @@ def sync_crawler_result(
                     column_type = column["Type"].strip()
                     # To avoid too long embedded type like : struct<struct<xxxxxx.....>>
                     # In the testing process we found a type longer than 2048
-                    if len(column_type) > 200 and database_type == DatabaseType.S3.value:
+                    if len(column_type) > 200 and (database_type == DatabaseType.S3.value or database_type == DatabaseType.S3_UNSTRUCTURED.value):
                         column_type = column_type.split("<")[0]
                     # Create column
                     catalog_column_dict = {
@@ -275,8 +275,7 @@ def sync_crawler_result(
                     "column_count": column_order_num,
                     "storage_location": table_location,
                     "classification": table_classification,
-                    # TODO
-                    "struct_type": "",
+                    "struct_type": False if (database_type == DatabaseType.S3_UNSTRUCTURED.value) else True,
                     "detected_time": datetime.datetime.now(),
                 }
                 original_table = crud.get_catalog_table_level_classification_by_name(account_id, region, database_type,
