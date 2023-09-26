@@ -1,3 +1,5 @@
+import logging
+
 import db.models_catalog as models
 from sqlalchemy import (Column, or_, distinct, and_)
 from tools.pydantic_tool import parse_pydantic_schema
@@ -204,7 +206,8 @@ def get_catalog_table_level_classification_by_id(
             .first()
         )
         return result
-    except Exception:
+    except Exception as e:
+        logging.error(e)
         return None
 
 
