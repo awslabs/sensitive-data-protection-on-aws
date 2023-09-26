@@ -1,16 +1,18 @@
 import logging
 import os
-
 import boto3
+
+logger = logging.getLogger("api")
+logger.setLevel(logging.INFO)
 
 sqs = boto3.client('sqs')
 caller_identity = boto3.client('sts').get_caller_identity()
 partition = caller_identity['Arn'].split(':')[1]
-admin_account_id = caller_identity.get('Account')
 url_suffix = '.cn' if partition == 'aws-cn' else ''
 
 
 def lambda_handler(event, context):
+    logger.info(event)
     if 'detail' in event and 'crawlerName' in event['detail']:
         crawler_name = event['detail']['crawlerName']
         if crawler_name.endswith('-crawler'):

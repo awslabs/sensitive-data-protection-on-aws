@@ -718,7 +718,7 @@ def before_delete_glue_database(provider, account, region, name):
     #                        MessageEnum.SOURCE_DELETE_WHEN_CONNECTING.get_msg())
     # elif state == ConnectionState.ACTIVE.value:
         # if job running, do not stop but raising
-    if not can_delete_job_database(account_id=account, region=region, database_type=DatabaseType.GLUE_DATABASE.value,
+    if not can_delete_job_database(account_id=account, region=region, database_type=DatabaseType.GLUE.value,
                                    database_name=name):
         raise BizException(MessageEnum.DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE.get_code(),
                            MessageEnum.DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE.get_msg())
@@ -762,12 +762,12 @@ def delete_glue_database(provider_id: int, account: str, region: str, name: str)
     err = []
     # 1/3 delete job database
     try:
-        delete_job_database(account_id=account, region=region, database_type=DatabaseType.GLUE_DATABASE.value, database_name=name)
+        delete_job_database(account_id=account, region=region, database_type=DatabaseType.GLUE.value, database_name=name)
     except Exception as e:
         err.append(str(e))
     # 2/3 delete catalog
     try:
-        delete_catalog_by_database_region(database=name, region=region, type=DatabaseType.GLUE_DATABASE.value)
+        delete_catalog_by_database_region(database=name, region=region, type=DatabaseType.GLUE.value)
     except Exception as e:
         err.append(str(e))
     # 3/3 delete source
@@ -1899,7 +1899,7 @@ def __assume_role(account_id: str, role_arn: str):
 
 def __list_rds_schema(account, region, credentials, instance_name, payload, rds_security_groups, rds_subnet_id):
     logger.info("__list_rds_schema")
-    function_name = f"func-{instance_name[0:50]}"
+    function_name = f"{const.SOLUTION_NAME}-{instance_name[0:50]}"
     schema_path = []
     lambda_ = boto3.client(
         'lambda',

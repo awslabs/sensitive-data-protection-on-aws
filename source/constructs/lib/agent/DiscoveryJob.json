@@ -1,205 +1,529 @@
 {
-  "Comment": "Sensitive Data Protection on AWS (Version:@TEMPLATE_SOLUTION_VERSION@)",
-  "StartAt": "FirstWait",
+  "StartAt": "Parallel",
   "States": {
-    "FirstWait": {
-      "Type": "Wait",
-      "Next": "GetCrawler",
-      "SecondsPath": "$.FirstWait"
-    },
-    "GetCrawler": {
-      "Type": "Task",
-      "Parameters": {
-        "Name.$": "$.CrawlerName"
-      },
-      "Resource": "arn:${AWS::Partition}:states:::aws-sdk:glue:getCrawler",
-      "ResultPath": "$.GetCrawler",
-      "Next": "Choice",
-      "Retry": [
+    "Parallel": {
+      "Type": "Parallel",
+      "Branches": [
         {
-          "ErrorEquals": [
-            "States.ALL"
-          ],
-          "BackoffRate": 2,
-          "IntervalSeconds": 100,
-          "MaxAttempts": 3
+          "StartAt": "NeedRunCrawler",
+          "States": {
+            "NeedRunCrawler": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.NeedRunCrawler",
+                  "BooleanEquals": true,
+                  "Next": "FirstWait"
+                }
+              ],
+              "Default": "IsGlue"
+            },
+            "IsGlue": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.DatabaseType",
+                  "StringEquals": "glue",
+                  "Next": "SendGlueSchemaMessage"
+                }
+              ],
+              "Default": "SplitJob"
+            },
+            "SendGlueSchemaMessage": {
+              "Type": "Task",
+              "Resource": "arn:${AWS::Partition}:states:::lambda:invoke",
+              "Parameters": {
+                "FunctionName": "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:SDPS-CrawlerTrigger:$LATEST",
+                "Payload": {
+                  "detail": {
+                    "accountId.$": "$.AccountId",
+                    "databaseType": "glue",
+                    "databaseName.$": "$.DatabaseName",
+                    "state": "Succeeded"
+                  },
+                  "region.$": "$.Region"
+                }
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                }
+              ],
+              "Next": "SplitJob",
+              "ResultPath": "$.SendGlueSchemaMessage"
+            },
+            "FirstWait": {
+              "Type": "Wait",
+              "Next": "GetCrawler",
+              "SecondsPath": "$.FirstWait"
+            },
+            "GetCrawler": {
+              "Type": "Task",
+              "Parameters": {
+                "Name.$": "$.CrawlerName"
+              },
+              "Resource": "arn:${AWS::Partition}:states:::aws-sdk:glue:getCrawler",
+              "ResultPath": "$.GetCrawler",
+              "Next": "NeedStartCrawler",
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "States.ALL"
+                  ],
+                  "BackoffRate": 2,
+                  "IntervalSeconds": 100,
+                  "MaxAttempts": 3
+                }
+              ]
+            },
+            "NeedStartCrawler": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.GetCrawler.Crawler.State",
+                  "StringEquals": "READY",
+                  "Next": "StartCrawler"
+                }
+              ],
+              "Default": "Wait"
+            },
+            "StartCrawler": {
+              "Type": "Task",
+              "Parameters": {
+                "Name.$": "$.CrawlerName"
+              },
+              "ResultPath": "$.StartCrawler",
+              "Resource": "arn:${AWS::Partition}:states:::aws-sdk:glue:startCrawler",
+              "Next": "Wait",
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "States.ALL"
+                  ],
+                  "BackoffRate": 2,
+                  "IntervalSeconds": 100,
+                  "MaxAttempts": 3
+                }
+              ]
+            },
+            "GetCrawler2": {
+              "Type": "Task",
+              "Parameters": {
+                "Name.$": "$.CrawlerName"
+              },
+              "Resource": "arn:${AWS::Partition}:states:::aws-sdk:glue:getCrawler",
+              "Next": "CheckCrawlerState",
+              "ResultPath": "$.GetCrawler",
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "States.ALL"
+                  ],
+                  "BackoffRate": 2,
+                  "IntervalSeconds": 100,
+                  "MaxAttempts": 3
+                }
+              ]
+            },
+            "CheckCrawlerState": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.GetCrawler.Crawler.State",
+                  "StringEquals": "READY",
+                  "Next": "SplitJob"
+                },
+                {
+                  "Or": [
+                    {
+                      "Variable": "$.GetCrawler.Crawler.State",
+                      "StringEquals": "FAILED"
+                    },
+                    {
+                      "Variable": "$.GetCrawler.Crawler.State",
+                      "StringEquals": "CANCELLED"
+                    }
+                  ],
+                  "Next": "Structured Job Failed"
+                }
+              ],
+              "Default": "Wait"
+            },
+            "SplitJob": {
+              "Type": "Task",
+              "Resource": "arn:${AWS::Partition}:states:::lambda:invoke",
+              "OutputPath": "$.Payload",
+              "Parameters": {
+                "Payload.$": "$",
+                "FunctionName": "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:SDPS-SplitJob:$LATEST"
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                }
+              ],
+              "Next": "Map"
+            },
+            "Map": {
+              "Type": "Map",
+              "ItemProcessor": {
+                "ProcessorConfig": {
+                  "Mode": "INLINE"
+                },
+                "StartAt": "Glue StartJobRun",
+                "States": {
+                  "Glue StartJobRun": {
+                    "Type": "Task",
+                    "Resource": "arn:${AWS::Partition}:states:::glue:startJobRun.sync",
+                    "Parameters": {
+                      "JobName.$": "$.JobNameStructured",
+                      "Arguments": {
+                        "--JobId.$": "$.JobId",
+                        "--RunId.$": "$.RunId",
+                        "--RunDatabaseId.$": "$.RunDatabaseId",
+                        "--AccountId.$": "$.AccountId",
+                        "--Region.$": "$.Region",
+                        "--DatabaseType.$": "$.DatabaseType",
+                        "--DatabaseName.$": "$.DatabaseName",
+                        "--GlueDatabaseName.$": "$.GlueDatabaseName",
+                        "--TableName.$": "$.TableName",
+                        "--TemplateId.$": "$.TemplateId",
+                        "--TemplateSnapshotNo.$": "$.TemplateSnapshotNo",
+                        "--Depth.$": "$.DepthStructured",
+                        "--ExcludeKeywords.$": "$.ExcludeKeywords",
+                        "--IncludeKeywords.$": "$.IncludeKeywords",
+                        "--BaseTime.$": "$.BaseTime",
+                        "--DetectionThreshold.$": "$.DetectionThreshold",
+                        "--AdminAccountId.$": "$.AdminAccountId",
+                        "--AdminBucketName.$": "$.AdminBucketName",
+                        "--TableBegin.$": "$.TableBegin",
+                        "--TableEnd.$": "$.TableEnd",
+                        "--additional-python-modules.$": "$.AdditionalPythonModules",
+                        "--extra-py-files.$": "$.ExtraPyFiles"
+                      }
+                    },
+                    "End": true,
+                    "ResultPath": "$.StartJobRun",
+                    "Retry": [
+                      {
+                        "ErrorEquals": [
+                          "States.ALL"
+                        ],
+                        "BackoffRate": 2,
+                        "IntervalSeconds": 100,
+                        "MaxAttempts": 3
+                      }
+                    ]
+                  }
+                }
+              },
+              "Next": "Structured Job Succeeded",
+              "ItemsPath": "$.JobItems",
+              "OutputPath": "$.[0]"
+            },
+            "Structured Job Failed": {
+              "Type": "Pass",
+              "Result": {
+                "State": "Failed",
+                "Message": "The state of the crawler is not ready."
+              },
+              "ResultPath": "$.Result",
+              "End": true
+            },
+            "Structured Job Succeeded": {
+              "Type": "Pass",
+              "Result": {
+                "State": "Succeeded"
+              },
+              "ResultPath": "$.Result",
+              "End": true
+            },
+            "Wait": {
+              "Type": "Wait",
+              "Next": "GetCrawler2",
+              "SecondsPath": "$.LoopWait"
+            }
+          }
+        },
+        {
+          "StartAt": "NeedRunUnstructuredJob",
+          "States": {
+            "NeedRunUnstructuredJob": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.DatabaseType",
+                  "StringEquals": "s3",
+                  "Next": "UnstructuredCrawler"
+                }
+              ],
+              "Default": "Unstructured Job Succeeded"
+            },
+            "UnstructuredCrawler": {
+              "Type": "Task",
+              "Resource": "arn:${AWS::Partition}:states:::lambda:invoke",
+              "Parameters": {
+                "FunctionName": "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:SDPS-UnstructuredCrawler",
+                "Payload": {
+                  "SourceBucketName.$": "$.DatabaseName",
+                  "ResultBucketName.$": "$.AgentBucketName",
+                  "ScanDepth.$": "$.DepthUnstructured",
+                  "IncludeFileExtensions.$": "$.IncludeFileExtensions",
+                  "ExcludeFileExtensions.$": "$.ExcludeFileExtensions"
+                }
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                }
+              ],
+              "Next": "BuildProcessingJobParam",
+              "ResultPath": "$.RunCrawler"
+            },
+            "BuildProcessingJobParam": {
+              "Type": "Parallel",
+              "Next": "SageMaker CreateProcessingJob",
+              "Branches": [
+                {
+                  "StartAt": "SourceBucketNameKey",
+                  "States": {
+                    "SourceBucketNameKey": {
+                      "Type": "Pass",
+                      "End": true,
+                      "Result": "--SourceBucketName"
+                    }
+                  }
+                },
+                {
+                  "StartAt": "SourceBucketNameValue",
+                  "States": {
+                    "SourceBucketNameValue": {
+                      "Type": "Pass",
+                      "End": true,
+                      "InputPath": "$.DatabaseName"
+                    }
+                  }
+                },
+                {
+                  "StartAt": "ResultBucketNameKey",
+                  "States": {
+                    "ResultBucketNameKey": {
+                      "Type": "Pass",
+                      "End": true,
+                      "Result": "--ResultBucketName"
+                    }
+                  }
+                },
+                {
+                  "StartAt": "ResultBucketNameValue",
+                  "States": {
+                    "ResultBucketNameValue": {
+                      "Type": "Pass",
+                      "End": true,
+                      "InputPath": "$.AgentBucketName"
+                    }
+                  }
+                },
+                {
+                  "StartAt": "RegionNameKey",
+                  "States": {
+                    "RegionNameKey": {
+                      "Type": "Pass",
+                      "End": true,
+                      "Result": "--RegionName"
+                    }
+                  }
+                },
+                {
+                  "StartAt": "RegionNameValue",
+                  "States": {
+                    "RegionNameValue": {
+                      "Type": "Pass",
+                      "End": true,
+                      "InputPath": "$.Region"
+                    }
+                  }
+                }
+              ],
+              "ResultPath": "$.ProcessingJobParam"
+            },
+            "SageMaker CreateProcessingJob": {
+              "Type": "Task",
+              "Resource": "arn:${AWS::Partition}:states:::sagemaker:createProcessingJob.sync",
+              "Parameters": {
+                "AppSpecification": {
+                  "ContainerArguments.$": "$.ProcessingJobParam",
+                  "ContainerEntrypoint": [
+                    "python",
+                    "main.py"
+                  ],
+                  "ImageUri.$": "$.UnstructuredParserJobImageUri"
+                },
+                "ProcessingResources": {
+                  "ClusterConfig": {
+                    "InstanceCount": 1,
+                    "InstanceType": "ml.m5.2xlarge",
+                    "VolumeSizeInGB": 1
+                  }
+                },
+                "RoleArn.$": "$.UnstructuredParserJobRole",
+                "ProcessingJobName.$": "$.RunName"
+              },
+              "Next": "DescribeProcessingJob",
+              "ResultPath": "$.CreateProcessingJob"
+            },
+            "DescribeProcessingJob": {
+              "Type": "Task",
+              "Next": "Job Complete?",
+              "Parameters": {
+                "ProcessingJobName.$": "$.RunName"
+              },
+              "Resource": "arn:${AWS::Partition}:states:::aws-sdk:sagemaker:describeProcessingJob",
+              "ResultPath": "$.GetProcessingJob"
+            },
+            "Job Complete?": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.GetProcessingJob.ProcessingJobStatus",
+                  "StringEquals": "Completed",
+                  "Next": "SendUnstructuredSchemaMessage"
+                }
+              ],
+              "Default": "Unstructured Job Failed"
+            },
+            "SendUnstructuredSchemaMessage": {
+              "Type": "Task",
+              "Resource": "arn:${AWS::Partition}:states:::lambda:invoke",
+              "Parameters": {
+                "FunctionName": "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:SDPS-CrawlerTrigger:$LATEST",
+                "Payload": {
+                  "detail": {
+                    "accountId.$": "$.AccountId",
+                    "databaseType": "unstructured",
+                    "databaseName.$": "$.DatabaseName",
+                    "state": "Succeeded"
+                  },
+                  "region.$": "$.Region"
+                }
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                }
+              ],
+              "Next": "Glue StartJobRun2",
+              "ResultPath": "$.SendGlueSchemaMessage"
+            },
+            "Glue StartJobRun2": {
+              "Type": "Task",
+              "Resource": "arn:${AWS::Partition}:states:::glue:startJobRun.sync",
+              "Parameters": {
+                "JobName.$": "$.JobNameUnstructured",
+                "Arguments": {
+                  "--JobId.$": "$.JobId",
+                  "--RunId.$": "$.RunId",
+                  "--RunDatabaseId.$": "$.RunDatabaseId",
+                  "--AccountId.$": "$.AccountId",
+                  "--Region.$": "$.Region",
+                  "--DatabaseType.$": "$.DatabaseType",
+                  "--DatabaseName.$": "$.DatabaseName",
+                  "--TableName.$": "$.TableName",
+                  "--TemplateId.$": "$.TemplateId",
+                  "--TemplateSnapshotNo.$": "$.TemplateSnapshotNo",
+                  "--Depth.$": "$.DepthUnstructured",
+                  "--ExcludeKeywords.$": "$.ExcludeKeywords",
+                  "--IncludeKeywords.$": "$.IncludeKeywords",
+                  "--BaseTime.$": "$.BaseTime",
+                  "--DetectionThreshold.$": "$.DetectionThreshold",
+                  "--AdminAccountId.$": "$.AdminAccountId",
+                  "--AdminBucketName.$": "$.AdminBucketName",
+                  "--TableBegin": "-1",
+                  "--TableEnd": "-1",
+                  "--enable-glue-datacatalog": "true",
+                  "--additional-python-modules.$": "$.AdditionalPythonModules",
+                  "--extra-py-files.$": "$.ExtraPyFiles"
+                }
+              },
+              "Next": "Unstructured Job Succeeded",
+              "ResultPath": "$.StartJobRun"
+            },
+            "Unstructured Job Succeeded": {
+              "Type": "Pass",
+              "End": true,
+              "Result": {
+                "State": "Succeeded"
+              },
+              "ResultPath": "$.Result"
+            },
+            "Unstructured Job Failed": {
+              "Type": "Pass",
+              "ResultPath": "$.Result",
+              "Result": {
+                "State": "Failed",
+                "Message": "ProcessingJob is failed."
+              },
+              "End": true
+            }
+          }
         }
-      ]
+      ],
+      "Next": "Convert Data Format"
+    },
+    "Convert Data Format": {
+      "Type": "Pass",
+      "Parameters": {
+        "Structured.$": "$.[0]",
+        "Unstructured.$": "$.[1]"
+      },
+      "Next": "Choice"
     },
     "Choice": {
       "Type": "Choice",
       "Choices": [
         {
-          "Variable": "$.GetCrawler.Crawler.State",
-          "StringEquals": "READY",
-          "Next": "StartCrawler"
+          "Variable": "$.Unstructured.Result.State",
+          "StringEquals": "Failed",
+          "Next": "FilterUnstructuredResult"
         }
       ],
-      "Default": "Wait"
+      "Default": "FilterStructuredResult"
     },
-    "StartCrawler": {
-      "Type": "Task",
-      "Parameters": {
-        "Name.$": "$.CrawlerName"
-      },
-      "ResultPath": "$.StartCrawler",
-      "Resource": "arn:${AWS::Partition}:states:::aws-sdk:glue:startCrawler",
-      "Next": "Wait",
-      "Retry": [
-        {
-          "ErrorEquals": [
-            "States.ALL"
-          ],
-          "BackoffRate": 2,
-          "IntervalSeconds": 100,
-          "MaxAttempts": 3
-        }
-      ]
-    },
-    "GetCrawler2": {
-      "Type": "Task",
-      "Parameters": {
-        "Name.$": "$.CrawlerName"
-      },
-      "Resource": "arn:${AWS::Partition}:states:::aws-sdk:glue:getCrawler",
-      "Next": "Choice2",
-      "ResultPath": "$.GetCrawler",
-      "Retry": [
-        {
-          "ErrorEquals": [
-            "States.ALL"
-          ],
-          "BackoffRate": 2,
-          "IntervalSeconds": 100,
-          "MaxAttempts": 3
-        }
-      ]
-    },
-    "Choice2": {
-      "Type": "Choice",
-      "Choices": [
-        {
-          "Variable": "$.GetCrawler.Crawler.State",
-          "StringEquals": "READY",
-          "Next": "Lambda Invoke"
-        },
-        {
-          "Or": [
-            {
-              "Variable": "$.GetCrawler.Crawler.State",
-              "StringEquals": "FAILED"
-            },
-            {
-              "Variable": "$.GetCrawler.Crawler.State",
-              "StringEquals": "CANCELLED"
-            }
-          ],
-          "Next": "GetCrawlerFail"
-        }
-      ],
-      "Default": "Wait"
-    },
-    "Lambda Invoke": {
-      "Type": "Task",
-      "Resource": "arn:${AWS::Partition}:states:::lambda:invoke",
-      "OutputPath": "$.Payload",
-      "Parameters": {
-        "Payload.$": "$",
-        "FunctionName": "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:SDPS-SplitJob:$LATEST"
-      },
-      "Retry": [
-        {
-          "ErrorEquals": [
-            "Lambda.ServiceException",
-            "Lambda.AWSLambdaException",
-            "Lambda.SdkClientException",
-            "Lambda.TooManyRequestsException"
-          ],
-          "IntervalSeconds": 2,
-          "MaxAttempts": 6,
-          "BackoffRate": 2
-        }
-      ],
-      "Next": "Map"
-    },
-    "Map": {
-      "Type": "Map",
-      "ItemProcessor": {
-        "ProcessorConfig": {
-          "Mode": "INLINE"
-        },
-        "StartAt": "Glue StartJobRun",
-        "States": {
-          "Glue StartJobRun": {
-            "Type": "Task",
-            "Resource": "arn:${AWS::Partition}:states:::glue:startJobRun.sync",
-            "Parameters": {
-              "JobName.$": "$.JobName",
-              "Arguments": {
-                "--JobId.$": "$.JobId",
-                "--RunId.$": "$.RunId",
-                "--RunDatabaseId.$": "$.RunDatabaseId",
-                "--AccountId.$": "$.AccountId",
-                "--Region.$": "$.Region",
-                "--DatabaseType.$": "$.DatabaseType",
-                "--DatabaseName.$": "$.DatabaseName",
-                "--TableName.$": "$.TableName",
-                "--TemplateId.$": "$.TemplateId",
-                "--TemplateSnapshotNo.$": "$.TemplateSnapshotNo",
-                "--ExcludeKeywords.$": "$.ExcludeKeywords",
-                "--Depth.$": "$.Depth",
-                "--BaseTime.$": "$.BaseTime",
-                "--DetectionThreshold.$": "$.DetectionThreshold",
-                "--AdminAccountId.$": "$.AdminAccountId",
-                "--BucketName.$": "$.BucketName",
-                "--TableBegin.$": "$.TableBegin",
-                "--TableEnd.$": "$.TableEnd",
-                "--additional-python-modules.$": "$.AdditionalPythonModules"
-              }
-            },
-            "End": true,
-            "ResultPath": "$.StartJobRun",
-            "Retry": [
-              {
-                "ErrorEquals": [
-                  "States.ALL"
-                ],
-                "BackoffRate": 2,
-                "IntervalSeconds": 100,
-                "MaxAttempts": 3
-              }
-            ]
-          }
-        }
-      },
-      "Next": "SuccessPass",
-      "ItemsPath": "$.JobItems",
-      "OutputPath": "$.[0]"
-    },
-    "GetCrawlerFail": {
+    "FilterUnstructuredResult": {
       "Type": "Pass",
-      "Next": "SQS SendMessageFail",
-      "Result": {
-        "Status": "Failed",
-        "Message": "The state of the crawler is not ready."
-      },
-      "ResultPath": "$.Result"
-    },
-    "SQS SendMessageFail": {
-      "Type": "Task",
-      "Resource": "arn:${AWS::Partition}:states:::sqs:sendMessage",
-      "Parameters": {
-        "MessageBody.$": "$",
-        "QueueUrl.$": "$.QueueUrl"
-      },
-      "Next": "Fail"
-    },
-    "SuccessPass": {
-      "Type": "Pass",
-      "Result": {
-        "State": "Succeeded"
-      },
-      "ResultPath": "$.Result",
+      "OutputPath": "$.Unstructured",
       "Next": "SQS SendMessage"
     },
     "SQS SendMessage": {
@@ -211,13 +535,11 @@
       },
       "End": true
     },
-    "Wait": {
-      "Type": "Wait",
-      "Next": "GetCrawler2",
-      "SecondsPath": "$.LoopWait"
-    },
-    "Fail": {
-      "Type": "Fail"
+    "FilterStructuredResult": {
+      "Type": "Pass",
+      "OutputPath": "$.Structured",
+      "Next": "SQS SendMessage"
     }
-  }
+  },
+  "Comment": "Sensitive Data Protection on AWS (Version:@TEMPLATE_SOLUTION_VERSION@)"
 }

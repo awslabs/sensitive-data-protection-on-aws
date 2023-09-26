@@ -32,7 +32,7 @@ def sync_result(input_event):
         database_name = parts[2] if is_jdbc else parts[1]
     elif 'detail' in input_event and 'databaseName' in input_event['detail']:
         # glue database type
-        database_type = DatabaseType.GLUE_DATABASE.value
+        database_type = DatabaseType.GLUE.value
         database_name = input_event['detail']['databaseName']
 
     try:
@@ -64,7 +64,7 @@ def sync_result(input_event):
                 instance_id=database_name,
                 state=state
             )
-        elif database_type == DatabaseType.GLUE_DATABASE.value:
+        elif database_type == DatabaseType.GLUE.value:
             data_source_crud.update_custom_glue_database_count(
                 account=input_event['detail']['accountId'],
                 region=input_event['region'],

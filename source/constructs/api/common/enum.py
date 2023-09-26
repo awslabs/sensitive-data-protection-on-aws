@@ -156,13 +156,20 @@ class RunDatabaseState(Enum):
 
 
 @unique
+class RunTaskType(Enum):
+    STRUCTURED = "Structured"
+    UNSTRUCTURED = "Unstructured"
+
+
+@unique
 class DatabaseType(Enum):
     RDS = "rds"
     S3 = "s3"
     S3_UNSTRUCTURED = "unstructured"
+    GLUE = "glue"
     DDB = "ddb"
     EMR = "emr"
-    GLUE_DATABASE = "glue_database"
+    # GLUE_DATABASE = "glue_database"
     # JDBC is a virtual type
     JDBC = "jdbc"
     JDBC_AWS = "jdbc-aws"

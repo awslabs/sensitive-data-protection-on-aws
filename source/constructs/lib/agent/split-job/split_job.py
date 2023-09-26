@@ -9,14 +9,14 @@ logger = logging.getLogger('SplitJob')
 logger.setLevel(logging.INFO)
 
 
-def get_table_count(database_name, base_time):
+def get_table_count(glue_database_name, base_time):
     next_token = ""
     glue = boto3.client(service_name='glue')
     table_count = 0
     while True:
         response = glue.get_tables(
             # CatalogId=catalog_id, 
-            DatabaseName=database_name, 
+            DatabaseName=glue_database_name, 
             NextToken=next_token)
         for table in response['TableList']:
             if table['UpdateTime'] > base_time:
@@ -34,14 +34,13 @@ def divide_and_round_up(a, b):
 def get_job_number(event):
     if "JobNumber" in event:
         return event["JobNumber"]
-    if event['DatabaseType'] == "s3":
+    if event['DatabaseType'] == "s3" or event['DatabaseType'] == "glue":
         return 10
     return 3
 
 
 def lambda_handler(event, context):
     logger.info(event)
-    full_database_name=f"{event['DatabaseType']}-{event['DatabaseName']}-database"
     base_time = parse(event['BaseTime']).replace(tzinfo=pytz.timezone('UTC'))
     job_items = []
     if not(event.get('TableName') is None or event.get('TableName') == '' or event.get('TableName') == ','):
@@ -52,7 +51,7 @@ def lambda_handler(event, context):
         event["JobItems"]=job_items
         return event
         
-    table_count = get_table_count(full_database_name, base_time)
+    table_count = get_table_count(event['GlueDatabaseName'], base_time)
     if table_count == 0:
         event["JobItems"]=job_items
         return event

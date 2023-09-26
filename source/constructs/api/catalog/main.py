@@ -6,7 +6,7 @@ from common.query_condition import QueryCondition
 from fastapi_pagination import Page, Params
 from fastapi_pagination.ext.sqlalchemy import paginate
 from fastapi.responses import RedirectResponse
-from sample_service import gen_s3_temp_uri, split_s3_path
+from catalog.sample_service import gen_s3_temp_uri, split_s3_path
 from common.constant import const
 from common.enum import (
     CatalogDashboardAttribute

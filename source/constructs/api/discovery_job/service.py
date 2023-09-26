@@ -5,7 +5,7 @@ import logging
 import db.models_discovery_job as models
 from . import crud, schemas
 from common.exception_handler import BizException
-from common.enum import MessageEnum, JobState, RunState, RunDatabaseState, DatabaseType, AthenaQueryState
+from common.enum import MessageEnum, JobState, RunState, RunDatabaseState, RunTaskType, DatabaseType, AthenaQueryState
 from common.constant import const
 from common.query_condition import QueryCondition
 import traceback
@@ -14,6 +14,7 @@ import datetime, time
 from openpyxl import Workbook
 from tempfile import NamedTemporaryFile
 from catalog.service import sync_job_detection_result
+from tools.str_tool import is_empty
 
 logger = logging.getLogger(const.LOGGER_API)
 controller_function_name = os.getenv("ControllerFunctionName", f"{const.SOLUTION_NAME}-Controller")
@@ -28,6 +29,7 @@ sqs_job = boto3.resource('sqs')
 
 sql_result = "SELECT database_type,account_id,region,s3_bucket,s3_location,rds_instance_id,table_name,column_name,identifiers,sample_data FROM job_detection_output_table where run_id='%d' and privacy = 1"
 sql_error = "SELECT account_id,region,database_type,database_name,table_name,error_message FROM job_detection_error_table where run_id='%d'"
+extra_py_files = f"s3://{const.ADMIN_BUCKET_NAME_PREFIX}-{admin_account_id}-{admin_region}/job/script/job_extra_files.zip"
 
 
 def list_jobs(condition: QueryCondition):
@@ -213,7 +215,7 @@ def __start_run(job_id: int, run_id: int):
               "flatbuffers-23.3.3-py2.py3-none-any.whl",
               "coloredlogs-15.0.1-py2.py3-none-any.whl",
               "onnxruntime-1.13.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
-              "sdps_ner-0.9.0-py3-none-any.whl",
+              "sdpsner-1.0.0-py3-none-any.whl",
               ]
 
     account_loop_wait = {}
@@ -241,37 +243,63 @@ def __start_run(job_id: int, run_id: int):
             base_time = str(datetime.datetime.min)
             if job.range == 1 and run_database.base_time is not None:
                 base_time = mytime.format_time(run_database.base_time)
+            need_run_crawler = True
+            if run_database.database_type == DatabaseType.GLUE.value or not is_empty(run_database.table_name):
+                need_run_crawler = False
             crawler_name = run_database.database_type + "-" + run_database.database_name + "-crawler"
-            job_name = f"{const.SOLUTION_NAME}-Detection-Job-{run_database.database_type.upper()}-{run_database.database_name}"
+            glue_database_name = run_database.database_type + "-" + run_database.database_name + "-database"
+            if run_database.database_type == DatabaseType.GLUE.value:
+                glue_database_name = run_database.database_name
+            job_name_prefix = f"{const.SOLUTION_NAME}-{run_database.database_type.upper()}-{run_database.database_name}"
+            job_name_structured = f"{job_name_prefix}-{RunTaskType.STRUCTURED.value}"
+            job_name_unstructured = f"{job_name_prefix}-{RunTaskType.UNSTRUCTURED.value}"
+            run_name = f'{const.SOLUTION_NAME}-{run_id}-{run_database.id}-{run_database.uuid}'
+            agent_bucket_name = f"{const.AGENT_BUCKET_NAME_PREFIX}-{run_database.account_id}-{run_database.region}"
+            unstructured_parser_job_image_uri = f"{run_database.account_id}.dkr.ecr.{run_database.region}.amazonaws.com.cn/sdp_test_data_parser:latest"
+            unstructured_parser_job_role = f"arn:{partition}:iam::{run_database.account_id}:role/{const.SOLUTION_NAME}UnstructuredParserRole-{run_database.region}"
             execution_input = {
-                "JobName": job_name,
+                "RunName": run_name,
+                "JobNameStructured": job_name_structured,
+                "JobNameUnstructured": job_name_unstructured,
+                "NeedRunCrawler": need_run_crawler,
                 "CrawlerName": crawler_name,
-                "JobId": str(job.id),
+                "JobId": str(job.id),  # When calling Glue Job using StepFunction, the parameter must be of string type
                 "RunId": str(run_id),
                 "RunDatabaseId": str(run_database.id),
                 "AccountId": run_database.account_id,
                 "Region": run_database.region,
                 "DatabaseType": run_database.database_type,
                 "DatabaseName": run_database.database_name,
-                "TableName": job_placeholder if run_database.table_name == const.EMPTY_STR or run_database.table_name is None else run_database.table_name,
-                "TemplateId": str(job.template_id),
+                "GlueDatabaseName": glue_database_name,
+                "TableName": job_placeholder if is_empty(run_database.table_name) else run_database.table_name,
+                "TemplateId": str(run.template_id),
                 "TemplateSnapshotNo": str(run.template_snapshot_no),
-                "ExcludeKeywords": job_placeholder if run.exclude_keywords == const.EMPTY_STR or run.exclude_keywords is None else run.exclude_keywords,
-                "Depth": str(job.depth),
+                "DepthStructured": "100" if run.depth_structured is None else str(run.depth_structured),
+                "DepthUnstructured": "10" if run.depth_unstructured is None else str(run.depth_unstructured),
+                "ExcludeKeywords": job_placeholder if is_empty(run.exclude_keywords) else run.exclude_keywords,
+                "IncludeKeywords": job_placeholder if is_empty(run.include_keywords) else run.include_keywords,
+                "ExcludeFileExtensions": job_placeholder if is_empty(run.exclude_file_extensions) else run.exclude_file_extensions,
+                "IncludeFileExtensions": job_placeholder if is_empty(run.include_file_extensions) else run.include_file_extensions,
                 "BaseTime": base_time,
                 # "JobBookmarkOption": job_bookmark_option,
                 "DetectionThreshold": str(job.detection_threshold),
                 "OverWrite": str(job.overwrite),
+                "AgentBucketName": agent_bucket_name,
                 "AdminAccountId": admin_account_id,
-                "BucketName": project_bucket_name,
+                "AdminBucketName": project_bucket_name,
                 "AdditionalPythonModules": ','.join([module_path + w for w in wheels]),
+                "ExtraPyFiles": extra_py_files,
                 "FirstWait": str(account_first_wait[account_id]),
                 "LoopWait": str(account_loop_wait[account_id]),
                 "QueueUrl": f'https://sqs.{run_database.region}.amazonaws.com{url_suffix}/{admin_account_id}/{const.SOLUTION_NAME}-DiscoveryJob',
+                "UnstructuredParserJobImageUri": unstructured_parser_job_image_uri,
+                "UnstructuredParserJobRole": unstructured_parser_job_role,
             }
             run_database.start_time = mytime.get_time()
-            __create_job(run_database.database_type, run_database.account_id, run_database.region, run_database.database_name, job_name, False)
-            __exec_run(execution_input, run_database.uuid)
+            __create_job(run_database.database_type, run_database.account_id, run_database.region, run_database.database_name, job_name_structured, 'glue-job.py')
+            if run_database.database_type == DatabaseType.S3.value:
+                __create_job(run_database.database_type, run_database.account_id, run_database.region, run_database.database_name, job_name_unstructured, 'glue-job-unstructured.py')
+            __exec_run(execution_input)
             run_database.state = RunDatabaseState.RUNNING.value
         except Exception:
             msg = traceback.format_exc()
@@ -306,12 +334,12 @@ def __start_sample_run(job_id: int, run_id: int, table_name: str):
                 "--DatabaseType": run_database.database_type,
                 "--DatabaseName": run_database.database_name,
                 "--TableName": table_name,
-                "--Depth": str(job.depth),
+                "--Depth": str(job.depth_structured),
                 "--BaseTime": base_time,
                 "--BucketName": project_bucket_name,
             }
             run_database.start_time = mytime.get_time()
-            __create_job(run_database.database_type, run_database.account_id, run_database.region, run_database.database_name, job_name, True)
+            __create_job(run_database.database_type, run_database.account_id, run_database.region, run_database.database_name, job_name, 'glue-sample-job.py')
             __exec_sample_run(execution_input)
             run_database.state = RunDatabaseState.RUNNING.value
         except Exception as e:
@@ -324,10 +352,7 @@ def __start_sample_run(job_id: int, run_id: int, table_name: str):
     crud.save_run_databases(run_databases)
 
 
-def __create_job(database_type, account_id, region, database_name, job_name, sample_job: bool):
-    script_name = 'glue-job.py'
-    if sample_job:
-        script_name = 'glue-sample-job.py'
+def __create_job(database_type, account_id, region, database_name, job_name, script_name):
     client_sts = boto3.client('sts')
     assumed_role_object = client_sts.assume_role(
         RoleArn=f'arn:{partition}:iam::{account_id}:role/{const.SOLUTION_NAME}RoleForAdmin-{region}',
@@ -373,7 +398,7 @@ def __create_job(database_type, account_id, region, database_name, job_name, sam
                                    )
 
 
-def __exec_run(execution_input, current_uuid):
+def __exec_run(execution_input):
     client_sts = boto3.client('sts')
     assumed_role_object = client_sts.assume_role(
         RoleArn=f'arn:{partition}:iam::{execution_input["AccountId"]}:role/{const.SOLUTION_NAME}RoleForAdmin-{execution_input["Region"]}',
@@ -389,7 +414,7 @@ def __exec_run(execution_input, current_uuid):
                               )
     client_sfn.start_execution(
         stateMachineArn=f'arn:{partition}:states:{execution_input["Region"]}:{execution_input["AccountId"]}:stateMachine:{const.SOLUTION_NAME}-DiscoveryJob',
-        name=f'{const.SOLUTION_NAME}-{execution_input["RunId"]}-{execution_input["RunDatabaseId"]}-{current_uuid}',
+        name=execution_input["RunName"],
         input=json.dumps(execution_input),
     )
 
@@ -604,11 +629,14 @@ def __get_table_count_from_agent(run_database: models.DiscoveryJobRunDatabase):
                         aws_session_token=credentials['SessionToken'],
                         region_name=run_database.region,
                         )
+    glue_database_name = f'{run_database.database_type}-{run_database.database_name}-database'
+    if run_database.database_type == DatabaseType.GLUE.value:
+        glue_database_name = run_database.database_name
     next_token = ""
     count = 0
     while True:
         response = glue.get_tables(
-            DatabaseName=f'{run_database.database_type}-{run_database.database_name}-database',
+            DatabaseName=glue_database_name,
             NextToken=next_token)
         count += len(response['TableList'])
         next_token = response.get('NextToken')

@@ -126,7 +126,7 @@ def sync_crawler_result(
 ):
     rds_engine_type = const.NA
     # custom glue type will not use crawler, just syncing the catalog from existing glue tables
-    is_custom_glue = database_type == DatabaseType.GLUE_DATABASE.value
+    is_custom_glue = database_type == DatabaseType.GLUE.value
     if database_type == DatabaseType.RDS.value:
         rds_database = data_source_crud.get_rds_instance_source(
             account_id, region, database_name
@@ -219,7 +219,7 @@ def sync_crawler_result(
                     ]
                 elif database_type == DatabaseType.RDS.value:
                     table_classification = rds_engine_type
-                elif database_type == DatabaseType.GLUE_DATABASE.value:
+                elif database_type == DatabaseType.GLUE.value:
                     table_classification = rds_engine_type
                 elif database_type.startswith(DatabaseType.JDBC.value):
                     table_classification = jdbc_engine_type
@@ -333,7 +333,7 @@ def sync_crawler_result(
         elif database_type.startswith(DatabaseType.JDBC.value):
             data_source_crud.set_jdbc_instance_glue_state(account_id, region, database_name,
                                                                 ConnectionState.UNSUPPORTED.value)
-        elif database_type == DatabaseType.GLUE_DATABASE.value:
+        elif database_type == DatabaseType.GLUE.value:
             data_source_crud.set_custom_glue_glue_state(account_id, region, database_name,
                                                                 ConnectionState.UNSUPPORTED.value)
         original_database = crud.get_catalog_database_level_classification_by_name(account_id, region,
@@ -351,7 +351,7 @@ def sync_crawler_result(
             storage_location = rds_engine_type
         elif database_type.startswith(DatabaseType.JDBC.value):
             storage_location = rds_engine_type
-        elif database_type == DatabaseType.GLUE_DATABASE.value:
+        elif database_type == DatabaseType.GLUE.value:
             storage_location = const.NA
 
         catalog_database_dict = {
@@ -847,7 +847,7 @@ def get_table_property(table_id: str):
             result_list.append(["Rows", catalog_table.row_count])
             result_list.append(["S3Location", catalog_table.storage_location])
             result_list.append(["Tags", __get_s3_tagging(catalog_table.database_name, client)])
-        elif catalog_table.database_type == DatabaseType.RDS.value or catalog_table.database_type == DatabaseType.GLUE_DATABASE.value:
+        elif catalog_table.database_type == DatabaseType.RDS.value or catalog_table.database_type == DatabaseType.GLUE.value:
             response = client.describe_db_instances(DBInstanceIdentifier=catalog_table.database_name)
             if "DBInstances" in response and len(response["DBInstances"]) > 0:
                 instance_info = response["DBInstances"][0]
@@ -857,7 +857,7 @@ def get_table_property(table_id: str):
                 result_list.append(["Engine", instance_info["Engine"]])
             result_list.append(["Account", catalog_table.account_id])
             result_list.append(["Region", catalog_table.region])
-            glue_database_name = catalog_table.database_name if catalog_table.database_type == DatabaseType.GLUE_DATABASE.value else (
+            glue_database_name = catalog_table.database_name if catalog_table.database_type == DatabaseType.GLUE.value else (
                     catalog_table.database_type + "-" + catalog_table.database_name + "-" + GlueResourceNameSuffix.DATABASE.value
             )
 

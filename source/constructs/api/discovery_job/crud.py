@@ -141,11 +141,15 @@ def init_run(job_id: int) -> int:
         models.DiscoveryJobDatabase.job_id == job_id).all()
     base_time_dict = __build_base_time(job_databases)
     template_snapshot_no = get_template_snapshot_no(job.template_id)
-    exclude_keywords = job.exclude_keywords
     run = models.DiscoveryJobRun(job_id=job_id,
                                  template_id=job.template_id,
                                  template_snapshot_no=template_snapshot_no,
-                                 exclude_keywords=exclude_keywords,
+                                 depth_structured=job.depth_structured,
+                                 depth_unstructured=job.depth_unstructured,
+                                 exclude_keywords=job.exclude_keywords,
+                                 include_keywords=job.include_keywords,
+                                 exclude_file_extensions=job.exclude_file_extensions,
+                                 include_file_extensions=job.include_file_extensions,
                                  start_time=current_time,
                                  state=RunState.RUNNING.value)
     run.databases = []
