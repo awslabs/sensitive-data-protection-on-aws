@@ -1,17 +1,29 @@
 import { apiRequest } from 'tools/apiRequest';
 
 const queryRegions = async (params: any) => {
-  const result = await apiRequest('post', 'data-source/query-regions-by-provider', params);
+  const result = await apiRequest(
+    'post',
+    'data-source/query-regions-by-provider',
+    params
+  );
   return result;
 };
 
 const queryProviders = async () => {
-  const result = await apiRequest('post', 'data-source/query-full-provider-infos', '');
+  const result = await apiRequest(
+    'post',
+    'data-source/query-full-provider-infos',
+    ''
+  );
   return result;
 };
 
 const queryGlueConns = async (params: any) => {
-  const result = await apiRequest('post', 'data-source/query-glue-connections', params);
+  const result = await apiRequest(
+    'post',
+    'data-source/query-glue-connections',
+    params
+  );
   return result;
 };
 
@@ -24,8 +36,6 @@ const addGlueConn = async (params: any) => {
   const result = await apiRequest('post', 'data-source/add-jdbc-conn', params);
   return result;
 };
-
-
 
 // 分页获取DataSource S3列表
 const getDataSourceS3ByPage = async (params: any) => {
@@ -99,5 +109,5 @@ export {
   addGlueConn,
   queryRegions,
   queryProviders,
-  getSourceProviders
+  getSourceProviders,
 };

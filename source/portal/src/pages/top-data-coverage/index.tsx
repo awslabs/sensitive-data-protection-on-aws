@@ -5,24 +5,17 @@ import {
   Box,
   ColumnLayout,
   Container,
+  Grid,
   Header,
 } from '@cloudscape-design/components';
 import { CounterLink } from 'common/ConterLink';
 import { useTranslation } from 'react-i18next';
+import { identity } from 'lodash';
 
 const TopDataCoverage: React.FC<TopDataCoverageProps> = (
   props: TopDataCoverageProps
 ) => {
-  const {
-    header,
-    description,
-    leftChildHeader,
-    rightChildHeader,
-    leftChildData,
-    rightChildData,
-    leftChildTotal,
-    rightChildTotal,
-  } = props;
+  const { header, description, col, dataList } = props;
   const { t } = useTranslation();
 
   return (
@@ -33,17 +26,22 @@ const TopDataCoverage: React.FC<TopDataCoverageProps> = (
         </Header>
       }
     >
-      <ColumnLayout columns={2} variant="text-grid">
-        <div>
-          <Box variant="awsui-key-label">{leftChildHeader}</Box>
-          <CounterLink>{leftChildData || '-'}</CounterLink>{' '}
-          {leftChildTotal && `(${t('ofTotal')} ${leftChildTotal})`}
-        </div>
-        <div>
-          <Box variant="awsui-key-label">{rightChildHeader}</Box>
-          <CounterLink>{rightChildData || '-'}</CounterLink>{' '}
-          {rightChildTotal && `(${t('ofTotal')} ${rightChildTotal})`}
-        </div>
+      <ColumnLayout variant="text-grid">
+        <Grid
+          gridDefinition={Array(col ?? 2)
+            .fill(null)
+            .map(() => ({ colspan: 12 / (col ?? 2) }))}
+        >
+          {dataList?.map((element, index) => {
+            return (
+              <div key={identity(index)}>
+                <Box variant="awsui-key-label">{element.label}</Box>
+                <CounterLink>{element.value ?? 0}</CounterLink>{' '}
+                {element.total && `(${t('ofTotal')} ${element.total})`}
+              </div>
+            );
+          })}
+        </Grid>
       </ColumnLayout>
     </Container>
   );

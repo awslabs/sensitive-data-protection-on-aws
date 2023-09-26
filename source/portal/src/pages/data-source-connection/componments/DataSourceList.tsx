@@ -40,20 +40,23 @@ import {
   disconnectDataSourceRDS,
   disconnectDataSourceS3,
   getSecrets,
-  queryGlueConns,
-  testGlueConns,
-  addGlueConn,
-  queryRegions,
-  queryProviders
+  // queryGlueConns,
+  // testGlueConns,
+  // addGlueConn,
+  // queryRegions,
+  // queryProviders,
 } from 'apis/data-source/api';
 import { alertMsg, showHideSpinner } from 'tools/tools';
 import SourceBadge from './SourceBadge';
 import ErrorBadge from 'pages/error-badge';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { RouterEnum } from 'routers/routerEnum';
 
 const DataSourceList: React.FC<any> = memo((props: any) => {
   const { tagType, accountData } = props;
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const columnList =
     tagType === DATA_TYPE_ENUM.s3 ? S3_COLUMN_LIST : RDS_COLUMN_LIST;
   const [totalCount, setTotalCount] = useState(0);
@@ -330,6 +333,12 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
     }
   };
 
+  const clkAddSource = (type: string) => {
+    navigate(RouterEnum.AddJDBCConnection.path, {
+      state: { type: type },
+    });
+  };
+
   return (
     <>
       <Table
@@ -517,6 +526,9 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                       if (detail.id === 'connectAll') {
                         clkAllS3Connected();
                       }
+                      if (detail.id === 'addDataSource') {
+                        clkAddSource('jdbc');
+                      }
                     }}
                     items={[
                       {
@@ -529,6 +541,25 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                         id: 'connectAll',
                         disabled: tagType === DATA_TYPE_ENUM.rds,
                       },
+                      {
+                        text: 'Add data source',
+                        id: 'addDataSource',
+                        disabled:
+                          tagType !== DATA_TYPE_ENUM.jdbc &&
+                          tagType !== DATA_TYPE_ENUM.glue,
+                      },
+                      {
+                        text: 'Delete data source',
+                        id: 'deleteDataSource',
+                      },
+                      {
+                        text: 'Delete data catalog only',
+                        id: 'deleteCatalog',
+                      },
+                      {
+                        text: 'Disconnect & Delete catalog',
+                        id: 'disconnectAndDelete',
+                      },
                     ]}
                   >
                     {t('button.actions')}
@@ -536,10 +567,10 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                 </SpaceBetween>
               }
             >
-              {t((TABLE_HEADER as any)[tagType]['header'])}
+              {t((TABLE_HEADER as any)[tagType]?.['header'])}
             </Header>
             <div className="description">
-              {t((TABLE_HEADER as any)[tagType]['info'])}
+              {t((TABLE_HEADER as any)[tagType]?.['info'])}
             </div>
           </>
         }

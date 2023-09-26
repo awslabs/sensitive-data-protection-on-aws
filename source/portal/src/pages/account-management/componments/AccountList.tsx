@@ -25,8 +25,14 @@ import '../style.scss';
 import { refreshDataSource } from 'apis/data-source/api';
 import { alertMsg, useDidUpdateEffect } from 'tools/tools';
 import { useTranslation } from 'react-i18next';
+import { ProviderType } from 'common/ProviderTab';
 
-const AccountList: React.FC<any> = (props: any) => {
+interface AccountListProps {
+  setTotalAccount: (account: number) => void;
+  provider?: ProviderType;
+}
+
+const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
   const { setTotalAccount, provider } = props;
   const columnList = ACCOUNT_COLUMN_LIST;
   const navigate = useNavigate();
@@ -58,26 +64,32 @@ const AccountList: React.FC<any> = (props: any) => {
   };
 
   useEffect(() => {
-    console.log("useEffect-----------")
-    getPageData();
-  }, []);
+    if (provider) {
+      getPageData();
+    }
+  }, [provider]);
 
   useDidUpdateEffect(() => {
-    console.log("useDidUpdateEffect1-----------")
-    getPageData();
+    if (provider) {
+      getPageData();
+    }
   }, [currentPage, preferences.pageSize]);
 
   useDidUpdateEffect(() => {
-    console.log("useDidUpdateEffect2-----------")
-    setCurrentPage(1);
-    getPageData();
+    if (provider) {
+      if (currentPage !== 1) {
+        setCurrentPage(1);
+      } else {
+        getPageData();
+      }
+    }
   }, [query]);
 
   const refreshAllAccountData = async (accountData: any) => {
     try {
       // call refresh all account api
       const requestRefreshAccountParam = {
-        provider: provider,
+        provider: provider?.id,
         accounts: accountData?.map((element: any) => element.account_id),
         type: 'all',
       };
@@ -109,17 +121,13 @@ const AccountList: React.FC<any> = (props: any) => {
             operation: item.operator,
             condition: query.operation,
           });
-
-          
-
         });
-        requestParam.conditions.push({
-          column: 'account_provider_id',
-          values:[Number(provider)],
-          operation: '=',
-          condition: 'and',
-
-        });
+      requestParam.conditions.push({
+        column: 'account_provider_id',
+        values: [Number(provider?.id)],
+        operation: '=',
+        condition: 'and',
+      });
       const getAccountListresult: any = await getAccountList(requestParam);
       if (getAccountListresult?.items?.length > 0) {
         await refreshAllAccountData(getAccountListresult.items);
@@ -133,19 +141,18 @@ const AccountList: React.FC<any> = (props: any) => {
     } catch (error) {
       setIsLoading(false);
     }
-    return;
   };
 
   const clkAddNew = () => {
-    navigate(RouterEnum.AddAccount.path);
-    return;
+    navigate(RouterEnum.AddAccount.path, {
+      state: { provider: provider },
+    });
   };
 
   const clkAccountName = (e: any) => {
     navigate(RouterEnum.DataSourceConnection.path, {
       state: { accountData: e },
     });
-    return;
   };
 
   const clkRefreshDatasource = async (rowData: any) => {
@@ -174,7 +181,6 @@ const AccountList: React.FC<any> = (props: any) => {
     await deleteAccount(requestParam);
     alertMsg(t('account:deleteSuccess'), 'success');
     setDeleteLoading(false);
-    return;
   };
 
   return (

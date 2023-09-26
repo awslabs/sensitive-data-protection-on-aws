@@ -6,6 +6,8 @@ export const REGION_TYPE = {
 export const TAB_LIST = {
   S3: { label: 'Amazon S3', id: 's3' },
   RDS: { label: 'Amazon RDS', id: 'rds' },
+  GLUE: { label: 'Glue data catalogs', id: 'glue' },
+  JDBC: { label: 'Custom database (JDBC)', id: 'jdbc' },
   CN_NORTH1: { label: REGION_TYPE.CN_NORTH1, id: REGION_TYPE.CN_NORTH1 },
   CN_NORTHWEST1: {
     label: REGION_TYPE.CN_NORTHWEST1,
@@ -16,6 +18,8 @@ export const TAB_LIST = {
 export const DATA_TYPE_ENUM = {
   s3: 's3',
   rds: 'rds',
+  glue: 'glue',
+  jdbc: 'jdbc',
 };
 
 export const TABLE_NAME = {
