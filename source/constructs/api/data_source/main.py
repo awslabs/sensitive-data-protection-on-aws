@@ -36,7 +36,7 @@ def list_rds_instances(condition: QueryCondition):
 @router.post("/list-glue-database", response_model=BaseResponse[Page[schemas.JDBCInstanceSource]])
 @inject_session
 def list_glue_databases(condition: QueryCondition):
-    instances = service.list_glue_databases(condition)
+    instances = crud.list_glue_database(condition)
     if instances is None:
         return None
     return paginate(instances, Params(
@@ -114,14 +114,13 @@ def delete_glue_database(glueDatabase: schemas.SourceDeteteGlueDatabase):
         glueDatabase.name
     )
 
-# TODO
 @router.post("/sync-glue-database", response_model=BaseResponse)
 @inject_session
-def sync_glue_database(jdbc: schemas.SourceGlueDatabase):
+def sync_glue_database(glueDatabase: schemas.SourceGlueDatabase):
     return service.sync_glue_database(
-        jdbc.account_id,
-        jdbc.region,
-        jdbc.instance
+        glueDatabase.account_id,
+        glueDatabase.region,
+        glueDatabase.glue_database_name
     )
 
 @router.post("/delete-jdbc", response_model=BaseResponse)
@@ -134,23 +133,10 @@ def delete_jdbc_connection(jdbc: schemas.SourceDeteteJDBCConnection):
         jdbc.instance
     )
 
-# TODO
 @router.post("/sync-jdbc", response_model=BaseResponse)
 @inject_session
 def sync_jdbc_connection(jdbc: schemas.SourceJDBCConnection):
-    return service.sync_jdbc_connection(
-        jdbc.account_provider,
-        jdbc.account_id,
-        jdbc.region,
-        jdbc.instance,
-        jdbc.address,
-        jdbc.engine,
-        jdbc.port,
-        jdbc.username,
-        jdbc.password,
-        jdbc.secret
-    )
-
+    return service.sync_jdbc_connection(jdbc)
 
 @router.post("/refresh", response_model=BaseResponse)
 @inject_session
@@ -255,3 +241,8 @@ def query_full_provider_infos():
 @inject_session
 def list_providers():
     return service.list_providers()
+
+@router.post("/list-jdbc-schemas", response_model=BaseResponse)
+@inject_session
+def list_jdbc_schema(account_id: str):
+    return service.list_jdbc_schema(account_id)

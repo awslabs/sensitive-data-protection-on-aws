@@ -68,4 +68,4 @@ const.EXPORT_XLSX_MAX_LINES = 30000
 const.EXPORT_CSV_MAX_LINES = 60000
 const.EXPORT_S3_MARK_STR = "Amazon_S3"
 const.EXPORT_RDS_MARK_STR = "Amazon_RDS"
-
+const.SECURITY_GROUP_JDBC = "glue-jdbc-con"
