@@ -151,6 +151,7 @@ class RunDatabaseState(Enum):
 class DatabaseType(Enum):
     RDS = "rds"
     S3 = "s3"
+    S3_UNSTRUCTURED = "s3_unstructured"
     GLUE = "glue"
     DDB = "ddb"
     EMR = "emr"
