@@ -177,7 +177,12 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
       return;
     }
     setDeleteLoading(true);
-    const requestParam = { account_id: selectedItems[0].account_id };
+    console.log('selectedItems:', selectedItems);
+    const requestParam = {
+      account_id: selectedItems[0]?.account_id,
+      account_provider: provider?.id,
+      region: selectedItems[0]?.region,
+    };
     await deleteAccount(requestParam);
     alertMsg(t('account:deleteSuccess'), 'success');
     setDeleteLoading(false);
