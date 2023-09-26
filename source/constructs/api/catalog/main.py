@@ -6,7 +6,7 @@ from common.query_condition import QueryCondition
 from fastapi_pagination import Page, Params
 from fastapi_pagination.ext.sqlalchemy import paginate
 from fastapi.responses import RedirectResponse
-from catalog.sample_service import gen_s3_temp_uri, split_s3_path
+from catalog.sample_service import gen_s3_temp_uri
 from common.constant import const
 from common.enum import (
     CatalogDashboardAttribute
@@ -96,8 +96,8 @@ def gen_s3_presigned_url_by_table_id(table_id: str):
     catalog = crud.get_catalog_table_level_classification_by_id(table_id)
     if catalog:
         if catalog.storage_location:
-            bucket, key = catalog.split_s3_path(catalog.storage_location)
-            pre_url = gen_s3_temp_uri(bucket, key)
+            bucket_name, key = service.__get_s3_bucket_key_from_location(catalog.storage_location)
+            pre_url = gen_s3_temp_uri(bucket_name, key)
             return pre_url
     return ""
 
