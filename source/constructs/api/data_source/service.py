@@ -3,12 +3,13 @@ import logging
 import os
 import traceback
 from time import sleep
-import psycopg2
-import cx_Oracle
-   
+# import psycopg2
+# import cx_Oracle
+
 import boto3
 import pymysql
 
+import common.enum
 from catalog.service import delete_catalog_by_account_region as delete_catalog_by_account
 from catalog.service import delete_catalog_by_database_region as delete_catalog_by_database_region
 from common.constant import const
@@ -29,6 +30,7 @@ from .schemas import (AdminAccountInfo,
                       SourceResourceBase,
                       SourceCoverage,
                       SourceGlueDatabase,
+                      DataLocationInfo,
                       SourceJDBCConnection)
 
 SLEEP_TIME = 5
@@ -97,6 +99,7 @@ def build_s3_targets(bucket, credentials, region, is_init):
     logger.info("build_s3_targets")
     logger.info(s3_targets)
     return s3_targets
+
 
 def sync_s3_connection(account: str, region: str, bucket: str):
     glue_connection_name = f"s3-{bucket}-connection"
@@ -644,16 +647,16 @@ def sync(jdbc: SourceJDBCConnection):
 def list_jdbc_schema(account_id: str):
     schemas = []
     # postgreSQL
-    # conn = psycopg2.connect(database="数据库名", 
+    # conn = psycopg2.connect(database="数据库名",
     #                            user="数据库账号",
     #                            password="数据库密码",
-    #                            host="xx.xx.xx.xx", 
+    #                            host="xx.xx.xx.xx",
     #                            port="端口号")
     # mysql
-    conn = psycopg2.connect(host='81.70.179.114',
-                            port=9000,
-                            user='root',
-                            password='Temp123456!')
+    # conn = psycopg2.connect(host='81.70.179.114',
+    #                         port=9000,
+    #                         user='root',
+    #                         password='Temp123456!')
     # oracle
     # username="用户名"
     # userpwd="用户名密码"
@@ -662,21 +665,21 @@ def list_jdbc_schema(account_id: str):
     # dbname="数据库名称"
     # dsn=cx_Oracle.makedsn(host, port)
     # connection=cx_Oracle.connect(username, userpwd, dsn)
-    # cursor = connection.cursor()  
+    # cursor = connection.cursor()
 
-    try:
-        # 创建一个新的游标
-        cursor = conn.cursor()
-        # 执行SQL查询
-        cursor.execute("SHOW DATABASES")
-        # 获取所有的行
-        rows = cursor.fetchall()
-        for row in rows:
-            print(row[0])
-            schemas.append(row[0])
-    finally:
-        # 关闭连接
-        conn.close()
+    # try:
+    #     # 创建一个新的游标
+    #     cursor = conn.cursor()
+    #     # 执行SQL查询
+    #     cursor.execute("SHOW DATABASES")
+    #     # 获取所有的行
+    #     rows = cursor.fetchall()
+    #     for row in rows:
+    #         print(row[0])
+    #         schemas.append(row[0])
+    # finally:
+    #     # 关闭连接
+    #     conn.close()
     # credentials = gen_credentials(account_id)
     # logger.info(credentials)
     # glue_client = boto3.client('glue',
@@ -715,7 +718,7 @@ def before_delete_glue_database(provider, account, region, name):
     #                        MessageEnum.SOURCE_DELETE_WHEN_CONNECTING.get_msg())
     # elif state == ConnectionState.ACTIVE.value:
         # if job running, do not stop but raising
-    if not can_delete_job_database(account_id=account, region=region, database_type=DatabaseType.GLUE_DATABASE.value,
+    if not can_delete_job_database(account_id=account, region=region, database_type=DatabaseType.GLUE.value,
                                    database_name=name):
         raise BizException(MessageEnum.DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE.get_code(),
                            MessageEnum.DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE.get_msg())
@@ -753,17 +756,18 @@ def before_delete_jdbc_connection(provider_id, account, region, instance_id):
             raise BizException(MessageEnum.DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE.get_code(),
                                MessageEnum.DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE.get_msg())
 
+
 def delete_glue_database(provider_id: int, account: str, region: str, name: str):
     before_delete_glue_database(provider_id, account, region, name)
     err = []
     # 1/3 delete job database
     try:
-        delete_job_database(account_id=account, region=region, database_type=DatabaseType.GLUE_DATABASE.value, database_name=name)
+        delete_job_database(account_id=account, region=region, database_type=DatabaseType.GLUE.value, database_name=name)
     except Exception as e:
         err.append(str(e))
     # 2/3 delete catalog
     try:
-        delete_catalog_by_database_region(database=name, region=region, type=DatabaseType.GLUE_DATABASE.value)
+        delete_catalog_by_database_region(database=name, region=region, type=DatabaseType.GLUE.value)
     except Exception as e:
         err.append(str(e))
     # 3/3 delete source
@@ -1324,6 +1328,7 @@ def refresh_data_source(provider: str, accounts: list[str], type: str):
     else:
         pass
 
+
 def refresh_aws_data_source(accounts: list[str], type: str):
     if type is None or len(accounts) == 0:
         raise BizException(MessageEnum.SOURCE_REFRESH_FAILED.get_code(),
@@ -1334,7 +1339,7 @@ def refresh_aws_data_source(accounts: list[str], type: str):
 
         elif type == DataSourceType.rds.value:
             rds_detector.detect(accounts)
-        
+
         elif type == DataSourceType.glue_database.value:
             glue_database_detector.detect(accounts)
 
@@ -1442,6 +1447,7 @@ def add_account(account):
         add_aws_account(account.account_id)
     else:
         add_third_account(account)
+
 
 def add_aws_account(account_id: str):
     # Open this loop for multiple region support
@@ -1578,6 +1584,7 @@ def get_secrets(account: str, region: str):
             }
         )
     return secrets
+
 
 def get_admin_account_info():
     return AdminAccountInfo(account_id=_admin_account_id, region=_admin_account_region)
@@ -2007,6 +2014,44 @@ def test_glue_conn(account, connection):
         CatalogId=account,
         ConnectionName=connection
     )['ConnectionTest']['Status']
+
+
+def list_data_location():
+    res = []
+    provider_list = crud.list_distinct_provider()
+    for item in provider_list:
+        regions = crud.list_distinct_region_by_provider(item.id)
+        if not regions:
+            location = DataLocationInfo()
+            location.source = item.provider_name
+            location.region = None
+            location.coordinate = None
+            location.account_count = 0
+            res.append(location)
+            continue
+        for subItem in regions:
+            location = DataLocationInfo()
+            location.source = item.provider_name
+            location.region = subItem.region_name
+            location.coordinate = subItem.region_cord
+            accounts = crud.list_account_by_provider_and_region(item.id, subItem.region_name)
+            location.account_count = len(accounts)
+            res.append(location)
+    return res
+
+
+def list_data_provider():
+    return crud.query_provider_list()
+
+
+def list_data_source_type():
+    # enum_dict = {member.name: member.value for member in common.enum.DatabaseType}
+    # json_response = json.dumps(enum_dict)
+    #
+    data_source_type_mapping = {}
+    for index, db_type in enumerate(common.enum.DatabaseType, start=1):
+        data_source_type_mapping[db_type.name] = db_type.value
+    return data_source_type_mapping
 
 
 def query_regions_by_provider(provider_id: int):
