@@ -1039,6 +1039,8 @@ def fill_catalog_labels(catalogs):
         catalog.labels = []
         if catalog is None or catalog.label_ids is None or len(catalog.label_ids) <= 0:
             continue
+        if catalog.database_type == DatabaseType.S3_UNSTRUCTURED.value:
+            catalog.table_name = catalog.storage_location
         label_list = catalog.label_ids.split(',')
         label_id_list = list(map(int, label_list))
         labels = get_labels_by_id_list(label_id_list)
