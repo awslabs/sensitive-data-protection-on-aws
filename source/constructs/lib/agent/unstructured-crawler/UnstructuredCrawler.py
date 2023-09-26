@@ -4,6 +4,7 @@ import boto3
 import pathlib
 import random
 import datetime
+from tempfile import NamedTemporaryFile
 
 """
 sample_crawler_result = {
@@ -21,6 +22,7 @@ sample_crawler_result = {
 
 supported_text_types = [".doc", ".docx", ".pdf", ".eml", ".htm", ".html", ".txt", ".gz"]
 suported_image_types = [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".tif"]
+s3_client = boto3.client('s3')
 
 def extract_file_details(file_path: str):
     """
@@ -76,7 +78,7 @@ def postprocess_crawler_result(crawler_result, scan_depth):
             value["sample_files"] = random.sample(value["sample_files"], sample_size)
     return crawler_result
 
-def list_s3_objects(s3_client, bucket_name, scan_depth, include_file_extensions, exclude_file_extensions, prefix=''):
+def list_s3_objects(bucket_name, scan_depth, include_file_extensions, exclude_file_extensions, prefix=''):
     """
     Lists the objects in the s3 bucket and returns the crawler result.
     
@@ -124,9 +126,9 @@ def list_s3_objects(s3_client, bucket_name, scan_depth, include_file_extensions,
 
     return bucket_info
 
-def upload_bucket_info(s3_client, bucket_info, source_bucket_name, result_bucket_name, prefix=''):
+def upload_bucket_info(bucket_info, source_bucket_name, result_bucket_name, prefix=''):
     # dump json format content to a file and save to s3
-    json_file_path = '/tmp/json_file.json'
+    json_file_path = NamedTemporaryFile().name
     with open(json_file_path, 'w') as json_file:
         json.dump(bucket_info, json_file, ensure_ascii=False)
     s3_client.upload_file(json_file_path, result_bucket_name, f"{prefix}/{source_bucket_name}_info.json")
@@ -142,10 +144,10 @@ def lambda_handler(event, context):
     scan_depth = int(event['ScanDepth'])
     include_file_extensions = event['IncludeFileExtensions']
     exclude_file_extensions = event['ExcludeFileExtensions']
-    s3 = boto3.client('s3')
+    
 
-    bucket_info = list_s3_objects(s3, source_bucket_name, scan_depth, include_file_extensions, exclude_file_extensions)
-    upload_bucket_info(s3, bucket_info, source_bucket_name, result_bucket_name=result_bucket_name, prefix="crawler_results")
+    bucket_info = list_s3_objects(source_bucket_name, scan_depth, include_file_extensions, exclude_file_extensions)
+    upload_bucket_info(bucket_info, source_bucket_name, result_bucket_name=result_bucket_name, prefix="crawler_results")
 
 
     return {
