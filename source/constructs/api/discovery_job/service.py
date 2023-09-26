@@ -250,7 +250,7 @@ def __start_run(job_id: int, run_id: int):
             glue_database_name = run_database.database_type + "-" + run_database.database_name + "-database"
             if run_database.database_type == DatabaseType.GLUE.value:
                 glue_database_name = run_database.database_name
-            job_name_prefix = f"{const.SOLUTION_NAME}-Detection-Job-{run_database.database_type.upper()}-{run_database.database_name}"
+            job_name_prefix = f"{const.SOLUTION_NAME}-{run_database.database_type.upper()}-{run_database.database_name}"
             job_name_structured = f"{job_name_prefix}-{RunTaskType.STRUCTURED.value}"
             job_name_unstructured = f"{job_name_prefix}-{RunTaskType.UNSTRUCTURED.value}"
             run_name = f'{const.SOLUTION_NAME}-{run_id}-{run_database.id}-{run_database.uuid}'
@@ -629,11 +629,14 @@ def __get_table_count_from_agent(run_database: models.DiscoveryJobRunDatabase):
                         aws_session_token=credentials['SessionToken'],
                         region_name=run_database.region,
                         )
+    glue_database_name = f'{run_database.database_type}-{run_database.database_name}-database'
+    if run_database.database_type == DatabaseType.GLUE.value:
+        glue_database_name = run_database.database_name
     next_token = ""
     count = 0
     while True:
         response = glue.get_tables(
-            DatabaseName=f'{run_database.database_type}-{run_database.database_name}-database',
+            DatabaseName=glue_database_name,
             NextToken=next_token)
         count += len(response['TableList'])
         next_token = response.get('NextToken')

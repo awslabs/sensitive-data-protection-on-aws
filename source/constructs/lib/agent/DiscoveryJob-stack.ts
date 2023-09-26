@@ -164,6 +164,7 @@ export class DiscoveryJobStack extends Construct {
           actions: [
             'sagemaker:CreateProcessingJob',
             'sagemaker:DescribeProcessingJob',
+            'sagemaker:AddTags',
             'lambda:InvokeFunction',
             'states:StartExecution',
             'states:DescribeExecution',

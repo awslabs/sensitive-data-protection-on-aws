@@ -373,7 +373,7 @@
             },
             "SageMaker CreateProcessingJob": {
               "Type": "Task",
-              "Resource": "arn:${AWS::Partition}:states:::sagemaker:createProcessingJob",
+              "Resource": "arn:${AWS::Partition}:states:::sagemaker:createProcessingJob.sync",
               "Parameters": {
                 "AppSpecification": {
                   "ContainerArguments.$": "$.ProcessingJobParam",
@@ -393,13 +393,8 @@
                 "RoleArn.$": "$.UnstructuredParserJobRole",
                 "ProcessingJobName.$": "$.RunName"
               },
-              "Next": "Wait X Seconds",
-              "ResultPath": "$.CreateProcessingJob"
-            },
-            "Wait X Seconds": {
-              "Type": "Wait",
               "Next": "DescribeProcessingJob",
-              "Seconds": 30
+              "ResultPath": "$.CreateProcessingJob"
             },
             "DescribeProcessingJob": {
               "Type": "Task",
@@ -415,16 +410,11 @@
               "Choices": [
                 {
                   "Variable": "$.GetProcessingJob.ProcessingJobStatus",
-                  "StringEquals": "Failed",
-                  "Next": "Unstructured Job Failed"
-                },
-                {
-                  "Variable": "$.GetProcessingJob.ProcessingJobStatus",
                   "StringEquals": "Completed",
                   "Next": "SendUnstructuredSchemaMessage"
                 }
               ],
-              "Default": "Wait X Seconds"
+              "Default": "Unstructured Job Failed"
             },
             "SendUnstructuredSchemaMessage": {
               "Type": "Task",
