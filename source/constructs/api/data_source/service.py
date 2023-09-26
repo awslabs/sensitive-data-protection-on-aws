@@ -1892,7 +1892,7 @@ def __assume_role(account_id: str, role_arn: str):
 
 def __list_rds_schema(account, region, credentials, instance_name, payload, rds_security_groups, rds_subnet_id):
     logger.info("__list_rds_schema")
-    function_name = f"func-{instance_name[0:50]}"
+    function_name = f"{const.SOLUTION_NAME}-{instance_name[0:50]}"
     schema_path = []
     lambda_ = boto3.client(
         'lambda',

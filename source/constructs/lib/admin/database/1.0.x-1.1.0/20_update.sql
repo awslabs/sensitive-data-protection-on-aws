@@ -162,3 +162,18 @@ INSERT INTO template_identifier (description, type, name, create_by) VALUES ('Fa
 INSERT INTO template_identifier (description, type, name, create_by) VALUES ('Business license identifier for image detecting (Built-in)',3,'Business License','SDPS');
 INSERT INTO template_identifier (description, type, name, create_by) VALUES ('Car license identifier for image detecting (Built-in)',3,'Car_License','SDPS');
 INSERT INTO template_identifier (description, type, name, create_by) VALUES ('ID card identifier for image detecting (Built-in)',3,'ID_Card','SDPS');
+
+
+-- discovery job
+alter table discovery_job add depth_structured int null after `range`;
+alter table discovery_job add depth_unstructured int null after depth_structured;
+update discovery_job set depth_structured = depth;
+alter table discovery_job add include_keywords varchar(1000) null after exclude_keywords;
+alter table discovery_job add exclude_file_extensions varchar(200) null after include_keywords;
+alter table discovery_job add include_file_extensions varchar(200) null after exclude_file_extensions;
+
+alter table discovery_job_run add depth_structured int null after template_snapshot_no;
+alter table discovery_job_run add depth_unstructured int null after depth_structured;
+alter table discovery_job_run add include_keywords varchar(1000) null after exclude_keywords;
+alter table discovery_job_run add exclude_file_extensions varchar(200) null after include_keywords;
+alter table discovery_job_run add include_file_extensions varchar(200) null after exclude_file_extensions;

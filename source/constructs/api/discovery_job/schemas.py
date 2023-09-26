@@ -124,7 +124,8 @@ class DiscoveryJobBase(BaseModel):
     schedule: str = "cron(0 12 * * ? *)"
     description: Optional[str]
     range: int = 1
-    depth: int = 1000
+    depth_structured: int = 100
+    depth_unstructured: Optional[int] = 10
     detection_threshold: Optional[float] = 0.2
     all_s3: Optional[int]
     all_rds: Optional[int]
@@ -132,6 +133,9 @@ class DiscoveryJobBase(BaseModel):
     all_emr: Optional[int]
     overwrite: Optional[int]
     exclude_keywords: Optional[str]
+    include_keywords: Optional[str]
+    exclude_file_extensions: Optional[str]
+    include_file_extensions: Optional[str]
 
 
 class DiscoveryJobCreate(DiscoveryJobBase):
@@ -144,7 +148,7 @@ class DiscoveryJobUpdate(DiscoveryJobBase):
     schedule: Optional[str] = "cron(0 12 * * ? *)"
     description: Optional[str]
     range: Optional[int] = 1
-    depth: Optional[int] = 100
+    depth_structured: Optional[int] = 100
     detection_threshold: Optional[float] = 0.2
 
 
