@@ -3,8 +3,8 @@ import logging
 import os
 import traceback
 from time import sleep
-import psycopg2
-import cx_Oracle
+# import psycopg2
+# import cx_Oracle
 
 import boto3
 import pymysql
@@ -653,10 +653,10 @@ def list_jdbc_schema(account_id: str):
     #                            host="xx.xx.xx.xx",
     #                            port="端口号")
     # mysql
-    conn = psycopg2.connect(host='81.70.179.114',
-                            port=9000,
-                            user='root',
-                            password='Temp123456!')
+    # conn = psycopg2.connect(host='81.70.179.114',
+    #                         port=9000,
+    #                         user='root',
+    #                         password='Temp123456!')
     # oracle
     # username="用户名"
     # userpwd="用户名密码"
@@ -667,19 +667,19 @@ def list_jdbc_schema(account_id: str):
     # connection=cx_Oracle.connect(username, userpwd, dsn)
     # cursor = connection.cursor()
 
-    try:
-        # 创建一个新的游标
-        cursor = conn.cursor()
-        # 执行SQL查询
-        cursor.execute("SHOW DATABASES")
-        # 获取所有的行
-        rows = cursor.fetchall()
-        for row in rows:
-            print(row[0])
-            schemas.append(row[0])
-    finally:
-        # 关闭连接
-        conn.close()
+    # try:
+    #     # 创建一个新的游标
+    #     cursor = conn.cursor()
+    #     # 执行SQL查询
+    #     cursor.execute("SHOW DATABASES")
+    #     # 获取所有的行
+    #     rows = cursor.fetchall()
+    #     for row in rows:
+    #         print(row[0])
+    #         schemas.append(row[0])
+    # finally:
+    #     # 关闭连接
+    #     conn.close()
     # credentials = gen_credentials(account_id)
     # logger.info(credentials)
     # glue_client = boto3.client('glue',
