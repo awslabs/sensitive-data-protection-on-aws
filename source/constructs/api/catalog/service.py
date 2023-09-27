@@ -198,6 +198,11 @@ def sync_crawler_result(
                     table_size_key = int(
                         table["StorageDescriptor"]["Parameters"]["sizeKey"]
                     )
+                # TODO save
+                if "SerdeInfo" in table["StorageDescriptor"]:
+                    logger.info(table["StorageDescriptor"]["SerdeInfo"])
+                if "TableProperties" in table:
+                    logger.info(table["TableProperties"])
                 # Delete empty table when Glue crawler not supported the S3 file type
                 # s3 can return directly ,but rds cannot
                 if (database_type == DatabaseType.S3.value or database_type == DatabaseType.S3_UNSTRUCTURED.value) and table_size_key == 0:
