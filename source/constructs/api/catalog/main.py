@@ -332,7 +332,7 @@ def agg_catalog_summary_by_region(database_type: str):
 
 @router.get("/dashboard/agg-catalog-summay-by-provider-region", response_model=BaseResponse)
 @inject_session
-def get_catalog_summay_by_provider_region(provider_id: str, region: str):
+def get_catalog_summay_by_provider_region(provider_id: int, region: str):
     return service_dashboard.get_catalog_summay_by_provider_region(provider_id, region)
 
 

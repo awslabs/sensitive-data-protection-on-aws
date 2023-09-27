@@ -958,5 +958,5 @@ def get_export_catalog_data():
                                                                  models.CatalogColumnLevelClassification.comments).all()
 
 
-def get_catalog_summay_by_provider_region(provider_id, region):
+def get_catalog_summay_by_provider_region(provider_id: int, region: str):
     return None

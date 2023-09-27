@@ -100,7 +100,7 @@ def agg_catalog_summary_by_attr(database_type: str,  agg_attribute: str, need_me
     return result_list
 
 
-def get_catalog_summay_by_provider_region(provider_id, region):
+def get_catalog_summay_by_provider_region(provider_id: int, region: str):
     return crud.get_catalog_summay_by_provider_region(provider_id, region)
 
 
