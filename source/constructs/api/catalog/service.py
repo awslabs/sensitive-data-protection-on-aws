@@ -9,6 +9,7 @@ import label.crud
 from . import crud, schemas
 from zipfile import ZipFile
 from data_source import crud as data_source_crud
+from data_source.service import convert_database_type_provider
 import time
 from time import sleep
 from common.constant import const
@@ -137,21 +138,22 @@ def sync_crawler_result(
             rds_engine_type = rds_database.engine
     
     if database_type.startswith(DatabaseType.JDBC.value):
+        provider_id = convert_database_type_provider(database_type)
         jdbc_database = data_source_crud.get_jdbc_instance_source(
-            account_id, region, database_name
+            provider_id, account_id, region, database_name
         )
         if jdbc_database:
             jdbc_engine_type = jdbc_database.engine
 
     glue_client = get_boto3_client(account_id, region, "glue")
     glue_database_name = database_name if is_custom_glue else (
-        database_type + "-" + database_name + "-" + GlueResourceNameSuffix.DATABASE.value
+        const.SOLUTION_NAME + "-" + database_type + "-" + database_name
     )
     if is_custom_glue:
         crawler_last_run_status = GlueCrawlerState.SUCCEEDED.value
     else:
         glue_crawler_name = (
-            database_type + "-" + database_name + "-" + GlueResourceNameSuffix.CRAWLER.value
+            const.SOLUTION_NAME + "-" + database_type + "-" + database_name
         )
         crawler_response = glue_client.get_crawler(Name=glue_crawler_name)
         state = crawler_response["Crawler"]["State"]

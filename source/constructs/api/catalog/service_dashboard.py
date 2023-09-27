@@ -80,12 +80,17 @@ def agg_catalog_summay(database_type: str):
 
 def agg_catalog_summary_by_attr(database_type: str,  agg_attribute: str, need_merge: bool):
     result_list = []
-    if database_type == DatabaseType.S3.value:
-        attr_rows = crud.get_s3_database_summary_with_attr(agg_attribute, need_merge)
+    if database_type == DatabaseType.S3.value or database_type == DatabaseType.S3_UNSTRUCTURED.value:
+        attr_rows = crud.get_s3_database_summary_with_attr(database_type, agg_attribute, need_merge)
         return attr_rows
 
-    elif database_type == DatabaseType.RDS.value:
-        attr_rows = crud.get_rds_database_summary_with_attr(agg_attribute, need_merge)
+    elif database_type == DatabaseType.RDS.value \
+            or database_type == DatabaseType.GLUE.value \
+            or database_type == DatabaseType.JDBC.value \
+            or database_type == DatabaseType.JDBC.value \
+            or database_type == DatabaseType.JDBC_ALIYUN.value \
+            or database_type == DatabaseType.JDBC_AWS.value:
+        attr_rows = crud.get_rds_database_summary_with_attr(database_type, agg_attribute, need_merge)
         return attr_rows
     else: 
         raise BizException(
@@ -93,6 +98,23 @@ def agg_catalog_summary_by_attr(database_type: str,  agg_attribute: str, need_me
             MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_msg(),
         )
     return result_list
+
+
+def get_catalog_summay_by_provider_region(provider_id, region):
+    return (get_session()
+     .query(getattr(models.CatalogDatabaseLevelClassification, attribute),
+            func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label(
+                "instance_total"),
+            func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label(
+                "database_total"),
+            func.sum(models.CatalogDatabaseLevelClassification.table_count).label("table_total"),
+            func.sum(models.CatalogDatabaseLevelClassification.column_count).label("row_total"))
+     .filter(models.CatalogDatabaseLevelClassification.database_type == database_type)
+     .group_by(getattr(models.CatalogDatabaseLevelClassification, attribute))
+     .all()
+     )
+
+    return None
 
 
 def __get_top_n_count(data_dict: dict, n: int):
@@ -177,7 +199,7 @@ def agg_catalog_summary_by_modifier(database_type: str):
             MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_msg(),
         )
     
-    attr_rows = crud.get_s3_database_summary_with_attr("modify_by", False) if database_type == DatabaseType.S3.value else crud.get_rds_database_summary_with_attr("modify_by", False)
+    attr_rows = crud.get_s3_database_summary_with_attr(database_type, "modify_by", False) if (database_type == DatabaseType.S3.value or database_type == DatabaseType.S3_UNSTRUCTURED.value) else crud.get_rds_database_summary_with_attr(database_type, "modify_by", False)
     result_dict = {}
     for row in attr_rows:
         modifier = CatalogModifier.SYSTEM.value

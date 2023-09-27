@@ -2026,36 +2026,28 @@ def list_data_location():
     for item in provider_list:
         regions = crud.list_distinct_region_by_provider(item.id)
         if not regions:
-            location = DataLocationInfo()
-            location.source = item.provider_name
-            location.region = None
-            location.coordinate = None
-            location.account_count = 0
-            res.append(location)
+            # location = DataLocationInfo()
+            # location.source = item.provider_name
+            # location.region = None
+            # location.coordinate = None
+            # location.account_count = 0
+            # res.append(location)
             continue
         for subItem in regions:
-            location = DataLocationInfo()
-            location.source = item.provider_name
-            location.region = subItem.region_name
-            location.coordinate = subItem.region_cord
             accounts = crud.list_account_by_provider_and_region(item.id, subItem.region_name)
+            if len(accounts) == 0:
+                continue
+            # TODO filter logic
+            location = DataLocationInfo()
             location.account_count = len(accounts)
+            location.source = item.provider_name
+            location.region = subItem.region_cord
+            location.coordinate = subItem.region_cord
+            location.region_alias = subItem.region_alias
+            location.provider_id = item.id
+            location.provider_name = item.provider_name
             res.append(location)
     return res
-
-
-def list_data_provider():
-    return crud.query_provider_list()
-
-
-def list_data_source_type():
-    # enum_dict = {member.name: member.value for member in common.enum.DatabaseType}
-    # json_response = json.dumps(enum_dict)
-    #
-    data_source_type_mapping = {}
-    for index, db_type in enumerate(common.enum.DatabaseType, start=1):
-        data_source_type_mapping[db_type.name] = db_type.value
-    return data_source_type_mapping
 
 
 def query_regions_by_provider(provider_id: int):
@@ -2133,3 +2125,27 @@ def grant_lake_formation_permission(credentials, crawler_role_arn, glue_database
             break
     else:
         raise Exception('UNCONNECTED')
+
+
+def convert_database_type_provider(database_type):
+
+    if database_type == DatabaseType.RDS.value:
+        return const.AWS_PID
+    if database_type == DatabaseType.S3.value:
+        return const.AWS_PID
+    if database_type == DatabaseType.S3_UNSTRUCTURED.value:
+        return const.AWS_PID
+    if database_type == DatabaseType.GLUE.value:
+        return const.AWS_PID
+    if database_type == DatabaseType.DDB.value:
+        return const.AWS_PID
+    if database_type == DatabaseType.EMR.value:
+        return const.AWS_PID
+    if database_type == DatabaseType.JDBC.value:
+        return const.AWS_PID
+    if database_type == DatabaseType.JDBC_AWS.value:
+        return const.AWS_PID
+    if database_type == DatabaseType.JDBC_ALIYUN.value:
+        return const.ALI_PID
+    if database_type == DatabaseType.JDBC_TENCENT.value:
+        return const.TENCENT_PID

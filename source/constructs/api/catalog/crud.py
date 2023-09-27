@@ -670,7 +670,7 @@ def get_s3_database_summary_with_region():
     )
 
 
-def get_rds_database_summary_with_attr(attribute: str, need_merge: bool):
+def get_rds_database_summary_with_attr(database_type, attribute: str, need_merge: bool):
     if need_merge:
         database_list = (get_session()
                          .query(getattr(models.CatalogDatabaseLevelClassification, attribute),
@@ -679,7 +679,7 @@ def get_rds_database_summary_with_attr(attribute: str, need_merge: bool):
                                 func.sum(models.CatalogDatabaseLevelClassification.object_count).label("object_total"),
                                 func.sum(models.CatalogDatabaseLevelClassification.size_key).label("size_total"),
                                 func.sum(models.CatalogDatabaseLevelClassification.table_count).label("table_total"))
-                         .filter(models.CatalogDatabaseLevelClassification.database_type == DatabaseType.RDS.value)
+                         .filter(models.CatalogDatabaseLevelClassification.database_type == database_type)
                          .group_by(getattr(models.CatalogDatabaseLevelClassification, attribute))
                          .all()
                          )
@@ -736,13 +736,13 @@ def get_rds_database_summary_with_attr(attribute: str, need_merge: bool):
                            "database_total"),
                        func.sum(models.CatalogDatabaseLevelClassification.table_count).label("table_total"),
                        func.sum(models.CatalogDatabaseLevelClassification.column_count).label("row_total"))
-                .filter(models.CatalogDatabaseLevelClassification.database_type == DatabaseType.RDS.value)
+                .filter(models.CatalogDatabaseLevelClassification.database_type == database_type)
                 .group_by(getattr(models.CatalogDatabaseLevelClassification, attribute))
                 .all()
                 )
 
 
-def get_s3_database_summary_with_attr(attribute: str, need_merge: bool):
+def get_s3_database_summary_with_attr(database_type, attribute: str, need_merge: bool):
     if need_merge:
         database_list = (get_session()
                          .query(getattr(models.CatalogDatabaseLevelClassification, attribute),
@@ -751,7 +751,7 @@ def get_s3_database_summary_with_attr(attribute: str, need_merge: bool):
                                 func.sum(models.CatalogDatabaseLevelClassification.object_count).label("object_total"),
                                 func.sum(models.CatalogDatabaseLevelClassification.size_key).label("size_total"),
                                 func.sum(models.CatalogDatabaseLevelClassification.table_count).label("table_total"))
-                         .filter(models.CatalogDatabaseLevelClassification.database_type == DatabaseType.S3.value)
+                         .filter(models.CatalogDatabaseLevelClassification.database_type.in_([DatabaseType.S3.value, DatabaseType.S3_UNSTRUCTURED.value]))
                          .group_by(getattr(models.CatalogDatabaseLevelClassification, attribute))
                          .all()
                          )
@@ -804,7 +804,7 @@ def get_s3_database_summary_with_attr(attribute: str, need_merge: bool):
                        func.sum(models.CatalogDatabaseLevelClassification.object_count).label("object_total"),
                        func.sum(models.CatalogDatabaseLevelClassification.size_key).label("size_total"),
                        func.sum(models.CatalogDatabaseLevelClassification.table_count).label("table_total"))
-                .filter(models.CatalogDatabaseLevelClassification.database_type == DatabaseType.S3.value)
+                .filter(models.CatalogDatabaseLevelClassification.database_type == database_type)
                 .group_by(getattr(models.CatalogDatabaseLevelClassification, attribute))
                 .all()
                 )

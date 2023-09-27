@@ -330,6 +330,12 @@ def agg_catalog_summary_by_region(database_type: str):
     return service_dashboard.agg_catalog_summary_by_attr(database_type, CatalogDashboardAttribute.REGION.value, False)
 
 
+@router.get("/dashboard/agg-catalog-summay-by-provider-region", response_model=BaseResponse)
+@inject_session
+def get_catalog_summay_by_provider_region(provider_id: str, region: str):
+    return service_dashboard.get_catalog_summay_by_provider_region(provider_id, region)
+
+
 @router.get("/dashboard/agg-catalog-summay-by-privacy", response_model=BaseResponse)
 @inject_session
 def agg_catalog_summary_by_privacy(database_type: str):
