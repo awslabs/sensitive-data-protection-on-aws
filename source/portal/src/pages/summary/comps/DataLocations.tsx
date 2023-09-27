@@ -2,7 +2,6 @@ import { Box, Grid, Table } from '@cloudscape-design/components';
 import React, { useEffect, useState } from 'react';
 import MapChart, { CoordinateType } from './charts/items/MapChart';
 import { useTranslation } from 'react-i18next';
-import TableData from './charts/items/TableData';
 import {
   getCatalogSummaryByRegion,
   getSummaryAccountData,
@@ -13,6 +12,8 @@ type SummaryDataType = {
   source: string;
   region: string;
   account_count: number;
+  region_name: string;
+  provider_id: number;
   coordinate: string;
 };
 
@@ -29,10 +30,6 @@ const DataLocations = () => {
       database_type: 's3',
     });
     const resDataAsType = res as IRegionDataType[];
-    const hadDataRegions = resDataAsType.map((element) => element.region);
-    // setMarkers((prev) => {
-    //   return prev.filter((element) => hadDataRegions.includes(element.region));
-    // });
     setResRegionData(resDataAsType);
     setLoadingData(false);
   };
@@ -44,7 +41,24 @@ const DataLocations = () => {
   const getSourceTableData = async () => {
     const result = await getSummaryAccountData();
     console.info('result:', result);
-    setDataList(result as SummaryDataType[]);
+    const resData = result as SummaryDataType[];
+    if (resData && resData.length > 0) {
+      const tmpCoordList: CoordinateType[] = [];
+      resData.forEach((element) => {
+        if (element.coordinate) {
+          tmpCoordList.push({
+            markerOffset: 25,
+            name: `${element.region_name ?? ''}(${element.region})`,
+            region: element.region,
+            coordinates: element.coordinate
+              ?.split(',')
+              .map((str) => parseFloat(str.trim())),
+          });
+        }
+      });
+      setMarkers(tmpCoordList);
+    }
+    setDataList(resData);
   };
 
   useEffect(() => {

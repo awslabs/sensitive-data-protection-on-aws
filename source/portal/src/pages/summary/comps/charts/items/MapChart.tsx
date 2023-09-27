@@ -10,7 +10,7 @@ export type CoordinateType = {
   markerOffset: number;
   name: string;
   region: string;
-  coordinates: [number, number];
+  coordinates: number[];
 };
 
 interface MapChartProps {
@@ -42,6 +42,8 @@ const MapChart: React.FC<MapChartProps> = (props: MapChartProps) => {
     totalTables: 0,
     totalColums: 0,
   });
+
+  console.info('markers:', markers);
 
   return (
     <div className="dashboard-map">

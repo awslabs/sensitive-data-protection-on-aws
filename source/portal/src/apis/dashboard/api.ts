@@ -103,32 +103,6 @@ const getSummaryAccountData = async () => {
   return result;
 };
 
-/**
- * get dashboard summary providers
- * @returns
- */
-const getSummaryProviderList = async () => {
-  const result = await apiRequest(
-    'get',
-    'data-source/dashboard/agg-data-provider-list',
-    {}
-  );
-  return result;
-};
-
-/**
- * get dashboard source type list
- * @returns
- */
-const getDashboardSourceTypeList = async () => {
-  const result = await apiRequest(
-    'get',
-    'data-source/dashboard/agg-data-source-type-list',
-    {}
-  );
-  return result;
-};
-
 export {
   getAccountInfomation,
   getDatacatalogSummary,
@@ -138,6 +112,4 @@ export {
   getLatestJobTime,
   getCatalogSummaryByRegion,
   getSummaryAccountData,
-  getSummaryProviderList,
-  getDashboardSourceTypeList,
 };

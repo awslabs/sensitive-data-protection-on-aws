@@ -35,7 +35,7 @@ const HomeContent: React.FC = () => {
   return (
     <ContentLayout header={<HomeHeader />}>
       <Container
-        header={<Header variant="h2">Get started</Header>}
+        header={<Header variant="h2">{t('summary:getStarted')}</Header>}
         className="fix-mid-screen common-header"
       >
         <div className="flex-h gap-16">

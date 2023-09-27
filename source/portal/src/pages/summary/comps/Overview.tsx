@@ -59,8 +59,15 @@ const Overview: React.FC<OverViewProps> = (props: OverViewProps) => {
       <div>
         <Container
           header={
-            <Header variant="h2" description={t('summary:awsAccountInfoDesc')}>
-              {t('summary:awsAccountInfo')}
+            <Header
+              variant="h2"
+              description={t('summary:awsAccountInfoDesc', {
+                PROVIDER: currentProvider?.provider_name,
+              })}
+            >
+              {t('summary:awsAccountInfo', {
+                PROVIDER: currentProvider?.provider_name,
+              })}
             </Header>
           }
         >
@@ -70,7 +77,9 @@ const Overview: React.FC<OverViewProps> = (props: OverViewProps) => {
             <ColumnLayout columns={2} variant="text-grid">
               <div>
                 <Box variant="awsui-key-label">
-                  {t('summary:totalAWSAccount')}
+                  {t('summary:totalAWSAccount', {
+                    PROVIDER: currentProvider?.provider_name,
+                  })}
                 </Box>
                 <CounterLink>{accountInfo?.account_total}</CounterLink>
               </div>
@@ -87,7 +96,9 @@ const Overview: React.FC<OverViewProps> = (props: OverViewProps) => {
           header={
             <Header
               variant="h2"
-              description={t('summary:dataSourceConnectionDesc')}
+              description={t('summary:dataSourceConnectionDesc', {
+                PROVIDER: currentProvider?.provider_name,
+              })}
             >
               {t('summary:dataSourceConnection')}
             </Header>
