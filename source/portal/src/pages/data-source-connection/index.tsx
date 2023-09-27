@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   AppLayout,
   Button,
   Container,
+  ContentLayout,
   Header,
   SpaceBetween,
   Tabs,
@@ -124,8 +125,11 @@ const DataSourceConnection: React.FC = () => {
   return (
     <AppLayout
       toolsHide
-      contentHeader={<DataSourceConnectionHeader />}
-      content={<DataSourceConnectionContent />}
+      content={
+        <ContentLayout header={<DataSourceConnectionHeader />}>
+          <DataSourceConnectionContent />
+        </ContentLayout>
+      }
       headerSelector="#header"
       breadcrumbs={<CustomBreadCrumb breadcrumbItems={breadcrumbItems} />}
       navigation={

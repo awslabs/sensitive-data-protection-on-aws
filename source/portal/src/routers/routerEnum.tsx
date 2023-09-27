@@ -12,7 +12,6 @@ import CreateJob from 'pages/create-job';
 import GlueJob from 'pages/glue-job';
 import LoginCallback from 'pages/login-callback';
 import TimeLine from 'pages/time-line';
-import AddJDBCConnection from 'pages/data-source-connection/add/AddJDBCConnection';
 
 interface RouterEnumType {
   path: string;
@@ -32,10 +31,6 @@ export const RouterEnum: Record<string, RouterEnumType> = {
   DataSourceConnection: {
     path: '/sourceconnection',
     element: <DataSourceConnection />,
-  },
-  AddJDBCConnection: {
-    path: '/addjdbcconnection',
-    element: <AddJDBCConnection />,
   },
   AddAccount: {
     path: '/addaccount',

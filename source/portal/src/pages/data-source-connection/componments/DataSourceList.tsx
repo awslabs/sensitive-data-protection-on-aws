@@ -52,6 +52,7 @@ import ErrorBadge from 'pages/error-badge';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
+import JDBCConnection from './JDBCConnection';
 
 const DataSourceList: React.FC<any> = memo((props: any) => {
   const { tagType, accountData } = props;
@@ -97,6 +98,8 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         ? t('datasource:filterBuckets')
         : t('datasource:filterInstances'),
   };
+
+  const [showAddConnection, setShowAddConnection] = useState(false);
 
   // useEffect(() => {
   //   getPageData();
@@ -334,9 +337,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
   };
 
   const clkAddSource = (type: string) => {
-    navigate(RouterEnum.AddJDBCConnection.path, {
-      state: { type: type },
-    });
+    setShowAddConnection(true);
   };
 
   return (
@@ -786,6 +787,12 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
           </span>
         </SpaceBetween>
       </Modal>
+      {showAddConnection && (
+        <JDBCConnection
+          showModal={showAddConnection}
+          setShowModal={setShowAddConnection}
+        />
+      )}
     </>
   );
 });
