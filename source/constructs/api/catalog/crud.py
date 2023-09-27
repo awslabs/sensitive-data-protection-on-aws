@@ -956,3 +956,7 @@ def get_export_catalog_data():
                                                                  models.CatalogTableLevelClassification.label_ids,
                                                                  models.CatalogDatabaseLevelClassification.label_ids,
                                                                  models.CatalogColumnLevelClassification.comments).all()
+
+
+def get_catalog_summay_by_provider_region(provider_id, region):
+    return None

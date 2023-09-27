@@ -101,20 +101,7 @@ def agg_catalog_summary_by_attr(database_type: str,  agg_attribute: str, need_me
 
 
 def get_catalog_summay_by_provider_region(provider_id, region):
-    return (get_session()
-     .query(getattr(models.CatalogDatabaseLevelClassification, attribute),
-            func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label(
-                "instance_total"),
-            func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label(
-                "database_total"),
-            func.sum(models.CatalogDatabaseLevelClassification.table_count).label("table_total"),
-            func.sum(models.CatalogDatabaseLevelClassification.column_count).label("row_total"))
-     .filter(models.CatalogDatabaseLevelClassification.database_type == database_type)
-     .group_by(getattr(models.CatalogDatabaseLevelClassification, attribute))
-     .all()
-     )
-
-    return None
+    return crud.get_catalog_summay_by_provider_region(provider_id, region)
 
 
 def __get_top_n_count(data_dict: dict, n: int):
