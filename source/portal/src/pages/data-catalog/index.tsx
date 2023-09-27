@@ -12,6 +12,7 @@ import {
   Container,
   ContentLayout,
   Header,
+  Spinner,
 } from '@cloudscape-design/components';
 import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import Navigation from 'pages/left-menu/Navigation';
@@ -20,7 +21,7 @@ import { useTranslation } from 'react-i18next';
 import HelpInfo from 'common/HelpInfo';
 import { buildDocLink } from 'ts/common';
 import { alertMsg } from 'tools/tools';
-import ProviderTab from 'common/ProviderTab';
+import ProviderTab, { ProviderType } from 'common/ProviderTab';
 
 const CatalogListHeader: React.FC = () => {
   const { t } = useTranslation();
@@ -97,7 +98,8 @@ const CatalogListHeader: React.FC = () => {
 const DataCatalogList: React.FC = () => {
   const [searchParams] = useSearchParams();
   const { t, i18n } = useTranslation();
-
+  const [loadingProvider, setLoadingProvider] = useState(true);
+  const [curProvider, setCurProvider] = useState<ProviderType>();
   const [activeTabId, setActiveTabId] = useState(
     searchParams.get('tagType') || TAB_LIST.S3.id
   );
@@ -135,31 +137,63 @@ const DataCatalogList: React.FC = () => {
         <ContentLayout disableOverlap header={<CatalogListHeader />}>
           <ProviderTab
             changeProvider={(provider) => {
-              console.info('provider:', provider);
+              setCurProvider(provider);
             }}
             loadingProvider={(loading) => {
-              console.info('loading:', loading);
+              setLoadingProvider(loading);
             }}
           />
           <div className="mt-20">
-            <Container disableContentPaddings>
-              <Tabs
-                activeTabId={activeTabId}
-                onChange={({ detail }) => setActiveTabId(detail.activeTabId)}
-                tabs={[
-                  {
-                    label: t(TAB_LIST.S3.label),
-                    id: TAB_LIST.S3.id,
-                    content: <CatalogList catalogType={TAB_LIST.S3.id} />,
-                  },
-                  {
-                    label: t(TAB_LIST.RDS.label),
-                    id: TAB_LIST.RDS.id,
-                    content: <CatalogList catalogType={TAB_LIST.RDS.id} />,
-                  },
-                ]}
-              />
-            </Container>
+            {loadingProvider ? (
+              <Spinner />
+            ) : (
+              <>
+                <Container disableContentPaddings>
+                  {curProvider?.id === 1 && (
+                    <Tabs
+                      activeTabId={activeTabId}
+                      onChange={({ detail }) =>
+                        setActiveTabId(detail.activeTabId)
+                      }
+                      tabs={[
+                        {
+                          label: t(TAB_LIST.S3.label),
+                          id: TAB_LIST.S3.id,
+                          content: <CatalogList catalogType={TAB_LIST.S3.id} />,
+                        },
+                        {
+                          label: t(TAB_LIST.RDS.label),
+                          id: TAB_LIST.RDS.id,
+                          content: (
+                            <CatalogList catalogType={TAB_LIST.RDS.id} />
+                          ),
+                        },
+                        {
+                          label: t(TAB_LIST.GLUE.label),
+                          id: TAB_LIST.GLUE.id,
+                          content: (
+                            <CatalogList catalogType={TAB_LIST.GLUE.id} />
+                          ),
+                        },
+                        {
+                          label: t(TAB_LIST.JDBC.label),
+                          id: TAB_LIST.JDBC.id,
+                          content: (
+                            <CatalogList catalogType={TAB_LIST.JDBC.id} />
+                          ),
+                        },
+                      ]}
+                    />
+                  )}
+                  {curProvider?.id === 2 && (
+                    <CatalogList catalogType={TAB_LIST.JDBC.id} />
+                  )}
+                  {curProvider?.id === 3 && (
+                    <CatalogList catalogType={TAB_LIST.JDBC.id} />
+                  )}
+                </Container>
+              </>
+            )}
           </div>
         </ContentLayout>
       }
