@@ -60,7 +60,9 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
     query,
     setQuery,
     tableName: TABLE_NAME.SOURCE_ACCOUNT,
-    filteringPlaceholder: t('account:filterAWSAccounts'),
+    filteringPlaceholder: t('account:filterAWSAccounts', {
+      PROVIDER: provider?.provider_name,
+    }),
   };
 
   useEffect(() => {
@@ -377,7 +379,9 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
         <>
           <Header
             counter={`(${totalCount})`}
-            description={t('account:awsAccountsDesc')}
+            description={t('account:awsAccountsDesc', {
+              PROVIDER: provider?.provider_name,
+            })}
             actions={
               <SpaceBetween direction="horizontal" size="xs">
                 <Button
@@ -398,7 +402,9 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
               </SpaceBetween>
             }
           >
-            {t('account:awsAccounts')}
+            {t('account:awsAccounts', {
+              PROVIDER: provider?.provider_name,
+            })}
           </Header>
         </>
       }
