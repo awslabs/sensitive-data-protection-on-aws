@@ -3,9 +3,16 @@ import logging
 import os
 import traceback
 from time import sleep
+<<<<<<< HEAD
    
+=======
+# import psycopg2
+# import cx_Oracle
+
+>>>>>>> 084a5db0172f30110de58ba4b959f021566329a1
 import boto3
 
+import common.enum
 from catalog.service import delete_catalog_by_account_region as delete_catalog_by_account
 from catalog.service import delete_catalog_by_database_region as delete_catalog_by_database_region
 from common.constant import const
@@ -27,6 +34,7 @@ from .schemas import (AdminAccountInfo,
                       SourceResourceBase,
                       SourceCoverage,
                       SourceGlueDatabase,
+                      DataLocationInfo,
                       SourceJDBCConnection)
 
 SLEEP_TIME = 5
@@ -95,6 +103,7 @@ def build_s3_targets(bucket, credentials, region, is_init):
     logger.info("build_s3_targets")
     logger.info(s3_targets)
     return s3_targets
+
 
 def sync_s3_connection(account: str, region: str, bucket: str):
     glue_connection_name = f"s3-{bucket}-connection"
@@ -696,7 +705,6 @@ def sync(jdbc: SourceJDBCConnection):
 #     #     schemas = connection_properties['JDBC_SCHEMAS'].split(',')
 #     return schemas
 
-
 def before_delete_glue_database(provider, account, region, name):
     glue_database = crud.get_glue_database_source(provider, account, region, name)
     if glue_database is None:
@@ -716,7 +724,7 @@ def before_delete_glue_database(provider, account, region, name):
     #                        MessageEnum.SOURCE_DELETE_WHEN_CONNECTING.get_msg())
     # elif state == ConnectionState.ACTIVE.value:
         # if job running, do not stop but raising
-    if not can_delete_job_database(account_id=account, region=region, database_type=DatabaseType.GLUE_DATABASE.value,
+    if not can_delete_job_database(account_id=account, region=region, database_type=DatabaseType.GLUE.value,
                                    database_name=name):
         raise BizException(MessageEnum.DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE.get_code(),
                            MessageEnum.DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE.get_msg())
@@ -754,17 +762,18 @@ def before_delete_jdbc_connection(provider_id, account, region, instance_id):
             raise BizException(MessageEnum.DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE.get_code(),
                                MessageEnum.DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE.get_msg())
 
+
 def delete_glue_database(provider_id: int, account: str, region: str, name: str):
     before_delete_glue_database(provider_id, account, region, name)
     err = []
     # 1/3 delete job database
     try:
-        delete_job_database(account_id=account, region=region, database_type=DatabaseType.GLUE_DATABASE.value, database_name=name)
+        delete_job_database(account_id=account, region=region, database_type=DatabaseType.GLUE.value, database_name=name)
     except Exception as e:
         err.append(str(e))
     # 2/3 delete catalog
     try:
-        delete_catalog_by_database_region(database=name, region=region, type=DatabaseType.GLUE_DATABASE.value)
+        delete_catalog_by_database_region(database=name, region=region, type=DatabaseType.GLUE.value)
     except Exception as e:
         err.append(str(e))
     # 3/3 delete source
@@ -1325,6 +1334,7 @@ def refresh_data_source(provider_id: int, accounts: list[str], type: str):
     else:
         pass
 
+
 def refresh_aws_data_source(accounts: list[str], type: str):
     if type is None or len(accounts) == 0:
         raise BizException(MessageEnum.SOURCE_REFRESH_FAILED.get_code(),
@@ -1335,7 +1345,7 @@ def refresh_aws_data_source(accounts: list[str], type: str):
 
         elif type == DataSourceType.rds.value:
             rds_detector.detect(accounts)
-        
+
         elif type == DataSourceType.glue_database.value:
             glue_database_detector.detect(accounts)
 
@@ -1443,6 +1453,7 @@ def add_account(account):
         add_aws_account(account.account_id)
     else:
         add_third_account(account)
+
 
 def add_aws_account(account_id: str):
     # Open this loop for multiple region support
@@ -1579,6 +1590,7 @@ def get_secrets(account: str, region: str):
             }
         )
     return secrets
+
 
 def get_admin_account_info():
     return AdminAccountInfo(account_id=_admin_account_id, region=_admin_account_region)
@@ -1897,7 +1909,7 @@ def __assume_role(account_id: str, role_arn: str):
 
 def __list_rds_schema(account, region, credentials, instance_name, payload, rds_security_groups, rds_subnet_id):
     logger.info("__list_rds_schema")
-    function_name = f"func-{instance_name[0:50]}"
+    function_name = f"{const.SOLUTION_NAME}-{instance_name[0:50]}"
     schema_path = []
     lambda_ = boto3.client(
         'lambda',
@@ -2012,6 +2024,44 @@ def test_glue_conn(account, connection):
         CatalogId=account,
         ConnectionName=connection
     )['ConnectionTest']['Status']
+
+
+def list_data_location():
+    res = []
+    provider_list = crud.list_distinct_provider()
+    for item in provider_list:
+        regions = crud.list_distinct_region_by_provider(item.id)
+        if not regions:
+            location = DataLocationInfo()
+            location.source = item.provider_name
+            location.region = None
+            location.coordinate = None
+            location.account_count = 0
+            res.append(location)
+            continue
+        for subItem in regions:
+            location = DataLocationInfo()
+            location.source = item.provider_name
+            location.region = subItem.region_name
+            location.coordinate = subItem.region_cord
+            accounts = crud.list_account_by_provider_and_region(item.id, subItem.region_name)
+            location.account_count = len(accounts)
+            res.append(location)
+    return res
+
+
+def list_data_provider():
+    return crud.query_provider_list()
+
+
+def list_data_source_type():
+    # enum_dict = {member.name: member.value for member in common.enum.DatabaseType}
+    # json_response = json.dumps(enum_dict)
+    #
+    data_source_type_mapping = {}
+    for index, db_type in enumerate(common.enum.DatabaseType, start=1):
+        data_source_type_mapping[db_type.name] = db_type.value
+    return data_source_type_mapping
 
 
 def query_regions_by_provider(provider_id: int):

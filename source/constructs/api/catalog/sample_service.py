@@ -12,6 +12,13 @@ caller_identity = boto3.client('sts').get_caller_identity()
 partition = caller_identity['Arn'].split(':')[1]
 
 
+def split_s3_path(s3_path):
+    path_parts = s3_path.replace("s3://", "").split("/")
+    bucket = path_parts.pop(0)
+    key = "/".join(path_parts)
+    return bucket, key
+
+
 def gen_s3_temp_uri(bucket_name: str, key: str):
     s3_client = boto3.client('s3')
     method_parameters = {'Bucket': bucket_name, 'Key': key}

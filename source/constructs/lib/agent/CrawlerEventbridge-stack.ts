@@ -85,7 +85,7 @@ export class CrawlerEventbridgeStack extends Construct {
       role: lamdbaRole,
       code: Code.fromAsset(path.join(__dirname, '../../api/lambda')),
       handler: 'crawler_event.lambda_handler',
-      // functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-CrawlerTrigger`,
+      functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-CrawlerTrigger`, //Name must be specified
       description: `${SolutionInfo.SOLUTION_NAME} - CrawlerTrigger`,
       runtime: Runtime.PYTHON_3_9,
       memorySize: 128,

@@ -52,6 +52,8 @@ class MessageEnum(Enum):
     CATALOG_TABLE_DELETE_FAILED = {1306: "Delete catalog table failed"}
     CATALOG_COLUMN_DELETE_FAILED = {1307: "Delete catalog column failed"}
     CATALOG_UPDATE_FAILED = {1308: "Update catalog column failed"}
+    CATALOG_TABLE_PROPERTY_GET_FAILED = {1309: "Get table property failed"}
+    CATALOG_TABLE_TYPE_ERR = {1302: "Table type error, table_type are not supported"}
 
     # data source
     SOURCE_RDS_NO_SCHEMA = {1200: "There is no user created schema found in the database"}
@@ -155,12 +157,20 @@ class RunDatabaseState(Enum):
 
 
 @unique
+class RunTaskType(Enum):
+    STRUCTURED = "Structured"
+    UNSTRUCTURED = "Unstructured"
+
+
+@unique
 class DatabaseType(Enum):
     RDS = "rds"
     S3 = "s3"
+    S3_UNSTRUCTURED = "unstructured"
+    GLUE = "glue"
     DDB = "ddb"
     EMR = "emr"
-    GLUE_DATABASE = "glue_database"
+    # GLUE_DATABASE = "glue_database"
     # JDBC is a virtual type
     JDBC = "jdbc"
     JDBC_AWS = "jdbc-aws"

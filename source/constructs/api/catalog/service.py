@@ -1,7 +1,11 @@
+import datetime
+
 import boto3
 import os
 import json
 import csv
+
+import label.crud
 from . import crud, schemas
 from zipfile import ZipFile
 from data_source import crud as data_source_crud
@@ -192,7 +196,7 @@ def sync_crawler_result(
                     )
                 # Delete empty table when Glue crawler not supported the S3 file type
                 # s3 can return directly ,but rds cannot
-                if database_type == DatabaseType.S3.value and table_size_key == 0:
+                if (database_type == DatabaseType.S3.value or database_type == DatabaseType.S3_UNSTRUCTURED.value) and table_size_key == 0:
                     delete_glue_table_names.append(table_name)
                     # client.delete_table(DatabaseName=glue_database_name,
                     #                     Name=table_name)
@@ -230,7 +234,7 @@ def sync_crawler_result(
                     column_type = column["Type"].strip()
                     # To avoid too long embedded type like : struct<struct<xxxxxx.....>>
                     # In the testing process we found a type longer than 2048
-                    if len(column_type) > 200 and database_type == DatabaseType.S3.value:
+                    if len(column_type) > 200 and (database_type == DatabaseType.S3.value or database_type == DatabaseType.S3_UNSTRUCTURED.value):
                         column_type = column_type.split("<")[0]
                     # Create column
                     catalog_column_dict = {
@@ -271,6 +275,8 @@ def sync_crawler_result(
                     "column_count": column_order_num,
                     "storage_location": table_location,
                     "classification": table_classification,
+                    "struct_type": False if (database_type == DatabaseType.S3_UNSTRUCTURED.value) else True,
+                    "detected_time": datetime.datetime.now(),
                 }
                 original_table = crud.get_catalog_table_level_classification_by_name(account_id, region, database_type,
                                                                                      database_name, table_name)
@@ -815,6 +821,61 @@ def get_database_prorpery(account_id: str,
         raise BizException(
             MessageEnum.CATALOG_DATABASE_PROPERTY_GET_FAILED.get_code(),
             MessageEnum.CATALOG_DATABASE_PROPERTY_GET_FAILED.get_msg(),
+        )
+    return result_list
+
+
+def get_table_property(table_id: str):
+    catalog_table = crud.get_catalog_table_level_classification_by_id(table_id)
+    if not catalog_table:
+        return {}
+    result_list = []
+    try:
+        client = get_boto3_client(catalog_table.account_id, catalog_table.region, catalog_table.database_type)
+        labels_str = ""
+        if catalog_table.label_ids:
+            labels = get_labels_by_id_list(catalog_table.label_ids)
+            if labels is not None:
+                labels_str = [{"id": label.id, "label_name": label.label_name} for label in labels]
+        result_list.append(["ResourceTags", labels_str])
+        result_list.append(["LastUpdated", catalog_table.detected_time])
+        if catalog_table.database_type == DatabaseType.S3.value:
+            result_list.append(["Account", catalog_table.account_id])
+            result_list.append(["Region", catalog_table.region])
+            result_list.append(["Objects", catalog_table.object_count])
+            result_list.append(["Size", catalog_table.size_key])
+            result_list.append(["Rows", catalog_table.row_count])
+            result_list.append(["S3Location", catalog_table.storage_location])
+            result_list.append(["Tags", __get_s3_tagging(catalog_table.database_name, client)])
+        elif catalog_table.database_type == DatabaseType.RDS.value or catalog_table.database_type == DatabaseType.GLUE.value:
+            response = client.describe_db_instances(DBInstanceIdentifier=catalog_table.database_name)
+            if "DBInstances" in response and len(response["DBInstances"]) > 0:
+                instance_info = response["DBInstances"][0]
+                logger.info(instance_info)
+                # TODO name
+                # result_list.append(["InstanceName", instance_info[""]])
+                result_list.append(["Engine", instance_info["Engine"]])
+            result_list.append(["Account", catalog_table.account_id])
+            result_list.append(["Region", catalog_table.region])
+            glue_database_name = catalog_table.database_name if catalog_table.database_type == DatabaseType.GLUE.value else (
+                    catalog_table.database_type + "-" + catalog_table.database_name + "-" + GlueResourceNameSuffix.DATABASE.value
+            )
+
+            result_list.append(["GlueDatabase", glue_database_name])
+            result_list.append(["GlueTable", catalog_table.table_name])
+            result_list.append(["Location", catalog_table.storage_location])
+            # TODO
+            result_list.append(["SerdeParameters", catalog_table.region])
+        else:
+            raise BizException(
+                MessageEnum.CATALOG_TABLE_TYPE_ERR.get_code(),
+                MessageEnum.CATALOG_TABLE_TYPE_ERR.get_msg(),
+            )
+    except Exception as e:
+        logger.error(''.join(traceback.TracebackException.from_exception(e).format()))
+        raise BizException(
+            MessageEnum.CATALOG_TABLE_PROPERTY_GET_FAILED.get_code(),
+            MessageEnum.CATALOG_TABLE_PROPERTY_GET_FAILED.get_msg(),
         )
     return result_list
 
