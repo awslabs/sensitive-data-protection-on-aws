@@ -29,7 +29,7 @@ const HomeContent: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   return (
-    <ContentLayout>
+    <ContentLayout header={<HomeHeader />}>
       <Container
         header={<Header variant="h2">Get started</Header>}
         className="fix-mid-screen common-header"
@@ -130,7 +130,6 @@ const Home: React.FC = () => {
           ]}
         />
       }
-      contentHeader={<HomeHeader />}
       content={<HomeContent />}
       headerSelector="#header"
       breadcrumbs={<CustomBreadCrumb breadcrumbItems={breadcrumbItems} />}
