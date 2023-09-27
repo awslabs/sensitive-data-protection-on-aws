@@ -3,13 +3,7 @@ import logging
 import os
 import traceback
 from time import sleep
-<<<<<<< HEAD
-   
-=======
-# import psycopg2
-# import cx_Oracle
 
->>>>>>> 084a5db0172f30110de58ba4b959f021566329a1
 import boto3
 
 import common.enum
