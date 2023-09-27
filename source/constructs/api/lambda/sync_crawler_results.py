@@ -65,11 +65,11 @@ def sync_result(input_event):
                 state=state
             )
         elif database_type == DatabaseType.GLUE.value:
-            data_source_crud.update_custom_glue_database_count(
+            data_source_crud.update_glue_database_count(
                 account=input_event['detail']['accountId'],
                 region=input_event['region'],
             )
-            data_source_crud.set_custom_glue_database_glue_state(
+            data_source_crud.set_glue_database_glue_state(
                 account=input_event['detail']['accountId'],
                 region=input_event['region'],
                 database=database_name,
@@ -98,6 +98,7 @@ def lambda_handler(event, context):
         gen_session()
         for record in event['Records']:
             payload = record["body"]
+            logger.info(payload)
             updated_string = re.sub(r'("[^"]*?)(\'.*?\')([^"]*?")', r'\1--\3', str(payload))
             payload = updated_string.replace("\'", "\"")
             sync_result(json.loads(payload))

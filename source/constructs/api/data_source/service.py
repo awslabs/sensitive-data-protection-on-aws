@@ -3,11 +3,8 @@ import logging
 import os
 import traceback
 from time import sleep
-# import psycopg2
-# import cx_Oracle
 
 import boto3
-import pymysql
 
 import common.enum
 from catalog.service import delete_catalog_by_account_region as delete_catalog_by_account
@@ -17,7 +14,8 @@ from common.enum import (MessageEnum,
                          ConnectionState,
                          Provider,
                          DataSourceType,
-                         DatabaseType)
+                         DatabaseType,
+                         JDBCCreateType)
 from common.exception_handler import BizException
 from common.query_condition import QueryCondition
 from discovery_job.service import delete_account as delete_job_by_account
@@ -349,11 +347,11 @@ def sync_glue_database(account_id, region, glue_database_name):
 def sync_jdbc_connection(jdbc: SourceJDBCConnection):
     pre_sync(jdbc)
     sync(jdbc)
-    # post_sync()
+
 
 def pre_sync(jdbc: SourceJDBCConnection):
-    ec2_client = boto3.client('ec2', region_name=jdbc.region)
-    if not jdbc.username:
+    ec2_client = boto3.client('ec2', region_name=_admin_account_region)
+    if not jdbc.master_username:
         raise BizException(MessageEnum.SOURCE_JDBC_NO_CREDENTIAL.get_code(),
                            MessageEnum.SOURCE_JDBC_NO_CREDENTIAL.get_msg())
 
@@ -374,7 +372,7 @@ def pre_sync(jdbc: SourceJDBCConnection):
                            MessageEnum.SOURCE_CONNECTION_CRAWLING.get_msg())
     credentials = None
     try:
-        iam_role_name = crud.get_iam_role(jdbc.account_id)
+        iam_role_name = crud.get_iam_role(_admin_account_id)
 
         assumed_role = sts.assume_role(
             RoleArn=f"{iam_role_name}",
@@ -391,9 +389,9 @@ def pre_sync(jdbc: SourceJDBCConnection):
     if not security_groups:
         raise BizException(MessageEnum.SOURCE_SECURITY_GROUP_NOT_EXISTS.get_code(),
                            MessageEnum.SOURCE_SECURITY_GROUP_NOT_EXISTS.get_msg())
-    security_group = filter(lambda sg: sg["GroupName"] == const.SECURITY_GROUP_JDBC, security_groups)[0]
+    security_group = list(filter(lambda sg: sg["GroupName"] == const.SECURITY_GROUP_JDBC, security_groups))[0]
     inbound_route = security_group["IpPermissions"][0]
-    if inbound_route["IpProtocol"] != "tcp" or not inbound_route["FromPort"] != 0 or not inbound_route["ToPort"] != 65535 \
+    if inbound_route["IpProtocol"] != "tcp" or inbound_route["FromPort"] != 0 or inbound_route["ToPort"] != 65535 \
        or not inbound_route["IpRanges"] or inbound_route["IpRanges"][0]["CidrIp"] != "0.0.0.0/0":
         raise BizException(MessageEnum.SOURCE_SG_INBOUND_ROUTE_NOT_VALID.get_code(),
                            MessageEnum.SOURCE_SG_INBOUND_ROUTE_NOT_VALID.get_msg())
@@ -408,216 +406,219 @@ def pre_sync(jdbc: SourceJDBCConnection):
     if subnet[0]["MapPublicIpOnLaunch"]:
         raise BizException(MessageEnum.SOURCE_SUBNET_NOT_PRIVATE.get_code(),
                            MessageEnum.SOURCE_SUBNET_NOT_PRIVATE.get_msg())
-    if not ec2_client.describe_nat_gateways(Filters=[{'Name': 'subnet-id', 'Values': [jdbc.network_subnet_id]}])['NatGateways']:
-        raise BizException(MessageEnum.SOURCE_SUBNET_NOT_CONTAIN_NAT.get_code(),
-                           MessageEnum.SOURCE_SUBNET_NOT_CONTAIN_NAT.get_msg())
+    # if not ec2_client.describe_nat_gateways(Filters=[{'Name': 'subnet-id', 'Values': [jdbc.network_subnet_id]}])['NatGateways']:
+    #     raise BizException(MessageEnum.SOURCE_SUBNET_NOT_CONTAIN_NAT.get_code(),
+    #                        MessageEnum.SOURCE_SUBNET_NOT_CONTAIN_NAT.get_msg())
     if not ec2_client.describe_availability_zones(Filters=[{'Name': 'zone-name', 'Values': [jdbc.network_availability_zone]}])["AvailabilityZones"]:
         raise BizException(MessageEnum.SOURCE_AVAILABILITY_ZONE_NOT_EXISTS.get_code(),
                            MessageEnum.SOURCE_AVAILABILITY_ZONE_NOT_EXISTS.get_msg())
 
 def sync(jdbc: SourceJDBCConnection):
-    glue_connection_name = f"jdbc-{jdbc.account_provider}-{jdbc.instance}-connection"
-    glue_database_name = f"jdbc-{jdbc.account_provider}-{jdbc.instance}-database"
-    crawler_name = f"jdbc-{jdbc.account_provider}-{jdbc.instance}-crawler"
+    logger.info("START SYNC ...")
+    provider_str = gen_jdbc_provider_str(jdbc.account_provider)
+    glue_connection_name = jdbc.instance
+    glue_database_name = f"{provider_str}-{jdbc.instance}-database"
+    crawler_name = f"{provider_str}-{jdbc.instance}-crawler"
     state = crud.get_jdbc_connection_glue_state(jdbc.account_provider, jdbc.account_id, jdbc.region, jdbc.instance)
-    crawler_role_arn = __gen_role_arn(account_id=jdbc.account_id,
-                                      region=jdbc.region,
+    crawler_role_arn = __gen_role_arn(account_id=_admin_account_id,
+                                      region=_admin_account_region,
                                       role_name='GlueDetectionJobRole')
     crud.set_jdbc_connection_glue_state(jdbc.account_provider, jdbc.account_id, jdbc.region, jdbc.instance, ConnectionState.PENDING.value)
+    credentials = gen_credentials(_admin_account_id)
+    # grant_lake_formation_permission(credentials, crawler_name, glue_database_name)
+    
     try:
-        if jdbc.secret is not None:
-            credentials = gen_credentials(jdbc.account_id)
-            secretsmanager = boto3.client('secretsmanager',
-                                          aws_access_key_id=credentials['AccessKeyId'],
-                                          aws_secret_access_key=credentials['SecretAccessKey'],
-                                          aws_session_token=credentials['SessionToken'],
-                                          region_name=jdbc.region
-                                          )
-            """ :type : pyboto3.secretsmanager """
-            secret_value = secretsmanager.get_secret_value(
-                SecretId=jdbc.secret
-            )
-            secret_values = json.loads(secret_value['SecretString'])
-
-            payload = {
-                "engine": jdbc.engine,
-                "host": jdbc.address,
-                "port": jdbc.port,
-                "username": secret_values['username'],
-                "password": secret_values['password'],
-            }
-            schema_list = __list_rds_schema(jdbc.account_id,
-                                            jdbc.region,
-                                            credentials,
-                                            jdbc.instance,
-                                            payload,
-                                            [jdbc.network_sg_id],
-                                            jdbc.network_subnet_id)
-            # schema_list = list_jdbc_schema(jdbc)
-
-            logger.info("sync_jdbc_connection schema_list :")
-            logger.info(schema_list)
-            if len(schema_list) > 0:
-                glue = boto3.client('glue',
-                                    aws_access_key_id=credentials['AccessKeyId'],
-                                    aws_secret_access_key=credentials['SecretAccessKey'],
-                                    aws_session_token=credentials['SessionToken'],
-                                    region_name=jdbc.region
-                                    )
-                """ :type : pyboto3.glue """
-
-                # jdbc_url = __create_jdbc_url(engine=engine, host=host, port=port)
-                try:
-                    glue.get_connection(Name=glue_connection_name)
-                except Exception as e:
-                    logger.info("sync_rds_connection get_connection error and create:")
-                    logger.info(str(e))
-                    if jdbc.secret is None:
-                        response = glue.create_connection(
-                            ConnectionInput={
-                                'Name': glue_connection_name,
-                                'Description': glue_connection_name,
-                                'ConnectionType': 'JDBC',
-                                'ConnectionProperties': {
-                                    'USERNAME': jdbc.username,
-                                    'PASSWORD': jdbc.password,
-                                    'JDBC_CONNECTION_URL': jdbc.jdbc_connection_url,
-                                    'JDBC_ENFORCE_SSL': 'false',
-                                },
-
-                                'PhysicalConnectionRequirements': {
-                                    'SubnetId': jdbc.network_subnet_id,
-                                    'AvailabilityZone': jdbc.network_availability_zone,
-                                    'SecurityGroupIdList': [jdbc.network_sg_id]
-                                }
-                            }
-                        )
-                        logger.info(response)
-                    else:
-                        response = glue.create_connection(
-                            ConnectionInput={
-                                'Name': glue_connection_name,
-                                'Description': glue_connection_name,
-                                'ConnectionType': 'JDBC',
-                                'ConnectionProperties': {
-                                    'SECRET_ID': jdbc.secret,
-                                    'JDBC_CONNECTION_URL': jdbc.jdbc_connection_url,
-                                    'JDBC_ENFORCE_SSL': 'false',
-                                },
-
-                                'PhysicalConnectionRequirements': {
-                                    'SubnetId': jdbc.network_subnet_id,
-                                    'AvailabilityZone': jdbc.network_availability_zone,
-                                    'SecurityGroupIdList': [jdbc.network_sg_id]
-                                }
-                            }
-                        )
-                        logger.info(response)
-                try:
-                    glue.get_database(Name=glue_database_name)
-                except Exception as e:
-                    logger.info("sync_rds_connection get_database error and create:")
-                    logger.info(str(e))
-                    response = glue.create_database(DatabaseInput={'Name': glue_database_name})
-                    logger.info(response)
-                lakeformation = boto3.client('lakeformation',
-                                             aws_access_key_id=credentials['AccessKeyId'],
-                                             aws_secret_access_key=credentials['SecretAccessKey'],
-                                             aws_session_token=credentials['SessionToken'],
-                                             region_name=jdbc.region)
-                """ :type : pyboto3.lakeformation """
-                # retry for grant permissions
-                num_retries = GRANT_PERMISSIONS_RETRIES
-                while num_retries > 0:
-                    try:
-                        response = lakeformation.grant_permissions(
-                            Principal={
-                                'DataLakePrincipalIdentifier': f"{crawler_role_arn}"
+        schema = get_schema_from_url(jdbc.jdbc_connection_url)
+        if schema:
+            glue = boto3.client('glue',
+                                aws_access_key_id=credentials['AccessKeyId'],
+                                aws_secret_access_key=credentials['SecretAccessKey'],
+                                aws_session_token=credentials['SessionToken'],
+                                region_name=_admin_account_region
+                                )
+            """ :type : pyboto3.glue """
+            try:
+                conn = glue.get_connection(Name=glue_connection_name)
+                logger.info(f"connection exists! is{conn}")
+            except Exception as e:
+                logger.info("sync_jdbc_connection get_connection error and create:")
+                logger.info(str(e))
+                if jdbc.secret is None:
+                    response = glue.create_connection(
+                        ConnectionInput={
+                            'Name': glue_connection_name,
+                            'Description': glue_connection_name,
+                            'ConnectionType': 'JDBC',
+                            'ConnectionProperties': {
+                                'USERNAME': jdbc.master_username,
+                                'PASSWORD': jdbc.password,
+                                'JDBC_CONNECTION_URL': jdbc.jdbc_connection_url,
+                                'JDBC_ENFORCE_SSL': 'false',
                             },
-                            Resource={
-                                'Database': {
-                                    'Name': glue_database_name
-                                }
-                            },
-                            Permissions=['ALL'],
-                            PermissionsWithGrantOption=['ALL']
-                        )
-                    except Exception as e:
-                        sleep(SLEEP_MIN_TIME)
-                        num_retries -= 1
-                    else:
-                        break
-                else:
-                    raise Exception('UNCONNECTED')
-                jdbc_targets = []
-                for schema in schema_list:
-                    jdbc_targets.append(
-                        {
-                            'ConnectionName': glue_connection_name,
-                            'Path': f"{schema}/%",
+
+                            'PhysicalConnectionRequirements': {
+                                'SubnetId': jdbc.network_subnet_id,
+                                'AvailabilityZone': jdbc.network_availability_zone,
+                                'SecurityGroupIdList': [jdbc.network_sg_id]
+                            }
                         }
                     )
-                logger.info("sync_rds_connection jdbc_targets:")
-                logger.info(jdbc_targets)
-                try:
-                    response = glue.get_crawler(Name=crawler_name)
-                    logger.info("sync_rds_connection get_crawler:")
                     logger.info(response)
-                    try:
-                        if state == ConnectionState.ACTIVE.value or state == ConnectionState.UNSUPPORTED.value \
-                                or state == ConnectionState.ERROR.value or state == ConnectionState.STOPPING.value:
-                            up_cr_response = glue.update_crawler(
-                                Name=crawler_name,
-                                Role=crawler_role_arn,
-                                DatabaseName=glue_database_name,
-                                Targets={
-                                    'JdbcTargets': jdbc_targets,
-                                },
-                                SchemaChangePolicy={
-                                    'UpdateBehavior': 'UPDATE_IN_DATABASE',
-                                    'DeleteBehavior': 'DELETE_FROM_DATABASE'
-                                }
-                            )
-                            logger.info("update rds crawler:")
-                            logger.info(up_cr_response)
-                    except Exception as e:
-                        logger.info("update_crawler error")
-                        logger.info(str(e))
-                    st_cr_response = glue.start_crawler(
-                        Name=crawler_name
+                else:
+                    response = glue.create_connection(
+                        ConnectionInput={
+                            'Name': glue_connection_name,
+                            'Description': glue_connection_name,
+                            'ConnectionType': 'JDBC',
+                            'ConnectionProperties': {
+                                'SECRET_ID': jdbc.secret,
+                                'JDBC_CONNECTION_URL': jdbc.jdbc_connection_url,
+                                'JDBC_ENFORCE_SSL': 'false',
+                            },
+
+                            'PhysicalConnectionRequirements': {
+                                'SubnetId': jdbc.network_subnet_id,
+                                'AvailabilityZone': jdbc.network_availability_zone,
+                                'SecurityGroupIdList': [jdbc.network_sg_id]
+                            }
+                        }
                     )
-                    logger.info(st_cr_response)
+            try:
+                glue.get_database(Name=glue_database_name)
+            except Exception as e:
+                logger.info("sync_jdbc_connection get_database error and create:")
+                logger.info(str(e))
+                response = glue.create_database(DatabaseInput={'Name': glue_database_name})
+                logger.info("creat response is:")
+                logger.info(response)
+            # grant_lake_formation_permission(credentials, crawler_name, glue_database_name)
+            lakeformation = boto3.client('lakeformation',
+                                         aws_access_key_id=credentials['AccessKeyId'],
+                                         aws_secret_access_key=credentials['SecretAccessKey'],
+                                         aws_session_token=credentials['SessionToken'],
+                                         region_name=_admin_account_region)
+            """ :type : pyboto3.lakeformation """
+            # retry for grant permissions
+            num_retries = GRANT_PERMISSIONS_RETRIES
+            while num_retries > 0:
+                try:
+                    response = lakeformation.grant_permissions(
+                        Principal={
+                            'DataLakePrincipalIdentifier': f"{crawler_role_arn}"
+                        },
+                        Resource={
+                            'Database': {
+                                'Name': glue_database_name
+                            }
+                        },
+                        Permissions=['ALL'],
+                        PermissionsWithGrantOption=['ALL']
+                    )
                 except Exception as e:
-                    logger.info("sync_rds_connection get_crawler and create:")
-                    logger.info(str(e))
-                    response = glue.create_crawler(
+                    sleep(SLEEP_MIN_TIME)
+                    num_retries -= 1
+                else:
+                    break
+            else:
+                raise Exception('UNCONNECTED')
+            # lakeformation = boto3.client('lakeformation',
+            #                              aws_access_key_id=credentials['AccessKeyId'],
+            #                              aws_secret_access_key=credentials['SecretAccessKey'],
+            #                              aws_session_token=credentials['SessionToken'],
+            #                              region_name=_admin_account_region)
+            # """ :type : pyboto3.lakeformation """
+            # # retry for grant permissions
+            # num_retries = GRANT_PERMISSIONS_RETRIES
+            # while num_retries > 0:
+            #     try:
+            #         response = lakeformation.grant_permissions(
+            #             Principal={
+            #                 'DataLakePrincipalIdentifier': f"{crawler_role_arn}"
+            #             },
+            #             Resource={
+            #                 'Database': {
+            #                     'Name': glue_database_name
+            #                 }
+            #             },
+            #             Permissions=['ALL'],
+            #             PermissionsWithGrantOption=['ALL']
+            #         )
+            #     except Exception as e:
+            #         sleep(SLEEP_MIN_TIME)
+            #         num_retries -= 1
+            #     else:
+            #         break
+            # else:
+            #     raise Exception('UNCONNECTED')
+            jdbc_targets = []
+            # for schema in schema_list:
+            jdbc_targets.append(
+                {
+                    'ConnectionName': glue_connection_name,
+                    'Path': f"{schema}/%",
+                }
+            )
+            logger.info("sync_jdbc_connection jdbc_targets:")
+            logger.info(jdbc_targets)
+        try:
+            response = glue.get_crawler(Name=crawler_name)
+            logger.info("sync_jdbc_connection get_crawler:")
+            logger.info(response)
+            try:
+                if state == ConnectionState.ACTIVE.value or state == ConnectionState.UNSUPPORTED.value \
+                        or state == ConnectionState.ERROR.value or state == ConnectionState.STOPPING.value:
+                    up_cr_response = glue.update_crawler(
                         Name=crawler_name,
                         Role=crawler_role_arn,
                         DatabaseName=glue_database_name,
                         Targets={
                             'JdbcTargets': jdbc_targets,
                         },
-                        Tags={
-                            'AdminAccountId': _admin_account_id
+                        SchemaChangePolicy={
+                            'UpdateBehavior': 'UPDATE_IN_DATABASE',
+                            'DeleteBehavior': 'DELETE_FROM_DATABASE'
                         }
                     )
-                    logger.info(response)
-                    start_response = glue.start_crawler(
-                        Name=crawler_name
-                    )
-                    logger.info(start_response)
-                crud.create_jdbc_connection(jdbc.account_provider,
-                                            jdbc.account_id,
-                                            jdbc.region,
-                                            jdbc.instance,
-                                            glue_connection_name,
-                                            glue_database_name,
-                                            None,
-                                            crawler_name)
-            else:
-                crud.set_jdbc_connection_glue_state(jdbc.account_provider, jdbc.account_id, jdbc.region, jdbc.instance,
-                                                    MessageEnum.SOURCE_JDBC_NO_SCHEMA.get_msg())
-                raise BizException(MessageEnum.SOURCE_JDBC_NO_SCHEMA.get_code(), MessageEnum.SOURCE_JDBC_NO_SCHEMA.get_msg())
+                    logger.info("update jdbc crawler:")
+                    logger.info(up_cr_response)
+            except Exception as e:
+                logger.info("update_crawler error")
+                logger.info(str(e))
+            st_cr_response = glue.start_crawler(
+                Name=crawler_name
+            )
+            logger.info(st_cr_response)
+        except Exception as e:
+            logger.info("sync_jdbc_connection get_crawler and create:")
+            logger.info(str(e))
+            response = glue.create_crawler(
+                Name=crawler_name,
+                Role=crawler_role_arn,
+                DatabaseName=glue_database_name,
+                Targets={
+                    'JdbcTargets': jdbc_targets,
+                },
+                Tags={
+                    'AdminAccountId': _admin_account_id
+                }
+            )
+            logger.info(response)
+            start_response = glue.start_crawler(
+                Name=crawler_name
+            )
+            logger.info(start_response)
+            crud.create_jdbc_connection(jdbc.account_provider,
+                                        jdbc.account_id,
+                                        jdbc.region,
+                                        jdbc.instance,
+                                        glue_connection_name,
+                                        glue_database_name,
+                                        None,
+                                        crawler_name)
+        else:
+            crud.set_jdbc_connection_glue_state(jdbc.account_provider, jdbc.account_id, jdbc.region, jdbc.instance,
+                                                MessageEnum.SOURCE_JDBC_NO_SCHEMA.get_msg())
+            raise BizException(MessageEnum.SOURCE_JDBC_NO_SCHEMA.get_code(), MessageEnum.SOURCE_JDBC_NO_SCHEMA.get_msg())
     except Exception as err:
         crud.set_jdbc_connection_glue_state(jdbc.account_provider, jdbc.account_id, jdbc.region, jdbc.instance, str(err))
         glue = boto3.client('glue',
@@ -644,60 +645,59 @@ def sync(jdbc: SourceJDBCConnection):
         raise BizException(MessageEnum.SOURCE_CONNECTION_FAILED.get_code(),
                            str(err))
 
-def list_jdbc_schema(account_id: str):
-    schemas = []
-    # postgreSQL
-    # conn = psycopg2.connect(database="数据库名",
-    #                            user="数据库账号",
-    #                            password="数据库密码",
-    #                            host="xx.xx.xx.xx",
-    #                            port="端口号")
-    # mysql
-    # conn = psycopg2.connect(host='81.70.179.114',
-    #                         port=9000,
-    #                         user='root',
-    #                         password='Temp123456!')
-    # oracle
-    # username="用户名"
-    # userpwd="用户名密码"
-    # host="主机IP"
-    # port=1521
-    # dbname="数据库名称"
-    # dsn=cx_Oracle.makedsn(host, port)
-    # connection=cx_Oracle.connect(username, userpwd, dsn)
-    # cursor = connection.cursor()
+# def list_jdbc_schema(account_id: str):
+#     schemas = []
+#     # postgreSQL
+#     # conn = psycopg2.connect(database="数据库名", 
+#     #                            user="数据库账号",
+#     #                            password="数据库密码",
+#     #                            host="xx.xx.xx.xx", 
+#     #                            port="端口号")
+#     # mysql
+#     # conn = pymysql.connect(host='81.70.179.114',
+#     #                         port=9000,
+#     #                         user='root',
+#     #                         password='Temp123456!')
+#     # oracle
+#     # username="用户名"
+#     # userpwd="用户名密码"
+#     # host="主机IP"
+#     # port=1521
+#     # dbname="数据库名称"
+#     # dsn=cx_Oracle.makedsn(host, port)
+#     # connection=cx_Oracle.connect(username, userpwd, dsn)
+#     # cursor = connection.cursor()  
 
-    # try:
-    #     # 创建一个新的游标
-    #     cursor = conn.cursor()
-    #     # 执行SQL查询
-    #     cursor.execute("SHOW DATABASES")
-    #     # 获取所有的行
-    #     rows = cursor.fetchall()
-    #     for row in rows:
-    #         print(row[0])
-    #         schemas.append(row[0])
-    # finally:
-    #     # 关闭连接
-    #     conn.close()
-    # credentials = gen_credentials(account_id)
-    # logger.info(credentials)
-    # glue_client = boto3.client('glue',
-    #                            aws_access_key_id=credentials['AccessKeyId'],
-    #                            aws_secret_access_key=credentials['SecretAccessKey'],
-    #                            aws_session_token=credentials['SessionToken'],
-    #                            region_name="cn-northwest-1")
-    # connection_name = 'glue-tencent-host-mysql-5.7'
-    # # connection_name = jdbc.instance
-    # schemas = None
-    # response = glue_client.get_connection(
-    #     Name=connection_name
-    # )
-    # connection_properties = response['Connection']['ConnectionProperties']
-    # if 'JDBC_SCHEMAS' in connection_properties:
-    #     schemas = connection_properties['JDBC_SCHEMAS'].split(',')
-    return schemas
-
+#     try:
+#         # 创建一个新的游标
+#         cursor = conn.cursor()
+#         # 执行SQL查询
+#         cursor.execute("SHOW DATABASES")
+#         # 获取所有的行
+#         rows = cursor.fetchall()
+#         for row in rows:
+#             print(row[0])
+#             schemas.append(row[0])
+#     finally:
+#         # 关闭连接
+#         conn.close()
+#     # credentials = gen_credentials(account_id)
+#     # logger.info(credentials)
+#     # glue_client = boto3.client('glue',
+#     #                            aws_access_key_id=credentials['AccessKeyId'],
+#     #                            aws_secret_access_key=credentials['SecretAccessKey'],
+#     #                            aws_session_token=credentials['SessionToken'],
+#     #                            region_name="cn-northwest-1")
+#     # connection_name = 'glue-tencent-host-mysql-5.7'
+#     # # connection_name = jdbc.instance
+#     # schemas = None
+#     # response = glue_client.get_connection(
+#     #     Name=connection_name
+#     # )
+#     # connection_properties = response['Connection']['ConnectionProperties']
+#     # if 'JDBC_SCHEMAS' in connection_properties:
+#     #     schemas = connection_properties['JDBC_SCHEMAS'].split(',')
+#     return schemas
 
 def before_delete_glue_database(provider, account, region, name):
     glue_database = crud.get_glue_database_source(provider, account, region, name)
@@ -834,7 +834,7 @@ def delete_jdbc_connection(provider_id: int, account: str, region: str, instance
 def gen_credentials(account: str):
     try:
         iam_role_name = crud.get_iam_role(account)
-
+        logger.info(f"+++++++++++++++++:{iam_role_name}")
         assumed_role = sts.assume_role(
             RoleArn=f"{iam_role_name}",
             RoleSessionName="glue-rds-connection"
@@ -1321,9 +1321,9 @@ def delete_glue_connection(account: str, region: str, glue_crawler: str,
     return True
 
 
-def refresh_data_source(provider: str, accounts: list[str], type: str):
-    tmp_provider = int(provider)
-    if tmp_provider == Provider.AWS_CLOUD.value:
+def refresh_data_source(provider_id: int, accounts: list[str], type: str):
+    # tmp_provider = int(provider)
+    if provider_id == Provider.AWS_CLOUD.value:
         refresh_aws_data_source(accounts, type)
     else:
         pass
@@ -1601,35 +1601,39 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
     if list:
         raise BizException(MessageEnum.SOURCE_JDBC_ALREADY_EXISTS.get_code(),
                            MessageEnum.SOURCE_JDBC_ALREADY_EXISTS.get_msg())
-    response = boto3.client('glue', region_name=jdbcConn.region).create_connection(
-        CatalogId=jdbcConn.account_id,
-        ConnectionInput={
-            'Name': jdbcConn.instance_id,
-            'Description': jdbcConn.description,
-            'ConnectionType': 'JDBC',
-            'ConnectionProperties': {
-                # 'CUSTOM_JDBC_CERT': jdbcConn.custom_jdbc_cert,
-                # 'CUSTOM_JDBC_CERT_STRING': jdbcConn.custom_jdbc_cert_string,
-                'JDBC_CONNECTION_URL': jdbcConn.jdbc_connection_url,
-                'JDBC_ENFORCE_SSL': jdbcConn.jdbc_enforce_ssl,
-                # 'KAFKA_SSL_ENABLED': jdbcConn.kafka_ssl_enabled,
-                # 'SKIP_CUSTOM_JDBC_CERT_VALIDATION': jdbcConn.skip_custom_jdbc_cert_validation,
-                'USERNAME': jdbcConn.master_username,
-                'PASSWORD': jdbcConn.password,
-                # 'JDBC_DRIVER_CLASS_NAME': jdbcConn.jdbc_driver_class_name,
-                # 'JDBC_DRIVER_JAR_URI': jdbcConn.jdbc_driver_jar_uri
-            },
-            'PhysicalConnectionRequirements': {
-                'SubnetId': jdbcConn.network_subnet_id,
-                'SecurityGroupIdList': [
-                    jdbcConn.network_sg_id
-                ],
-                'AvailabilityZone': jdbcConn.network_availability_zone
+    if jdbcConn.create_type == JDBCCreateType.ADD.value:
+        admin_account = get_admin_account_info()
+        response = boto3.client('glue', region_name=admin_account.region).create_connection(
+            CatalogId=admin_account.account_id,
+            ConnectionInput={
+                'Name': jdbcConn.instance_id,
+                'Description': jdbcConn.description,
+                'ConnectionType': 'JDBC',
+                'ConnectionProperties': {
+                    # 'CUSTOM_JDBC_CERT': jdbcConn.custom_jdbc_cert,
+                    # 'CUSTOM_JDBC_CERT_STRING': jdbcConn.custom_jdbc_cert_string,
+                    'JDBC_CONNECTION_URL': jdbcConn.jdbc_connection_url,
+                    'JDBC_ENFORCE_SSL': jdbcConn.jdbc_enforce_ssl,
+                    # 'KAFKA_SSL_ENABLED': jdbcConn.kafka_ssl_enabled,
+                    # 'SKIP_CUSTOM_JDBC_CERT_VALIDATION': jdbcConn.skip_custom_jdbc_cert_validation,
+                    'USERNAME': jdbcConn.master_username,
+                    'PASSWORD': jdbcConn.password,
+                    # 'JDBC_DRIVER_CLASS_NAME': jdbcConn.jdbc_driver_class_name,
+                    # 'JDBC_DRIVER_JAR_URI': jdbcConn.jdbc_driver_jar_uri
+                },
+                'PhysicalConnectionRequirements': {
+                    'SubnetId': jdbcConn.network_subnet_id,
+                    'SecurityGroupIdList': [
+                        jdbcConn.network_sg_id
+                    ],
+                    'AvailabilityZone': jdbcConn.network_availability_zone
+                }
             }
-        }
-    )
-    if response['ResponseMetadata']['HTTPStatusCode'] == 200:
-        crud.add_jdbc_conn(jdbcConn)
+        )
+        if response['ResponseMetadata']['HTTPStatusCode'] != 200:
+            raise BizException(MessageEnum.SOURCE_JDBC_CREATE_FAIL.get_code(),
+                               MessageEnum.SOURCE_JDBC_CREATE_FAIL.get_msg())
+    crud.add_jdbc_conn(jdbcConn)
 
 def __glue(account: str, region: str):
     iam_role_name = crud.get_iam_role(account)
@@ -2080,3 +2084,52 @@ def query_full_provider_resource_infos():
 
 def list_providers():
     return crud.query_provider_list()
+
+
+def get_schema_from_url(url):
+    res = ''
+    # jdbc:mysql://81.70.179.114:9000/sdps-glue
+    if url.startswith("jdbc:mysql://"):
+        res = url[url.rindex("/") + 1:]
+    return res
+
+
+def gen_jdbc_provider_str(provider: int):
+    if (provider == 2):
+        return DatabaseType.JDBC_TENCENT.value
+    elif (provider == 3):
+        return DatabaseType.JDBC_ALIYUN.value
+    else:
+        return DatabaseType.JDBC_AWS.value
+
+
+def grant_lake_formation_permission(credentials, crawler_role_arn, glue_database_name):
+    lakeformation = boto3.client('lakeformation',
+                                 aws_access_key_id=credentials['AccessKeyId'],
+                                 aws_secret_access_key=credentials['SecretAccessKey'],
+                                 aws_session_token=credentials['SessionToken'],
+                                 region_name=_admin_account_region)
+    """ :type : pyboto3.lakeformation """
+    # retry for grant permissions
+    num_retries = GRANT_PERMISSIONS_RETRIES
+    while num_retries > 0:
+        try:
+            response = lakeformation.grant_permissions(
+                Principal={
+                    'DataLakePrincipalIdentifier': f"{crawler_role_arn}"
+                },
+                Resource={
+                    'Database': {
+                        'Name': glue_database_name
+                    }
+                },
+                Permissions=['ALL'],
+                PermissionsWithGrantOption=['ALL']
+            )
+        except Exception as e:
+            sleep(SLEEP_MIN_TIME)
+            num_retries -= 1
+        else:
+            break
+    else:
+        raise Exception('UNCONNECTED')

@@ -35,8 +35,10 @@ from tempfile import NamedTemporaryFile
 
 logger = logging.getLogger(const.LOGGER_API)
 caller_identity = boto3.client('sts').get_caller_identity()
+admin_account_id = caller_identity.get('Account')
+admin_region = boto3.session.Session().region_name
+admin_bucket_name = os.getenv(const.PROJECT_BUCKET_NAME, f"{const.ADMIN_BUCKET_NAME_PREFIX}-{admin_account_id}-{admin_region}")
 partition = caller_identity['Arn'].split(':')[1]
-project_bucket_name = os.getenv(const.PROJECT_BUCKET_NAME, const.PROJECT_BUCKET_DEFAULT_NAME)
 
 
 sql_result = "SELECT database_type,account_id,region,s3_bucket,s3_location,rds_instance_id,table_name,column_name,identifiers,sample_data,'','','' FROM job_detection_output_table"
@@ -464,15 +466,12 @@ def get_rds_table_sample_records(
 
 
 def __remove_query_result_from_s3(query_id):
-    project_bucket_name = os.getenv(
-        const.PROJECT_BUCKET_NAME, const.PROJECT_BUCKET_DEFAULT_NAME
-    )
     response = boto3.client("s3").delete_object(
-        Bucket=project_bucket_name, Key="athena-output/" + query_id + ".csv"
+        Bucket=admin_bucket_name, Key="athena-output/" + query_id + ".csv"
     )
 
     response_meta = boto3.client("s3").delete_object(
-        Bucket=project_bucket_name,
+        Bucket=admin_bucket_name,
         Key="athena-output/" + query_id + ".csv.metadata",
     )
     return True
@@ -501,17 +500,13 @@ def __query_job_result_by_athena(
     )
     logger.debug("Athena SELECT SQL : " + select_sql)
 
-    project_bucket_name = os.getenv(
-        const.PROJECT_BUCKET_NAME, const.PROJECT_BUCKET_DEFAULT_NAME
-    )
-
     queryStart = client.start_query_execution(
         QueryString=select_sql,
         QueryExecutionContext={
             "Database": const.JOB_RESULT_DATABASE_NAME,
             "Catalog": "AwsDataCatalog",
         },
-        ResultConfiguration={"OutputLocation": f"s3://{project_bucket_name}/athena-output/"},
+        ResultConfiguration={"OutputLocation": f"s3://{admin_bucket_name}/athena-output/"},
     )
     query_id = queryStart["QueryExecutionId"]
     while True:
@@ -1075,11 +1070,11 @@ def get_catalog_export_url(fileType: str, timeStr: str) -> str:
     stats = os.stat(tmp_filename)
     s3_client = boto3.client('s3')
     if stats.st_size < 6 * 1024 * 1024:
-        s3_client.upload_file(tmp_filename, project_bucket_name, report_file)
+        s3_client.upload_file(tmp_filename, admin_bucket_name, report_file)
     else:
-        concurrent_upload(project_bucket_name, report_file, tmp_filename, s3_client)
+        concurrent_upload(admin_bucket_name, report_file, tmp_filename, s3_client)
     os.remove(tmp_filename)
-    method_parameters = {'Bucket': project_bucket_name, 'Key': report_file}
+    method_parameters = {'Bucket': admin_bucket_name, 'Key': report_file}
     pre_url = s3_client.generate_presigned_url(
         ClientMethod="get_object",
         Params=method_parameters,
@@ -1170,4 +1165,4 @@ def __get_cell_value(cell: dict):
 
 def clear_s3_object(time_str: str):
     s3 = boto3.client('s3')
-    s3.delete_object(Bucket=project_bucket_name, Key=f"report/catalog_{time_str}.zip")
+    s3.delete_object(Bucket=admin_bucket_name, Key=f"report/catalog_{time_str}.zip")

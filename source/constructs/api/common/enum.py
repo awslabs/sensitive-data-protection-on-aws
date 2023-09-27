@@ -107,6 +107,7 @@ class MessageEnum(Enum):
     SOURCE_SUBNET_NOT_PRIVATE = {1242: "Subnet for jdbc connection is not private subnet"}
     SOURCE_SUBNET_NOT_CONTAIN_NAT = {1243: "Subnet for jdbc connection not contain NAT Gateway"}
     SOURCE_JDBC_NO_SCHEMA = {1244: "There is no user created schema found in the jdbc connection"}
+    SOURCE_JDBC_CREATE_FAIL = {1245: "JDBC connection create failed"}
     # label
     LABEL_EXIST_FAILED = {1611: "Cannot create duplicated label"}
 
@@ -327,3 +328,8 @@ class DataSourceType(str, Enum):
     glue_database = "glue_database"
     jdbc = "jdbc"
     all = "all"
+
+@unique
+class JDBCCreateType(Enum):
+    ADD = 1
+    IMPORT = 0

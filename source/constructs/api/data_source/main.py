@@ -33,7 +33,7 @@ def list_rds_instances(condition: QueryCondition):
         page=condition.page,
     ))
 
-@router.post("/list-glue-database", response_model=BaseResponse[Page[schemas.JDBCInstanceSource]])
+@router.post("/list-glue-database", response_model=BaseResponse[Page[schemas.SourceGlueDatabaseFullInfo]])
 @inject_session
 def list_glue_databases(condition: QueryCondition):
     instances = crud.list_glue_database(condition)
@@ -44,10 +44,10 @@ def list_glue_databases(condition: QueryCondition):
         page=condition.page,
     ))
 
-@router.post("/list-jdbc", response_model=BaseResponse[Page[schemas.JDBCInstanceSource]])
+@router.post("/list-jdbc", response_model=BaseResponse[Page[schemas.JDBCInstanceSourceFullInfo]])
 @inject_session
-def list_jdbc_instances(condition: QueryCondition):
-    instances = crud.list_jdbc_instance_source(condition)
+def list_jdbc_instances(provider_id: int, condition: QueryCondition):
+    instances = crud.list_jdbc_instance_source(provider_id)
     if instances is None:
         return None
     return paginate(instances, Params(
@@ -142,7 +142,7 @@ def sync_jdbc_connection(jdbc: schemas.SourceJDBCConnection):
 @inject_session
 def refresh_data_source(type: schemas.NewDataSource):
     service.refresh_data_source(
-        type.provider,
+        type.provider_id,
         type.accounts,
         type.type
     )
@@ -261,8 +261,3 @@ def query_full_provider_infos():
 @inject_session
 def list_providers():
     return service.list_providers()
-
-@router.post("/list-jdbc-schemas", response_model=BaseResponse)
-@inject_session
-def list_jdbc_schema(account_id: str):
-    return service.list_jdbc_schema(account_id)

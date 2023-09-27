@@ -31,6 +31,8 @@ async def detect_glue_database_connection(session: Session, aws_account_id: str)
     regions = crud.get_account_agent_regions(aws_account_id)
     glue_database_list = []
     refresh_list = []
+    logger.info("=================")
+    logger.info(regions)
     for region in regions:
         client = boto3.client(
             'glue',
@@ -42,18 +44,22 @@ async def detect_glue_database_connection(session: Session, aws_account_id: str)
         glue_database_list.append(client.get_databases()['DatabaseList'])
         logger.info("detect_glue_database")
     # list exist rds not exist insert
-    for glue_database in glue_database_list:
+    for glue_database_item in glue_database_list:
+        glue_database = glue_database_item[0]
         refresh_list.append(glue_database["Name"])
         if not crud.list_glue_database_by_name(glue_database["Name"]):
-            glue_database = schemas.SourceGlueDatabase
-            glue_database.glue_database_name = glue_database["Name"]
-            glue_database.glue_database_location_uri = glue_database["LocationUri"]
-            glue_database.glue_database_description = glue_database["Description"]
-            glue_database.glue_database_create_time = glue_database["CreateTime"]
-            glue_database.glue_database_catalog_id = glue_database["CatalogId"]
-            glue_database.region = ''
-            glue_database.account_id = aws_account_id
-            crud.add_glue_database(glue_database)
+            source_glue_database = schemas.SourceGlueDatabase
+            source_glue_database.glue_database_name = glue_database["Name"]
+            source_glue_database.glue_database_location_uri = glue_database["LocationUri"]
+            source_glue_database.glue_database_description = glue_database["Description"]
+            source_glue_database.glue_database_create_time = glue_database["CreateTime"]
+            source_glue_database.glue_database_catalog_id = glue_database["CatalogId"]
+            sub_info = glue_database["CreateTableDefaultPermissions"][0]
+            source_glue_database.data_lake_principal_identifier = sub_info["Principal"]["DataLakePrincipalIdentifier"]
+            source_glue_database.permissions = "|".join(sub_info["Permissions"])
+            source_glue_database.region = ''
+            source_glue_database.account_id = aws_account_id
+            crud.add_glue_database(source_glue_database)
     # list not exist rds exist delete
     crud.delete_not_exist_glue_database(refresh_list)
     crud.update_glue_database_count(account=aws_account_id, region=admin_account_region)
