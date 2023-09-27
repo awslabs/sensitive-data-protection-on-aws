@@ -92,6 +92,7 @@ export class AgentStack extends Stack {
             'glue:GetSecurityConfigurations',
             'glue:CreateCrawler',
             'glue:StartCrawler',
+            'glue:GetConnection',
           ],
           resources: ['*'],
         }),

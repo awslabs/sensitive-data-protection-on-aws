@@ -9,6 +9,9 @@ import logging
 
 logger = logging.getLogger(const.LOGGER_API)
 caller_identity = boto3.client('sts').get_caller_identity()
+admin_account_id = caller_identity.get('Account')
+admin_region = boto3.session.Session().region_name
+admin_bucket_name = os.getenv(const.PROJECT_BUCKET_NAME, f"{const.ADMIN_BUCKET_NAME_PREFIX}-{admin_account_id}-{admin_region}")
 partition = caller_identity['Arn'].split(':')[1]
 
 
@@ -35,11 +38,10 @@ def get_sample_file_uri(database_type: str, database_name: str, table_name: str)
     result_table = const.JOB_SAMPLE_RESULT_TABLE_NAME
     full_database_name = f"{database_type}-{database_name}-database"
     file_folder_path = f"glue-database/{result_table}/{full_database_name}/{table_name}/"
-    bucket_name = os.getenv(const.PROJECT_BUCKET_NAME, const.PROJECT_BUCKET_DEFAULT_NAME)
     file_uri = ''
     creation_time = ''
     s3 = boto3.client('s3')
-    response = s3.list_objects_v2(Bucket=bucket_name,
+    response = s3.list_objects_v2(Bucket=admin_bucket_name,
                                   Prefix=file_folder_path)
     logging.debug(response)
     if 'Contents' in response and response['Contents']:

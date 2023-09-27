@@ -98,6 +98,7 @@ def lambda_handler(event, context):
         gen_session()
         for record in event['Records']:
             payload = record["body"]
+            logger.info(payload)
             updated_string = re.sub(r'("[^"]*?)(\'.*?\')([^"]*?")', r'\1--\3', str(payload))
             payload = updated_string.replace("\'", "\"")
             sync_result(json.loads(payload))
