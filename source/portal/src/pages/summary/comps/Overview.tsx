@@ -12,17 +12,26 @@ import { getAccountInfomation } from 'apis/dashboard/api';
 import { IAccountInfo, ISourceCoverage } from 'ts/dashboard/types';
 import { getSourceCoverage } from 'apis/data-source/api';
 import { useTranslation } from 'react-i18next';
+import { ProviderType } from 'common/ProviderTab';
 
-const Overview: React.FC = () => {
+interface OverViewProps {
+  currentProvider?: ProviderType;
+  loadingProvider: boolean;
+}
+
+const Overview: React.FC<OverViewProps> = (props: OverViewProps) => {
   const [loadingOverview, setLoadingOverview] = useState(true);
   const [loadingCoverage, setLoadingCoverage] = useState(true);
   const [accountInfo, setAccountInfo] = useState<IAccountInfo>();
   const [coverageInfo, setCoverageInfo] = useState<ISourceCoverage>();
-  const [currentProvider, setCurrentProvider] = useState('1');
+  // const [currentProvider, setCurrentProvider] = useState('1');
   const { t } = useTranslation();
+  const { currentProvider } = props;
   const getOverviewData = async () => {
     setLoadingOverview(true);
-    const res = await getAccountInfomation({ provider_id: currentProvider });
+    const res = await getAccountInfomation({
+      provider_id: currentProvider?.id,
+    });
     setAccountInfo(res as IAccountInfo);
     setLoadingOverview(false);
   };
@@ -30,7 +39,7 @@ const Overview: React.FC = () => {
   const getDashbaordSourceCoverage = async () => {
     setLoadingCoverage(true);
     try {
-      const res = await getSourceCoverage({ provider_id: currentProvider });
+      const res = await getSourceCoverage({ provider_id: currentProvider?.id });
       setCoverageInfo(res as ISourceCoverage);
       setLoadingCoverage(false);
     } catch (error) {
@@ -39,9 +48,11 @@ const Overview: React.FC = () => {
   };
 
   useEffect(() => {
-    getOverviewData();
-    getDashbaordSourceCoverage();
-  }, []);
+    if (currentProvider) {
+      getOverviewData();
+      getDashbaordSourceCoverage();
+    }
+  }, [currentProvider]);
 
   return (
     <Grid gridDefinition={[{ colspan: 5 }, { colspan: 7 }]}>
