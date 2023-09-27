@@ -270,6 +270,8 @@ class SourceGlueDatabase(Base):
     glue_database_location_uri = sa.Column(sa.String(255))
     glue_database_create_time = sa.Column(sa.String(255))
     glue_database_catalog_id = sa.Column(sa.String(255))
+    data_lake_principal_identifier = sa.Column(sa.String(255))
+    permissions = sa.Column(sa.String(255))
     glue_state = sa.Column(sa.String(255), info={'searchable': True})
     account_id = sa.Column(sa.String(255))
     region = sa.Column(sa.String(255))

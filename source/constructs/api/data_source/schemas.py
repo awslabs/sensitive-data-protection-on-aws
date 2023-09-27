@@ -92,22 +92,23 @@ class DynamodbTableSource(BaseModel):
         orm_mode = True
 
 class SourceGlueDatabase(BaseModel):
-
-    id: int
     glue_database_name: Optional[str]
     glue_database_description: Optional[str]
     glue_database_location_uri: Optional[str]
     glue_database_create_time: Optional[str]
     glue_database_catalog_id: Optional[str]
+    data_lake_principal_identifier: Optional[str]
+    permissions: Optional[str]
+    account_id: Optional[str]
+    region: Optional[str]
+
+class SourceGlueDatabaseFullInfo(SourceGlueDatabase):
     glue_state: Optional[str]
     account_id: Optional[str]
     region: Optional[str]
-    detection_history_id: Optional[int]
-    version: Optional[int]
-    create_by: Optional[str]
-    create_time: Optional[datetime.datetime]
-    modify_by: Optional[str]
-    modify_time: Optional[datetime.datetime]
+
+    class Config:
+        orm_mode = True
 
 class RdsInstanceSource(BaseModel):
     id: int
@@ -138,19 +139,30 @@ class RdsInstanceSource(BaseModel):
 class JDBCInstanceSource(BaseModel):
     instance_id: Optional[str]
     description: Optional[str]
-    jdbc_connection_url: Optional[str]   # "jdbc:mysql://81.70.179.114:9000/"
-    jdbc_enforce_ssl: Optional[str]  # "false" Require SSL connection  如果连不上connection会报错
-    kafka_ssl_enabled: Optional[str]  # "false"
+    jdbc_connection_url: Optional[str]
+    jdbc_enforce_ssl: Optional[str]
+    kafka_ssl_enabled: Optional[str]
     master_username: Optional[str]
     password: Optional[str]
-    skip_custom_jdbc_cert_validation: Optional[str] # "false"
-    custom_jdbc_cert: Optional[str]  # SSL证书地址
-    custom_jdbc_cert_string: Optional[str]  # For Oracle Database this maps to SSL_SERVER_CERT_DN, and for SQL Server it maps to hostNameInCertificate.
+    skip_custom_jdbc_cert_validation: Optional[str]
+    custom_jdbc_cert: Optional[str]
+    custom_jdbc_cert_string: Optional[str]
     network_availability_zone: Optional[str]
     network_subnet_id: Optional[str]
     network_sg_id: Optional[str]
+    creation_time: Optional[str]
+    last_updated_time: Optional[str]
     jdbc_driver_class_name: Optional[str]
-    jdbc_driver_jar_uri: Optional[str]  # s3://mysql-connector-2023/mysql-connector-j-8.1.0.jar  必须校验为jar文件
+    jdbc_driver_jar_uri: Optional[str]
+    create_type: Optional[int]
+    account_provider_id: Optional[int]
+    account_id: Optional[str]
+    region: Optional[str]
+
+    class Config:
+        orm_mode = True
+
+class JDBCInstanceSourceFullInfo(JDBCInstanceSource):
     data_source_id: Optional[int]
     detection_history_id: Optional[int]
     glue_database: Optional[str]
@@ -158,16 +170,11 @@ class JDBCInstanceSource(BaseModel):
     glue_vpc_endpoint: Optional[str]
     glue_crawler: Optional[str]
     glue_state: Optional[str]
-    create_type: int
     instance_class: Optional[str]
     instance_status: Optional[str]
-    account_provider: Optional[str]
-    account_id: Optional[str]
-    region: Optional[str]
 
     class Config:
         orm_mode = True
-
 
 class Region(BaseModel):
     id: Optional[int]
@@ -206,28 +213,23 @@ class SourceRdsConnection(BaseModel):
     rds_secret: Optional[str]
 
 class SourceJDBCConnection(BaseModel):
-    account_provider: int
-    account_id: str
-    region: str
-    instance: str
-    engine: Optional[str]
-    address: Optional[str]
-    port: Optional[int]
-    username: Optional[str]
-    password: Optional[str]
+    account_provider: Optional[int]
+    account_id: Optional[str]
+    region: Optional[str]
+    instance: Optional[str]
     secret: Optional[str]
     network_availability_zone: Optional[str]
     network_subnet_id: Optional[str]
     network_sg_id: Optional[str]
-    jdbc_connection_url: Optional[str]   # "jdbc:mysql://81.70.179.114:9000/"
-    jdbc_enforce_ssl: Optional[str]  # "false" Require SSL connection  如果连不上connection会报错
-    kafka_ssl_enabled: Optional[str]  # "false"
+    jdbc_connection_url: Optional[str]
+    jdbc_enforce_ssl: Optional[str]
+    kafka_ssl_enabled: Optional[str]
     master_username: Optional[str]
     password: Optional[str]
-    skip_custom_jdbc_cert_validation: Optional[str] # "false"
-    custom_jdbc_cert: Optional[str]  # SSL证书地址
-    custom_jdbc_cert_string: Optional[str]  # For Oracle Database this maps to SSL_SERVER_CERT_DN, and for SQL Server it maps to hostNameInCertificate.
-    
+    skip_custom_jdbc_cert_validation: Optional[str]
+    custom_jdbc_cert: Optional[str]
+    custom_jdbc_cert_string: Optional[str]
+
 
 class SourceDeteteGlueDatabase(BaseModel):
     account_provider: int
@@ -260,7 +262,7 @@ class SourceOrgAccount(BaseModel):
     organization_management_account_id: str
 
 class NewDataSource(BaseModel):
-    provider: Optional[str]
+    provider_id: Optional[int]
     accounts: List[str]
     type: DataSourceType = DataSourceType.all
 
