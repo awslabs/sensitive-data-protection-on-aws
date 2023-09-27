@@ -1,15 +1,13 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
+    "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
 .hand-pointer {
@@ -213,6 +211,36 @@ code {
       -webkit-background-clip: padding-box;
       -moz-background-clip: padding;
       background-clip: padding-box;
+      font-size: 13px;
+      line-height: 18px;
+
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      ol {
+        list-style: none;
+        padding: 0;
+      }
+
+      li {
+        margin: 0;
+        padding: 0;
+        line-height: 18px;
+      }
+      .popover-title > .close {
+        position: relative;
+        top: -5px;
+        right: -5px;
+        color: #3a3a3a;
+        opacity: 0.6;
+
+        &:hover {
+          opacity: 0.8;
+        }
+      }
     }
 
     .popover.top {
@@ -240,13 +268,7 @@ code {
       color: #3a3a3a;
       text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75);
       background-color: #f7f7f7;
-      background-image: -webkit-gradient(
-        linear,
-        0 0,
-        0 100%,
-        from(#ffffff),
-        to(#d2d2d2)
-      );
+      background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#d2d2d2));
       background-image: -webkit-linear-gradient(top, #ffffff, #d2d2d2);
       background-image: -moz-linear-gradient(top, #ffffff, #d2d2d2);
       background-image: -ms-linear-gradient(top, #ffffff, #d2d2d2);
@@ -279,7 +301,7 @@ code {
 
     .popover .arrow:after {
       z-index: -1;
-      content: '';
+      content: "";
     }
 
     .popover.top .arrow {
@@ -341,64 +363,24 @@ code {
       border-left-color: $blue;
       border-width: 11px 0 11px 11px;
     }
-
-    // Type
-
-    .popover {
-      font-size: 13px;
-      line-height: 18px;
-
-      ul {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-      }
-
-      ol {
-        list-style: none;
-        padding: 0;
-      }
-
-      li {
-        margin: 0;
-        padding: 0;
-        line-height: 18px;
-      }
-    }
-
-    // Close button
-
-    .popover {
-      .popover-title > .close {
-        position: relative;
-        top: -5px;
-        right: -5px;
-        color: #3a3a3a;
-        opacity: 0.6;
-
-        &:hover {
-          opacity: 0.8;
-        }
-      }
-    }
   }
 }
 
 .horizon-bar-chart {
-  [class^='awsui_grid_'] {
+  [class^="awsui_grid_"] {
     display: none !important;
   }
 
-  [class^='awsui_labels-left_'] {
+  [class^="awsui_labels-left_"] {
     display: none !important;
   }
 
-  [class*='awsui_axis--emphasized_'] {
+  [class*="awsui_axis--emphasized_"] {
     display: none !important;
   }
 
-  [class^='awsui_chart-container__vertical_'] {
-    [class^='awsui_labels-bottom_'] {
+  [class^="awsui_chart-container__vertical_"] {
+    [class^="awsui_labels-bottom_"] {
       display: none !important;
     }
 
@@ -425,7 +407,7 @@ code {
 }
 
 .max-table-height {
-  max-height: 465px;
+  max-height: 435px;
   overflow-y: auto;
 }
 
@@ -472,9 +454,8 @@ code {
 .custom-badge {
   background-color: #d1d5db;
   color: #fff;
-  font-family: 'Open Sans', 'Helvetica Neue', Roboto, Arial, sans-serif;
+  font-family: "Open Sans", "Helvetica Neue", Roboto, Arial, sans-serif;
   font-size: 12px;
-  line-height: 16px;
   letter-spacing: 0.005em;
   line-height: 22px;
   display: inline-block;
