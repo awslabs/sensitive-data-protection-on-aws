@@ -2047,6 +2047,8 @@ def list_data_location():
             location.provider_id = item.id
             location.provider_name = item.provider_name
             res.append(location)
+     # 根据 location.account_count 对 res 进行排序（从高到低）
+    res = sorted(res, key=lambda x: x.account_count, reverse=True)
     return res
 
 
