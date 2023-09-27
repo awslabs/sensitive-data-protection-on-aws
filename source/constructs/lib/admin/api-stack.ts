@@ -66,38 +66,38 @@ export class ApiStack extends Construct {
     this.apiLayer = this.createLayer();
     this.code = Code.fromAsset(path.join(__dirname, '../../api'), { exclude: ['venv'] });
 
-    const controllerFunction = this.createFunction('Controller', 'lambda.controller.lambda_handler', props, '');
-    const controllerFunctionName = controllerFunction.functionName;
+    this.createFunction('Controller', 'lambda.controller.lambda_handler', props, 20, `${SolutionInfo.SOLUTION_NAME_ABBR}-Controller`);
 
-    this.apiFunction = this.createFunction('API', 'main.handler', props, controllerFunctionName, 900);
+    this.apiFunction = this.createFunction('API', 'main.handler', props, 900);
 
-    const checkRunFunction = this.createFunction('CheckRun', 'lambda.check_run.lambda_handler', props, controllerFunctionName, 600);
+    const checkRunFunction = this.createFunction('CheckRun', 'lambda.check_run.lambda_handler', props, 600);
     const checkRunRule = new events.Rule(this, 'CheckRunRule', {
       // ruleName: `${SolutionInfo.SOLUTION_NAME_ABBR}-CheckRun`,
       schedule: events.Schedule.cron({ minute: '0/30' }),
     });
     checkRunRule.addTarget(new targets.LambdaFunction(checkRunFunction));
 
-    const receiveJobInfoFunction = this.createFunction('ReceiveJobInfo', 'lambda.receive_job_info.lambda_handler', props, controllerFunctionName, 900);
+    const receiveJobInfoFunction = this.createFunction('ReceiveJobInfo', 'lambda.receive_job_info.lambda_handler', props, 900);
     const discoveryJobSqsStack = new SqsStack(this, 'DiscoveryJobQueue', { name: 'DiscoveryJob', visibilityTimeout: 900 });
     const discoveryJobEventSource = new SqsEventSource(discoveryJobSqsStack.queue);
     receiveJobInfoFunction.addEventSource(discoveryJobEventSource);
 
-    const updateCatalogFunction = this.createFunction('UpdateCatalog', 'lambda.sync_crawler_results.lambda_handler', props, controllerFunctionName, 900);
+    const updateCatalogFunction = this.createFunction('UpdateCatalog', 'lambda.sync_crawler_results.lambda_handler', props, 900);
     const crawlerSqsStack = new SqsStack(this, 'CrawlerQueue', { name: 'Crawler', visibilityTimeout: 900 });
     const crawlerEventSource = new SqsEventSource(crawlerSqsStack.queue);
     updateCatalogFunction.addEventSource(crawlerEventSource);
 
-    const autoSyncDataFunction = this.createFunction('AutoSyncData', 'lambda.auto_sync_data.lambda_handler', props, controllerFunctionName, 900);
+    const autoSyncDataFunction = this.createFunction('AutoSyncData', 'lambda.auto_sync_data.lambda_handler', props, 900);
     // Set delivery delay to 10 minutes to wait for agent stack to be deleted
     const autoSyncDataSqsStack = new SqsStack(this, 'AutoSyncDataQueue', { name: 'AutoSyncData', visibilityTimeout: 900 });
     const autoSyncDataEventSource = new SqsEventSource(autoSyncDataSqsStack.queue);
     autoSyncDataFunction.addEventSource(autoSyncDataEventSource);
   }
 
-  private createFunction(name: string, handler: string, props: ApiProps, controllerFunctionName: string, timeout?: number) {
+  private createFunction(name: string, handler: string, props: ApiProps, timeout?: number, functionName?: string) {
     const myFunction = new Function(this, `${name}Function`, {
       // functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-${name}`,
+      functionName: functionName,
       description: `${SolutionInfo.SOLUTION_NAME} - ${name}`,
       runtime: Runtime.PYTHON_3_9,
       handler: handler,
@@ -112,7 +112,6 @@ export class ApiStack extends Construct {
       environment: {
         ProjectBucketName: props.bucketName,
         Version: SolutionInfo.SOLUTION_VERSION,
-        ControllerFunctionName: controllerFunctionName,
         OidcIssuer: props.oidcIssuer,
         OidcClientId: props.oidcClientId,
       },
@@ -202,10 +201,18 @@ export class ApiStack extends Construct {
 
     const allStatement = new PolicyStatement({
       effect: Effect.ALLOW,
-      actions: ['ec2:CreateNetworkInterface',
+      actions: [
         'sts:AssumeRole',
+        'ec2:CreateNetworkInterface',
         'ec2:DescribeNetworkInterfaces',
-        'ec2:DeleteNetworkInterface'],
+        'ec2:DeleteNetworkInterface',
+        'ec2:DescribeSecurityGroups',
+        'ec2:DescribeVpcs',
+        'ec2:DescribeSubnets',
+        'ec2:DescribeNatGateways',
+        'ec2:DescribeAvailabilityZones',
+
+      ],
       resources: ['*'],
     });
     apiRole.addToPolicy(allStatement);
