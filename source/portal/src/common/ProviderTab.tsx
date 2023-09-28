@@ -26,7 +26,7 @@ const ProviderTab: React.FC<ProviderTabProps> = (props: ProviderTabProps) => {
 
   const getProviders = async () => {
     loadingProvider(true);
-    const providers: any = await getSourceProviders({});
+    const providers: any = await getSourceProviders();
     const tmpTabList: any = [];
     providers.forEach((element: ProviderType) => {
       tmpTabList.push({

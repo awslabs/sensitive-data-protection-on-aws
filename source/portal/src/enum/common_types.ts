@@ -34,3 +34,53 @@ export const TABLE_NAME = {
   TEMPLATE_IDENTIFIER: 'template_identifier',
   TEMPLATE_MAPPING: 'template_mapping',
 };
+
+export const SOURCE_TYPE = {
+  RDS: 'rds',
+  S3: 's3',
+  S3_UNSTRUCTURED: 'unstructured',
+  GLUE: 'glue',
+  DDB: 'ddb',
+  EMR: 'emr',
+  JDBC: 'jdbc',
+  JDBC_AWS: 'jdbc-aws',
+  JDBC_TENCENT: 'jdbc-tencent',
+  JDBC_ALIYUN: 'jdbc-aliyun',
+};
+
+export const getSourceTypeByProvider = (providerId: string) => {
+  switch (providerId) {
+    case '1':
+      return [
+        {
+          label: 'Amazon S3',
+          value: SOURCE_TYPE.S3,
+        },
+        {
+          label: 'Amazon RDS',
+          value: SOURCE_TYPE.RDS,
+        },
+        { label: 'Glue data catalogs', value: SOURCE_TYPE.GLUE },
+        {
+          label: 'Custom databases',
+          value: SOURCE_TYPE.JDBC_AWS,
+        },
+      ];
+    case '2':
+      return [
+        {
+          label: 'Custom databases',
+          value: SOURCE_TYPE.JDBC_TENCENT,
+        },
+      ];
+    case '3':
+      return [
+        {
+          label: 'Custom databases',
+          value: SOURCE_TYPE.JDBC,
+        },
+      ];
+    default:
+      return [];
+  }
+};

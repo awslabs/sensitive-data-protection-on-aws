@@ -21,6 +21,9 @@ import {
   Textarea,
   Toggle,
   SegmentedControl,
+  Link,
+  ColumnLayout,
+  Box,
 } from '@cloudscape-design/components';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
@@ -57,6 +60,7 @@ import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import Navigation from 'pages/left-menu/Navigation';
 import { TABLE_NAME } from 'enum/common_types';
 import { useTranslation } from 'react-i18next';
+import SelectProvider from './components/SelectProvider';
 
 const DEFAULT_TEMPLATE = {
   label: 'Current data classification template',
@@ -708,7 +712,6 @@ const CreateJobContent = () => {
   return (
     <div>
       <Wizard
-        className="job-wizard"
         i18nStrings={{
           stepNumberLabel: (stepNumber) => `${t('step.step')} ${stepNumber}`,
           collapsedStepsLabel: (stepNumber, stepsCount) =>
@@ -722,1103 +725,99 @@ const CreateJobContent = () => {
           submitButton: t('button.runAJob') || '',
           optional: t('optional') || '',
         }}
-        isLoadingNextStep={isLoading}
-        onSubmit={submitCreateJob}
-        onCancel={cancelCreateJob}
-        onNavigate={({ detail }) => {
-          const checkResult = checkMustData(detail.requestedStepIndex);
-          checkResult && setActiveStepIndex(detail.requestedStepIndex);
-        }}
+        onNavigate={({ detail }) =>
+          setActiveStepIndex(detail.requestedStepIndex)
+        }
         activeStepIndex={activeStepIndex}
-        allowSkipTo
+        // allowSkipTo
         steps={[
           {
-            title: t('job:create.seelctS3DataCatalog'),
-            content: (
-              <Container
-                header={
-                  <Header variant="h2">{t('job:create.selectScanS3')}</Header>
-                }
-              >
-                {!hasOldData && (
-                  <SpaceBetween direction="vertical" size="l">
-                    <Tiles
-                      onChange={({ detail }) => setS3CatalogType(detail.value)}
-                      value={s3CatalogType}
-                      items={[
-                        { label: t('job:cataLogOption.all'), value: 'allS3' },
-                        {
-                          label: t('job:cataLogOption.specify'),
-                          value: SELECT_S3,
-                        },
-                        {
-                          label: t('job:cataLogOption.skipScanS3'),
-                          value: NONE_S3,
-                        },
-                      ]}
-                    />
-                    {s3CatalogType === SELECT_S3 && (
-                      <Table
-                        className="job-table-width"
-                        selectionType="multi"
-                        resizableColumns
-                        selectedItems={selectedS3Items}
-                        onSelectionChange={({ detail }) =>
-                          setSelectedS3Items(detail.selectedItems)
-                        }
-                        variant="embedded"
-                        ariaLabels={{
-                          selectionGroupLabel: t('table.itemsSelection') || '',
-                          allItemsSelectionLabel: ({ selectedItems }) =>
-                            `${selectedItems.length} ${
-                              selectedItems.length === 1
-                                ? t('table.item')
-                                : t('table.items')
-                            } ${t('table.selected')}`,
-                          itemSelectionLabel: ({ selectedItems }, item) => {
-                            const isItemSelected = selectedItems.filter(
-                              (i) =>
-                                (i as any)[S3_CATALOG_COLUMS[0].id] ===
-                                (item as any)[S3_CATALOG_COLUMS[0].id]
-                            ).length;
-                            return `${
-                              (item as any)[S3_CATALOG_COLUMS[0].id]
-                            } ${t('table.is')} ${
-                              isItemSelected ? '' : t('table.not')
-                            } ${t('table.selected')}`;
-                          },
-                        }}
-                        items={s3CatalogData}
-                        filter={<ResourcesFilter {...s3FilterProps} />}
-                        columnDefinitions={S3_CATALOG_COLUMS.map((item) => {
-                          return {
-                            id: item.id,
-                            header: t(item.label),
-                            cell: (e: any) => {
-                              if (item.id === 'size_key') {
-                                return formatSize((e as any)[item.id]);
-                              }
-                              if (item.id === 'privacy') {
-                                if (
-                                  (e as any)[item.id] &&
-                                  ((e as any)[item.id] === 'N/A' ||
-                                    (e as any)[item.id].toString() ===
-                                      PRIVARY_TYPE_INT_DATA['N/A'])
-                                ) {
-                                  return 'N/A';
-                                }
-                                return (
-                                  <CommonBadge
-                                    badgeType={BADGE_TYPE.Privacy}
-                                    badgeLabel={(e as any)[item.id]}
-                                  />
-                                );
-                              }
-
-                              return e[item.id];
-                            },
-                          };
-                        })}
-                        loading={isLoading}
-                        pagination={
-                          <Pagination
-                            currentPageIndex={currentPage}
-                            onChange={({ detail }) =>
-                              setCurrentPage(detail.currentPageIndex)
-                            }
-                            pagesCount={Math.ceil(
-                              s3Total / preferences.pageSize
-                            )}
-                            ariaLabels={{
-                              nextPageLabel: t('table.nextPage') || '',
-                              previousPageLabel: t('table.previousPage') || '',
-                              pageLabel: (pageNumber) =>
-                                `${t('table.pageLabel', {
-                                  pageNumber: pageNumber,
-                                })}`,
-                            }}
-                          />
-                        }
-                        preferences={
-                          <CollectionPreferences
-                            onConfirm={({ detail }) => setPreferences(detail)}
-                            preferences={preferences}
-                            title={t('table.preferences')}
-                            confirmLabel={t('table.confirm')}
-                            cancelLabel={t('table.cancel')}
-                            pageSizePreference={{
-                              title: t('table.selectPageSize'),
-                              options: [
-                                { value: 10, label: t('table.pageSize10') },
-                                { value: 20, label: t('table.pageSize20') },
-                                { value: 50, label: t('table.pageSize50') },
-                                { value: 100, label: t('table.pageSize100') },
-                              ],
-                            }}
-                            visibleContentPreference={{
-                              title: t('table.selectVisibleContent'),
-                              options: [
-                                {
-                                  label: t('table.mainDistributionProp'),
-                                  options: S3_CATALOG_COLUMS,
-                                },
-                              ],
-                            }}
-                          />
-                        }
-                      />
-                    )}
-                  </SpaceBetween>
-                )}
-                {hasOldData && selectedS3Items.length > 0 && (
-                  <Table
-                    items={selectedS3Items}
-                    resizableColumns
-                    variant="embedded"
-                    columnDefinitions={S3_CATALOG_COLUMS_OLDDATA.map((item) => {
-                      return {
-                        id: item.id,
-                        header: t(item.label),
-                        cell: (e: any) => {
-                          if (item.id === 'size_key') {
-                            return formatSize((e as any)[item.id]);
-                          }
-                          if (item.id === 'privacy') {
-                            if (
-                              (e as any)[item.id] &&
-                              ((e as any)[item.id] === 'N/A' ||
-                                (e as any)[item.id].toString() ===
-                                  PRIVARY_TYPE_INT_DATA['N/A'])
-                            ) {
-                              return 'N/A';
-                            }
-                            return (
-                              <CommonBadge
-                                badgeType={BADGE_TYPE.Privacy}
-                                badgeLabel={(e as any)[item.id]}
-                              />
-                            );
-                          }
-                          if (item.id === 'operate') {
-                            return (
-                              <span
-                                onClick={() => deleteS3OldItem(e as any)}
-                                className="clk-remove"
-                              >
-                                <Icon
-                                  name="close"
-                                  size="small"
-                                  className="small-icon"
-                                ></Icon>{' '}
-                                {t('button.remove')}
-                              </span>
-                            );
-                          }
-
-                          return e[item.id];
-                        },
-                      };
-                    })}
-                    loading={isLoading}
-                  />
-                )}
-                {!isLoading && hasOldData && selectedS3Items.length === 0 && (
-                  <span>{t('job:create.skipS3Catalog')}</span>
-                )}
-              </Container>
-            ),
+            title: 'Choose cloud provider and data sources',
+            info: <Link variant="info">Info</Link>,
+            description: 'Select cloud provider and data source',
+            content: <SelectProvider />,
           },
           {
-            title: t('job:create.selectCatalogRDS'),
+            title: 'Select existing data catalogs',
             content: (
-              <>
-                <Container
-                  header={
-                    <Header variant="h2">
-                      {t('job:create.selectScanRDS')}
-                    </Header>
+              <Container
+                header={<Header variant="h2">Form container header</Header>}
+              >
+                <SpaceBetween direction="vertical" size="l">
+                  <FormField label="First field">
+                    <Input value={''} />
+                  </FormField>
+                  <FormField label="Second field">
+                    <Input value={''} />
+                  </FormField>
+                </SpaceBetween>
+              </Container>
+            ),
+            isOptional: true,
+          },
+          {
+            title: 'Job settings',
+            content: (
+              <Container
+                header={<Header variant="h2">Form container header</Header>}
+              >
+                <SpaceBetween direction="vertical" size="l">
+                  <FormField label="First field">
+                    <Input value={''} />
+                  </FormField>
+                  <FormField label="Second field">
+                    <Input value={''} />
+                  </FormField>
+                </SpaceBetween>
+              </Container>
+            ),
+            isOptional: true,
+          },
+          {
+            title: 'Advanced settings: Exclude keywords',
+            content: (
+              <Container
+                header={<Header variant="h2">Form container header</Header>}
+              >
+                <SpaceBetween direction="vertical" size="l">
+                  <FormField label="First field">
+                    <Input value={''} />
+                  </FormField>
+                  <FormField label="Second field">
+                    <Input value={''} />
+                  </FormField>
+                </SpaceBetween>
+              </Container>
+            ),
+            isOptional: true,
+          },
+          {
+            title: 'Job preview',
+            content: (
+              <SpaceBetween size="xs">
+                <Header
+                  variant="h3"
+                  actions={
+                    <Button onClick={() => setActiveStepIndex(0)}>Edit</Button>
                   }
                 >
-                  {!hasOldData && (
-                    <SpaceBetween direction="vertical" size="l">
-                      <Tiles
-                        onChange={({ detail }) =>
-                          setRdsCatalogType(detail.value)
-                        }
-                        value={rdsCatalogType}
-                        items={[
-                          {
-                            label: t('job:cataLogOption.all'),
-                            value: 'allRds',
-                          },
-                          {
-                            label: t('job:cataLogOption.specify'),
-                            value: SELECT_RDS,
-                          },
-                          {
-                            label: t('job:cataLogOption.skipScanRDS'),
-                            value: NONE_RDS,
-                          },
-                        ]}
-                      />
-                      {rdsCatalogType === SELECT_RDS && (
-                        <>
-                          <SegmentedControl
-                            selectedId={rdsSelectedView}
-                            options={[
-                              {
-                                text: 'Instance view',
-                                id: 'rds-instance-view',
-                              },
-                              { text: 'Table view', id: 'rds-table-view' },
-                            ]}
-                            onChange={({ detail }) =>
-                              setRdsSelectedView(detail.selectedId)
-                            }
-                          />
-                          {rdsSelectedView === 'rds-instance-view' && (
-                            <Table
-                              className="job-table-width"
-                              resizableColumns
-                              variant="embedded"
-                              selectionType="multi"
-                              selectedItems={selectedRdsItems}
-                              onSelectionChange={({ detail }) =>
-                                setSelectedRdsItems(detail.selectedItems)
-                              }
-                              ariaLabels={{
-                                selectionGroupLabel:
-                                  t('table.itemsSelection') || '',
-                                allItemsSelectionLabel: ({ selectedItems }) =>
-                                  `${selectedItems.length} ${
-                                    selectedItems.length === 1
-                                      ? t('table.item')
-                                      : t('table.items')
-                                  } ${t('table.selected')}`,
-                                itemSelectionLabel: (
-                                  { selectedItems },
-                                  item
-                                ) => {
-                                  const isItemSelected = selectedItems.filter(
-                                    (i) =>
-                                      (i as any)[S3_CATALOG_COLUMS[0].id] ===
-                                      (item as any)[S3_CATALOG_COLUMS[0].id]
-                                  ).length;
-                                  return `${
-                                    (item as any)[S3_CATALOG_COLUMS[0].id]
-                                  } ${t('table.is')} ${
-                                    isItemSelected ? '' : t('table.not')
-                                  } ${t('table.selected')}`;
-                                },
-                              }}
-                              items={rdsCatalogData}
-                              filter={<ResourcesFilter {...rdsFilterProps} />}
-                              columnDefinitions={RDS_CATALOG_COLUMS.map(
-                                (item) => {
-                                  return {
-                                    id: item.id,
-                                    header: t(item.label),
-                                    cell: (e: any) => {
-                                      if (item.id === 'size_key') {
-                                        return formatSize((e as any)[item.id]);
-                                      }
-                                      if (item.id === 'privacy') {
-                                        if (
-                                          (e as any)[item.id] &&
-                                          ((e as any)[item.id] === 'N/A' ||
-                                            (e as any)[item.id].toString() ===
-                                              PRIVARY_TYPE_INT_DATA['N/A'])
-                                        ) {
-                                          return 'N/A';
-                                        }
-                                        return (
-                                          <CommonBadge
-                                            badgeType={BADGE_TYPE.Privacy}
-                                            badgeLabel={(e as any)[item.id]}
-                                          />
-                                        );
-                                      }
-                                      return e[item.id];
-                                    },
-                                  };
-                                }
-                              )}
-                              loading={isLoading}
-                              pagination={
-                                <Pagination
-                                  currentPageIndex={currentPage}
-                                  onChange={({ detail }) =>
-                                    setCurrentPage(detail.currentPageIndex)
-                                  }
-                                  pagesCount={Math.ceil(
-                                    rdsTotal / preferences.pageSize
-                                  )}
-                                  ariaLabels={{
-                                    nextPageLabel: t('table.nextPage') || '',
-                                    previousPageLabel:
-                                      t('table.previousPage') || '',
-                                    pageLabel: (pageNumber) =>
-                                      `${t('table.pageLabel', {
-                                        pageNumber: pageNumber,
-                                      })}`,
-                                  }}
-                                />
-                              }
-                              preferences={
-                                <CollectionPreferences
-                                  onConfirm={({ detail }) =>
-                                    setPreferences(detail)
-                                  }
-                                  preferences={preferences}
-                                  title={t('table.preferences')}
-                                  confirmLabel={t('table.confirm')}
-                                  cancelLabel={t('table.cancel')}
-                                  pageSizePreference={{
-                                    title: t('table.selectPageSize'),
-                                    options: [
-                                      {
-                                        value: 10,
-                                        label: t('table.pageSize10'),
-                                      },
-                                      {
-                                        value: 20,
-                                        label: t('table.pageSize20'),
-                                      },
-                                      {
-                                        value: 50,
-                                        label: t('table.pageSize50'),
-                                      },
-                                      {
-                                        value: 100,
-                                        label: t('table.pageSize100'),
-                                      },
-                                    ],
-                                  }}
-                                  visibleContentPreference={{
-                                    title: t('table.selectVisibleContent'),
-                                    options: [
-                                      {
-                                        label: t('table.mainDistributionProp'),
-                                        options: S3_CATALOG_COLUMS,
-                                      },
-                                    ],
-                                  }}
-                                />
-                              }
-                            />
-                          )}
-                          {rdsSelectedView === 'rds-table-view' && (
-                            <Table
-                              className="job-table-width"
-                              resizableColumns
-                              variant="embedded"
-                              selectionType="multi"
-                              selectedItems={selectedRdsItems}
-                              onSelectionChange={({ detail }) =>
-                                setSelectedRdsItems(detail.selectedItems)
-                              }
-                              ariaLabels={{
-                                selectionGroupLabel:
-                                  t('table.itemsSelection') || '',
-                                allItemsSelectionLabel: ({ selectedItems }) =>
-                                  `${selectedItems.length} ${
-                                    selectedItems.length === 1
-                                      ? t('table.item')
-                                      : t('table.items')
-                                  } ${t('table.selected')}`,
-                                itemSelectionLabel: (
-                                  { selectedItems },
-                                  item
-                                ) => {
-                                  const isItemSelected = selectedItems.filter(
-                                    (i) =>
-                                      (i as any)[S3_CATALOG_COLUMS[0].id] ===
-                                      (item as any)[S3_CATALOG_COLUMS[0].id]
-                                  ).length;
-                                  return `${
-                                    (item as any)[S3_CATALOG_COLUMS[0].id]
-                                  } ${t('table.is')} ${
-                                    isItemSelected ? '' : t('table.not')
-                                  } ${t('table.selected')}`;
-                                },
-                              }}
-                              items={rdsFolderData}
-                              filter={<ResourcesFilter {...rdsFilterProps} />}
-                              columnDefinitions={RDS_FOLDER_COLUMS.map(
-                                (item) => {
-                                  return {
-                                    id: item.id,
-                                    header: t(item.label),
-                                    cell: (e: any) => {
-                                      if (item.id === 'size_key') {
-                                        return formatSize((e as any)[item.id]);
-                                      }
-                                      if (item.id === 'privacy') {
-                                        if (
-                                          (e as any)[item.id] &&
-                                          ((e as any)[item.id] === 'N/A' ||
-                                            (e as any)[item.id].toString() ===
-                                              PRIVARY_TYPE_INT_DATA['N/A'])
-                                        ) {
-                                          return 'N/A';
-                                        }
-                                        return (
-                                          <CommonBadge
-                                            badgeType={BADGE_TYPE.Privacy}
-                                            badgeLabel={(e as any)[item.id]}
-                                          />
-                                        );
-                                      }
-                                      return e[item.id];
-                                    },
-                                  };
-                                }
-                              )}
-                              loading={isLoading}
-                              pagination={
-                                <Pagination
-                                  currentPageIndex={currentPage}
-                                  onChange={({ detail }) =>
-                                    setCurrentPage(detail.currentPageIndex)
-                                  }
-                                  pagesCount={Math.ceil(
-                                    rdsTotal / preferences.pageSize
-                                  )}
-                                  ariaLabels={{
-                                    nextPageLabel: t('table.nextPage') || '',
-                                    previousPageLabel:
-                                      t('table.previousPage') || '',
-                                    pageLabel: (pageNumber) =>
-                                      `${t('table.pageLabel', {
-                                        pageNumber: pageNumber,
-                                      })}`,
-                                  }}
-                                />
-                              }
-                              preferences={
-                                <CollectionPreferences
-                                  onConfirm={({ detail }) =>
-                                    setPreferences(detail)
-                                  }
-                                  preferences={preferences}
-                                  title={t('table.preferences')}
-                                  confirmLabel={t('table.confirm')}
-                                  cancelLabel={t('table.cancel')}
-                                  pageSizePreference={{
-                                    title: t('table.selectPageSize'),
-                                    options: [
-                                      {
-                                        value: 10,
-                                        label: t('table.pageSize10'),
-                                      },
-                                      {
-                                        value: 20,
-                                        label: t('table.pageSize20'),
-                                      },
-                                      {
-                                        value: 50,
-                                        label: t('table.pageSize50'),
-                                      },
-                                      {
-                                        value: 100,
-                                        label: t('table.pageSize100'),
-                                      },
-                                    ],
-                                  }}
-                                  visibleContentPreference={{
-                                    title: t('table.selectVisibleContent'),
-                                    options: [
-                                      {
-                                        label: t('table.mainDistributionProp'),
-                                        options: S3_CATALOG_COLUMS,
-                                      },
-                                    ],
-                                  }}
-                                />
-                              }
-                            />
-                          )}
-                        </>
-                      )}
-                    </SpaceBetween>
-                  )}
-                  {hasOldData && selectedRdsItems.length > 0 && (
-                    <Table
-                      items={selectedRdsItems}
-                      resizableColumns
-                      variant="embedded"
-                      columnDefinitions={RDS_CATALOG_COLUMS_OLDDATA.map(
-                        (item) => {
-                          return {
-                            id: item.id,
-                            header: t(item.label),
-                            cell: (e: any) => {
-                              if (item.id === 'size_key') {
-                                return formatSize((e as any)[item.id]);
-                              }
-                              if (item.id === 'privacy') {
-                                if (
-                                  (e as any)[item.id] &&
-                                  ((e as any)[item.id] === 'N/A' ||
-                                    (e as any)[item.id].toString() ===
-                                      PRIVARY_TYPE_INT_DATA['N/A'])
-                                ) {
-                                  return 'N/A';
-                                }
-                                return (
-                                  <CommonBadge
-                                    badgeType={BADGE_TYPE.Privacy}
-                                    badgeLabel={(e as any)[item.id]}
-                                  />
-                                );
-                              }
-                              if (item.id === 'operate') {
-                                return (
-                                  <span
-                                    onClick={() => deleteRDSOldItem(e as any)}
-                                    className="clk-remove"
-                                  >
-                                    <Icon
-                                      name="close"
-                                      size="small"
-                                      className="small-icon"
-                                    ></Icon>{' '}
-                                    {t('button.remove')}
-                                  </span>
-                                );
-                              }
-                              return e[item.id];
-                            },
-                          };
-                        }
-                      )}
-                      loading={isLoading}
-                    />
-                  )}
-                  {!isLoading &&
-                    hasOldData &&
-                    selectedRdsItems.length === 0 && (
-                      <span>{t('job:create.skipRDSCatalog')}</span>
-                    )}
+                  Step 1: Instance type
+                </Header>
+                <Container
+                  header={<Header variant="h2">Container title</Header>}
+                >
+                  <ColumnLayout columns={2} variant="text-grid">
+                    <div>
+                      <Box variant="awsui-key-label">First field</Box>
+                      <div>Value</div>
+                    </div>
+                    <div>
+                      <Box variant="awsui-key-label">Second Field</Box>
+                      <div>Value</div>
+                    </div>
+                  </ColumnLayout>
                 </Container>
-              </>
-            ),
-          },
-          {
-            title: t('job:create.jobSettings'),
-            content: (
-              <div>
-                <SpaceBetween direction="vertical" size="l">
-                  <Container
-                    header={
-                      <Header variant="h2">
-                        {t('job:create.jobBasicInfo')}
-                      </Header>
-                    }
-                  >
-                    <SpaceBetween direction="vertical" size="l">
-                      <FormField
-                        label={t('job:create.name')}
-                        description={t('job:create.nameDesc')}
-                      >
-                        <Input
-                          value={jobName}
-                          onChange={({ detail }) =>
-                            detail.value.length <= 60 &&
-                            checkChar(detail.value) &&
-                            setJobName(detail.value)
-                          }
-                          placeholder={t('job:create.jobNamePlaceholder') || ''}
-                        />
-                      </FormField>
-                      <FormField label={t('job:create.desc')}>
-                        <Input
-                          value={jobDescription}
-                          onChange={({ detail }) =>
-                            detail.value.length <= 60 &&
-                            setJobDescriptio(detail.value)
-                          }
-                          placeholder={t('job:create.descPlaceholder') || ''}
-                        />
-                      </FormField>
-                    </SpaceBetween>
-                  </Container>
-                  <Container
-                    header={
-                      <Header variant="h2">
-                        {t('job:create.dataClassfiyTmpl')}
-                      </Header>
-                    }
-                  >
-                    <FormField
-                      label={t('job:create.dataClassfiyTmpl')}
-                      info={
-                        <Popover
-                          dismissButton={false}
-                          position="right"
-                          size="large"
-                          content={
-                            <StatusIndicator type="info">
-                              {t('job:create.dataClassfiyTmplPop1')}
-                              <p>{t('job:create.dataClassfiyTmplPop2')}</p>
-                              <p>{t('job:create.dataClassfiyTmplPop3')}</p>
-                            </StatusIndicator>
-                          }
-                        >
-                          <b className="titel-info">{t('info')}</b>
-                        </Popover>
-                      }
-                    >
-                      <Select
-                        selectedOption={selectTemplate}
-                        onChange={(select) => {
-                          setSelectTemplate(select.detail.selectedOption);
-                        }}
-                        triggerVariant="option"
-                        options={[DEFAULT_TEMPLATE]}
-                        placeholder={
-                          t('job:create.classifyTmplForPrivacy') || ''
-                        }
-                      ></Select>
-                    </FormField>
-                  </Container>
-
-                  <Container
-                    header={
-                      <Header variant="h2">
-                        {t('job:create.jobSettings')}
-                      </Header>
-                    }
-                  >
-                    <SpaceBetween direction="vertical" size="l">
-                      <FormField label={t('job:create.scanFreq')}>
-                        <Select
-                          triggerVariant="option"
-                          selectedAriaLabel={t('selected') || ''}
-                          onChange={({ detail }) => {
-                            setFrequencyType(
-                              detail.selectedOption.value as any
-                            );
-                            setScanFrequency(detail.selectedOption);
-                            if (
-                              detail.selectedOption.value === 'on_demand_run'
-                            ) {
-                              clkFrequencyApply(detail.selectedOption.value);
-                            }
-                          }}
-                          options={SCAN_FREQUENCY}
-                          selectedOption={scanFrequency}
-                        ></Select>
-                      </FormField>
-                      <div>
-                        {frequencyType === 'daily' && (
-                          <FormField
-                            label={
-                              t('job:create.startHourOfDay') +
-                              ' (' +
-                              timezone +
-                              ')'
-                            }
-                          >
-                            <Select
-                              selectedOption={frequencyTimeStart}
-                              triggerVariant="option"
-                              selectedAriaLabel={t('selected') || ''}
-                              options={HOUR_OPTIONS}
-                              onChange={(select) => {
-                                setFrequencyTimeStart(
-                                  select.detail.selectedOption
-                                );
-                              }}
-                              onBlur={clkFrequencyApply}
-                            ></Select>
-                          </FormField>
-                        )}
-                        {frequencyType === 'weekly' && (
-                          <FormField label={t('job:create.startDayOfWeek')}>
-                            <Select
-                              selectedOption={frequencyStart}
-                              triggerVariant="option"
-                              options={DAY_OPTIONS}
-                              selectedAriaLabel={t('selected') || ''}
-                              onChange={(select) => {
-                                setFrequencyStart(select.detail.selectedOption);
-                              }}
-                              onBlur={clkFrequencyApply}
-                            ></Select>
-                            <p />
-                          </FormField>
-                        )}
-                        {frequencyType === 'weekly' && (
-                          <FormField
-                            label={
-                              t('job:create.startHourOfDay') +
-                              ' (' +
-                              timezone +
-                              ')'
-                            }
-                          >
-                            <Select
-                              selectedOption={frequencyTimeStart}
-                              triggerVariant="option"
-                              selectedAriaLabel={t('selected') || ''}
-                              options={HOUR_OPTIONS}
-                              onChange={(select) => {
-                                setFrequencyTimeStart(
-                                  select.detail.selectedOption
-                                );
-                              }}
-                              onBlur={clkFrequencyApply}
-                            ></Select>
-                          </FormField>
-                        )}
-                        {frequencyType === 'monthly' && (
-                          <FormField
-                            label={t('job:create.startDayOfMonth')}
-                            description={t('job:create.startDayOfMonthDesc')}
-                          >
-                            <Select
-                              selectedOption={frequencyStart}
-                              triggerVariant="option"
-                              options={MONTH_OPTIONS}
-                              selectedAriaLabel={t('selected') || ''}
-                              onChange={(select) => {
-                                setFrequencyStart(select.detail.selectedOption);
-                              }}
-                              onBlur={clkFrequencyApply}
-                            ></Select>
-                            <p />
-                          </FormField>
-                        )}
-                        {frequencyType === 'monthly' && (
-                          <FormField
-                            label={
-                              t('job:create.startHourOfDay') +
-                              ' (' +
-                              timezone +
-                              ')'
-                            }
-                          >
-                            <Select
-                              selectedOption={frequencyTimeStart}
-                              triggerVariant="option"
-                              selectedAriaLabel={t('selected') || ''}
-                              options={HOUR_OPTIONS}
-                              onChange={(select) => {
-                                setFrequencyTimeStart(
-                                  select.detail.selectedOption
-                                );
-                              }}
-                              onBlur={clkFrequencyApply}
-                            ></Select>
-                          </FormField>
-                        )}
-                      </div>
-
-                      <FormField
-                        label={t('job:create.scanDepth')}
-                        info={
-                          <Popover
-                            dismissButton={false}
-                            position="right"
-                            size="large"
-                            content={
-                              <StatusIndicator type="info">
-                                {t('job:create.scanDepthPop1')}
-                                <p>{t('job:create.scanDepthPop2')}</p>
-                              </StatusIndicator>
-                            }
-                          >
-                            <b className="titel-info">{t('info')}</b>
-                          </Popover>
-                        }
-                      >
-                        <Select
-                          selectedOption={scanDepth}
-                          onChange={(select) => {
-                            setScanDepth(select.detail.selectedOption);
-                          }}
-                          triggerVariant="option"
-                          options={SCAN_DEPTH_OPTIONS}
-                          selectedAriaLabel={t('selected') || ''}
-                          placeholder={
-                            t('job:create.scanDepthPlaceholder') || ''
-                          }
-                        ></Select>
-                      </FormField>
-                      <FormField
-                        label={t('job:create.scanRange')}
-                        info={
-                          <Popover
-                            dismissButton={false}
-                            position="right"
-                            size="large"
-                            content={
-                              <StatusIndicator type="info">
-                                {t('job:create.scanRangePop1')}
-                                <p>{t('job:create.scanRangePop2')}</p>
-                              </StatusIndicator>
-                            }
-                          >
-                            <b className="titel-info">{t('info')}</b>
-                          </Popover>
-                        }
-                      >
-                        <Select
-                          selectedOption={scanRange}
-                          onChange={(select) => {
-                            setScanRange(select.detail.selectedOption);
-                          }}
-                          triggerVariant="option"
-                          options={SCAN_RANGE_OPTIONS}
-                          selectedAriaLabel={t('selected') || ''}
-                          placeholder={
-                            t('job:create.scanRangePlaceholder') || ''
-                          }
-                        ></Select>
-                      </FormField>
-                      <FormField
-                        label={t('job:create.detectionThreshold')}
-                        info={
-                          <Popover
-                            dismissButton={false}
-                            position="right"
-                            size="large"
-                            content={
-                              <StatusIndicator type="info">
-                                {t('job:create.detectionThresholdPop1')}
-                                <p>{t('job:create.detectionThresholdPop2')}</p>
-                              </StatusIndicator>
-                            }
-                          >
-                            <b className="titel-info">{t('info')}</b>
-                          </Popover>
-                        }
-                      >
-                        <Select
-                          selectedOption={detectionThreshold}
-                          onChange={(select) => {
-                            setDetectionThreshold(select.detail.selectedOption);
-                          }}
-                          triggerVariant="option"
-                          options={DETECTION_THRESHOLD_OPTIONS}
-                          selectedAriaLabel={t('selected') || ''}
-                          placeholder={
-                            t('job:create.detectionThresholdPlaceholder') || ''
-                          }
-                        ></Select>
-                      </FormField>
-                      <FormField label={t('job:create.override')}>
-                        <Select
-                          selectedOption={overwrite}
-                          onChange={(select) => {
-                            setOverwrite(select.detail.selectedOption);
-                          }}
-                          triggerVariant="option"
-                          options={OVERRIDE_OPTIONS}
-                          selectedAriaLabel={t('selected') || ''}
-                        ></Select>
-                      </FormField>
-                    </SpaceBetween>
-                  </Container>
-                  <Container
-                    header={
-                      <Header
-                        variant="h2"
-                        description={t('job:create.exclusiveRulesDesc')}
-                      >
-                        {t('job:create.exclusiveRules')}
-                      </Header>
-                    }
-                  >
-                    <Toggle
-                      onChange={({ detail }) =>
-                        setExclusiveToggle(detail.checked)
-                      }
-                      checked={exclusiveToggle}
-                    >
-                      <b>{t('job:create.exclusiveRulesToggle')}</b>
-                    </Toggle>
-                    {exclusiveToggle && (
-                      <>
-                        <Textarea
-                          value={exclusiveText}
-                          onChange={({ detail }) => {
-                            setExclusiveText(detail.value);
-                          }}
-                          placeholder=""
-                          rows={6}
-                        />
-                      </>
-                    )}
-                  </Container>
-                </SpaceBetween>
-              </div>
-            ),
-          },
-          {
-            title: t('job:create.jobPreview'),
-            content: (
-              <Container
-                header={
-                  <Header variant="h2">{t('job:create.jobPreview')}</Header>
-                }
-              >
-                <SpaceBetween direction="vertical" size="l">
-                  <FormField label={t('job:create.targetDataCatalogs')}>
-                    <span className="sources-title">
-                      {t('job:create.s3Bucket')} ({S3_OPTION[s3CatalogType]}) :
-                    </span>
-                    {s3CatalogType === SELECT_S3 && (
-                      <ul>
-                        {selectedS3Items.map(
-                          (
-                            item: {
-                              database_name:
-                                | string
-                                | number
-                                | boolean
-                                | React.ReactElement<
-                                    any,
-                                    string | React.JSXElementConstructor<any>
-                                  >
-                                | React.ReactFragment
-                                | React.ReactPortal
-                                | null
-                                | undefined;
-                            },
-                            index: string | number
-                          ) => {
-                            return (
-                              <li
-                                className="job-name"
-                                key={SELECT_S3 + index}
-                                onClick={() => jumpToCatalog(item)}
-                              >
-                                {item.database_name}
-                              </li>
-                            );
-                          }
-                        )}
-                      </ul>
-                    )}
-                    <br></br>
-                    {rdsSelectedView === 'rds-instance-view' && (
-                      <>
-                        <span className="sources-title">
-                          {t('job:create.rdsInstance')} (
-                          {RDS_OPTION[rdsCatalogType]}) :
-                        </span>
-                        {rdsCatalogType === SELECT_RDS &&
-                          selectedRdsItems.map(
-                            (
-                              item: {
-                                database_name:
-                                  | string
-                                  | number
-                                  | boolean
-                                  | React.ReactElement<
-                                      any,
-                                      string | React.JSXElementConstructor<any>
-                                    >
-                                  | React.ReactFragment
-                                  | React.ReactPortal
-                                  | null
-                                  | undefined;
-                              },
-                              index: string
-                            ) => {
-                              return (
-                                <li
-                                  className="sources-title-detail"
-                                  key={SELECT_RDS + index}
-                                >
-                                  {item.database_name}
-                                </li>
-                              );
-                            }
-                          )}
-                      </>
-                    )}
-                    {rdsSelectedView === 'rds-table-view' && (
-                      <>
-                        <span className="sources-title">
-                          {t('job:create.rdsTable')} (
-                          {RDS_OPTION[rdsCatalogType]}) :
-                        </span>
-                        {rdsCatalogType === SELECT_RDS &&
-                          selectedRdsItems.map(
-                            (
-                              item: {
-                                table_name:
-                                  | string
-                                  | number
-                                  | boolean
-                                  | React.ReactElement<
-                                      any,
-                                      string | React.JSXElementConstructor<any>
-                                    >
-                                  | React.ReactFragment
-                                  | React.ReactPortal
-                                  | null
-                                  | undefined;
-                              },
-                              index: string
-                            ) => {
-                              return (
-                                <li
-                                  className="sources-title-detail"
-                                  key={SELECT_RDS + index}
-                                >
-                                  {item.table_name}
-                                </li>
-                              );
-                            }
-                          )}
-                      </>
-                    )}
-                  </FormField>
-                  <FormField label={t('job:create.name')}>
-                    <span>{jobName}</span>
-                  </FormField>
-                  <FormField label={t('job:create.desc')}>
-                    <span>{jobDescription}</span>
-                  </FormField>
-                  <FormField label={t('job:create.dataClassfiyTmpl')}>
-                    <span>{selectTemplate ? selectTemplate.label : ''}</span>
-                  </FormField>
-                  <FormField label={t('job:create.scanFreq')}>
-                    <span>
-                      {frequencyType.toUpperCase()}{' '}
-                      {frequencyStart && (
-                        <>
-                          - Start hours/day:
-                          {frequencyStart?.value}
-                        </>
-                      )}
-                    </span>
-                  </FormField>
-                  <FormField label={t('job:create.scanDepth')}>
-                    <span>{scanDepth ? scanDepth.label : ''}</span>
-                  </FormField>
-                  <FormField label={t('job:create.scanRange')}>
-                    <span>{scanRange ? scanRange.label : ''}</span>
-                  </FormField>
-                  <FormField label={t('job:create.detectionThreshold')}>
-                    <span>
-                      {detectionThreshold ? detectionThreshold.label : ''}
-                    </span>
-                  </FormField>
-                  <FormField label={t('job:create.override')}>
-                    <span>{overwrite ? overwrite.label : ''}</span>
-                  </FormField>
-                  <FormField label={t('job:create.exclusives')}>
-                    <span>
-                      <pre>{exclusiveText ? exclusiveText : ''}</pre>
-                    </span>
-                  </FormField>
-                </SpaceBetween>
-              </Container>
+              </SpaceBetween>
             ),
           },
         ]}

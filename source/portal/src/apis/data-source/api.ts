@@ -89,8 +89,8 @@ const getSecrets = async (params: any) => {
   return result;
 };
 
-const getSourceProviders = async (params: any) => {
-  const result = await apiRequest('post', 'data-source/list-providers', params);
+const getSourceProviders = async () => {
+  const result = await apiRequest('post', 'data-source/list-providers', {});
   return result;
 };
 
