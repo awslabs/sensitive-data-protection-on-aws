@@ -9,7 +9,6 @@ import label.crud
 from . import crud, schemas
 from zipfile import ZipFile
 from data_source import crud as data_source_crud
-from data_source.service import convert_database_type_provider
 import time
 from time import sleep
 from common.constant import const
@@ -138,6 +137,7 @@ def sync_crawler_result(
             rds_engine_type = rds_database.engine
     
     if database_type.startswith(DatabaseType.JDBC.value):
+        from data_source.service import convert_database_type_provider
         provider_id = convert_database_type_provider(database_type)
         jdbc_database = data_source_crud.get_jdbc_instance_source(
             provider_id, account_id, region, database_name

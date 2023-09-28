@@ -2025,23 +2025,23 @@ def list_data_location():
     provider_list = crud.list_distinct_provider()
     for item in provider_list:
         regions = crud.list_distinct_region_by_provider(item.id)
+        accounts_db = crud.get_account_list_by_provider(item.id)
         if not regions:
-            # location = DataLocationInfo()
-            # location.source = item.provider_name
-            # location.region = None
-            # location.coordinate = None
-            # location.account_count = 0
-            # res.append(location)
+            continue
+        if not accounts_db:
             continue
         for subItem in regions:
-            accounts = crud.list_account_by_provider_and_region(item.id, subItem.region_name)
+            accounts = []
+            for account in accounts_db:
+                if account.region == subItem.region_name:
+                    accounts.append(account)
             if len(accounts) == 0:
                 continue
             # TODO filter logic
             location = DataLocationInfo()
             location.account_count = len(accounts)
             location.source = item.provider_name
-            location.region = subItem.region_cord
+            location.region = subItem.region_name
             location.coordinate = subItem.region_cord
             location.region_alias = subItem.region_alias
             location.provider_id = item.id

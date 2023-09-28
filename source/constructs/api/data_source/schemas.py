@@ -327,6 +327,6 @@ class DataLocationInfo(BaseModel):
     region: Optional[str]
     account_count: Optional[int]
     coordinate: Optional[str]
-    region_name: Optional[str]
+    region_alias: Optional[str]
     provider_id: Optional[str]
     provider_name: Optional[str]
