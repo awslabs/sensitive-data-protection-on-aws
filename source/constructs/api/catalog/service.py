@@ -290,8 +290,8 @@ def sync_crawler_result(
                     "classification": table_classification,
                     "struct_type": False if (database_type == DatabaseType.S3_UNSTRUCTURED.value) else True,
                     "detected_time": datetime.datetime.now(),
-                    "serde_info": serde_info,
-                    "table_properties": table_properties
+                    "serde_info": str(serde_info),
+                    "table_properties": str(table_properties)
                 }
                 original_table = crud.get_catalog_table_level_classification_by_name(account_id, region, database_type,
                                                                                      database_name, table_name)
