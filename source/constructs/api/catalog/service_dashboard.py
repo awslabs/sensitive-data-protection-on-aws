@@ -106,7 +106,22 @@ def agg_catalog_summary_by_attr(database_type: str,  agg_attribute: str, need_me
 
 
 def get_catalog_summay_by_provider_region(provider_id: int, region: str):
-    return crud.get_catalog_summay_by_provider_region(provider_id, region)
+    summy = crud.get_catalog_summay_by_provider_region(region)
+    from data_source.service import convert_database_type_provider
+    database_type_list = []
+    for member in DatabaseType.__members__.values():
+        if convert_database_type_provider(member.value) == provider_id:
+            database_type_list.append(member.value)
+    result_list = []
+    for item in summy:
+        for database_type in database_type_list:
+            if database_type == item[0]:
+                result_list.append(item)
+    return item
+
+
+
+
 
 
 def __get_top_n_count(data_dict: dict, n: int):
