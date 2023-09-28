@@ -26,7 +26,7 @@ def sync_result(input_event):
             return
         # add type support for jdbc
         # @see common/enum.py
-        is_jdbc = crawler_name.startswith(DatabaseType.JDBC.value)
+        is_jdbc = crawler_name.startswith(const.SOLUTION_NAME + "-" + DatabaseType.JDBC.value)
         parts = crawler_name.split('-')
         database_type = '-'.join(parts[:2]) if is_jdbc else parts[0]
         database_name = parts[2] if is_jdbc else parts[1]

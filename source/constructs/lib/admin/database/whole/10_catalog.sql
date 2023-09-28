@@ -54,6 +54,8 @@ create table catalog_table_level_classification
     classification   varchar(255)  null,
     struct_type      varchar(20)   null,
     detected_time    datetime      null,
+    serde_info       varchar(255)  null,
+    table_properties varchar(1024) null,
     version          int           null,
     create_by        varchar(255)  null,
     create_time      datetime      null,

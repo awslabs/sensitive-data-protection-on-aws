@@ -137,21 +137,23 @@ def sync_crawler_result(
             rds_engine_type = rds_database.engine
     
     if database_type.startswith(DatabaseType.JDBC.value):
+        from data_source.service import convert_database_type_provider
+        provider_id = convert_database_type_provider(database_type)
         jdbc_database = data_source_crud.get_jdbc_instance_source(
-            account_id, region, database_name
+            provider_id, account_id, region, database_name
         )
         if jdbc_database:
             jdbc_engine_type = jdbc_database.engine
 
     glue_client = get_boto3_client(account_id, region, "glue")
     glue_database_name = database_name if is_custom_glue else (
-        database_type + "-" + database_name + "-" + GlueResourceNameSuffix.DATABASE.value
+        const.SOLUTION_NAME + "-" + database_type + "-" + database_name
     )
     if is_custom_glue:
         crawler_last_run_status = GlueCrawlerState.SUCCEEDED.value
     else:
         glue_crawler_name = (
-            database_type + "-" + database_name + "-" + GlueResourceNameSuffix.CRAWLER.value
+            const.SOLUTION_NAME + "-" + database_type + "-" + database_name
         )
         crawler_response = glue_client.get_crawler(Name=glue_crawler_name)
         state = crawler_response["Crawler"]["State"]
@@ -196,6 +198,15 @@ def sync_crawler_result(
                     table_size_key = int(
                         table["StorageDescriptor"]["Parameters"]["sizeKey"]
                     )
+                # TODO save
+                serde_info = const.NA
+                table_properties = const.NA
+                if "SerdeInfo" in table["StorageDescriptor"]:
+                    logger.info(table["StorageDescriptor"]["SerdeInfo"])
+                    serde_info = table["StorageDescriptor"]["SerdeInfo"]
+                if "TableProperties" in table:
+                    logger.info(table["TableProperties"])
+                    table_properties = table["TableProperties"]
                 # Delete empty table when Glue crawler not supported the S3 file type
                 # s3 can return directly ,but rds cannot
                 if (database_type == DatabaseType.S3.value or database_type == DatabaseType.S3_UNSTRUCTURED.value) and table_size_key == 0:
@@ -279,6 +290,8 @@ def sync_crawler_result(
                     "classification": table_classification,
                     "struct_type": False if (database_type == DatabaseType.S3_UNSTRUCTURED.value) else True,
                     "detected_time": datetime.datetime.now(),
+                    "serde_info": str(serde_info),
+                    "table_properties": str(table_properties)
                 }
                 original_table = crud.get_catalog_table_level_classification_by_name(account_id, region, database_type,
                                                                                      database_name, table_name)
@@ -833,6 +846,7 @@ def get_table_property(table_id: str):
             if labels is not None:
                 labels_str = [{"id": label.id, "label_name": label.label_name} for label in labels]
         result_list.append(["ResourceTags", labels_str])
+        result_list.append(["TableProperties", catalog_table.table_properties])
         result_list.append(["LastUpdated", catalog_table.detected_time])
         if catalog_table.database_type == DatabaseType.S3.value:
             result_list.append(["Account", catalog_table.account_id])
@@ -847,8 +861,7 @@ def get_table_property(table_id: str):
             if "DBInstances" in response and len(response["DBInstances"]) > 0:
                 instance_info = response["DBInstances"][0]
                 logger.info(instance_info)
-                # TODO name
-                # result_list.append(["InstanceName", instance_info[""]])
+                result_list.append(["InstanceName", instance_info["DBInstanceIdentifier"]])
                 result_list.append(["Engine", instance_info["Engine"]])
             result_list.append(["Account", catalog_table.account_id])
             result_list.append(["Region", catalog_table.region])
@@ -859,8 +872,7 @@ def get_table_property(table_id: str):
             result_list.append(["GlueDatabase", glue_database_name])
             result_list.append(["GlueTable", catalog_table.table_name])
             result_list.append(["Location", catalog_table.storage_location])
-            # TODO
-            result_list.append(["SerdeParameters", catalog_table.region])
+            result_list.append(["SerdeParameters", catalog_table.serde_info])
         else:
             raise BizException(
                 MessageEnum.CATALOG_TABLE_TYPE_ERR.get_code(),
@@ -1034,6 +1046,8 @@ def fill_catalog_labels(catalogs):
         catalog.labels = []
         if catalog is None or catalog.label_ids is None or len(catalog.label_ids) <= 0:
             continue
+        if catalog.database_type == DatabaseType.S3_UNSTRUCTURED.value:
+            catalog.table_name = catalog.storage_location
         label_list = catalog.label_ids.split(',')
         label_id_list = list(map(int, label_list))
         labels = get_labels_by_id_list(label_id_list)
