@@ -108,6 +108,10 @@ class MessageEnum(Enum):
     SOURCE_SUBNET_NOT_CONTAIN_NAT = {1243: "Subnet for jdbc connection not contain NAT Gateway"}
     SOURCE_JDBC_NO_SCHEMA = {1244: "There is no user created schema found in the jdbc connection"}
     SOURCE_JDBC_CREATE_FAIL = {1245: "JDBC connection create failed"}
+    SOURCE_NOT_AWS_ACCOUNT = {1246: "Could not import connection from non-aws account"}
+    SOURCE_CONNECTION_NOT_FOUND = {1247: "Connection not found"}
+    SOURCE_SECURITYGROUP_NOT_FOUND = {1248: "SecurityGroup not found"}
+    SOURCE_JDBC_CONNECTION_NOT_EXIST = {1249: "JDBC connection not exist"}
     # label
     LABEL_EXIST_FAILED = {1611: "Cannot create duplicated label"}
 
@@ -170,8 +174,6 @@ class DatabaseType(Enum):
     GLUE = "glue"
     DDB = "ddb"
     EMR = "emr"
-    # GLUE_DATABASE = "glue_database"
-    # JDBC is a virtual type
     JDBC = "jdbc"
     JDBC_AWS = "jdbc-aws"
     JDBC_TENCENT = "jdbc-tencent"

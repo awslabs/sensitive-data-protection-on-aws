@@ -135,7 +135,7 @@ def delete_jdbc_connection(jdbc: schemas.SourceDeteteJDBCConnection):
 
 @router.post("/sync-jdbc", response_model=BaseResponse)
 @inject_session
-def sync_jdbc_connection(jdbc: schemas.SourceJDBCConnection):
+def sync_jdbc_connection(jdbc: schemas.SourceJDBCConnectionBase):
     return service.sync_jdbc_connection(jdbc)
 
 @router.post("/refresh", response_model=BaseResponse)
@@ -196,15 +196,20 @@ def get_secrets(account: str, region: str):
 def get_admin_account_info():
     return service.get_admin_account_info()
 
-@router.post("/add-glue-database", response_model=BaseResponse)
+@router.post("/import-glue-database", response_model=BaseResponse)
 @inject_session
-def add_glue_database(glueDataBase: schemas.SourceGlueDatabase):
-    return service.add_glue_database(glueDataBase)
+def import_glue_database(glueDataBase: schemas.SourceGlueDatabaseBase):
+    return service.import_glue_database(glueDataBase)
 
 @router.post("/add-jdbc-conn", response_model=BaseResponse)
 @inject_session
 def add_jdbc_conn(jdbcConn: schemas.JDBCInstanceSource):
     return service.add_jdbc_conn(jdbcConn)
+
+@router.post("/import-jdbc-conn", response_model=BaseResponse)
+@inject_session
+def import_jdbc_conn(jdbcConn: schemas.JDBCInstanceSourceBase):
+    return service.import_jdbc_conn(jdbcConn)
 
 @router.post("/query-glue-connections", response_model=BaseResponse)
 @inject_session

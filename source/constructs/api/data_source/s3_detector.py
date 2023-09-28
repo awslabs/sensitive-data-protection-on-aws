@@ -125,4 +125,5 @@ async def detect_multiple_account_in_async(accounts):
 
 
 def detect(accounts):
+    logger.info(f"***************{accounts}")
     asyncio.run(detect_multiple_account_in_async(accounts))

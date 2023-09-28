@@ -91,16 +91,21 @@ class DynamodbTableSource(BaseModel):
     class Config:
         orm_mode = True
 
-class SourceGlueDatabase(BaseModel):
+class SourceGlueDatabaseBase(BaseModel):
     glue_database_name: Optional[str]
+    account_id: Optional[str]
+    region: Optional[str]
+
+class SourceGlueDatabase(SourceGlueDatabaseBase):
     glue_database_description: Optional[str]
     glue_database_location_uri: Optional[str]
     glue_database_create_time: Optional[str]
     glue_database_catalog_id: Optional[str]
     data_lake_principal_identifier: Optional[str]
     permissions: Optional[str]
-    account_id: Optional[str]
-    region: Optional[str]
+
+    class Config:
+        orm_mode = True
 
 class SourceGlueDatabaseFullInfo(SourceGlueDatabase):
     glue_state: Optional[str]
@@ -136,8 +141,16 @@ class RdsInstanceSource(BaseModel):
         orm_mode = True
 
 
-class JDBCInstanceSource(BaseModel):
+class JDBCInstanceSourceBase(BaseModel):
     instance_id: Optional[str]
+    account_provider_id: Optional[int]
+    account_id: Optional[str]
+    region: Optional[str]
+
+    class Config:
+        orm_mode = True
+
+class JDBCInstanceSource(JDBCInstanceSourceBase):
     description: Optional[str]
     jdbc_connection_url: Optional[str]
     jdbc_enforce_ssl: Optional[str]
@@ -155,9 +168,6 @@ class JDBCInstanceSource(BaseModel):
     jdbc_driver_class_name: Optional[str]
     jdbc_driver_jar_uri: Optional[str]
     create_type: Optional[int]
-    account_provider_id: Optional[int]
-    account_id: Optional[str]
-    region: Optional[str]
 
     class Config:
         orm_mode = True
@@ -212,6 +222,12 @@ class SourceRdsConnection(BaseModel):
     rds_password: Optional[str]
     rds_secret: Optional[str]
 
+class SourceJDBCConnectionBase(BaseModel):
+    account_provider: Optional[int]
+    account_id: Optional[str]
+    region: Optional[str]
+    instance: Optional[str]
+
 class SourceJDBCConnection(BaseModel):
     account_provider: Optional[int]
     account_id: Optional[str]
@@ -229,6 +245,9 @@ class SourceJDBCConnection(BaseModel):
     skip_custom_jdbc_cert_validation: Optional[str]
     custom_jdbc_cert: Optional[str]
     custom_jdbc_cert_string: Optional[str]
+
+    class Config:
+        orm_mode = True
 
 
 class SourceDeteteGlueDatabase(BaseModel):
