@@ -3,6 +3,7 @@ import {
   FormField,
   Header,
   SpaceBetween,
+  Spinner,
   Tiles,
   TilesProps,
 } from '@cloudscape-design/components';
@@ -14,6 +15,7 @@ import React, { useEffect, useState } from 'react';
 const SelectProvider = () => {
   const [provider, setProvider] = useState('');
   const [dataSource, setDataSource] = useState('');
+  const [loadingProvider, setLoadingProvider] = useState(false);
   const [providerOptionList, setProviderOptionList] = useState<
     TilesProps.TilesDefinition[]
   >([]);
@@ -22,6 +24,7 @@ const SelectProvider = () => {
   >([]);
 
   const getProviders = async () => {
+    setLoadingProvider(true);
     const providers: any = await getSourceProviders();
     const tmpProviderList: TilesProps.TilesDefinition[] = [];
     providers.forEach((element: ProviderType) => {
@@ -42,6 +45,7 @@ const SelectProvider = () => {
       setProvider(tmpProviderList[0].value);
     }
     setProviderOptionList(tmpProviderList);
+    setLoadingProvider(false);
   };
 
   useEffect(() => {
@@ -71,25 +75,29 @@ const SelectProvider = () => {
 
   return (
     <Container header={<Header variant="h2">Cloud Provider</Header>}>
-      <SpaceBetween direction="vertical" size="l">
-        <FormField stretch label="Source">
-          <Tiles
-            onChange={({ detail }) => setProvider(detail.value)}
-            value={provider}
-            columns={4}
-            items={providerOptionList}
-          />
-        </FormField>
+      {loadingProvider ? (
+        <Spinner />
+      ) : (
+        <SpaceBetween direction="vertical" size="l">
+          <FormField stretch label="Source">
+            <Tiles
+              onChange={({ detail }) => setProvider(detail.value)}
+              value={provider}
+              columns={4}
+              items={providerOptionList}
+            />
+          </FormField>
 
-        <FormField stretch label="Data store">
-          <Tiles
-            onChange={({ detail }) => setDataSource(detail.value)}
-            value={dataSource}
-            columns={4}
-            items={dataSourceOptionList}
-          />
-        </FormField>
-      </SpaceBetween>
+          <FormField stretch label="Data store">
+            <Tiles
+              onChange={({ detail }) => setDataSource(detail.value)}
+              value={dataSource}
+              columns={4}
+              items={dataSourceOptionList}
+            />
+          </FormField>
+        </SpaceBetween>
+      )}
     </Container>
   );
 };
