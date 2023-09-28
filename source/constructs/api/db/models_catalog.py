@@ -55,6 +55,8 @@ class CatalogTableLevelClassification(Base):
     classification = sa.Column(sa.String(255))
     struct_type = sa.Column(sa.String(20), info={'searchable': True})
     detected_time = sa.Column(sa.DateTime())
+    serde_info = sa.Column(sa.String(255))
+    table_properties = sa.Column(sa.String(1024))
     version = sa.Column(sa.Integer())
     create_by = sa.Column(sa.String(255))
     create_time = sa.Column(sa.DateTime())
