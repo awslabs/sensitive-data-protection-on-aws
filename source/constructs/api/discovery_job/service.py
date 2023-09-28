@@ -256,9 +256,8 @@ def __start_run(job_id: int, run_id: int):
             glue_database_name = run_database.database_type + "-" + run_database.database_name + "-database"
             if run_database.database_type == DatabaseType.GLUE.value:
                 glue_database_name = run_database.database_name
-            job_name_prefix = f"{const.SOLUTION_NAME}-{run_database.database_type}-{run_database.database_name}"
-            job_name_structured = f"{job_name_prefix}-{RunTaskType.STRUCTURED.value}"
-            job_name_unstructured = f"{job_name_prefix}-{RunTaskType.UNSTRUCTURED.value}"
+            job_name_structured = f"{const.SOLUTION_NAME}-{run_database.database_type}-{run_database.database_name}"
+            job_name_unstructured = f"{const.SOLUTION_NAME}-{DatabaseType.S3_UNSTRUCTURED.value}-{run_database.database_name}"
             run_name = f'{const.SOLUTION_NAME}-{run_id}-{run_database.id}-{run_database.uuid}'
             agent_bucket_name = f"{const.AGENT_BUCKET_NAME_PREFIX}-{run_database.account_id}-{run_database.region}"
             unstructured_parser_job_image_uri = f"{run_database.account_id}.dkr.ecr.{run_database.region}.amazonaws.com.cn/sdp_test_data_parser:latest"
@@ -277,6 +276,7 @@ def __start_run(job_id: int, run_id: int):
                 "DatabaseType": run_database.database_type,
                 "DatabaseName": run_database.database_name,
                 "GlueDatabaseName": glue_database_name,
+                "UnstructuredDatabaseName": f"{DatabaseType.S3_UNSTRUCTURED.value}-{run_database.database_name}-database",  # TODO change name
                 "TableName": job_placeholder if is_empty(run_database.table_name) else run_database.table_name,
                 "TemplateId": str(run.template_id),
                 "TemplateSnapshotNo": str(run.template_snapshot_no),

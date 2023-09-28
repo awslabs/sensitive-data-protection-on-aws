@@ -24,12 +24,12 @@
                 {
                   "Variable": "$.DatabaseType",
                   "StringEquals": "glue",
-                  "Next": "SendGlueSchemaMessage"
+                  "Next": "SendSchemaMessageGlue"
                 }
               ],
               "Default": "SplitJob"
             },
-            "SendGlueSchemaMessage": {
+            "SendSchemaMessageGlue": {
               "Type": "Task",
               "Resource": "arn:${AWS::Partition}:states:::lambda:invoke",
               "Parameters": {
@@ -93,7 +93,7 @@
                   "Next": "StartCrawler"
                 }
               ],
-              "Default": "WaitForCrawler"
+              "Default": "WaitingForCrawler"
             },
             "StartCrawler": {
               "Type": "Task",
@@ -102,7 +102,7 @@
               },
               "ResultPath": "$.StartCrawler",
               "Resource": "arn:${AWS::Partition}:states:::aws-sdk:glue:startCrawler",
-              "Next": "WaitForCrawler",
+              "Next": "WaitingForCrawler",
               "Retry": [
                 {
                   "ErrorEquals": [
@@ -155,7 +155,7 @@
                   "Next": "Structured Job Failed"
                 }
               ],
-              "Default": "WaitForCrawler"
+              "Default": "WaitingForCrawler"
             },
             "SplitJob": {
               "Type": "Task",
@@ -234,7 +234,6 @@
                 }
               },
               "Next": "Structured Job Succeeded",
-              "ItemsPath": "$.JobItems",
               "OutputPath": "$.[0]"
             },
             "Structured Job Failed": {
@@ -254,7 +253,7 @@
               "ResultPath": "$.Result",
               "End": true
             },
-            "WaitForCrawler": {
+            "WaitingForCrawler": {
               "Type": "Wait",
               "Next": "GetCrawler2",
               "SecondsPath": "$.LoopWait"
@@ -393,12 +392,12 @@
                 "RoleArn.$": "$.UnstructuredParserJobRole",
                 "ProcessingJobName.$": "$.RunName"
               },
-              "Next": "WaitForProcessingJob",
+              "Next": "WaitingForProcessingJob",
               "ResultPath": "$.CreateProcessingJob"
             },
-            "WaitForProcessingJob": {
+            "WaitingForProcessingJob": {
               "Type": "Wait",
-              "Seconds": 60,
+              "Seconds": 30,
               "Next": "DescribeProcessingJob"
             },
             "DescribeProcessingJob": {
@@ -416,7 +415,7 @@
                 {
                   "Variable": "$.GetProcessingJob.ProcessingJobStatus",
                   "StringEquals": "Completed",
-                  "Next": "SendUnstructuredSchemaMessage"
+                  "Next": "SendSchemaMessageUnstructured"
                 },
                 {
                   "Variable": "$.GetProcessingJob.ProcessingJobStatus",
@@ -424,9 +423,9 @@
                   "Next": "Unstructured Job Failed"
                 }
               ],
-              "Default": "WaitForProcessingJob"
+              "Default": "WaitingForProcessingJob"
             },
-            "SendUnstructuredSchemaMessage": {
+            "SendSchemaMessageUnstructured": {
               "Type": "Task",
               "Resource": "arn:${AWS::Partition}:states:::lambda:invoke",
               "Parameters": {
@@ -454,41 +453,83 @@
                   "BackoffRate": 2
                 }
               ],
-              "Next": "Glue StartJobRun2",
+              "Next": "AddIsUnstructuredParam",
               "ResultPath": "$.SendGlueSchemaMessage"
             },
-            "Glue StartJobRun2": {
+            "AddIsUnstructuredParam": {
+              "Type": "Pass",
+              "Next": "SplitJobUnstructured",
+              "Result": "true",
+              "ResultPath": "$.IsUnstructured"
+            },
+            "SplitJobUnstructured": {
               "Type": "Task",
-              "Resource": "arn:${AWS::Partition}:states:::glue:startJobRun.sync",
+              "Resource": "arn:${AWS::Partition}:states:::lambda:invoke",
+              "OutputPath": "$.Payload",
               "Parameters": {
-                "JobName.$": "$.JobNameUnstructured",
-                "Arguments": {
-                  "--JobId.$": "$.JobId",
-                  "--RunId.$": "$.RunId",
-                  "--RunDatabaseId.$": "$.RunDatabaseId",
-                  "--AccountId.$": "$.AccountId",
-                  "--Region.$": "$.Region",
-                  "--DatabaseType.$": "$.DatabaseType",
-                  "--DatabaseName.$": "$.DatabaseName",
-                  "--TableName.$": "$.TableName",
-                  "--TemplateId.$": "$.TemplateId",
-                  "--TemplateSnapshotNo.$": "$.TemplateSnapshotNo",
-                  "--Depth.$": "$.DepthUnstructured",
-                  "--ExcludeKeywords.$": "$.ExcludeKeywords",
-                  "--IncludeKeywords.$": "$.IncludeKeywords",
-                  "--BaseTime.$": "$.BaseTime",
-                  "--DetectionThreshold.$": "$.DetectionThreshold",
-                  "--AdminAccountId.$": "$.AdminAccountId",
-                  "--AdminBucketName.$": "$.AdminBucketName",
-                  "--TableBegin": "-1",
-                  "--TableEnd": "-1",
-                  "--enable-glue-datacatalog": "true",
-                  "--additional-python-modules.$": "$.AdditionalPythonModules",
-                  "--extra-py-files.$": "$.ExtraPyFiles"
+                "Payload.$": "$",
+                "FunctionName": "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:SDPS-SplitJob:$LATEST"
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                }
+              ],
+              "Next": "MapUnstructured"
+            },
+            "MapUnstructured": {
+              "Type": "Map",
+              "ItemProcessor": {
+                "ProcessorConfig": {
+                  "Mode": "INLINE"
+                },
+                "StartAt": "GlueStartJobRunUnstructured",
+                "States": {
+                  "GlueStartJobRunUnstructured": {
+                    "Type": "Task",
+                    "Resource": "arn:${AWS::Partition}:states:::glue:startJobRun.sync",
+                    "Parameters": {
+                      "JobName.$": "$.JobNameUnstructured",
+                      "Arguments": {
+                        "--JobId.$": "$.JobId",
+                        "--RunId.$": "$.RunId",
+                        "--RunDatabaseId.$": "$.RunDatabaseId",
+                        "--AccountId.$": "$.AccountId",
+                        "--Region.$": "$.Region",
+                        "--DatabaseType.$": "$.DatabaseType",
+                        "--DatabaseName.$": "$.DatabaseName",
+                        "--TableName.$": "$.TableName",
+                        "--TemplateId.$": "$.TemplateId",
+                        "--TemplateSnapshotNo.$": "$.TemplateSnapshotNo",
+                        "--Depth.$": "$.DepthUnstructured",
+                        "--ExcludeKeywords.$": "$.ExcludeKeywords",
+                        "--IncludeKeywords.$": "$.IncludeKeywords",
+                        "--BaseTime.$": "$.BaseTime",
+                        "--DetectionThreshold.$": "$.DetectionThreshold",
+                        "--AdminAccountId.$": "$.AdminAccountId",
+                        "--AdminBucketName.$": "$.AdminBucketName",
+                        "--TableBegin.$": "$.TableBegin",
+                        "--TableEnd.$": "$.TableEnd",
+                        "--enable-glue-datacatalog": "true",
+                        "--additional-python-modules.$": "$.AdditionalPythonModules",
+                        "--extra-py-files.$": "$.ExtraPyFiles"
+                      }
+                    },
+                    "ResultPath": "$.StartJobRun",
+                    "End": true
+                  }
                 }
               },
               "Next": "Unstructured Job Succeeded",
-              "ResultPath": "$.StartJobRun"
+              "OutputPath": "$.[0]"
             },
             "Unstructured Job Succeeded": {
               "Type": "Pass",

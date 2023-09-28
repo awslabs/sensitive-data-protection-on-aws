@@ -7,11 +7,11 @@ import logging
 
 logger = logging.getLogger('SplitJob')
 logger.setLevel(logging.INFO)
+glue = boto3.client('glue')
 
 
 def get_table_count(glue_database_name, base_time):
     next_token = ""
-    glue = boto3.client(service_name='glue')
     table_count = 0
     while True:
         response = glue.get_tables(
@@ -19,7 +19,7 @@ def get_table_count(glue_database_name, base_time):
             DatabaseName=glue_database_name, 
             NextToken=next_token)
         for table in response['TableList']:
-            if table['UpdateTime'] > base_time:
+            if table.get('Parameters', {}).get('classification', '') != 'UNKNOWN' and table['UpdateTime'] > base_time:
                 table_count += 1
         next_token = response.get('NextToken')
         if next_token is None:
@@ -48,19 +48,20 @@ def lambda_handler(event, context):
         job_item["TableBegin"] = str(-1)
         job_item["TableEnd"] = str(-1)
         job_items.append(job_item)
-        event["JobItems"]=job_items
-        return event
-        
-    table_count = get_table_count(event['GlueDatabaseName'], base_time)
+        return job_items
+    
+    glue_database_name = event['GlueDatabaseName']
+    if event.get("IsUnstructured") == 'true':
+        glue_database_name = event['UnstructuredDatabaseName']
+    logger.info(f"glue_database_name:{glue_database_name}")
+    table_count = get_table_count(glue_database_name, base_time)
     if table_count == 0:
-        event["JobItems"]=job_items
-        return event
+        return job_items
         
     job_number = get_job_number(event)
     logger.info(f"init JobNumber:{job_number}")
     if table_count < job_number:
         job_number = table_count
-    logger.info(f"actual JobNumber:{job_number}")
     table_size_per_job = divide_and_round_up(table_count,job_number)
     for index in range(0,job_number):
         table_begin = index * table_size_per_job
@@ -73,5 +74,5 @@ def lambda_handler(event, context):
         job_item["TableBegin"] = str(table_begin)
         job_item["TableEnd"] = str(table_end)
         job_items.append(job_item)
-    event["JobItems"]=job_items
-    return event
+    logger.info(f"actual JobNumber:{len(job_item)}")
+    return job_items

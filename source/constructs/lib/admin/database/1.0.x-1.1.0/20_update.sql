@@ -167,6 +167,7 @@ INSERT INTO template_identifier (description, type, name, create_by) VALUES ('ID
 
 
 -- discovery job
+alter table discovery_job_database modify account_id varchar(20) not null;
 alter table discovery_job add depth_structured int null after `range`;
 alter table discovery_job add depth_unstructured int null after depth_structured;
 update discovery_job set depth_structured = depth;
@@ -182,5 +183,6 @@ alter table discovery_job_run add include_keywords varchar(1000) null after excl
 alter table discovery_job_run add exclude_file_extensions varchar(200) null after include_keywords;
 alter table discovery_job_run add include_file_extensions varchar(200) null after exclude_file_extensions;
 
+alter table discovery_job_run_database modify account_id varchar(20) not null;
 alter table discovery_job_run_database modify database_type varchar(20) null;
 

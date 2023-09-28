@@ -34,7 +34,7 @@ create table discovery_job_database
     id            int auto_increment
         primary key,
     job_id        int           not null,
-    account_id    varchar(12)   not null,
+    account_id    varchar(20)   not null,
     region        varchar(20)   not null,
     database_type varchar(20)   not null,
     database_name varchar(255)  not null,
@@ -83,7 +83,7 @@ create table discovery_job_run_database
     id            int auto_increment
         primary key,
     run_id        int           not null,
-    account_id    varchar(12)   not null,
+    account_id    varchar(20)   not null,
     region        varchar(20)   not null,
     database_type varchar(20)   null,
     database_name varchar(255)  null,

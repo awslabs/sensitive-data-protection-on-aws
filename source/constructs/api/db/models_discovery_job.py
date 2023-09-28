@@ -42,7 +42,7 @@ class DiscoveryJobDatabase(Base):
 
     id = sa.Column(sa.Integer(), autoincrement=True, primary_key=True)
     job_id = sa.Column(sa.Integer(), sa.ForeignKey('discovery_job.id'), nullable=False)
-    account_id = sa.Column(sa.String(12), nullable=False)
+    account_id = sa.Column(sa.String(20), nullable=False)
     region = sa.Column(sa.String(20), nullable=False)
     database_type = sa.Column(sa.String(20), nullable=False)
     database_name = sa.Column(sa.String(255), nullable=False)
@@ -87,7 +87,7 @@ class DiscoveryJobRunDatabase(Base):
 
     id = sa.Column(sa.Integer(), autoincrement=True, primary_key=True)
     run_id = sa.Column(sa.Integer(), sa.ForeignKey('discovery_job_run.id'), nullable=False)
-    account_id = sa.Column(sa.String(12), nullable=False)
+    account_id = sa.Column(sa.String(20), nullable=False)
     region = sa.Column(sa.String(20), nullable=False)
     database_type = sa.Column(sa.String(20))
     database_name = sa.Column(sa.String(255))
