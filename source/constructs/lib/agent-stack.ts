@@ -84,6 +84,8 @@ export class AgentStack extends Stack {
             'kms:Decrypt',
             'kms:DescribeKey',
             'glue:GetCrawlers',
+            'glue:GetCrawler',
+            // 'glue:BatchDeleteTable',
             'glue:GetClassifier',
             'glue:GetClassifiers',
             'glue:CheckSchemaVersionValidity',

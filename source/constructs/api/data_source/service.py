@@ -6,7 +6,6 @@ from time import sleep
 from botocore.exceptions import ClientError
 import boto3
 
-import common.enum
 from catalog.service import delete_catalog_by_account_region as delete_catalog_by_account
 from catalog.service import delete_catalog_by_database_region as delete_catalog_by_database_region
 from common.constant import const
@@ -21,6 +20,7 @@ from common.query_condition import QueryCondition
 from discovery_job.service import delete_account as delete_job_by_account
 from discovery_job.service import can_delete_database as can_delete_job_database
 from discovery_job.service import delete_database as delete_job_database
+from common.abilities import convert_provider_id_str
 from . import s3_detector, rds_detector, glue_database_detector, crud
 from .schemas import (AdminAccountInfo,
                       JDBCInstanceSource,
@@ -437,7 +437,7 @@ def condition_check(ec2_client, credentials, state, connection: dict):
 def sync(glue, lakeformation, credentials, crawler_role_arn, jdbc: JDBCInstanceSourceBase, url: str):
     logger.info("START SYNC ...")
     jdbc_targets = []
-    provider_str = gen_jdbc_provider_str(jdbc.account_provider_id)
+    provider_str = convert_provider_id_str(jdbc.account_provider_id)
     # glue_connection_name = f"{const.SOLUTION_NAME}-{provider_str}-{jdbc.instance}"
     glue_database_name = f"{const.SOLUTION_NAME}-{provider_str}-{jdbc.instance_id}"
     crawler_name = f"{const.SOLUTION_NAME}-{provider_str}-{jdbc.instance_id}"
@@ -2101,37 +2101,31 @@ def list_data_location():
     provider_list = crud.list_distinct_provider()
     for item in provider_list:
         regions = crud.list_distinct_region_by_provider(item.id)
+        accounts_db = crud.get_account_list_by_provider(item.id)
         if not regions:
-            location = DataLocationInfo()
-            location.source = item.provider_name
-            location.region = None
-            location.coordinate = None
-            location.account_count = 0
-            res.append(location)
+            continue
+        if not accounts_db:
             continue
         for subItem in regions:
+            accounts = []
+            for account in accounts_db:
+                if account.region == subItem.region_name:
+                    accounts.append(account)
+            if len(accounts) == 0:
+                continue
+            # TODO filter logic
             location = DataLocationInfo()
+            location.account_count = len(accounts)
             location.source = item.provider_name
             location.region = subItem.region_name
             location.coordinate = subItem.region_cord
-            accounts = crud.list_account_by_provider_and_region(item.id, subItem.region_name)
-            location.account_count = len(accounts)
+            location.region_alias = subItem.region_alias
+            location.provider_id = item.id
+            location.provider_name = item.provider_name
             res.append(location)
+     # 根据 location.account_count 对 res 进行排序（从高到低）
+    res = sorted(res, key=lambda x: x.account_count, reverse=True)
     return res
-
-
-def list_data_provider():
-    return crud.query_provider_list()
-
-
-def list_data_source_type():
-    # enum_dict = {member.name: member.value for member in common.enum.DatabaseType}
-    # json_response = json.dumps(enum_dict)
-    #
-    data_source_type_mapping = {}
-    for index, db_type in enumerate(common.enum.DatabaseType, start=1):
-        data_source_type_mapping[db_type.name] = db_type.value
-    return data_source_type_mapping
 
 
 def query_regions_by_provider(provider_id: int):
@@ -2169,16 +2163,6 @@ def get_schema_from_url(url):
         res = url[url.rindex("/") + 1:]
     # elif url.startswith("jdbc:mysql://"):
     return res
-
-
-def gen_jdbc_provider_str(provider: int):
-    if (provider == 2):
-        return DatabaseType.JDBC_TENCENT.value
-    elif (provider == 3):
-        return DatabaseType.JDBC_ALIYUN.value
-    else:
-        return DatabaseType.JDBC_AWS.value
-
 
 def grant_lake_formation_permission(credentials, crawler_role_arn, glue_database_name):
     lakeformation = boto3.client('lakeformation',

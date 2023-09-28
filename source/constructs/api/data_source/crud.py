@@ -755,12 +755,6 @@ def get_account_list_by_provider(provider_id):
                                                Account.status == SourceAccountStatus.ENABLE.value).all()
 
 
-def list_account_by_provider_and_region(provider_id, region):
-    return get_session().query(Account).filter(Account.account_provider_id == provider_id,
-                                               Account.region == region,
-                                               Account.status == SourceAccountStatus.ENABLE.value).all()
-
-
 def list_distinct_region_by_provider(provider_id):
     return get_session().query(SourceRegion).filter(SourceRegion.provider_id == provider_id,
                                                     SourceRegion.status == SourceRegionStatus.ENABLE.value).distinct(

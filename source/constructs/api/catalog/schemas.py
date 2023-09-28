@@ -55,6 +55,8 @@ class CatalogTableLevelClassification(BaseModel):
     classification: Optional[str]
     struct_type: Optional[str]
     detected_time: Optional[datetime.datetime]
+    serde_info: Optional[str]
+    table_properties: Optional[str]
     version: Optional[int]
     create_by: Optional[str]
     create_time: Optional[datetime.datetime]

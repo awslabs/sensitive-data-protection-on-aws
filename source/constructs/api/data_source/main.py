@@ -243,18 +243,6 @@ def get_data_location_list():
     return service.list_data_location()
 
 
-@router.get("/dashboard/agg-data-provider-list", response_model=BaseResponse)
-@inject_session
-def get_data_provider_list():
-    return service.list_data_provider()
-
-
-@router.get("/dashboard/agg-data-source-type-list", response_model=BaseResponse)
-@inject_session
-def get_data_source_type_list():
-    return service.list_data_source_type()
-
-
 @router.post("/query-regions-by-provider", response_model=BaseResponse)
 @inject_session
 def query_regions_by_provider(provider_id: int):

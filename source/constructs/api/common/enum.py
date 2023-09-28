@@ -296,6 +296,7 @@ class Provider(Enum):
     AWS_CLOUD = 1
     TENCENT_CLOUD = 2
     GOOGLE_CLOUD = 3
+    ALI_CLOUD = 4
 
 @unique
 class SourceCreateType(Enum):
