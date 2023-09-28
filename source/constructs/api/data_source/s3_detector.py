@@ -89,19 +89,19 @@ async def detect_s3_data_source(session: Session, aws_account_id: str):
         s3_db_bucket_name_list.append(row.bucket_name)
         s3_db_region_list.append(row.region)
         s3_db_glue_state.append(row.glue_state) # None is unconnected
-        
+
     # Compare S3 bucket in data source table with S3 bucket in agent account
     deleted_s3_bucket_source_list = list(set(s3_db_bucket_name_list) - set(s3_agent_bucket_name_list))
-    
+
     for deleted_s3_bucket_source in deleted_s3_bucket_source_list:
         index = s3_db_bucket_name_list.index(deleted_s3_bucket_source)
         s3_connection_state = s3_db_glue_state[index]
         deleted_s3_region = s3_db_region_list[index]
-        
+
         if s3_connection_state is not None:
             # The bucket is a connected data source
             service.delete_s3_connection(aws_account_id, deleted_s3_region, deleted_s3_bucket_source)
-        
+
         # Delete data catalog in case the user first connect it and generate data catalog then disconnect it
         try:
             delete_catalog_by_database_region(deleted_s3_bucket_source, deleted_s3_region, DatabaseType.S3)

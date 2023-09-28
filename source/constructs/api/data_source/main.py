@@ -135,7 +135,7 @@ def delete_jdbc_connection(jdbc: schemas.SourceDeteteJDBCConnection):
 
 @router.post("/sync-jdbc", response_model=BaseResponse)
 @inject_session
-def sync_jdbc_connection(jdbc: schemas.SourceJDBCConnectionBase):
+def sync_jdbc_connection(jdbc: schemas.JDBCInstanceSourceBase):
     return service.sync_jdbc_connection(jdbc)
 
 @router.post("/refresh", response_model=BaseResponse)
@@ -205,6 +205,11 @@ def import_glue_database(glueDataBase: schemas.SourceGlueDatabaseBase):
 @inject_session
 def add_jdbc_conn(jdbcConn: schemas.JDBCInstanceSource):
     return service.add_jdbc_conn(jdbcConn)
+
+@router.post("/update-jdbc-conn", response_model=BaseResponse)
+@inject_session
+def update_jdbc_conn(jdbcConn: schemas.JDBCInstanceSource):
+    return service.update_jdbc_conn(jdbcConn)
 
 @router.post("/import-jdbc-conn", response_model=BaseResponse)
 @inject_session
