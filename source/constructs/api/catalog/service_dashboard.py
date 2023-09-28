@@ -50,11 +50,16 @@ def count_third_account_region(provider_id):
 
 def agg_catalog_summay(database_type: str):
     result_dict = {}
-    if database_type == DatabaseType.S3.value:
+    if database_type == DatabaseType.S3.value or database_type == DatabaseType.S3_UNSTRUCTURED.value:
         summary = crud.get_s3_database_summary()
         if len(summary) > 0:
             result_dict = summary[0]._asdict()
-    elif database_type == DatabaseType.RDS.value:
+    elif database_type == DatabaseType.RDS.value \
+            or database_type == DatabaseType.GLUE.value \
+            or database_type == DatabaseType.JDBC.value \
+            or database_type == DatabaseType.JDBC.value \
+            or database_type == DatabaseType.JDBC_ALIYUN.value \
+            or database_type == DatabaseType.JDBC_AWS.value:
         result_dict = crud.get_rds_column_summary()[0]._asdict()
         table_list = crud.get_catalog_table_level_classification_by_type(database_type)
         result_dict['table_total'] = len(table_list)
@@ -80,12 +85,17 @@ def agg_catalog_summay(database_type: str):
 
 def agg_catalog_summary_by_attr(database_type: str,  agg_attribute: str, need_merge: bool):
     result_list = []
-    if database_type == DatabaseType.S3.value:
-        attr_rows = crud.get_s3_database_summary_with_attr(agg_attribute, need_merge)
+    if database_type == DatabaseType.S3.value or database_type == DatabaseType.S3_UNSTRUCTURED.value:
+        attr_rows = crud.get_s3_database_summary_with_attr(database_type, agg_attribute, need_merge)
         return attr_rows
 
-    elif database_type == DatabaseType.RDS.value:
-        attr_rows = crud.get_rds_database_summary_with_attr(agg_attribute, need_merge)
+    elif database_type == DatabaseType.RDS.value \
+            or database_type == DatabaseType.GLUE.value \
+            or database_type == DatabaseType.JDBC.value \
+            or database_type == DatabaseType.JDBC.value \
+            or database_type == DatabaseType.JDBC_ALIYUN.value \
+            or database_type == DatabaseType.JDBC_AWS.value:
+        attr_rows = crud.get_rds_database_summary_with_attr(database_type, agg_attribute, need_merge)
         return attr_rows
     else: 
         raise BizException(
@@ -93,6 +103,26 @@ def agg_catalog_summary_by_attr(database_type: str,  agg_attribute: str, need_me
             MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_msg(),
         )
     return result_list
+
+
+def get_catalog_summay_by_provider_region(provider_id: int, region: str):
+    summy = crud.get_catalog_summay_by_provider_region(region)
+    logger.info(summy)
+    from data_source.service import convert_database_type_provider
+    database_type_list = []
+    for member in DatabaseType.__members__.values():
+        if convert_database_type_provider(member.value) == provider_id:
+            database_type_list.append(member.value)
+    result_list = []
+    for item in summy:
+        for database_type in database_type_list:
+            if database_type == item[0]:
+                result_list.append(item)
+    return result_list
+
+
+
+
 
 
 def __get_top_n_count(data_dict: dict, n: int):
@@ -120,7 +150,7 @@ def __get_identifier_top_n_count(data_dict: dict, template_dict: dict, n: int):
 
 
 def agg_catalog_data_source_top_n(database_type: str, top_n: int):
-    if database_type not in [DatabaseType.RDS.value, DatabaseType.S3.value]:
+    if database_type not in [member.value for member in DatabaseType.__members__.values()]:
         raise BizException(
             MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_code(),
             MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_msg(),
@@ -171,13 +201,13 @@ def agg_catalog_data_source_top_n(database_type: str, top_n: int):
 def agg_catalog_summary_by_modifier(database_type: str):
     # The modifier should be classified to System/Manual.
     result_list = []
-    if database_type not in [DatabaseType.RDS.value, DatabaseType.S3.value]:
+    if database_type not in [member.value for member in DatabaseType.__members__.values()]:
         raise BizException(
             MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_code(),
             MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_msg(),
         )
     
-    attr_rows = crud.get_s3_database_summary_with_attr("modify_by", False) if database_type == DatabaseType.S3.value else crud.get_rds_database_summary_with_attr("modify_by", False)
+    attr_rows = crud.get_s3_database_summary_with_attr(database_type, "modify_by", False) if (database_type == DatabaseType.S3.value or database_type == DatabaseType.S3_UNSTRUCTURED.value) else crud.get_rds_database_summary_with_attr(database_type, "modify_by", False)
     result_dict = {}
     for row in attr_rows:
         modifier = CatalogModifier.SYSTEM.value
@@ -196,7 +226,7 @@ def agg_catalog_summary_by_modifier(database_type: str):
 
 def get_database_by_identifier(identifer_name, database_type):
     # Support double check when delete identifier
-    if database_type not in [DatabaseType.RDS.value, DatabaseType.S3.value]:
+    if database_type not in [member.value for member in DatabaseType.__members__.values()]:
         raise BizException(
             MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_code(),
             MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_msg(),
@@ -229,7 +259,7 @@ def get_database_by_identifier_paginate(condition: QueryCondition):
             identifier = con.values[0]
         if con.column == "database_type":
             database_type = con.values[0]
-    if database_type not in [DatabaseType.RDS.value, DatabaseType.S3.value]:
+    if database_type not in [member.value for member in DatabaseType.__members__.values()]:
         raise BizException(
             MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_code(),
             MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_msg(),

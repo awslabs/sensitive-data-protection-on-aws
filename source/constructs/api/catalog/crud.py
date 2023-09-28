@@ -1,9 +1,10 @@
+import logging
+
+from sqlalchemy import (and_)
+from sqlalchemy import func, distinct
+
 import db.models_catalog as models
-from sqlalchemy import (Column, or_, distinct, and_)
-from tools.pydantic_tool import parse_pydantic_schema
 import tools.mytime as mytime
-from db.database import get_session
-from . import schemas
 from common.constant import const
 from common.enum import (
     CatalogState,
@@ -11,16 +12,17 @@ from common.enum import (
     DatabaseType
 )
 from common.query_condition import QueryCondition, query_with_condition
-from itertools import count
-from sqlalchemy import func, distinct
+from db.database import get_session
+from tools.pydantic_tool import parse_pydantic_schema
+from . import schemas
 
 
 def get_catalog_column_level_classification_by_database(
-    account_id: str,
-    region: str,
-    database_type: str,
-    database_name: str,
-    page_size: int = 1000
+        account_id: str,
+        region: str,
+        database_type: str,
+        database_name: str,
+        page_size: int = 1000
 ):
     session = get_session()
     page = 1
@@ -46,11 +48,11 @@ def get_catalog_column_level_classification_by_database(
 
 
 def get_catalog_column_level_classification_by_table(
-    account_id: str,
-    region: str,
-    database_type: str,
-    database_name: str,
-    table_name: str,
+        account_id: str,
+        region: str,
+        database_type: str,
+        database_name: str,
+        table_name: str,
 ):
     result = (
         get_session()
@@ -66,12 +68,12 @@ def get_catalog_column_level_classification_by_table(
 
 
 def get_catalog_column_level_classification_by_name(
-    account_id: str,
-    region: str,
-    database_type: str,
-    database_name: str,
-    table_name: str,
-    column_name: str,
+        account_id: str,
+        region: str,
+        database_type: str,
+        database_name: str,
+        table_name: str,
+        column_name: str,
 ):
     result = (
         get_session()
@@ -88,7 +90,7 @@ def get_catalog_column_level_classification_by_name(
 
 
 def get_catalog_database_level_classification_by_params(
-    account_id: str, region: str, database_type: str
+        account_id: str, region: str, database_type: str
 ):
     result = (
         get_session()
@@ -104,8 +106,8 @@ def get_catalog_database_level_classification_by_params(
 
 def get_catalog_database_level_classification_by_type_all(database_type: str):
     return get_session().query(models.CatalogDatabaseLevelClassification).filter(
-            models.CatalogDatabaseLevelClassification.database_type == database_type
-        )
+        models.CatalogDatabaseLevelClassification.database_type == database_type
+    )
 
 
 def get_catalog_database_level_classification_by_type(condition: QueryCondition):
@@ -113,10 +115,10 @@ def get_catalog_database_level_classification_by_type(condition: QueryCondition)
 
 
 def get_catalog_database_level_classification_by_name(
-    account_id: str,
-    region: str,
-    database_type: str,
-    database_name: str,
+        account_id: str,
+        region: str,
+        database_type: str,
+        database_name: str,
 ):
     result = (
         get_session()
@@ -135,10 +137,10 @@ def get_catalog_database_level_classification_by_name(
 
 
 def get_catalog_table_level_classification_by_database(
-    account_id: str,
-    region: str,
-    database_type: str,
-    database_name: str,
+        account_id: str,
+        region: str,
+        database_type: str,
+        database_name: str,
 ):
     result = (
         get_session()
@@ -152,23 +154,23 @@ def get_catalog_table_level_classification_by_database(
 
 
 def search_catalog_table_level_classification_by_database(
-    condition: QueryCondition
+        condition: QueryCondition
 ):
     return query_with_condition(get_session().query(models.CatalogTableLevelClassification), condition)
 
 
 def search_catalog_table_level_classification(
-    condition: QueryCondition
+        condition: QueryCondition
 ):
     return query_with_condition(get_session().query(models.CatalogTableLevelClassification), condition)
 
 
 def get_catalog_table_level_classification_by_database_all(
-    account_id: str,
-    region: str,
-    database_type: str,
-    database_name: str,
-    page_size: int = 1000
+        account_id: str,
+        region: str,
+        database_type: str,
+        database_name: str,
+        page_size: int = 1000
 ):
     session = get_session()
     page = 1
@@ -194,7 +196,7 @@ def get_catalog_table_level_classification_by_database_all(
 
 
 def get_catalog_table_level_classification_by_id(
-    table_id: str
+        table_id: str
 ):
     try:
         result = (
@@ -204,17 +206,17 @@ def get_catalog_table_level_classification_by_id(
             .first()
         )
         return result
-    except Exception:
+    except Exception as e:
+        logging.error(e)
         return None
 
 
-
 def get_catalog_table_level_classification_by_name(
-    account_id: str,
-    region: str,
-    database_type: str,
-    database_name: str,
-    table_name: str,
+        account_id: str,
+        region: str,
+        database_type: str,
+        database_name: str,
+        table_name: str,
 ):
     result = (
         get_session()
@@ -230,12 +232,12 @@ def get_catalog_table_level_classification_by_name(
 
 
 def get_catalog_table_level_classification_by_database_identifier(
-    account_id: str,
-    region: str,
-    database_type: str,
-    database_name: str,
-    table_name: str,
-    identifier: str,
+        account_id: str,
+        region: str,
+        database_type: str,
+        database_name: str,
+        table_name: str,
+        identifier: str,
 ):
     session = get_session()
     query = session.query(models.CatalogTableLevelClassification)
@@ -253,8 +255,8 @@ def get_catalog_table_level_classification_by_database_identifier(
 
 
 def get_catalog_table_level_classification_by_identifier_and_database_type(
-    identifier: str,
-    database_type: str
+        identifier: str,
+        database_type: str
 ):
     result = (
         get_session()
@@ -372,7 +374,7 @@ def create_catalog_database_level_classification(catalog_database: dict):
 
 
 def update_catalog_database_level_classification(
-    database: schemas.CatalogDatabaseLevelClassification,
+        database: schemas.CatalogDatabaseLevelClassification,
 ):
     database.modify_time = mytime.get_time()
     del database.labels
@@ -388,7 +390,7 @@ def update_catalog_database_level_classification(
 
 
 def update_catalog_table_level_classification(
-    table: schemas.CatalogTableLevelClassification,
+        table: schemas.CatalogTableLevelClassification,
 ):
     table.modify_time = mytime.get_time()
     del table.labels
@@ -404,7 +406,7 @@ def update_catalog_table_level_classification(
 
 
 def update_catalog_column_level_classification(
-    column: schemas.CatalogColumnLevelClassification,
+        column: schemas.CatalogColumnLevelClassification,
 ) -> bool:
     column.modify_time = mytime.get_time()
     del column.modify_by
@@ -419,8 +421,8 @@ def update_catalog_column_level_classification(
 
 
 def update_catalog_column_level_classification_by_id(
-    id: int,
-    column: dict,
+        id: int,
+        column: dict,
 ) -> bool:
     column["modify_time"] = mytime.get_time()
     size = (
@@ -434,16 +436,15 @@ def update_catalog_column_level_classification_by_id(
 
 
 def batch_update_catalog_column_level_classification_by_id(
-    columns: list
+        columns: list
 ):
     get_session().bulk_update_mappings(models.CatalogColumnLevelClassification, columns)
     get_session().commit()
 
 
-
 def update_catalog_database_level_classification_by_id(
-    id: int,
-    database: dict,
+        id: int,
+        database: dict,
 ):
     database["modify_time"] = mytime.get_time()
     size = (
@@ -457,8 +458,8 @@ def update_catalog_database_level_classification_by_id(
 
 
 def update_catalog_table_level_classification_by_id(
-    id: int,
-    table: dict,
+        id: int,
+        table: dict,
 ):
     table["modify_time"] = mytime.get_time()
     size = (
@@ -472,7 +473,7 @@ def update_catalog_table_level_classification_by_id(
 
 
 def batch_update_catalog_table_level_classification_by_id(
-    tables: list,
+        tables: list,
 ):
     get_session().bulk_update_mappings(models.CatalogTableLevelClassification, tables)
     get_session().commit()
@@ -621,53 +622,56 @@ def delete_catalog_column_level_classification_by_database_region(database: str,
 
 def get_s3_database_summary():
     return (get_session()
-    .query(func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label("database_total"),
+            .query(
+        func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label("database_total"),
         func.sum(models.CatalogDatabaseLevelClassification.object_count).label("object_total"),
         func.sum(models.CatalogDatabaseLevelClassification.size_key).label("size_total"))
-    .filter(models.CatalogDatabaseLevelClassification.database_type == DatabaseType.S3.value)
-    .all()
-    )
+            .filter(models.CatalogDatabaseLevelClassification.database_type == DatabaseType.S3.value)
+            .all()
+            )
 
 
 def get_rds_column_summary():
     return (get_session()
-    .query(func.count(distinct(models.CatalogColumnLevelClassification.database_name)).label("instance_total"), 
-        func.count(models.CatalogColumnLevelClassification.column_name).label("column_total"))
-    .filter(models.CatalogColumnLevelClassification.database_type == DatabaseType.RDS.value)
-    .all()
-    )
+            .query(func.count(distinct(models.CatalogColumnLevelClassification.database_name)).label("instance_total"),
+                   func.count(models.CatalogColumnLevelClassification.column_name).label("column_total"))
+            .filter(models.CatalogColumnLevelClassification.database_type == DatabaseType.RDS.value)
+            .all()
+            )
 
 
 def get_catalog_table_level_classification_by_type(database_type: str):
     return (get_session()
-    .query(models.CatalogTableLevelClassification)
-    .filter(models.CatalogTableLevelClassification.database_type == database_type)
-    .all()
-    )
+            .query(models.CatalogTableLevelClassification)
+            .filter(models.CatalogTableLevelClassification.database_type == database_type)
+            .all()
+            )
 
 
 def get_catalog_table_count_by_type(database_type: str):
     return (get_session()
-    .query(models.CatalogTableLevelClassification.classification, func.count(models.CatalogTableLevelClassification.table_name).label("table_total"))
-    .filter(models.CatalogTableLevelClassification.database_type == database_type)
-    .group_by(models.CatalogTableLevelClassification.classification)
-    .all()
-    )
+            .query(models.CatalogTableLevelClassification.classification,
+                   func.count(models.CatalogTableLevelClassification.table_name).label("table_total"))
+            .filter(models.CatalogTableLevelClassification.database_type == database_type)
+            .group_by(models.CatalogTableLevelClassification.classification)
+            .all()
+            )
 
 
 def get_s3_database_summary_with_region():
     return (get_session()
-    .query(models.CatalogDatabaseLevelClassification.region,
-        func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label("database_total"), 
-        func.sum(models.CatalogDatabaseLevelClassification.object_count).label("object_total"), 
-        func.sum(models.CatalogDatabaseLevelClassification.size_key).label("size_total"))
-    .filter(models.CatalogDatabaseLevelClassification.database_type == DatabaseType.S3.value)
-    .group_by(models.CatalogDatabaseLevelClassification.region)
-    .all()
-    )
+            .query(models.CatalogDatabaseLevelClassification.region,
+                   func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label(
+                       "database_total"),
+                   func.sum(models.CatalogDatabaseLevelClassification.object_count).label("object_total"),
+                   func.sum(models.CatalogDatabaseLevelClassification.size_key).label("size_total"))
+            .filter(models.CatalogDatabaseLevelClassification.database_type == DatabaseType.S3.value)
+            .group_by(models.CatalogDatabaseLevelClassification.region)
+            .all()
+            )
 
 
-def get_rds_database_summary_with_attr(attribute: str, need_merge: bool):
+def get_rds_database_summary_with_attr(database_type, attribute: str, need_merge: bool):
     if need_merge:
         database_list = (get_session()
                          .query(getattr(models.CatalogDatabaseLevelClassification, attribute),
@@ -676,7 +680,7 @@ def get_rds_database_summary_with_attr(attribute: str, need_merge: bool):
                                 func.sum(models.CatalogDatabaseLevelClassification.object_count).label("object_total"),
                                 func.sum(models.CatalogDatabaseLevelClassification.size_key).label("size_total"),
                                 func.sum(models.CatalogDatabaseLevelClassification.table_count).label("table_total"))
-                         .filter(models.CatalogDatabaseLevelClassification.database_type == DatabaseType.RDS.value)
+                         .filter(models.CatalogDatabaseLevelClassification.database_type == database_type)
                          .group_by(getattr(models.CatalogDatabaseLevelClassification, attribute))
                          .all()
                          )
@@ -733,13 +737,13 @@ def get_rds_database_summary_with_attr(attribute: str, need_merge: bool):
                            "database_total"),
                        func.sum(models.CatalogDatabaseLevelClassification.table_count).label("table_total"),
                        func.sum(models.CatalogDatabaseLevelClassification.column_count).label("row_total"))
-                .filter(models.CatalogDatabaseLevelClassification.database_type == DatabaseType.RDS.value)
+                .filter(models.CatalogDatabaseLevelClassification.database_type == database_type)
                 .group_by(getattr(models.CatalogDatabaseLevelClassification, attribute))
                 .all()
                 )
 
 
-def get_s3_database_summary_with_attr(attribute: str, need_merge: bool):
+def get_s3_database_summary_with_attr(database_type, attribute: str, need_merge: bool):
     if need_merge:
         database_list = (get_session()
                          .query(getattr(models.CatalogDatabaseLevelClassification, attribute),
@@ -748,7 +752,8 @@ def get_s3_database_summary_with_attr(attribute: str, need_merge: bool):
                                 func.sum(models.CatalogDatabaseLevelClassification.object_count).label("object_total"),
                                 func.sum(models.CatalogDatabaseLevelClassification.size_key).label("size_total"),
                                 func.sum(models.CatalogDatabaseLevelClassification.table_count).label("table_total"))
-                         .filter(models.CatalogDatabaseLevelClassification.database_type == DatabaseType.S3.value)
+                         .filter(models.CatalogDatabaseLevelClassification.database_type.in_(
+            [DatabaseType.S3.value, DatabaseType.S3_UNSTRUCTURED.value]))
                          .group_by(getattr(models.CatalogDatabaseLevelClassification, attribute))
                          .all()
                          )
@@ -801,7 +806,7 @@ def get_s3_database_summary_with_attr(attribute: str, need_merge: bool):
                        func.sum(models.CatalogDatabaseLevelClassification.object_count).label("object_total"),
                        func.sum(models.CatalogDatabaseLevelClassification.size_key).label("size_total"),
                        func.sum(models.CatalogDatabaseLevelClassification.table_count).label("table_total"))
-                .filter(models.CatalogDatabaseLevelClassification.database_type == DatabaseType.S3.value)
+                .filter(models.CatalogDatabaseLevelClassification.database_type == database_type)
                 .group_by(getattr(models.CatalogDatabaseLevelClassification, attribute))
                 .all()
                 )
@@ -809,42 +814,44 @@ def get_s3_database_summary_with_attr(attribute: str, need_merge: bool):
 
 def get_rds_table_summary_with_attr(attribute: str):
     return (get_session()
-    .query(getattr(models.CatalogTableLevelClassification, attribute),
-        func.count(models.CatalogTableLevelClassification.table_name).label("table_total"))
-    .filter(models.CatalogTableLevelClassification.database_type == DatabaseType.RDS.value)
-    .group_by(getattr(models.CatalogTableLevelClassification, attribute))
-    .all()
-    )
+            .query(getattr(models.CatalogTableLevelClassification, attribute),
+                   func.count(models.CatalogTableLevelClassification.table_name).label("table_total"))
+            .filter(models.CatalogTableLevelClassification.database_type == DatabaseType.RDS.value)
+            .group_by(getattr(models.CatalogTableLevelClassification, attribute))
+            .all()
+            )
+
 
 def get_s3_folder_summary_with_attr(attribute: str):
     return (get_session()
-    .query(getattr(models.CatalogTableLevelClassification, attribute),
-        func.count(models.CatalogTableLevelClassification.table_name).label("table_total"))
-    .filter(models.CatalogTableLevelClassification.database_type == DatabaseType.S3.value)
-    .group_by(getattr(models.CatalogTableLevelClassification, attribute))
-    .all()
-    )
+            .query(getattr(models.CatalogTableLevelClassification, attribute),
+                   func.count(models.CatalogTableLevelClassification.table_name).label("table_total"))
+            .filter(models.CatalogTableLevelClassification.database_type == DatabaseType.S3.value)
+            .group_by(getattr(models.CatalogTableLevelClassification, attribute))
+            .all()
+            )
 
 
 def get_rds_column_summary_with_attr(attribute: str):
     # row_total -> column_total
     return (get_session()
-    .query(getattr(models.CatalogColumnLevelClassification, attribute),
-        func.count(models.CatalogColumnLevelClassification.column_name).label("row_total"))
-    .filter(models.CatalogColumnLevelClassification.database_type == DatabaseType.RDS.value)
-    .group_by(getattr(models.CatalogColumnLevelClassification, attribute))
-    .all()
-    )
+            .query(getattr(models.CatalogColumnLevelClassification, attribute),
+                   func.count(models.CatalogColumnLevelClassification.column_name).label("row_total"))
+            .filter(models.CatalogColumnLevelClassification.database_type == DatabaseType.RDS.value)
+            .group_by(getattr(models.CatalogColumnLevelClassification, attribute))
+            .all()
+            )
+
 
 def get_s3_object_summary_with_attr(attribute: str):
     # object_total -> column_total
     return (get_session()
-    .query(getattr(models.CatalogColumnLevelClassification, attribute),
-        func.count(models.CatalogColumnLevelClassification.column_name).label("object_total"))
-    .filter(models.CatalogColumnLevelClassification.database_type == DatabaseType.S3.value)
-    .group_by(getattr(models.CatalogColumnLevelClassification, attribute))
-    .all()
-    )
+            .query(getattr(models.CatalogColumnLevelClassification, attribute),
+                   func.count(models.CatalogColumnLevelClassification.column_name).label("object_total"))
+            .filter(models.CatalogColumnLevelClassification.database_type == DatabaseType.S3.value)
+            .group_by(getattr(models.CatalogColumnLevelClassification, attribute))
+            .all()
+            )
 
 
 def delete_catalog_column_level_classification_by_table_name(
@@ -919,6 +926,7 @@ def update_catalog_table_labels(
     get_session().commit()
     return size > 0
 
+
 def get_export_catalog_data():
     return get_session().query(models.CatalogColumnLevelClassification.database_type,
                                models.CatalogColumnLevelClassification.account_id,
@@ -935,21 +943,39 @@ def get_export_catalog_data():
                                       models.CatalogColumnLevelClassification.account_id == models.CatalogTableLevelClassification.account_id
                                       ).join(models.CatalogDatabaseLevelClassification,
                                              models.CatalogColumnLevelClassification.account_id == models.CatalogDatabaseLevelClassification.account_id
-                                             ).filter(and_(models.CatalogColumnLevelClassification.region == models.CatalogTableLevelClassification.region,
-                                                      models.CatalogColumnLevelClassification.database_type == models.CatalogTableLevelClassification.database_type,
-                                                      models.CatalogColumnLevelClassification.database_name == models.CatalogTableLevelClassification.database_name,
-                                                      models.CatalogColumnLevelClassification.table_name == models.CatalogTableLevelClassification.table_name,
-                                                      models.CatalogColumnLevelClassification.region == models.CatalogDatabaseLevelClassification.region,
-                                                      models.CatalogColumnLevelClassification.database_type == models.CatalogDatabaseLevelClassification.database_type,
-                                                      models.CatalogColumnLevelClassification.database_name == models.CatalogDatabaseLevelClassification.database_name)
-                                                      ).distinct(models.CatalogColumnLevelClassification.database_type,
-                                                                 models.CatalogColumnLevelClassification.account_id,
-                                                                 models.CatalogColumnLevelClassification.region,
-                                                                 models.CatalogColumnLevelClassification.database_name,
-                                                                 models.CatalogColumnLevelClassification.table_name,
-                                                                 models.CatalogColumnLevelClassification.column_name,
-                                                                 models.CatalogColumnLevelClassification.identifier,
-                                                                 models.CatalogColumnLevelClassification.column_value_example,
-                                                                 models.CatalogTableLevelClassification.label_ids,
-                                                                 models.CatalogDatabaseLevelClassification.label_ids,
-                                                                 models.CatalogColumnLevelClassification.comments).all()
+                                             ).filter(
+        and_(models.CatalogColumnLevelClassification.region == models.CatalogTableLevelClassification.region,
+             models.CatalogColumnLevelClassification.database_type == models.CatalogTableLevelClassification.database_type,
+             models.CatalogColumnLevelClassification.database_name == models.CatalogTableLevelClassification.database_name,
+             models.CatalogColumnLevelClassification.table_name == models.CatalogTableLevelClassification.table_name,
+             models.CatalogColumnLevelClassification.region == models.CatalogDatabaseLevelClassification.region,
+             models.CatalogColumnLevelClassification.database_type == models.CatalogDatabaseLevelClassification.database_type,
+             models.CatalogColumnLevelClassification.database_name == models.CatalogDatabaseLevelClassification.database_name)
+    ).distinct(models.CatalogColumnLevelClassification.database_type,
+               models.CatalogColumnLevelClassification.account_id,
+               models.CatalogColumnLevelClassification.region,
+               models.CatalogColumnLevelClassification.database_name,
+               models.CatalogColumnLevelClassification.table_name,
+               models.CatalogColumnLevelClassification.column_name,
+               models.CatalogColumnLevelClassification.identifier,
+               models.CatalogColumnLevelClassification.column_value_example,
+               models.CatalogTableLevelClassification.label_ids,
+               models.CatalogDatabaseLevelClassification.label_ids,
+               models.CatalogColumnLevelClassification.comments).all()
+
+
+def get_catalog_summay_by_provider_region(region: str):
+    return (get_session()
+            .query(models.CatalogDatabaseLevelClassification.database_type,
+            func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label(
+                "database_total"),
+            func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label(
+                "instance_total"),
+            func.sum(models.CatalogDatabaseLevelClassification.object_count).label("object_total"),
+            func.sum(models.CatalogDatabaseLevelClassification.size_key).label("size_total"),
+            func.sum(models.CatalogDatabaseLevelClassification.table_count).label("table_total"),
+            func.sum(models.CatalogDatabaseLevelClassification.column_count).label("row_total"))
+            .filter(models.CatalogDatabaseLevelClassification.region == region)
+            .group_by(models.CatalogDatabaseLevelClassification.database_type)
+            .all()
+            )
