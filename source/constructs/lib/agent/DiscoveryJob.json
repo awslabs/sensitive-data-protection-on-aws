@@ -93,7 +93,7 @@
                   "Next": "StartCrawler"
                 }
               ],
-              "Default": "Wait"
+              "Default": "WaitForCrawler"
             },
             "StartCrawler": {
               "Type": "Task",
@@ -102,7 +102,7 @@
               },
               "ResultPath": "$.StartCrawler",
               "Resource": "arn:${AWS::Partition}:states:::aws-sdk:glue:startCrawler",
-              "Next": "Wait",
+              "Next": "WaitForCrawler",
               "Retry": [
                 {
                   "ErrorEquals": [
@@ -155,7 +155,7 @@
                   "Next": "Structured Job Failed"
                 }
               ],
-              "Default": "Wait"
+              "Default": "WaitForCrawler"
             },
             "SplitJob": {
               "Type": "Task",
@@ -254,7 +254,7 @@
               "ResultPath": "$.Result",
               "End": true
             },
-            "Wait": {
+            "WaitForCrawler": {
               "Type": "Wait",
               "Next": "GetCrawler2",
               "SecondsPath": "$.LoopWait"
@@ -373,7 +373,7 @@
             },
             "SageMaker CreateProcessingJob": {
               "Type": "Task",
-              "Resource": "arn:${AWS::Partition}:states:::sagemaker:createProcessingJob.sync",
+              "Resource": "arn:${AWS::Partition}:states:::sagemaker:createProcessingJob",
               "Parameters": {
                 "AppSpecification": {
                   "ContainerArguments.$": "$.ProcessingJobParam",
@@ -393,8 +393,13 @@
                 "RoleArn.$": "$.UnstructuredParserJobRole",
                 "ProcessingJobName.$": "$.RunName"
               },
-              "Next": "DescribeProcessingJob",
+              "Next": "WaitForProcessingJob",
               "ResultPath": "$.CreateProcessingJob"
+            },
+            "WaitForProcessingJob": {
+              "Type": "Wait",
+              "Seconds": 60,
+              "Next": "DescribeProcessingJob"
             },
             "DescribeProcessingJob": {
               "Type": "Task",
@@ -412,9 +417,14 @@
                   "Variable": "$.GetProcessingJob.ProcessingJobStatus",
                   "StringEquals": "Completed",
                   "Next": "SendUnstructuredSchemaMessage"
+                },
+                {
+                  "Variable": "$.GetProcessingJob.ProcessingJobStatus",
+                  "StringEquals": "Failed",
+                  "Next": "Unstructured Job Failed"
                 }
               ],
-              "Default": "Unstructured Job Failed"
+              "Default": "WaitForProcessingJob"
             },
             "SendUnstructuredSchemaMessage": {
               "Type": "Task",

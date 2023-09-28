@@ -17,14 +17,14 @@ from catalog.service import sync_job_detection_result
 from tools.str_tool import is_empty
 
 logger = logging.getLogger(const.LOGGER_API)
-controller_function_name = os.getenv("ControllerFunctionName", f"{const.SOLUTION_NAME}-Controller")
 caller_identity = boto3.client('sts').get_caller_identity()
-partition = caller_identity['Arn'].split(':')[1]
 admin_account_id = caller_identity.get('Account')
-url_suffix = const.URL_SUFFIX_CN if partition == const.PARTITION_CN else ''
 admin_region = boto3.session.Session().region_name
-project_bucket_name = os.getenv(const.PROJECT_BUCKET_NAME, const.PROJECT_BUCKET_DEFAULT_NAME)
+admin_bucket_name = os.getenv(const.PROJECT_BUCKET_NAME, f"{const.ADMIN_BUCKET_NAME_PREFIX}-{admin_account_id}-{admin_region}")
+partition = caller_identity['Arn'].split(':')[1]
+url_suffix = const.URL_SUFFIX_CN if partition == const.PARTITION_CN else ''
 version = os.getenv(const.VERSION, '')
+controller_function_name = os.getenv("ControllerFunctionName", f"{const.SOLUTION_NAME}-Controller")
 sqs_job = boto3.resource('sqs')
 
 sql_result = "SELECT database_type,account_id,region,s3_bucket,s3_location,rds_instance_id,table_name,column_name,identifiers,sample_data FROM job_detection_output_table where run_id='%d' and privacy = 1"
@@ -209,7 +209,7 @@ def __start_run(job_id: int, run_id: int):
     job = crud.get_job(job_id)
     run = crud.get_run(run_id)
     run_databases = run.databases
-    module_path = f's3://{project_bucket_name}/job/ml-asset/python-module/'
+    module_path = f's3://{admin_bucket_name}/job/ml-asset/python-module/'
     wheels = ["humanfriendly-10.0-py2.py3-none-any.whl",
               "protobuf-4.22.1-cp37-abi3-manylinux2014_x86_64.whl",
               "flatbuffers-23.3.3-py2.py3-none-any.whl",
@@ -221,6 +221,8 @@ def __start_run(job_id: int, run_id: int):
     account_loop_wait = {}
     for run_database in run_databases:
         account_id = run_database.account_id
+        if run_database.database_type.startswith(DatabaseType.JDBC.value):
+            account_id = admin_account_id
         if account_id in account_loop_wait:
             tmp = account_loop_wait[account_id]
             tmp = tmp + const.JOB_INTERVAL_WAIT
@@ -233,6 +235,10 @@ def __start_run(job_id: int, run_id: int):
     for run_database in run_databases:
         try:
             account_id = run_database.account_id
+            region = run_database.region
+            if run_database.database_type.startswith(DatabaseType.JDBC.value):
+                account_id = admin_account_id
+                region = admin_region
             if account_id in account_first_wait:
                 tmp = account_first_wait[account_id]
                 tmp = tmp + const.JOB_INTERVAL_WAIT
@@ -250,7 +256,7 @@ def __start_run(job_id: int, run_id: int):
             glue_database_name = run_database.database_type + "-" + run_database.database_name + "-database"
             if run_database.database_type == DatabaseType.GLUE.value:
                 glue_database_name = run_database.database_name
-            job_name_prefix = f"{const.SOLUTION_NAME}-{run_database.database_type.upper()}-{run_database.database_name}"
+            job_name_prefix = f"{const.SOLUTION_NAME}-{run_database.database_type}-{run_database.database_name}"
             job_name_structured = f"{job_name_prefix}-{RunTaskType.STRUCTURED.value}"
             job_name_unstructured = f"{job_name_prefix}-{RunTaskType.UNSTRUCTURED.value}"
             run_name = f'{const.SOLUTION_NAME}-{run_id}-{run_database.id}-{run_database.uuid}'
@@ -266,8 +272,8 @@ def __start_run(job_id: int, run_id: int):
                 "JobId": str(job.id),  # When calling Glue Job using StepFunction, the parameter must be of string type
                 "RunId": str(run_id),
                 "RunDatabaseId": str(run_database.id),
-                "AccountId": run_database.account_id,
-                "Region": run_database.region,
+                "AccountId": run_database.account_id,  # The original account id is required here
+                "Region": run_database.region,  # The original region is required here
                 "DatabaseType": run_database.database_type,
                 "DatabaseName": run_database.database_name,
                 "GlueDatabaseName": glue_database_name,
@@ -286,19 +292,19 @@ def __start_run(job_id: int, run_id: int):
                 "OverWrite": str(job.overwrite),
                 "AgentBucketName": agent_bucket_name,
                 "AdminAccountId": admin_account_id,
-                "AdminBucketName": project_bucket_name,
+                "AdminBucketName": admin_bucket_name,
                 "AdditionalPythonModules": ','.join([module_path + w for w in wheels]),
                 "ExtraPyFiles": extra_py_files,
                 "FirstWait": str(account_first_wait[account_id]),
                 "LoopWait": str(account_loop_wait[account_id]),
-                "QueueUrl": f'https://sqs.{run_database.region}.amazonaws.com{url_suffix}/{admin_account_id}/{const.SOLUTION_NAME}-DiscoveryJob',
+                "QueueUrl": f'https://sqs.{region}.amazonaws.com{url_suffix}/{admin_account_id}/{const.SOLUTION_NAME}-DiscoveryJob',
                 "UnstructuredParserJobImageUri": unstructured_parser_job_image_uri,
                 "UnstructuredParserJobRole": unstructured_parser_job_role,
             }
             run_database.start_time = mytime.get_time()
-            __create_job(run_database.database_type, run_database.account_id, run_database.region, run_database.database_name, job_name_structured, 'glue-job.py')
+            __create_job(run_database.database_type, account_id, region, run_database.database_name, job_name_structured, 'glue-job.py')
             if run_database.database_type == DatabaseType.S3.value:
-                __create_job(run_database.database_type, run_database.account_id, run_database.region, run_database.database_name, job_name_unstructured, 'glue-job-unstructured.py')
+                __create_job(run_database.database_type, account_id, region, run_database.database_name, job_name_unstructured, 'glue-job-unstructured.py')
             __exec_run(execution_input)
             run_database.state = RunDatabaseState.RUNNING.value
         except Exception:
@@ -336,7 +342,7 @@ def __start_sample_run(job_id: int, run_id: int, table_name: str):
                 "--TableName": table_name,
                 "--Depth": str(job.depth_structured),
                 "--BaseTime": base_time,
-                "--BucketName": project_bucket_name,
+                "--BucketName": admin_bucket_name,
             }
             run_database.start_time = mytime.get_time()
             __create_job(run_database.database_type, run_database.account_id, run_database.region, run_database.database_name, job_name, 'glue-sample-job.py')
@@ -352,7 +358,7 @@ def __start_sample_run(job_id: int, run_id: int, table_name: str):
     crud.save_run_databases(run_databases)
 
 
-def __create_job(database_type, account_id, region, database_name, job_name, script_name):
+def __create_job(database_type: str, account_id, region, database_name, job_name, script_name):
     client_sts = boto3.client('sts')
     assumed_role_object = client_sts.assume_role(
         RoleArn=f'arn:{partition}:iam::{account_id}:role/{const.SOLUTION_NAME}RoleForAdmin-{region}',
@@ -374,7 +380,7 @@ def __create_job(database_type, account_id, region, database_name, job_name, scr
                                    Role=f'{const.SOLUTION_NAME}GlueDetectionJobRole-{region}',
                                    GlueVersion='4.0',
                                    Command={'Name': 'glueetl',
-                                            'ScriptLocation': f's3://{project_bucket_name}/job/script/{script_name}'},
+                                            'ScriptLocation': f's3://{admin_bucket_name}/job/script/{script_name}'},
                                    Tags={const.PROJECT_TAG_KEY: const.PROJECT_TAG_VALUE,
                                          'AdminAccountId': admin_account_id,
                                          const.VERSION: version},
@@ -388,7 +394,7 @@ def __create_job(database_type, account_id, region, database_name, job_name, scr
                                    Role=f'{const.SOLUTION_NAME}GlueDetectionJobRole-{region}',
                                    GlueVersion='4.0',
                                    Command={'Name': 'glueetl',
-                                            'ScriptLocation': f's3://{project_bucket_name}/job/script/{script_name}'},
+                                            'ScriptLocation': f's3://{admin_bucket_name}/job/script/{script_name}'},
                                    Tags={const.PROJECT_TAG_KEY: const.PROJECT_TAG_VALUE,
                                          'AdminAccountId': admin_account_id,
                                          const.VERSION: version},
@@ -399,9 +405,14 @@ def __create_job(database_type, account_id, region, database_name, job_name, scr
 
 
 def __exec_run(execution_input):
+    account_id = execution_input["AccountId"]
+    region = execution_input["Region"]
+    if execution_input["DatabaseType"].startswith(DatabaseType.JDBC.value):
+        account_id = execution_input["AdminAccountId"]
+        region = admin_region
     client_sts = boto3.client('sts')
     assumed_role_object = client_sts.assume_role(
-        RoleArn=f'arn:{partition}:iam::{execution_input["AccountId"]}:role/{const.SOLUTION_NAME}RoleForAdmin-{execution_input["Region"]}',
+        RoleArn=f'arn:{partition}:iam::{account_id}:role/{const.SOLUTION_NAME}RoleForAdmin-{region}',
         RoleSessionName="AssumeRoleSession1"
     )
     credentials = assumed_role_object['Credentials']
@@ -410,10 +421,10 @@ def __exec_run(execution_input):
                               aws_access_key_id=credentials['AccessKeyId'],
                               aws_secret_access_key=credentials['SecretAccessKey'],
                               aws_session_token=credentials['SessionToken'],
-                              region_name=execution_input["Region"],
+                              region_name=region,
                               )
     client_sfn.start_execution(
-        stateMachineArn=f'arn:{partition}:states:{execution_input["Region"]}:{execution_input["AccountId"]}:stateMachine:{const.SOLUTION_NAME}-DiscoveryJob',
+        stateMachineArn=f'arn:{partition}:states:{region}:{account_id}:stateMachine:{const.SOLUTION_NAME}-DiscoveryJob',
         name=execution_input["RunName"],
         input=json.dumps(execution_input),
     )
@@ -463,9 +474,14 @@ def stop_job(job_id: int):
 
 
 def __stop_run(run_database: models.DiscoveryJobRunDatabase):
+    account_id = run_database.account_id
+    region = run_database.region
+    if run_database.database_type.startswith(DatabaseType.JDBC.value):
+        account_id = admin_account_id
+        region = admin_region
     client_sts = boto3.client('sts')
     assumed_role_object = client_sts.assume_role(
-        RoleArn=f'arn:{partition}:iam::{run_database.account_id}:role/{const.SOLUTION_NAME}RoleForAdmin-{run_database.region}',
+        RoleArn=f'arn:{partition}:iam::{account_id}:role/{const.SOLUTION_NAME}RoleForAdmin-{region}',
         RoleSessionName="AssumeRoleSession1"
     )
     credentials = assumed_role_object['Credentials']
@@ -474,11 +490,11 @@ def __stop_run(run_database: models.DiscoveryJobRunDatabase):
                               aws_access_key_id=credentials['AccessKeyId'],
                               aws_secret_access_key=credentials['SecretAccessKey'],
                               aws_session_token=credentials['SessionToken'],
-                              region_name=run_database.region,
+                              region_name=region,
                               )
     try:
         client_sfn.stop_execution(
-            executionArn=f'arn:{partition}:states:{run_database.region}:{run_database.account_id}:execution:{const.SOLUTION_NAME}-DiscoveryJob:{const.SOLUTION_NAME}-{run_database.run_id}-{run_database.id}-{run_database.uuid}',
+            executionArn=f'arn:{partition}:states:{region}:{account_id}:execution:{const.SOLUTION_NAME}-DiscoveryJob:{const.SOLUTION_NAME}-{run_database.run_id}-{run_database.id}-{run_database.uuid}',
             )
     except client_sfn.exceptions.ExecutionDoesNotExist as e:
         logger.warning(e)
@@ -743,9 +759,14 @@ def check_running_run():
 
 
 def __get_run_database_state_from_agent(run_database: models.DiscoveryJobRunDatabase) -> str:
+    account_id = run_database.account_id
+    region = run_database.region
+    if run_database.database_type.startswith(DatabaseType.JDBC.value):
+        account_id = admin_account_id
+        region = admin_region
     client_sts = boto3.client('sts')
     assumed_role_object = client_sts.assume_role(
-        RoleArn=f'arn:{partition}:iam::{run_database.account_id}:role/{const.SOLUTION_NAME}RoleForAdmin-{run_database.region}',
+        RoleArn=f'arn:{partition}:iam::{account_id}:role/{const.SOLUTION_NAME}RoleForAdmin-{region}',
         RoleSessionName="AssumeRoleSession1"
     )
     credentials = assumed_role_object['Credentials']
@@ -754,12 +775,12 @@ def __get_run_database_state_from_agent(run_database: models.DiscoveryJobRunData
                               aws_access_key_id=credentials['AccessKeyId'],
                               aws_secret_access_key=credentials['SecretAccessKey'],
                               aws_session_token=credentials['SessionToken'],
-                              region_name=run_database.region,
+                              region_name=region,
                               )
 
     try:
         response = client_sfn.describe_execution(
-            executionArn=f'arn:{partition}:states:{run_database.region}:{run_database.account_id}:execution:{const.SOLUTION_NAME}-DiscoveryJob:{const.SOLUTION_NAME}-{run_database.run_id}-{run_database.id}-{run_database.uuid}',
+            executionArn=f'arn:{partition}:states:{region}:{account_id}:execution:{const.SOLUTION_NAME}-DiscoveryJob:{const.SOLUTION_NAME}-{run_database.run_id}-{run_database.id}-{run_database.uuid}',
         )
         return response["status"]
     except client_sfn.exceptions.ExecutionDoesNotExist as e:
@@ -767,9 +788,14 @@ def __get_run_database_state_from_agent(run_database: models.DiscoveryJobRunData
 
 
 def __get_run_error_log(run_database: models.DiscoveryJobRunDatabase) -> str:
+    account_id = run_database.account_id
+    region = run_database.region
+    if run_database.database_type.startswith(DatabaseType.JDBC.value):
+        account_id = admin_account_id
+        region = admin_region
     client_sts = boto3.client('sts')
     assumed_role_object = client_sts.assume_role(
-        RoleArn=f'arn:{partition}:iam::{run_database.account_id}:role/{const.SOLUTION_NAME}RoleForAdmin-{run_database.region}',
+        RoleArn=f'arn:{partition}:iam::{account_id}:role/{const.SOLUTION_NAME}RoleForAdmin-{region}',
         RoleSessionName="AssumeRoleSession1"
     )
     credentials = assumed_role_object['Credentials']
@@ -778,11 +804,11 @@ def __get_run_error_log(run_database: models.DiscoveryJobRunDatabase) -> str:
                               aws_access_key_id=credentials['AccessKeyId'],
                               aws_secret_access_key=credentials['SecretAccessKey'],
                               aws_session_token=credentials['SessionToken'],
-                              region_name=run_database.region,
+                              region_name=region,
                               )
     try:
         response = client_sfn.get_execution_history(
-            executionArn=f'arn:{partition}:states:{run_database.region}:{run_database.account_id}:execution:{const.SOLUTION_NAME}-DiscoveryJob:{const.SOLUTION_NAME}-{run_database.run_id}-{run_database.id}-{run_database.uuid}',
+            executionArn=f'arn:{partition}:states:{region}:{account_id}:execution:{const.SOLUTION_NAME}-DiscoveryJob:{const.SOLUTION_NAME}-{run_database.run_id}-{run_database.id}-{run_database.uuid}',
             reverseOrder=True,
             maxResults=1,
         )
@@ -834,9 +860,9 @@ def get_report_url(run_id: int):
     wb.save(filename)
     s3_client = boto3.client('s3')
     key_name = f"report/report-{run_id}.xlsx"
-    s3_client.upload_file(filename, project_bucket_name, key_name)
+    s3_client.upload_file(filename, admin_bucket_name, key_name)
     os.remove(filename)
-    method_parameters = {'Bucket': project_bucket_name, 'Key': key_name}
+    method_parameters = {'Bucket': admin_bucket_name, 'Key': key_name}
     pre_url = s3_client.generate_presigned_url(
         ClientMethod="get_object",
         Params=method_parameters,
@@ -854,7 +880,7 @@ def __query_athena(sql: str):
             "Database": const.JOB_RESULT_DATABASE_NAME,
             "Catalog": "AwsDataCatalog",
         },
-        ResultConfiguration={"OutputLocation": f"s3://{project_bucket_name}/athena-output/"},
+        ResultConfiguration={"OutputLocation": f"s3://{admin_bucket_name}/athena-output/"},
     )
 
     query_execution_id = queryStart["QueryExecutionId"]
@@ -896,7 +922,7 @@ def get_template_snapshot_url(run_id: int):
                            MessageEnum.DISCOVERY_RUN_NON_EXIST_TEMPLATE_SNAPSHOT.get_msg())
     s3_client = boto3.client('s3')
     key_name = f"template/template-{job_run.template_id}-{job_run.template_snapshot_no}.json"
-    method_parameters = {'Bucket': project_bucket_name, 'Key': key_name}
+    method_parameters = {'Bucket': admin_bucket_name, 'Key': key_name}
     pre_url = s3_client.generate_presigned_url(
         ClientMethod="get_object",
         Params=method_parameters,
