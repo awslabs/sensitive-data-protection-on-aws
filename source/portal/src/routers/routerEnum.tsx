@@ -9,6 +9,7 @@ import AddAccount from 'pages/add-account';
 import TemplateIdentifiers from 'pages/template-identifiers';
 import CreateIdentifier from 'pages/create-identifier';
 import CreateJob from 'pages/create-job';
+import CreateJobOld from 'pages/create-job/indexOld';
 import GlueJob from 'pages/glue-job';
 import LoginCallback from 'pages/login-callback';
 import TimeLine from 'pages/time-line';
@@ -47,6 +48,10 @@ export const RouterEnum: Record<string, RouterEnumType> = {
   CreateJob: {
     path: '/createjob',
     element: <CreateJob />,
+  },
+  CreateJobOld: {
+    path: '/createjob-old',
+    element: <CreateJobOld />,
   },
   GlueJob: {
     path: '/gluejob',
