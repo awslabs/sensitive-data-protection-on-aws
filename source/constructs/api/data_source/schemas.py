@@ -172,7 +172,29 @@ class JDBCInstanceSource(JDBCInstanceSourceBase):
     class Config:
         orm_mode = True
 
+class JDBCInstanceSourceUpdate(JDBCInstanceSourceBase):
+    description: Optional[str]
+    jdbc_connection_url: Optional[str]
+    jdbc_enforce_ssl: Optional[str]
+    kafka_ssl_enabled: Optional[str]
+    master_username: Optional[str]
+    password: Optional[str]
+    skip_custom_jdbc_cert_validation: Optional[str]
+    custom_jdbc_cert: Optional[str]
+    custom_jdbc_cert_string: Optional[str]
+    network_availability_zone: Optional[str]
+    network_subnet_id: Optional[str]
+    network_sg_id: Optional[str]
+    jdbc_driver_class_name: Optional[str]
+    jdbc_driver_jar_uri: Optional[str]
+
+    class Config:
+        orm_mode = True
+
 class JDBCInstanceSourceFullInfo(JDBCInstanceSource):
+    # def __init__(self):
+    #     JDBCInstanceSource.__init__(self)
+
     data_source_id: Optional[int]
     detection_history_id: Optional[int]
     glue_database: Optional[str]
@@ -222,32 +244,32 @@ class SourceRdsConnection(BaseModel):
     rds_password: Optional[str]
     rds_secret: Optional[str]
 
-class SourceJDBCConnectionBase(BaseModel):
-    account_provider: Optional[int]
-    account_id: Optional[str]
-    region: Optional[str]
-    instance: Optional[str]
+# class SourceJDBCConnectionBase(BaseModel):
+#     account_provider: Optional[int]
+#     account_id: Optional[str]
+#     region: Optional[str]
+#     instance: Optional[str]
 
-class SourceJDBCConnection(BaseModel):
-    account_provider: Optional[int]
-    account_id: Optional[str]
-    region: Optional[str]
-    instance: Optional[str]
-    secret: Optional[str]
-    network_availability_zone: Optional[str]
-    network_subnet_id: Optional[str]
-    network_sg_id: Optional[str]
-    jdbc_connection_url: Optional[str]
-    jdbc_enforce_ssl: Optional[str]
-    kafka_ssl_enabled: Optional[str]
-    master_username: Optional[str]
-    password: Optional[str]
-    skip_custom_jdbc_cert_validation: Optional[str]
-    custom_jdbc_cert: Optional[str]
-    custom_jdbc_cert_string: Optional[str]
+# class SourceJDBCConnection(BaseModel):
+#     account_provider: Optional[int]
+#     account_id: Optional[str]
+#     region: Optional[str]
+#     instance: Optional[str]
+#     secret: Optional[str]
+#     network_availability_zone: Optional[str]
+#     network_subnet_id: Optional[str]
+#     network_sg_id: Optional[str]
+#     jdbc_connection_url: Optional[str]
+#     jdbc_enforce_ssl: Optional[str]
+#     kafka_ssl_enabled: Optional[str]
+#     master_username: Optional[str]
+#     password: Optional[str]
+#     skip_custom_jdbc_cert_validation: Optional[str]
+#     custom_jdbc_cert: Optional[str]
+#     custom_jdbc_cert_string: Optional[str]
 
-    class Config:
-        orm_mode = True
+#     class Config:
+#         orm_mode = True
 
 
 class SourceDeteteGlueDatabase(BaseModel):
@@ -286,6 +308,11 @@ class NewDataSource(BaseModel):
     type: DataSourceType = DataSourceType.all
 
 class AdminAccountInfo(BaseModel):
+    account_id: str
+    region: str
+
+class AccountInfo(BaseModel):
+    account_provider_id: int
     account_id: str
     region: str
 
@@ -346,6 +373,3 @@ class DataLocationInfo(BaseModel):
     region: Optional[str]
     account_count: Optional[int]
     coordinate: Optional[str]
-    region_alias: Optional[str]
-    provider_id: Optional[str]
-    provider_name: Optional[str]

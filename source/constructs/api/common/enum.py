@@ -105,13 +105,15 @@ class MessageEnum(Enum):
     SOURCE_SUBNET_JDBC_NOT_EXISTS = {1240: "Subnet for jdbc connection is not existed"}
     SOURCE_AVAILABILITY_ZONE_NOT_EXISTS = {1241: "AZ for jdbc connection is not existed"}
     SOURCE_SUBNET_NOT_PRIVATE = {1242: "Subnet for jdbc connection is not private subnet"}
-    SOURCE_SUBNET_NOT_CONTAIN_NAT = {1243: "Subnet for jdbc connection not contain NAT Gateway"}
+    SOURCE_VPC_NOT_CONTAIN_NAT = {1243: "Vpc for jdbc connection not contain NAT Gateway"}
     SOURCE_JDBC_NO_SCHEMA = {1244: "There is no user created schema found in the jdbc connection"}
     SOURCE_JDBC_CREATE_FAIL = {1245: "JDBC connection create failed"}
     SOURCE_NOT_AWS_ACCOUNT = {1246: "Could not import connection from non-aws account"}
     SOURCE_CONNECTION_NOT_FOUND = {1247: "Connection not found"}
     SOURCE_SECURITYGROUP_NOT_FOUND = {1248: "SecurityGroup not found"}
     SOURCE_JDBC_CONNECTION_NOT_EXIST = {1249: "JDBC connection not exist"}
+    SOURCE_SUBNET_NOT_EXIST = {1250: "Subnet for JDBC connection not exist in target account"}
+    SOURCE_UNCONNECTED = {1251: "UNCONNECTED"}
     # label
     LABEL_EXIST_FAILED = {1611: "Cannot create duplicated label"}
 

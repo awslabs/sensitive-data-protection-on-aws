@@ -18,7 +18,6 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 async def detect_glue_database_connection(session: Session, aws_account_id: str):
-    logger.info(f"@@@@@@@@@@@@@@@:{aws_account_id}")
     iam_role_name = crud.get_iam_role(aws_account_id)
     history = DetectionHistory(aws_account=aws_account_id, source_type=DatabaseType.GLUE.value, state=0)
     session.add(history)
