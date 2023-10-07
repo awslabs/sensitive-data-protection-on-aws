@@ -221,7 +221,9 @@
       "category": "类别",
       "folders": "文件夹",
       "dataCatalogName": "数据目录名称",
-      "dataSourceType": "数据源类型"
+      "dataSourceType": "数据源类型",
+      "dataSource": "数据源",
+      "provider": "服务商"
     }
   },
   "tab": {

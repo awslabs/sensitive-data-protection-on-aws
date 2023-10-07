@@ -10,10 +10,20 @@ export const JOB_LIST_COLUMN_LIST = [
     filter: true,
   },
   {
-    id: 'description',
-    label: 'table.label.description',
+    id: 'dataSource',
+    label: 'table.label.dataSource',
     filter: true,
   },
+  {
+    id: 'provider',
+    label: 'table.label.provider',
+    filter: true,
+  },
+  // {
+  //   id: 'description',
+  //   label: 'table.label.description',
+  //   filter: true,
+  // },
   {
     id: 'schedule',
     label: 'table.label.jobFrequency',

@@ -245,6 +245,12 @@ const DataJobContent: React.FC<any> = (props: any) => {
                       .format('YYYY-MM-DD HH:mm')
                   : '-';
               }
+              if (item.id === 'dataSource') {
+                return 'S3'; // TODO
+              }
+              if (item.id === 'provider') {
+                return 'AWS'; // TODO
+              }
               if (item.id === 'last_end_time') {
                 let runTime = '';
                 if ((e as any)['last_start_time'] && (e as any)[item.id]) {

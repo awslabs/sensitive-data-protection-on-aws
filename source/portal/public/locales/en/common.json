@@ -221,7 +221,9 @@
       "category": "Category",
       "folders": "Folders",
       "dataCatalogName": "Data catalog name",
-      "dataSourceType": "Data source type"
+      "dataSourceType": "Data source type",
+      "dataSource": "Data source",
+      "provider": "Provider"
     }
   },
   "tab": {
