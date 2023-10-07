@@ -1,7 +1,7 @@
 from common.enum import (Provider,
                          DatabaseType)
 
-def convert_database_type_provider(database_type: str) -> int:
+def convert_database_type_2_provider(database_type: str) -> int:
     if database_type == DatabaseType.JDBC_ALIYUN.value:
         return Provider.ALI_CLOUD.value
     elif database_type == DatabaseType.JDBC_TENCENT.value:
@@ -9,7 +9,7 @@ def convert_database_type_provider(database_type: str) -> int:
     else:
         return Provider.AWS_CLOUD.value
 
-def convert_provider_id_str(provider: int) -> str:
+def convert_provider_id_2_database_type(provider: int) -> str:
     if provider == Provider.TENCENT_CLOUD.value:
         return DatabaseType.JDBC_TENCENT.value
     elif Provider.ALI_CLOUD.value:

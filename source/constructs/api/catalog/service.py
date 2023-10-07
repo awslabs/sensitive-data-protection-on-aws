@@ -137,8 +137,8 @@ def sync_crawler_result(
             rds_engine_type = rds_database.engine
     
     if database_type.startswith(DatabaseType.JDBC.value):
-        from common.abilities import convert_database_type_provider
-        provider_id = convert_database_type_provider(database_type)
+        from common.abilities import convert_database_type_2_provider
+        provider_id = convert_database_type_2_provider(database_type)
         jdbc_database = data_source_crud.get_jdbc_instance_source(
             provider_id, account_id, region, database_name
         )

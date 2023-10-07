@@ -21,7 +21,7 @@ from common.query_condition import QueryCondition
 from discovery_job.service import delete_account as delete_job_by_account
 from discovery_job.service import can_delete_database as can_delete_job_database
 from discovery_job.service import delete_database as delete_job_database
-from common.abilities import convert_provider_id_str
+from common.abilities import convert_provider_id_2_database_type
 from . import s3_detector, rds_detector, glue_database_detector, crud
 from .schemas import (AccountInfo, AdminAccountInfo,
                       JDBCInstanceSource, JDBCInstanceSourceUpdate,
@@ -103,9 +103,9 @@ def build_s3_targets(bucket, credentials, region, is_init):
 
 
 def sync_s3_connection(account: str, region: str, bucket: str):
-    glue_connection_name = f"s3-{bucket}-connection"
-    glue_database_name = f"s3-{bucket}-database"
-    crawler_name = f"s3-{bucket}-crawler"
+    glue_connection_name = f"{const.SOLUTION_NAME}-{DatabaseType.S3.value}-{bucket}"
+    glue_database_name = f"{const.SOLUTION_NAME}-{DatabaseType.S3.value}-{bucket}"
+    crawler_name = f"{const.SOLUTION_NAME}-{DatabaseType.S3.value}-{bucket}"
     if region != _admin_account_region:
         raise BizException(MessageEnum.SOURCE_DO_NOT_SUPPORT_CROSS_REGION.get_code(),
                            MessageEnum.SOURCE_DO_NOT_SUPPORT_CROSS_REGION.get_msg())
@@ -449,10 +449,10 @@ def sync(glue, lakeformation, credentials, crawler_role_arn, jdbc: JDBCInstanceS
     logger.info(f"START SYNC ...{url}")
 
     jdbc_targets = []
-    provider_str = convert_provider_id_str(jdbc.account_provider_id)
-    # glue_connection_name = f"{const.SOLUTION_NAME}-{provider_str}-{jdbc.instance}"
-    glue_database_name = f"{const.SOLUTION_NAME}-{provider_str}-{jdbc.instance_id}"
-    crawler_name = f"{const.SOLUTION_NAME}-{provider_str}-{jdbc.instance_id}"
+    database_type = convert_provider_id_2_database_type(jdbc.account_provider_id)
+    # glue_connection_name = f"{const.SOLUTION_NAME}-{database_type}-{jdbc.instance}"
+    glue_database_name = f"{const.SOLUTION_NAME}-{database_type}-{jdbc.instance_id}"
+    crawler_name = f"{const.SOLUTION_NAME}-{database_type}-{jdbc.instance_id}"
     state, glue_connection_name = crud.get_jdbc_connection_glue_info(jdbc.account_provider_id, jdbc.account_id, jdbc.region, jdbc.instance_id)
     # crawler_role_arn = __gen_role_arn(account_id=_admin_account_id, region=_admin_account_region,
     #                                   role_name='GlueDetectionJobRole')
@@ -774,7 +774,7 @@ def delete_glue_database(provider_id: int, account: str, region: str, name: str)
     return True
 
 def delete_jdbc_connection(provider_id: int, account: str, region: str, instance_id: str):
-    database_type = convert_provider_id_str(provider_id)
+    database_type = convert_provider_id_2_database_type(provider_id)
     before_delete_jdbc_connection(provider_id, account, region, instance_id, database_type)
     assume_account, assume_region = gen_assume_account(provider_id, account, region)
     err = []
@@ -845,9 +845,9 @@ def gen_credentials(account: str):
 # Create crawler, connection and database and start crawler
 def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=None, rds_password=None,
                         rds_secret_id=None):
-    glue_connection_name = f"rds-{instance_name}-connection"
-    glue_database_name = f"rds-{instance_name}-database"
-    crawler_name = f"rds-{instance_name}-crawler"
+    glue_connection_name = f"{const.SOLUTION_NAME}-{DatabaseType.RDS.value}-{instance_name}"
+    glue_database_name = f"{const.SOLUTION_NAME}-{DatabaseType.RDS.value}-{instance_name}"
+    crawler_name = f"{const.SOLUTION_NAME}-{DatabaseType.RDS.value}-{instance_name}"
     if rds_user is None and rds_secret_id is None:
         raise BizException(MessageEnum.SOURCE_RDS_NO_AUTH.get_code(),
                            MessageEnum.SOURCE_RDS_NO_AUTH.get_msg())
@@ -1674,8 +1674,8 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
     if list:
         raise BizException(MessageEnum.SOURCE_JDBC_ALREADY_EXISTS.get_code(),
                            MessageEnum.SOURCE_JDBC_ALREADY_EXISTS.get_msg())
-    provider_str = convert_provider_id_str(jdbcConn.account_provider_id)
-    glue_connection_name = f"{const.SOLUTION_NAME}-{provider_str}-{jdbcConn.instance_id}"
+    database_type = convert_provider_id_2_database_type(jdbcConn.account_provider_id)
+    glue_connection_name = f"{const.SOLUTION_NAME}-{database_type}-{jdbcConn.instance_id}"
     # network_availability_zone by subnetId
     ec2_client, __ = __ec2(account=account_id, region=region)
     # return availability_zone
@@ -1751,6 +1751,23 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
     except Exception as e:
         raise BizException(MessageEnum.BIZ_UNKNOWN_ERR.get_code(),
                            MessageEnum.BIZ_UNKNOWN_ERR.get_msg())
+
+def test_jdbc_conn(jdbc_conn_param: JDBCInstanceSourceBase):
+    account_id = jdbc_conn_param.account_id if jdbc_conn_param.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id
+    region = jdbc_conn_param.region if jdbc_conn_param.region == Provider.AWS_CLOUD.value else _admin_account_region
+    # get connection name from sdp db
+    source: JDBCInstanceSourceFullInfo = crud.get_jdbc_instance_source_glue(provider_id=jdbc_conn_param.account_provider_id,
+                                                                            account=jdbc_conn_param.account_id,
+                                                                            region=jdbc_conn_param.region,
+                                                                            instance_id=jdbc_conn_param.instance_id)
+    if not source:
+        raise BizException(MessageEnum.SOURCE_JDBC_CONNECTION_NOT_EXIST.get_code(),
+                           MessageEnum.SOURCE_JDBC_CONNECTION_NOT_EXIST.get_msg())
+    ConnectionProperties = __glue(account_id, region).get_connection(Name=source.glue_connection)['Connection']['ConnectionProperties']
+    jdbc_url = ConnectionProperties['JDBC_CONNECTION_URL']
+    username = ConnectionProperties['USERNAME']
+    password = ConnectionProperties['PASSWORD']
+    pass
 
 def import_jdbc_conn(jdbcConn: JDBCInstanceSourceBase):
     res_connection = None

@@ -108,10 +108,10 @@ def agg_catalog_summary_by_attr(database_type: str,  agg_attribute: str, need_me
 def get_catalog_summay_by_provider_region(provider_id: int, region: str):
     summy = crud.get_catalog_summay_by_provider_region(region)
     logger.info(summy)
-    from common.abilities import convert_database_type_provider
+    from common.abilities import convert_database_type_2_provider
     database_type_list = []
     for member in DatabaseType.__members__.values():
-        if convert_database_type_provider(member.value) == provider_id:
+        if convert_database_type_2_provider(member.value) == provider_id:
             database_type_list.append(member.value)
     result_list = []
     for item in summy:
