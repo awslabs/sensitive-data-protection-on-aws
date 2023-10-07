@@ -7,5 +7,5 @@ openpyxl==3.0.10
 pymysql==1.0.2
 sqlakeyset==1.0.1659142803
 requests==2.31.0
-urllib3==1.26.15
+urllib3==1.26.17
 python-jose==3.3.0
