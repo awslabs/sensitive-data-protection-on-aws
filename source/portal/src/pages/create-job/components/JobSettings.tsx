@@ -19,6 +19,8 @@ import {
   OVERRIDE_OPTIONS,
   SCAN_DEPTH_OPTIONS,
   SCAN_RANGE_OPTIONS,
+  SCAN_STRUCTURED_DEPTH_OPTIONS,
+  SCAN_UNSTRUCTURED_DEPTH_OPTIONS,
 } from '../types/create_data_type';
 import { alertMsg } from 'tools/tools';
 import {
@@ -57,6 +59,11 @@ const JobSettings = () => {
   const [scanDepth, setScanDepth] = useState(
     SCAN_DEPTH_OPTIONS[0] as SelectProps.Option | null
   );
+
+  const [scanUnstructuredDepth, setScanUnstructuredDepth] = useState(
+    SCAN_UNSTRUCTURED_DEPTH_OPTIONS[0] as SelectProps.Option | null
+  );
+
   const [scanRange, setScanRange] = useState(
     SCAN_RANGE_OPTIONS[1] as SelectProps.Option | null
   );
@@ -174,7 +181,7 @@ const JobSettings = () => {
                 </StatusIndicator>
               }
             >
-              <b className="titel-info">{t('info')}</b>
+              <b className="title-info">{t('info')}</b>
             </Popover>
           }
         >
@@ -307,7 +314,7 @@ const JobSettings = () => {
                   </StatusIndicator>
                 }
               >
-                <b className="titel-info">{t('info')}</b>
+                <b className="title-info">{t('info')}</b>
               </Popover>
             }
           >
@@ -322,6 +329,67 @@ const JobSettings = () => {
               placeholder={t('job:create.scanDepthPlaceholder') || ''}
             ></Select>
           </FormField>
+
+          <FormField
+            label="Scan depth for structured files"
+            info={
+              <Popover
+                dismissButton={false}
+                position="right"
+                size="large"
+                content={
+                  <StatusIndicator type="info">
+                    {t('job:create.scanDepthPop1')}
+                    <p>{t('job:create.scanDepthPop2')}</p>
+                  </StatusIndicator>
+                }
+              >
+                <b className="title-info">{t('info')}</b>
+              </Popover>
+            }
+          >
+            <Select
+              selectedOption={scanDepth}
+              onChange={(select) => {
+                setScanDepth(select.detail.selectedOption);
+              }}
+              triggerVariant="option"
+              options={SCAN_STRUCTURED_DEPTH_OPTIONS}
+              selectedAriaLabel={t('selected') || ''}
+              placeholder={t('job:create.scanDepthPlaceholder') || ''}
+            ></Select>
+          </FormField>
+
+          <FormField
+            label="Scan depth for unstructured data (per folder)"
+            info={
+              <Popover
+                dismissButton={false}
+                position="right"
+                size="large"
+                content={
+                  <StatusIndicator type="info">
+                    {t('job:create.scanDepthPop1')}
+                    <p>{t('job:create.scanDepthPop2')}</p>
+                  </StatusIndicator>
+                }
+              >
+                <b className="title-info">{t('info')}</b>
+              </Popover>
+            }
+          >
+            <Select
+              selectedOption={scanUnstructuredDepth}
+              onChange={(select) => {
+                setScanUnstructuredDepth(select.detail.selectedOption);
+              }}
+              triggerVariant="option"
+              options={SCAN_UNSTRUCTURED_DEPTH_OPTIONS}
+              selectedAriaLabel={t('selected') || ''}
+              placeholder={t('job:create.scanDepthPlaceholder') || ''}
+            ></Select>
+          </FormField>
+
           <FormField
             label={t('job:create.scanRange')}
             info={
@@ -336,7 +404,7 @@ const JobSettings = () => {
                   </StatusIndicator>
                 }
               >
-                <b className="titel-info">{t('info')}</b>
+                <b className="title-info">{t('info')}</b>
               </Popover>
             }
           >
@@ -365,7 +433,7 @@ const JobSettings = () => {
                   </StatusIndicator>
                 }
               >
-                <b className="titel-info">{t('info')}</b>
+                <b className="title-info">{t('info')}</b>
               </Popover>
             }
           >

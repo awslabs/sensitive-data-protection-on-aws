@@ -1365,7 +1365,7 @@ const CreateJobContent = () => {
                             </StatusIndicator>
                           }
                         >
-                          <b className="titel-info">{t('info')}</b>
+                          <b className="title-info">{t('info')}</b>
                         </Popover>
                       }
                     >
@@ -1529,7 +1529,7 @@ const CreateJobContent = () => {
                               </StatusIndicator>
                             }
                           >
-                            <b className="titel-info">{t('info')}</b>
+                            <b className="title-info">{t('info')}</b>
                           </Popover>
                         }
                       >
@@ -1560,7 +1560,7 @@ const CreateJobContent = () => {
                               </StatusIndicator>
                             }
                           >
-                            <b className="titel-info">{t('info')}</b>
+                            <b className="title-info">{t('info')}</b>
                           </Popover>
                         }
                       >
@@ -1591,7 +1591,7 @@ const CreateJobContent = () => {
                               </StatusIndicator>
                             }
                           >
-                            <b className="titel-info">{t('info')}</b>
+                            <b className="title-info">{t('info')}</b>
                           </Popover>
                         }
                       >
