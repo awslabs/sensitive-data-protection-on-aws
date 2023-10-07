@@ -767,7 +767,7 @@ def delete_glue_database(provider_id: int, account: str, region: str, name: str)
     except Exception as e:
         err.append(str(e))
 
-    if err is not None:
+    if err:
         logger.error(traceback.format_exc())
         # raise BizException(MessageEnum.SOURCE_S3_CONNECTION_DELETE_ERROR.get_code(), err)
 
@@ -1214,7 +1214,7 @@ def delete_rds_connection(account: str, region: str, instance: str):
     except Exception as e:
         err.append(e)
     crud.delete_rds_connection(account, region, instance)
-    if err is not None:
+    if err:
         logger.error(traceback.format_exc())
         # raise BizException(MessageEnum.SOURCE_RDS_CONNECTION_DELETE_ERROR.get_code(), f"Delete with error: {err}")
 
@@ -1289,7 +1289,7 @@ def delete_s3_connection(account: str, region: str, bucket: str):
     except Exception as e:
         err.append(str(e))
 
-    if err is not None:
+    if err:
         logger.error(traceback.format_exc())
         # raise BizException(MessageEnum.SOURCE_S3_CONNECTION_DELETE_ERROR.get_code(), err)
 
