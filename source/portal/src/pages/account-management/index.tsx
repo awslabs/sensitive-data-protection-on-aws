@@ -5,19 +5,20 @@ import AccountList from './componments/AccountList';
 import { getSourceCoverage } from 'apis/data-source/api';
 import {
   AppLayout,
+  ContentLayout,
   Grid,
   Header,
   SpaceBetween,
-  Tabs,
+  Spinner,
 } from '@cloudscape-design/components';
 import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import Navigation from 'pages/left-menu/Navigation';
 import { getAccountInfomation } from 'apis/dashboard/api';
-import { getSourceProviders } from 'apis/data-source/api';
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
 import HelpInfo from 'common/HelpInfo';
 import { buildDocLink } from 'ts/common';
+import ProviderTab, { ProviderType } from 'common/ProviderTab';
 
 const AccountManagementHeader: React.FC = () => {
   const { t } = useTranslation();
@@ -28,110 +29,151 @@ const AccountManagementHeader: React.FC = () => {
   );
 };
 
+const OVERALL_INIT_DATA = {
+  rds_connected: 0,
+  rds_total: 0,
+  s3_connected: 0,
+  s3_total: 0,
+  jdbc_connected: 0,
+  jdbc_total: 0,
+  glue_connected: 0,
+  glue_total: 0,
+};
+
 const AccountManagementContent: React.FC = () => {
   const { t } = useTranslation();
-  const [coverageData, setCoverageData] = useState({
-    rds_connected: 0,
-    rds_total: 0,
-    s3_connected: 0,
-    s3_total: 0,
-    jdbc_connected: 0,
-    jdbc_total: 0
-  });
+  const [coverageData, setCoverageData] = useState(OVERALL_INIT_DATA);
   const [totalAccount, setTotalAccount] = useState(0);
   const [totalRegion, setTotalRegion] = useState(0);
-  const [providers, setProviders] = useState([]);
-  const [currentProvider, setCurrentProvider] = useState('1');
+  const [currentProvider, setCurrentProvider] = useState<ProviderType>();
+  const [providerIsLoading, setProviderIsLoading] = useState(true);
+  const [loadingAccounts, setLoadingAccounts] = useState(true);
 
   useEffect(() => {
-    getProviders();
-  }, []);
-
-  useEffect(() => {
-    getSourceCoverageData(currentProvider);
+    if (currentProvider) {
+      getSourceCoverageData(currentProvider.id);
+    }
   }, [currentProvider]);
 
-  const getProviders = async () => {
-    const providers: any = await getSourceProviders({});
-    setProviders(providers)
-  }
-
-  const getSourceCoverageData = async (currentProvider: string) => {
+  const getSourceCoverageData = async (providerId: number | string) => {
     try {
-      const result: any = await getSourceCoverage({"provider_id":currentProvider});
+      setLoadingAccounts(true);
+      setCoverageData(OVERALL_INIT_DATA);
+      const result: any = await getSourceCoverage({
+        provider_id: providerId,
+      });
       if (result) {
         setCoverageData(result);
       }
-      const accountData: any = await getAccountInfomation({"provider_id":currentProvider});
+      const accountData: any = await getAccountInfomation({
+        provider_id: providerId,
+      });
       if (accountData) {
         setTotalAccount(accountData.account_total);
         setTotalRegion(accountData.region_total);
       }
+      setLoadingAccounts(false);
     } catch (error) {
+      setLoadingAccounts(false);
       console.error(error);
     }
   };
-  const changeProvider =(tabId:any)=>{
-    setCurrentProvider(tabId);
-  }
-  const genTabs = () => {
-    const tabs:any = [];
-    providers.forEach(item=> {
-        tabs.push({
-          label: item['provider_name'],
-          id: item['id']+'',
-          content: (
-          <SpaceBetween direction="vertical" size="l" className="account-container">
-            <Grid gridDefinition={[{ colspan: 6 }, { colspan: 6 }]}>
-             <TopDataCoverage {...topLeftCoverageData} />
-             <TopDataCoverage {...topRightCoverageData} />
-            </Grid>
-            <AccountList setTotalAccount={setTotalAccount} provider={currentProvider}/>
-          </SpaceBetween>
-          )
-        }) 
-    })
-    return tabs;
-  }
-
-  const topLeftCoverageData = {
-    header: t('account:awsAccountInfo'),
-    description: t('account:awsAccountInfoDesc'),
-    leftChildHeader: t('account:totalAWSAccount'),
-    leftChildData: totalAccount.toString(),
-    rightChildHeader: t('account:awsRegions'),
-    rightChildData: totalRegion.toString(),
-    isRowMore: false,
-  };
-
-  const topRightCoverageData = {
-    header: t('account:dataSourceConnection'),
-    description: (
-      <span className="coverage-small">
-        {t('account:dataSourceDiscoverInAWSAccount')}
-      </span>
-    ),
-    leftChildHeader: t('account:totalS3Bucket'),
-    leftChildData: `${coverageData?.s3_total || 0}`,
-    // leftChildTotal: `${coverageData?.s3_total || 0}`,
-    rightChildHeader: t('account:totalRDSInstance'),
-    rightChildData: `${coverageData?.rds_total || 0}`,
-    jdbcChildHeader: t('account:totalJDBCConn'),
-    jdbcChildData: `${coverageData?.jdbc_total || 0}`,
-    // rightChildTotal: `${coverageData?.rds_total || 0}`,
-    isRowMore: true,
-  };
-
-   
-
-
 
   return (
-    <div style={{marginTop:30}}>
-    <SpaceBetween direction="vertical" size="xxl" className="account-container">
-      <Tabs tabs={genTabs()} onChange={({detail})=>changeProvider(detail.activeTabId)} activeTabId={currentProvider}/>
+    <SpaceBetween direction="vertical" size="xxl">
+      <ProviderTab
+        loadingProvider={(loading) => {
+          setProviderIsLoading(loading);
+        }}
+        changeProvider={(provider) => {
+          setCurrentProvider(provider);
+        }}
+      />
+      {providerIsLoading || loadingAccounts ? (
+        <Spinner />
+      ) : (
+        <SpaceBetween direction="vertical" size="xxl">
+          <Grid
+            gridDefinition={
+              currentProvider?.id === 1
+                ? [{ colspan: 4 }, { colspan: 8 }]
+                : [{ colspan: 6 }, { colspan: 6 }]
+            }
+          >
+            <TopDataCoverage
+              header={t('account:awsAccountInfo', {
+                PROVIDER: currentProvider?.provider_name,
+              })}
+              description={t('account:awsAccountInfoDesc', {
+                PROVIDER: currentProvider?.provider_name,
+              })}
+              col={2}
+              dataList={[
+                {
+                  label: t('account:totalAWSAccount', {
+                    PROVIDER: currentProvider?.provider_name,
+                  }),
+                  value: totalAccount.toString(),
+                },
+                {
+                  label: t('account:awsRegions', {
+                    PROVIDER: currentProvider?.provider_name,
+                  }),
+                  value: totalRegion.toString(),
+                },
+              ]}
+            />
+            <TopDataCoverage
+              header={t('account:dataSourceConnection')}
+              description={
+                <span className="coverage-small">
+                  {t('account:dataSourceDiscoverInAWSAccount', {
+                    PROVIDER: currentProvider?.provider_name ?? '',
+                  })}
+                </span>
+              }
+              col={currentProvider?.id === 1 ? 4 : 2}
+              dataList={
+                currentProvider?.id === 1
+                  ? [
+                      {
+                        label: t('account:totalS3Bucket'),
+                        value: coverageData?.s3_connected,
+                        total: coverageData?.s3_total,
+                      },
+                      {
+                        label: t('account:totalRDSInstance'),
+                        value: coverageData?.rds_connected,
+                        total: coverageData?.rds_total,
+                      },
+                      {
+                        label: t('account:awsGlue'),
+                        value: coverageData?.glue_connected,
+                        total: coverageData?.glue_total,
+                      },
+                      {
+                        label: t('account:customDB'),
+                        value: coverageData?.jdbc_connected,
+                        total: coverageData?.jdbc_total,
+                      },
+                    ]
+                  : [
+                      {
+                        label: t('account:totalJDBCConn'),
+                        value: coverageData?.jdbc_connected,
+                        total: coverageData?.jdbc_total,
+                      },
+                    ]
+              }
+            />
+          </Grid>
+          <AccountList
+            setTotalAccount={setTotalAccount}
+            provider={currentProvider}
+          />
+        </SpaceBetween>
+      )}
     </SpaceBetween>
-    </div>
   );
 };
 
@@ -158,8 +200,11 @@ const AccountManagement: React.FC = () => {
           ]}
         />
       }
-      contentHeader={<AccountManagementHeader />}
-      content={<AccountManagementContent />}
+      content={
+        <ContentLayout header={<AccountManagementHeader />} disableOverlap>
+          <AccountManagementContent />
+        </ContentLayout>
+      }
       headerSelector="#header"
       breadcrumbs={<CustomBreadCrumb breadcrumbItems={breadcrumbItems} />}
       navigation={<Navigation activeHref={RouterEnum.AccountManagement.path} />}

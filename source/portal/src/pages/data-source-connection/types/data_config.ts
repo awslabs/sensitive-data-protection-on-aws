@@ -90,4 +90,12 @@ export const TABLE_HEADER = {
     header: 'datasource:header.rdsTitle',
     info: 'datasource:header.rdsInfo',
   },
+  glue: {
+    header: 'datasource:header.glueTitle',
+    info: 'datasource:header.glueInfo',
+  },
+  jdbc: {
+    header: 'datasource:header.jdbcTitle',
+    info: 'datasource:header.jdbcInfo',
+  },
 };

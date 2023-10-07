@@ -7,7 +7,7 @@ import {
 } from '@cloudscape-design/components';
 import React, { memo, useEffect, useState } from 'react';
 import S3CatalogOverview from './items/S3CatalogOverview';
-import MapChart from './items/MapChart';
+// import MapChart from './items/MapChart';
 import CircleChart from './items/CircleChart';
 import TableData from './items/TableData';
 import { getCatalogTopNData } from 'apis/dashboard/api';
@@ -87,15 +87,15 @@ const AmazonS3: React.FC<any> = memo(() => {
         gridDefinition={[
           { colspan: 6 },
           { colspan: 6 },
-          { colspan: 12 },
+          // { colspan: 12 },
           // { colspan: 6 },
           { colspan: 12 },
           { colspan: 12 },
         ]}
       >
-        <div className="mt-20 pd-10">
+        {/* <div className="mt-20 pd-10">
           <MapChart sourceType="s3" title={t('summary:dataLocation')} />
-        </div>
+        </div> */}
         <div className="mt-20 pd-10">
           <CircleChart
             title={t('summary:lastUpdatedStatus')}
@@ -104,20 +104,6 @@ const AmazonS3: React.FC<any> = memo(() => {
           />
         </div>
 
-        <div className="mt-20 pd-10">
-          {loadingTableData ? (
-            <Spinner />
-          ) : (
-            <>
-              <IdentifierTableData
-                dataList={allIdentifierData}
-                keyLable={t('summary:dataIdentifier')}
-                valueLable={t('summary:totalBuckets')}
-                title={t('summary:topDataIdentifier')}
-              />
-            </>
-          )}
-        </div>
         <div className="mt-20 pd-10">
           {loadingTableData ? (
             <Spinner />
@@ -140,6 +126,22 @@ const AmazonS3: React.FC<any> = memo(() => {
             </>
           )}
         </div>
+
+        <div className="mt-20 pd-10">
+          {loadingTableData ? (
+            <Spinner />
+          ) : (
+            <>
+              <IdentifierTableData
+                dataList={allIdentifierData}
+                keyLable={t('summary:dataIdentifier')}
+                valueLable={t('summary:totalBuckets')}
+                title={t('summary:topDataIdentifier')}
+              />
+            </>
+          )}
+        </div>
+
         <div className="mt-20 pd-10">
           <Header variant="h3">{t('summary:privacyTagging')} </Header>
           <Grid

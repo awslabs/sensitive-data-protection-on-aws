@@ -8,7 +8,7 @@ import {
 import React, { memo, useEffect, useState } from 'react';
 import CircleChart from './items/CircleChart';
 // import CustomLineChart from './items/CustomLineChart';
-import MapChart from './items/MapChart';
+// import MapChart from './items/MapChart';
 import RDSCatalogOverview from './items/RDSCatalogOverview';
 import TableData from './items/TableData';
 import { getCatalogTopNData } from 'apis/dashboard/api';
@@ -82,7 +82,7 @@ export const AmazonRDS: React.FC<any> = memo(() => {
         gridDefinition={[
           { colspan: 6 },
           { colspan: 6 },
-          { colspan: 12 },
+          // { colspan: 12 },
           // { colspan: 6 },
           { colspan: 12 },
           { colspan: 12 },
@@ -91,9 +91,9 @@ export const AmazonRDS: React.FC<any> = memo(() => {
         {/* <div className="mt-20 pd-10">
           <CustomLineChart title="Data catalog trend" />
         </div> */}
-        <div className="mt-20 pd-10">
+        {/* <div className="mt-20 pd-10">
           <MapChart sourceType="rds" title={t('summary:dataLocation')} />
-        </div>
+        </div> */}
         <div className="mt-20 pd-10">
           <CircleChart
             title={t('summary:lastUpdatedStatus')}
@@ -106,23 +106,24 @@ export const AmazonRDS: React.FC<any> = memo(() => {
           {loadingTableData ? (
             <Spinner />
           ) : (
-            <IdentifierTableData
-              dataList={identifierData}
-              keyLable={t('summary:dataIdentifier')}
-              valueLable={t('summary:rdsIntacnes')}
-              title={t('summary:topDataIdentifier')}
-            />
-          )}
-        </div>
-        <div className="mt-20 pd-10">
-          {loadingTableData ? (
-            <Spinner />
-          ) : (
             <TableData
               dataList={conatainsPIIData}
               keyLable={t('summary:awsAccount')}
               valueLable={t('summary:rdsIntacnes')}
               title={t('summary:topAccountsContainPII')}
+            />
+          )}
+        </div>
+
+        <div className="mt-20 pd-10">
+          {loadingTableData ? (
+            <Spinner />
+          ) : (
+            <IdentifierTableData
+              dataList={identifierData}
+              keyLable={t('summary:dataIdentifier')}
+              valueLable={t('summary:rdsIntacnes')}
+              title={t('summary:topDataIdentifier')}
             />
           )}
         </div>

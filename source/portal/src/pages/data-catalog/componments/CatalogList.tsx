@@ -26,7 +26,7 @@ import {
   RDS_FILTER_COLUMN,
   COLUMN_WIDTH,
   FOLDERS_COLUMN,
-  RDS_TABLE_FILTER_COLUMN
+  RDS_TABLE_FILTER_COLUMN,
 } from '../types/data_config';
 import { DATA_TYPE_ENUM, TABLE_NAME } from 'enum/common_types';
 import {
@@ -55,7 +55,11 @@ const CatalogList: React.FC<any> = memo((props: any) => {
   const urlIdentifiers = searchParams.get('identifiers');
   const [rdsSelectedView, setRdsSelectedView] = useState('rds-instance-view');
   const columnList =
-    catalogType === DATA_TYPE_ENUM.s3 ? S3_COLUMN_LIST : rdsSelectedView === "rds-table-view" ? FOLDERS_COLUMN : RDS_COLUMN_LIST;
+    catalogType === DATA_TYPE_ENUM.s3
+      ? S3_COLUMN_LIST
+      : rdsSelectedView === 'rds-table-view'
+      ? FOLDERS_COLUMN
+      : RDS_COLUMN_LIST;
   const [pageData, setPageData] = useState([] as any);
   // by page config
   const [preferences, setPreferences] = useState({
@@ -112,7 +116,11 @@ const CatalogList: React.FC<any> = memo((props: any) => {
   const TableName = TABLE_NAME.CATALOG_DATABASE_LEVEL_CLASSIFICATION;
 
   const filterColumn =
-    catalogType === DATA_TYPE_ENUM.s3 ? S3_FILTER_COLUMN : rdsSelectedView === "rds-table-view" ? RDS_TABLE_FILTER_COLUMN : RDS_FILTER_COLUMN;
+    catalogType === DATA_TYPE_ENUM.s3
+      ? S3_FILTER_COLUMN
+      : rdsSelectedView === 'rds-table-view'
+      ? RDS_TABLE_FILTER_COLUMN
+      : RDS_FILTER_COLUMN;
 
   const resourcesFilterProps = {
     totalCount,
@@ -137,10 +145,7 @@ const CatalogList: React.FC<any> = memo((props: any) => {
   useDidUpdateEffect(() => {
     setCurrentPage(1);
     getPageData();
-  }, [query,
-      isDescending,
-      curSortColumn
-  ]);
+  }, [query, isDescending, curSortColumn]);
 
   useDidUpdateEffect(() => {
     setCurrentPage(1);
@@ -149,7 +154,7 @@ const CatalogList: React.FC<any> = memo((props: any) => {
 
   // click single select show detail
   useDidUpdateEffect(() => {
-    if (selectedItems.length === 1 && rdsSelectedView === "rds-instance-view") {
+    if (selectedItems.length === 1 && rdsSelectedView === 'rds-instance-view') {
       !showDetailModal && clickRowName(selectedItems[0]);
     }
   }, [selectedItems]);
@@ -160,7 +165,10 @@ const CatalogList: React.FC<any> = memo((props: any) => {
 
   const getPageData = async () => {
     setIsLoading(true);
-    if (catalogType === DATA_TYPE_ENUM.rds && rdsSelectedView === "rds-table-view") {
+    if (
+      catalogType === DATA_TYPE_ENUM.rds &&
+      rdsSelectedView === 'rds-table-view'
+    ) {
       getDataFolders();
     } else {
       try {
@@ -255,17 +263,6 @@ const CatalogList: React.FC<any> = memo((props: any) => {
 
   return (
     <>
-      {catalogType === DATA_TYPE_ENUM.rds && (
-        <div style={{paddingLeft:20}}>
-          <SegmentedControl
-            selectedId={rdsSelectedView}
-            options={[{ text: "Instance view", id: "rds-instance-view" }, { text: "Table view", id: "rds-table-view" }]}
-            onChange={({ detail }) => 
-            setRdsSelectedView(detail.selectedId)
-            }
-          />
-        </div>
-      )}
       <Table
         variant="embedded"
         className="no-shadow-list"
@@ -433,8 +430,29 @@ const CatalogList: React.FC<any> = memo((props: any) => {
           </>
         }
         header={
-          <Header counter={`(${totalCount})`} className="continer-header">
-            {tableTitle}
+          <Header
+            counter={`(${totalCount})`}
+            className="continer-header"
+            actions={
+              <>
+                {catalogType === DATA_TYPE_ENUM.rds && (
+                  <div style={{ paddingLeft: 20 }}>
+                    <SegmentedControl
+                      selectedId={rdsSelectedView}
+                      options={[
+                        { text: 'Instance view', id: 'rds-instance-view' },
+                        { text: 'Table view', id: 'rds-table-view' },
+                      ]}
+                      onChange={({ detail }) =>
+                        setRdsSelectedView(detail.selectedId)
+                      }
+                    />
+                  </div>
+                )}
+              </>
+            }
+          >
+            {props.label ?? tableTitle}
           </Header>
         }
         pagination={

@@ -81,6 +81,10 @@ const DataJobContent: React.FC<any> = (props: any) => {
     navigate(RouterEnum.CreateJob.path);
   };
 
+  const clkAddOldJob = () => {
+    navigate(RouterEnum.CreateJobOld.path);
+  };
+
   const clkOption = async (
     selectedOption: ButtonDropdownProps.ItemClickDetails
   ) => {
@@ -241,6 +245,12 @@ const DataJobContent: React.FC<any> = (props: any) => {
                       .format('YYYY-MM-DD HH:mm')
                   : '-';
               }
+              if (item.id === 'dataSource') {
+                return 'S3'; // TODO
+              }
+              if (item.id === 'provider') {
+                return 'AWS'; // TODO
+              }
               if (item.id === 'last_end_time') {
                 let runTime = '';
                 if ((e as any)['last_start_time'] && (e as any)[item.id]) {
@@ -364,6 +374,9 @@ const DataJobContent: React.FC<any> = (props: any) => {
                   >
                     {t('button.actions')}
                   </ButtonDropdown>
+                  <Button onClick={clkAddOldJob} disabled={isLoading}>
+                    Old Create
+                  </Button>
                   <Button onClick={clkAddJob} disabled={isLoading}>
                     {t('button.createJob')}
                   </Button>
