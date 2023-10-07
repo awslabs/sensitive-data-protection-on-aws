@@ -90,6 +90,19 @@ const getCatalogTopNData = async (params: any) => {
   return result;
 };
 
+/**
+ * get dashboard data location list
+ * @returns
+ */
+const getSummaryAccountData = async () => {
+  const result = await apiRequest(
+    'get',
+    'data-source/dashboard/agg-data-location-list',
+    {}
+  );
+  return result;
+};
+
 export {
   getAccountInfomation,
   getDatacatalogSummary,
@@ -98,4 +111,5 @@ export {
   getCatalogTopNData,
   getLatestJobTime,
   getCatalogSummaryByRegion,
+  getSummaryAccountData,
 };

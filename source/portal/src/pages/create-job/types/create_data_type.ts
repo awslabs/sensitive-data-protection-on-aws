@@ -200,6 +200,23 @@ export const SCAN_DEPTH_OPTIONS = [
   { label: '100', value: '100' },
 ];
 
+export const SCAN_STRUCTURED_DEPTH_OPTIONS = [
+  { label: 'Skip structured data', value: '' },
+  { label: '10 rows', value: '10' },
+  { label: '50 rows', value: '50' },
+  { label: '100 rows', value: '100' },
+  { label: '500 rows', value: '500' },
+  { label: '1000 rows', value: '1000' },
+];
+
+export const SCAN_UNSTRUCTURED_DEPTH_OPTIONS = [
+  { label: 'Skip unstructured data', value: '' },
+  { label: '10 files (recommended)', value: '10' },
+  { label: '50 files', value: '50' },
+  { label: '100 files', value: '100' },
+  { label: 'All files (may take long time)', value: 'all' },
+];
+
 export const SCAN_RANGE_OPTIONS = [
   { label: 'Full scan', value: '0' },
   { label: 'Incremental scan (recommended)', value: '1' },

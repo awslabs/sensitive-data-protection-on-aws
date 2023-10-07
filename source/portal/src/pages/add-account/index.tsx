@@ -1,4 +1,9 @@
-import { AppLayout, Header, Tabs } from '@cloudscape-design/components';
+import {
+  AppLayout,
+  ContentLayout,
+  Header,
+  Tabs,
+} from '@cloudscape-design/components';
 import React from 'react';
 import { TAB_LIST } from './types/add_account_type';
 import AddAccountInfo from './componments/AddAccountInfo';
@@ -9,6 +14,8 @@ import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
 import HelpInfo from 'common/HelpInfo';
 import { buildDocLink } from 'ts/common';
+import { useLocation } from 'react-router-dom';
+import AccountForm from './componments/AccountForm';
 
 const AddAccountHeader: React.FC = () => {
   const { t } = useTranslation();
@@ -20,24 +27,31 @@ const AddAccountHeader: React.FC = () => {
 };
 
 const AddAccountContent = () => {
+  const location = useLocation();
   const { t } = useTranslation();
+  const { provider } = location.state || {};
+  console.info('provider:', provider);
   return (
-    <div style={{ background: '#fff', marginTop: 40 }}>
-      <Tabs
-        tabs={[
-          {
-            label: t(TAB_LIST.individual.label),
-            id: TAB_LIST.individual.id,
-            content: <AddAccountInfo tagType={TAB_LIST.individual.id} />,
-          },
-          {
-            label: t(TAB_LIST.via.label),
-            id: TAB_LIST.via.id,
-            content: <AddAccountInfo tagType={TAB_LIST.via.id} />,
-          },
-        ]}
-      />
-    </div>
+    <>
+      {provider.id === 1 && (
+        <Tabs
+          tabs={[
+            {
+              label: t(TAB_LIST.individual.label),
+              id: TAB_LIST.individual.id,
+              content: <AddAccountInfo tagType={TAB_LIST.individual.id} />,
+            },
+            {
+              label: t(TAB_LIST.via.label),
+              id: TAB_LIST.via.id,
+              content: <AddAccountInfo tagType={TAB_LIST.via.id} />,
+            },
+          ]}
+        />
+      )}
+      {provider.id === 2 && <AccountForm provider={provider} />}
+      {provider.id === 3 && <AccountForm provider={provider} />}
+    </>
   );
 };
 
@@ -52,7 +66,6 @@ const AddAccount: React.FC = () => {
   ];
   return (
     <AppLayout
-      contentHeader={<AddAccountHeader />}
       tools={
         <HelpInfo
           title={t('breadcrumb.awsAccount')}
@@ -72,7 +85,11 @@ const AddAccount: React.FC = () => {
           ]}
         />
       }
-      content={<AddAccountContent />}
+      content={
+        <ContentLayout disableOverlap header={<AddAccountHeader />}>
+          <AddAccountContent />
+        </ContentLayout>
+      }
       headerSelector="#header"
       breadcrumbs={<CustomBreadCrumb breadcrumbItems={breadcrumbItems} />}
       navigation={<Navigation activeHref={RouterEnum.AddAccount.path} />}

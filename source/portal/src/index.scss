@@ -174,7 +174,8 @@ code {
   min-width: 1300px;
 }
 
-.dashboard-map {
+.dashboard-map,
+.account-map {
   svg {
     display: inline-block;
     vertical-align: middle;
@@ -210,6 +211,36 @@ code {
       -webkit-background-clip: padding-box;
       -moz-background-clip: padding;
       background-clip: padding-box;
+      font-size: 13px;
+      line-height: 18px;
+
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      ol {
+        list-style: none;
+        padding: 0;
+      }
+
+      li {
+        margin: 0;
+        padding: 0;
+        line-height: 18px;
+      }
+      .popover-title > .close {
+        position: relative;
+        top: -5px;
+        right: -5px;
+        color: #3a3a3a;
+        opacity: 0.6;
+
+        &:hover {
+          opacity: 0.8;
+        }
+      }
     }
 
     .popover.top {
@@ -332,46 +363,6 @@ code {
       border-left-color: $blue;
       border-width: 11px 0 11px 11px;
     }
-
-    // Type
-
-    .popover {
-      font-size: 13px;
-      line-height: 18px;
-
-      ul {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-      }
-
-      ol {
-        list-style: none;
-        padding: 0;
-      }
-
-      li {
-        margin: 0;
-        padding: 0;
-        line-height: 18px;
-      }
-    }
-
-    // Close button
-
-    .popover {
-      .popover-title > .close {
-        position: relative;
-        top: -5px;
-        right: -5px;
-        color: #3a3a3a;
-        opacity: 0.6;
-
-        &:hover {
-          opacity: 0.8;
-        }
-      }
-    }
   }
 }
 
@@ -416,7 +407,7 @@ code {
 }
 
 .max-table-height {
-  max-height: 465px;
+  max-height: 435px;
   overflow-y: auto;
 }
 
@@ -465,7 +456,6 @@ code {
   color: #fff;
   font-family: "Open Sans", "Helvetica Neue", Roboto, Arial, sans-serif;
   font-size: 12px;
-  line-height: 16px;
   letter-spacing: 0.005em;
   line-height: 22px;
   display: inline-block;
@@ -480,4 +470,22 @@ code {
     background-color: #7aa4e3;
     color: #fff;
   }
+}
+
+.add-account-logo {
+  width: 200px;
+  border: 2px solid #7d8998;
+  border-radius: 8px;
+  .name {
+    font-size: 16px;
+    font-weight: bold;
+    padding: 10px;
+  }
+  .image {
+    padding: 0 20px;
+  }
+}
+
+.add-jdbc-container {
+  padding: 20px;
 }

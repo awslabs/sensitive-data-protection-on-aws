@@ -3,6 +3,7 @@ import {
   AppLayout,
   Button,
   Container,
+  ContentLayout,
   Header,
   SpaceBetween,
   Tabs,
@@ -36,8 +37,7 @@ const DataSourceConnectionHeader: React.FC = () => {
         </Button>
       }
     >
-      {t('datasource:connectToDataSourceForAccount')}{' '}
-      {accountData.account_id}
+      {t('datasource:connectToDataSourceForAccount')} {accountData.account_id}
     </Header>
   );
 };
@@ -86,6 +86,26 @@ const DataSourceConnectionContent: React.FC = () => {
                 />
               ),
             },
+            {
+              label: t(TAB_LIST.GLUE.label),
+              id: TAB_LIST.GLUE.id,
+              content: (
+                <DataSourceList
+                  tagType={TAB_LIST.GLUE.id}
+                  accountData={accountData}
+                />
+              ),
+            },
+            {
+              label: t(TAB_LIST.JDBC.label),
+              id: TAB_LIST.JDBC.id,
+              content: (
+                <DataSourceList
+                  tagType={TAB_LIST.JDBC.id}
+                  accountData={accountData}
+                />
+              ),
+            },
           ]}
         />
       </Container>
@@ -105,8 +125,11 @@ const DataSourceConnection: React.FC = () => {
   return (
     <AppLayout
       toolsHide
-      contentHeader={<DataSourceConnectionHeader />}
-      content={<DataSourceConnectionContent />}
+      content={
+        <ContentLayout header={<DataSourceConnectionHeader />}>
+          <DataSourceConnectionContent />
+        </ContentLayout>
+      }
       headerSelector="#header"
       breadcrumbs={<CustomBreadCrumb breadcrumbItems={breadcrumbItems} />}
       navigation={
