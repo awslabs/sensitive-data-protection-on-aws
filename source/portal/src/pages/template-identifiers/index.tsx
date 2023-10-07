@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import IdentifierTable from './tables/IdentifierTable';
 import HelpInfo from 'common/HelpInfo';
 import { buildDocLink } from 'ts/common';
+import TextImageTab from './components/TextImageTab';
 
 const TemplateIdentifiersHeader: React.FC = () => {
   const navigate = useNavigate();
@@ -78,21 +79,7 @@ const TemplateIdentifiers: React.FC = () => {
       }
       content={
         <ContentLayout disableOverlap header={<TemplateIdentifiersHeader />}>
-          <Tabs
-            disableContentPaddings
-            tabs={[
-              {
-                label: 'Text-based data identifiers',
-                id: 'text',
-                content: '',
-              },
-              {
-                label: 'Image-based data identifiers',
-                id: 'image',
-                content: '',
-              },
-            ]}
-          />
+          <TextImageTab />
           <div className="mt-20">
             <Container>
               <Tabs

@@ -136,7 +136,7 @@ const AddIdentfierTable = (props: any) => {
     const promiseList: any[] = [];
     const identifierIds: any[] = [];
     selectedItems.forEach((item: { id: any }) => {
-      identifierIds.push(item.id)
+      identifierIds.push(item.id);
     });
     const requestParam = {
       template_id: 1,
