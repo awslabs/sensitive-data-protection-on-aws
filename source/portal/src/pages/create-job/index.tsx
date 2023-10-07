@@ -74,7 +74,6 @@ const CreateJobContent = () => {
                 <SelectS3Catalog />
               </>
             ),
-            isOptional: true,
           },
           {
             title: 'Job settings',
@@ -83,7 +82,6 @@ const CreateJobContent = () => {
                 <JobSettings />
               </>
             ),
-            isOptional: true,
           },
           {
             title: 'Advanced settings: Exclude keywords',
@@ -92,7 +90,6 @@ const CreateJobContent = () => {
                 <AdvancedSettings />
               </>
             ),
-            isOptional: true,
           },
           {
             title: 'Job preview',

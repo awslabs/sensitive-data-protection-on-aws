@@ -77,9 +77,6 @@ const JobSettings = () => {
 
   const [timezone, setTimezone] = useState('');
 
-  const [exclusiveToggle, setExclusiveToggle] = useState(false);
-  const [exclusiveText, setExclusiveText] = useState('');
-
   const clkFrequencyApply = (type: any) => {
     const tempType = typeof type === 'string' ? type : frequencyType;
     if (tempType === 'on_demand_run') {
@@ -127,44 +124,177 @@ const JobSettings = () => {
   }, []);
 
   return (
-    <Container>
-      <SpaceBetween direction="vertical" size="l">
-        <Container
-          header={<Header variant="h2">{t('job:create.jobBasicInfo')}</Header>}
-        >
-          <SpaceBetween direction="vertical" size="l">
-            <FormField
-              label={t('job:create.name')}
-              description={t('job:create.nameDesc')}
+    <SpaceBetween direction="vertical" size="l">
+      <Container
+        header={<Header variant="h2">{t('job:create.jobBasicInfo')}</Header>}
+      >
+        <SpaceBetween direction="vertical" size="l">
+          <FormField
+            label={t('job:create.name')}
+            description={t('job:create.nameDesc')}
+          >
+            <Input
+              value={jobName}
+              onChange={({ detail }) =>
+                detail.value.length <= 60 &&
+                checkChar(detail.value) &&
+                setJobName(detail.value)
+              }
+              placeholder={t('job:create.jobNamePlaceholder') || ''}
+            />
+          </FormField>
+          <FormField label={t('job:create.desc')}>
+            <Input
+              value={jobDescription}
+              onChange={({ detail }) =>
+                detail.value.length <= 60 && setJobDescriptio(detail.value)
+              }
+              placeholder={t('job:create.descPlaceholder') || ''}
+            />
+          </FormField>
+        </SpaceBetween>
+      </Container>
+      <Container
+        header={
+          <Header variant="h2">{t('job:create.dataClassfiyTmpl')}</Header>
+        }
+      >
+        <FormField
+          label={t('job:create.dataClassfiyTmpl')}
+          info={
+            <Popover
+              dismissButton={false}
+              position="right"
+              size="large"
+              content={
+                <StatusIndicator type="info">
+                  {t('job:create.dataClassfiyTmplPop1')}
+                  <p>{t('job:create.dataClassfiyTmplPop2')}</p>
+                  <p>{t('job:create.dataClassfiyTmplPop3')}</p>
+                </StatusIndicator>
+              }
             >
-              <Input
-                value={jobName}
-                onChange={({ detail }) =>
-                  detail.value.length <= 60 &&
-                  checkChar(detail.value) &&
-                  setJobName(detail.value)
-                }
-                placeholder={t('job:create.jobNamePlaceholder') || ''}
-              />
-            </FormField>
-            <FormField label={t('job:create.desc')}>
-              <Input
-                value={jobDescription}
-                onChange={({ detail }) =>
-                  detail.value.length <= 60 && setJobDescriptio(detail.value)
-                }
-                placeholder={t('job:create.descPlaceholder') || ''}
-              />
-            </FormField>
-          </SpaceBetween>
-        </Container>
-        <Container
-          header={
-            <Header variant="h2">{t('job:create.dataClassfiyTmpl')}</Header>
+              <b className="titel-info">{t('info')}</b>
+            </Popover>
           }
         >
+          <Select
+            selectedOption={selectTemplate}
+            onChange={(select) => {
+              setSelectTemplate(select.detail.selectedOption);
+            }}
+            triggerVariant="option"
+            options={[DEFAULT_TEMPLATE]}
+            placeholder={t('job:create.classifyTmplForPrivacy') || ''}
+          ></Select>
+        </FormField>
+      </Container>
+
+      <Container
+        header={<Header variant="h2">{t('job:create.jobSettings')}</Header>}
+      >
+        <SpaceBetween direction="vertical" size="l">
+          <FormField label={t('job:create.scanFreq')}>
+            <Select
+              triggerVariant="option"
+              selectedAriaLabel={t('selected') || ''}
+              onChange={({ detail }) => {
+                setFrequencyType(detail.selectedOption.value as any);
+                setScanFrequency(detail.selectedOption);
+                if (detail.selectedOption.value === 'on_demand_run') {
+                  clkFrequencyApply(detail.selectedOption.value);
+                }
+              }}
+              options={SCAN_FREQUENCY}
+              selectedOption={scanFrequency}
+            ></Select>
+          </FormField>
+          <div>
+            {frequencyType === 'daily' && (
+              <FormField
+                label={t('job:create.startHourOfDay') + ' (' + timezone + ')'}
+              >
+                <Select
+                  selectedOption={frequencyTimeStart}
+                  triggerVariant="option"
+                  selectedAriaLabel={t('selected') || ''}
+                  options={HOUR_OPTIONS}
+                  onChange={(select) => {
+                    setFrequencyTimeStart(select.detail.selectedOption);
+                  }}
+                  onBlur={clkFrequencyApply}
+                ></Select>
+              </FormField>
+            )}
+            {frequencyType === 'weekly' && (
+              <FormField label={t('job:create.startDayOfWeek')}>
+                <Select
+                  selectedOption={frequencyStart}
+                  triggerVariant="option"
+                  options={DAY_OPTIONS}
+                  selectedAriaLabel={t('selected') || ''}
+                  onChange={(select) => {
+                    setFrequencyStart(select.detail.selectedOption);
+                  }}
+                  onBlur={clkFrequencyApply}
+                ></Select>
+                <p />
+              </FormField>
+            )}
+            {frequencyType === 'weekly' && (
+              <FormField
+                label={t('job:create.startHourOfDay') + ' (' + timezone + ')'}
+              >
+                <Select
+                  selectedOption={frequencyTimeStart}
+                  triggerVariant="option"
+                  selectedAriaLabel={t('selected') || ''}
+                  options={HOUR_OPTIONS}
+                  onChange={(select) => {
+                    setFrequencyTimeStart(select.detail.selectedOption);
+                  }}
+                  onBlur={clkFrequencyApply}
+                ></Select>
+              </FormField>
+            )}
+            {frequencyType === 'monthly' && (
+              <FormField
+                label={t('job:create.startDayOfMonth')}
+                description={t('job:create.startDayOfMonthDesc')}
+              >
+                <Select
+                  selectedOption={frequencyStart}
+                  triggerVariant="option"
+                  options={MONTH_OPTIONS}
+                  selectedAriaLabel={t('selected') || ''}
+                  onChange={(select) => {
+                    setFrequencyStart(select.detail.selectedOption);
+                  }}
+                  onBlur={clkFrequencyApply}
+                ></Select>
+                <p />
+              </FormField>
+            )}
+            {frequencyType === 'monthly' && (
+              <FormField
+                label={t('job:create.startHourOfDay') + ' (' + timezone + ')'}
+              >
+                <Select
+                  selectedOption={frequencyTimeStart}
+                  triggerVariant="option"
+                  selectedAriaLabel={t('selected') || ''}
+                  options={HOUR_OPTIONS}
+                  onChange={(select) => {
+                    setFrequencyTimeStart(select.detail.selectedOption);
+                  }}
+                  onBlur={clkFrequencyApply}
+                ></Select>
+              </FormField>
+            )}
+          </div>
+
           <FormField
-            label={t('job:create.dataClassfiyTmpl')}
+            label={t('job:create.scanDepth')}
             info={
               <Popover
                 dismissButton={false}
@@ -172,9 +302,8 @@ const JobSettings = () => {
                 size="large"
                 content={
                   <StatusIndicator type="info">
-                    {t('job:create.dataClassfiyTmplPop1')}
-                    <p>{t('job:create.dataClassfiyTmplPop2')}</p>
-                    <p>{t('job:create.dataClassfiyTmplPop3')}</p>
+                    {t('job:create.scanDepthPop1')}
+                    <p>{t('job:create.scanDepthPop2')}</p>
                   </StatusIndicator>
                 }
               >
@@ -183,253 +312,88 @@ const JobSettings = () => {
             }
           >
             <Select
-              selectedOption={selectTemplate}
+              selectedOption={scanDepth}
               onChange={(select) => {
-                setSelectTemplate(select.detail.selectedOption);
+                setScanDepth(select.detail.selectedOption);
               }}
               triggerVariant="option"
-              options={[DEFAULT_TEMPLATE]}
-              placeholder={t('job:create.classifyTmplForPrivacy') || ''}
+              options={SCAN_DEPTH_OPTIONS}
+              selectedAriaLabel={t('selected') || ''}
+              placeholder={t('job:create.scanDepthPlaceholder') || ''}
             ></Select>
           </FormField>
-        </Container>
-
-        <Container
-          header={<Header variant="h2">{t('job:create.jobSettings')}</Header>}
-        >
-          <SpaceBetween direction="vertical" size="l">
-            <FormField label={t('job:create.scanFreq')}>
-              <Select
-                triggerVariant="option"
-                selectedAriaLabel={t('selected') || ''}
-                onChange={({ detail }) => {
-                  setFrequencyType(detail.selectedOption.value as any);
-                  setScanFrequency(detail.selectedOption);
-                  if (detail.selectedOption.value === 'on_demand_run') {
-                    clkFrequencyApply(detail.selectedOption.value);
-                  }
-                }}
-                options={SCAN_FREQUENCY}
-                selectedOption={scanFrequency}
-              ></Select>
-            </FormField>
-            <div>
-              {frequencyType === 'daily' && (
-                <FormField
-                  label={t('job:create.startHourOfDay') + ' (' + timezone + ')'}
-                >
-                  <Select
-                    selectedOption={frequencyTimeStart}
-                    triggerVariant="option"
-                    selectedAriaLabel={t('selected') || ''}
-                    options={HOUR_OPTIONS}
-                    onChange={(select) => {
-                      setFrequencyTimeStart(select.detail.selectedOption);
-                    }}
-                    onBlur={clkFrequencyApply}
-                  ></Select>
-                </FormField>
-              )}
-              {frequencyType === 'weekly' && (
-                <FormField label={t('job:create.startDayOfWeek')}>
-                  <Select
-                    selectedOption={frequencyStart}
-                    triggerVariant="option"
-                    options={DAY_OPTIONS}
-                    selectedAriaLabel={t('selected') || ''}
-                    onChange={(select) => {
-                      setFrequencyStart(select.detail.selectedOption);
-                    }}
-                    onBlur={clkFrequencyApply}
-                  ></Select>
-                  <p />
-                </FormField>
-              )}
-              {frequencyType === 'weekly' && (
-                <FormField
-                  label={t('job:create.startHourOfDay') + ' (' + timezone + ')'}
-                >
-                  <Select
-                    selectedOption={frequencyTimeStart}
-                    triggerVariant="option"
-                    selectedAriaLabel={t('selected') || ''}
-                    options={HOUR_OPTIONS}
-                    onChange={(select) => {
-                      setFrequencyTimeStart(select.detail.selectedOption);
-                    }}
-                    onBlur={clkFrequencyApply}
-                  ></Select>
-                </FormField>
-              )}
-              {frequencyType === 'monthly' && (
-                <FormField
-                  label={t('job:create.startDayOfMonth')}
-                  description={t('job:create.startDayOfMonthDesc')}
-                >
-                  <Select
-                    selectedOption={frequencyStart}
-                    triggerVariant="option"
-                    options={MONTH_OPTIONS}
-                    selectedAriaLabel={t('selected') || ''}
-                    onChange={(select) => {
-                      setFrequencyStart(select.detail.selectedOption);
-                    }}
-                    onBlur={clkFrequencyApply}
-                  ></Select>
-                  <p />
-                </FormField>
-              )}
-              {frequencyType === 'monthly' && (
-                <FormField
-                  label={t('job:create.startHourOfDay') + ' (' + timezone + ')'}
-                >
-                  <Select
-                    selectedOption={frequencyTimeStart}
-                    triggerVariant="option"
-                    selectedAriaLabel={t('selected') || ''}
-                    options={HOUR_OPTIONS}
-                    onChange={(select) => {
-                      setFrequencyTimeStart(select.detail.selectedOption);
-                    }}
-                    onBlur={clkFrequencyApply}
-                  ></Select>
-                </FormField>
-              )}
-            </div>
-
-            <FormField
-              label={t('job:create.scanDepth')}
-              info={
-                <Popover
-                  dismissButton={false}
-                  position="right"
-                  size="large"
-                  content={
-                    <StatusIndicator type="info">
-                      {t('job:create.scanDepthPop1')}
-                      <p>{t('job:create.scanDepthPop2')}</p>
-                    </StatusIndicator>
-                  }
-                >
-                  <b className="titel-info">{t('info')}</b>
-                </Popover>
-              }
-            >
-              <Select
-                selectedOption={scanDepth}
-                onChange={(select) => {
-                  setScanDepth(select.detail.selectedOption);
-                }}
-                triggerVariant="option"
-                options={SCAN_DEPTH_OPTIONS}
-                selectedAriaLabel={t('selected') || ''}
-                placeholder={t('job:create.scanDepthPlaceholder') || ''}
-              ></Select>
-            </FormField>
-            <FormField
-              label={t('job:create.scanRange')}
-              info={
-                <Popover
-                  dismissButton={false}
-                  position="right"
-                  size="large"
-                  content={
-                    <StatusIndicator type="info">
-                      {t('job:create.scanRangePop1')}
-                      <p>{t('job:create.scanRangePop2')}</p>
-                    </StatusIndicator>
-                  }
-                >
-                  <b className="titel-info">{t('info')}</b>
-                </Popover>
-              }
-            >
-              <Select
-                selectedOption={scanRange}
-                onChange={(select) => {
-                  setScanRange(select.detail.selectedOption);
-                }}
-                triggerVariant="option"
-                options={SCAN_RANGE_OPTIONS}
-                selectedAriaLabel={t('selected') || ''}
-                placeholder={t('job:create.scanRangePlaceholder') || ''}
-              ></Select>
-            </FormField>
-            <FormField
-              label={t('job:create.detectionThreshold')}
-              info={
-                <Popover
-                  dismissButton={false}
-                  position="right"
-                  size="large"
-                  content={
-                    <StatusIndicator type="info">
-                      {t('job:create.detectionThresholdPop1')}
-                      <p>{t('job:create.detectionThresholdPop2')}</p>
-                    </StatusIndicator>
-                  }
-                >
-                  <b className="titel-info">{t('info')}</b>
-                </Popover>
-              }
-            >
-              <Select
-                selectedOption={detectionThreshold}
-                onChange={(select) => {
-                  setDetectionThreshold(select.detail.selectedOption);
-                }}
-                triggerVariant="option"
-                options={DETECTION_THRESHOLD_OPTIONS}
-                selectedAriaLabel={t('selected') || ''}
-                placeholder={
-                  t('job:create.detectionThresholdPlaceholder') || ''
+          <FormField
+            label={t('job:create.scanRange')}
+            info={
+              <Popover
+                dismissButton={false}
+                position="right"
+                size="large"
+                content={
+                  <StatusIndicator type="info">
+                    {t('job:create.scanRangePop1')}
+                    <p>{t('job:create.scanRangePop2')}</p>
+                  </StatusIndicator>
                 }
-              ></Select>
-            </FormField>
-            <FormField label={t('job:create.override')}>
-              <Select
-                selectedOption={overwrite}
-                onChange={(select) => {
-                  setOverwrite(select.detail.selectedOption);
-                }}
-                triggerVariant="option"
-                options={OVERRIDE_OPTIONS}
-                selectedAriaLabel={t('selected') || ''}
-              ></Select>
-            </FormField>
-          </SpaceBetween>
-        </Container>
-        <Container
-          header={
-            <Header
-              variant="h2"
-              description={t('job:create.exclusiveRulesDesc')}
-            >
-              {t('job:create.exclusiveRules')}
-            </Header>
-          }
-        >
-          <Toggle
-            onChange={({ detail }) => setExclusiveToggle(detail.checked)}
-            checked={exclusiveToggle}
+              >
+                <b className="titel-info">{t('info')}</b>
+              </Popover>
+            }
           >
-            <b>{t('job:create.exclusiveRulesToggle')}</b>
-          </Toggle>
-          {exclusiveToggle && (
-            <>
-              <Textarea
-                value={exclusiveText}
-                onChange={({ detail }) => {
-                  setExclusiveText(detail.value);
-                }}
-                placeholder=""
-                rows={6}
-              />
-            </>
-          )}
-        </Container>
-      </SpaceBetween>
-    </Container>
+            <Select
+              selectedOption={scanRange}
+              onChange={(select) => {
+                setScanRange(select.detail.selectedOption);
+              }}
+              triggerVariant="option"
+              options={SCAN_RANGE_OPTIONS}
+              selectedAriaLabel={t('selected') || ''}
+              placeholder={t('job:create.scanRangePlaceholder') || ''}
+            ></Select>
+          </FormField>
+          <FormField
+            label={t('job:create.detectionThreshold')}
+            info={
+              <Popover
+                dismissButton={false}
+                position="right"
+                size="large"
+                content={
+                  <StatusIndicator type="info">
+                    {t('job:create.detectionThresholdPop1')}
+                    <p>{t('job:create.detectionThresholdPop2')}</p>
+                  </StatusIndicator>
+                }
+              >
+                <b className="titel-info">{t('info')}</b>
+              </Popover>
+            }
+          >
+            <Select
+              selectedOption={detectionThreshold}
+              onChange={(select) => {
+                setDetectionThreshold(select.detail.selectedOption);
+              }}
+              triggerVariant="option"
+              options={DETECTION_THRESHOLD_OPTIONS}
+              selectedAriaLabel={t('selected') || ''}
+              placeholder={t('job:create.detectionThresholdPlaceholder') || ''}
+            ></Select>
+          </FormField>
+          <FormField label={t('job:create.override')}>
+            <Select
+              selectedOption={overwrite}
+              onChange={(select) => {
+                setOverwrite(select.detail.selectedOption);
+              }}
+              triggerVariant="option"
+              options={OVERRIDE_OPTIONS}
+              selectedAriaLabel={t('selected') || ''}
+            ></Select>
+          </FormField>
+        </SpaceBetween>
+      </Container>
+    </SpaceBetween>
   );
 };
 

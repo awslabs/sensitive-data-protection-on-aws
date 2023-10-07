@@ -452,7 +452,7 @@ const CatalogList: React.FC<any> = memo((props: any) => {
               </>
             }
           >
-            {tableTitle}
+            {props.label ?? tableTitle}
           </Header>
         }
         pagination={
