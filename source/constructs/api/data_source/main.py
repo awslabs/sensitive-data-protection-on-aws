@@ -116,7 +116,7 @@ def delete_glue_database(glueDatabase: schemas.SourceDeteteGlueDatabase):
 
 @router.post("/sync-glue-database", response_model=BaseResponse)
 @inject_session
-def sync_glue_database(glueDatabase: schemas.SourceGlueDatabase):
+def sync_glue_database(glueDatabase: schemas.SourceGlueDatabaseBase):
     return service.sync_glue_database(
         glueDatabase.account_id,
         glueDatabase.region,
@@ -135,7 +135,7 @@ def delete_jdbc_connection(jdbc: schemas.SourceDeteteJDBCConnection):
 
 @router.post("/sync-jdbc", response_model=BaseResponse)
 @inject_session
-def sync_jdbc_connection(jdbc: schemas.SourceJDBCConnection):
+def sync_jdbc_connection(jdbc: schemas.JDBCInstanceSourceBase):
     return service.sync_jdbc_connection(jdbc)
 
 @router.post("/refresh", response_model=BaseResponse)
@@ -196,15 +196,25 @@ def get_secrets(account: str, region: str):
 def get_admin_account_info():
     return service.get_admin_account_info()
 
-@router.post("/add-glue-database", response_model=BaseResponse)
+@router.post("/import-glue-database", response_model=BaseResponse)
 @inject_session
-def add_glue_database(glueDataBase: schemas.SourceGlueDatabase):
-    return service.add_glue_database(glueDataBase)
+def import_glue_database(glueDataBase: schemas.SourceGlueDatabaseBase):
+    return service.import_glue_database(glueDataBase)
 
 @router.post("/add-jdbc-conn", response_model=BaseResponse)
 @inject_session
 def add_jdbc_conn(jdbcConn: schemas.JDBCInstanceSource):
     return service.add_jdbc_conn(jdbcConn)
+
+@router.post("/update-jdbc-conn", response_model=BaseResponse)
+@inject_session
+def update_jdbc_conn(jdbcConn: schemas.JDBCInstanceSource):
+    return service.update_jdbc_conn(jdbcConn)
+
+@router.post("/import-jdbc-conn", response_model=BaseResponse)
+@inject_session
+def import_jdbc_conn(jdbcConn: schemas.JDBCInstanceSourceBase):
+    return service.import_jdbc_conn(jdbcConn)
 
 @router.post("/query-glue-connections", response_model=BaseResponse)
 @inject_session
@@ -218,7 +228,7 @@ def query_glue_databases(account: schemas.AdminAccountInfo):
 
 @router.post("/query-account-network", response_model=BaseResponse)
 @inject_session
-def query_account_network(account: schemas.AdminAccountInfo):
+def query_account_network(account: schemas.AccountInfo):
     return service.query_account_network(account)
 
 @router.post("/test-glue-conn", response_model=BaseResponse)
