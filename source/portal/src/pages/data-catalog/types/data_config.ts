@@ -81,6 +81,7 @@ export const S3_COLUMN_LIST = [
 export const DATA_TYPE = {
   s3: 's3Bucket',
   rds: 'rdsInstance',
+  jdbc: 'JDBC',
 };
 
 // RDS MODAL TABS

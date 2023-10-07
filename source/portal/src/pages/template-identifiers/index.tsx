@@ -2,6 +2,7 @@ import {
   AppLayout,
   Button,
   Container,
+  ContentLayout,
   Header,
   Tabs,
 } from '@cloudscape-design/components';
@@ -53,7 +54,6 @@ const TemplateIdentifiers: React.FC = () => {
   const [activeTab, setActiveTab] = useState(tabState.active);
   return (
     <AppLayout
-      contentHeader={<TemplateIdentifiersHeader />}
       tools={
         <HelpInfo
           title={t('breadcrumb.manageIdentifier')}
@@ -77,38 +77,57 @@ const TemplateIdentifiers: React.FC = () => {
         />
       }
       content={
-        <Container>
+        <ContentLayout disableOverlap header={<TemplateIdentifiersHeader />}>
           <Tabs
-            activeTabId={activeTab}
-            onChange={(e) => {
-              // Clear the state after
-              navigate(location.pathname, { replace: true });
-              setActiveTab(e.detail.activeTabId);
-            }}
+            disableContentPaddings
             tabs={[
               {
-                label: t('template:builtInIdentifier'),
-                id: 'builtIn',
-                content: (
-                  <IdentifierTable
-                    title={t('template:builtInIdentifier')}
-                    type={0}
-                  />
-                ),
+                label: 'Text-based data identifiers',
+                id: 'text',
+                content: '',
               },
               {
-                label: t('template:customIdentifier'),
-                id: 'custom',
-                content: (
-                  <IdentifierTable
-                    title={t('template:customIdentifier')}
-                    type={1}
-                  />
-                ),
+                label: 'Image-based data identifiers',
+                id: 'image',
+                content: '',
               },
             ]}
           />
-        </Container>
+          <div className="mt-20">
+            <Container>
+              <Tabs
+                activeTabId={activeTab}
+                onChange={(e) => {
+                  // Clear the state after
+                  navigate(location.pathname, { replace: true });
+                  setActiveTab(e.detail.activeTabId);
+                }}
+                tabs={[
+                  {
+                    label: t('template:builtInIdentifier'),
+                    id: 'builtIn',
+                    content: (
+                      <IdentifierTable
+                        title={t('template:builtInIdentifier')}
+                        type={0}
+                      />
+                    ),
+                  },
+                  {
+                    label: t('template:customIdentifier'),
+                    id: 'custom',
+                    content: (
+                      <IdentifierTable
+                        title={t('template:customIdentifier')}
+                        type={1}
+                      />
+                    ),
+                  },
+                ]}
+              />
+            </Container>
+          </div>
+        </ContentLayout>
       }
       headerSelector="#header"
       breadcrumbs={<CustomBreadCrumb breadcrumbItems={breadcrumbItems} />}

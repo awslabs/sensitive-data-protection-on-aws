@@ -60,7 +60,9 @@ def summarize_page(page, supported_types, include_file_extensions, exclude_file_
         file_path = obj['Key']
         file_suffix, file_basename, file_parent = extract_file_details(file_path)
         # print(file_suffix, file_basename, file_parent)
-        if file_suffix in include_file_extensions:
+        if not file_suffix:
+            continue
+        elif file_suffix in include_file_extensions:
             add_file_to_dict(page_include_files, file_parent, file_suffix, file_basename)
         elif file_suffix in exclude_file_extensions:
             add_file_to_dict(page_exclude_files, file_parent, file_suffix, file_basename)

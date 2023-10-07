@@ -164,8 +164,8 @@
       "objects": "Objects",
       "size": "Size",
       "privacy": "Privacy",
-      "awsAccount": "AWS account",
-      "awsRegion": "AWS region",
+      "awsAccount": "Account",
+      "awsRegion": "Region",
       "instanceName": "Instance name",
       "tables": "Tables",
       "operate": "Operate",
@@ -221,7 +221,9 @@
       "category": "Category",
       "folders": "Folders",
       "dataCatalogName": "Data catalog name",
-      "dataSourceType": "Data source type"
+      "dataSourceType": "Data source type",
+      "dataSource": "Data source",
+      "provider": "Provider"
     }
   },
   "tab": {

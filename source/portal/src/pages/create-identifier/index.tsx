@@ -83,7 +83,9 @@ const CreateIdentifierContent = (props: any) => {
     location.state ? !!oldData.rule || oldData.rule === '' : true
   );
   const [excludeKeywordsToggle, setExcludeKeywordsToggle] = useState(
-    location.state ? !!oldData.exclude_keywords || oldData.exclude_keywords === '' : true
+    location.state
+      ? !!oldData.exclude_keywords || oldData.exclude_keywords === ''
+      : true
   );
   const [keywordToggle, setKeywordToggle] = useState(
     location.state
@@ -99,7 +101,9 @@ const CreateIdentifierContent = (props: any) => {
   //   excludeKeyList ? excludeKeyList : ['']
   // );
   const [patternRex, setPatternRex] = useState(oldData.rule || '');
-  const [excludeKeyword, setExcludeKeyword] = useState(oldData.exclude_keywords || '');
+  const [excludeKeyword, setExcludeKeyword] = useState(
+    oldData.exclude_keywords || ''
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   const [selectedCategory, setSelectedCategory] = useState<SelectProps.Option>(
@@ -195,12 +199,11 @@ const CreateIdentifierContent = (props: any) => {
       keywordList && Array.isArray(keywordList) && keywordList.length > 0
         ? JSON.stringify(keywordList)
         : '';
-    
+
     // const excludeList = excludeKeyword?excludeKeyword.split("\n"):[];
     // const  = excludeList && Array.isArray(excludeList) && excludeList.length > 0
     // ? JSON.stringify(excludeList)
     // : '';
-
 
     const containsEmpty = keywordList?.some((str: string) => str.trim() === '');
     if (keywordToggle && containsEmpty) {
@@ -224,7 +227,7 @@ const CreateIdentifierContent = (props: any) => {
       privacy: 0,
       rule: patternToggle ? patternRex : null,
       header_keywords: keywordToggle ? tempHeadList : null,
-      exclude_keywords: excludeKeywordsToggle ? excludeKeyword: null,
+      exclude_keywords: excludeKeywordsToggle ? excludeKeyword : null,
       props: newProps,
     };
     if (oldData.id) {
@@ -453,29 +456,30 @@ const CreateIdentifierContent = (props: any) => {
 
         <Container
           header={
-            <Header
-              variant="h2"
-              description={t('identifier:excludeRulesDesc')}
-            >
+            <Header variant="h2" description={t('identifier:excludeRulesDesc')}>
               {t('identifier:excludeRules')}
             </Header>
           }
         >
           <SpaceBetween direction="vertical" size="xs">
             <Toggle
-              onChange={({ detail }) => setExcludeKeywordsToggle(detail.checked)}
+              onChange={({ detail }) =>
+                setExcludeKeywordsToggle(detail.checked)
+              }
               checked={excludeKeywordsToggle}
             >
               <b>{t('identifier:ignoreToggle')}</b>
             </Toggle>
             {excludeKeywordsToggle && (
               <>
-                <Textarea  
-                  value={excludeKeyword?JSON.parse(excludeKeyword).join("\n"):""}
+                <Textarea
+                  value={
+                    excludeKeyword ? JSON.parse(excludeKeyword).join('\n') : ''
+                  }
                   onChange={({ detail }) => {
-                    setExcludeKeyword(JSON.stringify(detail.value.split("\n")));
+                    setExcludeKeyword(JSON.stringify(detail.value.split('\n')));
                   }}
-                  placeholder={t('identifier:excludeRulesPlaceholder')??""}
+                  placeholder={t('identifier:excludeRulesPlaceholder') ?? ''}
                   rows={10}
                 />
               </>
@@ -547,7 +551,7 @@ const CreateIdentifierContent = (props: any) => {
   );
 };
 
-const CreateIdentifier: React.FC = (props:any) => {
+const CreateIdentifier: React.FC = (props: any) => {
   const { t } = useTranslation();
   const breadcrumbItems = [
     { text: t('breadcrumb.home'), href: RouterEnum.Home.path },
@@ -560,7 +564,7 @@ const CreateIdentifier: React.FC = (props:any) => {
     <AppLayout
       toolsHide
       contentHeader={<CreateIdentifierHeader />}
-      content={<CreateIdentifierContent intl={props.intl}/>}
+      content={<CreateIdentifierContent intl={props.intl} />}
       headerSelector="#header"
       breadcrumbs={<CustomBreadCrumb breadcrumbItems={breadcrumbItems} />}
       navigation={<Navigation activeHref={RouterEnum.Home.path} />}

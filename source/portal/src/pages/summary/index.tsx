@@ -5,7 +5,7 @@ import {
   ContentLayout,
   Header,
 } from '@cloudscape-design/components';
-import React from 'react';
+import React, { useState } from 'react';
 import Overview from './comps/Overview';
 import Charts from './comps/Charts';
 import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
@@ -15,6 +15,8 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import HelpInfo from 'common/HelpInfo';
 import { buildDocLink } from 'ts/common';
+import DataLocations from './comps/DataLocations';
+import ProviderTab, { ProviderType } from 'common/ProviderTab';
 
 const HomeHeader: React.FC = () => {
   const { t } = useTranslation();
@@ -28,10 +30,12 @@ const HomeHeader: React.FC = () => {
 const HomeContent: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [currentProvider, setCurrentProvider] = useState<ProviderType>();
+  const [loadingProvider, setLoadingProvider] = useState(false);
   return (
-    <ContentLayout>
+    <ContentLayout header={<HomeHeader />}>
       <Container
-        header={<Header variant="h2">Get started</Header>}
+        header={<Header variant="h2">{t('summary:getStarted')}</Header>}
         className="fix-mid-screen common-header"
       >
         <div className="flex-h gap-16">
@@ -84,7 +88,23 @@ const HomeContent: React.FC = () => {
         </div>
       </Container>
       <div className="mt-20">
-        <Overview />
+        <DataLocations />
+      </div>
+      <div>
+        <ProviderTab
+          changeProvider={(provider) => {
+            setCurrentProvider(provider);
+          }}
+          loadingProvider={(loading) => {
+            setLoadingProvider(loading);
+          }}
+        />
+      </div>
+      <div className="mt-20">
+        <Overview
+          currentProvider={currentProvider}
+          loadingProvider={loadingProvider}
+        />
       </div>
       <div className="mt-20">
         <Charts />
@@ -130,7 +150,6 @@ const Home: React.FC = () => {
           ]}
         />
       }
-      contentHeader={<HomeHeader />}
       content={<HomeContent />}
       headerSelector="#header"
       breadcrumbs={<CustomBreadCrumb breadcrumbItems={breadcrumbItems} />}
