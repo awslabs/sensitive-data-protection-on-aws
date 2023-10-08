@@ -27,7 +27,7 @@ version = os.getenv(const.VERSION, '')
 controller_function_name = os.getenv("ControllerFunctionName", f"{const.SOLUTION_NAME}-Controller")
 sqs_job = boto3.resource('sqs')
 
-sql_result = "SELECT database_type,account_id,region,s3_bucket,s3_location,rds_instance_id,table_name,column_name,identifiers,sample_data FROM job_detection_output_table where run_id='%d' and privacy = 1"
+sql_result = "SELECT database_type,account_id,region,s3_bucket,s3_location,rds_instance_id,database_name,table_name,column_name,identifiers,sample_data FROM job_detection_output_table where run_id='%d' and privacy = 1"
 sql_error = "SELECT account_id,region,database_type,database_name,table_name,error_message FROM job_detection_error_table where run_id='%d'"
 extra_py_files = f"s3://{const.ADMIN_BUCKET_NAME_PREFIX}-{admin_account_id}-{admin_region}/job/script/job_extra_files.zip"
 
@@ -252,13 +252,12 @@ def __start_run(job_id: int, run_id: int):
             need_run_crawler = True
             if run_database.database_type == DatabaseType.GLUE.value or not is_empty(run_database.table_name):
                 need_run_crawler = False
-            crawler_name = run_database.database_type + "-" + run_database.database_name + "-crawler"
-            glue_database_name = run_database.database_type + "-" + run_database.database_name + "-database"
+            crawler_name = f"{const.SOLUTION_NAME}-{run_database.database_type}-{run_database.database_name}"
+            glue_database_name = f"{const.SOLUTION_NAME}-{run_database.database_type}-{run_database.database_name}"
             if run_database.database_type == DatabaseType.GLUE.value:
                 glue_database_name = run_database.database_name
-            job_name_prefix = f"{const.SOLUTION_NAME}-{run_database.database_type}-{run_database.database_name}"
-            job_name_structured = f"{job_name_prefix}-{RunTaskType.STRUCTURED.value}"
-            job_name_unstructured = f"{job_name_prefix}-{RunTaskType.UNSTRUCTURED.value}"
+            job_name_structured = f"{const.SOLUTION_NAME}-{run_database.database_type}-{run_database.database_name}"
+            job_name_unstructured = f"{const.SOLUTION_NAME}-{DatabaseType.S3_UNSTRUCTURED.value}-{run_database.database_name}"
             run_name = f'{const.SOLUTION_NAME}-{run_id}-{run_database.id}-{run_database.uuid}'
             agent_bucket_name = f"{const.AGENT_BUCKET_NAME_PREFIX}-{run_database.account_id}-{run_database.region}"
             unstructured_parser_job_image_uri = f"{run_database.account_id}.dkr.ecr.{run_database.region}.amazonaws.com.cn/sdp_test_data_parser:latest"
@@ -277,6 +276,7 @@ def __start_run(job_id: int, run_id: int):
                 "DatabaseType": run_database.database_type,
                 "DatabaseName": run_database.database_name,
                 "GlueDatabaseName": glue_database_name,
+                "UnstructuredDatabaseName": f"{const.SOLUTION_NAME}-{DatabaseType.S3_UNSTRUCTURED.value}-{run_database.database_name}",
                 "TableName": job_placeholder if is_empty(run_database.table_name) else run_database.table_name,
                 "TemplateId": str(run.template_id),
                 "TemplateSnapshotNo": str(run.template_snapshot_no),
@@ -593,33 +593,45 @@ def get_run_progress(job_id: int, run_id: int) -> list[schemas.DiscoveryJobRunDa
         if run_database.table_count is None:
             try:
                 run_database.table_count = __get_table_count_from_agent(run_database)
+                if run_database.database_type == DatabaseType.S3.value:
+                    run_database.table_count_unstructured = __get_table_count_from_agent(run_database, False)
                 crud.save_run_database(run_database)
             except Exception:
                 message = traceback.format_exc()
                 logger.exception(f"get table count from agent exception:{message}")
                 progress = schemas.DiscoveryJobRunDatabaseProgress(run_database_id=run_database.id,
                                                                    current_table_count=-1,
-                                                                   table_count=-1)
+                                                                   table_count=-1,
+                                                                   current_table_count_unstructured=-1,
+                                                                   table_count_unstructured=-1)
                 run_progress.append(progress)
                 continue
         current_table_count = run_current_table_count.get(run_database.id)
         if current_table_count is None:
             current_table_count = 0
+        current_table_count_unstructured = -1
+        if run_database.database_type == DatabaseType.S3.value:
+            current_table_count_unstructured = run_current_table_count.get(f"{run_database.id}-{DatabaseType.S3_UNSTRUCTURED.value}")
+            if current_table_count_unstructured is None:
+                current_table_count_unstructured = 0
         progress = schemas.DiscoveryJobRunDatabaseProgress(run_database_id=run_database.id,
                                                            current_table_count=current_table_count,
-                                                           table_count=run_database.table_count)
+                                                           table_count=run_database.table_count,
+                                                           current_table_count_unstructured=current_table_count_unstructured,
+                                                           table_count_unstructured=run_database.table_count_unstructured)
         run_progress.append(progress)
     return run_progress
 
 
 def __get_run_current_table_count(run_id: int):
-    sql = f"select run_database_id,count(distinct table_name) from sdps_database.job_detection_output_table where run_id='{run_id}' group by run_database_id"
+    sql = f"select run_database_id,database_type,count(distinct table_name) from sdps_database.job_detection_output_table where run_id='{run_id}' group by run_database_id,database_type"
     current_table_count = __query_athena(sql)
     logger.debug(current_table_count)
     table_count = {}
     for row in current_table_count[1:]:
         row_result = [__get_cell_value(cell) for cell in row]
-        table_count[int(row_result[0])] = int(row_result[1])
+        key = int(row_result[0]) if row_result[1] != DatabaseType.S3_UNSTRUCTURED.value else f"{row_result[0]}-{DatabaseType.S3_UNSTRUCTURED.value}"
+        table_count[key] = int(row_result[2])
     logger.debug(table_count)
     return table_count
 
@@ -631,7 +643,7 @@ def __get_current_table_count(run_database_id: int):
     return int(current_table_count[1][0]["VarCharValue"])
 
 
-def __get_table_count_from_agent(run_database: models.DiscoveryJobRunDatabase):
+def __get_table_count_from_agent(run_database: models.DiscoveryJobRunDatabase, is_structured=True):
     client_sts = boto3.client('sts')
     assumed_role_object = client_sts.assume_role(
         RoleArn=f'arn:{partition}:iam::{run_database.account_id}:role/{const.SOLUTION_NAME}RoleForAdmin-{run_database.region}',
@@ -645,8 +657,10 @@ def __get_table_count_from_agent(run_database: models.DiscoveryJobRunDatabase):
                         aws_session_token=credentials['SessionToken'],
                         region_name=run_database.region,
                         )
-    glue_database_name = f'{run_database.database_type}-{run_database.database_name}-database'
-    if run_database.database_type == DatabaseType.GLUE.value:
+    glue_database_name = f'{const.SOLUTION_NAME}-{run_database.database_type}-{run_database.database_name}'
+    if not is_structured:
+        glue_database_name = f'{const.SOLUTION_NAME}-{DatabaseType.S3_UNSTRUCTURED.value}-{run_database.database_name}'
+    elif run_database.database_type == DatabaseType.GLUE.value:
         glue_database_name = run_database.database_name
     next_token = ""
     count = 0
@@ -654,7 +668,9 @@ def __get_table_count_from_agent(run_database: models.DiscoveryJobRunDatabase):
         response = glue.get_tables(
             DatabaseName=glue_database_name,
             NextToken=next_token)
-        count += len(response['TableList'])
+        for table in response['TableList']:
+            if table.get('Parameters', {}).get('classification', '') != 'UNKNOWN':
+                count += 1
         next_token = response.get('NextToken')
         if next_token is None:
             break
@@ -831,30 +847,47 @@ def get_report_url(run_id: int):
 
     wb = Workbook()
 
-    ws1 = wb.active
-    ws1.title = "Amazon S3"
-    ws2 = wb.create_sheet("Amazon RDS")
-    ws1.append(["account_id", "region", "s3_bucket", "s3_location", "column_name", "identifiers", "sample_data"])
-    ws2.append(["account_id", "region", "rds_instance_id", "table_name,", "column_name", "identifiers", "sample_data"])
+    ws_s3_structured = wb.active
+    ws_s3_structured.title = "Amazon S3(Structured)"
+    ws_s3_unstructured = wb.create_sheet("Amazon S3(Unstructured)")
+    ws_rds = wb.create_sheet("Amazon RDS")
+    ws_jdbc = wb.create_sheet("JDBC")
+    ws_glue = wb.create_sheet("Glue")
+    ws_s3_structured.append(["account_id", "region", "s3_bucket", "s3_location", "column_name", "identifiers", "sample_data"])
+    ws_s3_unstructured.append(["account_id", "region", "s3_bucket", "s3_location", "identifiers", "sample_data"])
+    ws_rds.append(["account_id", "region", "rds_instance_id", "table_name,", "column_name", "identifiers", "sample_data"])
+    ws_jdbc.append(["type", "account_id", "region", "database_name", "table_name,", "column_name", "identifiers", "sample_data"])
+    ws_glue.append(["account_id", "region", "database_name", "table_name,", "column_name", "identifiers", "sample_data"])
 
     for row in run_result[1:]:
         row_result = [__get_cell_value(cell) for cell in row]
         database_type = row_result[0]
         del row_result[0]
         if database_type == DatabaseType.S3.value:
-            del row_result[4:6]
-            ws1.append(row_result)
+            del row_result[4:7]
+            ws_s3_structured.append(row_result)
+        elif database_type == DatabaseType.S3_UNSTRUCTURED.value:
+            del row_result[4:8]
+            ws_s3_unstructured.append(row_result)
+        elif database_type == DatabaseType.GLUE.value:
+            del row_result[2:5]
+            ws_glue.append(row_result)
+        elif database_type.startswith(DatabaseType.JDBC.value):
+            del row_result[2:5]
+            row_result.insert(0, database_type[5:])
+            ws_jdbc.append(row_result)
         else:
+            del row_result[5:6]
             del row_result[2:4]
-            ws2.append(row_result)
+            ws_rds.append(row_result)
 
     error_result = __query_athena(sql_error % run_id)
     if len(error_result) > 1:
-        ws3 = wb.create_sheet("Detect failed tables")
-        ws3.append(["account_id", "region", "database_type", "database_name", "table_name", "error_message"])
+        ws_failed = wb.create_sheet("Detect failed tables")
+        ws_failed.append(["account_id", "region", "database_type", "database_name", "table_name", "error_message"])
         for row in error_result[1:]:
             row_result = [__get_cell_value(cell) for cell in row]
-            ws3.append(row_result)
+            ws_failed.append(row_result)
 
     filename = NamedTemporaryFile().name
     wb.save(filename)
