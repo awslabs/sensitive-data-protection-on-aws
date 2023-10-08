@@ -25,7 +25,7 @@ from common.abilities import convert_provider_id_2_database_type
 from . import s3_detector, rds_detector, glue_database_detector, crud
 from .schemas import (AccountInfo, AdminAccountInfo,
                       JDBCInstanceSource, JDBCInstanceSourceUpdate,
-                      ProviderResourceFullInfo, SourceNewAccount,
+                      ProviderResourceFullInfo, SourceNewAccount, SourceRegion,
                       SourceResourceBase,
                       SourceCoverage,
                       SourceGlueDatabaseBase,
@@ -348,6 +348,7 @@ def sync_glue_database(account_id, region, glue_database_name):
     )
 
 def sync_jdbc_connection(jdbc: JDBCInstanceSourceBase):
+    logger.info('###########1')
     accont_id = jdbc.account_id if jdbc.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id
     region = jdbc.region if jdbc.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_region
     ec2_client, credentials = __ec2(account=accont_id, region=region)
@@ -2241,7 +2242,7 @@ def list_data_location():
     res = []
     provider_list = crud.list_distinct_provider()
     for item in provider_list:
-        regions = crud.list_distinct_region_by_provider(item.id)
+        regions:list[SourceRegion] = crud.list_distinct_region_by_provider(item.id)
         accounts_db = crud.get_account_list_by_provider(item.id)
         if not regions:
             continue
@@ -2254,7 +2255,6 @@ def list_data_location():
                     accounts.append(account)
             if len(accounts) == 0:
                 continue
-            # TODO filter logic
             location = DataLocationInfo()
             location.account_count = len(accounts)
             location.source = item.provider_name
@@ -2262,7 +2262,6 @@ def list_data_location():
             location.coordinate = subItem.region_cord
             location.region_alias = subItem.region_alias
             location.provider_id = item.id
-            location.provider_name = item.provider_name
             res.append(location)
      # 根据 location.account_count 对 res 进行排序（从高到低）
     res = sorted(res, key=lambda x: x.account_count, reverse=True)

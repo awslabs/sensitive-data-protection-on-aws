@@ -17,6 +17,7 @@ import Navigation from 'pages/left-menu/Navigation';
 import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 
 const DataSourceConnectionHeader: React.FC = () => {
   const location = useLocation();
@@ -42,6 +43,66 @@ const DataSourceConnectionHeader: React.FC = () => {
   );
 };
 
+
+const genTabs = (accountData:any, t:TFunction<"translation", undefined, "translation">) =>{
+  const res_aws = [
+    {
+      label: t(TAB_LIST.S3.label),
+      id: TAB_LIST.S3.id,
+      content: (
+        <DataSourceList
+          tagType={TAB_LIST.S3.id}
+          accountData={accountData}
+        />
+      ),
+    },
+    {
+      label: t(TAB_LIST.RDS.label),
+      id: TAB_LIST.RDS.id,
+      content: (
+        <DataSourceList
+          tagType={TAB_LIST.RDS.id}
+          accountData={accountData}
+        />
+      ),
+    },
+    {
+      label: t(TAB_LIST.GLUE.label),
+      id: TAB_LIST.GLUE.id,
+      content: (
+        <DataSourceList
+          tagType={TAB_LIST.GLUE.id}
+          accountData={accountData}
+        />
+      ),
+    },
+    {
+      label: t(TAB_LIST.JDBC.label),
+      id: TAB_LIST.JDBC.id,
+      content: (
+        <DataSourceList
+          tagType={TAB_LIST.JDBC.id}
+          accountData={accountData}
+        />
+      ),
+    },
+  ];
+  const res = [
+    {
+      label: t(TAB_LIST.JDBC.label),
+      id: TAB_LIST.JDBC.id,
+      content: (
+        <DataSourceList
+          tagType={TAB_LIST.JDBC.id}
+          accountData={accountData}
+        />
+      ),
+    },
+  ];
+  if(accountData.account_provider_id === 1) return res_aws 
+  return res
+}
+
 const DataSourceConnectionContent: React.FC = () => {
   const location = useLocation();
   const { t } = useTranslation();
@@ -65,48 +126,7 @@ const DataSourceConnectionContent: React.FC = () => {
       </div>
       <Container disableContentPaddings>
         <Tabs
-          tabs={[
-            {
-              label: t(TAB_LIST.S3.label),
-              id: TAB_LIST.S3.id,
-              content: (
-                <DataSourceList
-                  tagType={TAB_LIST.S3.id}
-                  accountData={accountData}
-                />
-              ),
-            },
-            {
-              label: t(TAB_LIST.RDS.label),
-              id: TAB_LIST.RDS.id,
-              content: (
-                <DataSourceList
-                  tagType={TAB_LIST.RDS.id}
-                  accountData={accountData}
-                />
-              ),
-            },
-            {
-              label: t(TAB_LIST.GLUE.label),
-              id: TAB_LIST.GLUE.id,
-              content: (
-                <DataSourceList
-                  tagType={TAB_LIST.GLUE.id}
-                  accountData={accountData}
-                />
-              ),
-            },
-            {
-              label: t(TAB_LIST.JDBC.label),
-              id: TAB_LIST.JDBC.id,
-              content: (
-                <DataSourceList
-                  tagType={TAB_LIST.JDBC.id}
-                  accountData={accountData}
-                />
-              ),
-            },
-          ]}
+          tabs={genTabs(accountData, t)}
         />
       </Container>
     </SpaceBetween>

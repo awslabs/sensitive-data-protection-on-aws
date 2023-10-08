@@ -861,7 +861,7 @@ def get_account_list_by_provider(provider_id):
                                                Account.status == SourceAccountStatus.ENABLE.value).all()
 
 
-def list_distinct_region_by_provider(provider_id):
+def list_distinct_region_by_provider(provider_id) -> list[SourceRegion]:
     return get_session().query(SourceRegion).filter(SourceRegion.provider_id == provider_id,
                                                     SourceRegion.status == SourceRegionStatus.ENABLE.value).distinct(
         SourceRegion.region_name).all()

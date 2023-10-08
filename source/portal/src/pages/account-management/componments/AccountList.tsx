@@ -187,6 +187,7 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
     };
     await deleteAccount(requestParam);
     alertMsg(t('account:deleteSuccess'), 'success');
+    getPageData();
     setDeleteLoading(false);
   };
 

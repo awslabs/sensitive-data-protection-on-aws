@@ -136,6 +136,7 @@ def delete_jdbc_connection(jdbc: schemas.SourceDeteteJDBCConnection):
 @router.post("/sync-jdbc", response_model=BaseResponse)
 @inject_session
 def sync_jdbc_connection(jdbc: schemas.JDBCInstanceSourceBase):
+    print('###########1')
     return service.sync_jdbc_connection(jdbc)
 
 @router.post("/refresh", response_model=BaseResponse)
@@ -243,9 +244,9 @@ def get_data_location_list():
     return service.list_data_location()
 
 
-@router.post("/query-regions-by-provider", response_model=BaseResponse)
+@router.get("/query-regions-by-provider", response_model=BaseResponse)
 @inject_session
-def query_regions_by_provider(provider_id: int):
+def query_regions_by_provider(provider_id: str):
     return service.query_regions_by_provider(provider_id)
 
 

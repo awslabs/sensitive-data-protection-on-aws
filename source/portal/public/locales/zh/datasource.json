@@ -1,6 +1,6 @@
 {
   "basicInfo": "基本信息",
-  "basicInfoDesc": "此 AWS 账户的基本信息",
+  "basicInfoDesc": "此账户的基本信息",
   "authStatus": "身份验证状态",
   "statusReason": "状态原因",
   "organization": "组织",

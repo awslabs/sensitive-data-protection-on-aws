@@ -1,21 +1,42 @@
 import { Container, Header } from '@cloudscape-design/components';
-import React from 'react';
+import React, { useEffect } from 'react';
 import '../style.scss';
 import SourceBadge from './SourceBadge';
 import { useTranslation } from 'react-i18next';
 
 const DataSourceInfo: React.FC<any> = ({ accountData }: any) => {
   const { t } = useTranslation();
+  useEffect(()=>{
+    console.log("accountData is",accountData)
+  })
+
+  const genProvider = (provider_id: number): string=>{
+    if(provider_id == 2){
+      return "TENCENT CLOUD"
+    }
+    else if(provider_id == 3){
+      return "GOOGLE CLOUD"
+    } else {
+      return "AWS CLOUD"
+    }
+  }
   return (
     <Container
       className="datasource-container"
       header={
-        <Header variant="h2" description={t('datasource:basicInfoDesc')}>
+        <Header variant="h2" description={t('datasource:basicInfoDesc', genProvider(accountData.account_provider_id))}>
           {t('datasource:basicInfo')}
         </Header>
       }
     >
       <div>
+      {accountData.account_provider_id !== 1 && (
+      <div className="datasource-container-item">
+          <p className="p-title">{t('table.label.awsAccount')}</p>
+          <span className="datasource-container-account">
+            {genProvider(accountData.account_provider_id)}
+          </span>
+        </div>)}
         <div className="datasource-container-item">
           <p className="p-title">{t('table.label.awsAccount')}</p>
           <span className="datasource-container-account">
@@ -26,7 +47,7 @@ const DataSourceInfo: React.FC<any> = ({ accountData }: any) => {
           <p className="p-title">{t('table.label.awsRegion')}</p>
           <span>{accountData.region}</span>
         </div>
-        <div className="datasource-container-item">
+        {accountData.account_provider_id === 1 && (<><div className="datasource-container-item">
           <p className="p-title">{t('datasource:authStatus')}</p>
           <SourceBadge
             instanceStatus={
@@ -45,7 +66,8 @@ const DataSourceInfo: React.FC<any> = ({ accountData }: any) => {
         <div className="datasource-container-item">
           <p className="p-title">{t('datasource:organization')}</p>
           <span>{accountData.organization_unit_id}</span>
-        </div>
+        </div></>)}
+        
       </div>
     </Container>
   );
