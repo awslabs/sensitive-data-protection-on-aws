@@ -58,6 +58,8 @@ class DiscoveryJobRunDatabaseProgress(BaseModel):
     run_database_id: int
     current_table_count: int
     table_count: int
+    current_table_count_unstructured: int
+    table_count_unstructured: int
 
 
 class DiscoveryJobRunList(BaseModel):

@@ -99,6 +99,7 @@ class DiscoveryJobRunDatabase(Base):
     error_log = sa.Column(sa.Text())
     uuid = sa.Column(sa.String(32))
     table_count = sa.Column(sa.Integer())
+    table_count_unstructured = sa.Column(sa.Integer())
     version = sa.Column(sa.Integer())
     create_by = sa.Column(sa.String(255))
     create_time = sa.Column(sa.DateTime())

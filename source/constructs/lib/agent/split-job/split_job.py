@@ -74,5 +74,5 @@ def lambda_handler(event, context):
         job_item["TableBegin"] = str(table_begin)
         job_item["TableEnd"] = str(table_end)
         job_items.append(job_item)
-    logger.info(f"actual JobNumber:{len(job_item)}")
+    logger.info(f"actual JobNumber:{len(job_items)}")
     return job_items

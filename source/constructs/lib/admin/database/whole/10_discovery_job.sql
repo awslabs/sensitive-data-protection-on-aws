@@ -80,26 +80,27 @@ create index job_id
 
 create table discovery_job_run_database
 (
-    id            int auto_increment
+    id                       int auto_increment
         primary key,
-    run_id        int           not null,
-    account_id    varchar(20)   not null,
-    region        varchar(20)   not null,
-    database_type varchar(20)   null,
-    database_name varchar(255)  null,
-    table_name    varchar(1000) null,
-    base_time     datetime      null,
-    start_time    datetime      null,
-    end_time      datetime      null,
-    state         varchar(10)   null,
-    error_log     text          null,
-    uuid          varchar(32)   null,
-    table_count   int           null,
-    version       int           null,
-    create_by     varchar(255)  null,
-    create_time   datetime      null,
-    modify_by     varchar(255)  null,
-    modify_time   datetime      null
+    run_id                   int           not null,
+    account_id               varchar(20)   not null,
+    region                   varchar(20)   not null,
+    database_type            varchar(20)   null,
+    database_name            varchar(255)  null,
+    table_name               varchar(1000) null,
+    base_time                datetime      null,
+    start_time               datetime      null,
+    end_time                 datetime      null,
+    state                    varchar(10)   null,
+    error_log                text          null,
+    uuid                     varchar(32)   null,
+    table_count              int           null,
+    table_count_unstructured int           null,
+    version                  int           null,
+    create_by                varchar(255)  null,
+    create_time              datetime      null,
+    modify_by                varchar(255)  null,
+    modify_time              datetime      null
 );
 
 create index run_id
