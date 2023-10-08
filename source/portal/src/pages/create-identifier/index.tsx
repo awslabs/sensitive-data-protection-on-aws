@@ -2,6 +2,7 @@ import {
   AppLayout,
   Button,
   Container,
+  ExpandableSection,
   FormField,
   Grid,
   Header,
@@ -486,6 +487,20 @@ const CreateIdentifierContent = (props: any) => {
             )}
           </SpaceBetween>
         </Container>
+
+        <ExpandableSection
+          variant="container"
+          headerText="Unstructured data settings (Optional)"
+        >
+          <SpaceBetween direction="vertical" size="l">
+            <FormField label="Max. distance" description="If keywords ....">
+              <Input type="number" value="" placeholder="50" />
+            </FormField>
+            <FormField label="Min. occurrence of identification rule">
+              <Input type="number" value="" placeholder="2" />
+            </FormField>
+          </SpaceBetween>
+        </ExpandableSection>
 
         <div className="text-right">
           <Button className="identifier-opt-btn" onClick={backNavigate}>
