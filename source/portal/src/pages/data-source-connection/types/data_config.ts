@@ -43,6 +43,72 @@ export const S3_COLUMN_LIST = [
   },
 ];
 
+export const JDBC_COLUMN_LIST = [
+  {
+    id: COLUMN_OBJECT_STR.Buckets,
+    label: 'table.label.bucketName',
+    filter: true,
+  },
+  {
+    id: 'region',
+    label: 'table.label.awsRegion',
+    filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.AWSAccount,
+    label: 'table.label.awsAccount',
+    filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.GlueState,
+    label: 'table.label.catalogStatus',
+    filter: true,
+  },
+  {
+    id: 'data_catalog',
+    label: 'table.label.dataCatalog',
+    filter: false,
+  },
+  {
+    id: COLUMN_OBJECT_STR.LastModifyAt,
+    label: 'table.label.lastUpdateAt',
+    filter: false,
+  },
+];
+
+export const GLUE_COLUMN_LIST = [
+  {
+    id: COLUMN_OBJECT_STR.Buckets,
+    label: 'table.label.bucketName',
+    filter: true,
+  },
+  {
+    id: 'region',
+    label: 'table.label.awsRegion',
+    filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.AWSAccount,
+    label: 'table.label.awsAccount',
+    filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.GlueState,
+    label: 'table.label.catalogStatus',
+    filter: true,
+  },
+  {
+    id: 'data_catalog',
+    label: 'table.label.dataCatalog',
+    filter: false,
+  },
+  {
+    id: COLUMN_OBJECT_STR.LastModifyAt,
+    label: 'table.label.lastUpdateAt',
+    filter: false,
+  },
+];
+
 export const RDS_COLUMN_LIST = [
   {
     id: COLUMN_OBJECT_STR.RDSInstances,
