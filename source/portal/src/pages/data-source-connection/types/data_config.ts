@@ -45,23 +45,18 @@ export const S3_COLUMN_LIST = [
 
 export const JDBC_COLUMN_LIST = [
   {
-    id: COLUMN_OBJECT_STR.Buckets,
-    label: 'table.label.bucketName',
+    id: 'jdbc_instance_name',
+    label: 'table.label.jdbcInstanceName',
     filter: true,
   },
   {
-    id: 'region',
-    label: 'table.label.awsRegion',
-    filter: true,
-  },
-  {
-    id: COLUMN_OBJECT_STR.AWSAccount,
-    label: 'table.label.awsAccount',
+    id: 'connection_status',
+    label: 'table.label.connectionStatus',
     filter: true,
   },
   {
     id: COLUMN_OBJECT_STR.GlueState,
-    label: 'table.label.catalogStatus',
+    label: 'table.label.glueState',
     filter: true,
   },
   {
@@ -70,42 +65,32 @@ export const JDBC_COLUMN_LIST = [
     filter: false,
   },
   {
-    id: COLUMN_OBJECT_STR.LastModifyAt,
-    label: 'table.label.lastUpdateAt',
-    filter: false,
-  },
+    id: 'glue_connection_name',
+    label: 'table.label.glueConnectionName',
+    filter: true,
+  }
 ];
 
 export const GLUE_COLUMN_LIST = [
   {
-    id: COLUMN_OBJECT_STR.Buckets,
-    label: 'table.label.bucketName',
+    id: 'glue_database_name',
+    label: 'table.label.glueDatabaseName',
     filter: true,
   },
   {
-    id: 'region',
-    label: 'table.label.awsRegion',
+    id: 'description',
+    label: 'table.label.description',
     filter: true,
   },
   {
-    id: COLUMN_OBJECT_STR.AWSAccount,
-    label: 'table.label.awsAccount',
+    id: 'location_uri',
+    label: 'table.label.locationUri',
     filter: true,
   },
   {
-    id: COLUMN_OBJECT_STR.GlueState,
-    label: 'table.label.catalogStatus',
+    id: 'glue_database_create_time',
+    label: 'table.label.glueDatabaseCreateTime',
     filter: true,
-  },
-  {
-    id: 'data_catalog',
-    label: 'table.label.dataCatalog',
-    filter: false,
-  },
-  {
-    id: COLUMN_OBJECT_STR.LastModifyAt,
-    label: 'table.label.lastUpdateAt',
-    filter: false,
   },
 ];
 

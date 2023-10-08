@@ -20,6 +20,8 @@ import { DATA_TYPE_ENUM, TABLE_NAME } from 'enum/common_types';
 import {
   RDS_COLUMN_LIST,
   S3_COLUMN_LIST,
+  JDBC_COLUMN_LIST,
+  GLUE_COLUMN_LIST,
   TABLE_HEADER,
   COLUMN_OBJECT_STR,
 } from '../types/data_config';
