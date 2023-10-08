@@ -348,7 +348,6 @@ def sync_glue_database(account_id, region, glue_database_name):
     )
 
 def sync_jdbc_connection(jdbc: JDBCInstanceSourceBase):
-    logger.info('###########1')
     accont_id = jdbc.account_id if jdbc.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id
     region = jdbc.region if jdbc.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_region
     ec2_client, credentials = __ec2(account=accont_id, region=region)

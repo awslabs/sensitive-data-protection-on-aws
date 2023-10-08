@@ -136,7 +136,6 @@ def delete_jdbc_connection(jdbc: schemas.SourceDeteteJDBCConnection):
 @router.post("/sync-jdbc", response_model=BaseResponse)
 @inject_session
 def sync_jdbc_connection(jdbc: schemas.JDBCInstanceSourceBase):
-    print('###########1')
     return service.sync_jdbc_connection(jdbc)
 
 @router.post("/refresh", response_model=BaseResponse)
