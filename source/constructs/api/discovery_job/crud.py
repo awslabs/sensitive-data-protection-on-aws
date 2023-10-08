@@ -99,7 +99,8 @@ def last_job_time() -> str:
 def get_running_run(job_id: int) -> models.DiscoveryJobRun:
     session = get_session()
     db_run = session.query(models.DiscoveryJobRun).filter(models.DiscoveryJobRun.job_id == job_id)\
-                  .filter(models.DiscoveryJobRun.state.in_([RunState.RUNNING.value, RunState.STOPPING.value])).first()
+                  .filter(models.DiscoveryJobRun.state.in_([RunState.RUNNING.value, RunState.STOPPING.value]))\
+                  .order_by(models.DiscoveryJobRun.id.desc()).first()
     return db_run
 
 
