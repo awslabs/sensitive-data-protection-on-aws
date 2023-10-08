@@ -489,14 +489,18 @@ const CreateIdentifierContent = (props: any) => {
         </Container>
 
         <ExpandableSection
+          defaultExpanded
           variant="container"
-          headerText="Unstructured data settings (Optional)"
+          headerText={t('identifier:unstructuredDataSettings')}
         >
           <SpaceBetween direction="vertical" size="l">
-            <FormField label="Max. distance" description="If keywords ....">
+            <FormField
+              label={t('identifier:maxDis')}
+              description={t('identifier:maxDisDesc')}
+            >
               <Input type="number" value="" placeholder="50" />
             </FormField>
-            <FormField label="Min. occurrence of identification rule">
+            <FormField label={t('identifier:minDis')}>
               <Input type="number" value="" placeholder="2" />
             </FormField>
           </SpaceBetween>
