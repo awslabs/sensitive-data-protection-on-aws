@@ -55,5 +55,12 @@
   "dataSourceConnectionDesc": "Data source that discovered in {{PROVIDER}} accounts.",
   "totalS3Buckets": "Total S3 buckets",
   "totalRDSInstances": "Total RDS instances",
-  "searchByIdentName": "Search identifiers by name"
+  "searchByIdentName": "Search identifiers by name",
+  "regionLocation": "Region/Location",
+  "source": "Source",
+  "totalAccounts": "Total accounts",
+  "totalGlue": "Total Glue",
+  "totalJDBC": "Total JDBC",
+  "jdbc": "JDBC",
+  "glue": "Glue"
 }

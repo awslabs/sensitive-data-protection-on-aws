@@ -7,8 +7,6 @@ import {
 } from '@cloudscape-design/components';
 import React, { memo, useEffect, useState } from 'react';
 import CircleChart from './items/CircleChart';
-// import CustomLineChart from './items/CustomLineChart';
-// import MapChart from './items/MapChart';
 import RDSCatalogOverview from './items/RDSCatalogOverview';
 import TableData from './items/TableData';
 import { getCatalogTopNData } from 'apis/dashboard/api';
@@ -116,19 +114,6 @@ export const AmazonRDS: React.FC<any> = memo(() => {
         </div>
 
         <div className="mt-20 pd-10">
-          {loadingTableData ? (
-            <Spinner />
-          ) : (
-            <IdentifierTableData
-              dataList={identifierData}
-              keyLable={t('summary:dataIdentifier')}
-              valueLable={t('summary:rdsIntacnes')}
-              title={t('summary:topDataIdentifier')}
-            />
-          )}
-        </div>
-
-        <div className="mt-20 pd-10">
           <Header variant="h3">{t('summary:privacyTagging')}</Header>
           <Grid
             gridDefinition={[{ colspan: 4 }, { colspan: 4 }, { colspan: 4 }]}
@@ -158,6 +143,19 @@ export const AmazonRDS: React.FC<any> = memo(() => {
               />
             </div>
           </Grid>
+        </div>
+
+        <div className="mt-20 pd-10">
+          {loadingTableData ? (
+            <Spinner />
+          ) : (
+            <IdentifierTableData
+              dataList={identifierData}
+              keyLable={t('summary:dataIdentifier')}
+              valueLable={t('summary:rdsIntacnes')}
+              title={t('summary:topDataIdentifier')}
+            />
+          )}
         </div>
       </Grid>
     </div>

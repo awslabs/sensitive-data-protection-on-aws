@@ -4,7 +4,7 @@ import { IPieChartDataType } from 'ts/dashboard/types';
 import { useTranslation } from 'react-i18next';
 import { formatNumber } from 'tools/tools';
 
-export type ChartSourceType = 's3' | 'rds';
+export type ChartSourceType = 's3' | 'rds' | 'glue' | 'jdbc';
 export type ChartDataType =
   | 'bucket'
   | 'folder'

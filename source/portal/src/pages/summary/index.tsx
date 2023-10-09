@@ -107,7 +107,7 @@ const HomeContent: React.FC = () => {
         />
       </div>
       <div className="mt-20">
-        <Charts />
+        <Charts currentProvider={currentProvider} />
       </div>
     </ContentLayout>
   );
