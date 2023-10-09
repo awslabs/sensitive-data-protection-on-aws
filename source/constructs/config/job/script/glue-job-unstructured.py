@@ -30,8 +30,8 @@ from awsglue.job import Job
 from data_source.get_tables import get_tables
 from data_source.construct_dataframe import construct_dataframe
 from template.template_utils import get_template
-from structured_detection.detection_utils import add_metadata
-from structured_detection.main_detection import detect_df
+from unstructured_detection.detection_utils import add_metadata
+from unstructured_detection.main_detection import detect_df
 
 
 if __name__ == "__main__":
@@ -45,11 +45,12 @@ if __name__ == "__main__":
     result_database = 'sdps_database'
     result_table = 'job_detection_output_table'
 
-    args = getResolvedOptions(sys.argv, ["AccountId", 'Region', 'JOB_NAME', 'DatabaseName', 'GlueDatabaseName', 
-    'DatabaseType', 'Depth', 'DetectionThreshold', 'JobId', 'RunId', 'RunDatabaseId', 
-    'TemplateId', 'TemplateSnapshotNo', 'AdminBucketName', 'BaseTime', 'TableBegin', 'TableEnd', 
-    'TableName', 'IncludeKeywords', 'ExcludeKeywords'])
+    args = getResolvedOptions(sys.argv, ["AccountId", 'Region','JOB_NAME', 'DatabaseName', 'JobId', 'RunId', 
+        'RunDatabaseId', 'AdminBucketName', 'TemplateId', 'TemplateSnapshotNo', 'BaseTime',
+        'TableBegin', 'TableEnd', 'TableName', 'IncludeKeywords', 'ExcludeKeywords'])
+    args['DatabaseType'] = 's3_unstructured'
 
+    full_database_name = f"SDPS-unstructured-{args['DatabaseName']}"
     output_path = f"s3://{args['AdminBucketName']}/glue-database/{result_table}/"
     error_path = f"s3://{args['AdminBucketName']}/glue-database/job_detection_error_table/"
 
@@ -61,7 +62,7 @@ if __name__ == "__main__":
     job.init(args["JOB_NAME"], args)
 
     # Get all crawler tables
-    crawler_tables = get_tables(glue, args)
+    crawler_tables = get_tables(glue, args, full_database_name)
     num_crawler_tables = len(crawler_tables)
 
     # Get template from s3 and broadcast it
@@ -77,7 +78,8 @@ if __name__ == "__main__":
         print(f"Detecting table {table['Name']}")
         print(table)
         raw_df = construct_dataframe(glueContext, glue, table, args)
-        detection_result = detect_df(raw_df, glueContext, broadcast_template, args)
+        # raw_df.show()
+        detection_result = detect_df(raw_df, glueContext, broadcast_template, table, args)
         summarized_result = add_metadata(detection_result, table, args)
         summarized_result.show()
         output.append(summarized_result)
