@@ -32,6 +32,7 @@
   "folders": "Folders",
   "s3Objects": "S3 objects",
   "objects": "Objects",
+  "size": "Size",
   "s3ObjectSize": "S3 object size",
   "objectTypes": "Object types",
   "awsAccount": "Account",

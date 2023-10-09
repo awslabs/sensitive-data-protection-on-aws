@@ -9,6 +9,7 @@ export type ChartDataType =
   | 'bucket'
   | 'folder'
   | 'file'
+  | 'size'
   | 'instance'
   | 'table'
   | 'column';
@@ -43,6 +44,8 @@ const CommonPieChart: React.FC<CommonPieChartProps> = (
           return t('summary:folders');
         case 'file':
           return t('summary:objects');
+        case 'size':
+          return t('summary:size');
       }
     }
     if (sourceType === 'rds') {

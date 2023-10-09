@@ -144,7 +144,7 @@ const AmazonS3: React.FC<any> = memo(() => {
                 title=""
                 circleType="donut"
                 sourceType="s3"
-                dataType="folder"
+                dataType="file"
               />
             </div>
             <div>
@@ -152,7 +152,7 @@ const AmazonS3: React.FC<any> = memo(() => {
                 title=""
                 circleType="donut"
                 sourceType="s3"
-                dataType="file"
+                dataType="size"
               />
             </div>
           </Grid>
