@@ -49,12 +49,12 @@ const Charts: React.FC<ChartsProps> = (props: ChartsProps) => {
               {
                 label: t('summary:jdbc'),
                 id: 'jdbc',
-                content: <JDBC />,
+                content: <JDBC curProvider={currentProvider} />,
               },
             ]}
           />
         ) : (
-          <JDBC />
+          <JDBC curProvider={currentProvider} />
         )}
       </div>
     </Container>

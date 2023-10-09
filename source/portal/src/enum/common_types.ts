@@ -46,6 +46,7 @@ export const SOURCE_TYPE = {
   JDBC_AWS: 'jdbc-aws',
   JDBC_TENCENT: 'jdbc-tencent',
   JDBC_ALIYUN: 'jdbc-aliyun',
+  JDBC_GOOGLE: 'jdbc-google',
 };
 
 export const getSourceTypeByProvider = (providerId: string) => {

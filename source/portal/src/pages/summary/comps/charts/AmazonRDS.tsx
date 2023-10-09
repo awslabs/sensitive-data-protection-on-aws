@@ -5,7 +5,7 @@ import {
   Grid,
   Spinner,
 } from '@cloudscape-design/components';
-import React, { memo, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import CircleChart from './items/CircleChart';
 import RDSCatalogOverview from './items/RDSCatalogOverview';
 import TableData from './items/TableData';
@@ -17,7 +17,7 @@ import { useTranslation } from 'react-i18next';
 import IdentifierTableData from './items/IdentifierTable';
 import { Props } from 'common/PropsModal';
 
-export const AmazonRDS: React.FC<any> = memo(() => {
+export const AmazonRDS: React.FC<any> = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [loadingTableData, setLoadingTableData] = useState(true);
@@ -160,4 +160,4 @@ export const AmazonRDS: React.FC<any> = memo(() => {
       </Grid>
     </div>
   );
-});
+};

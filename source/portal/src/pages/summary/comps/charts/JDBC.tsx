@@ -5,7 +5,7 @@ import {
   Grid,
   Spinner,
 } from '@cloudscape-design/components';
-import React, { memo, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import CircleChart from './items/CircleChart';
 import TableData from './items/TableData';
 import { getCatalogTopNData } from 'apis/dashboard/api';
@@ -16,8 +16,15 @@ import { useTranslation } from 'react-i18next';
 import IdentifierTableData from './items/IdentifierTable';
 import { Props } from 'common/PropsModal';
 import JDBCCatalogOverview from './items/JDBCCatalogOvervie';
+import { ProviderType } from 'common/ProviderTab';
+import { SOURCE_TYPE } from 'enum/common_types';
 
-export const JDBC: React.FC<any> = memo(() => {
+interface JDBCProps {
+  curProvider?: ProviderType;
+}
+
+export const JDBC: React.FC<JDBCProps> = (props: JDBCProps) => {
+  const { curProvider } = props;
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [loadingTableData, setLoadingTableData] = useState(true);
@@ -30,9 +37,17 @@ export const JDBC: React.FC<any> = memo(() => {
 
   const getTopNTableData = async () => {
     setLoadingTableData(true);
+    let dbType = 'jdbc';
+    if (curProvider?.id === 1) {
+      dbType = SOURCE_TYPE.JDBC_AWS;
+    } else if (curProvider?.id === 2) {
+      dbType = SOURCE_TYPE.JDBC_TENCENT;
+    } else if (curProvider?.id === 3) {
+      dbType = SOURCE_TYPE.JDBC_GOOGLE;
+    }
     try {
       const tableData = (await getCatalogTopNData({
-        database_type: 'jdbc',
+        database_type: dbType,
         top_n: 99999,
       })) as ITableDataType;
       setConatainsPIIData(tableData.account_top_n);
@@ -56,8 +71,10 @@ export const JDBC: React.FC<any> = memo(() => {
   };
 
   useEffect(() => {
-    getTopNTableData();
-  }, []);
+    if (curProvider) {
+      getTopNTableData();
+    }
+  }, [curProvider]);
 
   return (
     <div>
@@ -154,4 +171,4 @@ export const JDBC: React.FC<any> = memo(() => {
       </Grid>
     </div>
   );
-});
+};

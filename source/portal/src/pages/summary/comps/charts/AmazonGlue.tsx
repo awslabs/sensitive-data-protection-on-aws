@@ -5,7 +5,7 @@ import {
   Grid,
   Spinner,
 } from '@cloudscape-design/components';
-import React, { memo, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import CircleChart from './items/CircleChart';
 import TableData from './items/TableData';
 import { getCatalogTopNData } from 'apis/dashboard/api';
@@ -17,7 +17,7 @@ import IdentifierTableData from './items/IdentifierTable';
 import { Props } from 'common/PropsModal';
 import GlueCatalogOverview from './items/GlueCatalogOvervie';
 
-export const AmazonGlue: React.FC<any> = memo(() => {
+export const AmazonGlue: React.FC<any> = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [loadingTableData, setLoadingTableData] = useState(true);
@@ -154,4 +154,4 @@ export const AmazonGlue: React.FC<any> = memo(() => {
       </Grid>
     </div>
   );
-});
+};

@@ -5,7 +5,7 @@ import {
   SpaceBetween,
   Spinner,
 } from '@cloudscape-design/components';
-import React, { memo, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import S3CatalogOverview from './items/S3CatalogOverview';
 import CircleChart from './items/CircleChart';
 import TableData from './items/TableData';
@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 import IdentifierTableData from './items/IdentifierTable';
 import { Props } from 'common/PropsModal';
 
-const AmazonS3: React.FC<any> = memo(() => {
+const AmazonS3: React.FC<any> = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [loadingTableData, setLoadingTableData] = useState(true);
@@ -175,6 +175,6 @@ const AmazonS3: React.FC<any> = memo(() => {
       </Grid>
     </div>
   );
-});
+};
 
 export default AmazonS3;
