@@ -7,7 +7,14 @@ export const COLUMN_OBJECT_STR = {
   RunStatus: 'run_status',
   RdsCreatedTime: 'created_time',
   AWSAccount: 'aws_account',
+  AccountID: 'account_id',
   GlueState: 'glue_state',
+  JDBCInstanceName: 'jdbc_instance_name',
+  ConnectionStatus:'connection_status',
+  GlueConnectionName:'glue_connection_name',
+  glueDatabaseCreatedTime:'glue_database_create_time',
+  glueDatabaseDescription:'glue_database_description',
+  glueDatabaseLocationUri:'locationUri'
 };
 
 export const S3_COLUMN_LIST = [
@@ -40,6 +47,57 @@ export const S3_COLUMN_LIST = [
     id: COLUMN_OBJECT_STR.LastModifyAt,
     label: 'table.label.lastUpdateAt',
     filter: false,
+  },
+];
+
+export const JDBC_COLUMN_LIST = [
+  {
+    id: COLUMN_OBJECT_STR.JDBCInstanceName,
+    label: 'table.label.jdbcInstanceName',
+    filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.ConnectionStatus,
+    label: 'table.label.connectionStatus',
+    filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.GlueState,
+    label: 'table.label.glueState',
+    filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.DataCatalog,
+    label: 'table.label.dataCatalog',
+    filter: false,
+  },
+  {
+    id: COLUMN_OBJECT_STR.GlueConnectionName,
+    label: 'table.label.glueConnectionName',
+    filter: true,
+  }
+];
+
+export const GLUE_COLUMN_LIST = [
+  {
+    id: 'glue_database_name',
+    label: 'table.label.glueDatabaseName',
+    filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.glueDatabaseDescription,
+    label: 'table.label.description',
+    filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.glueDatabaseLocationUri,
+    label: 'table.label.locationUri',
+    filter: true,
+  },
+  {
+    id: 'glue_database_create_time',
+    label: 'table.label.glueDatabaseCreateTime',
+    filter: true,
   },
 ];
 

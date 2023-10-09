@@ -24,4 +24,11 @@ const deleteAccount = async (params: any) => {
   return result;
 };
 
-export { getAccountList, addAccount, deleteAccount, addOrgAccount };
+// 获取Provider region
+const getProviderRegions = async (params: number) => {
+  console.log(params)
+  const result = await apiRequest('get', `data-source/query-regions-by-provider?provider_id=${params}`, '');
+  return result;
+};
+
+export { getAccountList, addAccount, deleteAccount, addOrgAccount, getProviderRegions };

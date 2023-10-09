@@ -1,6 +1,7 @@
 {
   "basicInfo": "Basic information",
   "basicInfoDesc": "Basic information of this AWS account",
+  "basicInfoDesc2": "Basic information of this {{providerType}} account",
   "authStatus": "Authentication status",
   "statusReason": "Status reason",
   "organization": "Organization",
@@ -13,9 +14,13 @@
   "connectToDataSourceForAccountDesc": "You can create data catalogs by connecting data source. ",
   "header": {
     "s3Title": "Data source: S3 buckets",
-    "s3Info": "The S3 buckets that are discovered in this AWS account. Connect to S3 buckets to create data catalogs.",
+    "s3Info": "The S3 buckets that are discovered in this account. Connect to S3 buckets to create data catalogs.",
     "rdsTitle": "Data source: RDS instances",
-    "rdsInfo": "The RDS instances that are discovered in this AWS account. Connect to RDS instances to create data catalogs."
+    "rdsInfo": "The RDS instances that are discovered in this account. Connect to RDS instances to create data catalogs.",
+    "jdbcTitle": "Data source: JDBC connections",
+    "jdbcInfo": "The JDBC connections that are discovered in this account. Connect to JDBC connection to create data catalogs.",
+    "glueTitle": "Data source: Glue databases",
+    "glueInfo": "The Glue databases that are discovered in this account."
   },
   "credentialOption": {
     "secretManager": "Secret Manager",

@@ -43,9 +43,21 @@ const getDataSourceS3ByPage = async (params: any) => {
   return result;
 };
 
-// 分页获取DataSource S3列表
+// 分页获取DataSource RDS列表
 const getDataSourceRdsByPage = async (params: any) => {
   const result = await apiRequest('post', 'data-source/list-rds', params);
+  return result;
+};
+
+// 分页获取DataSource Glue列表
+const getDataSourceGlueByPage = async (params: any) => {
+  const result = await apiRequest('post', 'data-source/list-glue-database', params);
+  return result;
+};
+
+// 分页获取DataSource JDBC列表
+const getDataSourceJdbcByPage = async (params: any, provider_id: number) => {
+  const result = await apiRequest('post', `data-source/list-jdbc?provider_id=${provider_id}`, params);
   return result;
 };
 
@@ -110,4 +122,6 @@ export {
   queryRegions,
   queryProviders,
   getSourceProviders,
+  getDataSourceGlueByPage,
+  getDataSourceJdbcByPage
 };
