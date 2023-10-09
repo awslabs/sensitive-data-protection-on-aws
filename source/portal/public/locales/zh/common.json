@@ -65,6 +65,7 @@
     "backToAWSAccount": "返回 AWS 账户视图",
     "connectAll": "同步全部至数据目录",
     "connect": "同步至数据目录",
+    "testConnection":"测试连接",
     "manageDataIdentifiers": "管理数据识别规则",
     "addDataIdentifier": "添加数据标识符",
     "addToTemplate": "添加到模板",

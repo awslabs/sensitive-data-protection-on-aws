@@ -65,6 +65,7 @@
     "backToAWSAccount": "Back to AWS accounts view",
     "connectAll": "Sync ALL to data catalogs",
     "connect": "Sync to data catalog",
+    "testConnection":"Test connection",
     "manageDataIdentifiers": "Manage data identfiers",
     "addDataIdentifier": "Add data identifier",
     "addToTemplate": "Add to template",
