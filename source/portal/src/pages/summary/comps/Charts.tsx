@@ -21,40 +21,34 @@ const Charts: React.FC<ChartsProps> = (props: ChartsProps) => {
         {t('summary:toSeeJobDetail')}
       </div>
       <div className="mt-10">
-        <Tabs
-          tabs={
-            currentProvider?.id === 1
-              ? [
-                  {
-                    label: t('summary:amazonS3'),
-                    id: 's3',
-                    content: <AmazonS3 />,
-                  },
-                  {
-                    label: t('summary:amazonRDS'),
-                    id: 'rds',
-                    content: <AmazonRDS />,
-                  },
-                  {
-                    label: t('summary:glue'),
-                    id: 'glue',
-                    content: <AmazonGlue />,
-                  },
-                  {
-                    label: t('summary:jdbc'),
-                    id: 'jdbc',
-                    content: <JDBC />,
-                  },
-                ]
-              : [
-                  {
-                    label: t('summary:jdbc'),
-                    id: 'jdbc',
-                    content: <JDBC />,
-                  },
-                ]
-          }
-        />
+        {currentProvider?.id === 1 ? (
+          <Tabs
+            tabs={[
+              {
+                label: t('summary:amazonS3'),
+                id: 's3',
+                content: <AmazonS3 />,
+              },
+              {
+                label: t('summary:amazonRDS'),
+                id: 'rds',
+                content: <AmazonRDS />,
+              },
+              {
+                label: t('summary:glue'),
+                id: 'glue',
+                content: <AmazonGlue />,
+              },
+              {
+                label: t('summary:jdbc'),
+                id: 'jdbc',
+                content: <JDBC />,
+              },
+            ]}
+          />
+        ) : (
+          <JDBC />
+        )}
       </div>
     </Container>
   );
