@@ -223,7 +223,12 @@
       "dataCatalogName": "Data catalog name",
       "dataSourceType": "Data source type",
       "dataSource": "Data source",
-      "provider": "Provider"
+      "provider": "Provider",
+      "jdbcInstanceName":"Instance name",
+      "glueState": "Catalog status",
+      "glueConnectionName":"Glue connection",
+      "locationUri":"Location uri",
+      "glueDatabaseCreateTime":"Database create time"
     }
   },
   "tab": {

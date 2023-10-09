@@ -35,6 +35,7 @@ create table source_jdbc_instance
     region                             varchar(255) null,
     data_source_id                     int          null,
     detection_history_id               int          null,
+    connection_status                      varchar(16) null,
     glue_database                      varchar(255) null,
     glue_crawler                       varchar(255) null,
     glue_connection                    varchar(255) null,

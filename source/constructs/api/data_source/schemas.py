@@ -57,7 +57,7 @@ class S3BucketSource(BaseModel):
     id: int
     bucket_name: Optional[str]
     size: Optional[int]
-    account_id: Optional[int]
+    account_id: Optional[str]
     region: Optional[str]
     creation_date: Optional[datetime.datetime]
     data_source_id: Optional[int]
@@ -197,6 +197,7 @@ class JDBCInstanceSourceFullInfo(JDBCInstanceSource):
 
     data_source_id: Optional[int]
     detection_history_id: Optional[int]
+    connection_status: Optional[str]
     glue_database: Optional[str]
     glue_connection: Optional[str]
     glue_vpc_endpoint: Optional[str]

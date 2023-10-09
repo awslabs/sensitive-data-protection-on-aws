@@ -223,7 +223,12 @@
       "dataCatalogName": "数据目录名称",
       "dataSourceType": "数据源类型",
       "dataSource": "数据源",
-      "provider": "服务商"
+      "provider": "服务商",
+      "jdbcInstanceName":"实例名",
+      "glueState": "数据目录",
+      "glueConnectionName":"连通性",
+      "locationUri":"Uri",
+      "glueDatabaseCreateTime":"数据库创建时间"
     }
   },
   "tab": {

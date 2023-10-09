@@ -37,6 +37,8 @@ import CommonBadge from 'pages/common-badge';
 import {
   getDataSourceS3ByPage,
   getDataSourceRdsByPage,
+  getDataSourceGlueByPage,
+  getDataSourceJdbcByPage,
   connectDataSourceS3,
   connectDataSourceRDS,
   disconnectDataSourceRDS,
@@ -61,7 +63,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const columnList =
-    tagType === DATA_TYPE_ENUM.s3 ? S3_COLUMN_LIST : RDS_COLUMN_LIST;
+    tagType === DATA_TYPE_ENUM.s3 ? S3_COLUMN_LIST : tagType === DATA_TYPE_ENUM.rds ? RDS_COLUMN_LIST :  tagType === DATA_TYPE_ENUM.glue ? GLUE_COLUMN_LIST:JDBC_COLUMN_LIST;
   const [totalCount, setTotalCount] = useState(0);
   const [preferences, setPreferences] = useState({
     pageSize: 20,
@@ -123,6 +125,75 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
     }
   }, [showRdsPwdModal]);
 
+  const genActions = (tagType: string)=>{
+    let res = [
+      {
+        text: t('disconnect') || '',
+        id: 'disconnect',
+        disabled: selectedItems.length === 0,
+      },
+      {
+        text: t('button.connectAll') || '',
+        id: 'connectAll',
+        disabled: tagType === DATA_TYPE_ENUM.rds,
+      },
+      {
+        text: 'Add data source',
+        id: 'addDataSource',
+        disabled:
+          tagType !== DATA_TYPE_ENUM.jdbc &&
+          tagType !== DATA_TYPE_ENUM.glue,
+      },
+      {
+        text: 'Delete data source',
+        id: 'deleteDataSource',
+      },
+      {
+        text: 'Delete data catalog only',
+        id: 'deleteCatalog',
+      },
+      {
+        text: 'Disconnect & Delete catalog',
+        id: 'disconnectAndDelete',
+      },
+    ]
+    if(tagType === DATA_TYPE_ENUM.glue){
+      res = [{
+        text: 'Delete Database',
+        id: 'delete',
+      },]
+    }
+    if(tagType === DATA_TYPE_ENUM.jdbc){
+      res = [{
+        text: 'Add data source',
+        id: 'add',
+      },
+      {
+        text: 'Edit data source',
+        id: 'edit',
+        disabled: selectedItems.length === 0,
+      },
+      {
+        text: 'Delete data source',
+        id: 'delete_ds',
+        disabled: tagType === DATA_TYPE_ENUM.rds,
+      },
+      {
+        text: 'Delete data catalog only',
+        id: 'delete_dc',
+        disabled:
+          tagType !== DATA_TYPE_ENUM.jdbc &&
+          tagType !== DATA_TYPE_ENUM.glue,
+      },
+      {
+        text: 'Disconnect & Delete catalog',
+        id: 'disconnect_dc',
+      },]
+    }
+
+    return res
+  }
+
   const getPageData = async () => {
     setIsLoading(true);
     setSelectedItems([]);
@@ -132,14 +203,14 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       sort_column:
         tagType === DATA_TYPE_ENUM.s3
           ? COLUMN_OBJECT_STR.LastModifyAt
-          : COLUMN_OBJECT_STR.RdsCreatedTime,
+          : tagType === DATA_TYPE_ENUM.rds?COLUMN_OBJECT_STR.RdsCreatedTime:COLUMN_OBJECT_STR.glueDatabaseCreatedTime,
       asc: false,
       conditions: [] as any,
     };
     accountData &&
       accountData.account_id &&
       requestParam.conditions.push({
-        column: COLUMN_OBJECT_STR.AWSAccount,
+        column: COLUMN_OBJECT_STR.AccountID,
         values: [`${accountData.account_id}`], // accountData.aws_account_id,
         condition: query.operation,
       });
@@ -164,7 +235,9 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
     const result: any =
       tagType === DATA_TYPE_ENUM.s3
         ? await getDataSourceS3ByPage(requestParam)
-        : await getDataSourceRdsByPage(requestParam);
+        :(tagType === DATA_TYPE_ENUM.rds ? await getDataSourceRdsByPage(requestParam):(
+          tagType === DATA_TYPE_ENUM.glue? await getDataSourceGlueByPage(requestParam):await getDataSourceJdbcByPage(requestParam, accountData.account_provider_id)
+        )) ;
     setIsLoading(false);
     if (!result || !result.items) {
       alertMsg(t('loadDataError'), 'error');
@@ -447,7 +520,8 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                     <a
                       href={`/catalog?catalogId=${
                         (e as any)[COLUMN_OBJECT_STR.Buckets] ||
-                        (e as any)[COLUMN_OBJECT_STR.RDSInstances]
+                        (e as any)[COLUMN_OBJECT_STR.RDSInstances]||
+                        (e as any)[COLUMN_OBJECT_STR.JDBCInstanceName]
                       }&tagType=${tagType}`}
                       target="_blank"
                       rel="noreferrer"
@@ -457,7 +531,22 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                     </a>
                   );
                 }
-
+                if (item.id === COLUMN_OBJECT_STR.JDBCInstanceName) {
+                  return e.instance_id 
+                }
+                if (item.id === COLUMN_OBJECT_STR.ConnectionStatus) {
+                  if(e.connection_status === 'Connected') return 'Connected'
+                  return 'Unconnected'
+                }
+                if (item.id === COLUMN_OBJECT_STR.GlueConnectionName) {
+                  return e.glue_connection||'-'
+                }
+                if (item.id === COLUMN_OBJECT_STR.glueDatabaseDescription) {
+                  return e.glue_database_description||'-'
+                }
+                if (item.id === COLUMN_OBJECT_STR.glueDatabaseLocationUri) {
+                  return e.glue_database_location_uri||'-'
+                }
                 return (e as any)[item.id];
               },
               minWidth:
@@ -533,37 +622,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                         clkAddSource('jdbc');
                       }
                     }}
-                    items={[
-                      {
-                        text: t('disconnect') || '',
-                        id: 'disconnect',
-                        disabled: selectedItems.length === 0,
-                      },
-                      {
-                        text: t('button.connectAll') || '',
-                        id: 'connectAll',
-                        disabled: tagType === DATA_TYPE_ENUM.rds,
-                      },
-                      {
-                        text: 'Add data source',
-                        id: 'addDataSource',
-                        disabled:
-                          tagType !== DATA_TYPE_ENUM.jdbc &&
-                          tagType !== DATA_TYPE_ENUM.glue,
-                      },
-                      {
-                        text: 'Delete data source',
-                        id: 'deleteDataSource',
-                      },
-                      {
-                        text: 'Delete data catalog only',
-                        id: 'deleteCatalog',
-                      },
-                      {
-                        text: 'Disconnect & Delete catalog',
-                        id: 'disconnectAndDelete',
-                      },
-                    ]}
+                    items={genActions(tagType)}
                   >
                     {t('button.actions')}
                   </ButtonDropdown>

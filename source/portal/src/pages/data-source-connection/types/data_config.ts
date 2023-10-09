@@ -7,7 +7,14 @@ export const COLUMN_OBJECT_STR = {
   RunStatus: 'run_status',
   RdsCreatedTime: 'created_time',
   AWSAccount: 'aws_account',
+  AccountID: 'account_id',
   GlueState: 'glue_state',
+  JDBCInstanceName: 'jdbc_instance_name',
+  ConnectionStatus:'connection_status',
+  GlueConnectionName:'glue_connection_name',
+  glueDatabaseCreatedTime:'glue_database_create_time',
+  glueDatabaseDescription:'glue_database_description',
+  glueDatabaseLocationUri:'locationUri'
 };
 
 export const S3_COLUMN_LIST = [
@@ -45,12 +52,12 @@ export const S3_COLUMN_LIST = [
 
 export const JDBC_COLUMN_LIST = [
   {
-    id: 'jdbc_instance_name',
+    id: COLUMN_OBJECT_STR.JDBCInstanceName,
     label: 'table.label.jdbcInstanceName',
     filter: true,
   },
   {
-    id: 'connection_status',
+    id: COLUMN_OBJECT_STR.ConnectionStatus,
     label: 'table.label.connectionStatus',
     filter: true,
   },
@@ -60,12 +67,12 @@ export const JDBC_COLUMN_LIST = [
     filter: true,
   },
   {
-    id: 'data_catalog',
+    id: COLUMN_OBJECT_STR.DataCatalog,
     label: 'table.label.dataCatalog',
     filter: false,
   },
   {
-    id: 'glue_connection_name',
+    id: COLUMN_OBJECT_STR.GlueConnectionName,
     label: 'table.label.glueConnectionName',
     filter: true,
   }
@@ -78,12 +85,12 @@ export const GLUE_COLUMN_LIST = [
     filter: true,
   },
   {
-    id: 'description',
+    id: COLUMN_OBJECT_STR.glueDatabaseDescription,
     label: 'table.label.description',
     filter: true,
   },
   {
-    id: 'location_uri',
+    id: COLUMN_OBJECT_STR.glueDatabaseLocationUri,
     label: 'table.label.locationUri',
     filter: true,
   },

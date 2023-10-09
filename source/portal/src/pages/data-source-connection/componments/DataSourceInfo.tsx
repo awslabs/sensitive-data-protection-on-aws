@@ -1,5 +1,5 @@
 import { Container, Header } from '@cloudscape-design/components';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../style.scss';
 import SourceBadge from './SourceBadge';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +10,20 @@ const DataSourceInfo: React.FC<any> = ({ accountData }: any) => {
     console.log("accountData is",accountData)
   })
 
+  const [providerType, setProviderType] = useState('AWS')
+  // genProvider(accountData.account_provider_id)
+
+  useEffect(()=>{
+    let type = 'AWS'
+    if(accountData.account_provider_id === 2){
+      type = "TENCENT CLOUD"
+    }
+    else if(accountData.provider_id === 3){
+      type = "GOOGLE CLOUD"
+    }
+    setProviderType(type)
+
+  },[])
   const genProvider = (provider_id: number): string=>{
     if(provider_id == 2){
       return "TENCENT CLOUD"
@@ -24,7 +38,7 @@ const DataSourceInfo: React.FC<any> = ({ accountData }: any) => {
     <Container
       className="datasource-container"
       header={
-        <Header variant="h2" description={t('datasource:basicInfoDesc', genProvider(accountData.account_provider_id))}>
+        <Header variant="h2" description={t('datasource:basicInfoDesc2', {providerType})}>
           {t('datasource:basicInfo')}
         </Header>
       }

@@ -1,6 +1,7 @@
 {
   "basicInfo": "基本信息",
   "basicInfoDesc": "此账户的基本信息",
+  "basicInfoDesc2": "此 {{providerType}} 账户的基本信息",
   "authStatus": "身份验证状态",
   "statusReason": "状态原因",
   "organization": "组织",
@@ -13,9 +14,13 @@
   "connectToDataSourceForAccountDesc": "您可以通过连接数据源来创建数据目录。 ",
   "header": {
     "s3Title": "数据源：S3 存储桶",
-    "s3Info": "在此 AWS 账户中发现的 S3 存储桶。连接到 S3 存储桶以创建数据目录。",
+    "s3Info": "在此账户中发现的 S3 存储桶。连接到 S3 存储桶以创建数据目录。",
     "rdsTitle": "数据源：RDS 实例",
-    "rdsInfo": "在此 AWS 账户中发现的 RDS 实例。连接到 RDS 实例以创建数据目录。"
+    "rdsInfo": "在此账户中发现的 RDS 实例。连接到 RDS 实例以创建数据目录。",
+    "jdbcTitle": "数据源：JDBC 连接",
+    "jdbcInfo": "在此账户中发现的 JDBC 连接。连接到 JDBC 以创建数据目录。",
+    "glueTitle": "数据源：Glue 数据库",
+    "glueInfo": "在此账户中发现的 Glue 数据库。"
   },
   "credentialOption": {
     "secretManager": "Secret Manager",
