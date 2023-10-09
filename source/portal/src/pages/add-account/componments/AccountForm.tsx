@@ -9,6 +9,7 @@ import {
   SelectProps,
   SpaceBetween,
 } from '@cloudscape-design/components';
+import { getProviderRegions, addAccount } from 'apis/account-manager/api';
 import { ProviderType } from 'common/ProviderTab';
 import MapMarker from 'pages/summary/comps/charts/items/MapMarker';
 import React, { useEffect, useState } from 'react';
@@ -23,42 +24,69 @@ interface AccountFormProps {
 const AccountForm: React.FC<AccountFormProps> = (props: AccountFormProps) => {
   const { provider } = props;
   const navigate = useNavigate();
+  const list: any[] = [];
   const [regionGeo, setRegionGeo] = useState<any[]>([]);
+  const [coorMap, setCoorMap] = useState<Map<string,string>>();
   const [regionList, setRegionList] = useState<SelectProps.Option[]>([]);
   const [accountId, setAccountId] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [currentRegion, setCurrentRegion] = useState<SelectProps.Option | null>(
     null
-  );
-
-  const getRegionListByProvider = () => {
-    if (provider.id === 2) {
-      setRegionList([{ label: 'tencent', value: 'tencent' }]);
+    );
+    
+  const coorMapTemp = new Map()
+  const getRegionListByProvider = async (provider_id: any) => {
+    const accountData = await getProviderRegions(parseInt(provider_id));
+    if(Array.isArray(accountData)){
+      accountData.forEach(item => {
+       list.push({label:item['region_name'], id: item['id'], labelTag: item['region_alias']});
+       coorMapTemp.set(item['region_name'], item['region_cord'])
+      })
     }
-    if (provider.id === 3) {
-      setRegionList([{ label: 'google', value: 'google' }]);
-    }
+    setRegionList(list)
+    setCoorMap(coorMapTemp)
   };
+
 
   const changeRegion = (option: SelectProps.Option) => {
     setRegionGeo([
       {
         markerOffset: 25,
-        name: 'Northern Virginia (US East)',
-        region: 'us-east-1',
-        coordinates: [-77.0469, 38.8048],
+        name: option.labelTag,
+        region: option.label,
+        coordinates: [coorMap?.get(option.label||'')?.split(',')[1],coorMap?.get(option.label||'')?.split(',')[0]],
       },
     ]);
   };
 
-  const addAccount = () => {
+  const addAccountButton = async () => {
+    setIsLoading(true);
+    try {
+      await addAccount({
+        account_provider: provider.id,
+        account_id: accountId,
+        region: currentRegion?.label
+      });
+      setIsLoading(false);
+   } catch {
+      setIsLoading(false);
+   }
+
+
+
+
     navigate(RouterEnum.AccountManagement.path, {
       state: { activeTab: provider.id },
     });
   };
-
+         
   useEffect(() => {
-    getRegionListByProvider();
-  }, []);
+  //  console.log()
+     getRegionListByProvider(provider.id)
+  //  const list: any[] = [];
+   
+
+  },[]);
 
   return (
     <div className="mt-20 account-map">
@@ -76,9 +104,10 @@ const AccountForm: React.FC<AccountFormProps> = (props: AccountFormProps) => {
               Cancel
             </Button>
             <Button
+              loading={isLoading}
               variant="primary"
               onClick={() => {
-                addAccount();
+                addAccountButton();
               }}
             >
               Add this account
@@ -111,6 +140,7 @@ const AccountForm: React.FC<AccountFormProps> = (props: AccountFormProps) => {
             <FormField label="Region/Location">
               <Select
                 onChange={(e) => {
+                  console.log("e is:",e)
                   setCurrentRegion(e.detail.selectedOption);
                   changeRegion(e.detail.selectedOption);
                 }}

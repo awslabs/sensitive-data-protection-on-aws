@@ -226,9 +226,6 @@ def get_rds_instance_source_glue_state(account: str, region: str, instance_id: s
 
 
 def get_jdbc_instance_source_glue(provider_id: int, account: str, region: str, instance_id: str) -> schemas.JDBCInstanceSourceFullInfo:
-    # account_tmp = get_session().query(Account.id).filter(Account.account_provider_id == provider_id,
-    #                                                      Account.account_id == account).first()
-    # print(f"........{account_tmp}")
     return get_session().query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == provider_id,
                                                           JDBCInstanceSource.account_id == account,
                                                           JDBCInstanceSource.region == region,
@@ -308,10 +305,10 @@ def create_s3_connection(account: str, region: str, bucket: str, glue_connection
     session = get_session()
     s3_bucket_source = session.query(S3BucketSource).filter(S3BucketSource.bucket_name == bucket,
                                                             S3BucketSource.region == region,
-                                                            S3BucketSource.aws_account == account).scalar()
+                                                            S3BucketSource.account_id == account).scalar()
     if s3_bucket_source is None:
         s3_bucket_source = S3BucketSource(bucket_name=bucket, region=region,
-                                          aws_account=account)
+                                          account_id=account)
     s3_bucket_source.glue_connection = glue_connection_name
     s3_bucket_source.glue_database = glue_database_name
     s3_bucket_source.glue_crawler = crawler_name
@@ -424,11 +421,11 @@ def create_rds_connection(account: str,
     session = get_session()
     rds_instance_source = session.query(RdsInstanceSource).filter(RdsInstanceSource.instance_id == instance,
                                                                   RdsInstanceSource.region == region,
-                                                                  RdsInstanceSource.aws_account == account).order_by(
+                                                                  RdsInstanceSource.account_id == account).order_by(
         desc(RdsInstanceSource.detection_history_id)).first()
     if rds_instance_source is None:
         rds_instance_source = RdsInstanceSource(instance_id=instance, region=region,
-                                                aws_account=account)
+                                                account_id=account)
     rds_instance_source.glue_database = glue_database
     rds_instance_source.glue_crawler = crawler_name
     rds_instance_source.glue_connection = glue_connection
@@ -861,7 +858,7 @@ def get_account_list_by_provider(provider_id):
                                                Account.status == SourceAccountStatus.ENABLE.value).all()
 
 
-def list_distinct_region_by_provider(provider_id):
+def list_distinct_region_by_provider(provider_id) -> list[SourceRegion]:
     return get_session().query(SourceRegion).filter(SourceRegion.provider_id == provider_id,
                                                     SourceRegion.status == SourceRegionStatus.ENABLE.value).distinct(
         SourceRegion.region_name).all()
