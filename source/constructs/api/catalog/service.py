@@ -129,6 +129,7 @@ def sync_crawler_result(
     rds_engine_type = const.NA
     # custom glue type will not use crawler, just syncing the catalog from existing glue tables
     is_custom_glue = database_type == DatabaseType.GLUE.value
+    is_unstructured_glue = database_type == DatabaseType.S3_UNSTRUCTURED.value
     if database_type == DatabaseType.RDS.value:
         rds_database = data_source_crud.get_rds_instance_source(
             account_id, region, database_name
@@ -149,12 +150,13 @@ def sync_crawler_result(
     glue_database_name = database_name if is_custom_glue else (
         const.SOLUTION_NAME + "-" + database_type + "-" + database_name
     ).lower()
-    if is_custom_glue:
+
+    if is_custom_glue or is_unstructured_glue:
         crawler_last_run_status = GlueCrawlerState.SUCCEEDED.value
     else:
         glue_crawler_name = (
             const.SOLUTION_NAME + "-" + database_type + "-" + database_name
-        ).lower()
+        )
         crawler_response = glue_client.get_crawler(Name=glue_crawler_name)
         state = crawler_response["Crawler"]["State"]
         while state == 'STOPPING':
