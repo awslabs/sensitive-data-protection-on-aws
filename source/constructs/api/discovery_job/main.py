@@ -11,10 +11,10 @@ from common.constant import const
 router = APIRouter(prefix="/discovery-jobs", tags=["discovery-job"])
 
 
-@router.get("/last-job-time", response_model=BaseResponse[str])
-@inject_session
-def last_job_time():
-    return service.last_job_time()
+# @router.get("/last-job-time", response_model=BaseResponse[str])
+# @inject_session
+# def last_job_time():
+#     return service.last_job_time()
 
 
 @router.post("", response_model=BaseResponse[schemas.DiscoveryJob])
