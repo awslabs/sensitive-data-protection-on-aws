@@ -795,7 +795,7 @@ def get_database_prorpery(account_id: str,
     result_list = []
     try:
         client = get_boto3_client(account_id, region, database_type)
-        if database_type == DatabaseType.S3.value:
+        if database_type == DatabaseType.S3.value or database_type == DatabaseType.S3_UNSTRUCTURED.value:
             response = client.get_bucket_location(Bucket=database_name)
             result_list.append(["Region", response["LocationConstraint"]])
             response = client.get_bucket_acl(Bucket=database_name)
@@ -805,7 +805,7 @@ def get_database_prorpery(account_id: str,
                 if b["Name"] == database_name:
                     result_list.append(["CreationDate", b["CreationDate"]])
             result_list.append(["Tags", __get_s3_tagging(database_name, client)])
-        elif database_type == DatabaseType.RDS.value:
+        elif database_type == DatabaseType.RDS.value or database_type == DatabaseType.GLUE.value or database_type.startswith(DatabaseType.JDBC.value):
             response = client.describe_db_instances(DBInstanceIdentifier=database_name)
             if "DBInstances" in response and len(response["DBInstances"]) > 0:
                 instance_info = response["DBInstances"][0]
