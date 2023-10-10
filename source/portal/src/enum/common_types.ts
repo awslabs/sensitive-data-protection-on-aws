@@ -43,9 +43,9 @@ export const SOURCE_TYPE = {
   DDB: 'ddb',
   EMR: 'emr',
   JDBC: 'jdbc',
-  JDBC_AWS: 'jdbc-aws',
-  JDBC_TENCENT: 'jdbc-tencent',
-  JDBC_ALIYUN: 'jdbc-aliyun',
+  JDBC_AWS: 'jdbc_aws',
+  JDBC_TENCENT: 'jdbc_tencent',
+  JDBC_ALIYUN: 'jdbc_aliyun',
 };
 
 export const getSourceTypeByProvider = (providerId: string) => {
