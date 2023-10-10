@@ -87,8 +87,16 @@ def __do_delete_rule(rule_name):
 
 def __do_delete_rules(solution_name,response):
     for rule in response["Rules"]:
-        logger.info(f'delete rule:{rule["Name"]}')
-        __do_delete_rule(rule["Name"])
+        logger.info(f'check rule:{rule["Name"]}')
+        response_rule = events_client.list_tags_for_resource(ResourceARN=rule["Arn"])
+        logger.info(response_rule)
+        owner = False
+        for tag in response_rule["Tags"]:
+            if tag["Key"] == "Owner" and tag["Value"] == solution_name:
+                owner = True
+                break
+        if owner:
+            __do_delete_rule(rule["Name"])
 
 
 def delete_event_rules(solution_name):

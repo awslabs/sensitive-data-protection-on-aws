@@ -6,13 +6,14 @@ import requests
 import os
 import time
 
+
 glue = boto3.client('glue')
 admin_account_id = os.getenv('AdminAccountId')
 
 logger = logging.getLogger('delete_resources')
 logger.setLevel(logging.INFO)
 request_type_list = ["Create","Update","Delete"]
-
+SOLUTION_NAME = "SDPS"
 
 def lambda_handler(event, context):
     logger.info(event)
@@ -116,15 +117,18 @@ def cleanup_crawlers():
         response = glue.list_crawlers(NextToken=next_page, Tags={'AdminAccountId': admin_account_id})
 
         for crawler in response['CrawlerNames']:
-            if (crawler.startswith('s3-') or crawler.startswith('rds-')) and crawler.endswith('-crawler'):
+            # if (crawler.startswith('s3-') or crawler.startswith('rds-')) and crawler.endswith('-crawler'):
+            if crawler.startswith(SOLUTION_NAME + "-"):
                 response = glue.get_crawler(Name=crawler)
                 print(response)
                 database_name = response['Crawler']['DatabaseName']
-                if crawler[:-8] == database_name[:-9]:
+                # if crawler[:-8] == database_name[:-9]:
+                if crawler.lower() == database_name.lower():
                     remove_database(database_name)
                 if len(response['Crawler']['Targets']['JdbcTargets']) == 1:
                     connection_name = response['Crawler']['Targets']['JdbcTargets'][0]['ConnectionName']
-                    if crawler[:-8] == connection_name[:-11]:
+                    # if crawler[:-8] == connection_name[:-11]:
+                    if crawler.lower() == connection_name.lower():
                         remove_jdbc_connection(connection_name)
                 crawlers.append(crawler)
 

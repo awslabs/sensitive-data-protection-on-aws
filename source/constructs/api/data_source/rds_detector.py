@@ -56,7 +56,7 @@ async def detect_rds_data_source(session: Session, aws_account_id: str):
                 # RdsInstanceSource.address == instance['Endpoint']['Address'] if 'Endpoint' in instance else '',
                 # RdsInstanceSource.port == instance['Endpoint']['Port'] if 'Endpoint' in instance else '',
                 # RdsInstanceSource.master_username == instance['MasterUsername'],
-                RdsInstanceSource.aws_account == aws_account_id,
+                RdsInstanceSource.account_id == aws_account_id,
             ).scalar()
             if rds_instance_source is None:
                 rds_instance_source = RdsInstanceSource(instance_id=str(instance['DBInstanceIdentifier']),
@@ -68,7 +68,7 @@ async def detect_rds_data_source(session: Session, aws_account_id: str):
                                                         port=instance['Endpoint']['Port'],
                                                         master_username=instance['MasterUsername'],
                                                         # created_time=instance['Engine'],
-                                                        aws_account=aws_account_id
+                                                        account_id=aws_account_id
 
                                                         )
             rds_instance_source.detection_history_id = history.id
@@ -80,7 +80,7 @@ async def detect_rds_data_source(session: Session, aws_account_id: str):
 
         session.commit()
         # Get RDS instance in data source table
-        query_result = session.query(RdsInstanceSource).filter(RdsInstanceSource.aws_account == aws_account_id, RdsInstanceSource.account_id == 0).all()
+        query_result = session.query(RdsInstanceSource).filter(RdsInstanceSource.account_id == aws_account_id, RdsInstanceSource.account_id == 0).all()
         rds_db_list = []
         rds_db_region_list = []
         rds_db_glue_state = []

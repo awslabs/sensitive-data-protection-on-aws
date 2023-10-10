@@ -133,11 +133,15 @@ class DiscoveryJobBase(BaseModel):
     all_rds: Optional[int]
     all_ddb: Optional[int]
     all_emr: Optional[int]
+    all_glue: Optional[int]
+    all_jdbc: Optional[int]
     overwrite: Optional[int]
     exclude_keywords: Optional[str]
     include_keywords: Optional[str]
     exclude_file_extensions: Optional[str]
     include_file_extensions: Optional[str]
+    provider_id: Optional[int]
+    database_type: Optional[str]
 
 
 class DiscoveryJobCreate(DiscoveryJobBase):

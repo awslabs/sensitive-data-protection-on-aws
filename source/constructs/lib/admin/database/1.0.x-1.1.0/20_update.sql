@@ -1,4 +1,10 @@
 -- source
+alter table source_detection_history drop column account_id;
+alter table source_detection_history change column aws_account account_id varchar(255);
+alter table source_rds_instance drop column account_id;
+alter table source_rds_instance change column aws_account_id account_id varchar(255);
+alter table source_s3_bucker drop column account_id;
+alter table source_s3_bucker change column aws_account_id account_id varchar(255);
 alter table source_account change column aws_account_id account_id varchar(255);
 alter table source_account change column aws_account_alias account_alias varchar(255);
 alter table source_account change column aws_account_email account_email varchar(255);
@@ -187,7 +193,10 @@ INSERT INTO template_identifier (description, type, name, create_by) VALUES ('ID
 
 
 -- discovery job
-alter table discovery_job_database modify account_id varchar(20) not null;
+alter table discovery_job add all_glue int null after all_emr;
+alter table discovery_job add all_jdbc int null after all_glue;
+alter table discovery_job add provider_id int null after include_file_extensions;
+alter table discovery_job add database_type varchar(20) null after provider_id;
 alter table discovery_job add depth_structured int null after `range`;
 alter table discovery_job add depth_unstructured int null after depth_structured;
 update discovery_job set depth_structured = depth;
@@ -195,6 +204,7 @@ alter table discovery_job add include_keywords varchar(1000) null after exclude_
 alter table discovery_job add exclude_file_extensions varchar(200) null after include_keywords;
 alter table discovery_job add include_file_extensions varchar(200) null after exclude_file_extensions;
 
+alter table discovery_job_database modify account_id varchar(20) not null;
 alter table discovery_job_database modify database_type varchar(20) not null;
 
 alter table discovery_job_run add depth_structured int null after template_snapshot_no;

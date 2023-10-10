@@ -105,6 +105,10 @@ def get_catalog_database_level_classification_by_params(
 
 
 def get_catalog_database_level_classification_by_type_all(database_type: str):
+    if database_type.startswith(DatabaseType.JDBC.value):
+        return get_session().query(models.CatalogDatabaseLevelClassification).filter(
+            models.CatalogDatabaseLevelClassification.database_type.like(f'{database_type}%')
+        )
     return get_session().query(models.CatalogDatabaseLevelClassification).filter(
         models.CatalogDatabaseLevelClassification.database_type == database_type
     )

@@ -163,12 +163,6 @@ class RunDatabaseState(Enum):
 
 
 @unique
-class RunTaskType(Enum):
-    STRUCTURED = "Structured"
-    UNSTRUCTURED = "Unstructured"
-
-
-@unique
 class DatabaseType(Enum):
     RDS = "rds"
     S3 = "s3"
@@ -177,9 +171,9 @@ class DatabaseType(Enum):
     DDB = "ddb"
     EMR = "emr"
     JDBC = "jdbc"
-    JDBC_AWS = "jdbc-aws"
-    JDBC_TENCENT = "jdbc-tencent"
-    JDBC_ALIYUN = "jdbc-aliyun"
+    JDBC_AWS = "jdbc_aws"
+    JDBC_TENCENT = "jdbc_tencent"
+    JDBC_ALIYUN = "jdbc_aliyun"
 
 
 @unique

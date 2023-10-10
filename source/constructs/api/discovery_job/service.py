@@ -5,7 +5,7 @@ import logging
 import db.models_discovery_job as models
 from . import crud, schemas
 from common.exception_handler import BizException
-from common.enum import MessageEnum, JobState, RunState, RunDatabaseState, RunTaskType, DatabaseType, AthenaQueryState
+from common.enum import MessageEnum, JobState, RunState, RunDatabaseState, DatabaseType, AthenaQueryState
 from common.constant import const
 from common.query_condition import QueryCondition
 import traceback
@@ -65,7 +65,7 @@ def create_event(job_id: int, schedule: str):
         Description=f'create by {const.SOLUTION_NAME}',
         Tags=[
             {
-                'Key': 'Owner',
+                'Key': const.PROJECT_TAG_KEY,
                 'Value': const.SOLUTION_NAME
             },
             {
