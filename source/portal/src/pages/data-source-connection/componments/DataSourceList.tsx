@@ -285,7 +285,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
     }
     if (tagType === DATA_TYPE_ENUM.s3) {
       const requestParam = {
-        account_id: selectedItems[0].aws_account,
+        account_id: selectedItems[0].account_id,
         region: selectedItems[0].region,
         bucket: selectedItems[0].bucket_name,
       };
@@ -317,7 +317,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       }
       setBtnDisabled(true);
       const requestParam = {
-        account_id: selectedItems[0].aws_account,
+        account_id: selectedItems[0].account_id,
         region: selectedItems[0].region,
         instance: selectedItems[0].instance_id,
         rds_user: rdsUser,
@@ -338,7 +338,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       }
       setBtnDisabled(true);
       const requestParam = {
-        account_id: selectedItems[0].aws_account,
+        account_id: selectedItems[0].account_id,
         region: selectedItems[0].region,
         instance: selectedItems[0].instance_id,
         rds_secret: secretSelect.value,
@@ -367,7 +367,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       return;
     }
     const requestParam: any = {
-      account_id: selectedItems[0].aws_account,
+      account_id: selectedItems[0].account_id,
       region: selectedItems[0].region,
     };
     if (tagType === DATA_TYPE_ENUM.s3) {
@@ -393,7 +393,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
 
   const loadAccountSecrets = async () => {
     const requestParam = {
-      account: selectedItems[0].aws_account,
+      account: selectedItems[0].account_id,
       region: selectedItems[0].region,
     };
     const secretsResult: any = await getSecrets(requestParam);
@@ -761,7 +761,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
             <div className="datasource-container-item datasource-width">
               <p className="p-title">{t('table.label.awsAccount')}</p>
               <span className="datasource-container-account">
-                {selectedItems[0]?.aws_account}
+                {selectedItems[0]?.account_id}
               </span>
             </div>
             <div className="datasource-container-item datasource-width left-line">
