@@ -10,8 +10,8 @@ from db.database import gen_session, close_session
 
 logger = logging.getLogger(const.LOGGER_API)
 logger.setLevel(logging.DEBUG)
-crawler_prefixes = [t.value + '-' for t in DatabaseType]
-crawler_suffix = const.SOLUTION_NAME + "-"
+# crawler_prefixes = [t.value + '-' for t in DatabaseType]
+crawler_prefixes = const.SOLUTION_NAME + "-"
 
 
 def sync_result(input_event):
@@ -22,7 +22,7 @@ def sync_result(input_event):
 
     if 'detail' in input_event and 'crawlerName' in input_event['detail']:
         crawler_name = input_event['detail']['crawlerName']
-        if not crawler_name.startswith(crawler_suffix):
+        if not crawler_name.startswith(crawler_prefixes):
             return
         # add type support for jdbc
         # @see common/enum.py
