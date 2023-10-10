@@ -5,21 +5,36 @@ import {
   SpaceBetween,
 } from '@cloudscape-design/components';
 import { useTranslation } from 'react-i18next';
-import RuleKeywords from './RuleKeywords';
-import { useState } from 'react';
+import RuleKeywords from 'common/RuleKeywords';
+import { IJobType } from 'pages/data-job/types/job_list_type';
 
-const AdvancedSettings = () => {
+interface AdvancedSettingsProps {
+  jobData: IJobType;
+  changeExcludeKeywordEnable: (enable: boolean) => void;
+  changeExcludeKeyword: (keyword: string) => void;
+  changeIncludeKeywordEnable: (enable: boolean) => void;
+  changeIncludeKeyword: (keyword: string) => void;
+  changeExcludeFileExtensionEnable: (enable: boolean) => void;
+  changeExcludeFileExtension: (extension: string) => void;
+  changeIncludeFileExtensionEnable: (enable: boolean) => void;
+  changeIncludeFileExtension: (extension: string) => void;
+}
+
+const AdvancedSettings: React.FC<AdvancedSettingsProps> = (
+  props: AdvancedSettingsProps
+) => {
   const { t } = useTranslation();
-  const [ruleRegexObj, setRuleRegexObj] = useState({
-    excludeKeywords: '',
-    excludeKeyWordsEnable: false,
-    includeKeywords: '',
-    includeKeyWordsEnable: false,
-    excludeExtensions: '',
-    excludeExtensionsEnable: false,
-    includeExtensions: '',
-    includeExtensionsEnable: false,
-  });
+  const {
+    jobData,
+    changeExcludeKeywordEnable,
+    changeExcludeKeyword,
+    changeIncludeKeywordEnable,
+    changeIncludeKeyword,
+    changeExcludeFileExtensionEnable,
+    changeExcludeFileExtension,
+    changeIncludeFileExtensionEnable,
+    changeIncludeFileExtension,
+  } = props;
   return (
     <SpaceBetween direction="vertical" size="l">
       <Container
@@ -51,45 +66,25 @@ const AdvancedSettings = () => {
           <RuleKeywords
             title="Exclude keywords"
             placeholder={`.xml\n.abc\n.ddl`}
-            enabled={ruleRegexObj.excludeKeyWordsEnable}
+            enabled={jobData.excludeKeyWordsEnable}
             changeEnable={(enable) => {
-              setRuleRegexObj((prev) => {
-                return {
-                  ...prev,
-                  excludeKeyWordsEnable: enable,
-                };
-              });
+              changeExcludeKeywordEnable(enable);
             }}
-            regexText={ruleRegexObj.excludeKeywords}
+            regexText={jobData.exclude_keywords}
             changeRegexValue={(value) => {
-              setRuleRegexObj((prev) => {
-                return {
-                  ...prev,
-                  excludeKeywords: value,
-                };
-              });
+              changeExcludeKeyword(value);
             }}
           />
           <RuleKeywords
             title="Include keywords"
             placeholder={`.xml\n.abc\n.ddl`}
-            enabled={ruleRegexObj.includeKeyWordsEnable}
+            enabled={jobData.includeKeyWordsEnable}
             changeEnable={(enable) => {
-              setRuleRegexObj((prev) => {
-                return {
-                  ...prev,
-                  includeKeyWordsEnable: enable,
-                };
-              });
+              changeIncludeKeywordEnable(enable);
             }}
-            regexText={ruleRegexObj.includeKeywords}
+            regexText={jobData.include_keywords}
             changeRegexValue={(value) => {
-              setRuleRegexObj((prev) => {
-                return {
-                  ...prev,
-                  includeKeywords: value,
-                };
-              });
+              changeIncludeKeyword(value);
             }}
           />
         </Grid>
@@ -111,7 +106,7 @@ const AdvancedSettings = () => {
               </div>
             }
           >
-            {t('job:create.exclusiveRules')}
+            Advanced rules：Exclude file extensions for this job
           </Header>
         }
       >
@@ -119,45 +114,25 @@ const AdvancedSettings = () => {
           <RuleKeywords
             title="Exclude file extensions"
             placeholder={`.xml\n.abc\n.ddl`}
-            enabled={ruleRegexObj.excludeExtensionsEnable}
+            enabled={jobData.excludeExtensionsEnable}
             changeEnable={(enable) => {
-              setRuleRegexObj((prev) => {
-                return {
-                  ...prev,
-                  excludeExtensionsEnable: enable,
-                };
-              });
+              changeExcludeFileExtensionEnable(enable);
             }}
-            regexText={ruleRegexObj.excludeExtensions}
+            regexText={jobData.exclude_file_extensions}
             changeRegexValue={(value) => {
-              setRuleRegexObj((prev) => {
-                return {
-                  ...prev,
-                  excludeExtensions: value,
-                };
-              });
+              changeExcludeFileExtension(value);
             }}
           />
           <RuleKeywords
             title="Include file extensions"
             placeholder={`.xml\n.abc\n.ddl`}
-            enabled={ruleRegexObj.includeExtensionsEnable}
+            enabled={jobData.includeExtensionsEnable}
             changeEnable={(enable) => {
-              setRuleRegexObj((prev) => {
-                return {
-                  ...prev,
-                  includeExtensionsEnable: enable,
-                };
-              });
+              changeIncludeFileExtensionEnable(enable);
             }}
-            regexText={ruleRegexObj.includeExtensions}
+            regexText={jobData.include_file_extensions}
             changeRegexValue={(value) => {
-              setRuleRegexObj((prev) => {
-                return {
-                  ...prev,
-                  includeExtensions: value,
-                };
-              });
+              changeIncludeFileExtension(value);
             }}
           />
         </Grid>

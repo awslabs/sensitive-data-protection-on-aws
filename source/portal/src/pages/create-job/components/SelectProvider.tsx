@@ -10,11 +10,19 @@ import {
 import { getSourceProviders } from 'apis/data-source/api';
 import { ProviderType } from 'common/ProviderTab';
 import { getSourceTypeByProvider } from 'enum/common_types';
+import { IJobType } from 'pages/data-job/types/job_list_type';
 import React, { useEffect, useState } from 'react';
 
-const SelectProvider = () => {
-  const [provider, setProvider] = useState('');
-  const [dataSource, setDataSource] = useState('');
+interface SelectProviderProps {
+  jobData: IJobType;
+  changeProvider: (providerId: string) => void;
+  changeDataSource: (sourceId: string) => void;
+}
+
+const SelectProvider: React.FC<SelectProviderProps> = (
+  props: SelectProviderProps
+) => {
+  const { jobData, changeProvider, changeDataSource } = props;
   const [loadingProvider, setLoadingProvider] = useState(false);
   const [providerOptionList, setProviderOptionList] = useState<
     TilesProps.TilesDefinition[]
@@ -42,56 +50,60 @@ const SelectProvider = () => {
       });
     });
     if (providers.length > 0) {
-      setProvider(tmpProviderList[0].value);
+      changeProvider(tmpProviderList[0].value);
     }
     setProviderOptionList(tmpProviderList);
     setLoadingProvider(false);
   };
 
   useEffect(() => {
-    const sourceOptionList = getSourceTypeByProvider(provider).map((e) => {
-      return {
-        ...e,
-        image: (
-          <img
-            width="50%"
-            src={`/logos/source/${
-              e.value.startsWith('jdbc') ? 'db' : e.value
-            }.svg`}
-            alt={e.label}
-          />
-        ),
-      };
-    });
+    const sourceOptionList = getSourceTypeByProvider(jobData.provider_id).map(
+      (e) => {
+        return {
+          ...e,
+          image: (
+            <img
+              width="50%"
+              src={`/logos/source/${
+                e.value.startsWith('jdbc') ? 'db' : e.value
+              }.svg`}
+              alt={e.label}
+            />
+          ),
+        };
+      }
+    );
     setDataSourceOptionList(sourceOptionList);
     if (sourceOptionList.length > 0) {
-      setDataSource(sourceOptionList[0].value);
+      changeDataSource(sourceOptionList[0].value);
     }
-  }, [provider]);
+  }, [jobData.provider_id]);
 
   useEffect(() => {
     getProviders();
   }, []);
 
   return (
-    <Container header={<Header variant="h2">Cloud Provider</Header>}>
+    <Container
+      header={<Header variant="h2">Select Provider and data source</Header>}
+    >
       {loadingProvider ? (
         <Spinner />
       ) : (
         <SpaceBetween direction="vertical" size="l">
-          <FormField stretch label="Source">
+          <FormField stretch label="Provider">
             <Tiles
-              onChange={({ detail }) => setProvider(detail.value)}
-              value={provider}
+              onChange={({ detail }) => changeProvider(detail.value)}
+              value={jobData.provider_id}
               columns={4}
               items={providerOptionList}
             />
           </FormField>
 
-          <FormField stretch label="Data store">
+          <FormField stretch label="Data source">
             <Tiles
-              onChange={({ detail }) => setDataSource(detail.value)}
-              value={dataSource}
+              onChange={({ detail }) => changeDataSource(detail.value)}
+              value={jobData.database_type}
               columns={4}
               items={dataSourceOptionList}
             />

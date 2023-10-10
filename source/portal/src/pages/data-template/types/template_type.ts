@@ -21,3 +21,8 @@ export const TEMPLATE_COLUMN_LIST = [
     filter: false,
   },
 ];
+
+export const DEFAULT_TEMPLATE = {
+  label: 'Current data classification template',
+  value: '1',
+};

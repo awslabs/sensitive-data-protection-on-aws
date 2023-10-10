@@ -8,12 +8,8 @@ import {
   Pagination,
   CollectionPreferences,
 } from '@cloudscape-design/components';
-import { useLocation } from 'react-router-dom';
-import {
-  RDS_CATALOG_COLUMS,
-  S3_CATALOG_COLUMS,
-} from '../types/create_data_type';
-import { getDataBaseByType, searchCatalogTables } from 'apis/data-catalog/api';
+import { S3_CATALOG_COLUMS } from '../types/create_data_type';
+import { getDataBaseByType } from 'apis/data-catalog/api';
 import { formatSize } from 'tools/tools';
 import CommonBadge from 'pages/common-badge';
 import {
@@ -23,46 +19,34 @@ import {
 import ResourcesFilter from 'pages/resources-filter';
 import { TABLE_NAME } from 'enum/common_types';
 import { useTranslation } from 'react-i18next';
+import { IDataSourceType, IJobType } from 'pages/data-job/types/job_list_type';
+import { convertDataSourceListToJobDatabases } from '../index';
 
-const SELECT_S3 = 'selectS3';
-const SELECT_RDS = 'selectRds';
+interface SelectS3CatalogProps {
+  jobData: IJobType;
+  changeSelectType: (type: string) => void;
+  changeSelectDatabases: (databases: any) => void;
+}
 
-const SelectS3Catalog = () => {
-  const location = useLocation();
+const SelectS3Catalog: React.FC<SelectS3CatalogProps> = (
+  props: SelectS3CatalogProps
+) => {
+  const { jobData, changeSelectType, changeSelectDatabases } = props;
   const { t } = useTranslation();
-  const { oldData } = location.state || {};
-  const [activeStepIndex, setActiveStepIndex] = useState(0);
-  const [s3CatalogType, setS3CatalogType] = useState('');
-  const [rdsCatalogType, setRdsCatalogType] = useState('');
-  const [s3CatalogData, setS3CatalogData] = useState([] as any);
-  const [rdsCatalogData, setRdsCatalogData] = useState([] as any);
-  const [rdsFolderData, setRdsFolderData] = useState([] as any);
+  const [s3CatalogData, setS3CatalogData] = useState<IDataSourceType[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [s3Total, setS3Total] = useState(0);
-  const [rdsTotal, setRdsTotal] = useState(0);
-  const [selectedS3Items, setSelectedS3Items] = useState([] as any);
-  const [selectedRdsItems, setSelectedRdsItems] = useState([] as any);
+  const [selectedS3Items, setSelectedS3Items] = useState<IDataSourceType[]>([]);
 
   const [preferences, setPreferences] = useState({
     pageSize: 20,
     wrapLines: true,
-    visibleContent:
-      activeStepIndex === 0
-        ? S3_CATALOG_COLUMS.map((o) => o.id)
-        : RDS_CATALOG_COLUMS.map((o) => o.id),
   } as any);
   const [isLoading, setIsLoading] = useState(false);
   const [s3Query, setS3Query] = useState({
     tokens: [],
     operation: 'and',
   } as any);
-
-  const [rdsQuery, setRdsQuery] = useState({
-    tokens: [],
-    operation: 'and',
-  } as any);
-
-  const hasOldData = oldData && Object.keys(oldData).length > 0;
 
   const s3FilterProps = {
     totalCount: s3Total,
@@ -73,55 +57,11 @@ const SelectS3Catalog = () => {
     filteringPlaceholder: t('job:filterBuckets'),
   };
 
-  const [rdsSelectedView, setRdsSelectedView] = useState('rds-instance-view');
-
   useEffect(() => {
-    if (s3CatalogType === SELECT_S3 && activeStepIndex === 0 && !hasOldData) {
+    if (jobData.all_s3 === '0') {
       getS3CatalogData();
     }
-    if (
-      rdsCatalogType === SELECT_RDS &&
-      activeStepIndex === 1 &&
-      !hasOldData &&
-      rdsSelectedView === 'rds-instance-view'
-    ) {
-      setSelectedRdsItems([]);
-      getRdsCatalogData();
-    }
-    if (
-      rdsCatalogType === SELECT_RDS &&
-      activeStepIndex === 1 &&
-      !hasOldData &&
-      rdsSelectedView === 'rds-table-view'
-    ) {
-      setSelectedRdsItems([]);
-      getRdsFolderData();
-    }
-  }, [
-    rdsCatalogType,
-    rdsQuery,
-    s3CatalogType,
-    s3Query,
-    currentPage,
-    preferences.pageSize,
-    rdsSelectedView,
-  ]);
-
-  const getRdsFolderData = async (nameFilter?: string) => {
-    try {
-      const requestParam: any = {
-        page: currentPage,
-        size: preferences.pageSize,
-      };
-
-      const result = await searchCatalogTables(requestParam);
-      setRdsFolderData((result as any)?.items);
-      setIsLoading(false);
-    } catch (e) {
-      console.error(e);
-      setIsLoading(false);
-    }
-  };
+  }, [jobData.all_s3, s3Query, currentPage, preferences.pageSize]);
 
   const getS3CatalogData = async () => {
     setIsLoading(true);
@@ -138,7 +78,7 @@ const SelectS3Catalog = () => {
         },
       ] as any,
     };
-    s3Query.tokens &&
+    if (s3Query.tokens) {
       s3Query.tokens.forEach((item: any) => {
         requestParam.conditions.push({
           column: item.propertyKey,
@@ -146,40 +86,40 @@ const SelectS3Catalog = () => {
           condition: s3Query.operation,
         });
       });
+    }
     const dataResult = await getDataBaseByType(requestParam);
     setS3CatalogData((dataResult as any)?.items);
     setS3Total((dataResult as any)?.total);
     setIsLoading(false);
   };
 
-  const getRdsCatalogData = async () => {
-    setIsLoading(true);
-    const requestParam = {
-      page: currentPage,
-      size: preferences.pageSize,
-      sort_column: '',
-      asc: true,
-      conditions: [
-        {
-          column: 'database_type',
-          values: ['rds'],
-          condition: 'and',
-        },
-      ] as any,
-    };
-    rdsQuery.tokens &&
-      rdsQuery.tokens.forEach((item: any) => {
-        requestParam.conditions.push({
-          column: item.propertyKey,
-          values: [`${item.value}`],
-          condition: rdsQuery.operation,
-        });
-      });
-    const dataResult = await getDataBaseByType(requestParam);
-    setRdsCatalogData((dataResult as any)?.items);
-    setRdsTotal((dataResult as any)?.total);
-    setIsLoading(false);
+  const buildPrivacyColumn = (item: any, e: any) => {
+    if (item.id === 'size_key') {
+      return formatSize(e[item.id]);
+    }
+    if (item.id === 'privacy') {
+      if (
+        e[item.id] &&
+        (e[item.id] === 'N/A' ||
+          e[item.id].toString() === PRIVARY_TYPE_INT_DATA['N/A'])
+      ) {
+        return 'N/A';
+      }
+      return (
+        <CommonBadge badgeType={BADGE_TYPE.Privacy} badgeLabel={e[item.id]} />
+      );
+    }
+    return e[item.id];
   };
+
+  useEffect(() => {
+    changeSelectDatabases(
+      convertDataSourceListToJobDatabases(
+        selectedS3Items,
+        jobData.database_type
+      )
+    );
+  }, [selectedS3Items]);
 
   return (
     <Container
@@ -187,21 +127,17 @@ const SelectS3Catalog = () => {
     >
       <SpaceBetween direction="vertical" size="l">
         <Tiles
-          onChange={({ detail }) => setS3CatalogType(detail.value)}
-          value={s3CatalogType}
+          onChange={({ detail }) => changeSelectType(detail.value)}
+          value={jobData.all_s3}
           items={[
-            { label: t('job:cataLogOption.all'), value: 'allS3' },
+            { label: t('job:cataLogOption.all'), value: '1' },
             {
               label: t('job:cataLogOption.specify'),
-              value: SELECT_S3,
+              value: '0',
             },
-            // {
-            //   label: t('job:cataLogOption.skipScanS3'),
-            //   value: NONE_S3,
-            // },
           ]}
         />
-        {s3CatalogType === SELECT_S3 && (
+        {jobData.all_s3 === '0' && (
           <Table
             className="job-table-width"
             selectionType="multi"
@@ -222,14 +158,11 @@ const SelectS3Catalog = () => {
               itemSelectionLabel: ({ selectedItems }, item) => {
                 const isItemSelected = selectedItems.filter(
                   (i) =>
-                    (i as any)[S3_CATALOG_COLUMS[0].id] ===
-                    (item as any)[S3_CATALOG_COLUMS[0].id]
+                    i[S3_CATALOG_COLUMS[0].id] === item[S3_CATALOG_COLUMS[0].id]
                 ).length;
-                return `${(item as any)[S3_CATALOG_COLUMS[0].id]} ${t(
-                  'table.is'
-                )} ${isItemSelected ? '' : t('table.not')} ${t(
-                  'table.selected'
-                )}`;
+                return `${item[S3_CATALOG_COLUMS[0].id]} ${t('table.is')} ${
+                  isItemSelected ? '' : t('table.not')
+                } ${t('table.selected')}`;
               },
             }}
             items={s3CatalogData}
@@ -238,29 +171,7 @@ const SelectS3Catalog = () => {
               return {
                 id: item.id,
                 header: t(item.label),
-                cell: (e: any) => {
-                  if (item.id === 'size_key') {
-                    return formatSize((e as any)[item.id]);
-                  }
-                  if (item.id === 'privacy') {
-                    if (
-                      (e as any)[item.id] &&
-                      ((e as any)[item.id] === 'N/A' ||
-                        (e as any)[item.id].toString() ===
-                          PRIVARY_TYPE_INT_DATA['N/A'])
-                    ) {
-                      return 'N/A';
-                    }
-                    return (
-                      <CommonBadge
-                        badgeType={BADGE_TYPE.Privacy}
-                        badgeLabel={(e as any)[item.id]}
-                      />
-                    );
-                  }
-
-                  return e[item.id];
-                },
+                cell: (e: any) => buildPrivacyColumn(item, e),
               };
             })}
             loading={isLoading}
