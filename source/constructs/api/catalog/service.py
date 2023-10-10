@@ -180,7 +180,7 @@ def sync_crawler_result(
         table_column_dict = {}
         while True:
             tables_response = glue_client.get_tables(
-                DatabaseName=glue_database_name, NextToken=next_token
+                DatabaseName=glue_database_name.lower(), NextToken=next_token
             )
             # logger.info("get glue tables" + str(tables_response))
             delete_glue_table_names = []
