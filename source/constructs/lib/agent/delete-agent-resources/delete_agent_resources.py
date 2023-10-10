@@ -5,7 +5,7 @@ import traceback
 import requests
 import os
 import time
-from common.constant import const
+
 
 glue = boto3.client('glue')
 admin_account_id = os.getenv('AdminAccountId')
@@ -13,7 +13,7 @@ admin_account_id = os.getenv('AdminAccountId')
 logger = logging.getLogger('delete_resources')
 logger.setLevel(logging.INFO)
 request_type_list = ["Create","Update","Delete"]
-
+SOLUTION_NAME = "SDPS"
 
 def lambda_handler(event, context):
     logger.info(event)
@@ -118,7 +118,7 @@ def cleanup_crawlers():
 
         for crawler in response['CrawlerNames']:
             # if (crawler.startswith('s3-') or crawler.startswith('rds-')) and crawler.endswith('-crawler'):
-            if crawler.startswith(const.SOLUTION_NAME + "-"):
+            if crawler.startswith(SOLUTION_NAME + "-"):
                 response = glue.get_crawler(Name=crawler)
                 print(response)
                 database_name = response['Crawler']['DatabaseName']
