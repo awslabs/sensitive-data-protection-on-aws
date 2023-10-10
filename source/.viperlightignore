@@ -11,7 +11,6 @@ CONTRIBUTING.md:51
 portal/node_modules
 constructs/lib/common/constants.ts
 constructs/lib/admin/database/
-constructs/lib/common/constants.ts
 constructs/config/job/script/job_extra_files.zip
 
 [python-pipoutdated]

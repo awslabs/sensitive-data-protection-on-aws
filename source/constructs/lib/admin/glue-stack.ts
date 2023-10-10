@@ -54,6 +54,7 @@ export class GlueStack extends Construct {
       sources: [S3Deployment.Source.asset('config/job/script')],
       destinationBucket: props.bucket,
       destinationKeyPrefix: 'job/script',
+      extract: false,
     });
 
     // When upgrading, files with template as the prefix will be deleted
