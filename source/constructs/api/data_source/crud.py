@@ -1,6 +1,7 @@
 import datetime
 
 from sqlalchemy import desc
+import logging
 from common.enum import (ConnectionState,
                          MessageEnum,
                          Provider,
@@ -65,7 +66,7 @@ def list_s3_bucket_source(condition: QueryCondition):
     account_ids = []
     for account in accounts:
         account_ids.append(account.account_id)
-    buckets = get_session().query(S3BucketSource).filter(S3BucketSource.aws_account.in_(account_ids))
+    buckets = get_session().query(S3BucketSource).filter(S3BucketSource.account_id.in_(account_ids))
     buckets = query_with_condition(buckets, condition)
     return buckets
 
@@ -75,7 +76,7 @@ def list_s3_bucket_source_by_account(account_id: str, region: str, state: str):
     # status = 1 : monitored account
     bucket_names = []
     buckets = get_session().query(S3BucketSource).filter(
-        S3BucketSource.aws_account == account_id,
+        S3BucketSource.account_id == account_id,
         S3BucketSource.region == region,
         S3BucketSource.glue_state != ConnectionState.PENDING.value,
         S3BucketSource.glue_state != ConnectionState.ACTIVE.value,
@@ -85,7 +86,7 @@ def list_s3_bucket_source_by_account(account_id: str, region: str, state: str):
         for bucket in buckets:
             bucket_names.append(bucket.bucket_name)
     buckets = get_session().query(S3BucketSource).filter(
-        S3BucketSource.aws_account == account_id,
+        S3BucketSource.account_id == account_id,
         S3BucketSource.region == region,
         S3BucketSource.glue_state == state
     )
@@ -116,7 +117,7 @@ def list_rds_instance_source(condition: QueryCondition):
     for account in accounts:
         account_ids.append(account.account_id)
     instances = get_session().query(RdsInstanceSource).filter(
-        RdsInstanceSource.aws_account.in_(account_ids))
+        RdsInstanceSource.account_id.in_(account_ids))
     instances = query_with_condition(instances, condition)
     return instances
 
@@ -192,7 +193,7 @@ def set_rds_instance_source_glue_state(account: str, region: str, instance_id: s
     session = get_session()
     rds_instance_source = session.query(RdsInstanceSource).filter(RdsInstanceSource.instance_id == instance_id,
                                                                   RdsInstanceSource.region == region,
-                                                                  RdsInstanceSource.aws_account == account).order_by(
+                                                                  RdsInstanceSource.account_id == account).order_by(
         desc(RdsInstanceSource.detection_history_id)).first()
     if rds_instance_source is not None:
         rds_instance_source.glue_state = state
@@ -217,7 +218,7 @@ def get_jdbc_connection_glue_info(provider_id: int, account_id: str, region: str
 def get_rds_instance_source_glue_state(account: str, region: str, instance_id: str):
     rds = get_session().query(RdsInstanceSource).filter(RdsInstanceSource.instance_id == instance_id,
                                                         RdsInstanceSource.region == region,
-                                                        RdsInstanceSource.aws_account == account).order_by(
+                                                        RdsInstanceSource.account_id == account).order_by(
         desc(RdsInstanceSource.detection_history_id)).first()
     if rds is not None:
         return rds.glue_state
@@ -258,10 +259,10 @@ def update_rds_instance_count(account: str, region: str):
     session = get_session()
 
     connected = session.query(RdsInstanceSource).filter(RdsInstanceSource.region == region,
-                                                        RdsInstanceSource.aws_account == account,
+                                                        RdsInstanceSource.account_id == account,
                                                         RdsInstanceSource.glue_state == ConnectionState.ACTIVE.value).count()
     total = session.query(RdsInstanceSource).filter(RdsInstanceSource.region == region,
-                                                    RdsInstanceSource.aws_account == account).count()
+                                                    RdsInstanceSource.account_id == account).count()
 
     account = session.query(Account).filter(Account.account_id == account, Account.region == region).first()
     if account is not None:
@@ -272,7 +273,7 @@ def update_rds_instance_count(account: str, region: str):
 
 
 def get_rds_instance_source(account: str, region: str, instance_id: str):
-    return get_session().query(RdsInstanceSource).filter(RdsInstanceSource.aws_account == account,
+    return get_session().query(RdsInstanceSource).filter(RdsInstanceSource.account_id == account,
                                                          RdsInstanceSource.region == region,
                                                          RdsInstanceSource.instance_id == instance_id).scalar()
 
@@ -291,7 +292,7 @@ def get_jdbc_instance_source(provider: int, account: str, region: str, instance_
 
 
 def get_s3_bucket_source(account: str, region: str, bucket_name: str):
-    return get_session().query(S3BucketSource).filter(S3BucketSource.aws_account == account,
+    return get_session().query(S3BucketSource).filter(S3BucketSource.account_id == account,
                                                       S3BucketSource.region == region,
                                                       S3BucketSource.bucket_name == bucket_name).scalar()
 
@@ -322,7 +323,7 @@ def set_s3_bucket_source_glue_state(account: str, region: str, bucket: str, stat
     session = get_session()
     s3_bucket_source = session.query(S3BucketSource).filter(S3BucketSource.bucket_name == bucket,
                                                             S3BucketSource.region == region,
-                                                            S3BucketSource.aws_account == account).order_by(
+                                                            S3BucketSource.account_id == account).order_by(
         desc(S3BucketSource.detection_history_id)).first()
     if s3_bucket_source is not None:
         s3_bucket_source.glue_state = state
@@ -335,7 +336,7 @@ def set_s3_bucket_source_glue_state(account: str, region: str, bucket: str, stat
 def get_s3_bucket_source_glue_state(account: str, region: str, bucket: str):
     query = get_session().query(S3BucketSource).filter(S3BucketSource.bucket_name == bucket,
                                                        S3BucketSource.region == region,
-                                                       S3BucketSource.aws_account == account).order_by(
+                                                       S3BucketSource.account_id == account).order_by(
         desc(S3BucketSource.detection_history_id)).first()
     if query is None:
         return None
@@ -346,10 +347,10 @@ def update_s3_bucket_count(account: str, region: str):
     session = get_session()
 
     connected = session.query(S3BucketSource).filter(S3BucketSource.region == region,
-                                                     S3BucketSource.aws_account == account,
+                                                     S3BucketSource.account_id == account,
                                                      S3BucketSource.glue_state == ConnectionState.ACTIVE.value).count()
     total = session.query(S3BucketSource).filter(S3BucketSource.region == region,
-                                                 S3BucketSource.aws_account == account).count()
+                                                 S3BucketSource.account_id == account).count()
 
     account = session.query(Account).filter(Account.account_id == account, Account.region == region).first()
     if account is not None:
@@ -402,7 +403,7 @@ def update_jdbc_connection(provider_id: int,
                                                                       JDBCInstanceSource.instance_id == instance).order_by(
         desc(JDBCInstanceSource.detection_history_id)).first()
     if jdbc_connection_source is None:
-        jdbc_connection_source = JDBCInstanceSource(instance_id=instance, region=region, aws_account=account)
+        jdbc_connection_source = JDBCInstanceSource(instance_id=instance, region=region, account_id=account)
     jdbc_connection_source.glue_database = glue_database
     jdbc_connection_source.glue_crawler = crawler_name
     jdbc_connection_source.glue_crawler_last_updated = datetime.datetime.utcnow()
@@ -449,7 +450,7 @@ def delete_s3_bucket_connection(account: str, region: str, bucket_name: str):
     session = get_session()
     s3_bucket_source = session.query(S3BucketSource).filter(S3BucketSource.bucket_name == bucket_name,
                                                             S3BucketSource.region == region,
-                                                            S3BucketSource.aws_account == account).scalar()
+                                                            S3BucketSource.account_id == account).scalar()
 
     s3_bucket_source.glue_database = None
     s3_bucket_source.glue_crawler = None
@@ -465,7 +466,7 @@ def delete_rds_connection(account: str, region: str, instance: str):
     session = get_session()
     rds_instance_source = session.query(RdsInstanceSource).filter(RdsInstanceSource.instance_id == instance,
                                                                   RdsInstanceSource.region == region,
-                                                                  RdsInstanceSource.aws_account == account).order_by(
+                                                                  RdsInstanceSource.account_id == account).order_by(
         desc(RdsInstanceSource.detection_history_id)).first()
     rds_instance_source.glue_database = None
     rds_instance_source.glue_crawler = None
@@ -599,7 +600,7 @@ def delete_account_by_region(account_id: str, region: str):
 def delete_s3_bucket_source_by_account(account_id: str, region: str):
     session = get_session()
     session.query(S3BucketSource).filter(
-        S3BucketSource.aws_account == account_id,
+        S3BucketSource.account_id == account_id,
         S3BucketSource.region == region
     ).delete()
     session.commit()
@@ -608,7 +609,7 @@ def delete_s3_bucket_source_by_account(account_id: str, region: str):
 def delete_s3_bucket_source_by_name(account_id: str, region: str, bucket_name: str):
     session = get_session()
     session.query(S3BucketSource).filter(
-        S3BucketSource.aws_account == account_id,
+        S3BucketSource.account_id == account_id,
         S3BucketSource.region == region,
         S3BucketSource.bucket_name == bucket_name
     ).delete()
@@ -618,7 +619,7 @@ def delete_s3_bucket_source_by_name(account_id: str, region: str, bucket_name: s
 def delete_rds_instance_source_by_account(account_id: str, region: str):
     session = get_session()
     session.query(RdsInstanceSource).filter(
-        RdsInstanceSource.aws_account == account_id,
+        RdsInstanceSource.account_id == account_id,
         RdsInstanceSource.region == region
     ).delete()
     session.commit()
@@ -627,7 +628,7 @@ def delete_rds_instance_source_by_account(account_id: str, region: str):
 def delete_rds_instance_source_by_instance_id(account_id: str, region: str, rds_instance_id: str):
     session = get_session()
     session.query(RdsInstanceSource).filter(
-        RdsInstanceSource.aws_account == account_id,
+        RdsInstanceSource.account_id == account_id,
         RdsInstanceSource.region == region,
         RdsInstanceSource.instance_id == rds_instance_id
     ).delete()
@@ -715,7 +716,7 @@ def add_third_account(account, role_arn):
 
 def get_source_s3_account_region():
     return (get_session()
-            .query(S3BucketSource.region, S3BucketSource.aws_account)
+            .query(S3BucketSource.region, S3BucketSource.account_id)
             .distinct()
             .all()
             )
@@ -723,7 +724,7 @@ def get_source_s3_account_region():
 
 def get_source_rds_account_region():
     return (get_session()
-            .query(RdsInstanceSource.region, RdsInstanceSource.aws_account)
+            .query(RdsInstanceSource.region, RdsInstanceSource.account_id)
             .distinct()
             .all()
             )
@@ -833,6 +834,16 @@ def update_jdbc_conn(jdbc_conn_param: schemas.JDBCInstanceSourceFullInfo):
 
     return jdbc_instance_source
 
+
+def set_jdbc_instance_connection_status(provider_id: str, account: str, region: str, instance: str, status: str):
+    session = get_session()
+    jdbc_instance_source: JDBCInstanceSource = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == provider_id,
+                                                                                        JDBCInstanceSource.account_id == account,
+                                                                                        JDBCInstanceSource.region == region,
+                                                                                        JDBCInstanceSource.instance_id == instance).first()
+    jdbc_instance_source.connection_status == status
+    session.commit()
+    return jdbc_instance_source
 
 def query_regions_by_provider(provider_id: int):
     return get_session().query(SourceRegion).filter(SourceRegion.provider_id == provider_id,

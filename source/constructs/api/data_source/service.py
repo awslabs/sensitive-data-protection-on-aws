@@ -22,6 +22,9 @@ from discovery_job.service import delete_account as delete_job_by_account
 from discovery_job.service import can_delete_database as can_delete_job_database
 from discovery_job.service import delete_database as delete_job_database
 from common.abilities import convert_provider_id_2_database_type
+from db.models_data_source import (Account,
+                                   JDBCInstanceSource,
+                                   SourceRegion)
 from . import s3_detector, rds_detector, glue_database_detector, crud
 from .schemas import (AccountInfo, AdminAccountInfo,
                       JDBCInstanceSource, JDBCInstanceSourceUpdate,
@@ -537,29 +540,8 @@ def sync(glue, lakeformation, credentials, crawler_role_arn, jdbc: JDBCInstanceS
             #                              region_name=_admin_account_region)
             """ :type : pyboto3.lakeformation """
             # retry for grant permissions
-            num_retries = GRANT_PERMISSIONS_RETRIES
-            while num_retries > 0:
-                try:
-                    response = lakeformation.grant_permissions(
-                        Principal={
-                            'DataLakePrincipalIdentifier': f"{crawler_role_arn}"
-                        },
-                        Resource={
-                            'Database': {
-                                'Name': glue_database_name
-                            }
-                        },
-                        Permissions=['ALL'],
-                        PermissionsWithGrantOption=['ALL']
-                    )
-                except Exception as e:
-                    logger.error(traceback.format_exc())
-                    sleep(SLEEP_MIN_TIME)
-                    num_retries -= 1
-                else:
-                    break
-            else:
-                raise BizException(MessageEnum.SOURCE_UNCONNECTED.get_code(), MessageEnum.SOURCE_UNCONNECTED.get_msg())
+            # num_retries = 
+            grant_lakeformation_permission(lakeformation, crawler_role_arn, glue_database_name, GRANT_PERMISSIONS_RETRIES)
             # lakeformation = boto3.client('lakeformation',
             #                              aws_access_key_id=credentials['AccessKeyId'],
             #                              aws_secret_access_key=credentials['SecretAccessKey'],
@@ -683,6 +665,30 @@ def sync(glue, lakeformation, credentials, crawler_role_arn, jdbc: JDBCInstanceS
         logger.error(traceback.format_exc())
         raise BizException(MessageEnum.SOURCE_CONNECTION_FAILED.get_code(),
                            str(err))
+
+def grant_lakeformation_permission(lakeformation, crawler_role_arn, glue_database_name, num_retries):
+    while num_retries > 0:
+        try:
+            response = lakeformation.grant_permissions(
+                        Principal={
+                            'DataLakePrincipalIdentifier': f"{crawler_role_arn}"
+                        },
+                        Resource={
+                            'Database': {
+                                'Name': glue_database_name
+                            }
+                        },
+                        Permissions=['ALL'],
+                        PermissionsWithGrantOption=['ALL']
+                    )
+        except Exception as e:
+            logger.error(traceback.format_exc())
+            sleep(SLEEP_MIN_TIME)
+            num_retries -= 1
+        else:
+            break
+    else:
+        raise BizException(MessageEnum.SOURCE_UNCONNECTED.get_code(), MessageEnum.SOURCE_UNCONNECTED.get_msg())
 
 def before_delete_glue_database(provider, account, region, name):
     glue_database = crud.get_glue_database_source(provider, account, region, name)
@@ -1735,6 +1741,7 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
         jdbc_conn_insert.jdbc_driver_class_name = jdbcConn.jdbc_driver_class_name
         jdbc_conn_insert.jdbc_driver_jar_uri = jdbcConn.jdbc_driver_jar_uri
         jdbc_conn_insert.create_type = jdbcConn.create_type
+        jdbc_conn_insert.connection_status = 'UNCONNECTED'
         jdbc_conn_insert.glue_connection = glue_connection_name
         crud.add_jdbc_conn(jdbc_conn_insert)
     except ClientError as ce:
@@ -1753,8 +1760,14 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
                            MessageEnum.BIZ_UNKNOWN_ERR.get_msg())
 
 def test_jdbc_conn(jdbc_conn_param: JDBCInstanceSourceBase):
+    jdbc_targets = []
+    created = 0
     account_id = jdbc_conn_param.account_id if jdbc_conn_param.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id
     region = jdbc_conn_param.region if jdbc_conn_param.region == Provider.AWS_CLOUD.value else _admin_account_region
+    lakeformation_client = __lakeformation(account=account_id, region=region)
+    crawler_role_arn = __gen_role_arn(account_id=account_id,
+                                      region=region,
+                                      role_name='GlueDetectionJobRole')
     # get connection name from sdp db
     source: JDBCInstanceSourceFullInfo = crud.get_jdbc_instance_source_glue(provider_id=jdbc_conn_param.account_provider_id,
                                                                             account=jdbc_conn_param.account_id,
@@ -1763,11 +1776,59 @@ def test_jdbc_conn(jdbc_conn_param: JDBCInstanceSourceBase):
     if not source:
         raise BizException(MessageEnum.SOURCE_JDBC_CONNECTION_NOT_EXIST.get_code(),
                            MessageEnum.SOURCE_JDBC_CONNECTION_NOT_EXIST.get_msg())
-    ConnectionProperties = __glue(account_id, region).get_connection(Name=source.glue_connection)['Connection']['ConnectionProperties']
-    jdbc_url = ConnectionProperties['JDBC_CONNECTION_URL']
-    username = ConnectionProperties['USERNAME']
-    password = ConnectionProperties['PASSWORD']
-    pass
+    glue_database_name = f"TEMP-{jdbc_conn_param.instance_id}"
+    crawler_name = f"TEMP-{jdbc_conn_param.instance_id}"
+    # ConnectionProperties = __glue(account_id, region).get_connection(Name=source.glue_connection)['Connection']['ConnectionProperties']
+    # jdbc_url = ConnectionProperties['JDBC_CONNECTION_URL']
+    # username = ConnectionProperties['USERNAME']
+    # password = ConnectionProperties['PASSWORD']
+    # 根据connection 创建临时glue database
+    response = __glue(account_id, region).create_database(DatabaseInput={'Name': glue_database_name})
+    grant_lakeformation_permission(lakeformation_client, crawler_role_arn, glue_database_name, GRANT_PERMISSIONS_RETRIES)
+    schema = get_schema_from_url(source.jdbc_connection_url)
+    jdbc_targets.append({'ConnectionName': source.glue_connection,
+                         'Path': f"{schema}/%"})
+    # 根据connection 创建临时crawler
+    try:
+        response = __glue(account_id, region).create_crawler(
+            Name=crawler_name,
+            Role=crawler_role_arn,
+            DatabaseName=glue_database_name,
+            Targets={'JdbcTargets': jdbc_targets},
+            TablePrefix='Temp_'
+        )
+        logger.info(response)
+        start_response = __glue(account_id, region).start_crawler(
+            Name=crawler_name
+        )
+        # 创建成功更新字段
+        crud.set_jdbc_instance_connection_status(provider_id=jdbc_conn_param.account_provider_id,
+                                                 account=jdbc_conn_param.account_id,
+                                                 region=jdbc_conn_param.region,
+                                                 instance_id=jdbc_conn_param.instance_id,
+                                                 status="CONNECTED")
+        created = 1
+    except Exception as e:
+        logger.error(traceback.format_exc())
+        crud.set_jdbc_instance_connection_status(provider_id=jdbc_conn_param.account_provider_id,
+                                                 account=jdbc_conn_param.account_id,
+                                                 region=jdbc_conn_param.region,
+                                                 instance_id=jdbc_conn_param.instance_id,
+                                                 status="UNCONNECTED")
+
+    # 删除临时crawler
+    if created == 1:
+        try:
+            __glue(account_id, region).delete_crawler(crawler_name)
+        except Exception:
+            pass
+        try:
+            __glue(account_id, region).delete_database(Name=glue_database_name)
+        except Exception:
+            pass
+
+    # 返回结果
+    return "success"
 
 def import_jdbc_conn(jdbcConn: JDBCInstanceSourceBase):
     res_connection = None
@@ -1794,6 +1855,7 @@ def import_jdbc_conn(jdbcConn: JDBCInstanceSourceBase):
     jdbc_conn_insert.region = jdbcConn.region
     jdbc_conn_insert.account_provider_id = jdbcConn.account_provider_id
     jdbc_conn_insert.instance_id = jdbcConn.instance_id
+    jdbc_conn_insert.connection_status = 'UNCONNECTED'
     jdbc_conn_insert.glue_connection = jdbcConn.instance_id
     jdbc_conn_insert.create_type = JDBCCreateType.IMPORT.value
     jdbc_conn_insert.description = res_connection['Description']
@@ -1901,7 +1963,7 @@ def __update_access_policy_for_account():
         logger.error(f"Required resource {missing_resource} is missing, skipping region: {_admin_account_region}")
         return
 
-    accounts = crud.list_all_accounts_by_region(region=_admin_account_region)
+    accounts: list[Account] = crud.list_all_accounts_by_region(region=_admin_account_region)
     if len(accounts) > 0:
         bucket_access_principals = []
         sqs_job_trigger_principals = []
@@ -1909,20 +1971,20 @@ def __update_access_policy_for_account():
         auto_sync_data_trigger_principals = []
         for account in accounts:
 
-            role_arn = __gen_role_arn(account_id=account.aws_account_id, region=account.region,
+            role_arn = __gen_role_arn(account_id=account.account_id, region=account.region,
                                       role_name=_agent_role_name)
             # validate assumed
-            if __assume_role(account.aws_account_id, role_arn):
-                s3_access_role_arn = f"arn:{partition}:iam::{account.aws_account_id}:role/{const.SOLUTION_NAME}GlueDetectionJobRole-{account.region}"
+            if __assume_role(account.account_id, role_arn):
+                s3_access_role_arn = f"arn:{partition}:iam::{account.account_id}:role/{const.SOLUTION_NAME}GlueDetectionJobRole-{account.region}"
                 bucket_access_principals.append(s3_access_role_arn)
 
-                crawler_trigger_role_arn = f"arn:{partition}:iam::{account.aws_account_id}:role/{const.SOLUTION_NAME}RoleForCrawlerEvent-{account.region}"
+                crawler_trigger_role_arn = f"arn:{partition}:iam::{account.account_id}:role/{const.SOLUTION_NAME}RoleForCrawlerEvent-{account.region}"
                 sqs_crawler_trigger_principals.append(crawler_trigger_role_arn)
 
-                job_trigger_role_arn = f"arn:{partition}:iam::{account.aws_account_id}:role/{const.SOLUTION_NAME}DiscoveryJobRole-{account.region}"
+                job_trigger_role_arn = f"arn:{partition}:iam::{account.account_id}:role/{const.SOLUTION_NAME}DiscoveryJobRole-{account.region}"
                 sqs_job_trigger_principals.append(job_trigger_role_arn)
 
-                auto_sync_data_role_arn = f"arn:{partition}:iam::{account.aws_account_id}:role/{const.SOLUTION_NAME}DeleteAgentResourcesRole-{account.region}"
+                auto_sync_data_role_arn = f"arn:{partition}:iam::{account.account_id}:role/{const.SOLUTION_NAME}DeleteAgentResourcesRole-{account.region}"
                 auto_sync_data_trigger_principals.append(auto_sync_data_role_arn)
 
         # Bucket policies are limited to 20 KB in size.

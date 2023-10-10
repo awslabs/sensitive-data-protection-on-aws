@@ -19,13 +19,12 @@ sts_client = boto3.client('sts')
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-
 async def detect_s3_data_source(session: Session, aws_account_id: str):
     iam_role_name = crud.get_iam_role(aws_account_id)
-    # history = session.query(DetectionHistory).filter(DetectionHistory.aws_account == aws_account_id,
+    # history = session.query(DetectionHistory).filter(DetectionHistory.account_id == aws_account_id,
     #                                                  DetectionHistory.source_type == 's3').scalar()
     # if history is None:
-    history = DetectionHistory(aws_account=aws_account_id, source_type='s3', state=0)
+    history = DetectionHistory(account_id=aws_account_id, source_type='s3', state=0)
     # history.detection_time = datetime.datetime.utcnow()
     session.add(history)
     session.commit()
@@ -63,13 +62,11 @@ async def detect_s3_data_source(session: Session, aws_account_id: str):
         if _region in agent_regions:
             s3_bucket_source = session.query(S3BucketSource).filter(S3BucketSource.bucket_name == bucket.name,
                                                                     S3BucketSource.region == _region,
-                                                                    S3BucketSource.aws_account == aws_account_id,
-                                                                    S3BucketSource.account_id == 0).scalar()
+                                                                    S3BucketSource.account_id == aws_account_id).scalar()
             
             if s3_bucket_source is None:
                 s3_bucket_source = S3BucketSource(bucket_name=bucket.name, region=_region,
-                                                    aws_account=aws_account_id,
-                                                    account_id=0)
+                                                  account_id=aws_account_id)
             total_s3_bucket += 1
             if crud.get_s3_bucket_source_glue_state(aws_account_id, _region,
                                                     bucket.name) == ConnectionState.ACTIVE.value:
@@ -81,7 +78,7 @@ async def detect_s3_data_source(session: Session, aws_account_id: str):
     session.commit()
 
     # Get S3 bucket in data source table
-    query_result = session.query(S3BucketSource).filter(S3BucketSource.aws_account == aws_account_id, S3BucketSource.account_id == 0).all()
+    query_result = session.query(S3BucketSource).filter(S3BucketSource.account_id == aws_account_id).all()
     s3_db_bucket_name_list = []
     s3_db_region_list = []
     s3_db_glue_state = []
@@ -112,8 +109,6 @@ async def detect_s3_data_source(session: Session, aws_account_id: str):
     # TODO support multiple regions
     crud.update_s3_bucket_count(account=aws_account_id, region=admin_account_region)
 
-
-
 async def detect_multiple_account_in_async(accounts):
     session = get_session()
     tasks = []
@@ -125,5 +120,4 @@ async def detect_multiple_account_in_async(accounts):
 
 
 def detect(accounts):
-    logger.info(f"***************{accounts}")
     asyncio.run(detect_multiple_account_in_async(accounts))
