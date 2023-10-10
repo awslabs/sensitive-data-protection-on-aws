@@ -122,11 +122,13 @@ def cleanup_crawlers():
                 response = glue.get_crawler(Name=crawler)
                 print(response)
                 database_name = response['Crawler']['DatabaseName']
-                if crawler[:-8] == database_name[:-9]:
+                # if crawler[:-8] == database_name[:-9]:
+                if crawler.lower() == database_name.lower():
                     remove_database(database_name)
                 if len(response['Crawler']['Targets']['JdbcTargets']) == 1:
                     connection_name = response['Crawler']['Targets']['JdbcTargets'][0]['ConnectionName']
-                    if crawler[:-8] == connection_name[:-11]:
+                    # if crawler[:-8] == connection_name[:-11]:
+                    if crawler.lower() == connection_name.lower():
                         remove_jdbc_connection(connection_name)
                 crawlers.append(crawler)
 
