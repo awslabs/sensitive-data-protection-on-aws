@@ -70,7 +70,7 @@ def get_database_identifiers_from_tables(
         database_type: str,
         database_name: str,
 ):
-    if database_type not in [DatabaseType.RDS.value, DatabaseType.S3.value]:
+    if database_type not in [member.value for member in DatabaseType.__members__.values()]:
         raise BizException(
             MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_code(),
             MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_msg(),
