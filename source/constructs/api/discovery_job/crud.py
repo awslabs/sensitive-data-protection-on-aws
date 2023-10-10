@@ -162,6 +162,10 @@ def init_run(job_id: int) -> int:
         __add_job_databases(run, DatabaseType.DDB, base_time_dict)
     if job.all_emr == 1:
         __add_job_databases(run, DatabaseType.EMR, base_time_dict)
+    if job.all_glue == 1:
+        __add_job_databases(run, DatabaseType.GLUE, base_time_dict)
+    if job.all_jdbc == 1:
+        __add_job_databases(run, DatabaseType.JDBC, base_time_dict)
     for job_database in job_databases:
         run_database = models.DiscoveryJobRunDatabase(run_id=run.id,
                                                       account_id=job_database.account_id,

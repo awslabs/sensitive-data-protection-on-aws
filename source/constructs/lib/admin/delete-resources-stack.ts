@@ -69,9 +69,12 @@ export class DeleteResourcesStack extends Construct {
     }));
     const noramlStatement = new PolicyStatement({
       effect: Effect.ALLOW,
-      actions: ['events:DeleteRule',
+      actions: [
+        'events:DeleteRule',
         'events:ListRules',
-        'events:RemoveTargets'],
+        'events:RemoveTargets',
+        'events:ListTagsForResource',
+      ],
       resources: [`arn:${Aws.PARTITION}:events:*:${Aws.ACCOUNT_ID}:rule/*`],
     });
     deleteAdminResourcesRole.addToPolicy(noramlStatement);

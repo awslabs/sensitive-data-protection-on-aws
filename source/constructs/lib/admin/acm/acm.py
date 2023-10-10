@@ -91,7 +91,7 @@ def on_delete(event):
         if cert['DomainName'] == domain_name:
             tags_response = acm_client.list_tags_for_certificate(CertificateArn=cert['CertificateArn'])
             for tag in tags_response['Tags']:
-                if tag['Key'] == 'CreatedBy' and tag['Value'] == event["ResourceProperties"]["SolutionNameAbbr"]:
+                if tag['Key'] == 'Owner' and tag['Value'] == event["ResourceProperties"]["SolutionNameAbbr"]:
                     acm_client.delete_certificate(CertificateArn=cert['CertificateArn'])
                     continue
 
@@ -161,7 +161,7 @@ def gen_certificate(solution_name: str, bucket_name: str) -> str:
       CertificateArn=response['CertificateArn'],
       Tags=[
         {
-          'Key': 'CreatedBy',
+          'Key': 'Owner',
           'Value': solution_name
         }
         ])

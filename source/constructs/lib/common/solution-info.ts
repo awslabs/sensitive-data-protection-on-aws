@@ -25,6 +25,6 @@ export class SolutionInfo {
   static SOLUTION_ADMIN_S3_BUCKET = 'sdps-admin';
   static SOLUTION_AGENT_S3_BUCKET = 'sdps-agent';
   static TAG_NAME = 'Name';
-  static TAG_KEY = 'CreatedBy';
+  static TAG_KEY = 'Owner';
   static TAG_VALUE = SolutionInfo.SOLUTION_NAME_ABBR;
 }
