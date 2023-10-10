@@ -148,13 +148,13 @@ def sync_crawler_result(
     glue_client = get_boto3_client(account_id, region, "glue")
     glue_database_name = database_name if is_custom_glue else (
         const.SOLUTION_NAME + "-" + database_type + "-" + database_name
-    )
+    ).lower()
     if is_custom_glue:
         crawler_last_run_status = GlueCrawlerState.SUCCEEDED.value
     else:
         glue_crawler_name = (
             const.SOLUTION_NAME + "-" + database_type + "-" + database_name
-        )
+        ).lower()
         crawler_response = glue_client.get_crawler(Name=glue_crawler_name)
         state = crawler_response["Crawler"]["State"]
         while state == 'STOPPING':
@@ -180,7 +180,7 @@ def sync_crawler_result(
         table_column_dict = {}
         while True:
             tables_response = glue_client.get_tables(
-                DatabaseName=glue_database_name.lower(), NextToken=next_token
+                DatabaseName=glue_database_name, NextToken=next_token
             )
             # logger.info("get glue tables" + str(tables_response))
             delete_glue_table_names = []
