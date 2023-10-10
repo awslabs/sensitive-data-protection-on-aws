@@ -3,14 +3,12 @@ import '../style.scss';
 import { SpaceBetween, Tabs } from '@cloudscape-design/components';
 import AddIdentfierTable from './AddIndentifierTable';
 import { useTranslation } from 'react-i18next';
-import TextImageTab from 'pages/template-identifiers/components/TextImageTab';
 
 const AddCustomIdentfier: React.FC<any> = (props: any) => {
   const { addCallBack } = props;
   const { t } = useTranslation();
   return (
     <SpaceBetween direction="vertical" size="l">
-      <TextImageTab />
       <Tabs
         tabs={[
           {

@@ -65,7 +65,7 @@
     "backToAWSAccount": "返回 AWS 账户视图",
     "connectAll": "同步全部至数据目录",
     "connect": "同步至数据目录",
-    "testConnection":"测试连接",
+    "testConnection": "测试连接",
     "manageDataIdentifiers": "管理数据识别规则",
     "addDataIdentifier": "添加数据标识符",
     "addToTemplate": "添加到模板",
@@ -73,7 +73,7 @@
     "browserCatalog": "浏览数据目录",
     "defineTemplate": " 定义分类模板",
     "runJob": "运行敏感数据发现作业",
-    "createIdentifier": "创建数据标识符",
+    "createIdentifier": "创建基于文本的数据标识符",
     "addToIdentifier": "添加到标识符",
     "createCategory": "创建类别",
     "createIdentifierLabel": "创建标签",
@@ -224,11 +224,12 @@
       "dataSourceType": "数据源类型",
       "dataSource": "数据源",
       "provider": "服务商",
-      "jdbcInstanceName":"实例名",
+      "jdbcInstanceName": "实例名",
       "glueState": "数据目录",
-      "glueConnectionName":"连通性",
-      "locationUri":"Uri",
-      "glueDatabaseCreateTime":"数据库创建时间"
+      "glueConnectionName": "连通性",
+      "locationUri": "Uri",
+      "glueDatabaseCreateTime": "数据库创建时间",
+      "identifierType": "标识符类型"
     }
   },
   "tab": {
@@ -351,5 +352,6 @@
   "privacy": "隐私",
   "allCategory": "所有类别",
   "allLabel": "所有标签",
-  "learnMore": "了解更多"
+  "learnMore": "了解更多",
+  "allType": "所有类型"
 }

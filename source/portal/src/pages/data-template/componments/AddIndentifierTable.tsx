@@ -21,6 +21,7 @@ import { alertMsg, useDidUpdateEffect } from 'tools/tools';
 import { useTranslation } from 'react-i18next';
 import PropsSelect from 'common/PropsSelect';
 import { Props } from 'common/PropsModal';
+import IdentifierTypeSelect from 'common/IdentifierTypeSelect';
 
 const AddIdentfierTable = (props: any) => {
   const { addCallBack, type } = props;
@@ -204,6 +205,14 @@ const AddIdentfierTable = (props: any) => {
                   )?.prop_name || 'N/A'}
                 </div>
               );
+            } else if (item.id === 'type') {
+              return (
+                <div>
+                  {e.type === 2
+                    ? t('identifier:imageBased')
+                    : t('identifier:textBased')}
+                </div>
+              );
             } else if (item.id === 'label') {
               return (
                 <div>
@@ -274,6 +283,7 @@ const AddIdentfierTable = (props: any) => {
               }}
             />
           </div>
+          <IdentifierTypeSelect />
         </div>
       }
       pagination={

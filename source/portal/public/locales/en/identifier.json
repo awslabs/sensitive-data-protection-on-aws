@@ -29,5 +29,7 @@
   "unstructuredDataSettings": "Unstructured data settings (Optional)",
   "maxDis": "Max. distance",
   "maxDisDesc": "If keywords ...",
-  "minDis": "Min. occurrence of identification rule"
+  "minDis": "Min. occurrence of identification rule",
+  "textBased": "Text based",
+  "imageBased": "Image based"
 }

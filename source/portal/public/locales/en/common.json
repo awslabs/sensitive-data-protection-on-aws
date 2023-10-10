@@ -65,7 +65,7 @@
     "backToAWSAccount": "Back to AWS accounts view",
     "connectAll": "Sync ALL to data catalogs",
     "connect": "Sync to data catalog",
-    "testConnection":"Test connection",
+    "testConnection": "Test connection",
     "manageDataIdentifiers": "Manage data identfiers",
     "addDataIdentifier": "Add data identifier",
     "addToTemplate": "Add to template",
@@ -73,7 +73,7 @@
     "browserCatalog": "Browse data catalogs",
     "defineTemplate": " Define classification template",
     "runJob": "Run sensitive data discovery jobs",
-    "createIdentifier": "Create data identifier",
+    "createIdentifier": "Create data identifier for Text based",
     "addToIdentifier": "Add to identifier",
     "createCategory": "Create category",
     "createIdentifierLabel": "Create Label",
@@ -224,11 +224,12 @@
       "dataSourceType": "Data source type",
       "dataSource": "Data source",
       "provider": "Provider",
-      "jdbcInstanceName":"Instance name",
+      "jdbcInstanceName": "Instance name",
       "glueState": "Catalog status",
-      "glueConnectionName":"Glue connection",
-      "locationUri":"Location uri",
-      "glueDatabaseCreateTime":"Database create time"
+      "glueConnectionName": "Glue connection",
+      "locationUri": "Location uri",
+      "glueDatabaseCreateTime": "Database create time",
+      "identifierType": "Identifier Type"
     }
   },
   "tab": {
@@ -351,5 +352,6 @@
   "privacy": "Privacy",
   "allCategory": "All Categories",
   "allLabel": "All Labels",
-  "learnMore": "Learn more"
+  "learnMore": "Learn more",
+  "allType": "All Types"
 }

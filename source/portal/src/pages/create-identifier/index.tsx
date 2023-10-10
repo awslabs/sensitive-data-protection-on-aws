@@ -113,6 +113,10 @@ const CreateIdentifierContent = (props: any) => {
   const [selectedLabel, setSelectedLabel] = useState<SelectProps.Option>(
     findCategoryLabelAndConvertOption('2', oldData.props)
   );
+  const [maxDistance, setMaxDistance] = useState(oldData.max_distance || '');
+  const [minOccurrence, setMinOccurrence] = useState(
+    oldData.min_occurrence || ''
+  );
 
   const [showModal, setShowModal] = useState(false);
   const [refreshCategoryLableList, setRefreshCategoryLableList] = useState(0);
@@ -230,6 +234,8 @@ const CreateIdentifierContent = (props: any) => {
       header_keywords: keywordToggle ? tempHeadList : null,
       exclude_keywords: excludeKeywordsToggle ? excludeKeyword : null,
       props: newProps,
+      max_distance: maxDistance,
+      min_occurrence: minOccurrence,
     };
     if (oldData.id) {
       requestParam.id = oldData.id;
@@ -498,10 +504,24 @@ const CreateIdentifierContent = (props: any) => {
               label={t('identifier:maxDis')}
               description={t('identifier:maxDisDesc')}
             >
-              <Input type="number" value="" placeholder="50" />
+              <Input
+                type="number"
+                value={maxDistance}
+                onChange={({ detail }) => {
+                  setMaxDistance(detail.value);
+                }}
+                placeholder="50"
+              />
             </FormField>
             <FormField label={t('identifier:minDis')}>
-              <Input type="number" value="" placeholder="2" />
+              <Input
+                type="number"
+                value={minOccurrence}
+                onChange={({ detail }) => {
+                  setMinOccurrence(detail.value);
+                }}
+                placeholder="2"
+              />
             </FormField>
           </SpaceBetween>
         </ExpandableSection>

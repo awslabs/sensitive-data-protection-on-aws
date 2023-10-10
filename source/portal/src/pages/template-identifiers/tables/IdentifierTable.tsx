@@ -28,6 +28,7 @@ import { TABLE_NAME } from 'enum/common_types';
 import { useTranslation } from 'react-i18next';
 import PropsModal, { Props } from 'common/PropsModal';
 import PropsSelect from 'common/PropsSelect';
+import IdentifierTypeSelect from 'common/IdentifierTypeSelect';
 
 interface IdentifierTableProps {
   title: string;
@@ -147,7 +148,6 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
         }
       }
     }
-    return;
   };
 
   const clkConfirmDelete = async () => {
@@ -178,7 +178,6 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
 
   const clkCreate = () => {
     navigate(RouterEnum.CreateIdentifiers.path);
-    return;
   };
 
   useEffect(() => {
@@ -359,6 +358,14 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
                 ) : (
                   (e as any)[item.id]
                 );
+              } else if (item.id === 'type') {
+                return (
+                  <div>
+                    {e.type === 2
+                      ? t('identifier:imageBased')
+                      : t('identifier:textBased')}
+                  </div>
+                );
               } else if (item.id === 'category') {
                 return (
                   <div>
@@ -466,6 +473,7 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
                 }}
               />
             </div>
+            <IdentifierTypeSelect />
           </div>
         }
         pagination={
@@ -502,7 +510,9 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
               options: [
                 {
                   label: t('table.mainDistributionProp'),
-                  options: columnList,
+                  options: columnList.map((element) => {
+                    return { ...element, label: t(element.label) };
+                  }),
                 },
               ],
             }}

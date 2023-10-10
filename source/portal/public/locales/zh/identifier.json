@@ -29,5 +29,7 @@
   "unstructuredDataSettings": "非结构化数据设置（可选）",
   "maxDis": "最大深度",
   "maxDisDesc": "如果关键词...",
-  "minDis": "最小识别规则"
+  "minDis": "最小识别规则",
+  "textBased": "基于文本",
+  "imageBased": "基于图片"
 }
