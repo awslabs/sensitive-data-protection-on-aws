@@ -5,6 +5,7 @@ import traceback
 import requests
 import os
 import time
+from common.constant import const
 
 glue = boto3.client('glue')
 admin_account_id = os.getenv('AdminAccountId')
@@ -116,7 +117,8 @@ def cleanup_crawlers():
         response = glue.list_crawlers(NextToken=next_page, Tags={'AdminAccountId': admin_account_id})
 
         for crawler in response['CrawlerNames']:
-            if (crawler.startswith('s3-') or crawler.startswith('rds-')) and crawler.endswith('-crawler'):
+            # if (crawler.startswith('s3-') or crawler.startswith('rds-')) and crawler.endswith('-crawler'):
+            if crawler.startswith(const.SOLUTION_NAME + "-"):
                 response = glue.get_crawler(Name=crawler)
                 print(response)
                 database_name = response['Crawler']['DatabaseName']
