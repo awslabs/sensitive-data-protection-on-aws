@@ -120,7 +120,7 @@ const JobSettings: React.FC<JobSettingsProps> = (props: JobSettingsProps) => {
   }, [frequency]);
 
   useEffect(() => {
-    changeFrequencyType(frequency);
+    changeFrequencyType(frequencyType);
   }, [frequencyType]);
 
   useEffect(() => {

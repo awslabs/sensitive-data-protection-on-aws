@@ -26,7 +26,13 @@ import {
 import { SOURCE_TYPE } from 'enum/common_types';
 import { createJob, startJob } from 'apis/data-job/api';
 import { SUB_WEEK_CONFIG, alertMsg } from 'tools/tools';
-import { DAY_OPTIONS, MONTH_OPTIONS } from './types/create_data_type';
+import {
+  CombinedRDSDatabase,
+  DAY_OPTIONS,
+  DbItemInfo,
+  MONTH_OPTIONS,
+} from './types/create_data_type';
+import SelectRDSCatalog from './components/SelectRDSCatalog';
 
 export const convertDataSourceListToJobDatabases = (
   dataSources: IDataSourceType[],
@@ -41,6 +47,37 @@ export const convertDataSourceListToJobDatabases = (
       table_name: '',
     };
   });
+};
+
+export const convertTableSourceToJobDatabases = (
+  dataSources: IDataSourceType[],
+  source_type: string
+) => {
+  const combined: CombinedRDSDatabase = {};
+
+  dataSources.forEach((item: DbItemInfo) => {
+    if (Object.prototype.hasOwnProperty.call(combined, item.database_name)) {
+      combined[item.database_name].push(item);
+    } else {
+      combined[item.database_name] = [item];
+    }
+  });
+
+  const rdsCatalogList: any = Object.entries(combined).map(
+    ([database_name, table_items]) => {
+      const table_names = Array.from(
+        new Set(table_items.map((item) => item.table_name))
+      ).join(',');
+      return {
+        account_id: table_items[0].account_id,
+        region: table_items[0].region,
+        database_type: 'rds',
+        database_name: database_name,
+        table_name: table_names,
+      };
+    }
+  );
+  return rdsCatalogList;
 };
 
 const CreateJobHeader: React.FC = () => {
@@ -69,74 +106,60 @@ const CreateJobContent = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const checkMustData = (requestedStepIndex: number) => {
-    // if (
-    //   s3CatalogType === SELECT_S3 &&
-    //   selectedS3Items.length === 0 &&
-    //   requestedStepIndex !== 0
-    // ) {
-    //   alertMsg(t('selectOneItem'), 'error');
-    //   return false;
-    // }
-    // if (
-    //   rdsCatalogType === SELECT_RDS &&
-    //   selectedRdsItems.length === 0 &&
-    //   requestedStepIndex !== 1
-    // ) {
-    //   alertMsg(t('selectOneItem'), 'error');
-    //   return false;
-    // }
-    // if (
-    //   rdsCatalogType === SELECT_RDS &&
-    //   selectedRdsItems.length > 50 &&
-    //   requestedStepIndex !== 1
-    // ) {
-    //   alertMsg(t('job:selectLessItems'), 'error');
-    //   return false;
-    // }
-    // if (
-    //   rdsCatalogType === NONE_RDS &&
-    //   s3CatalogType === NONE_S3 &&
-    //   requestedStepIndex >= 2
-    // ) {
-    //   alertMsg(t('job:selectOnCatalog'), 'error');
-    //   return false;
-    // }
-    // if (requestedStepIndex !== 0 && !s3CatalogType) {
-    //   alertMsg(t('selectOneItem'), 'error');
-    //   return false;
-    // }
-    // if (
-    //   requestedStepIndex !== 1 &&
-    //   requestedStepIndex !== 0 &&
-    //   !rdsCatalogType
-    // ) {
-    //   alertMsg(t('selectOneItem'), 'error');
-    //   return false;
-    // }
-    // if (requestedStepIndex === 3) {
-    //   if (!jobName) {
-    //     alertMsg(t('job:inputJobName'), 'error');
-    //     return false;
-    //   }
-    //   const trimFrequency: any = frequency ? frequency.trim() : frequency;
-    //   if (!trimFrequency) {
-    //     alertMsg(t('job:freqTypeError'), 'error');
-    //     return false;
-    //   }
+    if (
+      jobData.database_type === SOURCE_TYPE.S3 &&
+      jobData.all_s3 === '0' &&
+      jobData.databases.length === 0 &&
+      requestedStepIndex !== 1
+    ) {
+      alertMsg(t('job:selectOnCatalog'), 'error');
+      return false;
+    }
+    if (
+      jobData.database_type === SOURCE_TYPE.RDS &&
+      jobData.all_rds === '0' &&
+      jobData.databases.length === 0 &&
+      requestedStepIndex !== 1
+    ) {
+      alertMsg(t('job:selectOnCatalog'), 'error');
+      return false;
+    }
+    if (
+      jobData.database_type === SOURCE_TYPE.RDS &&
+      jobData.all_rds === '0' &&
+      jobData.databases.length > 50 &&
+      requestedStepIndex !== 1
+    ) {
+      alertMsg(t('job:selectLessItems'), 'error');
+      return false;
+    }
 
-    //   if (!scanDepth) {
-    //     alertMsg(t('job:selectScanDepth'), 'error');
-    //     return false;
-    //   }
-    //   if (!scanRange) {
-    //     alertMsg(t('job:selectScanRange'), 'error');
-    //     return false;
-    //   }
-    //   if (!detectionThreshold) {
-    //     alertMsg(t('job:selectDetection'), 'error');
-    //     return false;
-    //   }
-    // }
+    if (requestedStepIndex === 3) {
+      if (!jobData.name) {
+        alertMsg(t('job:inputJobName'), 'error');
+        return false;
+      }
+      const trimFrequency: any = jobData.frequency
+        ? jobData.frequency.trim()
+        : jobData.frequency;
+      if (!trimFrequency) {
+        alertMsg(t('job:freqTypeError'), 'error');
+        return false;
+      }
+
+      if (!jobData.depth_structured) {
+        alertMsg(t('job:selectScanDepth'), 'error');
+        return false;
+      }
+      if (!jobData.range) {
+        alertMsg(t('job:selectScanRange'), 'error');
+        return false;
+      }
+      if (!jobData.detection_threshold) {
+        alertMsg(t('job:selectDetection'), 'error');
+        return false;
+      }
+    }
     return true;
   };
 
@@ -353,6 +376,33 @@ const CreateJobContent = () => {
                     changeSelectType={(type) => {
                       setJobData((prev) => {
                         return { ...prev, all_s3: type };
+                      });
+                    }}
+                    changeSelectDatabases={(databases) => {
+                      setJobData((prev) => {
+                        return {
+                          ...prev,
+                          databases: databases,
+                        };
+                      });
+                    }}
+                  />
+                )}
+                {jobData.database_type === SOURCE_TYPE.RDS && (
+                  <SelectRDSCatalog
+                    jobData={jobData}
+                    changeSelectType={(type) => {
+                      setJobData((prev) => {
+                        return { ...prev, all_rds: type };
+                      });
+                    }}
+                    changeRDSSelectView={(view) => {
+                      setJobData((prev) => {
+                        return {
+                          ...prev,
+                          rdsSelectedView: view,
+                          databases: [],
+                        };
                       });
                     }}
                     changeSelectDatabases={(databases) => {

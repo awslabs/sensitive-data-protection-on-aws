@@ -123,7 +123,7 @@ const SelectS3Catalog: React.FC<SelectS3CatalogProps> = (
 
   return (
     <Container
-      header={<Header variant="h2">Select scan target for Amazon S3</Header>}
+      header={<Header variant="h2">{t('job:create.selectScanS3')}</Header>}
     >
       <SpaceBetween direction="vertical" size="l">
         <Tiles

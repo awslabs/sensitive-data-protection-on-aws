@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Container,
   FormField,
@@ -11,15 +11,7 @@ import { IJobType } from 'pages/data-job/types/job_list_type';
 import { SOURCE_TYPE } from 'enum/common_types';
 
 const SELECT_S3 = 'selectS3';
-
 const SELECT_RDS = 'selectRds';
-const NONE_RDS = 'noneRds';
-
-const RDS_OPTION: any = {
-  allRds: 'All data catalogs',
-  [SELECT_RDS]: 'Specific data catalogs',
-  [NONE_RDS]: 'Skip scan for Amazon RDS',
-};
 
 interface JobPreviewProps {
   jobData: IJobType;
@@ -28,9 +20,6 @@ interface JobPreviewProps {
 const JobPreview: React.FC<JobPreviewProps> = (props: JobPreviewProps) => {
   const { t } = useTranslation();
   const { jobData } = props;
-  const [rdsCatalogType, setRdsCatalogType] = useState('');
-  const [selectedRdsItems, setSelectedRdsItems] = useState([] as any);
-  const [rdsSelectedView, setRdsSelectedView] = useState('rds-instance-view');
   const jumpToCatalog = (rowData: any) => {
     window.open(
       `${RouterEnum.Catalog.path}?tagType=${rowData.database_type}&catalogId=${rowData.database_name}`,
@@ -59,64 +48,34 @@ const JobPreview: React.FC<JobPreviewProps> = (props: JobPreviewProps) => {
                   : 'Specific data catalogs'}
                 ) :
                 <ul>
-                  {jobData.databases.map(
-                    (
-                      item: {
-                        database_name:
-                          | string
-                          | number
-                          | boolean
-                          | React.ReactElement<
-                              any,
-                              string | React.JSXElementConstructor<any>
-                            >
-                          | React.ReactFragment
-                          | React.ReactPortal
-                          | null
-                          | undefined;
-                      },
-                      index: string | number
-                    ) => {
-                      return (
-                        <li
-                          className="job-name"
-                          key={SELECT_S3 + index}
-                          onClick={() => jumpToCatalog(item)}
-                        >
-                          {item.database_name}
-                        </li>
-                      );
-                    }
-                  )}
+                  {jobData.databases.map((item: any, index: number) => {
+                    return (
+                      <li
+                        className="job-name"
+                        key={SELECT_S3 + index}
+                        onClick={() => jumpToCatalog(item)}
+                      >
+                        {item.database_name}
+                      </li>
+                    );
+                  })}
                 </ul>
               </span>
             </>
           )}
           <br></br>
-          {rdsSelectedView === 'rds-instance-view' && (
-            <>
-              <span className="sources-title">
-                {t('job:create.rdsInstance')} ({RDS_OPTION[rdsCatalogType]}) :
-              </span>
-              {rdsCatalogType === SELECT_RDS &&
-                selectedRdsItems.map(
-                  (
-                    item: {
-                      database_name:
-                        | string
-                        | number
-                        | boolean
-                        | React.ReactElement<
-                            any,
-                            string | React.JSXElementConstructor<any>
-                          >
-                        | React.ReactFragment
-                        | React.ReactPortal
-                        | null
-                        | undefined;
-                    },
-                    index: string
-                  ) => {
+          {jobData.database_type === SOURCE_TYPE.RDS &&
+            jobData.rdsSelectedView === 'rds-instance-view' && (
+              <>
+                <span className="sources-title">
+                  {t('job:create.rdsInstance')} (
+                  {jobData.all_rds === '1'
+                    ? 'All data catalogs'
+                    : 'Specific data catalogs'}
+                  )) :
+                </span>
+                {jobData.all_rds === '0' &&
+                  jobData.databases.map((item: any, index: number) => {
                     return (
                       <li
                         className="sources-title-detail"
@@ -125,34 +84,21 @@ const JobPreview: React.FC<JobPreviewProps> = (props: JobPreviewProps) => {
                         {item.database_name}
                       </li>
                     );
-                  }
-                )}
-            </>
-          )}
-          {rdsSelectedView === 'rds-table-view' && (
-            <>
-              <span className="sources-title">
-                {t('job:create.rdsTable')} ({RDS_OPTION[rdsCatalogType]}) :
-              </span>
-              {rdsCatalogType === SELECT_RDS &&
-                selectedRdsItems.map(
-                  (
-                    item: {
-                      table_name:
-                        | string
-                        | number
-                        | boolean
-                        | React.ReactElement<
-                            any,
-                            string | React.JSXElementConstructor<any>
-                          >
-                        | React.ReactFragment
-                        | React.ReactPortal
-                        | null
-                        | undefined;
-                    },
-                    index: string
-                  ) => {
+                  })}
+              </>
+            )}
+          {jobData.database_type === SOURCE_TYPE.RDS &&
+            jobData.rdsSelectedView === 'rds-table-view' && (
+              <>
+                <span className="sources-title">
+                  {t('job:create.rdsTable')} (
+                  {jobData.all_rds === '1'
+                    ? 'All data catalogs'
+                    : 'Specific data catalogs'}
+                  )) :
+                </span>
+                {jobData.all_rds === '0' &&
+                  jobData.databases.map((item: any, index: number) => {
                     return (
                       <li
                         className="sources-title-detail"
@@ -161,10 +107,9 @@ const JobPreview: React.FC<JobPreviewProps> = (props: JobPreviewProps) => {
                         {item.table_name}
                       </li>
                     );
-                  }
-                )}
-            </>
-          )}
+                  })}
+              </>
+            )}
         </FormField>
         <FormField label={t('job:create.name')}>
           <span>{jobData.name}</span>
@@ -208,16 +153,20 @@ const JobPreview: React.FC<JobPreviewProps> = (props: JobPreviewProps) => {
             <pre>{jobData.include_keywords}</pre>
           </span>
         </FormField>
-        <FormField label="Exclude file extensions">
-          <span>
-            <pre>{jobData.exclude_file_extensions}</pre>
-          </span>
-        </FormField>
-        <FormField label="Include file extensions">
-          <span>
-            <pre>{jobData.include_file_extensions}</pre>
-          </span>
-        </FormField>
+        {jobData.database_type === SOURCE_TYPE.S3 && (
+          <>
+            <FormField label="Exclude file extensions">
+              <span>
+                <pre>{jobData.exclude_file_extensions}</pre>
+              </span>
+            </FormField>
+            <FormField label="Include file extensions">
+              <span>
+                <pre>{jobData.include_file_extensions}</pre>
+              </span>
+            </FormField>
+          </>
+        )}
       </SpaceBetween>
     </Container>
   );

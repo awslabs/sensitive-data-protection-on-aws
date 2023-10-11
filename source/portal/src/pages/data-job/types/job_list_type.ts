@@ -95,6 +95,7 @@ export interface IDataSourceType {
   modify_time: string;
   sensitivity: string;
   labels: Array<any>;
+  table_name: string;
 }
 
 export interface IJobType {
@@ -136,6 +137,7 @@ export interface IJobType {
   frequencyType: string;
   frequencyStart: SelectProps.Option | null;
   frequencyTimeStart: SelectProps.Option | null;
+  rdsSelectedView: 'rds-instance-view' | 'rds-table-view';
 }
 
 export const INIT_JOB_DATA: IJobType = {
@@ -176,4 +178,5 @@ export const INIT_JOB_DATA: IJobType = {
   frequencyType: 'on_demand_run',
   frequencyStart: null,
   frequencyTimeStart: { label: '00:00', value: '0' },
+  rdsSelectedView: 'rds-instance-view',
 };

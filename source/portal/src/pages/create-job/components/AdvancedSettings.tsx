@@ -7,6 +7,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import RuleKeywords from 'common/RuleKeywords';
 import { IJobType } from 'pages/data-job/types/job_list_type';
+import { SOURCE_TYPE } from 'enum/common_types';
 
 interface AdvancedSettingsProps {
   jobData: IJobType;
@@ -89,54 +90,57 @@ const AdvancedSettings: React.FC<AdvancedSettingsProps> = (
           />
         </Grid>
       </Container>
-      <Container
-        header={
-          <Header
-            variant="h2"
-            description={
-              <div>
+
+      {jobData.database_type === SOURCE_TYPE.S3 && (
+        <Container
+          header={
+            <Header
+              variant="h2"
+              description={
                 <div>
-                  Exclude: The files with the following extensions will be
-                  marked as "Non-PII"
+                  <div>
+                    Exclude: The files with the following extensions will be
+                    marked as "Non-PII"
+                  </div>
+                  <div>
+                    Include: The files with the following extensions will be
+                    marked as "Contains-PII"
+                  </div>
                 </div>
-                <div>
-                  Include: The files with the following extensions will be
-                  marked as "Contains-PII"
-                </div>
-              </div>
-            }
-          >
-            Advanced rules：Exclude file extensions for this job
-          </Header>
-        }
-      >
-        <Grid gridDefinition={[{ colspan: 6 }, { colspan: 6 }]}>
-          <RuleKeywords
-            title="Exclude file extensions"
-            placeholder={`.xml\n.abc\n.ddl`}
-            enabled={jobData.excludeExtensionsEnable}
-            changeEnable={(enable) => {
-              changeExcludeFileExtensionEnable(enable);
-            }}
-            regexText={jobData.exclude_file_extensions}
-            changeRegexValue={(value) => {
-              changeExcludeFileExtension(value);
-            }}
-          />
-          <RuleKeywords
-            title="Include file extensions"
-            placeholder={`.xml\n.abc\n.ddl`}
-            enabled={jobData.includeExtensionsEnable}
-            changeEnable={(enable) => {
-              changeIncludeFileExtensionEnable(enable);
-            }}
-            regexText={jobData.include_file_extensions}
-            changeRegexValue={(value) => {
-              changeIncludeFileExtension(value);
-            }}
-          />
-        </Grid>
-      </Container>
+              }
+            >
+              Advanced rules：Exclude file extensions for this job
+            </Header>
+          }
+        >
+          <Grid gridDefinition={[{ colspan: 6 }, { colspan: 6 }]}>
+            <RuleKeywords
+              title="Exclude file extensions"
+              placeholder={`.xml\n.abc\n.ddl`}
+              enabled={jobData.excludeExtensionsEnable}
+              changeEnable={(enable) => {
+                changeExcludeFileExtensionEnable(enable);
+              }}
+              regexText={jobData.exclude_file_extensions}
+              changeRegexValue={(value) => {
+                changeExcludeFileExtension(value);
+              }}
+            />
+            <RuleKeywords
+              title="Include file extensions"
+              placeholder={`.xml\n.abc\n.ddl`}
+              enabled={jobData.includeExtensionsEnable}
+              changeEnable={(enable) => {
+                changeIncludeFileExtensionEnable(enable);
+              }}
+              regexText={jobData.include_file_extensions}
+              changeRegexValue={(value) => {
+                changeIncludeFileExtension(value);
+              }}
+            />
+          </Grid>
+        </Container>
+      )}
     </SpaceBetween>
   );
 };
