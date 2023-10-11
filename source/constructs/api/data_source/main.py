@@ -236,6 +236,17 @@ def query_account_network(account: schemas.AccountInfo):
 def test_glue_conn(account: str, connection: str):
     return service.test_glue_conn(account, connection)
 
+# @router.post("/test", response_model=BaseResponse)
+# @inject_session
+# def test_glue_conn(jdbc_conn_param: schemas.JDBCInstanceSourceUpdateBase):
+#     jdbc_conn_param.connection_status = "SUCCESS"
+#     return crud.set_jdbc_instance_connection_status(jdbc_conn_param)
+
+
+@router.post("/test-jdbc-conn", response_model=BaseResponse)
+@inject_session
+def test_jdbc_conn(jdbc_conn_param: schemas.JDBCInstanceSourceBase):
+    return service.test_jdbc_conn(jdbc_conn_param)
 
 @router.get("/dashboard/agg-data-location-list", response_model=BaseResponse)
 @inject_session

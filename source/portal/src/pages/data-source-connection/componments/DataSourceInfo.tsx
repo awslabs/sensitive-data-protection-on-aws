@@ -46,7 +46,7 @@ const DataSourceInfo: React.FC<any> = ({ accountData }: any) => {
       <div>
       {accountData.account_provider_id !== 1 && (
       <div className="datasource-container-item">
-          <p className="p-title">{t('table.label.awsAccount')}</p>
+          <p className="p-title">{t('table.label.provider')}</p>
           <span className="datasource-container-account">
             {genProvider(accountData.account_provider_id)}
           </span>

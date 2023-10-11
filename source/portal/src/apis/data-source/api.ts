@@ -106,6 +106,16 @@ const getSourceProviders = async () => {
   return result;
 };
 
+const testConnect = async (params: any) => {
+  const result = await apiRequest('post', 'data-source/test-jdbc-conn', params);
+  return result;
+};
+
+const connectDataSourceJDBC = async (params: any) => {
+  const result = await apiRequest('post', 'data-source/sync-jdbc', params);
+  return result;
+};
+
 export {
   getDataSourceS3ByPage,
   getDataSourceRdsByPage,
@@ -123,5 +133,7 @@ export {
   queryProviders,
   getSourceProviders,
   getDataSourceGlueByPage,
-  getDataSourceJdbcByPage
+  getDataSourceJdbcByPage,
+  testConnect,
+  connectDataSourceJDBC
 };

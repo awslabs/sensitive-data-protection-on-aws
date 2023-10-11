@@ -44,6 +44,8 @@ import {
   disconnectDataSourceRDS,
   disconnectDataSourceS3,
   getSecrets,
+  testConnect,
+  connectDataSourceJDBC
   // queryGlueConns,
   // testGlueConns,
   // addGlueConn,
@@ -141,8 +143,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         text: 'Add data source',
         id: 'addDataSource',
         disabled:
-          tagType !== DATA_TYPE_ENUM.jdbc &&
-          tagType !== DATA_TYPE_ENUM.glue,
+          tagType !== DATA_TYPE_ENUM.jdbc,
       },
       {
         text: 'Delete data source',
@@ -166,11 +167,11 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
     if(tagType === DATA_TYPE_ENUM.jdbc){
       res = [{
         text: 'Add data source',
-        id: 'add',
+        id: 'addImportJdbc',
       },
       {
         text: 'Edit data source',
-        id: 'edit',
+        id: 'editJdbc',
         disabled: selectedItems.length === 0,
       },
       {
@@ -278,6 +279,31 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
     }
   };
 
+  const clkTestConnected = async () => {
+    if (!selectedItems || selectedItems.length === 0) {
+      alertMsg(t('selectOneItem'), 'error');
+      return;
+    }
+    const requestParam = {
+        account_provider_id: selectedItems[0].account_provider_id,
+        account_id: selectedItems[0].account_id,
+        region: selectedItems[0].region,
+        instance_id: selectedItems[0].instance_id,
+      };
+      showHideSpinner(true);
+      try {
+        await testConnect(requestParam);
+        showHideSpinner(false);
+        alertMsg(t('startConnect'), 'success');
+        setSelectedItems([]);
+        getPageData();
+      } catch (error) {
+        setSelectedItems([]);
+        showHideSpinner(false);
+      }
+  } 
+  
+
   const clkConnected = async () => {
     if (!selectedItems || selectedItems.length === 0) {
       alertMsg(t('selectOneItem'), 'error');
@@ -300,7 +326,25 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         setSelectedItems([]);
         showHideSpinner(false);
       }
-    } else {
+    } else if(tagType === DATA_TYPE_ENUM.jdbc){
+      const requestParam = {
+        account_id: selectedItems[0].account_id,
+        account_provider_id: selectedItems[0].account_provider_id,
+        region: selectedItems[0].region,
+        instance_id: selectedItems[0].instance_id,
+      };
+      showHideSpinner(true);
+      try {
+        await connectDataSourceJDBC(requestParam);
+        showHideSpinner(false);
+        alertMsg(t('startConnect'), 'success');
+        setSelectedItems([]);
+        getPageData();
+      } catch (error) {
+        setSelectedItems([]);
+        showHideSpinner(false);
+      }
+    }else {
       setShowRdsPwdModal(true);
     }
   };
@@ -412,7 +456,14 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
   };
 
   const clkAddSource = (type: string) => {
-    setShowAddConnection(true);
+    if(type==='addImportJdbc'){
+      setShowAddConnection(true);
+    } else if(type==='editJdbc'){
+      setShowAddConnection(true);
+    }else {
+      console.log('type not found')
+    }
+    
   };
 
   return (
@@ -535,8 +586,8 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                   return e.instance_id 
                 }
                 if (item.id === COLUMN_OBJECT_STR.ConnectionStatus) {
-                  if(e.connection_status === 'Connected') return 'Connected'
-                  return 'Unconnected'
+                  // if(e.connection_status === 'Connected') return 'Connected'
+                  return e.connection_status == null ? '-' : e.connection_status
                 }
                 if (item.id === COLUMN_OBJECT_STR.GlueConnectionName) {
                   return e.glue_connection||'-'
@@ -606,7 +657,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                   />
                   {tagType === DATA_TYPE_ENUM.jdbc && <Button
                     disabled={isLoading || selectedItems.length === 0}
-                    onClick={clkConnected}
+                    onClick={clkTestConnected}
                   >
                     {t('button.testConnection')}
                   </Button>}
@@ -624,8 +675,11 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                       if (detail.id === 'connectAll') {
                         clkAllS3Connected();
                       }
-                      if (detail.id === 'addDataSource') {
-                        clkAddSource('jdbc');
+                      if (detail.id === 'addImportJdbc') {
+                        clkAddSource('addImportJdbc');
+                      }
+                      if (detail.id === 'editJdbc') {
+                        clkAddSource('editJdbc');
                       }
                     }}
                     items={genActions(tagType)}
