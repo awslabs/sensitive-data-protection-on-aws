@@ -20,16 +20,16 @@ export const JOB_LIST_COLUMN_LIST = [
     label: 'table.label.jobName',
     filter: true,
   },
-  {
-    id: 'dataSource',
-    label: 'table.label.dataSource',
-    filter: true,
-  },
-  {
-    id: 'provider',
-    label: 'table.label.provider',
-    filter: true,
-  },
+  // {
+  //   id: 'dataSource',
+  //   label: 'table.label.dataSource',
+  //   filter: true,
+  // },
+  // {
+  //   id: 'provider',
+  //   label: 'table.label.provider',
+  //   filter: true,
+  // },
   // {
   //   id: 'description',
   //   label: 'table.label.description',
@@ -138,6 +138,11 @@ export interface IJobType {
   frequencyStart: SelectProps.Option | null;
   frequencyTimeStart: SelectProps.Option | null;
   rdsSelectedView: 'rds-instance-view' | 'rds-table-view';
+  jdbcSelectedView: 'jdbc-instance-view' | 'jdbc-table-view';
+  glueSelectedView:
+    | 'glue-instance-view'
+    | 'glue-table-view'
+    | 'glue-account-view';
 }
 
 export const INIT_JOB_DATA: IJobType = {
@@ -179,4 +184,6 @@ export const INIT_JOB_DATA: IJobType = {
   frequencyStart: null,
   frequencyTimeStart: { label: '00:00', value: '0' },
   rdsSelectedView: 'rds-instance-view',
+  jdbcSelectedView: 'jdbc-instance-view',
+  glueSelectedView: 'glue-instance-view',
 };

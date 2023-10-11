@@ -33,7 +33,7 @@ import {
 interface SelectS3CatalogProps {
   jobData: IJobType;
   changeSelectType: (type: string) => void;
-  changeRDSSelectView: (view: any) => void;
+  changeGlueSelectView: (view: any) => void;
   changeSelectDatabases: (databases: any) => void;
 }
 
@@ -43,15 +43,15 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
   const {
     jobData,
     changeSelectType,
-    changeRDSSelectView,
+    changeGlueSelectView,
     changeSelectDatabases,
   } = props;
   const { t } = useTranslation();
-  const [rdsCatalogData, setRdsCatalogData] = useState<IDataSourceType[]>([]);
-  const [rdsFolderData, setRdsFolderData] = useState([] as any);
+  const [glueCatalogData, setGlueCatalogData] = useState<IDataSourceType[]>([]);
+  const [glueFolderData, setGlueFolderData] = useState([] as any);
   const [currentPage, setCurrentPage] = useState(1);
-  const [rdsTotal, setRdsTotal] = useState(0);
-  const [selectedRdsItems, setSelectedRdsItems] = useState<IDataSourceType[]>(
+  const [glueTotal, setGlueTotal] = useState(0);
+  const [selectedGlueItems, setSelectedGlueItems] = useState<IDataSourceType[]>(
     []
   );
 
@@ -60,21 +60,21 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
     wrapLines: true,
   } as any);
   const [isLoading, setIsLoading] = useState(false);
-  const [rdsQuery, setRdsQuery] = useState({
+  const [glueQuery, setGlueQuery] = useState({
     tokens: [],
     operation: 'and',
   } as any);
 
-  const rdsFilterProps = {
-    totalCount: rdsTotal,
-    query: rdsQuery,
-    setQuery: setRdsQuery,
+  const glueFilterProps = {
+    totalCount: glueTotal,
+    query: glueQuery,
+    setQuery: setGlueQuery,
     columnList: RDS_CATALOG_COLUMS.filter((i) => i.filter),
     tableName: TABLE_NAME.CATALOG_DATABASE_LEVEL_CLASSIFICATION,
     filteringPlaceholder: t('job:filterInstances'),
   };
 
-  const getRdsCatalogData = async () => {
+  const getGlueCatalogData = async () => {
     setIsLoading(true);
     const requestParam = {
       page: currentPage,
@@ -84,26 +84,26 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
       conditions: [
         {
           column: 'database_type',
-          values: ['rds'],
+          values: ['glue'],
           condition: 'and',
         },
       ] as any,
     };
-    rdsQuery.tokens &&
-      rdsQuery.tokens.forEach((item: any) => {
+    glueQuery.tokens &&
+      glueQuery.tokens.forEach((item: any) => {
         requestParam.conditions.push({
           column: item.propertyKey,
           values: [`${item.value}`],
-          condition: rdsQuery.operation,
+          condition: glueQuery.operation,
         });
       });
     const dataResult = await getDataBaseByType(requestParam);
-    setRdsCatalogData((dataResult as any)?.items);
-    setRdsTotal((dataResult as any)?.total);
+    setGlueCatalogData((dataResult as any)?.items);
+    setGlueTotal((dataResult as any)?.total);
     setIsLoading(false);
   };
 
-  const getRdsFolderData = async (nameFilter?: string) => {
+  const getGlueFolderData = async (nameFilter?: string) => {
     try {
       const requestParam: any = {
         page: currentPage,
@@ -111,7 +111,7 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
       };
 
       const result = await searchCatalogTables(requestParam);
-      setRdsFolderData((result as any)?.items);
+      setGlueFolderData((result as any)?.items);
       setIsLoading(false);
     } catch (e) {
       console.error(e);
@@ -120,51 +120,57 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
   };
 
   useEffect(() => {
-    if (jobData.all_rds === '0') {
-      if (jobData.rdsSelectedView === 'rds-instance-view') {
-        getRdsCatalogData();
+    if (jobData.all_glue === '0') {
+      if (jobData.glueSelectedView === 'glue-instance-view') {
+        getGlueCatalogData();
+      } else if (jobData.glueSelectedView === 'glue-table-view') {
+        getGlueFolderData();
       } else {
-        getRdsFolderData();
+        // Account view
+        // TODO
       }
     }
   }, [
-    jobData.all_rds,
-    jobData.rdsSelectedView,
-    rdsQuery,
+    jobData.all_glue,
+    jobData.glueSelectedView,
+    glueQuery,
     currentPage,
     preferences.pageSize,
   ]);
 
   useEffect(() => {
-    if (jobData.rdsSelectedView === 'rds-instance-view') {
+    if (jobData.glueSelectedView === 'glue-instance-view') {
       changeSelectDatabases(
         convertDataSourceListToJobDatabases(
-          selectedRdsItems,
+          selectedGlueItems,
+          jobData.database_type
+        )
+      );
+    } else if (jobData.glueSelectedView === 'glue-table-view') {
+      changeSelectDatabases(
+        convertTableSourceToJobDatabases(
+          selectedGlueItems,
           jobData.database_type
         )
       );
     } else {
-      changeSelectDatabases(
-        convertTableSourceToJobDatabases(
-          selectedRdsItems,
-          jobData.database_type
-        )
-      );
+      // account view
+      //TODO
     }
-  }, [selectedRdsItems]);
+  }, [selectedGlueItems]);
 
   useEffect(() => {
-    setSelectedRdsItems([]);
-  }, [jobData.rdsSelectedView]);
+    setSelectedGlueItems([]);
+  }, [jobData.glueSelectedView]);
 
   return (
     <Container
-      header={<Header variant="h2">{t('job:create.selectScanRDS')}</Header>}
+      header={<Header variant="h2">Select scan target for AWS Glue</Header>}
     >
       <SpaceBetween direction="vertical" size="l">
         <Tiles
           onChange={({ detail }) => changeSelectType(detail.value)}
-          value={jobData.all_rds}
+          value={jobData.all_glue}
           items={[
             {
               label: t('job:cataLogOption.all'),
@@ -176,28 +182,29 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
             },
           ]}
         />
-        {jobData.all_rds === '0' && (
+        {jobData.all_glue === '0' && (
           <>
             <SegmentedControl
-              selectedId={jobData.rdsSelectedView}
+              selectedId={jobData.glueSelectedView}
               options={[
                 {
                   text: 'Instance view',
-                  id: 'rds-instance-view',
+                  id: 'glue-instance-view',
                 },
-                { text: 'Table view', id: 'rds-table-view' },
+                { text: 'Table view', id: 'glue-table-view' },
+                { text: 'Account view', id: 'glue-account-view' },
               ]}
-              onChange={({ detail }) => changeRDSSelectView(detail.selectedId)}
+              onChange={({ detail }) => changeGlueSelectView(detail.selectedId)}
             />
-            {jobData.rdsSelectedView === 'rds-instance-view' && (
+            {jobData.glueSelectedView === 'glue-instance-view' && (
               <Table
                 className="job-table-width"
                 resizableColumns
                 variant="embedded"
                 selectionType="multi"
-                selectedItems={selectedRdsItems}
+                selectedItems={selectedGlueItems}
                 onSelectionChange={({ detail }) =>
-                  setSelectedRdsItems(detail.selectedItems)
+                  setSelectedGlueItems(detail.selectedItems)
                 }
                 ariaLabels={{
                   selectionGroupLabel: t('table.itemsSelection') || '',
@@ -220,8 +227,8 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
                     )}`;
                   },
                 }}
-                items={rdsCatalogData}
-                filter={<ResourcesFilter {...rdsFilterProps} />}
+                items={glueCatalogData}
+                filter={<ResourcesFilter {...glueFilterProps} />}
                 columnDefinitions={RDS_CATALOG_COLUMS.map((item) => {
                   return {
                     id: item.id,
@@ -257,7 +264,7 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
                     onChange={({ detail }) =>
                       setCurrentPage(detail.currentPageIndex)
                     }
-                    pagesCount={Math.ceil(rdsTotal / preferences.pageSize)}
+                    pagesCount={Math.ceil(glueTotal / preferences.pageSize)}
                     ariaLabels={{
                       nextPageLabel: t('table.nextPage') || '',
                       previousPageLabel: t('table.previousPage') || '',
@@ -309,15 +316,15 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
                 }
               />
             )}
-            {jobData.rdsSelectedView === 'rds-table-view' && (
+            {jobData.glueSelectedView === 'glue-table-view' && (
               <Table
                 className="job-table-width"
                 resizableColumns
                 variant="embedded"
                 selectionType="multi"
-                selectedItems={selectedRdsItems}
+                selectedItems={selectedGlueItems}
                 onSelectionChange={({ detail }) =>
-                  setSelectedRdsItems(detail.selectedItems)
+                  setSelectedGlueItems(detail.selectedItems)
                 }
                 ariaLabels={{
                   selectionGroupLabel: t('table.itemsSelection') || '',
@@ -340,8 +347,8 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
                     )}`;
                   },
                 }}
-                items={rdsFolderData}
-                filter={<ResourcesFilter {...rdsFilterProps} />}
+                items={glueFolderData}
+                filter={<ResourcesFilter {...glueFilterProps} />}
                 columnDefinitions={RDS_FOLDER_COLUMS.map((item) => {
                   return {
                     id: item.id,
@@ -377,7 +384,7 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
                     onChange={({ detail }) =>
                       setCurrentPage(detail.currentPageIndex)
                     }
-                    pagesCount={Math.ceil(rdsTotal / preferences.pageSize)}
+                    pagesCount={Math.ceil(glueTotal / preferences.pageSize)}
                     ariaLabels={{
                       nextPageLabel: t('table.nextPage') || '',
                       previousPageLabel: t('table.previousPage') || '',

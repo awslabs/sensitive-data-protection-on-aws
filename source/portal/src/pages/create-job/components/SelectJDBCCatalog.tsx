@@ -33,7 +33,7 @@ import {
 interface SelectJDBCCatalogProps {
   jobData: IJobType;
   changeSelectType: (type: string) => void;
-  changeRDSSelectView: (view: any) => void;
+  changeJDBCSelectView: (view: any) => void;
   changeSelectDatabases: (databases: any) => void;
 }
 
@@ -43,15 +43,15 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
   const {
     jobData,
     changeSelectType,
-    changeRDSSelectView,
+    changeJDBCSelectView,
     changeSelectDatabases,
   } = props;
   const { t } = useTranslation();
-  const [rdsCatalogData, setRdsCatalogData] = useState<IDataSourceType[]>([]);
-  const [rdsFolderData, setRdsFolderData] = useState([] as any);
+  const [jdbcCatalogData, setJdbcCatalogData] = useState<IDataSourceType[]>([]);
+  const [jdbcFolderData, setJdbcFolderData] = useState([] as any);
   const [currentPage, setCurrentPage] = useState(1);
-  const [rdsTotal, setRdsTotal] = useState(0);
-  const [selectedRdsItems, setSelectedRdsItems] = useState<IDataSourceType[]>(
+  const [jdbcTotal, setJdbcTotal] = useState(0);
+  const [selectedJdbcItems, setSelectedJdbcItems] = useState<IDataSourceType[]>(
     []
   );
 
@@ -60,21 +60,21 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
     wrapLines: true,
   } as any);
   const [isLoading, setIsLoading] = useState(false);
-  const [rdsQuery, setRdsQuery] = useState({
+  const [jdbcQuery, setJdbcQuery] = useState({
     tokens: [],
     operation: 'and',
   } as any);
 
-  const rdsFilterProps = {
-    totalCount: rdsTotal,
-    query: rdsQuery,
-    setQuery: setRdsQuery,
+  const jdbcFilterProps = {
+    totalCount: jdbcTotal,
+    query: jdbcQuery,
+    setQuery: setJdbcQuery,
     columnList: RDS_CATALOG_COLUMS.filter((i) => i.filter),
     tableName: TABLE_NAME.CATALOG_DATABASE_LEVEL_CLASSIFICATION,
     filteringPlaceholder: t('job:filterInstances'),
   };
 
-  const getRdsCatalogData = async () => {
+  const getJdbcCatalogData = async () => {
     setIsLoading(true);
     const requestParam = {
       page: currentPage,
@@ -84,26 +84,26 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
       conditions: [
         {
           column: 'database_type',
-          values: ['rds'],
+          values: [jobData.database_type],
           condition: 'and',
         },
       ] as any,
     };
-    rdsQuery.tokens &&
-      rdsQuery.tokens.forEach((item: any) => {
+    jdbcQuery.tokens &&
+      jdbcQuery.tokens.forEach((item: any) => {
         requestParam.conditions.push({
           column: item.propertyKey,
           values: [`${item.value}`],
-          condition: rdsQuery.operation,
+          condition: jdbcQuery.operation,
         });
       });
     const dataResult = await getDataBaseByType(requestParam);
-    setRdsCatalogData((dataResult as any)?.items);
-    setRdsTotal((dataResult as any)?.total);
+    setJdbcCatalogData((dataResult as any)?.items);
+    setJdbcTotal((dataResult as any)?.total);
     setIsLoading(false);
   };
 
-  const getRdsFolderData = async (nameFilter?: string) => {
+  const getJdbcFolderData = async (nameFilter?: string) => {
     try {
       const requestParam: any = {
         page: currentPage,
@@ -111,7 +111,7 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
       };
 
       const result = await searchCatalogTables(requestParam);
-      setRdsFolderData((result as any)?.items);
+      setJdbcFolderData((result as any)?.items);
       setIsLoading(false);
     } catch (e) {
       console.error(e);
@@ -120,51 +120,51 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
   };
 
   useEffect(() => {
-    if (jobData.all_rds === '0') {
-      if (jobData.rdsSelectedView === 'rds-instance-view') {
-        getRdsCatalogData();
+    if (jobData.all_jdbc === '0') {
+      if (jobData.jdbcSelectedView === 'jdbc-instance-view') {
+        getJdbcCatalogData();
       } else {
-        getRdsFolderData();
+        getJdbcFolderData();
       }
     }
   }, [
-    jobData.all_rds,
-    jobData.rdsSelectedView,
-    rdsQuery,
+    jobData.all_jdbc,
+    jobData.jdbcSelectedView,
+    jdbcQuery,
     currentPage,
     preferences.pageSize,
   ]);
 
   useEffect(() => {
-    if (jobData.rdsSelectedView === 'rds-instance-view') {
+    if (jobData.jdbcSelectedView === 'jdbc-instance-view') {
       changeSelectDatabases(
         convertDataSourceListToJobDatabases(
-          selectedRdsItems,
+          selectedJdbcItems,
           jobData.database_type
         )
       );
     } else {
       changeSelectDatabases(
         convertTableSourceToJobDatabases(
-          selectedRdsItems,
+          selectedJdbcItems,
           jobData.database_type
         )
       );
     }
-  }, [selectedRdsItems]);
+  }, [selectedJdbcItems]);
 
   useEffect(() => {
-    setSelectedRdsItems([]);
-  }, [jobData.rdsSelectedView]);
+    setSelectedJdbcItems([]);
+  }, [jobData.jdbcSelectedView]);
 
   return (
     <Container
-      header={<Header variant="h2">{t('job:create.selectScanRDS')}</Header>}
+      header={<Header variant="h2">Select scan target for JDBC</Header>}
     >
       <SpaceBetween direction="vertical" size="l">
         <Tiles
           onChange={({ detail }) => changeSelectType(detail.value)}
-          value={jobData.all_rds}
+          value={jobData.all_jdbc}
           items={[
             {
               label: t('job:cataLogOption.all'),
@@ -176,28 +176,28 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
             },
           ]}
         />
-        {jobData.all_rds === '0' && (
+        {jobData.all_jdbc === '0' && (
           <>
             <SegmentedControl
-              selectedId={jobData.rdsSelectedView}
+              selectedId={jobData.jdbcSelectedView}
               options={[
                 {
                   text: 'Instance view',
-                  id: 'rds-instance-view',
+                  id: 'jdbc-instance-view',
                 },
-                { text: 'Table view', id: 'rds-table-view' },
+                { text: 'Table view', id: 'jdbc-table-view' },
               ]}
-              onChange={({ detail }) => changeRDSSelectView(detail.selectedId)}
+              onChange={({ detail }) => changeJDBCSelectView(detail.selectedId)}
             />
-            {jobData.rdsSelectedView === 'rds-instance-view' && (
+            {jobData.jdbcSelectedView === 'jdbc-instance-view' && (
               <Table
                 className="job-table-width"
                 resizableColumns
                 variant="embedded"
                 selectionType="multi"
-                selectedItems={selectedRdsItems}
+                selectedItems={selectedJdbcItems}
                 onSelectionChange={({ detail }) =>
-                  setSelectedRdsItems(detail.selectedItems)
+                  setSelectedJdbcItems(detail.selectedItems)
                 }
                 ariaLabels={{
                   selectionGroupLabel: t('table.itemsSelection') || '',
@@ -220,8 +220,8 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
                     )}`;
                   },
                 }}
-                items={rdsCatalogData}
-                filter={<ResourcesFilter {...rdsFilterProps} />}
+                items={jdbcCatalogData}
+                filter={<ResourcesFilter {...jdbcFilterProps} />}
                 columnDefinitions={RDS_CATALOG_COLUMS.map((item) => {
                   return {
                     id: item.id,
@@ -257,7 +257,7 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
                     onChange={({ detail }) =>
                       setCurrentPage(detail.currentPageIndex)
                     }
-                    pagesCount={Math.ceil(rdsTotal / preferences.pageSize)}
+                    pagesCount={Math.ceil(jdbcTotal / preferences.pageSize)}
                     ariaLabels={{
                       nextPageLabel: t('table.nextPage') || '',
                       previousPageLabel: t('table.previousPage') || '',
@@ -309,15 +309,15 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
                 }
               />
             )}
-            {jobData.rdsSelectedView === 'rds-table-view' && (
+            {jobData.jdbcSelectedView === 'jdbc-table-view' && (
               <Table
                 className="job-table-width"
                 resizableColumns
                 variant="embedded"
                 selectionType="multi"
-                selectedItems={selectedRdsItems}
+                selectedItems={selectedJdbcItems}
                 onSelectionChange={({ detail }) =>
-                  setSelectedRdsItems(detail.selectedItems)
+                  setSelectedJdbcItems(detail.selectedItems)
                 }
                 ariaLabels={{
                   selectionGroupLabel: t('table.itemsSelection') || '',
@@ -340,8 +340,8 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
                     )}`;
                   },
                 }}
-                items={rdsFolderData}
-                filter={<ResourcesFilter {...rdsFilterProps} />}
+                items={jdbcFolderData}
+                filter={<ResourcesFilter {...jdbcFilterProps} />}
                 columnDefinitions={RDS_FOLDER_COLUMS.map((item) => {
                   return {
                     id: item.id,
@@ -377,7 +377,7 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
                     onChange={({ detail }) =>
                       setCurrentPage(detail.currentPageIndex)
                     }
-                    pagesCount={Math.ceil(rdsTotal / preferences.pageSize)}
+                    pagesCount={Math.ceil(jdbcTotal / preferences.pageSize)}
                     ariaLabels={{
                       nextPageLabel: t('table.nextPage') || '',
                       previousPageLabel: t('table.previousPage') || '',

@@ -368,11 +368,11 @@ const CreateJobContent = () => {
                         return { ...prev, all_rds: type };
                       });
                     }}
-                    changeRDSSelectView={(view) => {
+                    changeGlueSelectView={(view) => {
                       setJobData((prev) => {
                         return {
                           ...prev,
-                          rdsSelectedView: view,
+                          glueSelectedView: view,
                           databases: [],
                         };
                       });
@@ -395,11 +395,11 @@ const CreateJobContent = () => {
                         return { ...prev, all_rds: type };
                       });
                     }}
-                    changeRDSSelectView={(view) => {
+                    changeJDBCSelectView={(view) => {
                       setJobData((prev) => {
                         return {
                           ...prev,
-                          rdsSelectedView: view,
+                          jdbcSelectedView: view,
                           databases: [],
                         };
                       });
