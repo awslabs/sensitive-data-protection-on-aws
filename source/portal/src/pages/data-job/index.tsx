@@ -81,9 +81,9 @@ const DataJobContent: React.FC<any> = (props: any) => {
     navigate(RouterEnum.CreateJob.path);
   };
 
-  const clkAddOldJob = () => {
-    navigate(RouterEnum.CreateJobOld.path);
-  };
+  // const clkAddOldJob = () => {
+  //   navigate(RouterEnum.CreateJobOld.path);
+  // };
 
   const clkOption = async (
     selectedOption: ButtonDropdownProps.ItemClickDetails
@@ -374,9 +374,9 @@ const DataJobContent: React.FC<any> = (props: any) => {
                   >
                     {t('button.actions')}
                   </ButtonDropdown>
-                  <Button onClick={clkAddOldJob} disabled={isLoading}>
+                  {/* <Button onClick={clkAddOldJob} disabled={isLoading}>
                     Old Create
-                  </Button>
+                  </Button> */}
                   <Button onClick={clkAddJob} disabled={isLoading}>
                     {t('button.createJob')}
                   </Button>

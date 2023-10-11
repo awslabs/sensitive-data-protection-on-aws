@@ -33,6 +33,8 @@ import {
   MONTH_OPTIONS,
 } from './types/create_data_type';
 import SelectRDSCatalog from './components/SelectRDSCatalog';
+import SelectGlueCatalog from './components/SelectGlueCatalog';
+import SelectJDBCCatalog from './components/SelectJDBCCatalog';
 
 export const convertDataSourceListToJobDatabases = (
   dataSources: IDataSourceType[],
@@ -234,64 +236,7 @@ const CreateJobContent = () => {
       ),
       databases: jobData.databases,
     };
-    // if (s3CatalogType === SELECT_S3) {
-    //   const s3CatalogList = selectedS3Items.map((item: DbItemInfo) => {
-    //     return {
-    //       account_id: item.account_id,
-    //       region: item.region,
-    //       database_type: 's3',
-    //       database_name: item.database_name,
-    //     };
-    //   });
-    //   requestParamJob.databases =
-    //     requestParamJob.databases.concat(s3CatalogList);
-    // }
-    // if (
-    //   rdsCatalogType === SELECT_RDS &&
-    //   rdsSelectedView === 'rds-instance-view'
-    // ) {
-    //   const rdsCatalogList = selectedRdsItems.map((item: DbItemInfo) => {
-    //     return {
-    //       account_id: item.account_id,
-    //       region: item.region,
-    //       database_type: 'rds',
-    //       database_name: item.database_name,
-    //       table_name: '',
-    //     };
-    //   });
-    //   requestParamJob.databases =
-    //     requestParamJob.databases.concat(rdsCatalogList);
-    // }
-    // if (rdsCatalogType === SELECT_RDS && rdsSelectedView === 'rds-table-view') {
-    //   const combined: CombinedRDSDatabase = {};
 
-    //   selectedRdsItems.forEach((item: DbItemInfo) => {
-    //     if (
-    //       Object.prototype.hasOwnProperty.call(combined, item.database_name)
-    //     ) {
-    //       combined[item.database_name].push(item);
-    //     } else {
-    //       combined[item.database_name] = [item];
-    //     }
-    //   });
-
-    //   const rdsCatalogList: any = Object.entries(combined).map(
-    //     ([database_name, table_items]) => {
-    //       const table_names = Array.from(
-    //         new Set(table_items.map((item) => item.table_name))
-    //       ).join(',');
-    //       return {
-    //         account_id: table_items[0].account_id,
-    //         region: table_items[0].region,
-    //         database_type: 'rds',
-    //         database_name: database_name,
-    //         table_name: table_names,
-    //       };
-    //     }
-    //   );
-    //   requestParamJob.databases =
-    //     requestParamJob.databases.concat(rdsCatalogList);
-    // }
     try {
       const result: any = await createJob(requestParamJob);
       if (result && result.id && jobData.frequencyType === 'on_demand_run') {
@@ -390,6 +335,60 @@ const CreateJobContent = () => {
                 )}
                 {jobData.database_type === SOURCE_TYPE.RDS && (
                   <SelectRDSCatalog
+                    jobData={jobData}
+                    changeSelectType={(type) => {
+                      setJobData((prev) => {
+                        return { ...prev, all_rds: type };
+                      });
+                    }}
+                    changeRDSSelectView={(view) => {
+                      setJobData((prev) => {
+                        return {
+                          ...prev,
+                          rdsSelectedView: view,
+                          databases: [],
+                        };
+                      });
+                    }}
+                    changeSelectDatabases={(databases) => {
+                      setJobData((prev) => {
+                        return {
+                          ...prev,
+                          databases: databases,
+                        };
+                      });
+                    }}
+                  />
+                )}
+                {jobData.database_type === SOURCE_TYPE.GLUE && (
+                  <SelectGlueCatalog
+                    jobData={jobData}
+                    changeSelectType={(type) => {
+                      setJobData((prev) => {
+                        return { ...prev, all_rds: type };
+                      });
+                    }}
+                    changeRDSSelectView={(view) => {
+                      setJobData((prev) => {
+                        return {
+                          ...prev,
+                          rdsSelectedView: view,
+                          databases: [],
+                        };
+                      });
+                    }}
+                    changeSelectDatabases={(databases) => {
+                      setJobData((prev) => {
+                        return {
+                          ...prev,
+                          databases: databases,
+                        };
+                      });
+                    }}
+                  />
+                )}
+                {jobData.database_type.startsWith(SOURCE_TYPE.JDBC) && (
+                  <SelectJDBCCatalog
                     jobData={jobData}
                     changeSelectType={(type) => {
                       setJobData((prev) => {
@@ -537,7 +536,13 @@ const CreateJobContent = () => {
                   jobData={jobData}
                   changeExcludeFileExtensionEnable={(enable) => {
                     setJobData((prev) => {
-                      return { ...prev, excludeExtensionsEnable: enable };
+                      return {
+                        ...prev,
+                        excludeExtensionsEnable: enable,
+                        exclude_file_extensions: enable
+                          ? prev.exclude_file_extensions
+                          : '',
+                      };
                     });
                   }}
                   changeExcludeFileExtension={(extension) => {
@@ -552,7 +557,11 @@ const CreateJobContent = () => {
                   }}
                   changeExcludeKeywordEnable={(enable) => {
                     setJobData((prev) => {
-                      return { ...prev, excludeKeyWordsEnable: enable };
+                      return {
+                        ...prev,
+                        excludeKeyWordsEnable: enable,
+                        exclude_keywords: enable ? prev.exclude_keywords : '',
+                      };
                     });
                   }}
                   changeIncludeFileExtension={(extension) => {
@@ -562,7 +571,13 @@ const CreateJobContent = () => {
                   }}
                   changeIncludeFileExtensionEnable={(enable) => {
                     setJobData((prev) => {
-                      return { ...prev, includeExtensionsEnable: enable };
+                      return {
+                        ...prev,
+                        includeExtensionsEnable: enable,
+                        include_file_extensions: enable
+                          ? prev.include_file_extensions
+                          : '',
+                      };
                     });
                   }}
                   changeIncludeKeyword={(keyword) => {
@@ -572,7 +587,11 @@ const CreateJobContent = () => {
                   }}
                   changeIncludeKeywordEnable={(enable) => {
                     setJobData((prev) => {
-                      return { ...prev, includeKeyWordsEnable: enable };
+                      return {
+                        ...prev,
+                        includeKeyWordsEnable: enable,
+                        include_keywords: enable ? prev.include_keywords : '',
+                      };
                     });
                   }}
                 />

@@ -30,15 +30,15 @@ import {
   convertTableSourceToJobDatabases,
 } from '../index';
 
-interface SelectRDSCatalogProps {
+interface SelectJDBCCatalogProps {
   jobData: IJobType;
   changeSelectType: (type: string) => void;
   changeRDSSelectView: (view: any) => void;
   changeSelectDatabases: (databases: any) => void;
 }
 
-const SelectRDSCatalog: React.FC<SelectRDSCatalogProps> = (
-  props: SelectRDSCatalogProps
+const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
+  props: SelectJDBCCatalogProps
 ) => {
   const {
     jobData,
@@ -436,4 +436,4 @@ const SelectRDSCatalog: React.FC<SelectRDSCatalogProps> = (
   );
 };
 
-export default SelectRDSCatalog;
+export default SelectJDBCCatalog;
