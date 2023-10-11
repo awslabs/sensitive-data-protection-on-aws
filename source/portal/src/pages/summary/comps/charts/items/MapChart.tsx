@@ -101,7 +101,7 @@ const MapChart: React.FC<MapChartProps> = (props: MapChartProps) => {
         {loadingData ? (
           <Spinner />
         ) : (
-          <ComposableMap>
+          <ComposableMap height={500}>
             <Geographies geography="/geo.json">
               {({ geographies }: any) =>
                 geographies.map((geo: any) => (

@@ -7,7 +7,7 @@ import { ICatalogSummary, ColumnChartData } from 'ts/dashboard/types';
 import { formatNumber } from 'tools/tools';
 import { useTranslation } from 'react-i18next';
 
-const RDSCatalogOverview = () => {
+const JDBCCatalogOverview = () => {
   const [loadingData, setLoadingData] = useState(true);
   const { t } = useTranslation();
   const [catalogSummaryData, setCatalogSummaryData] =
@@ -16,7 +16,7 @@ const RDSCatalogOverview = () => {
 
   const getS3DatacatalogSummary = async () => {
     const res = await getDatacatalogSummary({
-      database_type: 'rds',
+      database_type: 'jdbc',
     });
     setCatalogSummaryData(res as ICatalogSummary);
     const tmpData = res as ICatalogSummary;
@@ -81,4 +81,4 @@ const RDSCatalogOverview = () => {
   );
 };
 
-export default RDSCatalogOverview;
+export default JDBCCatalogOverview;

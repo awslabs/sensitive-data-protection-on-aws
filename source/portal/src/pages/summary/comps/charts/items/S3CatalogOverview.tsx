@@ -1,9 +1,4 @@
-import {
-  Box,
-  ColumnLayout,
-  Grid,
-  Spinner,
-} from '@cloudscape-design/components';
+import { Box, Grid, Spinner } from '@cloudscape-design/components';
 import React, { useEffect, useState } from 'react';
 import { CounterLink } from 'common/ConterLink';
 import HorizontalBarChart from './HorizontalBarChart';
@@ -62,7 +57,9 @@ const S3CatalogOverview = () => {
         <Spinner />
       ) : (
         <>
-          <ColumnLayout columns={3} variant="text-grid">
+          <Grid
+            gridDefinition={[{ colspan: 4 }, { colspan: 4 }, { colspan: 4 }]}
+          >
             <div>
               <Box variant="awsui-key-label">{t('summary:s3Bucket')}</Box>
               <CounterLink>
@@ -81,7 +78,7 @@ const S3CatalogOverview = () => {
                 {formatSize(catalogSummaryData?.size_total || 0)}
               </CounterLink>
             </div>
-          </ColumnLayout>
+          </Grid>
           <div>
             <Box variant="awsui-key-label">{t('summary:objectTypes')}</Box>
             <HorizontalBarChart chartData={columChartData} />

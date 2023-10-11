@@ -33,14 +33,13 @@ import {
   getBucketProperties,
   searchTablesByDatabase,
 } from 'apis/data-catalog/api';
-import { alertMsg, formatSize, toJSON } from 'tools/tools';
+import { alertMsg, formatSize, toJSON, deepClone } from 'tools/tools';
 import moment from 'moment';
 import {
   CONTAINS_PII_OPTION,
   NA_OPTION,
   NON_PII_OPTION,
 } from 'pages/common-badge/componments/Options';
-import { deepClone } from 'tools/tools';
 import { TABLE_NAME } from 'enum/common_types';
 import { getIdentifiersList } from 'apis/data-template/api';
 import { nFormatter } from 'ts/common';
@@ -67,6 +66,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       setSaveLoading,
       setSaveDisabled,
       isFreeText,
+      dataType,
     } = props;
 
     const { t } = useTranslation();
@@ -193,6 +193,12 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
           await getDataIdentifiers();
           break;
         case COLUMN_OBJECT_STR.Folders:
+          await getDataFolders(nameFilter || '');
+          break;
+        case COLUMN_OBJECT_STR.StructuredData:
+          await getDataFolders(nameFilter || '');
+          break;
+        case COLUMN_OBJECT_STR.UnstructuredData:
           await getDataFolders(nameFilter || '');
           break;
         case COLUMN_OBJECT_STR.Tables:
@@ -335,7 +341,10 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
         const requestParam: any = {
           account_id: selectRowData.account_id,
           region: selectRowData.region,
-          database_type: selectRowData.database_type,
+          database_type:
+            selectRowData.database_type === 's3'
+              ? dataType
+              : selectRowData.database_type,
           database_name: selectRowData.database_name,
           table_name: nameFilter,
           page: currentPage,
@@ -367,7 +376,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
               },
               {
                 column: 'database_type',
-                values: [`${selectRowData.database_type}`],
+                values: [`${requestParam.database_type}`],
                 condition: 'and',
               },
               {

@@ -65,6 +65,8 @@ const CircleChart: React.FC<CircleChartType> = (props: CircleChartType) => {
           return data.table_total;
         case 'file':
           return data.object_total;
+        case 'size':
+          return data.size_total;
       }
     }
     if (sourceType === 'rds') {
@@ -99,6 +101,10 @@ const CircleChart: React.FC<CircleChartType> = (props: CircleChartType) => {
         case 'file':
           return data.reduce((accumulator: number, item) => {
             return accumulator + item.object_total;
+          }, 0);
+        case 'size':
+          return data.reduce((accumulator: number, item) => {
+            return accumulator + item.size_total;
           }, 0);
       }
     }

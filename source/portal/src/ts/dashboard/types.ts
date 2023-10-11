@@ -10,6 +10,10 @@ export interface ISourceCoverage {
   s3_total: number;
   rds_connected: number;
   rds_total: number;
+  jdbc_connected: number;
+  jdbc_total: number;
+  glue_connected: number;
+  glue_total: number;
 }
 
 export type ColumnChartType = {

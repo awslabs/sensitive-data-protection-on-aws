@@ -29,9 +29,10 @@
   "rdsEngineTypes": "RDS 引擎类型",
   "s3Bucket": "S3 存储桶",
   "s3Folders": "S3 目录",
-  "folders": "数据表",
+  "folders": "文件夹",
   "s3Objects": "S3 对象",
-  "objects": "数据列",
+  "objects": "对象",
+  "size": "大小",
   "s3ObjectSize": "S3 对象大小",
   "objectTypes": "对象类型",
   "awsAccount": "账户",
@@ -55,5 +56,12 @@
   "dataSourceConnectionDesc": "在 {{PROVIDER}} 账户中发现的数据源。",
   "totalS3Buckets": "S3 存储桶总数",
   "totalRDSInstances": "RDS 实例总数",
-  "searchByIdentName": "根据名称过滤标识符"
+  "searchByIdentName": "根据名称过滤标识符",
+  "regionLocation": "地区/地点",
+  "source": "来源",
+  "totalAccounts": "账户总数",
+  "totalGlue": "Glue 总数",
+  "totalJDBC": "JDBC 总数",
+  "jdbc": "JDBC",
+  "glue": "Glue"
 }

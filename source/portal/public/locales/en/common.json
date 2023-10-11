@@ -65,7 +65,7 @@
     "backToAWSAccount": "Back to AWS accounts view",
     "connectAll": "Sync ALL to data catalogs",
     "connect": "Sync to data catalog",
-    "testConnection":"Test connection",
+    "testConnection": "Test connection",
     "manageDataIdentifiers": "Manage data identfiers",
     "addDataIdentifier": "Add data identifier",
     "addToTemplate": "Add to template",
@@ -73,7 +73,7 @@
     "browserCatalog": "Browse data catalogs",
     "defineTemplate": " Define classification template",
     "runJob": "Run sensitive data discovery jobs",
-    "createIdentifier": "Create data identifier",
+    "createIdentifier": "Create data identifier for Text based",
     "addToIdentifier": "Add to identifier",
     "createCategory": "Create category",
     "createIdentifierLabel": "Create Label",
@@ -174,7 +174,7 @@
       "lastUpdateAt": "Last updated at",
       "lastUpdateBy": "Last updated by",
       "dataIdentifiers": "Data identifiers",
-      "foders": "Folders",
+      "folders": "Folders",
       "columns": "Columns",
       "folderName": "Folder name",
       "items": "Rows",
@@ -220,28 +220,35 @@
       "finishedAt": "Finished at",
       "identifierLabel": "Identifier Label",
       "category": "Category",
-      "folders": "Folders",
       "dataCatalogName": "Data catalog name",
       "dataSourceType": "Data source type",
       "dataSource": "Data source",
       "provider": "Provider",
-      "jdbcInstanceName":"Instance name",
+      "jdbcInstanceName": "Instance name",
       "glueState": "Catalog status",
-      "glueConnectionName":"Glue connection",
-      "locationUri":"Location uri",
-      "glueDatabaseCreateTime":"Database create time"
+      "glueConnectionName": "Glue connection",
+      "locationUri": "Location uri",
+      "glueDatabaseCreateTime": "Database create time",
+      "identifierType": "Identifier Type"
     }
   },
   "tab": {
     "dataIdentifiers": "Data identifiers",
     "tables": "Tables",
     "instanceProperties": "Instance properties",
-    "foders": "Folders",
+    "folders": "Folders",
     "bucketProperties": "Bucket properties",
     "jobHistory": "Job history",
     "jobProperties": "Job properties",
     "dataCatalogs": "Data catalogs",
-    "s3Properties": "Bucket properties"
+    "s3Properties": "Bucket properties",
+    "structuredData": "Structured data",
+    "unstructuredData": "Unstructured data",
+    "folderProperties": "Folder properties",
+    "tableProperties": "Table properties",
+    "sampleObjects": "Sample objects",
+    "schema": "Schema",
+    "dataPreview": "Data preview"
   },
   "step": {
     "step": "Step ",
@@ -345,5 +352,6 @@
   "privacy": "Privacy",
   "allCategory": "All Categories",
   "allLabel": "All Labels",
-  "learnMore": "Learn more"
+  "learnMore": "Learn more",
+  "allType": "All Types"
 }

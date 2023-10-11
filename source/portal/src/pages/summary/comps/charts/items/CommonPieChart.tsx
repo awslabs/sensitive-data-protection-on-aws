@@ -4,11 +4,12 @@ import { IPieChartDataType } from 'ts/dashboard/types';
 import { useTranslation } from 'react-i18next';
 import { formatNumber } from 'tools/tools';
 
-export type ChartSourceType = 's3' | 'rds';
+export type ChartSourceType = 's3' | 'rds' | 'glue' | 'jdbc';
 export type ChartDataType =
   | 'bucket'
   | 'folder'
   | 'file'
+  | 'size'
   | 'instance'
   | 'table'
   | 'column';
@@ -43,6 +44,8 @@ const CommonPieChart: React.FC<CommonPieChartProps> = (
           return t('summary:folders');
         case 'file':
           return t('summary:objects');
+        case 'size':
+          return t('summary:size');
       }
     }
     if (sourceType === 'rds') {

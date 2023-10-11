@@ -65,6 +65,22 @@ const DataLocations = () => {
     getSourceTableData();
   }, []);
 
+  const totalAccountItem = (item: any) => {
+    return (
+      (
+        <span
+          onClick={() => {
+            // Redirect to account page
+            // TODO
+          }}
+          className="source-count"
+        >
+          {item.account_count || '-'}
+        </span>
+      ) || '-'
+    );
+  };
+
   return (
     <Grid gridDefinition={[{ colspan: 6 }, { colspan: 6 }]}>
       <div>
@@ -76,41 +92,28 @@ const DataLocations = () => {
           resRegionData={resRegionData}
         />
       </div>
-      <div className="max-table-height">
+      <div className="mt-20 max-table-height-map">
         <Table
           variant="embedded"
           columnDefinitions={[
             {
               id: 'region',
-              header: 'Region/Location',
+              header: t('summary:regionLocation'),
               cell: (item) => item.region || '-',
               sortingField: 'name',
             },
 
             {
               id: 'source',
-              header: 'Source',
+              header: t('summary:source'),
               cell: (item) => {
                 return item.source;
               },
             },
             {
               id: 'totalAccounts',
-              header: 'Total accounts',
-              cell: (item) => {
-                return (
-                  (
-                    <span
-                      onClick={() => {
-                        // clkCount(item.name);
-                      }}
-                      className="source-count"
-                    >
-                      {item.account_count || '-'}
-                    </span>
-                  ) || '-'
-                );
-              },
+              header: t('summary:totalAccounts'),
+              cell: (item) => totalAccountItem(item),
               sortingField: 'data_source_count',
             },
           ]}

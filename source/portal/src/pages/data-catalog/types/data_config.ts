@@ -27,6 +27,10 @@ export const COLUMN_OBJECT_STR = {
   Category: 'category',
   IdentifierLabel: 'ident_label',
   Region: 'region',
+  StructuredData: 's3',
+  UnstructuredData: 'unstructured',
+  FolderDetail: 'folderDetail',
+  TableDetail: 'tableDetail',
 };
 
 // S3 catalog column
@@ -115,8 +119,14 @@ export const S3_MODAL_TABS = [
     detailDesInfo: '',
   },
   {
-    id: COLUMN_OBJECT_STR.Folders,
-    label: 'tab.foders',
+    id: COLUMN_OBJECT_STR.StructuredData,
+    label: 'tab.structuredData',
+    detailDesHeader: '',
+    detailDesInfo: '',
+  },
+  {
+    id: COLUMN_OBJECT_STR.UnstructuredData,
+    label: 'tab.unstructuredData',
     detailDesHeader: '',
     detailDesInfo: '',
   },

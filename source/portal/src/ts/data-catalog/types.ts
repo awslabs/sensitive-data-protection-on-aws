@@ -19,6 +19,7 @@ export interface CatalogDetailListProps {
   previewDataList?: Array<any>;
   setSaveDisabled?: any;
   isFreeText?: boolean;
+  dataType?: string;
 }
 
 export interface Label {

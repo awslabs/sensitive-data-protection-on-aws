@@ -78,21 +78,6 @@ const TemplateIdentifiers: React.FC = () => {
       }
       content={
         <ContentLayout disableOverlap header={<TemplateIdentifiersHeader />}>
-          <Tabs
-            disableContentPaddings
-            tabs={[
-              {
-                label: 'Text-based data identifiers',
-                id: 'text',
-                content: '',
-              },
-              {
-                label: 'Image-based data identifiers',
-                id: 'image',
-                content: '',
-              },
-            ]}
-          />
           <div className="mt-20">
             <Container>
               <Tabs

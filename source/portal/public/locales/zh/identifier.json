@@ -25,5 +25,11 @@
   "selectCategory": "选择一个类别",
   "selectLabel": "选择一个标签",
   "deleteAlert": "若这个identifier在已经存在在数据目录中，再次运行敏感数据发现作业后，这个identifier将从数据目录中移除",
-  "keywordAlert": "填写关键词或关闭按关键词识别按钮"
+  "keywordAlert": "填写关键词或关闭按关键词识别按钮",
+  "unstructuredDataSettings": "非结构化数据设置（可选）",
+  "maxDis": "最大深度",
+  "maxDisDesc": "如果关键词...",
+  "minDis": "最小识别规则",
+  "textBased": "基于文本",
+  "imageBased": "基于图片"
 }

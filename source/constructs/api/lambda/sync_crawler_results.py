@@ -10,8 +10,8 @@ from db.database import gen_session, close_session
 
 logger = logging.getLogger(const.LOGGER_API)
 logger.setLevel(logging.DEBUG)
-crawler_prefixes = [t.value + '-' for t in DatabaseType]
-crawler_suffix = '-' + GlueResourceNameSuffix.CRAWLER.value
+# crawler_prefixes = [t.value + '-' for t in DatabaseType]
+crawler_prefixes = const.SOLUTION_NAME + "-"
 
 
 def sync_result(input_event):
@@ -22,19 +22,23 @@ def sync_result(input_event):
 
     if 'detail' in input_event and 'crawlerName' in input_event['detail']:
         crawler_name = input_event['detail']['crawlerName']
-        if not crawler_name.endswith(crawler_suffix):
+        if not crawler_name.startswith(crawler_prefixes):
             return
         # add type support for jdbc
         # @see common/enum.py
-        is_jdbc = crawler_name.startswith(const.SOLUTION_NAME + "-" + DatabaseType.JDBC.value)
+        # is_jdbc = crawler_name.startswith(crawler_suffix + DatabaseType.JDBC.value + "-")
         parts = crawler_name.split('-')
-        database_type = '-'.join(parts[:2]) if is_jdbc else parts[0]
-        database_name = parts[2] if is_jdbc else parts[1]
+        if len(parts) < 3:
+            logger.error(f"not valid crawler name {crawler_name}")
+            return
+        # database_type = '-'.join(parts[:2]) if is_jdbc else parts[0]
+        database_type = parts[1]
+        database_name = '-'.join(parts[2:])
     elif 'detail' in input_event and 'databaseName' in input_event['detail']:
-        # glue database type
-        database_type = DatabaseType.GLUE.value
+        # database_type = DatabaseType.GLUE.value
+        database_type = input_event['detail']['databaseType']
         database_name = input_event['detail']['databaseName']
-
+    logger.info(f"sync_result database_type:{database_type} database_name:{database_name}")
     try:
         if catalog_service.sync_crawler_result(account_id=input_event['detail']['accountId'],
                                                region=input_event['region'],

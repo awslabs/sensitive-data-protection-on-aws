@@ -5,10 +5,8 @@ import {
   Grid,
   Spinner,
 } from '@cloudscape-design/components';
-import React, { memo, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import CircleChart from './items/CircleChart';
-// import CustomLineChart from './items/CustomLineChart';
-// import MapChart from './items/MapChart';
 import RDSCatalogOverview from './items/RDSCatalogOverview';
 import TableData from './items/TableData';
 import { getCatalogTopNData } from 'apis/dashboard/api';
@@ -19,7 +17,7 @@ import { useTranslation } from 'react-i18next';
 import IdentifierTableData from './items/IdentifierTable';
 import { Props } from 'common/PropsModal';
 
-export const AmazonRDS: React.FC<any> = memo(() => {
+export const AmazonRDS: React.FC<any> = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [loadingTableData, setLoadingTableData] = useState(true);
@@ -116,19 +114,6 @@ export const AmazonRDS: React.FC<any> = memo(() => {
         </div>
 
         <div className="mt-20 pd-10">
-          {loadingTableData ? (
-            <Spinner />
-          ) : (
-            <IdentifierTableData
-              dataList={identifierData}
-              keyLable={t('summary:dataIdentifier')}
-              valueLable={t('summary:rdsIntacnes')}
-              title={t('summary:topDataIdentifier')}
-            />
-          )}
-        </div>
-
-        <div className="mt-20 pd-10">
           <Header variant="h3">{t('summary:privacyTagging')}</Header>
           <Grid
             gridDefinition={[{ colspan: 4 }, { colspan: 4 }, { colspan: 4 }]}
@@ -159,7 +144,20 @@ export const AmazonRDS: React.FC<any> = memo(() => {
             </div>
           </Grid>
         </div>
+
+        <div className="mt-20 pd-10">
+          {loadingTableData ? (
+            <Spinner />
+          ) : (
+            <IdentifierTableData
+              dataList={identifierData}
+              keyLable={t('summary:dataIdentifier')}
+              valueLable={t('summary:rdsIntacnes')}
+              title={t('summary:topDataIdentifier')}
+            />
+          )}
+        </div>
       </Grid>
     </div>
   );
-});
+};

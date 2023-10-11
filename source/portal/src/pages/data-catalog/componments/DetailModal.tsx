@@ -190,6 +190,38 @@ const DetailModal: React.FC<any> = (props: any) => {
         isFreeText: true,
       };
     }
+    if (item.id === COLUMN_OBJECT_STR.StructuredData) {
+      tempProps = {
+        columnList: FOLDERS_COLUMN,
+        catalogType,
+        tagId: item.id,
+        needSchemaModal: true,
+        detailDesInfo: item.detailDesInfo,
+        detailDesHeader: item.detailDesHeader,
+        selectRowData,
+        needByPage: true,
+        clickIdentifiers,
+        needFilter: true,
+        isFreeText: true,
+        dataType: 's3',
+      };
+    }
+    if (item.id === COLUMN_OBJECT_STR.UnstructuredData) {
+      tempProps = {
+        columnList: FOLDERS_COLUMN,
+        catalogType,
+        tagId: item.id,
+        needSchemaModal: true,
+        detailDesInfo: item.detailDesInfo,
+        detailDesHeader: item.detailDesHeader,
+        selectRowData,
+        needByPage: true,
+        clickIdentifiers,
+        needFilter: true,
+        isFreeText: true,
+        dataType: 'unstructured',
+      };
+    }
     if (item.id === COLUMN_OBJECT_STR.Tables) {
       tempProps = {
         columnList: TABLES_COLUMN,
