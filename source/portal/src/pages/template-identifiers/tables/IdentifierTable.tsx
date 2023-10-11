@@ -90,6 +90,8 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
   const [searchSelectedLabel, setSearchSelectedLabel] =
     useState<SelectProps.Option | null>(null);
   const [cleanData, setCleanData] = useState(1);
+  const [identifierTypeParam, setIdentifierTypeParam] =
+    useState<SelectProps.Option | null>(null);
 
   const [confirmInput, setConfirmInput] = useState('');
   const [showErrorTips, setShowErrorTips] = useState({
@@ -197,7 +199,24 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
     curSortColumn,
     searchSelectedCategory,
     searchSelectedLabel,
+    identifierTypeParam,
   ]);
+
+  const buildTypeParam = () => {
+    if (type === 0) {
+      if (identifierTypeParam?.value === 'text') {
+        return [0, 2];
+      }
+      if (identifierTypeParam?.value === 'image') {
+        return [3];
+      }
+      return [0, 2, 3];
+    }
+    if (type === 1) {
+      return [1];
+    }
+    return [];
+  };
 
   const getPageData = async () => {
     setIsLoading(true);
@@ -210,7 +229,7 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
         conditions: [
           {
             column: 'type',
-            values: [type],
+            values: buildTypeParam(),
             condition: 'and',
             operation: ':',
           },
@@ -308,6 +327,14 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
     }
   };
 
+  const buildTypeDisplay = (e: any) => {
+    return (
+      <div>
+        {e.type === 3 ? t('identifier:imageBased') : t('identifier:textBased')}
+      </div>
+    );
+  };
+
   return (
     <SpaceBetween
       direction="vertical"
@@ -359,13 +386,7 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
                   (e as any)[item.id]
                 );
               } else if (item.id === 'type') {
-                return (
-                  <div>
-                    {e.type === 2
-                      ? t('identifier:imageBased')
-                      : t('identifier:textBased')}
-                  </div>
-                );
+                return buildTypeDisplay(e);
               } else if (item.id === 'category') {
                 return (
                   <div>
@@ -473,7 +494,14 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
                 }}
               />
             </div>
-            <IdentifierTypeSelect />
+            {type !== 1 && (
+              <IdentifierTypeSelect
+                typeValue={identifierTypeParam}
+                changeType={(type) => {
+                  setIdentifierTypeParam(type);
+                }}
+              />
+            )}
           </div>
         }
         pagination={

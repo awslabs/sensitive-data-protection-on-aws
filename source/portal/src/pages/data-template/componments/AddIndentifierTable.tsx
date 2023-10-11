@@ -50,6 +50,8 @@ const AddIdentfierTable = (props: any) => {
     useState<SelectProps.Option | null>(null);
   const [searchSelectedLabel, setSearchSelectedLabel] =
     useState<SelectProps.Option | null>(null);
+  const [identifierTypeParam, setIdentifierTypeParam] =
+    useState<SelectProps.Option | null>(null);
 
   const resourcesFilterProps = {
     totalCount,
@@ -79,7 +81,24 @@ const AddIdentfierTable = (props: any) => {
     searchSelectedLabel,
     isDescending,
     curSortColumn,
+    identifierTypeParam,
   ]);
+
+  const buildTypeParam = () => {
+    if (type === 0) {
+      if (identifierTypeParam?.value === 'text') {
+        return [0, 2];
+      }
+      if (identifierTypeParam?.value === 'image') {
+        return [3];
+      }
+      return [0, 2, 3];
+    }
+    if (type === 1) {
+      return [1];
+    }
+    return [];
+  };
 
   const getPageData = async () => {
     setIsLoading(true);
@@ -91,7 +110,7 @@ const AddIdentfierTable = (props: any) => {
       conditions: [
         {
           column: 'type',
-          values: [type],
+          values: buildTypeParam(),
           condition: 'and',
           operation: ':',
         },
@@ -165,6 +184,14 @@ const AddIdentfierTable = (props: any) => {
     setInUseIdentifiers(result);
   };
 
+  const buildTypeDisplay = (e: any) => {
+    return (
+      <div>
+        {e.type === 3 ? t('identifier:imageBased') : t('identifier:textBased')}
+      </div>
+    );
+  };
+
   return (
     <Table
       items={pageData}
@@ -206,13 +233,7 @@ const AddIdentfierTable = (props: any) => {
                 </div>
               );
             } else if (item.id === 'type') {
-              return (
-                <div>
-                  {e.type === 2
-                    ? t('identifier:imageBased')
-                    : t('identifier:textBased')}
-                </div>
-              );
+              return buildTypeDisplay(e);
             } else if (item.id === 'label') {
               return (
                 <div>
@@ -283,7 +304,14 @@ const AddIdentfierTable = (props: any) => {
               }}
             />
           </div>
-          <IdentifierTypeSelect />
+          {type !== 1 && (
+            <IdentifierTypeSelect
+              typeValue={identifierTypeParam}
+              changeType={(type) => {
+                setIdentifierTypeParam(type);
+              }}
+            />
+          )}
         </div>
       }
       pagination={

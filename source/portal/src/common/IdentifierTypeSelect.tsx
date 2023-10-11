@@ -1,22 +1,30 @@
 import { Select, SelectProps } from '@cloudscape-design/components';
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-const IdentifierTypeSelect = () => {
+interface IdentifierTypeSelectProps {
+  typeValue: SelectProps.Option | null;
+  changeType: (type: SelectProps.Option | null) => void;
+}
+
+const IdentifierTypeSelect: React.FC<IdentifierTypeSelectProps> = (
+  props: IdentifierTypeSelectProps
+) => {
   const { t } = useTranslation();
-  const [identifierType, setIdentifierType] = useState<SelectProps.Option>({
-    label: t('allType') ?? '',
-    value: '',
-  });
+  const { typeValue, changeType } = props;
   return (
     <div className="flex-1">
       <Select
         placeholder={t('table.label.identifierType') ?? ''}
-        selectedOption={identifierType}
-        onChange={({ detail }) => setIdentifierType(detail.selectedOption)}
+        selectedOption={typeValue}
+        onChange={({ detail }) => changeType(detail.selectedOption)}
         options={[
-          { label: t('identifier:textBased') ?? '', value: '1' },
-          { label: t('identifier:imageBased') ?? '', value: '2' },
+          {
+            label: t('allType') ?? '',
+            value: '',
+          },
+          { label: t('identifier:textBased') ?? '', value: 'text' },
+          { label: t('identifier:imageBased') ?? '', value: 'image' },
         ]}
       />
     </div>
