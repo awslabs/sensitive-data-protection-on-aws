@@ -365,7 +365,7 @@ const CreateJobContent = () => {
                     jobData={jobData}
                     changeSelectType={(type) => {
                       setJobData((prev) => {
-                        return { ...prev, all_rds: type };
+                        return { ...prev, all_glue: type };
                       });
                     }}
                     changeGlueSelectView={(view) => {
@@ -392,7 +392,7 @@ const CreateJobContent = () => {
                     jobData={jobData}
                     changeSelectType={(type) => {
                       setJobData((prev) => {
-                        return { ...prev, all_rds: type };
+                        return { ...prev, all_jdbc: type };
                       });
                     }}
                     changeJDBCSelectView={(view) => {
