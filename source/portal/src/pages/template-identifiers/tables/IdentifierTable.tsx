@@ -28,6 +28,7 @@ import { TABLE_NAME } from 'enum/common_types';
 import { useTranslation } from 'react-i18next';
 import PropsModal, { Props } from 'common/PropsModal';
 import PropsSelect from 'common/PropsSelect';
+import IdentifierTypeSelect from 'common/IdentifierTypeSelect';
 
 interface IdentifierTableProps {
   title: string;
@@ -89,6 +90,8 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
   const [searchSelectedLabel, setSearchSelectedLabel] =
     useState<SelectProps.Option | null>(null);
   const [cleanData, setCleanData] = useState(1);
+  const [identifierTypeParam, setIdentifierTypeParam] =
+    useState<SelectProps.Option | null>(null);
 
   const [confirmInput, setConfirmInput] = useState('');
   const [showErrorTips, setShowErrorTips] = useState({
@@ -147,7 +150,6 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
         }
       }
     }
-    return;
   };
 
   const clkConfirmDelete = async () => {
@@ -178,7 +180,6 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
 
   const clkCreate = () => {
     navigate(RouterEnum.CreateIdentifiers.path);
-    return;
   };
 
   useEffect(() => {
@@ -198,7 +199,24 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
     curSortColumn,
     searchSelectedCategory,
     searchSelectedLabel,
+    identifierTypeParam,
   ]);
+
+  const buildTypeParam = () => {
+    if (type === 0) {
+      if (identifierTypeParam?.value === 'text') {
+        return [0, 2];
+      }
+      if (identifierTypeParam?.value === 'image') {
+        return [3];
+      }
+      return [0, 2, 3];
+    }
+    if (type === 1) {
+      return [1];
+    }
+    return [];
+  };
 
   const getPageData = async () => {
     setIsLoading(true);
@@ -211,7 +229,7 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
         conditions: [
           {
             column: 'type',
-            values: [type],
+            values: buildTypeParam(),
             condition: 'and',
             operation: ':',
           },
@@ -309,6 +327,14 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
     }
   };
 
+  const buildTypeDisplay = (e: any) => {
+    return (
+      <div>
+        {e.type === 3 ? t('identifier:imageBased') : t('identifier:textBased')}
+      </div>
+    );
+  };
+
   return (
     <SpaceBetween
       direction="vertical"
@@ -359,6 +385,8 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
                 ) : (
                   (e as any)[item.id]
                 );
+              } else if (item.id === 'type') {
+                return buildTypeDisplay(e);
               } else if (item.id === 'category') {
                 return (
                   <div>
@@ -466,6 +494,14 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
                 }}
               />
             </div>
+            {type !== 1 && (
+              <IdentifierTypeSelect
+                typeValue={identifierTypeParam}
+                changeType={(type) => {
+                  setIdentifierTypeParam(type);
+                }}
+              />
+            )}
           </div>
         }
         pagination={
@@ -502,7 +538,9 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
               options: [
                 {
                   label: t('table.mainDistributionProp'),
-                  options: columnList,
+                  options: columnList.map((element) => {
+                    return { ...element, label: t(element.label) };
+                  }),
                 },
               ],
             }}

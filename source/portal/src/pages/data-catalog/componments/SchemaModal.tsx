@@ -21,6 +21,7 @@ import {
   COLUMN_OBJECT_STR,
   SCHEMA_COLUMN,
   UPDATE_FLAG,
+  BUCKET_PROPERTIES_COLUMN,
 } from '../types/data_config';
 import { DATA_TYPE_ENUM } from 'enum/common_types';
 import {
@@ -92,16 +93,29 @@ const SchemaModal: React.FC<any> = (props: any) => {
       setUpdateData,
       setSaveDisabled,
     };
+    const propertiesProps = {
+      columnList: BUCKET_PROPERTIES_COLUMN,
+      catalogType,
+      tagId: '', // TODO
+      detailDesInfo: '', // TODO
+      detailDesHeader: '', //TODO
+      selectRowData,
+    };
     tabsContent = [
       {
         id: COLUMN_OBJECT_STR.Schema,
-        label: 'Schema',
+        label: t('tab.schema'),
         content: <CatalogDetailList {...schemaProps} />,
       },
       {
         id: COLUMN_OBJECT_STR.SampleObjects,
-        label: 'Sample objects',
+        label: t('tab.sampleObjects'),
         content: <CatalogDetailList {...objectsProps} />,
+      },
+      {
+        id: COLUMN_OBJECT_STR.FolderDetail,
+        label: t('tab.folderProperties'),
+        content: <CatalogDetailList {...propertiesProps} />,
       },
     ];
   } else {
@@ -125,16 +139,29 @@ const SchemaModal: React.FC<any> = (props: any) => {
       setUpdateData,
       setSaveDisabled,
     };
+    const propertiesProps = {
+      columnList: BUCKET_PROPERTIES_COLUMN,
+      catalogType,
+      tagId: '', // TODO
+      detailDesInfo: '', // TODO
+      detailDesHeader: '', //TODO
+      selectRowData,
+    };
     tabsContent = [
       {
         id: COLUMN_OBJECT_STR.Schema,
-        label: 'Schema',
+        label: t('tab.schema'),
         content: <CatalogDetailList {...schemaProps} />,
       },
       {
         id: COLUMN_OBJECT_STR.DataPreview,
-        label: 'Data preview',
+        label: t('tab.dataPreview'),
         content: <CatalogDetailList {...previewProps} />,
+      },
+      {
+        id: COLUMN_OBJECT_STR.TableDetail,
+        label: t('tab.tableProperties'),
+        content: <CatalogDetailList {...propertiesProps} />,
       },
     ];
   }

@@ -1,41 +1,22 @@
 import { Box, Grid, Spinner } from '@cloudscape-design/components';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CounterLink } from 'common/ConterLink';
-import HorizontalBarChart from './HorizontalBarChart';
 import { getDatacatalogSummary } from 'apis/dashboard/api';
-import { ICatalogSummary, ColumnChartData } from 'ts/dashboard/types';
+import { ICatalogSummary } from 'ts/dashboard/types';
 import { formatNumber } from 'tools/tools';
 import { useTranslation } from 'react-i18next';
 
-const RDSCatalogOverview = () => {
+const GlueCatalogOverview = () => {
   const [loadingData, setLoadingData] = useState(true);
   const { t } = useTranslation();
   const [catalogSummaryData, setCatalogSummaryData] =
     useState<ICatalogSummary>();
-  const [columChartData, setColumChartData] = useState<ColumnChartData[]>([]);
 
   const getS3DatacatalogSummary = async () => {
     const res = await getDatacatalogSummary({
-      database_type: 'rds',
+      database_type: 'glue',
     });
     setCatalogSummaryData(res as ICatalogSummary);
-    const tmpData = res as ICatalogSummary;
-    const tmpColumnChartData: ColumnChartData[] = [];
-    tmpData.column_chart.forEach((element) => {
-      element.total_count = tmpData.column_chart.reduce(
-        (accumulator: number, item: any) => {
-          return accumulator + item.table_total;
-        },
-        0
-      );
-      tmpColumnChartData.push({
-        title: element.classification,
-        type: 'bar',
-        valueFormatter: (e: any) => `${(100 * e).toFixed(0)}%`,
-        data: [{ x: '', y: element.table_total / element.total_count }],
-      });
-    });
-    setColumChartData(tmpColumnChartData);
     setLoadingData(false);
   };
 
@@ -71,14 +52,11 @@ const RDSCatalogOverview = () => {
               </CounterLink>
             </div>
           </Grid>
-          <div>
-            <Box variant="awsui-key-label">{t('summary:rdsEngineTypes')}</Box>
-            <HorizontalBarChart chartData={columChartData} />
-          </div>
+          <div></div>
         </Grid>
       )}
     </>
   );
 };
 
-export default RDSCatalogOverview;
+export default GlueCatalogOverview;

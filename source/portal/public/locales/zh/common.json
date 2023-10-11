@@ -65,7 +65,7 @@
     "backToAWSAccount": "返回 AWS 账户视图",
     "connectAll": "同步全部至数据目录",
     "connect": "同步至数据目录",
-    "testConnection":"测试连接",
+    "testConnection": "测试连接",
     "manageDataIdentifiers": "管理数据识别规则",
     "addDataIdentifier": "添加数据标识符",
     "addToTemplate": "添加到模板",
@@ -73,7 +73,7 @@
     "browserCatalog": "浏览数据目录",
     "defineTemplate": " 定义分类模板",
     "runJob": "运行敏感数据发现作业",
-    "createIdentifier": "创建数据标识符",
+    "createIdentifier": "创建基于文本的数据标识符",
     "addToIdentifier": "添加到标识符",
     "createCategory": "创建类别",
     "createIdentifierLabel": "创建标签",
@@ -174,7 +174,7 @@
       "lastUpdateAt": "上次更新于",
       "lastUpdateBy": "上次更新者",
       "dataIdentifiers": "数据标识符",
-      "foders": "文件夹",
+      "folders": "文件夹",
       "columns": "列数",
       "folderName": "文件夹名称",
       "items": "行数",
@@ -220,28 +220,35 @@
       "finishedAt": "完成于",
       "identifierLabel": "标识符标签",
       "category": "类别",
-      "folders": "文件夹",
       "dataCatalogName": "数据目录名称",
       "dataSourceType": "数据源类型",
       "dataSource": "数据源",
       "provider": "服务商",
-      "jdbcInstanceName":"实例名",
+      "jdbcInstanceName": "实例名",
       "glueState": "数据目录",
-      "glueConnectionName":"连通性",
-      "locationUri":"Uri",
-      "glueDatabaseCreateTime":"数据库创建时间"
+      "glueConnectionName": "连通性",
+      "locationUri": "Uri",
+      "glueDatabaseCreateTime": "数据库创建时间",
+      "identifierType": "标识符类型"
     }
   },
   "tab": {
     "dataIdentifiers": "数据标识符",
     "tables": "数据表",
     "instanceProperties": "实例属性",
-    "foders": "文件夹",
+    "folders": "文件夹",
     "bucketProperties": "存储分区属性",
     "jobHistory": "作业历史",
     "jobProperties": "作业属性",
     "dataCatalogs": "数据目录",
-    "s3Properties": "存储桶属性"
+    "s3Properties": "存储桶属性",
+    "structuredData": "结构化数据",
+    "unstructuredData": "非结构化数据",
+    "folderProperties": "文件夹属性",
+    "tableProperties": "表属性",
+    "sampleObjects": "样例对象",
+    "schema": "表视图",
+    "dataPreview": "数据预览"
   },
   "step": {
     "step": "步骤 ",
@@ -345,5 +352,6 @@
   "privacy": "隐私",
   "allCategory": "所有类别",
   "allLabel": "所有标签",
-  "learnMore": "了解更多"
+  "learnMore": "了解更多",
+  "allType": "所有类型"
 }

@@ -21,6 +21,7 @@ import { alertMsg, useDidUpdateEffect } from 'tools/tools';
 import { useTranslation } from 'react-i18next';
 import PropsSelect from 'common/PropsSelect';
 import { Props } from 'common/PropsModal';
+import IdentifierTypeSelect from 'common/IdentifierTypeSelect';
 
 const AddIdentfierTable = (props: any) => {
   const { addCallBack, type } = props;
@@ -48,6 +49,8 @@ const AddIdentfierTable = (props: any) => {
   const [searchSelectedCategory, setSearchSelectedCategory] =
     useState<SelectProps.Option | null>(null);
   const [searchSelectedLabel, setSearchSelectedLabel] =
+    useState<SelectProps.Option | null>(null);
+  const [identifierTypeParam, setIdentifierTypeParam] =
     useState<SelectProps.Option | null>(null);
 
   const resourcesFilterProps = {
@@ -78,7 +81,24 @@ const AddIdentfierTable = (props: any) => {
     searchSelectedLabel,
     isDescending,
     curSortColumn,
+    identifierTypeParam,
   ]);
+
+  const buildTypeParam = () => {
+    if (type === 0) {
+      if (identifierTypeParam?.value === 'text') {
+        return [0, 2];
+      }
+      if (identifierTypeParam?.value === 'image') {
+        return [3];
+      }
+      return [0, 2, 3];
+    }
+    if (type === 1) {
+      return [1];
+    }
+    return [];
+  };
 
   const getPageData = async () => {
     setIsLoading(true);
@@ -90,7 +110,7 @@ const AddIdentfierTable = (props: any) => {
       conditions: [
         {
           column: 'type',
-          values: [type],
+          values: buildTypeParam(),
           condition: 'and',
           operation: ':',
         },
@@ -136,7 +156,7 @@ const AddIdentfierTable = (props: any) => {
     const promiseList: any[] = [];
     const identifierIds: any[] = [];
     selectedItems.forEach((item: { id: any }) => {
-      identifierIds.push(item.id)
+      identifierIds.push(item.id);
     });
     const requestParam = {
       template_id: 1,
@@ -162,6 +182,14 @@ const AddIdentfierTable = (props: any) => {
   const getIdentifierInUse = async () => {
     const result: any = await getIndentifierInTemplate();
     setInUseIdentifiers(result);
+  };
+
+  const buildTypeDisplay = (e: any) => {
+    return (
+      <div>
+        {e.type === 3 ? t('identifier:imageBased') : t('identifier:textBased')}
+      </div>
+    );
   };
 
   return (
@@ -204,6 +232,8 @@ const AddIdentfierTable = (props: any) => {
                   )?.prop_name || 'N/A'}
                 </div>
               );
+            } else if (item.id === 'type') {
+              return buildTypeDisplay(e);
             } else if (item.id === 'label') {
               return (
                 <div>
@@ -274,6 +304,14 @@ const AddIdentfierTable = (props: any) => {
               }}
             />
           </div>
+          {type !== 1 && (
+            <IdentifierTypeSelect
+              typeValue={identifierTypeParam}
+              changeType={(type) => {
+                setIdentifierTypeParam(type);
+              }}
+            />
+          )}
         </div>
       }
       pagination={

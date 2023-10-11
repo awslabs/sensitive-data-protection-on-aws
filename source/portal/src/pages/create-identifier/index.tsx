@@ -2,6 +2,7 @@ import {
   AppLayout,
   Button,
   Container,
+  ExpandableSection,
   FormField,
   Grid,
   Header,
@@ -111,6 +112,10 @@ const CreateIdentifierContent = (props: any) => {
   );
   const [selectedLabel, setSelectedLabel] = useState<SelectProps.Option>(
     findCategoryLabelAndConvertOption('2', oldData.props)
+  );
+  const [maxDistance, setMaxDistance] = useState(oldData.max_distance || '');
+  const [minOccurrence, setMinOccurrence] = useState(
+    oldData.min_occurrence || ''
   );
 
   const [showModal, setShowModal] = useState(false);
@@ -229,6 +234,8 @@ const CreateIdentifierContent = (props: any) => {
       header_keywords: keywordToggle ? tempHeadList : null,
       exclude_keywords: excludeKeywordsToggle ? excludeKeyword : null,
       props: newProps,
+      max_distance: maxDistance,
+      min_occurrence: minOccurrence,
     };
     if (oldData.id) {
       requestParam.id = oldData.id;
@@ -486,6 +493,38 @@ const CreateIdentifierContent = (props: any) => {
             )}
           </SpaceBetween>
         </Container>
+
+        <ExpandableSection
+          defaultExpanded
+          variant="container"
+          headerText={t('identifier:unstructuredDataSettings')}
+        >
+          <SpaceBetween direction="vertical" size="l">
+            <FormField
+              label={t('identifier:maxDis')}
+              description={t('identifier:maxDisDesc')}
+            >
+              <Input
+                type="number"
+                value={maxDistance}
+                onChange={({ detail }) => {
+                  setMaxDistance(detail.value);
+                }}
+                placeholder="50"
+              />
+            </FormField>
+            <FormField label={t('identifier:minDis')}>
+              <Input
+                type="number"
+                value={minOccurrence}
+                onChange={({ detail }) => {
+                  setMinOccurrence(detail.value);
+                }}
+                placeholder="2"
+              />
+            </FormField>
+          </SpaceBetween>
+        </ExpandableSection>
 
         <div className="text-right">
           <Button className="identifier-opt-btn" onClick={backNavigate}>

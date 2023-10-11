@@ -46,6 +46,7 @@ export const SOURCE_TYPE = {
   JDBC_AWS: 'jdbc_aws',
   JDBC_TENCENT: 'jdbc_tencent',
   JDBC_ALIYUN: 'jdbc_aliyun',
+  JDBC_GOOGLE: 'jdbc_google',
 };
 
 export const getSourceTypeByProvider = (providerId: string) => {
@@ -77,7 +78,7 @@ export const getSourceTypeByProvider = (providerId: string) => {
       return [
         {
           label: 'Custom databases',
-          value: SOURCE_TYPE.JDBC,
+          value: SOURCE_TYPE.JDBC_GOOGLE,
         },
       ];
     default:

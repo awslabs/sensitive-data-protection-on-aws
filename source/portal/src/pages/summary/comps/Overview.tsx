@@ -3,7 +3,6 @@ import {
   Box,
   Container,
   Header,
-  ColumnLayout,
   Grid,
   Spinner,
 } from '@cloudscape-design/components';
@@ -24,7 +23,6 @@ const Overview: React.FC<OverViewProps> = (props: OverViewProps) => {
   const [loadingCoverage, setLoadingCoverage] = useState(true);
   const [accountInfo, setAccountInfo] = useState<IAccountInfo>();
   const [coverageInfo, setCoverageInfo] = useState<ISourceCoverage>();
-  // const [currentProvider, setCurrentProvider] = useState('1');
   const { t } = useTranslation();
   const { currentProvider } = props;
   const getOverviewData = async () => {
@@ -36,7 +34,7 @@ const Overview: React.FC<OverViewProps> = (props: OverViewProps) => {
     setLoadingOverview(false);
   };
 
-  const getDashbaordSourceCoverage = async () => {
+  const getDashboardSourceCoverage = async () => {
     setLoadingCoverage(true);
     try {
       const res = await getSourceCoverage({ provider_id: currentProvider?.id });
@@ -50,12 +48,58 @@ const Overview: React.FC<OverViewProps> = (props: OverViewProps) => {
   useEffect(() => {
     if (currentProvider) {
       getOverviewData();
-      getDashbaordSourceCoverage();
+      getDashboardSourceCoverage();
     }
   }, [currentProvider]);
 
+  const buildSummaryDataByProvider = () => {
+    if (currentProvider?.id === 1) {
+      return (
+        <Grid
+          gridDefinition={[
+            { colspan: 3 },
+            { colspan: 3 },
+            { colspan: 3 },
+            { colspan: 3 },
+          ]}
+        >
+          <div>
+            <Box variant="awsui-key-label">{t('summary:totalS3Buckets')}</Box>
+            <CounterLink>{coverageInfo?.s3_total}</CounterLink>
+          </div>
+          <div>
+            <Box variant="awsui-key-label">
+              {t('summary:totalRDSInstances')}
+            </Box>
+            <CounterLink>{coverageInfo?.rds_total}</CounterLink>
+          </div>
+          <div>
+            <Box variant="awsui-key-label">{t('summary:totalGlue')}</Box>
+            <CounterLink>{coverageInfo?.glue_total}</CounterLink>
+          </div>
+          <div>
+            <Box variant="awsui-key-label">{t('summary:totalJDBC')}</Box>
+            <CounterLink>{coverageInfo?.jdbc_total}</CounterLink>
+          </div>
+        </Grid>
+      );
+    }
+    return (
+      <div>
+        <Box variant="awsui-key-label">{t('summary:totalJDBC')}</Box>
+        <CounterLink>{coverageInfo?.jdbc_total}</CounterLink>
+      </div>
+    );
+  };
+
   return (
-    <Grid gridDefinition={[{ colspan: 5 }, { colspan: 7 }]}>
+    <Grid
+      gridDefinition={
+        currentProvider?.id === 1
+          ? [{ colspan: 4 }, { colspan: 8 }]
+          : [{ colspan: 6 }, { colspan: 6 }]
+      }
+    >
       <div>
         <Container
           header={
@@ -74,7 +118,7 @@ const Overview: React.FC<OverViewProps> = (props: OverViewProps) => {
           {loadingOverview ? (
             <Spinner />
           ) : (
-            <ColumnLayout columns={2} variant="text-grid">
+            <Grid gridDefinition={[{ colspan: 6 }, { colspan: 6 }]}>
               <div>
                 <Box variant="awsui-key-label">
                   {t('summary:totalAWSAccount', {
@@ -87,7 +131,7 @@ const Overview: React.FC<OverViewProps> = (props: OverViewProps) => {
                 <Box variant="awsui-key-label">{t('summary:awsRegions')}</Box>
                 <CounterLink>{accountInfo?.region_total}</CounterLink>
               </div>
-            </ColumnLayout>
+            </Grid>
           )}
         </Container>
       </div>
@@ -104,24 +148,7 @@ const Overview: React.FC<OverViewProps> = (props: OverViewProps) => {
             </Header>
           }
         >
-          {loadingCoverage ? (
-            <Spinner />
-          ) : (
-            <ColumnLayout columns={2} variant="text-grid">
-              <div>
-                <Box variant="awsui-key-label">
-                  {t('summary:totalS3Buckets')}
-                </Box>
-                <CounterLink>{coverageInfo?.s3_total}</CounterLink>
-              </div>
-              <div>
-                <Box variant="awsui-key-label">
-                  {t('summary:totalRDSInstances')}
-                </Box>
-                <CounterLink>{coverageInfo?.rds_total}</CounterLink>
-              </div>
-            </ColumnLayout>
-          )}
+          {loadingCoverage ? <Spinner /> : <>{buildSummaryDataByProvider()}</>}
         </Container>
       </div>
     </Grid>
