@@ -120,6 +120,7 @@ export interface IJobType {
   exclude_file_extensions: string;
   include_file_extensions: string;
   databases: DataBaseType[];
+  // Temporary Variables
   templateObj: SelectProps.Option | null;
   scanFrequencyObj: SelectProps.Option | null;
   scanDepthObj: SelectProps.Option | null;
@@ -131,6 +132,10 @@ export interface IJobType {
   includeKeyWordsEnable: boolean;
   excludeExtensionsEnable: boolean;
   includeExtensionsEnable: boolean;
+  frequency: string;
+  frequencyType: string;
+  frequencyStart: SelectProps.Option | null;
+  frequencyTimeStart: SelectProps.Option | null;
 }
 
 export const INIT_JOB_DATA: IJobType = {
@@ -167,4 +172,8 @@ export const INIT_JOB_DATA: IJobType = {
   includeKeyWordsEnable: false,
   excludeExtensionsEnable: false,
   includeExtensionsEnable: false,
+  frequency: 'On-demand run',
+  frequencyType: 'on_demand_run',
+  frequencyStart: null,
+  frequencyTimeStart: { label: '00:00', value: '0' },
 };

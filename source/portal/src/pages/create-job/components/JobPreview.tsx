@@ -4,23 +4,16 @@ import {
   FormField,
   Header,
   SpaceBetween,
-  SelectProps,
 } from '@cloudscape-design/components';
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
 import { IJobType } from 'pages/data-job/types/job_list_type';
+import { SOURCE_TYPE } from 'enum/common_types';
 
 const SELECT_S3 = 'selectS3';
-const NONE_S3 = 'noneS3';
 
 const SELECT_RDS = 'selectRds';
 const NONE_RDS = 'noneRds';
-
-const S3_OPTION: any = {
-  allS3: 'All data catalogs',
-  [SELECT_S3]: 'Specific data catalogs',
-  [NONE_S3]: 'Skip scan Amazon S3',
-};
 
 const RDS_OPTION: any = {
   allRds: 'All data catalogs',
@@ -35,17 +28,8 @@ interface JobPreviewProps {
 const JobPreview: React.FC<JobPreviewProps> = (props: JobPreviewProps) => {
   const { t } = useTranslation();
   const { jobData } = props;
-  const [s3CatalogType, setS3CatalogType] = useState('');
   const [rdsCatalogType, setRdsCatalogType] = useState('');
-
-  const [selectedS3Items, setSelectedS3Items] = useState([] as any);
   const [selectedRdsItems, setSelectedRdsItems] = useState([] as any);
-
-  const [frequencyType, setFrequencyType] = useState('on_demand_run');
-
-  const [frequencyStart, setFrequencyStart] = useState(
-    null as SelectProps.Option | null
-  );
   const [rdsSelectedView, setRdsSelectedView] = useState('rds-instance-view');
   const jumpToCatalog = (rowData: any) => {
     window.open(
@@ -59,42 +43,54 @@ const JobPreview: React.FC<JobPreviewProps> = (props: JobPreviewProps) => {
       header={<Header variant="h2">{t('job:create.jobPreview')}</Header>}
     >
       <SpaceBetween direction="vertical" size="l">
+        <FormField label="Provider">
+          <span>{jobData.provider_id}</span>
+        </FormField>
+        <FormField label="Data sources">
+          <span>{jobData.database_type}</span>
+        </FormField>
         <FormField label={t('job:create.targetDataCatalogs')}>
-          <span className="sources-title">
-            {t('job:create.s3Bucket')} ({S3_OPTION[s3CatalogType]}) :
-          </span>
-          {s3CatalogType === SELECT_S3 && (
-            <ul>
-              {selectedS3Items.map(
-                (
-                  item: {
-                    database_name:
-                      | string
-                      | number
-                      | boolean
-                      | React.ReactElement<
-                          any,
-                          string | React.JSXElementConstructor<any>
+          {jobData.database_type === SOURCE_TYPE.S3 && (
+            <>
+              <span className="sources-title">
+                {t('job:create.s3Bucket')} (
+                {jobData.all_s3 === '1'
+                  ? 'All data catalogs'
+                  : 'Specific data catalogs'}
+                ) :
+                <ul>
+                  {jobData.databases.map(
+                    (
+                      item: {
+                        database_name:
+                          | string
+                          | number
+                          | boolean
+                          | React.ReactElement<
+                              any,
+                              string | React.JSXElementConstructor<any>
+                            >
+                          | React.ReactFragment
+                          | React.ReactPortal
+                          | null
+                          | undefined;
+                      },
+                      index: string | number
+                    ) => {
+                      return (
+                        <li
+                          className="job-name"
+                          key={SELECT_S3 + index}
+                          onClick={() => jumpToCatalog(item)}
                         >
-                      | React.ReactFragment
-                      | React.ReactPortal
-                      | null
-                      | undefined;
-                  },
-                  index: string | number
-                ) => {
-                  return (
-                    <li
-                      className="job-name"
-                      key={SELECT_S3 + index}
-                      onClick={() => jumpToCatalog(item)}
-                    >
-                      {item.database_name}
-                    </li>
-                  );
-                }
-              )}
-            </ul>
+                          {item.database_name}
+                        </li>
+                      );
+                    }
+                  )}
+                </ul>
+              </span>
+            </>
           )}
           <br></br>
           {rdsSelectedView === 'rds-instance-view' && (
@@ -181,11 +177,11 @@ const JobPreview: React.FC<JobPreviewProps> = (props: JobPreviewProps) => {
         </FormField>
         <FormField label={t('job:create.scanFreq')}>
           <span>
-            {frequencyType.toUpperCase()}{' '}
-            {frequencyStart && (
+            {jobData.frequencyType.toUpperCase()}{' '}
+            {jobData.frequencyStart && (
               <>
                 - Start hours/day:
-                {frequencyStart?.value}
+                {jobData.frequencyStart?.value}
               </>
             )}
           </span>

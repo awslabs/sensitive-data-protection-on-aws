@@ -38,6 +38,10 @@ interface JobSettingsProps {
   changeScanRangeObj: (option: SelectProps.Option | null) => void;
   changeDetectionThresholdObj: (option: SelectProps.Option | null) => void;
   changeOverrideObj: (option: SelectProps.Option | null) => void;
+  changeFrequency: (frq: string) => void;
+  changeFrequencyType: (type: string) => void;
+  changeFrequencyStart: (option: SelectProps.Option | null) => void;
+  changeFrequencyTimeStart: (option: SelectProps.Option | null) => void;
 }
 
 const JobSettings: React.FC<JobSettingsProps> = (props: JobSettingsProps) => {
@@ -52,15 +56,17 @@ const JobSettings: React.FC<JobSettingsProps> = (props: JobSettingsProps) => {
     changeScanRangeObj,
     changeDetectionThresholdObj,
     changeOverrideObj,
+    changeFrequency,
+    changeFrequencyType,
+    changeFrequencyStart,
+    changeFrequencyTimeStart,
   } = props;
   const { t } = useTranslation();
-  const [frequency, setFrequency] = useState('On-demand run');
-  const [frequencyType, setFrequencyType] = useState('on_demand_run');
-  const [frequencyStart, setFrequencyStart] = useState(
-    null as SelectProps.Option | null
-  );
+  const [frequency, setFrequency] = useState(jobData.frequency);
+  const [frequencyType, setFrequencyType] = useState(jobData.frequencyType);
+  const [frequencyStart, setFrequencyStart] = useState(jobData.frequencyStart);
   const [frequencyTimeStart, setFrequencyTimeStart] =
-    useState<SelectProps.Option>({ label: '00:00', value: '0' });
+    useState<SelectProps.Option | null>(jobData.frequencyTimeStart);
   const [timezone, setTimezone] = useState('');
 
   const clkFrequencyApply = (type: any) => {
@@ -108,6 +114,22 @@ const JobSettings: React.FC<JobSettingsProps> = (props: JobSettingsProps) => {
     };
     getTimezone();
   }, []);
+
+  useEffect(() => {
+    changeFrequency(frequency);
+  }, [frequency]);
+
+  useEffect(() => {
+    changeFrequencyType(frequency);
+  }, [frequencyType]);
+
+  useEffect(() => {
+    changeFrequencyStart(frequencyStart);
+  }, [frequencyStart]);
+
+  useEffect(() => {
+    changeFrequencyTimeStart(frequencyTimeStart);
+  }, [frequencyTimeStart]);
 
   return (
     <SpaceBetween direction="vertical" size="l">
