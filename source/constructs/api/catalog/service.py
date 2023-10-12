@@ -2,6 +2,7 @@ import datetime
 
 import boto3
 import os
+import tempfile
 import json
 import csv
 
@@ -42,6 +43,7 @@ partition = caller_identity['Arn'].split(':')[1]
 
 
 sql_result = "SELECT database_type,account_id,region,s3_bucket,s3_location,rds_instance_id,table_name,column_name,identifiers,sample_data,'','','' FROM job_detection_output_table"
+tmp_folder = tempfile.gettempdir()
 
 def get_boto3_client(account_id: str, region: str, service: str):
     sts_connection = boto3.client("sts")
@@ -1075,7 +1077,7 @@ def get_catalog_export_url(fileType: str, timeStr: str) -> str:
     run_result = crud.get_export_catalog_data()
     all_labels = get_all_labels()
     all_labels_dict = dict()
-    tmp_filename = f"/tmp/catalog_{timeStr}.zip"
+    tmp_filename = f"{tmp_folder}/catalog_{timeStr}.zip"
     report_file = f"report/catalog_{timeStr}.zip"
     for item in all_labels:
         all_labels_dict[item.id] = item.label_name
@@ -1134,7 +1136,7 @@ def gen_zip_file(header, record, tmp_filename, type):
                     ws1.append(header.get(k))
                     for row_index in range(0, len(v)):
                         ws1.append([__get_cell_value(cell) for cell in v[row_index][0]])
-                    file_name = f"/tmp/{k}.xlsx"
+                    file_name = f"{tmp_folder}/{k}.xlsx"
                     wb.save(file_name)
                     zipf.write(file_name, os.path.abspath(file_name))
                     os.remove(file_name)
@@ -1146,14 +1148,14 @@ def gen_zip_file(header, record, tmp_filename, type):
                         ws1.append(header.get(k))
                         for row_index in range(const.EXPORT_XLSX_MAX_LINES * i, min(const.EXPORT_XLSX_MAX_LINES * (i + 1), len(v))):
                             ws1.append([__get_cell_value(cell) for cell in v[row_index][0]])
-                        file_name = f"/tmp/{k}_{i+1}.xlsx"
+                        file_name = f"{tmp_folder}/{k}_{i+1}.xlsx"
                         wb.save(file_name)
                         zipf.write(file_name, os.path.basename(file_name))
                         os.remove(file_name)
             else:
                 batches = int(len(v) / const.EXPORT_CSV_MAX_LINES)
                 if batches < 1:
-                    file_name = f"/tmp/{k}.csv"
+                    file_name = f"{tmp_folder}/{k}.csv"
                     with open(file_name, 'w', encoding="utf-8-sig", newline='') as csv_file:
                         csv_writer = csv.writer(csv_file)
                         csv_writer.writerow(header.get(k))
@@ -1163,7 +1165,7 @@ def gen_zip_file(header, record, tmp_filename, type):
                     os.remove(file_name)
                 else:
                     for i in range(0, batches + 1):
-                        file_name = f"/tmp/{k}_{i+1}.csv"
+                        file_name = f"{tmp_folder}/{k}_{i+1}.csv"
                         with open(file_name, 'w', encoding="utf-8-sig", newline='') as csv_file:
                             csv_writer = csv.writer(csv_file)
                             csv_writer.writerow(header.get(k))
