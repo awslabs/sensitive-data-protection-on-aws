@@ -150,6 +150,16 @@ class JDBCInstanceSourceBase(BaseModel):
     class Config:
         orm_mode = True
 
+class JDBCInstanceSourceUpdateBase(BaseModel):
+    instance_id: Optional[str]
+    account_provider_id: Optional[int]
+    account_id: Optional[str]
+    region: Optional[str]
+    connection_status: Optional[str]
+
+    class Config:
+        orm_mode = True
+
 class JDBCInstanceSource(JDBCInstanceSourceBase):
     description: Optional[str]
     jdbc_connection_url: Optional[str]

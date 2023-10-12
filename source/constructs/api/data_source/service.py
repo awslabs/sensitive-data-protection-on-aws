@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import time
 import traceback
 from time import sleep
 from botocore.exceptions import ClientError
@@ -33,6 +34,7 @@ from .schemas import (AccountInfo, AdminAccountInfo,
                       SourceCoverage,
                       SourceGlueDatabaseBase,
                       SourceGlueDatabase,
+                      JDBCInstanceSourceUpdateBase,
                       DataLocationInfo,
                       JDBCInstanceSourceBase,
                       JDBCInstanceSourceFullInfo)
@@ -1741,7 +1743,7 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
         jdbc_conn_insert.jdbc_driver_class_name = jdbcConn.jdbc_driver_class_name
         jdbc_conn_insert.jdbc_driver_jar_uri = jdbcConn.jdbc_driver_jar_uri
         jdbc_conn_insert.create_type = jdbcConn.create_type
-        jdbc_conn_insert.connection_status = 'UNCONNECTED'
+        # jdbc_conn_insert.connection_status = 'UNCONNECTED'
         jdbc_conn_insert.glue_connection = glue_connection_name
         crud.add_jdbc_conn(jdbc_conn_insert)
     except ClientError as ce:
@@ -1760,6 +1762,7 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
                            MessageEnum.BIZ_UNKNOWN_ERR.get_msg())
 
 def test_jdbc_conn(jdbc_conn_param: JDBCInstanceSourceBase):
+    WAIT_INTERVAL_SECONDS = 10
     jdbc_targets = []
     created = 0
     account_id = jdbc_conn_param.account_id if jdbc_conn_param.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id
@@ -1773,21 +1776,20 @@ def test_jdbc_conn(jdbc_conn_param: JDBCInstanceSourceBase):
                                                                             account=jdbc_conn_param.account_id,
                                                                             region=jdbc_conn_param.region,
                                                                             instance_id=jdbc_conn_param.instance_id)
-    if not source:
+    if not source or not source.glue_connection:
         raise BizException(MessageEnum.SOURCE_JDBC_CONNECTION_NOT_EXIST.get_code(),
                            MessageEnum.SOURCE_JDBC_CONNECTION_NOT_EXIST.get_msg())
-    glue_database_name = f"TEMP-{jdbc_conn_param.instance_id}"
-    crawler_name = f"TEMP-{jdbc_conn_param.instance_id}"
-    # ConnectionProperties = __glue(account_id, region).get_connection(Name=source.glue_connection)['Connection']['ConnectionProperties']
-    # jdbc_url = ConnectionProperties['JDBC_CONNECTION_URL']
-    # username = ConnectionProperties['USERNAME']
-    # password = ConnectionProperties['PASSWORD']
-    # 根据connection 创建临时glue database
-    response = __glue(account_id, region).create_database(DatabaseInput={'Name': glue_database_name})
-    grant_lakeformation_permission(lakeformation_client, crawler_role_arn, glue_database_name, GRANT_PERMISSIONS_RETRIES)
-    schema = get_schema_from_url(source.jdbc_connection_url)
-    jdbc_targets.append({'ConnectionName': source.glue_connection,
-                         'Path': f"{schema}/%"})
+    t = time.time()
+    glue_database_name = f"TEMP-{t}-{jdbc_conn_param.instance_id}"
+    crawler_name = f"TEMP-{t}-{jdbc_conn_param.instance_id}"
+    try:
+        response = __glue(account_id, region).create_database(DatabaseInput={'Name': glue_database_name})
+        grant_lakeformation_permission(lakeformation_client, crawler_role_arn, glue_database_name, GRANT_PERMISSIONS_RETRIES)
+        schema = get_schema_from_url(source.jdbc_connection_url)
+        jdbc_targets.append({'ConnectionName': source.glue_connection,
+                             'Path': f"{schema}/%"})
+    except Exception as e:
+        logger.error(traceback.format_exc())
     # 根据connection 创建临时crawler
     try:
         response = __glue(account_id, region).create_crawler(
@@ -1795,40 +1797,60 @@ def test_jdbc_conn(jdbc_conn_param: JDBCInstanceSourceBase):
             Role=crawler_role_arn,
             DatabaseName=glue_database_name,
             Targets={'JdbcTargets': jdbc_targets},
-            TablePrefix='Temp_'
+            TablePrefix=f'Temp_{t}_'
         )
         logger.info(response)
         start_response = __glue(account_id, region).start_crawler(
             Name=crawler_name
         )
         # 创建成功更新字段
-        crud.set_jdbc_instance_connection_status(provider_id=jdbc_conn_param.account_provider_id,
-                                                 account=jdbc_conn_param.account_id,
+        logger.info("create_crawler success! update connection status started...")
+        jdbc_conn = JDBCInstanceSourceUpdateBase(account_provider_id=jdbc_conn_param.account_provider_id,
+                                                 account_id=jdbc_conn_param.account_id,
                                                  region=jdbc_conn_param.region,
                                                  instance_id=jdbc_conn_param.instance_id,
-                                                 status="CONNECTED")
+                                                 connection_status="SUCCESS"
+                                                 )
+
+        crud.set_jdbc_instance_connection_status(jdbc_conn)
         created = 1
     except Exception as e:
         logger.error(traceback.format_exc())
-        crud.set_jdbc_instance_connection_status(provider_id=jdbc_conn_param.account_provider_id,
-                                                 account=jdbc_conn_param.account_id,
+        jdbc_conn = JDBCInstanceSourceUpdateBase(account_provider_id=jdbc_conn_param.account_provider_id,
+                                                 account_id=jdbc_conn_param.account_id,
                                                  region=jdbc_conn_param.region,
                                                  instance_id=jdbc_conn_param.instance_id,
-                                                 status="UNCONNECTED")
+                                                 connection_status="FAIL"
+                                                 )
+        crud.set_jdbc_instance_connection_status(jdbc_conn)
 
     # 删除临时crawler
     if created == 1:
         try:
-            __glue(account_id, region).delete_crawler(crawler_name)
+            response = __glue(account_id, region).get_crawler(Name=crawler_name)
+            if response['Crawler']['State'] == 'RUNNING':
+                __glue(account_id, region).stop_crawler(Name=crawler_name)
+                response = __glue(account_id, region).get_crawler(Name=crawler_name)
+                while response['Crawler']['State'] == 'STOPPING':
+                    logger.info("crawler status is stopping, waiting for stop finished...")
+                    time.sleep(WAIT_INTERVAL_SECONDS)
+                    response = __glue(account_id, region).get_crawler(Name=crawler_name)
+            logger.info("crawler is stopped!")
+            __glue(account_id, region).delete_crawler(Name=crawler_name)
+            logger.info("delete crawler status end!")
         except Exception:
+            logger.error(traceback.format_exc())
             pass
         try:
+            logger.info("delete database status start!")
             __glue(account_id, region).delete_database(Name=glue_database_name)
+            logger.info("delete database status end!")
         except Exception:
+            logger.error(traceback.format_exc())
             pass
 
     # 返回结果
-    return "success"
+    return "success" if created == 1 else "fail"
 
 def import_jdbc_conn(jdbcConn: JDBCInstanceSourceBase):
     res_connection = None
@@ -1855,7 +1877,7 @@ def import_jdbc_conn(jdbcConn: JDBCInstanceSourceBase):
     jdbc_conn_insert.region = jdbcConn.region
     jdbc_conn_insert.account_provider_id = jdbcConn.account_provider_id
     jdbc_conn_insert.instance_id = jdbcConn.instance_id
-    jdbc_conn_insert.connection_status = 'UNCONNECTED'
+    # jdbc_conn_insert.connection_status = 'UNCONNECTED'
     jdbc_conn_insert.glue_connection = jdbcConn.instance_id
     jdbc_conn_insert.create_type = JDBCCreateType.IMPORT.value
     jdbc_conn_insert.description = res_connection['Description']
