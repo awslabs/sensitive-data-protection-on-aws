@@ -81,13 +81,14 @@ def delete_s3_connection(s3: schemas.SourceDeteteS3Connection):
         s3.bucket
     )
 
-@router.post("/disconnect-delete-s3", response_model=BaseResponse)
+@router.post("/disconnect-delete-catalog-jdbc", response_model=BaseResponse)
 @inject_session
-def disconnect_and_delete_catalog_s3_connection(s3: schemas.SourceDeteteS3Connection):
-    return service.delete_s3_connection(
-        s3.account_id,
-        s3.region,
-        s3.bucket
+def disconnect_and_delete_catalog_jdbc_connection(jdbc: schemas.SourceDeteteJDBCConnection):
+    return service.delete_jdbc_connection(
+        int(jdbc.account_provider),
+        jdbc.account_id,
+        jdbc.region,
+        jdbc.instance
     )
 
 @router.post("/hide-s3", response_model=BaseResponse)
@@ -217,7 +218,8 @@ def delete_catalog_jdbc_connection(jdbc: schemas.SourceDeteteJDBCConnection):
         int(jdbc.account_provider),
         jdbc.account_id,
         jdbc.region,
-        jdbc.instance
+        jdbc.instance,
+        delete_catalog_only=True
     )
 
 @router.post("/hide-jdbc", response_model=BaseResponse)
