@@ -66,7 +66,10 @@ def list_s3_bucket_source(condition: QueryCondition):
     account_ids = []
     for account in accounts:
         account_ids.append(account.account_id)
-    buckets = get_session().query(S3BucketSource).filter(S3BucketSource.account_id.in_(account_ids))
+    buckets = get_session().query(S3BucketSource).filter(
+        S3BucketSource.account_id.in_(account_ids),
+        S3BucketSource.detection_history_id != -1
+    )
     buckets = query_with_condition(buckets, condition)
     return buckets
 
@@ -105,7 +108,9 @@ def list_glue_database(condition: QueryCondition):
     for account in accounts:
         account_ids.append(account.account_id)
     instances = get_session().query(SourceGlueDatabase).filter(
-        SourceGlueDatabase.account_id.in_(account_ids))
+        SourceGlueDatabase.account_id.in_(account_ids),
+        SourceGlueDatabase.detection_history_id != -1
+    )
     return query_with_condition(instances, condition)
 
 
@@ -117,7 +122,9 @@ def list_rds_instance_source(condition: QueryCondition):
     for account in accounts:
         account_ids.append(account.account_id)
     instances = get_session().query(RdsInstanceSource).filter(
-        RdsInstanceSource.account_id.in_(account_ids))
+        RdsInstanceSource.account_id.in_(account_ids),
+        RdsInstanceSource.detection_history_id != -1
+    )
     instances = query_with_condition(instances, condition)
     return instances
 
@@ -157,7 +164,10 @@ def list_jdbc_instance_source(provider_id: int):
     for account in accounts:
         account_ids.append(account.account_id)
     return get_session().query(JDBCInstanceSource).filter(
-        JDBCInstanceSource.account_id.in_(account_ids), JDBCInstanceSource.account_provider_id == provider_id)
+        JDBCInstanceSource.account_id.in_(account_ids),
+        JDBCInstanceSource.account_provider_id == provider_id,
+        JDBCInstanceSource.detection_history_id != -1
+    )
 
 
 def set_jdbc_connection_glue_state(provider_id: int, account_id: str, region: str, instance_id: str, state: str):
@@ -461,6 +471,15 @@ def delete_s3_bucket_connection(account: str, region: str, bucket_name: str):
     session.merge(s3_bucket_source)
     session.commit()
 
+def hide_s3_bucket_connection(account: str, region: str, bucket_name: str):
+    session = get_session()
+    s3_bucket_source = session.query(S3BucketSource).filter(S3BucketSource.bucket_name == bucket_name,
+                                                            S3BucketSource.region == region,
+                                                            S3BucketSource.account_id == account).scalar()
+
+    s3_bucket_source.detection_history_id = -1
+    session.merge(s3_bucket_source)
+    session.commit()
 
 def delete_rds_connection(account: str, region: str, instance: str):
     session = get_session()
@@ -477,6 +496,15 @@ def delete_rds_connection(account: str, region: str, instance: str):
     session.merge(rds_instance_source)
     session.commit()
 
+def hide_rds_connection(account: str, region: str, instance: str):
+    session = get_session()
+    rds_instance_source = session.query(RdsInstanceSource).filter(RdsInstanceSource.instance_id == instance,
+                                                                  RdsInstanceSource.region == region,
+                                                                  RdsInstanceSource.account_id == account).order_by(
+        desc(RdsInstanceSource.detection_history_id)).first()
+    rds_instance_source.detection_history_id = -1
+    session.merge(rds_instance_source)
+    session.commit()
 
 def delete_glue_database(account: str, region: str, instance: str):
     session = get_session()
@@ -508,6 +536,16 @@ def delete_jdbc_connection(provider: str, account: str, region: str, instance: s
     session.merge(jdbc_instance_source)
     session.commit()
 
+def hide_jdbc_connection(provider: str, account: str, region: str, instance: str):
+    session = get_session()
+    jdbc_instance_source: JDBCInstanceSource = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.instance_id == instance,
+                                                                                        JDBCInstanceSource.region == region,
+                                                                                        JDBCInstanceSource.account_id == account,
+                                                                                        JDBCInstanceSource.account_provider_id == provider).order_by(
+        desc(JDBCInstanceSource.detection_history_id)).first()
+    jdbc_instance_source.detection_history_id = -1
+    session.merge(jdbc_instance_source)
+    session.commit()
 
 def update_jdbc_connection_full(jdbc_instance: schemas.JDBCInstanceSourceUpdate):
     session = get_session()
