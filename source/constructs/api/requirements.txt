@@ -10,3 +10,4 @@ requests==2.31.0
 urllib3==1.26.15
 python-jose==3.3.0
 pytest==7.4.2
+pytest-env==1.0.1
