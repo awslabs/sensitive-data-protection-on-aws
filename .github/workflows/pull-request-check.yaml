@@ -176,7 +176,7 @@ jobs:
       - name: test python code
         run: |
           cd source/constructs/api
-          pytest
+          python -m pytest pytest -s
 
   cdk-unit-test:
     runs-on: ubuntu-latest
