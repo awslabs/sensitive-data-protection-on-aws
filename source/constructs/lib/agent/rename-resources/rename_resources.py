@@ -79,7 +79,7 @@ def on_delete(event):
     logger.info("Got Delete")
 
 
-def rename_database(new_database_name):
+def __rename_database(new_database_name):
     try:
         glue_client.get_database(Name=new_database_name)
         logger.info(f"The new database({new_database_name}) exists and does not need to be created")
@@ -112,7 +112,7 @@ def rename_database(new_database_name):
                 break
 
 
-def rename_crawler(old_crawler_name, new_crawler_name, new_database_name, new_connection_name):
+def __rename_crawler(old_crawler_name, new_crawler_name, new_database_name, new_connection_name):
     response = glue_client.get_crawler(Name=old_crawler_name)
     logger.info(response)
     old_crawler = response["Crawler"]
@@ -122,7 +122,7 @@ def rename_crawler(old_crawler_name, new_crawler_name, new_database_name, new_co
     except glue_client.exceptions.EntityNotFoundException as e:
         logger.info(f"The new crawler({new_crawler_name}) does not exist and needs to be created")
         jdbc_targets = old_crawler["Targets"]["JdbcTargets"]
-        if len(jdbc_targets) > 0:
+        if jdbc_targets:
             logger.info("rename connection name")
             for jdbc_target in jdbc_targets:
                 jdbc_target["ConnectionName"] = new_connection_name
@@ -138,7 +138,7 @@ def rename_crawler(old_crawler_name, new_crawler_name, new_database_name, new_co
         )
 
 
-def rename_connection(old_connection_name, new_connection_name):
+def __rename_connection(old_connection_name, new_connection_name):
     response= glue_client.get_connection(Name=old_connection_name)
     logger.info(response)
     old_connection = response["Connection"]
@@ -158,15 +158,15 @@ def rename_connection(old_connection_name, new_connection_name):
                     )
 
 
-def rename(old_crawler_name: str):
+def __rename(old_crawler_name: str):
     new_crawler_name = f"{solution_name}-{old_crawler_name[:-8]}"
     new_database_name = new_crawler_name
     new_connection_name = new_crawler_name
-    rename_database(new_database_name)
-    rename_crawler(old_crawler_name, new_crawler_name, new_database_name, new_connection_name)
+    __rename_database(new_database_name)
+    __rename_crawler(old_crawler_name, new_crawler_name, new_database_name, new_connection_name)
     if old_crawler_name.startswith("rds-"):
         old_connection_name = f"{old_crawler_name[:-8]}-connection"
-        rename_connection(old_connection_name, new_connection_name)
+        __rename_connection(old_connection_name, new_connection_name)
 
 
 def list_crawlers():
@@ -178,7 +178,7 @@ def list_crawlers():
         for crawler_name in response['CrawlerNames']:
             if not ((crawler_name.startswith("rds-") or crawler_name.startswith("s3-")) and crawler_name.endswith("-crawler")):
                 continue
-            rename(crawler_name)
+            __rename(crawler_name)
 
         next_page = response.get('NextToken')
         if next_page is None:
