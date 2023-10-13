@@ -109,7 +109,7 @@ def __check_version(cursor, path):
 
 
 def main(event,path):
-    secret_id = os.getenv("SecretId", event["ResourceProperties"]["SolutionNameAbbr"])
+    secret_id = os.getenv("SecretId")
     secrets_client = boto3.client('secretsmanager')
     secret_response = secrets_client.get_secret_value(SecretId=secret_id)
     secrets = json.loads(secret_response['SecretString'])

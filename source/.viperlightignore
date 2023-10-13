@@ -9,6 +9,8 @@ CONTRIBUTING.md:51
 .typescript/lambda/layers/aws-nodesdk-custom-config/coverage
 .typescript/package-lock.json
 portal/node_modules
+constructs/api/common/constant.py:25
+constructs/api/common/constant.py:26
 constructs/lib/common/constants.ts
 constructs/lib/admin/database/
 constructs/config/job/script/job_extra_files.zip

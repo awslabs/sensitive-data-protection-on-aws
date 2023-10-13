@@ -125,7 +125,7 @@ export class AlbStack extends NestedStack {
       internetFacing = false;
     }
     const alb = new ApplicationLoadBalancer(this, 'ApplicationLoadBalancer', {
-      // loadBalancerName: `${SolutionInfo.SOLUTION_NAME_ABBR}-ALB-${this.identifier}`,
+      // loadBalancerName: `${SolutionInfo.SOLUTION_NAME}-ALB-${this.identifier}`,
       vpc: this.vpc,
       internetFacing: internetFacing,
       securityGroup: albSecurityGroup,
@@ -231,7 +231,7 @@ export class AlbStack extends NestedStack {
   private createApi(listener: ApplicationListener, props: AlbProps) {
     const apiTarget = [new LambdaTarget(props.apiFunction)];
     const apiTargetGroup = listener.addTargets('ApiTarget', {
-      // targetGroupName: `${SolutionInfo.SOLUTION_NAME_ABBR}-API-Target-${this.identifier}`,
+      // targetGroupName: `${SolutionInfo.SOLUTION_NAME}-API-Target-${this.identifier}`,
       priority: this.apiPriority,
       targets: apiTarget,
       conditions: [ListenerCondition.httpHeader('authorization', ['*'])],
@@ -242,11 +242,11 @@ export class AlbStack extends NestedStack {
   private createProtalConfig(listener: ApplicationListener, props: AlbProps) {
     let logoutUrl = '';
     if (props?.useCognito) {
-      logoutUrl = `https://${SolutionInfo.SOLUTION_NAME_ABBR.toLowerCase()}-${Aws.ACCOUNT_ID}.auth.${Aws.REGION}.amazoncognito.com/logout`;
+      logoutUrl = `https://${SolutionInfo.SOLUTION_NAME.toLowerCase()}-${Aws.ACCOUNT_ID}.auth.${Aws.REGION}.amazoncognito.com/logout`;
     }
     const portalConfigFunction = new Function(this, 'PortalConfigFunction', {
-      // functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-PortalConfig-${this.identifier}`,
-      description: `${SolutionInfo.SOLUTION_NAME} - set the configration to Lambda environment and portal will read it through ALB.`,
+      // functionName: `${SolutionInfo.SOLUTION_NAME}-PortalConfig-${this.identifier}`,
+      description: `${SolutionInfo.SOLUTION_FULL_NAME} - set the configration to Lambda environment and portal will read it through ALB.`,
       runtime: Runtime.PYTHON_3_9,
       handler: 'portal_config.lambda_handler',
       code: Code.fromAsset(path.join(__dirname, '../../api/lambda')),
@@ -267,7 +267,7 @@ export class AlbStack extends NestedStack {
     });
     const portalConfigTarget = [new LambdaTarget(portalConfigFunction)];
     const portalConfigTargetGroup = listener.addTargets('PortalConfigTarget', {
-      // targetGroupName: `${SolutionInfo.SOLUTION_NAME_ABBR}-PortalConfig-Target-${this.identifier}`,
+      // targetGroupName: `${SolutionInfo.SOLUTION_NAME}-PortalConfig-Target-${this.identifier}`,
       priority: this.portalConfigPriority,
       targets: portalConfigTarget,
       conditions: [ListenerCondition.pathPatterns(['/config/getConfig'])],
@@ -279,8 +279,8 @@ export class AlbStack extends NestedStack {
     let portalFunction;
     if (BuildConfig.PortalTag) {
       portalFunction = new DockerImageFunction(this, 'PortalFunction', {
-        // functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-Portal-${this.identifier}`,
-        description: `${SolutionInfo.SOLUTION_NAME} - portal Lambda function`,
+        // functionName: `${SolutionInfo.SOLUTION_NAME}-Portal-${this.identifier}`,
+        description: `${SolutionInfo.SOLUTION_FULL_NAME} - portal Lambda function`,
         code: DockerImageCode.fromEcr(Repository.fromRepositoryArn(this, 'PortalRepository', BuildConfig.PortalRepository),
           { tagOrDigest: BuildConfig.PortalTag }),
         architecture: Architecture.X86_64,
@@ -291,8 +291,8 @@ export class AlbStack extends NestedStack {
       });
     } else {
       portalFunction = new DockerImageFunction(this, 'PortalFunction', {
-        // functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-Portal-${this.identifier}`,
-        description: `${SolutionInfo.SOLUTION_NAME} - portal Lambda function`,
+        // functionName: `${SolutionInfo.SOLUTION_NAME}-Portal-${this.identifier}`,
+        description: `${SolutionInfo.SOLUTION_FULL_NAME} - portal Lambda function`,
         code: DockerImageCode.fromImageAsset(path.join(__dirname, '../../../portal'), {
           file: 'Dockerfile',
           ignoreMode: IgnoreMode.DOCKER,
@@ -307,7 +307,7 @@ export class AlbStack extends NestedStack {
     }
     const portalTarget = [new LambdaTarget(portalFunction)];
     const protalTargetGroup = listener.addTargets('PortalTarget', {
-      // targetGroupName: `${SolutionInfo.SOLUTION_NAME_ABBR}-Portal-Target-${this.identifier}`,
+      // targetGroupName: `${SolutionInfo.SOLUTION_NAME}-Portal-Target-${this.identifier}`,
       targets: portalTarget,
     });
     Tags.of(protalTargetGroup).add(SolutionInfo.TAG_NAME, 'Portal');

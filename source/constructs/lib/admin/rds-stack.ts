@@ -76,7 +76,7 @@ export class RdsStack extends Construct {
       'Allow RDS client',
     );
 
-    const secretName = `${SolutionInfo.SOLUTION_NAME_ABBR}`;
+    const secretName = `${SolutionInfo.SOLUTION_NAME}`;
     const dbSecret = new DatabaseSecret(this, 'Secret', {
       username: 'root',
       secretName: secretName,
@@ -95,7 +95,7 @@ export class RdsStack extends Construct {
       allocatedStorage: 100,
       maxAllocatedStorage: 1000,
       databaseName: 'sdps', //Do not modify the value
-      instanceIdentifier: `${SolutionInfo.SOLUTION_NAME_ABBR}-RDS`,
+      instanceIdentifier: `${SolutionInfo.SOLUTION_NAME}-RDS`,
       vpc: props.vpc,
       vpcSubnets: props.vpc.selectSubnets({
         subnetType: SubnetType.PRIVATE_WITH_EGRESS,
@@ -137,14 +137,14 @@ export class RdsStack extends Construct {
           ],
         },
       }),
-      // layerVersionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-InitDatabase`,
+      // layerVersionName: `${SolutionInfo.SOLUTION_NAME}-InitDatabase`,
       compatibleRuntimes: [Runtime.PYTHON_3_9],
-      description: `${SolutionInfo.SOLUTION_NAME} - init database layer`,
+      description: `${SolutionInfo.SOLUTION_FULL_NAME} - init database layer`,
     });
 
     const initDatabaseFunction = new Function(this, 'InitDatabaseFunction', {
-      functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-InitDatabase`, //Name must be specified
-      description: `${SolutionInfo.SOLUTION_NAME} - init database`,
+      functionName: `${SolutionInfo.SOLUTION_NAME}-InitDatabase`, //Name must be specified
+      description: `${SolutionInfo.SOLUTION_FULL_NAME} - init database`,
       runtime: Runtime.PYTHON_3_9,
       handler: 'init_db.lambda_handler',
       code: Code.fromAsset(path.join(__dirname, './database')),
@@ -164,7 +164,6 @@ export class RdsStack extends Construct {
     const initDatabaseTrigger = new CustomResource(this, 'InitDatabaseTrigger', {
       serviceToken: initDatabaseFunction.functionArn,
       properties: {
-        SolutionNameAbbr: SolutionInfo.SOLUTION_NAME_ABBR,
         Version: SolutionInfo.SOLUTION_VERSION,
       },
     });

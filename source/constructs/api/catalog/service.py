@@ -27,23 +27,16 @@ from common.enum import (
     ConnectionState,
     ExportFileType
 )
-import logging
+from common.reference_parameter import logger, admin_bucket_name, partition
 from common.exception_handler import BizException
 import traceback
 from label.crud import (get_labels_by_id_list, get_all_labels)
 from openpyxl import Workbook
-from tempfile import NamedTemporaryFile
-
-logger = logging.getLogger(const.LOGGER_API)
-caller_identity = boto3.client('sts').get_caller_identity()
-admin_account_id = caller_identity.get('Account')
-admin_region = boto3.session.Session().region_name
-admin_bucket_name = os.getenv(const.PROJECT_BUCKET_NAME, f"{const.ADMIN_BUCKET_NAME_PREFIX}-{admin_account_id}-{admin_region}")
-partition = caller_identity['Arn'].split(':')[1]
 
 
 sql_result = "SELECT database_type,account_id,region,s3_bucket,s3_location,rds_instance_id,table_name,column_name,identifiers,sample_data,'','','' FROM job_detection_output_table"
 tmp_folder = tempfile.gettempdir()
+
 
 def get_boto3_client(account_id: str, region: str, service: str):
     sts_connection = boto3.client("sts")

@@ -68,7 +68,7 @@ export class CognitoStack extends Construct {
     const userPoolDomain = new UserPoolDomain(this, 'UserPoolDomain', {
       userPool: userPool,
       cognitoDomain: {
-        domainPrefix: `${SolutionInfo.SOLUTION_NAME_ABBR.toLowerCase()}-${Aws.ACCOUNT_ID}`,
+        domainPrefix: `${SolutionInfo.SOLUTION_NAME.toLowerCase()}-${Aws.ACCOUNT_ID}`,
       },
     });
 

@@ -24,8 +24,8 @@ export class ITStack extends Stack {
 
     this.templateOptions.description = SolutionInfo.IT_DESCRIPTION;
 
-    const trustedRoleName = `${SolutionInfo.SOLUTION_NAME_ABBR}APIRole-${Aws.REGION}`;
-    const listOrganizationRoleName = `${SolutionInfo.SOLUTION_NAME_ABBR}ListOrganizationRole-${Aws.REGION}`;
+    const trustedRoleName = `${SolutionInfo.SOLUTION_NAME}APIRole-${Aws.REGION}`;
+    const listOrganizationRoleName = `${SolutionInfo.SOLUTION_NAME}ListOrganizationRole-${Aws.REGION}`;
 
     const adminAccountIdParameter = new CfnParameter(this, 'AdminAccountId', {
       type: 'String',

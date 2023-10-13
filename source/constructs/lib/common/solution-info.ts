@@ -13,12 +13,12 @@
 
 export class SolutionInfo {
   static SOLUTION_ID = 'SO8031';
-  static SOLUTION_NAME = 'Sensitive Data Protection on AWS';
-  static SOLUTION_NAME_ABBR = 'SDPS';
+  static SOLUTION_FULL_NAME = 'Sensitive Data Protection on AWS';
+  static SOLUTION_NAME = 'SDPS';
   static SOLUTION_VERSION = '@TEMPLATE_BUILD_VERSION@';
-  static DESCRIPTION = `(${SolutionInfo.SOLUTION_ID}) ${SolutionInfo.SOLUTION_NAME} (Version ${SolutionInfo.SOLUTION_VERSION})`;
-  static AGENT_DESCRIPTION = `(${SolutionInfo.SOLUTION_ID}-sub) ${SolutionInfo.SOLUTION_NAME} (Version ${SolutionInfo.SOLUTION_VERSION})`;
-  static IT_DESCRIPTION = `(${SolutionInfo.SOLUTION_ID}-org) ${SolutionInfo.SOLUTION_NAME} (Version ${SolutionInfo.SOLUTION_VERSION})`;
+  static DESCRIPTION = `(${SolutionInfo.SOLUTION_ID}) ${SolutionInfo.SOLUTION_FULL_NAME} (Version ${SolutionInfo.SOLUTION_VERSION})`;
+  static AGENT_DESCRIPTION = `(${SolutionInfo.SOLUTION_ID}-sub) ${SolutionInfo.SOLUTION_FULL_NAME} (Version ${SolutionInfo.SOLUTION_VERSION})`;
+  static IT_DESCRIPTION = `(${SolutionInfo.SOLUTION_ID}-org) ${SolutionInfo.SOLUTION_FULL_NAME} (Version ${SolutionInfo.SOLUTION_VERSION})`;
   static SOLUTION_GLUE_DATABASE = 'sdps_database';
   static SOLUTION_GLUE_TABLE = 'job_detection_output_table';
   static SOLUTION_GLUE_ERROR_TABLE = 'job_detection_error_table';
@@ -26,5 +26,5 @@ export class SolutionInfo {
   static SOLUTION_AGENT_S3_BUCKET = 'sdps-agent';
   static TAG_NAME = 'Name';
   static TAG_KEY = 'Owner';
-  static TAG_VALUE = SolutionInfo.SOLUTION_NAME_ABBR;
+  static TAG_VALUE = SolutionInfo.SOLUTION_NAME;
 }
