@@ -166,7 +166,7 @@ jobs:
           repository: '${{ github.event.pull_request.head.repo.full_name }}'
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
+          python-version: '3.9'
       - name: Install dependencies
         run: |
           cd source/constructs/api
@@ -219,10 +219,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18.x'
-      - name: Set up Python 3.8
+      - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
+          python-version: '3.9'
       - name: Install CDK
         run: |
           npm install -g aws-cdk
