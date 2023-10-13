@@ -33,7 +33,6 @@ import { SolutionInfo } from '../common/solution-info';
 
 export interface CrawlerEventbridgeProps {
   adminAccountId: string;
-  queueName: string;
 }
 
 /**
@@ -43,7 +42,7 @@ export class CrawlerEventbridgeStack extends Construct {
 
   constructor(scope: Construct, id: string, props: CrawlerEventbridgeProps) {
     super(scope, id);
-    const rule = new Rule(this, `${SolutionInfo.SOLUTION_NAME_ABBR}CrawlerEvent`, {
+    const rule = new Rule(this, `${SolutionInfo.SOLUTION_NAME}CrawlerEvent`, {
       eventPattern: {
         source: ['aws.glue'],
         detailType: ['Glue Crawler State Change'],
@@ -53,8 +52,8 @@ export class CrawlerEventbridgeStack extends Construct {
       },
     });
 
-    const lamdbaRole = new Role(this, `${SolutionInfo.SOLUTION_NAME_ABBR}RoleForCrawlerEvent`, {
-      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}RoleForCrawlerEvent-${Aws.REGION}`, //Name must be specified
+    const lamdbaRole = new Role(this, `${SolutionInfo.SOLUTION_NAME}RoleForCrawlerEvent`, {
+      roleName: `${SolutionInfo.SOLUTION_NAME}RoleForCrawlerEvent-${Aws.REGION}`, //Name must be specified
       assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
     });
     lamdbaRole.attachInlinePolicy(new Policy(this, 'CrawlerAWSLambdaBasicExecutionPolicy', {
@@ -74,24 +73,24 @@ export class CrawlerEventbridgeStack extends Construct {
     );
     lamdbaRole.addToPolicy(new PolicyStatement({
       resources: [
-        `arn:${Aws.PARTITION}:sqs:${Aws.REGION}:${props.adminAccountId}:${props.queueName}`,
+        `arn:${Aws.PARTITION}:sqs:${Aws.REGION}:${props.adminAccountId}:${SolutionInfo.SOLUTION_NAME}-Crawler`,
       ],
       actions: [
         'sqs:SendMessage',
       ],
     }));
 
-    const crawlerEventFunction = new Function(this, `${SolutionInfo.SOLUTION_NAME_ABBR}CrawlerTriggerFunction`, {
+    const crawlerEventFunction = new Function(this, `${SolutionInfo.SOLUTION_NAME}CrawlerTriggerFunction`, {
       role: lamdbaRole,
       code: Code.fromAsset(path.join(__dirname, '../../api/lambda')),
       handler: 'crawler_event.lambda_handler',
-      functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-CrawlerTrigger`, //Name must be specified
-      description: `${SolutionInfo.SOLUTION_NAME} - CrawlerTrigger`,
+      functionName: `${SolutionInfo.SOLUTION_NAME}-CrawlerTrigger`, //Name must be specified
+      description: `${SolutionInfo.SOLUTION_FULL_NAME} - CrawlerTrigger`,
       runtime: Runtime.PYTHON_3_9,
       memorySize: 128,
       environment: {
-        ADMIN_ACCOUNT: props.adminAccountId,
-        QUEUE: props.queueName,
+        SolutionName: SolutionInfo.SOLUTION_NAME,
+        AdminAccountId: props.adminAccountId,
       },
     });
 

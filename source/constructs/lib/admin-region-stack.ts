@@ -48,8 +48,8 @@ export class AdminRegionStack extends Stack {
     const autoSyncDataSqsStack = new SqsStack(this, 'AutoSyncDataQueue', { name: 'AutoSyncData' });
 
     const forwardMessageFunction = new Function(this, 'ForwardMessageFunction', {
-      functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-Forward-Message`,
-      description: `${SolutionInfo.SOLUTION_NAME} - Forward message`,
+      functionName: `${SolutionInfo.SOLUTION_NAME}-Forward-Message`,
+      description: `${SolutionInfo.SOLUTION_FULL_NAME} - Forward message`,
       runtime: Runtime.PYTHON_3_9,
       handler: 'forward_message.lambda_handler',
       code: Code.fromAsset(path.join(__dirname, '../api/lambda')),
@@ -65,7 +65,7 @@ export class AdminRegionStack extends Stack {
     const functionStatement = new PolicyStatement({
       effect: Effect.ALLOW,
       actions: ['sqs:*'],
-      resources: [`arn:${Aws.PARTITION}:sqs:${adminRegion.valueAsString}:${Aws.ACCOUNT_ID}:${SolutionInfo.SOLUTION_NAME_ABBR}-*`],
+      resources: [`arn:${Aws.PARTITION}:sqs:${adminRegion.valueAsString}:${Aws.ACCOUNT_ID}:${SolutionInfo.SOLUTION_NAME}-*`],
     });
     forwardMessageFunction.addToRolePolicy(functionStatement);
   }

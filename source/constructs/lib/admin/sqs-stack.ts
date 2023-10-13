@@ -36,7 +36,7 @@ export class SqsStack extends Construct {
       visibilityTimeout: Duration.hours(10),
     });
     this.queue = new sqs.Queue(scope, `${props.name}QueueActual`, {
-      queueName: `${SolutionInfo.SOLUTION_NAME_ABBR}-${props.name}`, //Name must be specified
+      queueName: `${SolutionInfo.SOLUTION_NAME}-${props.name}`, //Name must be specified
       visibilityTimeout: Duration.seconds(props.visibilityTimeout ?? 30),
       encryption: sqs.QueueEncryption.SQS_MANAGED,
       deadLetterQueue: {

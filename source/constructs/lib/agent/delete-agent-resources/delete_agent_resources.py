@@ -8,12 +8,12 @@ import time
 
 
 glue = boto3.client('glue')
-admin_account_id = os.getenv('AdminAccountId')
 
 logger = logging.getLogger('delete_resources')
 logger.setLevel(logging.INFO)
 request_type_list = ["Create","Update","Delete"]
-SOLUTION_NAME = "SDPS"
+solution_name = os.getenv('SolutionName')
+admin_account_id = os.getenv('AdminAccountId')
 
 def lambda_handler(event, context):
     logger.info(event)
@@ -92,7 +92,7 @@ def notify_admin_to_delete_resources():
     url_suffix = ".cn" if partition == "aws-cn" else ""
     try:
         response = sqs.send_message(
-            QueueUrl=f"https://sqs.{os.getenv('AWS_REGION')}.amazonaws.com{url_suffix}/{os.getenv('AdminAccountId')}/{os.getenv('QueueName')}",
+            QueueUrl=f"https://sqs.{os.getenv('AWS_REGION')}.amazonaws.com{url_suffix}/{admin_account_id}/{os.getenv('QueueName')}",
             MessageBody=json.dumps(message))
         logger.info(response)
     except Exception as e:
@@ -103,7 +103,6 @@ def on_delete(event):
     logger.info("Got Delete")
     notify_admin_to_delete_resources()
     delete_role()
-    solution_name = event["ResourceProperties"]["SolutionNameAbbr"]
     crawlers = cleanup_crawlers()
     for crawler in crawlers:
         remove_crawler(crawler)
@@ -114,23 +113,18 @@ def cleanup_crawlers():
     crawlers = []
     next_page = ''
     while True:
-        response = glue.list_crawlers(NextToken=next_page, Tags={'AdminAccountId': admin_account_id})
-
-        for crawler in response['CrawlerNames']:
-            # if (crawler.startswith('s3-') or crawler.startswith('rds-')) and crawler.endswith('-crawler'):
-            if crawler.startswith(SOLUTION_NAME + "-"):
-                response = glue.get_crawler(Name=crawler)
-                print(response)
-                database_name = response['Crawler']['DatabaseName']
-                # if crawler[:-8] == database_name[:-9]:
-                if crawler.lower() == database_name.lower():
-                    remove_database(database_name)
-                if len(response['Crawler']['Targets']['JdbcTargets']) == 1:
-                    connection_name = response['Crawler']['Targets']['JdbcTargets'][0]['ConnectionName']
-                    # if crawler[:-8] == connection_name[:-11]:
-                    if crawler.lower() == connection_name.lower():
-                        remove_jdbc_connection(connection_name)
-                crawlers.append(crawler)
+        response = glue.list_crawlers(NextToken=next_page, Tags={'Owner':solution_name, 'AdminAccountId': admin_account_id})
+        for crawler_name in response['CrawlerNames']:
+            if not crawler_name.startswith(solution_name + "-"):
+                continue
+            response_crawler = glue.get_crawler(Name=crawler_name)
+            logger.info(response_crawler)
+            database_name = response_crawler['Crawler']['DatabaseName']
+            remove_database(database_name)
+            if len(response_crawler['Crawler']['Targets']['JdbcTargets']) == 1:
+                connection_name = response_crawler['Crawler']['Targets']['JdbcTargets'][0]['ConnectionName']
+                remove_jdbc_connection(connection_name)
+            crawlers.append(crawler_name)
 
         next_page = response.get('NextToken')
         if next_page is None:
@@ -153,9 +147,9 @@ def remove_jdbc_connection(connection: str):
         logger.error(e)
 
 
-def remove_crawler(crawler: str):
+def remove_crawler(crawler_name: str):
     try:
-        glue.delete_crawler(Name=crawler)
+        glue.delete_crawler(Name=crawler_name)
     except Exception as e:
         logger.error(e)
 
@@ -165,7 +159,7 @@ def clean_jobs():
     while True:
         response = glue.list_jobs(
             NextToken=next_token,
-            Tags={"AdminAccountId": admin_account_id}
+            Tags={'Owner':solution_name, "AdminAccountId": admin_account_id}
         )
         for job in response["JobNames"]:
             glue.delete_job(JobName=job)

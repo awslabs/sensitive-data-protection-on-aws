@@ -53,7 +53,7 @@ export class DiscoveryJobStack extends Construct {
 
     const discoveryJobRole = new Role(this, 'DiscoveryJobRole', {
       assumedBy: new ServicePrincipal('states.amazonaws.com'),
-      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}DiscoveryJobRole-${Aws.REGION}`, //Name must be specified
+      roleName: `${SolutionInfo.SOLUTION_NAME}DiscoveryJobRole-${Aws.REGION}`, //Name must be specified
     });
 
     // Copy from AWSGlueServiceRole, do not modify
@@ -144,7 +144,7 @@ export class DiscoveryJobStack extends Construct {
     }));
 
     discoveryJobRole.attachInlinePolicy(new Policy(this, 'DiscoveryJobPolicy', {
-      policyName: `${SolutionInfo.SOLUTION_NAME_ABBR}DiscoveryJobPolicy`,
+      policyName: `${SolutionInfo.SOLUTION_NAME}DiscoveryJobPolicy`,
       statements: [
         new PolicyStatement({
           actions: [
@@ -172,19 +172,19 @@ export class DiscoveryJobStack extends Construct {
             'sqs:SendMessage',
           ],
           resources: [
-            `arn:${Aws.PARTITION}:sagemaker:${Aws.REGION}:${Aws.ACCOUNT_ID}:processing-job/${SolutionInfo.SOLUTION_NAME_ABBR}-*`,
-            `arn:${Aws.PARTITION}:lambda:${Aws.REGION}:${Aws.ACCOUNT_ID}:function:${SolutionInfo.SOLUTION_NAME_ABBR}-*`,
-            `arn:${Aws.PARTITION}:states:${Aws.REGION}:${Aws.ACCOUNT_ID}:stateMachine:${SolutionInfo.SOLUTION_NAME_ABBR}-DiscoveryJob-*`,
-            `arn:${Aws.PARTITION}:sqs:${Aws.REGION}:${props.adminAccountId}:${SolutionInfo.SOLUTION_NAME_ABBR}-DiscoveryJob`,
+            `arn:${Aws.PARTITION}:sagemaker:${Aws.REGION}:${Aws.ACCOUNT_ID}:processing-job/${SolutionInfo.SOLUTION_NAME}-*`,
+            `arn:${Aws.PARTITION}:lambda:${Aws.REGION}:${Aws.ACCOUNT_ID}:function:${SolutionInfo.SOLUTION_NAME}-*`,
+            `arn:${Aws.PARTITION}:states:${Aws.REGION}:${Aws.ACCOUNT_ID}:stateMachine:${SolutionInfo.SOLUTION_NAME}-DiscoveryJob-*`,
+            `arn:${Aws.PARTITION}:sqs:${Aws.REGION}:${props.adminAccountId}:${SolutionInfo.SOLUTION_NAME}-DiscoveryJob`,
           ],
         }),
       ],
     }));
 
     // State machine log group
-    const CreateLogGroup = new logs.LogGroup(this, 'LogGroup', {
+    const logGroup = new logs.LogGroup(this, 'LogGroup', {
       retention: logs.RetentionDays.ONE_MONTH,
-      logGroupName: `/aws/vendedlogs/states/${SolutionInfo.SOLUTION_NAME_ABBR}LogGroup`,
+      logGroupName: `/aws/vendedlogs/states/${SolutionInfo.SOLUTION_NAME}LogGroup`,
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
@@ -196,16 +196,16 @@ export class DiscoveryJobStack extends Construct {
       {
         roleArn: discoveryJobRole.roleArn,
         definitionString: jsonDiscoveryJob,
-        stateMachineName: `${SolutionInfo.SOLUTION_NAME_ABBR}-DiscoveryJob`, //Name must be specified
-        // loggingConfiguration: {
-        //   destinations: [{
-        //     cloudWatchLogsLogGroup: {
-        //       logGroupArn: logGroup.logGroupArn,
-        //     },
-        //   }],
-        //   includeExecutionData: true,
-        //   level: 'ALL',
-        // },
+        stateMachineName: `${SolutionInfo.SOLUTION_NAME}-DiscoveryJob`, //Name must be specified
+        loggingConfiguration: {
+          destinations: [{
+            cloudWatchLogsLogGroup: {
+              logGroupArn: logGroup.logGroupArn,
+            },
+          }],
+          includeExecutionData: true,
+          level: 'ALL',
+        },
         tags: [{ key: 'Version', value: SolutionInfo.SOLUTION_VERSION }],
       },
     );
@@ -224,13 +224,13 @@ export class DiscoveryJobStack extends Construct {
           ],
         },
       }),
-      // layerVersionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-SplitJob`,
+      // layerVersionName: `${SolutionInfo.SOLUTION_NAME}-SplitJob`,
       compatibleRuntimes: [Runtime.PYTHON_3_9],
-      description: `${SolutionInfo.SOLUTION_NAME} - SplitJob layer`,
+      description: `${SolutionInfo.SOLUTION_FULL_NAME} - SplitJob layer`,
     });
 
     const splitJobRole = new Role(this, 'SplitJobRole', {
-      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}SplitJobRole-${Aws.REGION}`, //Name must be specified
+      roleName: `${SolutionInfo.SOLUTION_NAME}SplitJobRole-${Aws.REGION}`, //Name must be specified
       assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
     });
     splitJobRole.attachInlinePolicy(new Policy(this, 'SplitJobCommonPolicy', {
@@ -261,8 +261,8 @@ export class DiscoveryJobStack extends Construct {
     }));
 
     new Function(this, 'SplitJobFunction', {
-      functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-SplitJob`, //Name must be specified
-      description: `${SolutionInfo.SOLUTION_NAME} - split job`,
+      functionName: `${SolutionInfo.SOLUTION_NAME}-SplitJob`, //Name must be specified
+      description: `${SolutionInfo.SOLUTION_FULL_NAME} - split job`,
       runtime: Runtime.PYTHON_3_9,
       handler: 'split_job.lambda_handler',
       code: Code.fromAsset(path.join(__dirname, './split-job')),
@@ -274,7 +274,7 @@ export class DiscoveryJobStack extends Construct {
 
   private createUnstructuredCrawlerFunction() {
     const unstructuredCrawlerRole = new Role(this, 'UnstructuredCrawlerRole', {
-      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}UnstructuredCrawlerRole-${Aws.REGION}`,
+      roleName: `${SolutionInfo.SOLUTION_NAME}UnstructuredCrawlerRole-${Aws.REGION}`,
       assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
     });
     unstructuredCrawlerRole.attachInlinePolicy(new Policy(this, 'UnstructuredCrawlerCommonPolicy', {
@@ -313,8 +313,8 @@ export class DiscoveryJobStack extends Construct {
     }));
 
     new Function(this, 'UnstructuredCrawlerFunction', {
-      functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-UnstructuredCrawler`, //Name must be specified
-      description: `${SolutionInfo.SOLUTION_NAME} - Unstructured Crawler`,
+      functionName: `${SolutionInfo.SOLUTION_NAME}-UnstructuredCrawler`, //Name must be specified
+      description: `${SolutionInfo.SOLUTION_FULL_NAME} - Unstructured Crawler`,
       runtime: Runtime.PYTHON_3_9,
       handler: 'UnstructuredCrawler.lambda_handler',
       code: Code.fromAsset(path.join(__dirname, './unstructured-crawler')),
@@ -325,7 +325,7 @@ export class DiscoveryJobStack extends Construct {
 
   private createUnstructuredParserRole() {
     const unstructuredParserRole = new Role(this, 'UnstructuredParserRole', {
-      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}UnstructuredParserRole-${Aws.REGION}`, //Name must be specified
+      roleName: `${SolutionInfo.SOLUTION_NAME}UnstructuredParserRole-${Aws.REGION}`, //Name must be specified
       assumedBy: new ServicePrincipal('sagemaker.amazonaws.com'),
     });
 

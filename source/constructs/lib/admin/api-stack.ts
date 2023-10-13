@@ -66,13 +66,13 @@ export class ApiStack extends Construct {
     this.apiLayer = this.createLayer();
     this.code = Code.fromAsset(path.join(__dirname, '../../api'), { exclude: ['venv'] });
 
-    this.createFunction('Controller', 'lambda.controller.lambda_handler', props, 20, `${SolutionInfo.SOLUTION_NAME_ABBR}-Controller`);
+    this.createFunction('Controller', 'lambda.controller.lambda_handler', props, 20, `${SolutionInfo.SOLUTION_NAME}-Controller`);
 
     this.apiFunction = this.createFunction('API', 'main.handler', props, 900);
 
     const checkRunFunction = this.createFunction('CheckRun', 'lambda.check_run.lambda_handler', props, 600);
     const checkRunRule = new events.Rule(this, 'CheckRunRule', {
-      // ruleName: `${SolutionInfo.SOLUTION_NAME_ABBR}-CheckRun`,
+      // ruleName: `${SolutionInfo.SOLUTION_NAME}-CheckRun`,
       schedule: events.Schedule.cron({ minute: '0/30' }),
     });
     checkRunRule.addTarget(new targets.LambdaFunction(checkRunFunction));
@@ -96,9 +96,9 @@ export class ApiStack extends Construct {
 
   private createFunction(name: string, handler: string, props: ApiProps, timeout?: number, functionName?: string) {
     const myFunction = new Function(this, `${name}Function`, {
-      // functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-${name}`,
+      // functionName: `${SolutionInfo.SOLUTION_NAME}-${name}`,
       functionName: functionName,
-      description: `${SolutionInfo.SOLUTION_NAME} - ${name}`,
+      description: `${SolutionInfo.SOLUTION_FULL_NAME} - ${name}`,
       runtime: Runtime.PYTHON_3_9,
       handler: handler,
       code: this.code,
@@ -124,7 +124,7 @@ export class ApiStack extends Construct {
 
   private createRole(bucketName: string) {
     const apiRole = new Role(this, 'APIRole', {
-      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}APIRole-${Aws.REGION}`, //Name must be specified
+      roleName: `${SolutionInfo.SOLUTION_NAME}APIRole-${Aws.REGION}`, //Name must be specified
       assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
     });
 
@@ -185,17 +185,17 @@ export class ApiStack extends Construct {
         'events:UntagResource',
         'events:DisableRule'],
       resources: [`arn:${Aws.PARTITION}:lambda:*:${Aws.ACCOUNT_ID}:function:*`,
-        `arn:${Aws.PARTITION}:sqs:${Aws.REGION}:${Aws.ACCOUNT_ID}:${SolutionInfo.SOLUTION_NAME_ABBR}-DiscoveryJob`,
-        `arn:${Aws.PARTITION}:sqs:${Aws.REGION}:${Aws.ACCOUNT_ID}:${SolutionInfo.SOLUTION_NAME_ABBR}-Crawler`,
-        `arn:${Aws.PARTITION}:sqs:${Aws.REGION}:${Aws.ACCOUNT_ID}:${SolutionInfo.SOLUTION_NAME_ABBR}-AutoSyncData`,
-        `arn:${Aws.PARTITION}:secretsmanager:${Aws.REGION}:${Aws.ACCOUNT_ID}:secret:${SolutionInfo.SOLUTION_NAME_ABBR}-*`,
+        `arn:${Aws.PARTITION}:sqs:${Aws.REGION}:${Aws.ACCOUNT_ID}:${SolutionInfo.SOLUTION_NAME}-DiscoveryJob`,
+        `arn:${Aws.PARTITION}:sqs:${Aws.REGION}:${Aws.ACCOUNT_ID}:${SolutionInfo.SOLUTION_NAME}-Crawler`,
+        `arn:${Aws.PARTITION}:sqs:${Aws.REGION}:${Aws.ACCOUNT_ID}:${SolutionInfo.SOLUTION_NAME}-AutoSyncData`,
+        `arn:${Aws.PARTITION}:secretsmanager:${Aws.REGION}:${Aws.ACCOUNT_ID}:secret:${SolutionInfo.SOLUTION_NAME}-*`,
         `arn:${Aws.PARTITION}:s3:::${bucketName}/*`,
         `arn:${Aws.PARTITION}:s3:::${bucketName}`,
         `arn:${Aws.PARTITION}:athena:*:${Aws.ACCOUNT_ID}:workgroup/primary`,
         `arn:${Aws.PARTITION}:glue:*:${Aws.ACCOUNT_ID}:table/${SolutionInfo.SOLUTION_GLUE_DATABASE}/*`,
         `arn:${Aws.PARTITION}:glue:*:${Aws.ACCOUNT_ID}:database/${SolutionInfo.SOLUTION_GLUE_DATABASE}`,
         `arn:${Aws.PARTITION}:glue:*:${Aws.ACCOUNT_ID}:catalog`,
-        `arn:${Aws.PARTITION}:events:*:${Aws.ACCOUNT_ID}:rule/${SolutionInfo.SOLUTION_NAME_ABBR}-*`],
+        `arn:${Aws.PARTITION}:events:*:${Aws.ACCOUNT_ID}:rule/${SolutionInfo.SOLUTION_NAME}-*`],
     });
     apiRole.addToPolicy(functionStatement);
 
@@ -232,9 +232,9 @@ export class ApiStack extends Construct {
           ],
         },
       }),
-      // layerVersionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-API`,
+      // layerVersionName: `${SolutionInfo.SOLUTION_NAME}-API`,
       compatibleRuntimes: [Runtime.PYTHON_3_9],
-      description: `${SolutionInfo.SOLUTION_NAME} - API layer`,
+      description: `${SolutionInfo.SOLUTION_FULL_NAME} - API layer`,
     });
     return apiLayer;
   }

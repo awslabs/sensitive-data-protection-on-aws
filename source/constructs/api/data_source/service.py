@@ -223,8 +223,9 @@ def sync_s3_connection(account: str, region: str, bucket: str):
                     "S3Targets": s3_targets
                 },
                 Tags={
-                    'AdminAccountId': _admin_account_id
-                }
+                    const.TAG_KEY: const.TAG_VALUE,
+                    const.TAG_ADMIN_ACCOUNT_ID: _admin_account_id
+                },
             )
             logger.info(response)
             response = glue.start_crawler(
@@ -623,8 +624,9 @@ def sync(glue, lakeformation, credentials, crawler_role_arn, jdbc: JDBCInstanceS
                     'JdbcTargets': jdbc_targets,
                 },
                 Tags={
-                    'AdminAccountId': _admin_account_id
-                }
+                    const.TAG_KEY: const.TAG_VALUE,
+                    const.TAG_ADMIN_ACCOUNT_ID: _admin_account_id
+                },
             )
             logger.info(response)
             start_response = glue.start_crawler(
@@ -1137,8 +1139,9 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                         'JdbcTargets': jdbc_targets,
                     },
                     Tags={
-                        'AdminAccountId': _admin_account_id
-                    }
+                        const.TAG_KEY: const.TAG_VALUE,
+                        const.TAG_ADMIN_ACCOUNT_ID: _admin_account_id
+                    },
                 )
                 logger.info(response)
                 start_response = glue.start_crawler(
@@ -1391,8 +1394,9 @@ def sync_glue_database_source(account: str, region: str, database_name: str):
                     "S3Targets": s3_targets
                 },
                 Tags={
-                    'AdminAccountId': _admin_account_id
-                }
+                    const.TAG_KEY: const.TAG_VALUE,
+                    const.TAG_ADMIN_ACCOUNT_ID: _admin_account_id
+                },
             )
             logger.info(response)
             response = glue.start_crawler(
@@ -2013,7 +2017,11 @@ def test_jdbc_conn(jdbc_conn_param: JDBCInstanceSourceBase):
             Role=crawler_role_arn,
             DatabaseName=glue_database_name,
             Targets={'JdbcTargets': jdbc_targets},
-            TablePrefix=f'Temp_{t}_'
+            TablePrefix=f'Temp_{t}_',
+            Tags={
+                const.TAG_KEY: const.TAG_VALUE,
+                const.TAG_ADMIN_ACCOUNT_ID: _admin_account_id
+            },
         )
         logger.info(response)
         start_response = __glue(account_id, region).start_crawler(
