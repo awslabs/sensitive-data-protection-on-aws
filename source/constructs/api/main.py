@@ -95,8 +95,6 @@ async def validate(request: Request, call_next):
         pass
     else:
         return resp_err(MessageEnum.BIZ_INVALID_TOKEN.get_code(), MessageEnum.BIZ_INVALID_TOKEN.get_msg())
-    logger.info("%%%%%%%%%%%%%%%%%%%%%%")
-    logger.info(request)
     response = await call_next(request)
     if os.getenv(const.MODE) == const.MODE_DEV:
         process_time = time.time() - start_time
