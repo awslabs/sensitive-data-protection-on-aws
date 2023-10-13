@@ -7,18 +7,18 @@ from fastapi.testclient import TestClient
 from unittest.mock import Mock
 
 
-def test_auth_without_token():
-    client = TestClient(app)
-    response = client.get("/version/get-latest-version")
-    assert response.status_code == 200
-    assert response.json() == {"code": 1003, "message": "Invalid token", "ref": None, "status": "fail"}
-
-
 @pytest.fixture
 def mock_online_validate(mocker):
     mock = Mock()
     mocker.patch('main.__online_validate', return_value=mock)
     return mock
+
+
+def test_auth_without_token():
+    client = TestClient(app)
+    response = client.get("/version/get-latest-version")
+    assert response.status_code == 200
+    assert response.json() == {"code": 1003, "message": "Invalid token", "ref": None, "status": "fail"}
 
 
 def test_auth_with_token(mocker):
