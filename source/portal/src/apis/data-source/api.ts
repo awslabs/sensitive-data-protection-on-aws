@@ -106,6 +106,51 @@ const getSourceProviders = async () => {
   return result;
 };
 
+const hideDataSourceS3 = async (params: any) => {
+  const result = await apiRequest('post', 'data-source/hide-s3', params);
+  return result;
+};
+
+const hideDataSourceRDS = async (params: any) => {
+  const result = await apiRequest('post', 'data-source/hide-rds', params);
+  return result;
+};
+
+const hideDataSourceJDBC = async (params: any) => {
+  const result = await apiRequest('post', 'data-source/hide-jdbc', params);
+  return result;
+};
+
+const deleteDataCatalogS3 = async (params: any) => {
+  const result = await apiRequest('post', 'data-source/delete-catalog-s3', params);
+  return result;
+};
+
+const deleteDataCatalogRDS = async (params: any) => {
+  const result = await apiRequest('post', 'data-source/delete-catalog-rds', params);
+  return result;
+};
+
+const deleteDataCatalogJDBC = async (params: any) => {
+  const result = await apiRequest('post', 'data-source/delete-catalog-jdbc', params);
+  return result;
+};
+
+const disconnectAndDeleteS3 = async (params: any) => {
+  const result = await apiRequest('post', 'data-source/disconnect-delete-catalog-s3', params);
+  return result;
+};
+
+const disconnectAndDeleteRDS = async (params: any) => {
+  const result = await apiRequest('post', 'data-source/disconnect-delete-catalog-rds', params);
+  return result;
+};
+
+const disconnectAndDeleteJDBC = async (params: any) => {
+  const result = await apiRequest('post', 'data-source/disconnect-delete-catalog-jdbc', params);
+  return result;
+};
+
 const testConnect = async (params: any) => {
   const result = await apiRequest('post', 'data-source/test-jdbc-conn', params);
   return result;
@@ -158,12 +203,21 @@ export {
   queryProviders,
   getSourceProviders,
   getDataSourceGlueByPage,
-  getDataSourceJdbcByPage,
   testConnect,
   connectDataSourceJDBC,
   listGlueConnection,
   importGlueConnection,
   queryNetworkInfo,
   queryBuckets,
-  createConnection
+  createConnection,
+  getDataSourceJdbcByPage,
+  hideDataSourceS3,
+  hideDataSourceRDS,
+  hideDataSourceJDBC,
+  deleteDataCatalogS3,
+  deleteDataCatalogRDS,
+  deleteDataCatalogJDBC,
+  disconnectAndDeleteS3,
+  disconnectAndDeleteRDS,
+  disconnectAndDeleteJDBC
 };

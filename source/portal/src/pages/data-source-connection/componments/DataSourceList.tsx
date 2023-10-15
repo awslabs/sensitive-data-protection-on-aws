@@ -44,6 +44,15 @@ import {
   disconnectDataSourceRDS,
   disconnectDataSourceS3,
   getSecrets,
+  hideDataSourceS3,
+  hideDataSourceRDS,
+  hideDataSourceJDBC,
+  deleteDataCatalogS3,
+  deleteDataCatalogRDS,
+  deleteDataCatalogJDBC,
+  disconnectAndDeleteS3,
+  disconnectAndDeleteRDS,
+  disconnectAndDeleteJDBC,
   testConnect,
   connectDataSourceJDBC
   // queryGlueConns,
@@ -57,7 +66,7 @@ import SourceBadge from './SourceBadge';
 import ErrorBadge from 'pages/error-badge';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { RouterEnum } from 'routers/routerEnum';
+// import { RouterEnum } from 'routers/routerEnum';
 import JDBCConnection from './JDBCConnection';
 
 const DataSourceList: React.FC<any> = memo((props: any) => {
@@ -147,26 +156,32 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       {
         text: 'Delete data source',
         id: 'deleteDataSource',
+        disabled: selectedItems.length === 0,
       },
       {
         text: 'Delete data catalog only',
         id: 'deleteCatalog',
+        disabled: selectedItems.length === 0,
       },
       {
         text: 'Disconnect & Delete catalog',
         id: 'disconnectAndDelete',
+        disabled: selectedItems.length === 0,
       },
     ]
     if(tagType === DATA_TYPE_ENUM.glue){
       res = [{
         text: 'Delete Database',
         id: 'delete',
+        disabled: selectedItems.length === 0,
       },]
     }
     if(tagType === DATA_TYPE_ENUM.jdbc){
       res = [{
         text: 'Add data source',
         id: 'addImportJdbc',
+        disabled:
+          tagType !== DATA_TYPE_ENUM.jdbc,
       },
       {
         text: 'Edit data source',
@@ -176,7 +191,9 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       {
         text: 'Delete data source',
         id: 'delete_ds',
-        disabled: tagType === DATA_TYPE_ENUM.rds,
+        disabled: 
+          tagType === DATA_TYPE_ENUM.rds ||
+          selectedItems.length === 0,
       },
       {
         text: 'Delete data catalog only',
@@ -188,6 +205,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       {
         text: 'Disconnect & Delete catalog',
         id: 'disconnect_dc',
+        disabled: selectedItems.length === 0,
       },]
     }
 
@@ -301,8 +319,8 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         setSelectedItems([]);
         showHideSpinner(false);
       }
-  } 
-  
+  }
+
 
   const clkConnected = async () => {
     if (!selectedItems || selectedItems.length === 0) {
@@ -344,7 +362,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         setSelectedItems([]);
         showHideSpinner(false);
       }
-    }else {
+    } else {
       setShowRdsPwdModal(true);
     }
   };
@@ -435,6 +453,127 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
     }
   };
 
+  const clkDeleteDataCatalog = async (
+    selectedOption: ButtonDropdownProps.ItemClickDetails
+  ) => {
+    if (!selectedItems || selectedItems.length === 0) {
+      alertMsg(t('selectOneItem'), 'error');
+      return;
+    }
+    const requestParam: any = {
+      account_id: selectedItems[0].account_id,
+      region: selectedItems[0].region,
+    };
+    if (tagType === DATA_TYPE_ENUM.s3) {
+      requestParam.bucket = selectedItems[0].bucket_name;
+    } else if (tagType === DATA_TYPE_ENUM.rds) {
+      requestParam.instance = selectedItems[0].instance_id;
+    } else if (tagType === DATA_TYPE_ENUM.jdbc) {
+      requestParam.instance = selectedItems[0].instance_id;
+      requestParam.account_provider = selectedItems[0].account_provider_id;
+    }
+    showHideSpinner(true);
+    try {
+
+      if (tagType === DATA_TYPE_ENUM.s3) {
+        await deleteDataCatalogS3(requestParam);
+      } else if (tagType === DATA_TYPE_ENUM.rds) {
+        await deleteDataCatalogRDS(requestParam);
+      } else if (tagType === DATA_TYPE_ENUM.jdbc) {
+        await deleteDataCatalogJDBC(requestParam);
+      }
+      showHideSpinner(false);
+      alertMsg(t('disconnectSuccess'), 'success');
+      setSelectedItems([]);
+      getPageData();
+      return;
+    } catch (error) {
+      setSelectedItems([]);
+      showHideSpinner(false);
+    }
+  };
+
+  const clkDisconnectAndDelete = async (
+    selectedOption: ButtonDropdownProps.ItemClickDetails
+  ) => {
+    if (!selectedItems || selectedItems.length === 0) {
+      alertMsg(t('selectOneItem'), 'error');
+      return;
+    }
+    const requestParam: any = {
+      account_id: selectedItems[0].account_id,
+      region: selectedItems[0].region,
+    };
+    if (tagType === DATA_TYPE_ENUM.s3) {
+      requestParam.bucket = selectedItems[0].bucket_name;
+    } else if (tagType === DATA_TYPE_ENUM.rds) {
+      requestParam.instance = selectedItems[0].instance_id;
+    } else if (tagType === DATA_TYPE_ENUM.jdbc) {
+      requestParam.instance = selectedItems[0].instance_id;
+      requestParam.account_provider = selectedItems[0].account_provider_id;
+    }
+    showHideSpinner(true);
+    try {
+
+      if (tagType === DATA_TYPE_ENUM.s3) {
+        await disconnectAndDeleteS3(requestParam);
+      } else if (tagType === DATA_TYPE_ENUM.rds) {
+        await disconnectAndDeleteRDS(requestParam);
+      } else if (tagType === DATA_TYPE_ENUM.jdbc) {
+        await disconnectAndDeleteJDBC(requestParam);
+      }
+      showHideSpinner(false);
+      alertMsg(t('disconnectSuccess'), 'success');
+      setSelectedItems([]);
+      getPageData();
+      return;
+    } catch (error) {
+      setSelectedItems([]);
+      showHideSpinner(false);
+    }
+  };
+
+  // only remove the data source from UI
+  const clkDeleteDataSource = async (
+    selectedOption: ButtonDropdownProps.ItemClickDetails
+  ) => {
+    if (!selectedItems || selectedItems.length === 0) {
+      alertMsg(t('selectOneItem'), 'error');
+      return;
+    }
+    const requestParam: any = {
+      account_id: selectedItems[0].account_id,
+      region: selectedItems[0].region,
+    };
+    if (tagType === DATA_TYPE_ENUM.s3) {
+      requestParam.bucket = selectedItems[0].bucket_name;
+    } else if (tagType === DATA_TYPE_ENUM.rds) {
+      requestParam.instance = selectedItems[0].instance_id;
+    } else if (tagType === DATA_TYPE_ENUM.jdbc) {
+      requestParam.instance = selectedItems[0].instance_id;
+      requestParam.account_provider = selectedItems[0].account_provider_id;
+    }
+    showHideSpinner(true);
+    try {
+
+      if (tagType === DATA_TYPE_ENUM.s3) {
+        await hideDataSourceS3(requestParam);
+      } else if (tagType === DATA_TYPE_ENUM.rds) {
+        await hideDataSourceRDS(requestParam);
+      } else if (tagType === DATA_TYPE_ENUM.jdbc) {
+        await hideDataSourceJDBC(requestParam);
+      }
+      showHideSpinner(false);
+      alertMsg(t('disconnectSuccess'), 'success');
+      setSelectedItems([]);
+      getPageData();
+      return;
+    } catch (error) {
+      setSelectedItems([]);
+      showHideSpinner(false);
+    }
+  };
+
   const loadAccountSecrets = async () => {
     const requestParam = {
       provider: accountData.account_provider_id,
@@ -464,7 +603,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
     }else {
       console.log('type not found')
     }
-    
+
   };
 
   return (
@@ -681,6 +820,15 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                       }
                       if (detail.id === 'editJdbc') {
                         clkAddSource('editJdbc');
+                      }
+                      if (detail.id === 'deleteDataSource' || detail.id === 'delete_ds') {
+                        clkDeleteDataSource(detail);
+                      }
+                      if (detail.id === 'deleteCatalog' || detail.id === 'delete_dc') {
+                        clkDeleteDataCatalog(detail);
+                      }
+                      if (detail.id === 'disconnectAndDelete' || detail.id === 'disconnect_dc') {
+                        clkDisconnectAndDelete(detail);
                       }
                     }}
                     items={genActions(tagType)}

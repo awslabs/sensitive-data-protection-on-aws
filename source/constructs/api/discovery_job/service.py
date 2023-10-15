@@ -1,13 +1,13 @@
 import os
 import boto3
 import json
-import logging
 import db.models_discovery_job as models
 from . import crud, schemas
 from common.exception_handler import BizException
 from common.enum import MessageEnum, JobState, RunState, RunDatabaseState, DatabaseType, AthenaQueryState
 from common.constant import const
 from common.query_condition import QueryCondition
+from common.reference_parameter import logger, admin_account_id, admin_region, admin_bucket_name, partition, url_suffix, public_account_id
 import traceback
 import tools.mytime as mytime
 import datetime, time
@@ -16,16 +16,9 @@ from tempfile import NamedTemporaryFile
 from catalog.service import sync_job_detection_result
 from tools.str_tool import is_empty
 
-logger = logging.getLogger(const.LOGGER_API)
-caller_identity = boto3.client('sts').get_caller_identity()
-admin_account_id = caller_identity.get('Account')
-admin_region = boto3.session.Session().region_name
-admin_bucket_name = os.getenv(const.PROJECT_BUCKET_NAME, f"{const.ADMIN_BUCKET_NAME_PREFIX}-{admin_account_id}-{admin_region}")
-partition = caller_identity['Arn'].split(':')[1]
-url_suffix = const.URL_SUFFIX_CN if partition == const.PARTITION_CN else ''
 version = os.getenv(const.VERSION, '')
 controller_function_name = os.getenv("ControllerFunctionName", f"{const.SOLUTION_NAME}-Controller")
-sqs_job = boto3.resource('sqs')
+sqs_resource = boto3.resource('sqs')
 
 sql_result = "SELECT database_type,account_id,region,s3_bucket,s3_location,rds_instance_id,database_name,table_name,column_name,identifiers,sample_data FROM job_detection_output_table where run_id='%d' and privacy = 1"
 sql_error = "SELECT account_id,region,database_type,database_name,table_name,error_message FROM job_detection_error_table where run_id='%d'"
@@ -65,8 +58,8 @@ def create_event(job_id: int, schedule: str):
         Description=f'create by {const.SOLUTION_NAME}',
         Tags=[
             {
-                'Key': const.PROJECT_TAG_KEY,
-                'Value': const.SOLUTION_NAME
+                'Key': const.TAG_KEY,
+                'Value': const.TAG_VALUE
             },
             {
                 'Key': 'JobId',
@@ -205,6 +198,12 @@ def start_sample_job(job_id: int, table_name: str):
         __start_sample_run(job_id, run_id, table_name)
 
 
+def need_change_account_id(database_type: str):
+    if database_type.startswith(DatabaseType.JDBC.value) and database_type != DatabaseType.JDBC_AWS.value:
+        return True
+    return False
+
+
 def __start_run(job_id: int, run_id: int):
     job = crud.get_job(job_id)
     run = crud.get_run(run_id)
@@ -221,7 +220,7 @@ def __start_run(job_id: int, run_id: int):
     account_loop_wait = {}
     for run_database in run_databases:
         account_id = run_database.account_id
-        if run_database.database_type.startswith(DatabaseType.JDBC.value):
+        if need_change_account_id(run_database.database_type):
             account_id = admin_account_id
         if account_id in account_loop_wait:
             tmp = account_loop_wait[account_id]
@@ -236,7 +235,7 @@ def __start_run(job_id: int, run_id: int):
         try:
             account_id = run_database.account_id
             region = run_database.region
-            if run_database.database_type.startswith(DatabaseType.JDBC.value):
+            if need_change_account_id(run_database.database_type):
                 account_id = admin_account_id
                 region = admin_region
             if account_id in account_first_wait:
@@ -260,7 +259,7 @@ def __start_run(job_id: int, run_id: int):
             job_name_unstructured = f"{const.SOLUTION_NAME}-{DatabaseType.S3_UNSTRUCTURED.value}-{run_database.database_name}"
             run_name = f'{const.SOLUTION_NAME}-{run_id}-{run_database.id}-{run_database.uuid}'
             agent_bucket_name = f"{const.AGENT_BUCKET_NAME_PREFIX}-{run_database.account_id}-{run_database.region}"
-            unstructured_parser_job_image_uri = f"{run_database.account_id}.dkr.ecr.{run_database.region}.amazonaws.com.cn/sdp_test_data_parser:latest"
+            unstructured_parser_job_image_uri = f"{public_account_id}.dkr.ecr.{run_database.region}.amazonaws.com{url_suffix}/sdp_test_data_parser:latest"
             unstructured_parser_job_role = f"arn:{partition}:iam::{run_database.account_id}:role/{const.SOLUTION_NAME}UnstructuredParserRole-{run_database.region}"
             execution_input = {
                 "RunName": run_name,
@@ -375,19 +374,19 @@ def __create_job(database_type: str, account_id, region, database_name, job_name
     try:
         response = client_glue.get_job(JobName=job_name)
     except client_glue.exceptions.EntityNotFoundException as e:
-        if database_type == DatabaseType.RDS.value:
+        if database_type == DatabaseType.RDS.value or database_type.startswith(DatabaseType.JDBC.value):
             client_glue.create_job(Name=job_name,
                                    Role=f'{const.SOLUTION_NAME}GlueDetectionJobRole-{region}',
                                    GlueVersion='4.0',
                                    Command={'Name': 'glueetl',
                                             'ScriptLocation': f's3://{admin_bucket_name}/job/script/{script_name}'},
-                                   Tags={const.PROJECT_TAG_KEY: const.PROJECT_TAG_VALUE,
-                                         'AdminAccountId': admin_account_id,
+                                   Tags={const.TAG_KEY: const.TAG_VALUE,
+                                         const.TAG_ADMIN_ACCOUNT_ID: admin_account_id,
                                          const.VERSION: version},
                                    NumberOfWorkers=2,
                                    WorkerType='G.1X',
                                    ExecutionProperty={'MaxConcurrentRuns': 100},
-                                   Connections={'Connections': [f'rds-{database_name}-connection']},
+                                   Connections={'Connections': [f'{const.SOLUTION_NAME}-{database_type}-{database_name}']},
                                    )
         else:
             client_glue.create_job(Name=job_name,
@@ -395,8 +394,8 @@ def __create_job(database_type: str, account_id, region, database_name, job_name
                                    GlueVersion='4.0',
                                    Command={'Name': 'glueetl',
                                             'ScriptLocation': f's3://{admin_bucket_name}/job/script/{script_name}'},
-                                   Tags={const.PROJECT_TAG_KEY: const.PROJECT_TAG_VALUE,
-                                         'AdminAccountId': admin_account_id,
+                                   Tags={const.TAG_KEY: const.TAG_VALUE,
+                                         const.TAG_ADMIN_ACCOUNT_ID: admin_account_id,
                                          const.VERSION: version},
                                    NumberOfWorkers=2,
                                    WorkerType='G.1X',
@@ -407,7 +406,7 @@ def __create_job(database_type: str, account_id, region, database_name, job_name
 def __exec_run(execution_input):
     account_id = execution_input["AccountId"]
     region = execution_input["Region"]
-    if execution_input["DatabaseType"].startswith(DatabaseType.JDBC.value):
+    if need_change_account_id(execution_input["DatabaseType"]):
         account_id = execution_input["AdminAccountId"]
         region = admin_region
     client_sts = boto3.client('sts')
@@ -476,7 +475,7 @@ def stop_job(job_id: int):
 def __stop_run(run_database: models.DiscoveryJobRunDatabase):
     account_id = run_database.account_id
     region = run_database.region
-    if run_database.database_type.startswith(DatabaseType.JDBC.value):
+    if need_change_account_id(run_database.database_type):
         account_id = admin_account_id
         region = admin_region
     client_sts = boto3.client('sts')
@@ -689,7 +688,7 @@ def __send_complete_run_database_message(job_id, run_id, run_database_id, accoun
              'DatabaseName': database_name,
              'OverWrite': '1' if over_write else '0',
              }
-    queue = sqs_job.get_queue_by_name(QueueName=const.JOB_QUEUE_NAME)
+    queue = sqs_resource.get_queue_by_name(QueueName=const.JOB_QUEUE_NAME)
     queue.send_message(MessageBody=json.dumps(event))
 
 
@@ -777,7 +776,7 @@ def check_running_run():
 def __get_run_database_state_from_agent(run_database: models.DiscoveryJobRunDatabase) -> str:
     account_id = run_database.account_id
     region = run_database.region
-    if run_database.database_type.startswith(DatabaseType.JDBC.value):
+    if need_change_account_id(run_database.database_type):
         account_id = admin_account_id
         region = admin_region
     client_sts = boto3.client('sts')
@@ -806,7 +805,7 @@ def __get_run_database_state_from_agent(run_database: models.DiscoveryJobRunData
 def __get_run_error_log(run_database: models.DiscoveryJobRunDatabase) -> str:
     account_id = run_database.account_id
     region = run_database.region
-    if run_database.database_type.startswith(DatabaseType.JDBC.value):
+    if need_change_account_id(run_database.database_type):
         account_id = admin_account_id
         region = admin_region
     client_sts = boto3.client('sts')

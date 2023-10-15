@@ -17,6 +17,7 @@ import { Construct } from 'constructs';
 import { CrawlerEventbridgeStack } from './agent/CrawlerEventbridge-stack';
 import { DeleteAgentResourcesStack } from './agent/DeleteAgentResources-stack';
 import { DiscoveryJobStack } from './agent/DiscoveryJob-stack';
+import { RenameResourcesStack } from './agent/RenameResources-stack';
 import { BucketStack } from './common/bucket-stack';
 import { Parameter } from './common/parameter';
 import { SolutionInfo } from './common/solution-info';
@@ -36,7 +37,7 @@ export class AgentStack extends Stack {
     this.templateOptions.description = SolutionInfo.AGENT_DESCRIPTION;
     Parameter.init();
 
-    const trustedRoleName = `${SolutionInfo.SOLUTION_NAME_ABBR}APIRole`;
+    const trustedRoleName = `${SolutionInfo.SOLUTION_NAME}APIRole`;
 
     let adminAccountId = '';
     if (!props?.accountID) {
@@ -57,18 +58,17 @@ export class AgentStack extends Stack {
 
     new CrawlerEventbridgeStack(this, 'CrawlerEventbridge', {
       adminAccountId: adminAccountId,
-      queueName: `${SolutionInfo.SOLUTION_NAME_ABBR}-Crawler`,
     });
 
     //update the trusted entities to trusted role from user input
     const trustedRoleARN = `arn:${Aws.PARTITION}:iam::${adminAccountId}:role/${trustedRoleName}*`;
     const roleForAdmin = new iam.Role(this, 'RoleForAdmin', {
       assumedBy: new iam.PrincipalWithConditions(new iam.AccountPrincipal(adminAccountId), { StringLike: { 'aws:PrincipalArn': trustedRoleARN } }),
-      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}RoleForAdmin-${Aws.REGION}`, //Name must be specified
+      roleName: `${SolutionInfo.SOLUTION_NAME}RoleForAdmin-${Aws.REGION}`, //Name must be specified
     });
 
     roleForAdmin.attachInlinePolicy(new iam.Policy(this, 'PolicyForAdmin', {
-      policyName: `${SolutionInfo.SOLUTION_NAME_ABBR}PolicyForAdmin`,
+      policyName: `${SolutionInfo.SOLUTION_NAME}PolicyForAdmin`,
       statements: [
         new iam.PolicyStatement({
           actions: [
@@ -85,7 +85,6 @@ export class AgentStack extends Stack {
             'kms:DescribeKey',
             'glue:GetCrawler',
             'glue:GetCrawlers',
-            // 'glue:BatchDeleteTable',
             'glue:GetClassifier',
             'glue:GetClassifiers',
             'glue:CheckSchemaVersionValidity',
@@ -93,6 +92,7 @@ export class AgentStack extends Stack {
             'glue:GetSecurityConfiguration',
             'glue:GetSecurityConfigurations',
             'glue:StartCrawler',
+            'glue:StopCrawler',
             'glue:GetConnection',
             'glue:UpdateConnection',
           ],
@@ -107,8 +107,6 @@ export class AgentStack extends Stack {
             'glue:CreateConnection',
             'glue:DeleteConnection',
             'glue:BatchDeleteTable',
-            'glue:CreateConnection',
-            'glue:GetConnection',
             'glue:CreateCrawler',
             'glue:StopCrawler',
             'glue:DeleteCrawler',
@@ -128,13 +126,13 @@ export class AgentStack extends Stack {
           ],
           resources: [
             `arn:${Aws.PARTITION}:glue:${Aws.REGION}:${Aws.ACCOUNT_ID}:catalog`,
-            `arn:${Aws.PARTITION}:glue:${Aws.REGION}:${Aws.ACCOUNT_ID}:job/${SolutionInfo.SOLUTION_NAME_ABBR}-*`,
-            `arn:${Aws.PARTITION}:glue:${Aws.REGION}:${Aws.ACCOUNT_ID}:connection/${SolutionInfo.SOLUTION_NAME_ABBR}-*`,
-            `arn:${Aws.PARTITION}:glue:${Aws.REGION}:${Aws.ACCOUNT_ID}:crawler/${SolutionInfo.SOLUTION_NAME_ABBR}-*`,
-            `arn:${Aws.PARTITION}:lambda:${Aws.REGION}:${Aws.ACCOUNT_ID}:function:${SolutionInfo.SOLUTION_NAME_ABBR}-*`,
-            `arn:${Aws.PARTITION}:states:${Aws.REGION}:${Aws.ACCOUNT_ID}:stateMachine:${SolutionInfo.SOLUTION_NAME_ABBR}-DiscoveryJob*`,
-            `arn:${Aws.PARTITION}:states:${Aws.REGION}:${Aws.ACCOUNT_ID}:execution:${SolutionInfo.SOLUTION_NAME_ABBR}-DiscoveryJob*:*`,
-            `arn:${Aws.PARTITION}:glue:${Aws.REGION}:${Aws.ACCOUNT_ID}:table/${SolutionInfo.SOLUTION_NAME_ABBR}-*/*`,
+            `arn:${Aws.PARTITION}:glue:${Aws.REGION}:${Aws.ACCOUNT_ID}:job/${SolutionInfo.SOLUTION_NAME}-*`,
+            `arn:${Aws.PARTITION}:glue:${Aws.REGION}:${Aws.ACCOUNT_ID}:connection/${SolutionInfo.SOLUTION_NAME}-*`,
+            `arn:${Aws.PARTITION}:glue:${Aws.REGION}:${Aws.ACCOUNT_ID}:crawler/${SolutionInfo.SOLUTION_NAME}-*`,
+            `arn:${Aws.PARTITION}:lambda:${Aws.REGION}:${Aws.ACCOUNT_ID}:function:${SolutionInfo.SOLUTION_NAME}-*`,
+            `arn:${Aws.PARTITION}:states:${Aws.REGION}:${Aws.ACCOUNT_ID}:stateMachine:${SolutionInfo.SOLUTION_NAME}-DiscoveryJob*`,
+            `arn:${Aws.PARTITION}:states:${Aws.REGION}:${Aws.ACCOUNT_ID}:execution:${SolutionInfo.SOLUTION_NAME}-DiscoveryJob*:*`,
+            `arn:${Aws.PARTITION}:glue:${Aws.REGION}:${Aws.ACCOUNT_ID}:table/${SolutionInfo.SOLUTION_NAME}-*/*`,
           ],
         }),
       ],
@@ -239,10 +237,10 @@ export class AgentStack extends Stack {
 
     const glueDetectionJobRole = new iam.Role(this, 'GlueDetectionJobRole', {
       assumedBy: new iam.ServicePrincipal('glue.amazonaws.com'),
-      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}GlueDetectionJobRole-${Aws.REGION}`, //Name must be specified
+      roleName: `${SolutionInfo.SOLUTION_NAME}GlueDetectionJobRole-${Aws.REGION}`, //Name must be specified
     });
     glueDetectionJobRole.attachInlinePolicy(new iam.Policy(this, 'GlueDetectionJobPolicy', {
-      policyName: `${SolutionInfo.SOLUTION_NAME_ABBR}GlueDetectionJobPolicy`,
+      policyName: `${SolutionInfo.SOLUTION_NAME}GlueDetectionJobPolicy`,
       statements: [new iam.PolicyStatement({
         actions: [
           'lakeformation:*',
@@ -309,10 +307,10 @@ export class AgentStack extends Stack {
 
     const lambdaRdsRole = new iam.Role(this, 'LambdaRdsRole', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
-      roleName: `${SolutionInfo.SOLUTION_NAME_ABBR}LambdaRdsRole-${Aws.REGION}`, //Name must be specified
+      roleName: `${SolutionInfo.SOLUTION_NAME}LambdaRdsRole-${Aws.REGION}`, //Name must be specified
     });
     lambdaRdsRole.attachInlinePolicy(new iam.Policy(this, 'lambdaRdsPolicy', {
-      // policyName: `${SolutionInfo.SOLUTION_NAME_ABBR}lambdaRdsPolicy`,
+      // policyName: `${SolutionInfo.SOLUTION_NAME}lambdaRdsPolicy`,
       statements: [new iam.PolicyStatement({
         actions: [
           'logs:CreateLogGroup',
@@ -334,7 +332,11 @@ export class AgentStack extends Stack {
 
     new DeleteAgentResourcesStack(this, 'DeleteAgentResources', {
       adminAccountId: adminAccountId,
-      queueName: `${SolutionInfo.SOLUTION_NAME_ABBR}-AutoSyncData`,
+      queueName: `${SolutionInfo.SOLUTION_NAME}-AutoSyncData`,
+    });
+
+    new RenameResourcesStack(this, 'RenameResources', {
+      adminAccountId: adminAccountId,
     });
 
     this.templateOptions.metadata = {

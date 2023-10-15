@@ -21,6 +21,7 @@ domain_name = f'*.{region}.elb.amazonaws.com'
 logger = logging.getLogger('constructs')
 logger.setLevel(logging.INFO)
 request_type_list = ["Create","Update","Delete"]
+solution_name = os.getenv('SolutionName')
 
 
 def lambda_handler(event, context):
@@ -76,7 +77,7 @@ def on_create(event):
     if certificate_arn != '':
         logger.info(f'Use existing certificate:{certificate_arn}')
         return certificate_arn, ''
-    return gen_certificate(event["ResourceProperties"]["SolutionNameAbbr"], event["ResourceProperties"]["BucketName"])
+    return gen_certificate(event["ResourceProperties"]["BucketName"])
 
 
 def on_update(event):
@@ -91,12 +92,12 @@ def on_delete(event):
         if cert['DomainName'] == domain_name:
             tags_response = acm_client.list_tags_for_certificate(CertificateArn=cert['CertificateArn'])
             for tag in tags_response['Tags']:
-                if tag['Key'] == 'Owner' and tag['Value'] == event["ResourceProperties"]["SolutionNameAbbr"]:
+                if tag['Key'] == 'Owner' and tag['Value'] == solution_name:
                     acm_client.delete_certificate(CertificateArn=cert['CertificateArn'])
                     continue
 
 
-def gen_certificate(solution_name: str, bucket_name: str) -> str:
+def gen_certificate(bucket_name: str) -> str:
     private_key = rsa.generate_private_key(
         public_exponent=65537,
         key_size=2048,

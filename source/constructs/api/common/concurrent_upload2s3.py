@@ -1,5 +1,6 @@
 part_bytes = 100000
 
+
 def concurrent_upload(bucket_name, object_name, file_path, client):
     multipart_upload_response = client.create_multipart_upload(Bucket=bucket_name, Key=object_name)
     upload_id = multipart_upload_response['UploadId']

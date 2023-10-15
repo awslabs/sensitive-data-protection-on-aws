@@ -2,12 +2,14 @@ import logging
 from crhelper import CfnResource
 import boto3
 import traceback
+import os
 
 logger = logging.getLogger('call_region')
 logger.setLevel(logging.INFO)
 
 helper = CfnResource(json_logging=False, log_level='DEBUG', boto_level='CRITICAL', sleep_on_delete=120, ssl_verify=None)
 
+solution_name = os.getenv('SolutionName')
 admin_region = boto3.session.Session().region_name
 # Only applicable to China region
 call_region = "cn-north-1"
@@ -19,7 +21,7 @@ cloudformation = boto3.client('cloudformation', region_name=call_region)
 @helper.create
 def create(event, context):
     try:
-        stack_name = f'{event["ResourceProperties"]["SolutionNameAbbr"]}-AdminRegion'
+        stack_name = f'{solution_name}-AdminRegion'
         org_id = event["ResourceProperties"]["OrgId"]
         with open('AdminRegion.template.json','r') as f:
             template=f.read()
@@ -58,7 +60,7 @@ def update(event, context):
 @helper.delete
 def delete(event, context):
     try:
-        stack_name = f'{event["ResourceProperties"]["SolutionNameAbbr"]}-AdminRegion'
+        stack_name = f'{solution_name}-AdminRegion'
         stack = cloudformation.delete_stack(
             StackName=stack_name,
         )

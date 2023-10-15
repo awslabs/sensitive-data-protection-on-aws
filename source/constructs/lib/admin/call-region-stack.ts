@@ -50,9 +50,9 @@ export class CallRegionStack extends Construct {
           ],
         },
       }),
-      layerVersionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-CallRegion`,
+      layerVersionName: `${SolutionInfo.SOLUTION_NAME}-CallRegion`,
       compatibleRuntimes: [Runtime.PYTHON_3_9],
-      description: `${SolutionInfo.SOLUTION_NAME} - call admin region layer`,
+      description: `${SolutionInfo.SOLUTION_FULL_NAME} - call admin region layer`,
     });
 
     const callRegionRole = new Role(this, 'CallRegionRole', {
@@ -78,14 +78,14 @@ export class CallRegionStack extends Construct {
     const sqsStatement = new PolicyStatement({
       effect: Effect.ALLOW,
       actions: ['sqs:*'],
-      resources: [`arn:${Aws.PARTITION}:sqs:*:${Aws.ACCOUNT_ID}:${SolutionInfo.SOLUTION_NAME_ABBR}-*`],
+      resources: [`arn:${Aws.PARTITION}:sqs:*:${Aws.ACCOUNT_ID}:${SolutionInfo.SOLUTION_NAME}-*`],
     });
     callRegionRole.addToPolicy(noramlStatement);
     callRegionRole.addToPolicy(sqsStatement);
 
     const callRegionFunction = new Function(this, 'CallRegionFunction', {
-      functionName: `${SolutionInfo.SOLUTION_NAME_ABBR}-CallRegion`,
-      description: `${SolutionInfo.SOLUTION_NAME} - call admin region`,
+      functionName: `${SolutionInfo.SOLUTION_NAME}-CallRegion`,
+      description: `${SolutionInfo.SOLUTION_FULL_NAME} - call admin region`,
       runtime: Runtime.PYTHON_3_9,
       handler: 'call_region.lambda_handler',
       code: Code.fromAsset(path.join(__dirname, './region')),
@@ -103,7 +103,7 @@ export class CallRegionStack extends Construct {
     const callRegionTrigger = new CustomResource(this, 'CallRegionTrigger', {
       serviceToken: callRegionProvider.serviceToken,
       properties: {
-        SolutionNameAbbr: SolutionInfo.SOLUTION_NAME_ABBR,
+        Version: SolutionInfo.SOLUTION_VERSION,
       },
     });
     callRegionTrigger.node.addDependency(callRegionProvider);

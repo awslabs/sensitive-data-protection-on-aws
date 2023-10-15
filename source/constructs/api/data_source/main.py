@@ -72,7 +72,7 @@ def sync_s3_connection(s3: schemas.SourceS3Connection):
         )
 
 
-@router.post("/delete_s3", response_model=BaseResponse)
+@router.post("/delete-s3", response_model=BaseResponse)
 @inject_session
 def delete_s3_connection(s3: schemas.SourceDeteteS3Connection):
     return service.delete_s3_connection(
@@ -81,11 +81,77 @@ def delete_s3_connection(s3: schemas.SourceDeteteS3Connection):
         s3.bucket
     )
 
+@router.post("/disconnect-delete-catalog-jdbc", response_model=BaseResponse)
+@inject_session
+def disconnect_and_delete_catalog_jdbc_connection(jdbc: schemas.SourceDeteteJDBCConnection):
+    return service.delete_jdbc_connection(
+        int(jdbc.account_provider),
+        jdbc.account_id,
+        jdbc.region,
+        jdbc.instance
+    )
 
-@router.post("/delete_rds", response_model=BaseResponse)
+@router.post("/hide-s3", response_model=BaseResponse)
+@inject_session
+def hide_s3_connection(s3: schemas.SourceDeteteS3Connection):
+    return service.hide_s3_connection(
+        s3.account_id,
+        s3.region,
+        s3.bucket
+    )
+
+@router.post("/delete-catalog-s3", response_model=BaseResponse)
+@inject_session
+def delete_catalog_s3_connection(s3: schemas.SourceDeteteS3Connection):
+    return service.delete_s3_connection(
+        account=s3.account_id,
+        region=s3.region,
+        bucket=s3.bucket,
+        delete_catalog_only=True
+    )
+
+@router.post("/disconnect-delete-catalog-s3", response_model=BaseResponse)
+@inject_session
+def disconnect_and_delete_catalog_s3_connection(s3: schemas.SourceDeteteS3Connection):
+    return service.delete_s3_connection(
+        s3.account_id,
+        s3.region,
+        s3.bucket
+    )
+
+@router.post("/delete-rds", response_model=BaseResponse)
 @inject_session
 def delete_rds_connection(rds: schemas.SourceDeteteRdsConnection):
     return service.delete_rds_connection(
+        rds.account_id,
+        rds.region,
+        rds.instance,
+        delete_catalog_only=True
+    )
+
+@router.post("/delete-catalog-rds", response_model=BaseResponse)
+@inject_session
+def delete_catalog_rds_connection(rds: schemas.SourceDeteteRdsConnection):
+    return service.delete_rds_connection(
+        rds.account_id,
+        rds.region,
+        rds.instance,
+        delete_catalog_only=True
+    )
+
+@router.post("/disconnect-delete-catalog-rds", response_model=BaseResponse)
+@inject_session
+def disconnect_and_delete_catalog_rds_connection(rds: schemas.SourceDeteteRdsConnection):
+    return service.delete_rds_connection(
+        rds.account_id,
+        rds.region,
+        rds.instance
+    )
+
+@router.post("/hide-rds", response_model=BaseResponse)
+@inject_session
+def hide_rds_connection(rds: schemas.SourceDeteteRdsConnection):
+    return service.hide_rds_connection(
         rds.account_id,
         rds.region,
         rds.instance
@@ -114,6 +180,18 @@ def delete_glue_database(glueDatabase: schemas.SourceDeteteGlueDatabase):
         glueDatabase.name
     )
 
+@router.post("/hide-glue-database", response_model=BaseResponse)
+@inject_session
+def hide_glue_database(glueDatabase: schemas.SourceDeteteGlueDatabase):
+    return service.hide_glue_database(
+        int(glueDatabase.account_provider),
+        glueDatabase.account_id,
+        glueDatabase.region,
+        glueDatabase.name
+    )
+
+
+
 @router.post("/sync-glue-database", response_model=BaseResponse)
 @inject_session
 def sync_glue_database(glueDatabase: schemas.SourceGlueDatabaseBase):
@@ -127,6 +205,27 @@ def sync_glue_database(glueDatabase: schemas.SourceGlueDatabaseBase):
 @inject_session
 def delete_jdbc_connection(jdbc: schemas.SourceDeteteJDBCConnection):
     return service.delete_jdbc_connection(
+        int(jdbc.account_provider),
+        jdbc.account_id,
+        jdbc.region,
+        jdbc.instance
+    )
+
+@router.post("/delete-catalog-jdbc", response_model=BaseResponse)
+@inject_session
+def delete_catalog_jdbc_connection(jdbc: schemas.SourceDeteteJDBCConnection):
+    return service.delete_jdbc_connection(
+        int(jdbc.account_provider),
+        jdbc.account_id,
+        jdbc.region,
+        jdbc.instance,
+        delete_catalog_only=True
+    )
+
+@router.post("/hide-jdbc", response_model=BaseResponse)
+@inject_session
+def hide_jdbc_connection(jdbc: schemas.SourceDeteteJDBCConnection):
+    return service.hide_jdbc_connection(
         int(jdbc.account_provider),
         jdbc.account_id,
         jdbc.region,

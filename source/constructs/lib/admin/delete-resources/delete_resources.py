@@ -3,12 +3,14 @@ import boto3
 import json
 import traceback
 import requests
+import os
 
 events_client = boto3.client('events')
 
 logger = logging.getLogger('delete_resources')
 logger.setLevel(logging.INFO)
 request_type_list = ["Create","Update","Delete"]
+solution_name = os.getenv('SolutionName')
 
 
 def lambda_handler(event, context):
@@ -64,8 +66,7 @@ def on_update(event):
 
 def on_delete(event):
     logger.info("Got Delete")
-    solution_name = event["ResourceProperties"]["SolutionNameAbbr"]
-    delete_event_rules(solution_name)
+    delete_event_rules()
 
 
 def __do_delete_rule(rule_name):
@@ -85,7 +86,7 @@ def __do_delete_rule(rule_name):
     )
 
 
-def __do_delete_rules(solution_name,response):
+def __do_delete_rules(response):
     for rule in response["Rules"]:
         logger.info(f'check rule:{rule["Name"]}')
         response_rule = events_client.list_tags_for_resource(ResourceARN=rule["Arn"])
@@ -99,12 +100,12 @@ def __do_delete_rules(solution_name,response):
             __do_delete_rule(rule["Name"])
 
 
-def delete_event_rules(solution_name):
+def delete_event_rules():
     response = events_client.list_rules(
         NamePrefix=f'{solution_name}-Controller-',
         Limit=100,
     )
-    __do_delete_rules(solution_name,response)
+    __do_delete_rules(response)
     while True:
         if "NextToken" not in response:
             break
@@ -114,4 +115,4 @@ def delete_event_rules(solution_name):
             Limit=100,
             NextToken=next_token
         )
-        __do_delete_rules(solution_name,response)
+        __do_delete_rules(response)

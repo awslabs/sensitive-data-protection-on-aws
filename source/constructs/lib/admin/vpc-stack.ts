@@ -109,7 +109,7 @@ export class VpcStack extends Construct {
 
     // Create a new VPC
     this.vpc = new Vpc(this, 'NewVPC', {
-      vpcName: `${SolutionInfo.SOLUTION_NAME_ABBR}-VPC`,
+      vpcName: `${SolutionInfo.SOLUTION_NAME}-VPC`,
       ipAddresses: IpAddresses.cidr(cidr),
       enableDnsHostnames: true,
       enableDnsSupport: true,

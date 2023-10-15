@@ -22,6 +22,9 @@ const.AGENT_BUCKET_NAME_PREFIX = "sdps-agent"
 
 const.LOGGER_API = "api"
 
+const.PUBLIC_ACCOUNT_ID_CN = "753680513547"
+const.PUBLIC_ACCOUNT_ID_GLOBAL = "366590864501"
+
 const.RESPONSE_SUCCESS = "success"
 const.RESPONSE_FAIL = "fail"
 const.ON_DEMAND = "OnDemand"
@@ -51,8 +54,9 @@ const.PARTITION_CN = 'aws-cn'
 const.URL_SUFFIX_CN = '.cn'
 const.DEFAULT_TEMPLATE_ID = 1
 const.VERSION = 'Version'
-const.PROJECT_TAG_KEY = 'Owner'
-const.PROJECT_TAG_VALUE = const.SOLUTION_NAME
+const.TAG_ADMIN_ACCOUNT_ID = 'AdminAccountId'
+const.TAG_KEY = 'Owner'
+const.TAG_VALUE = const.SOLUTION_NAME
 const.EMPTY_STR = ''
 const.MANUAL = 'manual'
 const.SYSTEM = 'system'
@@ -66,6 +70,3 @@ const.EXPORT_CSV_MAX_LINES = 60000
 const.EXPORT_S3_MARK_STR = "Amazon_S3"
 const.EXPORT_RDS_MARK_STR = "Amazon_RDS"
 const.SECURITY_GROUP_JDBC = "SDPS-CustomDB"
-# const.AWS_PID = 1
-# const.ALI_PID = 3
-# const.TENCENT_PID = 2

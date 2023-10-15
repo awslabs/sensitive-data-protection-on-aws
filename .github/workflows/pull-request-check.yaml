@@ -166,17 +166,23 @@ jobs:
           repository: '${{ github.event.pull_request.head.repo.full_name }}'
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
+          python-version: '3.9'
       - name: Install dependencies
         run: |
           cd source/constructs/api
+          pip3 install -r requirements.txt
           pip3 install -U pytest
           pip3 install moto==3.0.5
-
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_CN }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_CN }}
+          aws-region: ${{ secrets.AWS_REGION_CN }}
       - name: test python code
         run: |
           cd source/constructs/api
-          pytest
+          python -m pytest pytest -s
 
   cdk-unit-test:
     runs-on: ubuntu-latest
@@ -213,10 +219,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18.x'
-      - name: Set up Python 3.8
+      - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
+          python-version: '3.9'
       - name: Install CDK
         run: |
           npm install -g aws-cdk
