@@ -116,6 +116,31 @@ const connectDataSourceJDBC = async (params: any) => {
   return result;
 };
 
+const listGlueConnection =  async (params: any) => {
+  const result = await apiRequest('post', 'data-source/query-glue-connections', params);
+  return result;
+};
+
+const importGlueConnection =  async (params: any) => {
+  const result = await apiRequest('post', 'data-source/import-jdbc-conn', params);
+  return result;
+};
+
+const queryNetworkInfo =  async (params: any) => {
+  const result = await apiRequest('post', 'data-source/query-account-network', params);
+  return result;
+};
+
+const queryBuckets =  async (params: any) => {
+  const result = await apiRequest('post', 'data-source/list-buckets', params);
+  return result;
+};
+
+const createConnection =  async (params: any) => {
+  const result = await apiRequest('post', 'data-source/add-jdbc-conn', params);
+  return result;
+};
+
 export {
   getDataSourceS3ByPage,
   getDataSourceRdsByPage,
@@ -135,5 +160,10 @@ export {
   getDataSourceGlueByPage,
   getDataSourceJdbcByPage,
   testConnect,
-  connectDataSourceJDBC
+  connectDataSourceJDBC,
+  listGlueConnection,
+  importGlueConnection,
+  queryNetworkInfo,
+  queryBuckets,
+  createConnection
 };

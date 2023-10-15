@@ -1496,7 +1496,6 @@ def delete_account(account_provider: int, account_id: str, region: str):
     else:
         delete_third_account(account_provider, account_id, region)
 
-
 def delete_aws_account(account_id):
     accounts_by_region = crud.list_all_accounts_by_region(region=_admin_account_region)
     list_accounts = [c[0] for c in accounts_by_region]
@@ -1562,8 +1561,10 @@ def refresh_account():
     __update_access_policy_for_account()
 
 
-def get_secrets(account: str, region: str):
-    iam_role_name = crud.get_iam_role(account)
+def get_secrets(provider: int, account: str, region: str):
+    account_id = account if provider == Provider.AWS_CLOUD.value else _admin_account_id
+    region_aws = region if provider == Provider.AWS_CLOUD.value else _admin_account_region
+    iam_role_name = crud.get_iam_role(account_id)
 
     assumed_role = sts.assume_role(
         RoleArn=f"{iam_role_name}",
@@ -1574,7 +1575,7 @@ def get_secrets(account: str, region: str):
                                   aws_access_key_id=credentials['AccessKeyId'],
                                   aws_secret_access_key=credentials['SecretAccessKey'],
                                   aws_session_token=credentials['SessionToken'],
-                                  region_name=region
+                                  region_name=region_aws
                                   )
     """ :type : pyboto3.secretsmanager """
     response = secretsmanager.list_secrets()
@@ -1604,7 +1605,7 @@ def import_glue_database(glueDataBase: SourceGlueDatabaseBase):
 
 def update_jdbc_conn(jdbcConn: JDBCInstanceSource):
     account_id = jdbcConn.account_id if jdbcConn.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id
-    region = jdbcConn.region if jdbcConn.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id
+    region = jdbcConn.region if jdbcConn.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_region
     check_connection(jdbcConn, account_id, region)
     update_connection(jdbcConn, account_id, region)
 
@@ -1688,34 +1689,49 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
     ec2_client, __ = __ec2(account=account_id, region=region)
     # return availability_zone
     try:
+        logger.info("######!!! ")
         availability_zone = ec2_client.describe_subnets(SubnetIds=[jdbcConn.network_subnet_id])['Subnets'][0]['AvailabilityZone']
-        response = __glue(account=account_id, region=region).create_connection(
-            CatalogId=account_id,
-            ConnectionInput={
-                'Name': glue_connection_name,
-                'Description': jdbcConn.description,
-                'ConnectionType': 'JDBC',
-                'ConnectionProperties': {
-                    # 'CUSTOM_JDBC_CERT': jdbcConn.custom_jdbc_cert,
-                    # 'CUSTOM_JDBC_CERT_STRING': jdbcConn.custom_jdbc_cert_string,
-                    'JDBC_CONNECTION_URL': jdbcConn.jdbc_connection_url,
-                    'JDBC_ENFORCE_SSL': jdbcConn.jdbc_enforce_ssl,
-                    # 'KAFKA_SSL_ENABLED': jdbcConn.kafka_ssl_enabled,
-                    # 'SKIP_CUSTOM_JDBC_CERT_VALIDATION': jdbcConn.skip_custom_jdbc_cert_validation,
-                    'USERNAME': jdbcConn.master_username,
-                    'PASSWORD': jdbcConn.password,
-                    # 'JDBC_DRIVER_CLASS_NAME': jdbcConn.jdbc_driver_class_name,
-                    # 'JDBC_DRIVER_JAR_URI': jdbcConn.jdbc_driver_jar_uri
-                },
-                'PhysicalConnectionRequirements': {
-                    'SubnetId': jdbcConn.network_subnet_id,
-                    'SecurityGroupIdList': [
-                        jdbcConn.network_sg_id
-                    ],
-                    'AvailabilityZone': availability_zone
+        logger.info("#####oooo ")
+        try:
+            connectionProperties_dict = {}
+            if jdbcConn.custom_jdbc_cert:
+                connectionProperties_dict['CUSTOM_JDBC_CERT'] = jdbcConn.custom_jdbc_cert
+            if jdbcConn.custom_jdbc_cert_string:
+                connectionProperties_dict['CUSTOM_JDBC_CERT_STRING'] = jdbcConn.custom_jdbc_cert_string
+            if jdbcConn.jdbc_driver_class_name:
+                connectionProperties_dict['JDBC_DRIVER_CLASS_NAME'] = jdbcConn.jdbc_driver_class_name
+            if jdbcConn.jdbc_driver_jar_uri:
+                connectionProperties_dict['JDBC_DRIVER_JAR_URI'] = jdbcConn.jdbc_driver_jar_uri
+            if jdbcConn.master_username:
+                connectionProperties_dict['USERNAME'] = jdbcConn.master_username
+            if jdbcConn.password:
+                connectionProperties_dict['PASSWORD'] = jdbcConn.password
+            if jdbcConn.secret:
+                connectionProperties_dict['SECRET_ID'] = jdbcConn.secret
+            connectionProperties_dict['JDBC_CONNECTION_URL'] = jdbcConn.jdbc_connection_url
+            connectionProperties_dict['JDBC_ENFORCE_SSL'] = jdbcConn.jdbc_enforce_ssl
+            if not (jdbcConn.jdbc_enforce_ssl == 'false'):
+                connectionProperties_dict['SKIP_CUSTOM_JDBC_CERT_VALIDATION'] = jdbcConn.skip_custom_jdbc_cert_validation
+            
+            response = __glue(account=account_id, region=region).create_connection(
+                CatalogId=account_id,
+                ConnectionInput={
+                    'Name': glue_connection_name,
+                    'Description': jdbcConn.description,
+                    'ConnectionType': 'JDBC',
+                    'ConnectionProperties': connectionProperties_dict,
+                    'PhysicalConnectionRequirements': {
+                        'SubnetId': jdbcConn.network_subnet_id,
+                        'SecurityGroupIdList': [
+                            jdbcConn.network_sg_id
+                        ],
+                        'AvailabilityZone': availability_zone
+                    }
                 }
-            }
-        )
+            )
+        except Exception as e:
+            logger.error(traceback.format_exc())
+        logger.info(f"response is###### {response}")
         if response['ResponseMetadata']['HTTPStatusCode'] != 200:
             raise BizException(MessageEnum.SOURCE_JDBC_CREATE_FAIL.get_code(),
                                MessageEnum.SOURCE_JDBC_CREATE_FAIL.get_msg())
@@ -2286,12 +2302,25 @@ def query_glue_connections(account: AdminAccountInfo):
                                                                                      MaxResults=100,
                                                                                      HidePassword=True)['ConnectionList']
 
+def list_buckets(account: AdminAccountInfo):
+    _, region = gen_assume_info(account)
+    iam_role_name = crud.get_iam_role(account.account_id)
+    assumed_role = sts.assume_role(RoleArn=f"{iam_role_name}",
+                                   RoleSessionName="glue-s3-connection")
+    credentials = assumed_role['Credentials']
+    s3 = boto3.client('s3',
+                      aws_access_key_id=credentials['AccessKeyId'],
+                      aws_secret_access_key=credentials['SecretAccessKey'],
+                      aws_session_token=credentials['SessionToken'],
+                      region_name=region)
+    res = s3.list_buckets()
+    return res["Buckets"]
+
 def query_glue_databases(account: AdminAccountInfo):
     return __glue(account=account.account_id, region=account.region).get_databases()['DatabaseList']
 
 def query_account_network(account: AccountInfo):
-    accont_id = account.account_id if account.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id
-    region = account.region if account.region == Provider.AWS_CLOUD.value else _admin_account_region
+    accont_id, region = gen_assume_info(account)
     ec2_client, __ = __ec2(account=accont_id, region=region)
     try:
         response = ec2_client.describe_security_groups(GroupNames=[const.SECURITY_GROUP_JDBC])
@@ -2312,6 +2341,11 @@ def query_account_network(account: AccountInfo):
     except Exception as e:
         raise BizException(MessageEnum.BIZ_UNKNOWN_ERR.get_code(),
                            MessageEnum.BIZ_UNKNOWN_ERR.get_msg())
+
+def gen_assume_info(account):
+    accont_id = account.account_id if account.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id
+    region = account.region if account.region == Provider.AWS_CLOUD.value else _admin_account_region
+    return accont_id,region
 
 
 def test_glue_conn(account, connection):
