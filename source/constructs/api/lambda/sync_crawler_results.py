@@ -45,7 +45,7 @@ def sync_result(input_event):
                                                database_type=database_type,
                                                database_name=database_name):
             state = ConnectionState.UNSUPPORTED.value
-
+        logger.info("sync_crawler_result finished ,start to update datasource")
         if database_type == DatabaseType.S3.value:
             data_source_crud.update_s3_bucket_count(
                 account=input_event['detail']['accountId'],
@@ -57,6 +57,7 @@ def sync_result(input_event):
                 bucket=database_name,
                 state=state
             )
+            logger.info("update s3 datasource finished")
         elif database_type == DatabaseType.RDS.value:
             data_source_crud.update_rds_instance_count(
                 account=input_event['detail']['accountId'],
@@ -68,6 +69,7 @@ def sync_result(input_event):
                 instance_id=database_name,
                 state=state
             )
+            logger.info("update rds datasource finished")
         elif database_type == DatabaseType.GLUE.value:
             data_source_crud.update_glue_database_count(
                 account=input_event['detail']['accountId'],
@@ -79,6 +81,7 @@ def sync_result(input_event):
                 database=database_name,
                 state=state
             )
+            logger.info("update glue datasource finished")
         elif database_type.startswith(DatabaseType.JDBC.value):
             data_source_crud.update_jdbc_instance_count(
                 provider=input_event['provider_id'],
@@ -92,6 +95,7 @@ def sync_result(input_event):
                 bucket=database_name,
                 state=state
             )
+            logger.info("update jdbc datasource finished")
 
     except Exception as e:
         logger.error(str(e))

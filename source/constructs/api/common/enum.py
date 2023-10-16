@@ -174,6 +174,7 @@ class DatabaseType(Enum):
     JDBC_AWS = "jdbc_aws"
     JDBC_TENCENT = "jdbc_tencent"
     JDBC_ALIYUN = "jdbc_aliyun"
+    JDBC_GOOGLE = "jdbc_google"
 
 
 @unique
