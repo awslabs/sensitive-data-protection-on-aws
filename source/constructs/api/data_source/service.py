@@ -1914,9 +1914,9 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
         logger.info("#####oooo ")
         try:
             connectionProperties_dict = {}
-            if jdbcConn.custom_jdbc_cert:
+            if jdbcConn.jdbc_enforce_ssl != 'false' and jdbcConn.custom_jdbc_cert:
                 connectionProperties_dict['CUSTOM_JDBC_CERT'] = jdbcConn.custom_jdbc_cert
-            if jdbcConn.custom_jdbc_cert_string:
+            if jdbcConn.jdbc_enforce_ssl != 'false' and jdbcConn.custom_jdbc_cert_string:
                 connectionProperties_dict['CUSTOM_JDBC_CERT_STRING'] = jdbcConn.custom_jdbc_cert_string
             if jdbcConn.jdbc_driver_class_name:
                 connectionProperties_dict['JDBC_DRIVER_CLASS_NAME'] = jdbcConn.jdbc_driver_class_name
