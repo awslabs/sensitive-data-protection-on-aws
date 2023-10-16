@@ -287,8 +287,8 @@ def delete_account(account: schemas.SourceNewAccount):
 
 @router.get("/secrets", response_model=BaseResponse, description="List Secrets for RDS")
 @inject_session
-def get_secrets(account: str, region: str):
-    return service.get_secrets(account, region)
+def get_secrets(provider: str, account: str, region: str):
+    return service.get_secrets(int(provider), account, region)
 
 @router.get("/admin_account_info", response_model=BaseResponse[schemas.AdminAccountInfo])
 @inject_session
@@ -369,3 +369,8 @@ def query_full_provider_infos():
 @inject_session
 def list_providers():
     return service.list_providers()
+
+@router.post("/list-buckets", response_model=BaseResponse)
+@inject_session
+def list_buckets(account: schemas.AccountInfo):
+    return service.list_buckets(account)

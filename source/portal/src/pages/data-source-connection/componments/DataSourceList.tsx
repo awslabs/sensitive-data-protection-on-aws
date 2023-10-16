@@ -124,10 +124,9 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
     getPageData();
   }, [currentPage, preferences.pageSize, query, selectedCrawler, sortDetail]);
 
-  // useEffect(() => {
-  //   setCurrentPage(1);
-  //   getPageData();
-  // }, []);
+  useEffect(() => {
+    console.log("accountData is :",accountData)
+  }, []);
 
   useEffect(() => {
     if (showRdsPwdModal) {
@@ -312,10 +311,11 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       try {
         await testConnect(requestParam);
         showHideSpinner(false);
-        alertMsg(t('startConnect'), 'success');
+        alertMsg(t('successConnect'), 'success');
         setSelectedItems([]);
         getPageData();
       } catch (error) {
+        alertMsg(t('failedConnect'), 'error');
         setSelectedItems([]);
         showHideSpinner(false);
       }
@@ -576,6 +576,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
 
   const loadAccountSecrets = async () => {
     const requestParam = {
+      provider: accountData.account_provider_id,
       account: selectedItems[0].account_id,
       region: selectedItems[0].region,
     };
@@ -1058,6 +1059,9 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       </Modal>
       {showAddConnection && (
         <JDBCConnection
+          providerId={accountData.account_provider_id}
+          accountId={accountData.account_id}
+          region={accountData.region}
           showModal={showAddConnection}
           setShowModal={setShowAddConnection}
         />

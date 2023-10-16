@@ -307,8 +307,7 @@ def get_s3_bucket_source(account: str, region: str, bucket_name: str):
                                                       S3BucketSource.bucket_name == bucket_name).scalar()
 
 def get_iam_role(account: str):
-    return get_session().query(Account).filter(Account.account_id == account,
-                                               Account.detection_role_name != None).first().detection_role_name
+    return get_session().query(Account).filter(Account.account_id == account).first().detection_role_name
 
 
 def create_s3_connection(account: str, region: str, bucket: str, glue_connection_name, glue_database_name: str,
@@ -874,27 +873,12 @@ def update_jdbc_conn(jdbc_conn_param: schemas.JDBCInstanceSourceFullInfo):
 
 
 def set_jdbc_instance_connection_status(jdbc_conn_param: schemas.JDBCInstanceSourceUpdateBase):
-    # print(f'set_jdbc_instance_connection_status start... status is{status}')
     session = get_session()
-    # jdbc_instance_source: JDBCInstanceSource = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == provider_id,
-    #                                                                                     JDBCInstanceSource.account_id == account,
-    #                                                                                     JDBCInstanceSource.region == region,
-    #                                                                                     JDBCInstanceSource.instance_id == instance_id).first()
-    
-    print(f'set_jdbc_instance_connection_status start... jdbc_instance_source is{jdbc_conn_param}')
-    # if jdbc_instance_source:
-    #     jdbc_instance_source.connection_status == status
-    #     # session.commit()database.dict(exclude_unset=True)
-    #     session.merge(jdbc_instance_source)
-    #     session.commit()
-    # jdbc_instance_source.connection_status == status
     session.query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == jdbc_conn_param.account_provider_id,
                                              JDBCInstanceSource.account_id == jdbc_conn_param.account_id,
                                              JDBCInstanceSource.region == jdbc_conn_param.region,
                                              JDBCInstanceSource.instance_id == jdbc_conn_param.instance_id).update(jdbc_conn_param.dict(exclude_unset=True))
     session.commit()
-    # session.refresh(jdbc_instance_source)
-    # return jdbc_instance_source
 
 def query_regions_by_provider(provider_id: int):
     return get_session().query(SourceRegion).filter(SourceRegion.provider_id == provider_id,

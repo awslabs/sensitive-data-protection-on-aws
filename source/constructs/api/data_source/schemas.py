@@ -167,6 +167,7 @@ class JDBCInstanceSource(JDBCInstanceSourceBase):
     kafka_ssl_enabled: Optional[str]
     master_username: Optional[str]
     password: Optional[str]
+    secret: Optional[str]
     skip_custom_jdbc_cert_validation: Optional[str]
     custom_jdbc_cert: Optional[str]
     custom_jdbc_cert_string: Optional[str]
