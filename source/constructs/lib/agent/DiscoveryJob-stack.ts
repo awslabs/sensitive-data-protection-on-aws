@@ -182,11 +182,11 @@ export class DiscoveryJobStack extends Construct {
     }));
 
     // State machine log group
-    const logGroup = new logs.LogGroup(this, 'LogGroup', {
-      retention: logs.RetentionDays.ONE_MONTH,
-      logGroupName: `/aws/vendedlogs/states/${SolutionInfo.SOLUTION_NAME}LogGroup`,
-      removalPolicy: RemovalPolicy.DESTROY,
-    });
+    // const logGroup = new logs.LogGroup(this, 'LogGroup', {
+    //   retention: logs.RetentionDays.ONE_MONTH,
+    //   logGroupName: `/aws/vendedlogs/states/${SolutionInfo.SOLUTION_NAME}LogGroup`,
+    //   removalPolicy: RemovalPolicy.DESTROY,
+    // });
 
     let jsonDiscoveryJob = fs.readFileSync('lib/agent/DiscoveryJob.json').toString();
     jsonDiscoveryJob = Fn.sub(jsonDiscoveryJob);
@@ -197,15 +197,15 @@ export class DiscoveryJobStack extends Construct {
         roleArn: discoveryJobRole.roleArn,
         definitionString: jsonDiscoveryJob,
         stateMachineName: `${SolutionInfo.SOLUTION_NAME}-DiscoveryJob`, //Name must be specified
-        loggingConfiguration: {
-          destinations: [{
-            cloudWatchLogsLogGroup: {
-              logGroupArn: logGroup.logGroupArn,
-            },
-          }],
-          includeExecutionData: true,
-          level: 'ALL',
-        },
+        // loggingConfiguration: {
+        //   destinations: [{
+        //     cloudWatchLogsLogGroup: {
+        //       logGroupArn: logGroup.logGroupArn,
+        //     },
+        //   }],
+        //   includeExecutionData: true,
+        //   level: 'ALL',
+        // },
         tags: [{ key: 'Version', value: SolutionInfo.SOLUTION_VERSION }],
       },
     );
