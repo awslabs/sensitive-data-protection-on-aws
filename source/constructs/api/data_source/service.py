@@ -1909,9 +1909,7 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
     ec2_client, __ = __ec2(account=account_id, region=region)
     # return availability_zone
     try:
-        logger.info("######!!! ")
         availability_zone = ec2_client.describe_subnets(SubnetIds=[jdbcConn.network_subnet_id])['Subnets'][0]['AvailabilityZone']
-        logger.info("#####oooo ")
         try:
             connectionProperties_dict = {}
             if jdbcConn.jdbc_enforce_ssl != 'false' and jdbcConn.custom_jdbc_cert:
@@ -1951,7 +1949,6 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
             )
         except Exception as e:
             logger.error(traceback.format_exc())
-        logger.info(f"response is###### {response}")
         if response['ResponseMetadata']['HTTPStatusCode'] != 200:
             raise BizException(MessageEnum.SOURCE_JDBC_CREATE_FAIL.get_code(),
                                MessageEnum.SOURCE_JDBC_CREATE_FAIL.get_msg())
