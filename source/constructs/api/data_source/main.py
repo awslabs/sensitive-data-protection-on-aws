@@ -358,7 +358,6 @@ def get_data_location_list():
 def query_regions_by_provider(provider_id: str):
     return service.query_regions_by_provider(provider_id)
 
-
 @router.post("/query-full-provider-infos", response_model=BaseResponse)
 @inject_session
 def query_full_provider_infos():
@@ -374,3 +373,8 @@ def list_providers():
 @inject_session
 def list_buckets(account: schemas.AccountInfo):
     return service.list_buckets(account)
+
+@router.post("/query-connection-detail", response_model=BaseResponse)
+@inject_session
+def query_connection_detail(account: schemas.JDBCInstanceSourceBase):
+    return service.query_connection_detail(account)
