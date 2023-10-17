@@ -47,7 +47,7 @@ def list_glue_databases(condition: QueryCondition):
 @router.post("/list-jdbc", response_model=BaseResponse[Page[schemas.JDBCInstanceSourceFullInfo]])
 @inject_session
 def list_jdbc_instances(provider_id: int, condition: QueryCondition):
-    instances = crud.list_jdbc_instance_source(provider_id)
+    instances = crud.list_jdbc_instance_source(provider_id, condition)
     if instances is None:
         return None
     return paginate(instances, Params(

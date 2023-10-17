@@ -23,7 +23,7 @@ import {
 import RightModal from 'pages/right-modal';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { alertMsg } from 'tools/tools';
+import { alertMsg, showHideSpinner } from 'tools/tools';
 import { i18ns } from '../types/s3_selector_config';
 
 interface JDBCConnectionProps {
@@ -248,17 +248,20 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
     // setJdbcConnectionData({...jdbcConnectionData,new:temp});
   }
   const getConnectionDetails = async()=>{
+    // showHideSpinner(true);
     const requestParam = {
       account_provider_id: props.providerId,
       account_id: props.accountId,
       region: props.region
     }
     try{
-      const res= await queryConnectionDetails(requestParam);
+      const res:any= await queryConnectionDetails(requestParam);
       console.log("connection details is:",res)
-      setBuckets(res)
+      setJdbcConnectionData(res as any)
+      
+      // showHideSpinner(false);
     }catch(error){
-      alertMsg(t('failLoadConnectionDetails'), 'error');
+      alertMsg(error as string, 'error');
     }
   }
   const listBuckets = async()=>{
