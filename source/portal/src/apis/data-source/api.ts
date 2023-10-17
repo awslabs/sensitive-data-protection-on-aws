@@ -186,6 +186,11 @@ const createConnection =  async (params: any) => {
   return result;
 };
 
+const queryConnectionDetails =  async (params: any) => {
+  const result = await apiRequest('post', 'data-source/query-connection-detail', params);
+  return result;
+};
+
 export {
   getDataSourceS3ByPage,
   getDataSourceRdsByPage,
@@ -219,5 +224,6 @@ export {
   deleteDataCatalogJDBC,
   disconnectAndDeleteS3,
   disconnectAndDeleteRDS,
-  disconnectAndDeleteJDBC
+  disconnectAndDeleteJDBC,
+  queryConnectionDetails
 };

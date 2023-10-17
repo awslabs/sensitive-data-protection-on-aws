@@ -68,6 +68,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 // import { RouterEnum } from 'routers/routerEnum';
 import JDBCConnection from './JDBCConnection';
+import JDBCConnectionEdit from './JDBCConnectionEdit';
 
 const DataSourceList: React.FC<any> = memo((props: any) => {
   const { tagType, accountData } = props;
@@ -115,6 +116,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
   };
 
   const [showAddConnection, setShowAddConnection] = useState(false);
+  const [showEditConnection, setShowEditConnection] = useState(false);
 
   // useEffect(() => {
   //   getPageData();
@@ -599,7 +601,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
     if(type==='addImportJdbc'){
       setShowAddConnection(true);
     } else if(type==='editJdbc'){
-      setShowAddConnection(true);
+      setShowEditConnection(true);
     }else {
       console.log('type not found')
     }
@@ -1064,6 +1066,15 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
           region={accountData.region}
           showModal={showAddConnection}
           setShowModal={setShowAddConnection}
+        />
+      )}
+      {showEditConnection && (
+        <JDBCConnectionEdit
+          providerId={accountData.account_provider_id}
+          accountId={accountData.account_id}
+          region={accountData.region}
+          showModal={showEditConnection}
+          setShowModal={setShowEditConnection}
         />
       )}
     </>

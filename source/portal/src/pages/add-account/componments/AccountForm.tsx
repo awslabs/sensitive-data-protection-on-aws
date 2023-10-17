@@ -54,7 +54,7 @@ const AccountForm: React.FC<AccountFormProps> = (props: AccountFormProps) => {
         markerOffset: 25,
         name: option.labelTag,
         region: option.label,
-        coordinates: [coorMap?.get(option.label||'')?.split(',')[1],coorMap?.get(option.label||'')?.split(',')[0]],
+        coordinates: [coorMap?.get(option.label||'')?.split(',')[0],coorMap?.get(option.label||'')?.split(',')[1]],
       },
     ]);
   };
