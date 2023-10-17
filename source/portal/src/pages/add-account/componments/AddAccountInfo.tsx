@@ -73,7 +73,14 @@ const AddAccountInfo: React.FC<any> = memo((props: any) => {
     }
     setIsLoading(true);
     try {
-      await addAccount({ account_id: inputAccount });
+      // account_provider: int
+      // account_id: str
+      // region: str
+      await addAccount({
+        account_provider: 1, 
+        account_id: inputAccount,
+        region: ""
+       });
       setIsLoading(false);
       alertMsg(t('account:addSuccess'), 'success');
       setInputAccount('');

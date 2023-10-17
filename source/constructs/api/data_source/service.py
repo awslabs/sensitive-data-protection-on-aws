@@ -1699,7 +1699,7 @@ def add_aws_account(account_id: str):
             )
             __update_access_policy_for_account()
             # add account and retrieve data source for all
-            refresh_data_source(accounts=[account_id], type='all')
+            refresh_data_source(provider_id=Provider.AWS_CLOUD.value, accounts=[account_id], type='all')
         else:
             logger.debug(MessageEnum.SOURCE_ASSUME_ROLE_FAILED.get_msg())
     if not assumed_role:

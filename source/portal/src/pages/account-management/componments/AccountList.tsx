@@ -160,6 +160,7 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
   const clkRefreshDatasource = async (rowData: any) => {
     setIsLoading(true);
     const requestParam = {
+      provider: provider?.id,
       accounts: [rowData.account_id],
       type: 'all',
     };
