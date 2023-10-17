@@ -11,20 +11,20 @@ import {
   SpaceBetween,
   Tiles,
 } from '@cloudscape-design/components';
-import S3ResourceSelector, { S3ResourceSelectorProps } from "@cloudscape-design/components/s3-resource-selector";
+import S3ResourceSelector from "@cloudscape-design/components/s3-resource-selector";
 import {
   listGlueConnection,
-  importGlueConnection,
   getSecrets,
   queryNetworkInfo,
   queryBuckets,
-  createConnection
+  createConnection,
+  queryConnectionDetails
 } from 'apis/data-source/api';
 import RightModal from 'pages/right-modal';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { alertMsg } from 'tools/tools';
-import { ErrorAlert } from './Alert';
+import { i18ns } from '../types/s3_selector_config';
 
 interface JDBCConnectionProps {
   providerId: number;
@@ -39,74 +39,10 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
 ) => {
   const { t } = useTranslation();
   const { showModal, setShowModal } = props;
-  const [jdbcType, setJdbcType] = useState('import');
+  // const [jdbcType, setJdbcType] = useState('import');
   const [connections, setConnections] = useState([] as any[]);
   const [credential, setCredential] = useState('secret');
   // const [vpc, setVpc] = useState(null);
-const i18ns = {inContextBrowseButton:"Browse S3",
-               inContextViewButton:'View',
-               inContextInputPlaceholder: 's3://bucket/prefix/object',
-               inContextInputClearAriaLabel: 'Clear',
-               inContextSelectPlaceholder: 'Choose a version',
-               inContextLoadingText: 'Loading resource',
-              //  inContextUriLabel: 'S3 URI',
-               inContextVersionSelectLabel: 'Object version',
-               modalTitle: 'Choose simulation in S3',
-               modalCancelButton: 'Cancel',
-               modalSubmitButton: 'Choose',
-               modalBreadcrumbRootItem: 'S3 buckets',
-               selectionBuckets: 'Buckets',
-               selectionObjects: 'Objects',
-               selectionVersions: 'Versions',
-               selectionBucketsSearchPlaceholder: 'Find bucket',
-               selectionObjectsSearchPlaceholder: 'Find object by prefix',
-               selectionVersionsSearchPlaceholder: 'Find version',
-               selectionBucketsLoading: 'Loading buckets',
-               selectionBucketsNoItems: 'No buckets',
-               selectionObjectsLoading: 'Loading objects',
-               selectionObjectsNoItems: 'No objects',
-               selectionVersionsLoading: 'Loading versions',
-               selectionVersionsNoItems: 'No versions',
-               filteringCounterText: count => `${count} ${count === 1 ? 'match' : 'matches'}`,
-               filteringNoMatches: 'No matches',
-               filteringCantFindMatch: "We can't find a match.",
-               clearFilterButtonText: 'Clear filter',
-               columnBucketName: 'Name',
-               columnBucketCreationDate: 'Creation date',
-               columnBucketRegion: 'Region',
-               columnObjectKey: 'Key',
-               columnObjectLastModified: 'Last modified',
-               columnObjectSize: 'Size',
-               columnVersionID: 'Version ID',
-               columnVersionLastModified: 'Last modified',
-               columnVersionSize: 'Size',
-               validationPathMustBegin: 'The path must begin with s3://',
-               validationBucketLowerCase: 'The bucket name must start with a lowercase character or number.',
-               validationBucketMustNotContain: 'The bucket name must not contain uppercase characters.',
-               validationBucketMustComplyDns: 'The bucket name must comply with DNS naming conventions',
-               validationBucketLength: 'The bucket name must be from 3 to 63 characters.',
-               labelSortedDescending: columnName => `${columnName}, sorted descending`,
-               labelSortedAscending: columnName => `${columnName}, sorted ascending`,
-               labelNotSorted: columnName => `${columnName}, not sorted`,
-               labelsPagination: {
-                 nextPageLabel: 'Next page',
-                 previousPageLabel: 'Previous page',
-                 pageLabel: pageNumber => `Page ${pageNumber} of all pages`,
-               },
-               labelsBucketsSelection: {
-                 itemSelectionLabel: (data, item) => `${item.Name}`,
-                 selectionGroupLabel: 'Buckets',
-               },
-               labelsObjectsSelection: {
-                 itemSelectionLabel: (data, item) => `${item.Key}`,
-                 selectionGroupLabel: 'Objects',
-               },
-               labelsVersionsSelection: {
-                 itemSelectionLabel: (data, item) => `${item.LastModified}`,
-                 selectionGroupLabel: 'Versions',
-               },
-                 labelFiltering: itemsType => `Find ${itemsType}`
-               } as S3ResourceSelectorProps.I18nStrings
 
   const originalData = {
     instance_id:'',
@@ -116,7 +52,6 @@ const i18ns = {inContextBrowseButton:"Browse S3",
     description:'',
     jdbc_connection_url:'',
     jdbc_enforce_ssl:'false',
-    // kafka_ssl_enabled:'',
     master_username: '',
     password: '',
     secret: '',
@@ -131,9 +66,7 @@ const i18ns = {inContextBrowseButton:"Browse S3",
     jdbc_driver_class_name: '',
     jdbc_driver_jar_uri: ''
   }
-  const [jdbcConnectionData, setJdbcConnectionData] = useState({
-    new: originalData
-  });
+  const [jdbcConnectionData, setJdbcConnectionData] = useState(originalData);
   const [disabled, setDisabled] = useState(true)
   const [credentialType, setCredentialType] = useState('secret_manager')
   const [secretOption, setSecretOption] = useState([] as any);
@@ -147,56 +80,56 @@ const i18ns = {inContextBrowseButton:"Browse S3",
   useEffect(() => {
     if (credentialType === 'secret_manager') {
       loadAccountSecrets();
-      console.log("secretOption is:",secretOption)
-    } else {
-      console.log()
     }
   }, [credentialType]);
 
   useEffect(()=>{
-    if(jdbcConnectionData.new.jdbc_enforce_ssl==='false'){
-      let temp = jdbcConnectionData.new;
+    if(jdbcConnectionData.jdbc_enforce_ssl==='false'){
+      let temp = jdbcConnectionData;
     temp={...temp,skip_custom_jdbc_cert_validation:'false',custom_jdbc_cert:'',custom_jdbc_cert_string:''};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    // setJdbcConnectionData({...jdbcConnectionData, new:temp});
     }
-  },[jdbcConnectionData.new.jdbc_enforce_ssl])
+  },[jdbcConnectionData.jdbc_enforce_ssl])
 
   useEffect(()=>{
       listBuckets()
+      getConnectionDetails()
   },[])
 
   // useEffect(()=>{
   //   console.log(jdbcConnectionData)
-  // },[jdbcConnectionData.new])
+  // },[jdbcConnectionData])
 
   useEffect(()=>{
 
-    if(props.providerId !== 1){
-      setJdbcType('new')
-      // load network info
-      loadNetworkInfo()
-    } else {
-      try {
-        glueConnection()
-      } catch (error) {
-        setConnections([]);
-      }
-    }
+    console.log("")
+
+    // if(props.providerId !== 1){
+    //   setJdbcType('new')
+    //   // load network info
+    //   loadNetworkInfo()
+    // } else {
+    //   try {
+    //     glueConnection()
+    //   } catch (error) {
+    //     setConnections([]);
+    //   }
+    // }
   },[])
 
   useEffect(()=>{
-      if(jdbcConnectionData.new.instance_id!=='' &&
-         jdbcConnectionData.new.jdbc_connection_url !=='' &&
-         (jdbcConnectionData.new.secret !== '' || 
-          (jdbcConnectionData.new.master_username !== '' && 
-           jdbcConnectionData.new.password !=='')) &&
-         jdbcConnectionData.new.network_sg_id !=='' &&
-         jdbcConnectionData.new.network_subnet_id !=='' &&
+      if(jdbcConnectionData.instance_id!=='' &&
+         jdbcConnectionData.jdbc_connection_url !=='' &&
+         (jdbcConnectionData.secret !== '' || 
+          (jdbcConnectionData.master_username !== '' && 
+           jdbcConnectionData.password !=='')) &&
+         jdbcConnectionData.network_sg_id !=='' &&
+         jdbcConnectionData.network_subnet_id !=='' &&
          vpc !== null
          ){
         setDisabled(false)
       }
-    },[jdbcConnectionData,jdbcConnectionData.new,vpc,]
+    },[jdbcConnectionData,jdbcConnectionData,vpc,]
   )
 
   const loadNetworkInfo = async ()=>{
@@ -254,7 +187,7 @@ const i18ns = {inContextBrowseButton:"Browse S3",
 
   const updateJdbcConnection =async()=>{
     try{
-      await createConnection(jdbcConnectionData.new)
+      await createConnection(jdbcConnectionData)
       alertMsg(t('successAdd'), 'success');
       props.setShowModal(false)
     } catch(error){
@@ -264,30 +197,30 @@ const i18ns = {inContextBrowseButton:"Browse S3",
 
   const changeConnectionName = (detail:any)=>{
     // console.log(detail)
-    let temp = jdbcConnectionData.new;
+    let temp = jdbcConnectionData;
     temp={...temp,instance_id:detail};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
   }
 
   const changeRequiredSSL =(detail:any)=>{
     // console.log(detail)
-    let temp = jdbcConnectionData.new;
+    let temp = jdbcConnectionData;
     temp={...temp,jdbc_enforce_ssl:detail?'true':'false'};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
   }
 
   const changeDescription =(detail:any)=>{
     // console.log(detail)
-    let temp = jdbcConnectionData.new;
+    let temp = jdbcConnectionData;
     temp={...temp,description:detail};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
   }
 
   const changeJDBCUrl =(detail:any)=>{
     // console.log(detail)
-    let temp = jdbcConnectionData.new;
+    let temp = jdbcConnectionData;
     temp={...temp,jdbc_connection_url:detail};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
   }
 
   const changeVPC =(detail:any)=>{
@@ -296,83 +229,99 @@ const i18ns = {inContextBrowseButton:"Browse S3",
 
   const changeSubnet =(detail:any)=>{
     setSubnet(detail)
-    let temp = jdbcConnectionData.new;
+    let temp = jdbcConnectionData;
     temp={...temp,network_subnet_id:detail.value};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
   }
 
   const changeSG =(detail:any)=>{
     setSg(detail)
-    let temp = jdbcConnectionData.new;
+    let temp = jdbcConnectionData;
     temp={...temp,network_sg_id:detail.value};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
   }
 
   const changeSecret =(detail:any)=>{
     setSecretItem(detail)
-    let temp = jdbcConnectionData.new;
+    let temp = jdbcConnectionData;
     temp={...temp,secret:detail.value};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
   }
-
+  const getConnectionDetails = async()=>{
+    const requestParam = {
+      account_provider_id: props.providerId,
+      account_id: props.accountId,
+      region: props.region
+    }
+    try{
+      const res= await queryConnectionDetails(requestParam);
+      console.log("connection details is:",res)
+      setBuckets(res)
+    }catch(error){
+      alertMsg(t('failLoadConnectionDetails'), 'error');
+    }
+  }
   const listBuckets = async()=>{
     const requestParam = {
       account_provider_id: props.providerId,
       account_id: props.accountId,
       region: props.region
     }
-    const res= await queryBuckets(requestParam);
-    console.log("res is:",res)
-    setBuckets(res)
+    try{
+      const res= await queryBuckets(requestParam);
+      setBuckets(res)
+    }catch(error){
+      alertMsg(t('failLoadBuckets'), 'error');
+    }
   }
 
   const changeJDBCcertificate =(detail:any)=>{
-    let temp = jdbcConnectionData.new;
+    let temp = jdbcConnectionData;
     temp={...temp,custom_jdbc_cert:detail.resource.uri};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
   }
 
   const changeSkipCerValid =(detail:any)=>{
     // console.log("skip!!!",detail)
-    let temp = jdbcConnectionData.new;
+    let temp = jdbcConnectionData;
     temp={...temp,skip_custom_jdbc_cert_validation:detail?'true':'false'};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
   }
 
   const changeJDBCCertString =(detail:any)=>{
-    let temp = jdbcConnectionData.new;
+    let temp = jdbcConnectionData;
     temp={...temp,custom_jdbc_cert_string:detail};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
   }
 
   const changeDriverClassName=(detail:any)=>{
-    let temp = jdbcConnectionData.new;
+    let temp = jdbcConnectionData;
     temp={...temp,jdbc_driver_class_name:detail};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
   }
 
   const changeDriverPath=(detail:any)=>{
-    let temp = jdbcConnectionData.new;
+    let temp = jdbcConnectionData;
     temp={...temp,jdbc_driver_jar_uri:detail.resource.uri};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
   }
 
   const changeUserName=(detail:any)=>{
-    let temp = jdbcConnectionData.new;
+    let temp = jdbcConnectionData;
     temp={...temp,master_username:detail};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
   }
 
   const changePassword=(detail:any)=>{
-    let temp = jdbcConnectionData.new;
+    let temp = jdbcConnectionData;
     temp={...temp,password:detail};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
   }
 
   const resetCredentials=()=>{
-    let temp = jdbcConnectionData.new;
+    let temp = jdbcConnectionData;
     temp={...temp,password:'',master_username:'',secret:''};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
     setSecretItem(null)
   }
 
@@ -384,8 +333,8 @@ const i18ns = {inContextBrowseButton:"Browse S3",
         setShowModal(show);
       }}
       showModal={showModal}
-      header="Add JDBC Connection"
-      showFolderIcon={true}
+      header="Edit JDBC Connection"
+
     >
       <div className="add-jdbc-container">
         <Form
@@ -406,8 +355,6 @@ const i18ns = {inContextBrowseButton:"Browse S3",
           }
         >
           <SpaceBetween direction="vertical" size="s">
-            {jdbcType === 'new' && (
-              <>
                 <FormField
                   stretch
                   label="connection name"
@@ -415,7 +362,7 @@ const i18ns = {inContextBrowseButton:"Browse S3",
                 >
                   <Input
                     onChange={(e)=>changeConnectionName(e.detail.value)}
-                    value={jdbcConnectionData.new.instance_id}
+                    value={jdbcConnectionData.instance_id}
                   />
                 </FormField>
                 <FormField
@@ -423,7 +370,7 @@ const i18ns = {inContextBrowseButton:"Browse S3",
                   label="SSL connection"
                 >
                   <Checkbox 
-                    checked={jdbcConnectionData.new.jdbc_enforce_ssl!=='false'}
+                    checked={jdbcConnectionData.jdbc_enforce_ssl!=='false'}
                     onChange={({ detail })=>{
                       changeRequiredSSL(detail.checked)
                       }
@@ -431,7 +378,7 @@ const i18ns = {inContextBrowseButton:"Browse S3",
                     Require SSL connection
                   </Checkbox>
                 </FormField>
-                {jdbcConnectionData.new.jdbc_enforce_ssl!=='false'&&(<>
+                {jdbcConnectionData.jdbc_enforce_ssl!=='false'&&(<>
                   <FormField
                   label="Custom JDBC certificate"
                   description="Choose your X.509 certificate. Must be DER-encoded Base64 PEM format."
@@ -444,7 +391,7 @@ const i18ns = {inContextBrowseButton:"Browse S3",
                       // setResource(detail.resource)
                       changeJDBCcertificate(detail)
                     }
-                    resource={{uri:jdbcConnectionData.new.custom_jdbc_cert}}
+                    resource={{uri:jdbcConnectionData.custom_jdbc_cert}}
                     objectsIsItemDisabled={item => !item.IsFolder}
                     fetchBuckets={() =>{
                       return Promise.resolve(buckets)
@@ -466,7 +413,7 @@ const i18ns = {inContextBrowseButton:"Browse S3",
                   label="certificate validation"
                 >
                   <Checkbox
-                    checked={jdbcConnectionData.new.skip_custom_jdbc_cert_validation!=='false'}
+                    checked={jdbcConnectionData.skip_custom_jdbc_cert_validation!=='false'}
                     onChange={({ detail })=>{
                       changeSkipCerValid(detail.checked)
                       }
@@ -482,7 +429,7 @@ const i18ns = {inContextBrowseButton:"Browse S3",
                 >
                   <Input 
                     onChange={(e)=>changeJDBCCertString(e.detail.value)}
-                    value={jdbcConnectionData.new.custom_jdbc_cert_string} />
+                    value={jdbcConnectionData.custom_jdbc_cert_string} />
                 </FormField>
                 
                 
@@ -495,7 +442,7 @@ const i18ns = {inContextBrowseButton:"Browse S3",
                 >
                   <Input
                     onChange={(e)=>changeDescription(e.detail.value)}
-                    value={jdbcConnectionData.new.description}
+                    value={jdbcConnectionData.description}
                   />
                 </FormField>
                 <>
@@ -506,7 +453,7 @@ const i18ns = {inContextBrowseButton:"Browse S3",
                     <Input
                       onChange={(e)=>changeJDBCUrl(e.detail.value)}
                       placeholder="jdbc:xxx.xxx"
-                      value={jdbcConnectionData.new.jdbc_connection_url} />
+                      value={jdbcConnectionData.jdbc_connection_url} />
                   </FormField>
                   <FormField 
                     stretch
@@ -515,7 +462,7 @@ const i18ns = {inContextBrowseButton:"Browse S3",
                     >
                     <Input 
                       onChange={(e)=>changeDriverClassName(e.detail.value)}
-                      value={jdbcConnectionData.new.jdbc_driver_class_name} />
+                      value={jdbcConnectionData.jdbc_driver_class_name} />
                   </FormField>
                   <FormField stretch
                     label="JDBC Driver S3 path - optional"
@@ -524,7 +471,7 @@ const i18ns = {inContextBrowseButton:"Browse S3",
                     onChange={({ detail }) =>
                       changeDriverPath(detail)
                     }
-                    resource={{uri:jdbcConnectionData.new.jdbc_driver_jar_uri}}
+                    resource={{uri:jdbcConnectionData.jdbc_driver_jar_uri}}
                     objectsIsItemDisabled={item => !item.IsFolder}
                     fetchBuckets={() =>{
                       return Promise.resolve(buckets)
@@ -576,12 +523,12 @@ const i18ns = {inContextBrowseButton:"Browse S3",
                   <>
                     <FormField stretch label="Username">
                       <Input
-                       value={jdbcConnectionData.new.master_username}
+                       value={jdbcConnectionData.master_username}
                        onChange={({detail})=>{changeUserName(detail.value)}}/>
                     </FormField>
                     <FormField stretch label="Password">
                       <Input type="password"
-                        value={jdbcConnectionData.new.password}
+                        value={jdbcConnectionData.password}
                         onChange={({detail})=>{changePassword(detail.value)}}/>
                     </FormField>
                   </>
@@ -622,8 +569,6 @@ const i18ns = {inContextBrowseButton:"Browse S3",
                   </FormField>
       
                 </ExpandableSection>
-              </>
-            )}
           </SpaceBetween>
         </Form>
       </div>

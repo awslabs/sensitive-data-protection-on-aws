@@ -2596,10 +2596,14 @@ def query_glue_databases(account: AdminAccountInfo):
     return __glue(account=account.account_id, region=account.region).get_databases()['DatabaseList']
 
 def query_account_network(account: AccountInfo):
-    accont_id, region = gen_assume_info(account)
+    # accont_id, region = gen_assume_info(account)
+    accont_id = account.account_id if account.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id
+    region = account.region if account.region == Provider.AWS_CLOUD.value else _admin_account_region
+    logger.info(f'accont_id is:{accont_id},region is {region}')
     ec2_client, __ = __ec2(account=accont_id, region=region)
     try:
         response = ec2_client.describe_security_groups(GroupNames=[const.SECURITY_GROUP_JDBC])
+        logger.info(f'response is:{response}')
         vpc_ids = [item['VpcId'] for item in response['SecurityGroups']]
         subnets = ec2_client.describe_subnets(Filters=[{'Name': 'vpc-id', 'Values': [vpc_ids[0]]}])['Subnets']
         private_subnet = list(filter(lambda x: not x["MapPublicIpOnLaunch"], subnets))

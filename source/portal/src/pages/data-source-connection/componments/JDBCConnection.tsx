@@ -25,6 +25,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { alertMsg } from 'tools/tools';
 import { ErrorAlert } from './Alert';
+import { i18ns } from '../types/s3_selector_config';
 
 interface JDBCConnectionProps {
   providerId: number;
@@ -43,70 +44,6 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
   const [connections, setConnections] = useState([] as any[]);
   const [credential, setCredential] = useState('secret');
   // const [vpc, setVpc] = useState(null);
-const i18ns = {inContextBrowseButton:"Browse S3",
-               inContextViewButton:'View',
-               inContextInputPlaceholder: 's3://bucket/prefix/object',
-               inContextInputClearAriaLabel: 'Clear',
-               inContextSelectPlaceholder: 'Choose a version',
-               inContextLoadingText: 'Loading resource',
-              //  inContextUriLabel: 'S3 URI',
-               inContextVersionSelectLabel: 'Object version',
-               modalTitle: 'Choose simulation in S3',
-               modalCancelButton: 'Cancel',
-               modalSubmitButton: 'Choose',
-               modalBreadcrumbRootItem: 'S3 buckets',
-               selectionBuckets: 'Buckets',
-               selectionObjects: 'Objects',
-               selectionVersions: 'Versions',
-               selectionBucketsSearchPlaceholder: 'Find bucket',
-               selectionObjectsSearchPlaceholder: 'Find object by prefix',
-               selectionVersionsSearchPlaceholder: 'Find version',
-               selectionBucketsLoading: 'Loading buckets',
-               selectionBucketsNoItems: 'No buckets',
-               selectionObjectsLoading: 'Loading objects',
-               selectionObjectsNoItems: 'No objects',
-               selectionVersionsLoading: 'Loading versions',
-               selectionVersionsNoItems: 'No versions',
-               filteringCounterText: count => `${count} ${count === 1 ? 'match' : 'matches'}`,
-               filteringNoMatches: 'No matches',
-               filteringCantFindMatch: "We can't find a match.",
-               clearFilterButtonText: 'Clear filter',
-               columnBucketName: 'Name',
-               columnBucketCreationDate: 'Creation date',
-               columnBucketRegion: 'Region',
-               columnObjectKey: 'Key',
-               columnObjectLastModified: 'Last modified',
-               columnObjectSize: 'Size',
-               columnVersionID: 'Version ID',
-               columnVersionLastModified: 'Last modified',
-               columnVersionSize: 'Size',
-               validationPathMustBegin: 'The path must begin with s3://',
-               validationBucketLowerCase: 'The bucket name must start with a lowercase character or number.',
-               validationBucketMustNotContain: 'The bucket name must not contain uppercase characters.',
-               validationBucketMustComplyDns: 'The bucket name must comply with DNS naming conventions',
-               validationBucketLength: 'The bucket name must be from 3 to 63 characters.',
-               labelSortedDescending: columnName => `${columnName}, sorted descending`,
-               labelSortedAscending: columnName => `${columnName}, sorted ascending`,
-               labelNotSorted: columnName => `${columnName}, not sorted`,
-               labelsPagination: {
-                 nextPageLabel: 'Next page',
-                 previousPageLabel: 'Previous page',
-                 pageLabel: pageNumber => `Page ${pageNumber} of all pages`,
-               },
-               labelsBucketsSelection: {
-                 itemSelectionLabel: (data, item) => `${item.Name}`,
-                 selectionGroupLabel: 'Buckets',
-               },
-               labelsObjectsSelection: {
-                 itemSelectionLabel: (data, item) => `${item.Key}`,
-                 selectionGroupLabel: 'Objects',
-               },
-               labelsVersionsSelection: {
-                 itemSelectionLabel: (data, item) => `${item.LastModified}`,
-                 selectionGroupLabel: 'Versions',
-               },
-                 labelFiltering: itemsType => `Find ${itemsType}`
-               } as S3ResourceSelectorProps.I18nStrings
   const importOriginalData = {
     instance_id: '',
     account_id: props.accountId,
@@ -156,9 +93,6 @@ const i18ns = {inContextBrowseButton:"Browse S3",
   useEffect(() => {
     if (credentialType === 'secret_manager') {
       loadAccountSecrets();
-      console.log("secretOption is:",secretOption)
-    } else {
-      console.log()
     }
   }, [credentialType]);
 
@@ -233,8 +167,13 @@ const i18ns = {inContextBrowseButton:"Browse S3",
       account_id: props.accountId,
       region: props.region
     }
-    const res= await queryNetworkInfo(requestParam);
-    setNetwork(res)
+    try{
+       const res= await queryNetworkInfo(requestParam);
+       setNetwork(res)
+    } catch (error){
+      alertMsg(t('loadNetworkError'), 'error');
+    }
+    // console.log("network res is:",res)
     // console.log("network is", res)
   }
 
@@ -423,7 +362,6 @@ const i18ns = {inContextBrowseButton:"Browse S3",
       }}
       showModal={showModal}
       header="Add JDBC Connection"
-      showFolderIcon={true}
     >
       <div className="add-jdbc-container">
         <Form
