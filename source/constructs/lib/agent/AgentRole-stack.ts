@@ -16,13 +16,13 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 import { SolutionInfo } from '../common/solution-info';
 
-export interface RoleProps extends StackProps {
+export interface AgentRoleProps extends StackProps {
   adminAccountId: string;
 }
 
 // Operator agent stack
-export class RoleStack extends Construct {
-  constructor(scope: Construct, id: string, props: RoleProps) {
+export class AgentRoleStack extends Construct {
+  constructor(scope: Construct, id: string, props: AgentRoleProps) {
     super(scope, id);
 
     //update the trusted entities to trusted role from user input

@@ -77,6 +77,7 @@ export class VpcStack extends Construct {
     } else {
       this.createVpc(props);
     }
+    this.createSecurityGroup(this.vpc);
   }
 
   private createSecurityGroup(vpc: IVpc) {
@@ -134,8 +135,6 @@ export class VpcStack extends Construct {
         },
       },
     });
-
-    this.createSecurityGroup(this.vpc);
 
     this.vpc.publicSubnets.forEach((subnet) => {
       const cfnSubnet = subnet.node.defaultChild as CfnSubnet;
