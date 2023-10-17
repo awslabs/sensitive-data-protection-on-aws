@@ -117,7 +117,7 @@ const LayoutHeader: React.FC<LayoutHeaderProps> = ({
                 },
                 {
                   id: 'version',
-                  text: t('header.version') + ' ' + configData.version || '',
+                  text: t('header.version') + ' @TEMPLATE_BUILD_VERSION@',
                   disabled: true,
                   // href: RouterEnum.TimeLine.path,
                 },

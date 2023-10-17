@@ -41,9 +41,12 @@ title "cdk synth"
 
 run cd ${SRC_PATH}
 
+# Replace before building
 sed -i "s|@TEMPLATE_SOLUTION_VERSION@|$SOLUTION_VERSION|"g lib/admin/database/*/*.sql
 sed -i "s|@TEMPLATE_SOLUTION_VERSION@|$SOLUTION_VERSION|"g lib/agent/DiscoveryJob.json
 sed -i "s|@TEMPLATE_SOLUTION_VERSION@|$SOLUTION_VERSION|"g ../portal/src/pages/add-account/types/*.ts
+
+sed -i "s|@TEMPLATE_BUILD_VERSION@|$BUILD_VERSION|"g ../portal/src/pages/signed-in-page/LayoutHeader.tsx
 
 run npm install 
 # if [ "$BUILD_VERSION" != 'latest' ]; then

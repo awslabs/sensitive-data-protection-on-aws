@@ -42,7 +42,7 @@ def resp_ok(data,
 def resp_err(code: int = MessageEnum.BIZ_DEFAULT_ERR.get_code(),
              message: str = MessageEnum.BIZ_DEFAULT_ERR.get_msg(),
              ref: list = None) -> Response:
-    logger.info('END >>> RESPONSE FAILED')
+    logger.debug('END >>> RESPONSE FAILED')
     headers = {}
     if os.getenv(const.MODE) == const.MODE_DEV:
         headers = {
