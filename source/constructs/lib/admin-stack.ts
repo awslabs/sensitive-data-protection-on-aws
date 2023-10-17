@@ -21,8 +21,8 @@ import {
   Fn,
   CfnStack,
   Tags,
+  Aws,
 } from 'aws-cdk-lib';
-import { BootstraplessStackSynthesizer } from 'cdk-bootstrapless-synthesizer';
 import { Construct } from 'constructs';
 import { AcmStack } from './admin/acm-stack';
 import { AlbStack } from './admin/alb-stack';
@@ -302,17 +302,11 @@ export class AdminStack extends Stack {
       }
     }
 
-
-    const deleteStack = new DeleteResourcesStack(this, 'DeleteResources');
+    new DeleteResourcesStack(this, 'DeleteResources');
 
     // new CallRegionStack(this, "CallRegion");
 
-    const agent = new AgentStack(this, 'AgentStack', {
-      accountID: Stack.of(this).account,
-      synthesizer: process.env.USE_BSS ? new BootstraplessStackSynthesizer() : undefined,
-    });
-
-    agent.node.addDependency(deleteStack);
+    AgentStack.createStack(this, Aws.ACCOUNT_ID);
 
     this.templateOptions.metadata = {
       'AWS::CloudFormation::Interface': {
