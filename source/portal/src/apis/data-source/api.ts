@@ -161,6 +161,11 @@ const connectDataSourceJDBC = async (params: any) => {
   return result;
 };
 
+const connectDataSourceGlue = async (params: any) => {
+  const result = await apiRequest('post', 'data-source/sync-glue-database', params);
+  return result;
+};
+
 const listGlueConnection =  async (params: any) => {
   const result = await apiRequest('post', 'data-source/query-glue-connections', params);
   return result;
@@ -188,6 +193,11 @@ const createConnection =  async (params: any) => {
 
 const queryConnectionDetails =  async (params: any) => {
   const result = await apiRequest('post', 'data-source/query-connection-detail', params);
+  return result;
+};
+
+const deleteGlueDatabase =  async (params: any) => {
+  const result = await apiRequest('post', 'data-source/delete-glue-database', params);
   return result;
 };
 
@@ -225,5 +235,7 @@ export {
   disconnectAndDeleteS3,
   disconnectAndDeleteRDS,
   disconnectAndDeleteJDBC,
-  queryConnectionDetails
+  queryConnectionDetails,
+  connectDataSourceGlue,
+  deleteGlueDatabase
 };

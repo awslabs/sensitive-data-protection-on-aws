@@ -349,7 +349,7 @@ def sync_glue_database(account_id, region, glue_database_name):
         "region": region
     }
     sqs.send_message(
-        QueueUrl=sqs.get_queue_url(QueueName=f"{const.SOLUTION_NAME}-Crawler"),
+        QueueUrl=sqs.get_queue_url(QueueName=f"{const.SOLUTION_NAME}-Crawler")['QueueUrl'],
         MessageBody=json.dumps(message)
     )
 
@@ -1256,181 +1256,7 @@ def delete_rds_connection(account: str, region: str, instance: str, delete_catal
 def hide_rds_connection(account: str, region: str, instance: str):
     before_delete_rds_connection(account, region, instance)
     crud.hide_rds_connection(account, region, instance)
-
     return []
-
-def sync_glue_database_source(account: str, region: str, database_name: str):
-    sqs = boto3.client('sqs',
-                   aws_access_key_id=credentials['AccessKeyId'],
-                   aws_secret_access_key=credentials['SecretAccessKey'],
-                   aws_session_token=credentials['SessionToken'],
-                   region_name=region
-                   )
-    message = {
-        "detail": {
-            "databaseName": database_name,
-            "databaseType": "glue",
-            "accountId": "",
-            "state": "Succeeded"
-        },
-        "region": ""
-    }
-    response = sqs.send_message(
-        QueueUrl = sqs.get_queue_url(QueueName='SDPS-Crawler'),
-        MessageBody=json.dumps(message)
-    )
-    glue_connection_name = f"s3-{bucket}-connection"
-    glue_database_name = f"s3-{bucket}-database"
-    crawler_name = f"s3-{bucket}-crawler"
-    if region != _admin_account_region:
-        raise BizException(MessageEnum.SOURCE_DO_NOT_SUPPORT_CROSS_REGION.get_code(),
-                           MessageEnum.SOURCE_DO_NOT_SUPPORT_CROSS_REGION.get_msg())
-
-    state = crud.get_s3_bucket_source_glue_state(account, region, bucket)
-    logger.info("sync_s3_connection state is:")
-    logger.info(state)
-    if state == ConnectionState.PENDING.value:
-        raise BizException(MessageEnum.SOURCE_CONNECTION_NOT_FINISHED.get_code(),
-                           MessageEnum.SOURCE_CONNECTION_NOT_FINISHED.get_msg())
-    elif state == ConnectionState.CRAWLING.value:
-        raise BizException(MessageEnum.SOURCE_CONNECTION_CRAWLING.get_code(),
-                           MessageEnum.SOURCE_CONNECTION_CRAWLING.get_msg())
-    # else:
-    #     delete_glue_connection(account, region, crawler_name, glue_database_name, glue_connection_name)
-    try:
-        # PENDING｜ACTIVE｜ERROR with message
-        crud.set_s3_bucket_source_glue_state(account, region, bucket, ConnectionState.PENDING.value)
-        iam_role_name = crud.get_iam_role(account)
-        assumed_role = sts.assume_role(
-            RoleArn=f"{iam_role_name}",
-            RoleSessionName="glue-s3-connection"
-        )
-        credentials = assumed_role['Credentials']
-        s3_targets = build_s3_targets(bucket, credentials, region, True)
-        logger.info("sync_s3_connection rebuild s3 targets:")
-        logger.info(s3_targets)
-        glue = boto3.client('glue',
-                            aws_access_key_id=credentials['AccessKeyId'],
-                            aws_secret_access_key=credentials['SecretAccessKey'],
-                            aws_session_token=credentials['SessionToken'],
-                            region_name=region
-                            )
-        """ :type : pyboto3.glue """
-
-        try:
-            glue.get_database(Name=glue_database_name)
-        except Exception as e:
-            logger.info("sync_s3_connection glue get_database error, and create database")
-            logger.info(e)
-            response = glue.create_database(DatabaseInput={'Name': glue_database_name})
-            logger.info(response)
-        # wait for database creation, several seconds
-        lakeformation = boto3.client('lakeformation',
-                                     aws_access_key_id=credentials['AccessKeyId'],
-                                     aws_secret_access_key=credentials['SecretAccessKey'],
-                                     aws_session_token=credentials['SessionToken'],
-                                     region_name=region)
-        """ :type : pyboto3.lakeformation """
-        crawler_role_arn = __gen_role_arn(account_id=account,
-                                          region=region,
-                                          role_name='GlueDetectionJobRole')
-
-        # retry for grant permissions
-        num_retries = GRANT_PERMISSIONS_RETRIES
-        while num_retries > 0:
-            try:
-                response = lakeformation.grant_permissions(
-                    Principal={
-                        'DataLakePrincipalIdentifier': f"{crawler_role_arn}"
-                    },
-                    Resource={
-                        'Database': {
-                            'Name': glue_database_name
-                        }
-                    },
-                    Permissions=['ALL'],
-                    PermissionsWithGrantOption=['ALL']
-                )
-            except Exception as e:
-                sleep(SLEEP_MIN_TIME)
-                num_retries -= 1
-            else:
-                break
-        else:
-            raise Exception('UNCONNECTED')
-        try:
-            gt_cr_response = glue.get_crawler(Name=crawler_name)
-            logger.info(gt_cr_response)
-            try:
-                if state == ConnectionState.ACTIVE.value or state == ConnectionState.UNSUPPORTED.value \
-                        or state == ConnectionState.ERROR.value or state == ConnectionState.STOPPING.value:
-                    up_cr_response = glue.update_crawler(
-                        Name=crawler_name,
-                        Role=crawler_role_arn,
-                        DatabaseName=glue_database_name,
-                        Targets={
-                            "S3Targets": build_s3_targets(bucket, credentials, region, False)
-                        },
-                        SchemaChangePolicy={
-                            'UpdateBehavior': 'UPDATE_IN_DATABASE',
-                            'DeleteBehavior': 'DELETE_FROM_DATABASE'
-                        }
-                    )
-                    logger.info("update crawler:")
-                    logger.info(up_cr_response)
-            except Exception as e:
-                logger.info("update_crawler s3 error")
-                logger.info(str(e))
-            response = glue.start_crawler(
-                Name=crawler_name
-            )
-            logger.info(response)
-        except Exception as e:
-            response = glue.create_crawler(
-                Name=crawler_name,
-                Role=crawler_role_arn,
-                DatabaseName=glue_database_name,
-                Targets={
-                    "S3Targets": s3_targets
-                },
-                Tags={
-                    const.TAG_KEY: const.TAG_VALUE,
-                    const.TAG_ADMIN_ACCOUNT_ID: _admin_account_id
-                },
-            )
-            logger.info(response)
-            response = glue.start_crawler(
-                Name=crawler_name
-            )
-            logger.info(response)
-
-        crud.create_s3_connection(account, region, bucket, glue_connection_name, glue_database_name, crawler_name)
-    except Exception as err:
-        crud.set_s3_bucket_source_glue_state(account, region, bucket, str(err))
-        glue = boto3.client('glue',
-                            aws_access_key_id=credentials['AccessKeyId'],
-                            aws_secret_access_key=credentials['SecretAccessKey'],
-                            aws_session_token=credentials['SessionToken'],
-                            region_name=region
-                            )
-        """ :type : pyboto3.glue """
-
-        try:
-            glue.delete_crawler(crawler_name)
-        except Exception as e:
-            pass
-        try:
-            glue.delete_database(Name=glue_database_name)
-        except Exception as e:
-            pass
-        try:
-            glue.delete_connection(ConnectionName=glue_connection_name)
-        except Exception as e:
-            pass
-
-        logger.error(traceback.format_exc())
-        raise BizException(MessageEnum.SOURCE_CONNECTION_FAILED.get_code(),
-                           str(err))
 
 def list_s3_bucket_source(condition: QueryCondition):
     return crud.list_s3_bucket_source(condition)
@@ -1442,13 +1268,6 @@ def before_delete_s3_connection(account: str, region: str, bucket: str):
     if s3_bucket is None:
         raise BizException(MessageEnum.SOURCE_S3_NO_BUCKET.get_code(),
                            MessageEnum.SOURCE_S3_NO_BUCKET.get_msg())
-    # if s3_bucket.glue_crawler is None:
-    #     raise BizException(MessageEnum.SOURCE_S3_NO_CRAWLER.get_code(),
-    #                        MessageEnum.SOURCE_S3_NO_CRAWLER.get_msg())
-    # if s3_bucket.glue_database is None:
-    #     raise BizException(MessageEnum.SOURCE_S3_NO_DATABASE.get_code(),
-    #                        MessageEnum.SOURCE_S3_NO_DATABASE.get_msg())
-    # crawler, if crawling try to stop and raise, if pending raise directly
     state = crud.get_s3_bucket_source_glue_state(account, region, bucket)
     if state == ConnectionState.PENDING.value:
         raise BizException(MessageEnum.SOURCE_DELETE_WHEN_CONNECTING.get_code(),

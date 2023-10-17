@@ -20,7 +20,7 @@ logger.setLevel(logging.INFO)
 
 async def detect_rds_data_source(session: Session, aws_account_id: str):
     iam_role_name = crud.get_iam_role(aws_account_id)
-    history = DetectionHistory(aws_account=aws_account_id, source_type='rds', state=0)
+    history = DetectionHistory(account_id=aws_account_id, source_type='rds', state=0)
     session.add(history)
     session.commit()
     assumed_role_object = sts_client.assume_role(
