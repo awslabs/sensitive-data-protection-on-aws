@@ -12,7 +12,7 @@ export const COLUMN_OBJECT_STR = {
   JDBCInstanceName: 'jdbc_instance_name',
   ConnectionStatus:'connection_status',
   GlueConnectionName:'glue_connection_name',
-  glueDatabaseCreatedTime:'glue_database_create_time',
+  glueDatabaseCreatedTime:'create_time',
   glueDatabaseDescription:'glue_database_description',
   glueDatabaseLocationUri:'locationUri'
 };

@@ -1,4 +1,5 @@
 import datetime
+from operator import or_
 
 from sqlalchemy import desc
 import logging
@@ -157,7 +158,20 @@ def list_jdbc_instance_source_by_instance_id_account(jdbcConn: JDBCInstanceSourc
                                                           JDBCInstanceSource.account_id == jdbcConn.account_id,
                                                           JDBCInstanceSource.instance_id == jdbcConn.instance_id).all()
 
-def list_jdbc_instance_source(provider_id: int):
+def list_jdbc_instance_source(provider_id: int, condition: QueryCondition):
+    accounts = get_session().query(Account).filter(Account.account_provider_id == provider_id,
+                                                   Account.status == 1).all()
+    account_ids = []
+    for account in accounts:
+        account_ids.append(account.account_id)
+
+    return query_with_condition(get_session().query(JDBCInstanceSource).filter(
+        JDBCInstanceSource.account_id.in_(account_ids),
+        JDBCInstanceSource.account_provider_id == provider_id,
+        or_(JDBCInstanceSource.detection_history_id != -1, JDBCInstanceSource.detection_history_id == None)
+    ), condition)
+
+def list_jdbc_instance_source_without_condition(provider_id: int):
     accounts = get_session().query(Account).filter(Account.account_provider_id == provider_id,
                                                    Account.status == 1).all()
     account_ids = []
@@ -166,7 +180,7 @@ def list_jdbc_instance_source(provider_id: int):
     return get_session().query(JDBCInstanceSource).filter(
         JDBCInstanceSource.account_id.in_(account_ids),
         JDBCInstanceSource.account_provider_id == provider_id,
-        JDBCInstanceSource.detection_history_id != -1
+        or_(JDBCInstanceSource.detection_history_id != -1, JDBCInstanceSource.detection_history_id is None)
     )
 
 
@@ -916,10 +930,10 @@ def get_region_list_by_provider(provider_id):
 
 
 def get_total_jdbc_instances_count(provider_id):
-    list = list_jdbc_instance_source(provider_id)
+    list = list_jdbc_instance_source_without_condition(provider_id)
     return 0 if list is None else list.count()
 
 
 def get_connected_jdbc_instances_count(provider_id):
-    list = list_jdbc_instance_source(provider_id)
+    list = list_jdbc_instance_source_without_condition(provider_id)
     return 0 if list is None else list.filter(JDBCInstanceSource.glue_state == ConnectionState.ACTIVE.value).count()
