@@ -77,13 +77,9 @@ export class VpcStack extends Construct {
     } else {
       this.createVpc(props);
     }
-    this.createSecurityGroup(this.vpc);
-  }
-
-  private createSecurityGroup(vpc: IVpc) {
-    // Create Security Group
-    const securityGroup = new SecurityGroup(this, 'SecurityGroup', {
-      vpc: vpc,
+    // Create CustomDB Security Group
+    const securityGroup = new SecurityGroup(this, 'CustomDBSecurityGroup', {
+      vpc: this.vpc,
       securityGroupName: 'SDPS-CustomDB',
       description: 'Allow all TCP ingress traffic',
     });
@@ -206,8 +202,6 @@ export class VpcStack extends Construct {
     });
     this.privateSubnet1 = privateSubnet1.valueAsString;
     this.privateSubnet2 = privateSubnet2.valueAsString;
-
-    this.createSecurityGroup(this.vpc);
 
     new CfnRule(scope, 'SubnetsInVpc', {
       assertions: [

@@ -12,7 +12,7 @@
  */
 
 import * as path from 'path';
-import { Aws } from 'aws-cdk-lib';
+import { Aws, Tags } from 'aws-cdk-lib';
 import { Rule } from 'aws-cdk-lib/aws-events';
 import { LambdaFunction } from 'aws-cdk-lib/aws-events-targets';
 import {
@@ -51,6 +51,7 @@ export class CrawlerEventbridgeStack extends Construct {
         },
       },
     });
+    Tags.of(rule).add(SolutionInfo.TAG_KEY, SolutionInfo.TAG_VALUE);
 
     const lamdbaRole = new Role(this, `${SolutionInfo.SOLUTION_NAME}RoleForCrawlerEvent`, {
       roleName: `${SolutionInfo.SOLUTION_NAME}RoleForCrawlerEvent-${Aws.REGION}`, //Name must be specified
