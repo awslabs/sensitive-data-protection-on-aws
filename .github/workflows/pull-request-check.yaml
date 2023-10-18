@@ -172,8 +172,10 @@ jobs:
         run: |
           cd source/constructs/api
           pip3 install -r requirements.txt
-          pip3 install -U pytest
-          pip3 install moto==3.0.5
+          pip3 install pytest
+          pip3 install pytest-mock
+          pip3 install httpx
+          pip3 install anyio
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -205,7 +207,7 @@ jobs:
         run: |
           true
 
-  code-build:
+  code-build-portal:
     needs: [cdk-unit-test, api-unit-test]
     runs-on: ubuntu-latest
     env:
@@ -220,14 +222,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18.x'
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-      - name: Install CDK
-        run: |
-          npm install -g aws-cdk
-          cdk --version
       - name: Build source
         run: |
           echo "Build FE START>>>>>>>>>>>>>>>"
@@ -238,6 +232,28 @@ jobs:
           echo "Build FE END>>>>>>>>>>>>>>>"
           echo "FE Content is shown as below:"
           ls -L ${{ github.workspace }}/source/portal
+
+  code-build-backend:
+    needs: [cdk-unit-test, api-unit-test]
+    runs-on: ubuntu-latest
+    env:
+      CI: "false"
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+      - name: Install CDK
+        run: |
+          npm install -g aws-cdk
+          cdk --version
+      - name: Build source
+        run: |
           echo "Build BE START>>>>>>>>>>>>>>>"
           cd ${{ github.workspace }}/source/constructs
           rm -rf node_modules
