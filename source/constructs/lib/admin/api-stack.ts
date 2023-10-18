@@ -64,7 +64,7 @@ export class ApiStack extends Construct {
 
     this.apiRole = this.createRole(props.bucketName);
     this.apiLayer = this.createLayer();
-    this.code = Code.fromAsset(path.join(__dirname, '../../api'), { exclude: ['venv'] });
+    this.code = Code.fromAsset(path.join(__dirname, '../../api'), { exclude: ['venv', 'pytest'] });
 
     this.createFunction('Controller', 'lambda.controller.lambda_handler', props, 20, `${SolutionInfo.SOLUTION_NAME}-Controller`);
 
@@ -76,6 +76,7 @@ export class ApiStack extends Construct {
       schedule: events.Schedule.cron({ minute: '0/30' }),
     });
     checkRunRule.addTarget(new targets.LambdaFunction(checkRunFunction));
+    Tags.of(checkRunRule).add(SolutionInfo.TAG_KEY, SolutionInfo.TAG_VALUE);
 
     const receiveJobInfoFunction = this.createFunction('ReceiveJobInfo', 'lambda.receive_job_info.lambda_handler', props, 900);
     const discoveryJobSqsStack = new SqsStack(this, 'DiscoveryJobQueue', { name: 'DiscoveryJob', visibilityTimeout: 900 });

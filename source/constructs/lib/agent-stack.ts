@@ -13,11 +13,11 @@
 
 import { Stack, StackProps, CfnParameter, Tags } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import { AgentRoleStack } from './agent/AgentRole-stack';
 import { CrawlerEventbridgeStack } from './agent/CrawlerEventbridge-stack';
 import { DeleteAgentResourcesStack } from './agent/DeleteAgentResources-stack';
 import { DiscoveryJobStack } from './agent/DiscoveryJob-stack';
 import { RenameResourcesStack } from './agent/RenameResources-stack';
-import { RoleStack } from './agent/role-stack';
 import { BucketStack } from './common/bucket-stack';
 import { Parameter } from './common/parameter';
 import { SolutionInfo } from './common/solution-info';
@@ -34,7 +34,7 @@ export class AgentStack extends Stack {
       adminAccountId: adminAccountId,
     });
 
-    new RoleStack(scope, 'Role', {
+    new AgentRoleStack(scope, 'AgentRole', {
       adminAccountId: adminAccountId,
     });
 
