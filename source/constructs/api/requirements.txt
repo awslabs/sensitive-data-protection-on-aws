@@ -9,7 +9,3 @@ sqlakeyset==1.0.1659142803
 requests==2.31.0
 urllib3==1.26.18
 python-jose==3.3.0
-pytest==7.4.2
-pytest-mock==3.11.1
-httpx==0.25.0
-anyio==3.6.2
