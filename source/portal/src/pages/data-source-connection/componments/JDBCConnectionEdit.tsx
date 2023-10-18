@@ -30,8 +30,32 @@ interface JDBCConnectionProps {
   providerId: number;
   accountId: string;
   region: string;
+  instanceId: string;
   showModal: boolean;
   setShowModal: (show: boolean) => void;
+}
+
+type connectionType ={
+  instance_id: string,
+  account_provider_id: number,
+  account_id: string,
+  region: string,
+  description:string,
+  jdbc_connection_url:string,
+  jdbc_enforce_ssl:string,
+  master_username: string,
+  password: string,
+  secret: string,
+  skip_custom_jdbc_cert_validation: string,
+  custom_jdbc_cert: string,
+  custom_jdbc_cert_string: string,
+  network_availability_zone: string,
+  network_subnet_id: string,
+  network_sg_id: string,
+  creation_time: string,
+  last_updated_time: string,
+  jdbc_driver_class_name: string,
+  jdbc_driver_jar_uri: string
 }
 
 const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
@@ -44,7 +68,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
   const [credential, setCredential] = useState('secret');
   // const [vpc, setVpc] = useState(null);
 
-  const originalData = {
+  const originalData: connectionType = {
     instance_id:'',
     account_provider_id: props.providerId,
     account_id: props.accountId,
@@ -66,7 +90,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
     jdbc_driver_class_name: '',
     jdbc_driver_jar_uri: ''
   }
-  const [jdbcConnectionData, setJdbcConnectionData] = useState(originalData);
+  const [jdbcConnectionData, setJdbcConnectionData] = useState<connectionType>(originalData);
   const [disabled, setDisabled] = useState(true)
   const [credentialType, setCredentialType] = useState('secret_manager')
   const [secretOption, setSecretOption] = useState([] as any);
@@ -93,6 +117,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
 
   useEffect(()=>{
       listBuckets()
+      loadNetworkInfo()
       getConnectionDetails()
   },[])
 
@@ -252,12 +277,29 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
     const requestParam = {
       account_provider_id: props.providerId,
       account_id: props.accountId,
-      region: props.region
+      region: props.region,
+      instance_id: props.instanceId
     }
     try{
-      const res:any= await queryConnectionDetails(requestParam);
-      console.log("connection details is:",res)
-      setJdbcConnectionData(res as any)
+      const res:any = await queryConnectionDetails(requestParam);
+
+      setJdbcConnectionData({...jdbcConnectionData,
+                            instance_id:res["Name"],
+                            description:res["Description"],
+                            jdbc_connection_url:res["ConnectionProperties"]["JDBC_CONNECTION_URL"],
+                            jdbc_enforce_ssl:res["ConnectionProperties"]["JDBC_ENFORCE_SSL"],
+                            master_username: res["ConnectionProperties"]["USERNAME"],
+                            password: res["ConnectionProperties"]["PASSWORD"],
+                            // secret: string,
+                            // skip_custom_jdbc_cert_validation: string,
+                            // custom_jdbc_cert: string,
+                            // custom_jdbc_cert_string: string,
+                            network_availability_zone: res["PhysicalConnectionRequirements"]["AvailabilityZone"],
+                            network_subnet_id: res["PhysicalConnectionRequirements"]["SubnetId"],
+                            network_sg_id: res["PhysicalConnectionRequirements"]["SecurityGroupIdList"][0],
+                            // jdbc_driver_class_name: string,
+                            // jdbc_driver_jar_uri: string
+                          })
       
       // showHideSpinner(false);
     }catch(error){
@@ -366,6 +408,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                   <Input
                     onChange={(e)=>changeConnectionName(e.detail.value)}
                     value={jdbcConnectionData.instance_id}
+                    disabled
                   />
                 </FormField>
                 <FormField

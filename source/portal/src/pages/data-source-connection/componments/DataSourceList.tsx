@@ -54,7 +54,9 @@ import {
   disconnectAndDeleteRDS,
   disconnectAndDeleteJDBC,
   testConnect,
-  connectDataSourceJDBC
+  connectDataSourceJDBC,
+  connectDataSourceGlue,
+  deleteGlueDatabase
   // queryGlueConns,
   // testGlueConns,
   // addGlueConn,
@@ -174,7 +176,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
     if(tagType === DATA_TYPE_ENUM.glue){
       res = [{
         text: 'Delete Database',
-        id: 'delete',
+        id: 'deleteDatabase',
         disabled: selectedItems.length === 0,
       },]
     }
@@ -323,7 +325,30 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       }
   }
 
-
+  const clkDeleteDatabase = async () => {
+    if (!selectedItems || selectedItems.length === 0) {
+      alertMsg(t('selectOneItem'), 'error');
+      return;
+    }
+    const requestParam = {
+        account_provider: 1,
+        account_id: selectedItems[0].account_id,
+        region: selectedItems[0].region,
+        name: selectedItems[0].glue_database_name,
+      };
+      showHideSpinner(true);
+      try {
+        await deleteGlueDatabase(requestParam);
+        showHideSpinner(false);
+        alertMsg(t('successDelete'), 'success');
+        setSelectedItems([]);
+        getPageData();
+      } catch (error) {
+        alertMsg(t('failedDelete'), 'error');
+        setSelectedItems([]);
+        showHideSpinner(false);
+      }
+  }
   const clkConnected = async () => {
     if (!selectedItems || selectedItems.length === 0) {
       alertMsg(t('selectOneItem'), 'error');
@@ -338,6 +363,23 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       showHideSpinner(true);
       try {
         await connectDataSourceS3(requestParam);
+        showHideSpinner(false);
+        alertMsg(t('startConnect'), 'success');
+        setSelectedItems([]);
+        getPageData();
+      } catch (error) {
+        setSelectedItems([]);
+        showHideSpinner(false);
+      }
+    } else if(tagType === DATA_TYPE_ENUM.glue){
+      const requestParam = {
+        account_id: selectedItems[0].account_id,
+        region: selectedItems[0].region,
+        glue_database_name: selectedItems[0].glue_database_name,
+      };
+      showHideSpinner(true);
+      try {
+        await connectDataSourceGlue(requestParam);
         showHideSpinner(false);
         alertMsg(t('startConnect'), 'success');
         setSelectedItems([]);
@@ -817,6 +859,9 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                       if (detail.id === 'connectAll') {
                         clkAllS3Connected();
                       }
+                      if (detail.id === 'deleteDatabase') {
+                        clkDeleteDatabase();
+                      }
                       if (detail.id === 'addImportJdbc') {
                         clkAddSource('addImportJdbc');
                       }
@@ -1073,6 +1118,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
           providerId={accountData.account_provider_id}
           accountId={accountData.account_id}
           region={accountData.region}
+          instanceId={selectedItems[0].instance_id}
           showModal={showEditConnection}
           setShowModal={setShowEditConnection}
         />

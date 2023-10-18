@@ -251,6 +251,7 @@ def get_rds_instance_source_glue_state(account: str, region: str, instance_id: s
 
 
 def get_jdbc_instance_source_glue(provider_id: int, account: str, region: str, instance_id: str) -> schemas.JDBCInstanceSourceFullInfo:
+    print(f"params is {provider_id}-{account}-{region}-{instance_id}")
     return get_session().query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == provider_id,
                                                           JDBCInstanceSource.account_id == account,
                                                           JDBCInstanceSource.region == region,
@@ -721,7 +722,7 @@ def add_account(aws_account_id: str, aws_account_alias: str, aws_account_email: 
                           total_rds_instance=0,
                           connect_rds_instance=0,
                           total_jdbc_instance=0,
-                          connect_jdbc_instance=0,
+                          connected_jdbc_instance=0,
                           last_updated=datetime.datetime.utcnow())
 
     else:
@@ -793,7 +794,7 @@ def import_glue_database(glue_database_param: schemas.SourceGlueDatabase, res: d
     glue_database.permissions = CreateTableDefaultPermissions['Permissions']
     glue_database.region = glue_database_param.region
     glue_database.account_id = glue_database_param.account_id
-
+    glue_database.detection_history_id = glue_database_param.detection_history_id
     session.add(glue_database)
     session.commit()
     session.refresh(glue_database)

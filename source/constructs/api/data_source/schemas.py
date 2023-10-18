@@ -36,7 +36,7 @@ class Account(BaseModel):
     total_glue_database: Optional[int]
     connected_glue_database: Optional[int]
     total_jdbc_instance: Optional[int]
-    connect_jdbc_instance: Optional[int]
+    connected_jdbc_instance: Optional[int]
     last_updated: Optional[datetime.datetime]
 
     class Config:
@@ -96,12 +96,16 @@ class SourceGlueDatabaseBase(BaseModel):
     account_id: Optional[str]
     region: Optional[str]
 
+    class Config:
+        orm_mode = True
+
 class SourceGlueDatabase(SourceGlueDatabaseBase):
     glue_database_description: Optional[str]
     glue_database_location_uri: Optional[str]
     glue_database_create_time: Optional[str]
     glue_database_catalog_id: Optional[str]
     data_lake_principal_identifier: Optional[str]
+    detection_history_id: Optional[int]
     permissions: Optional[str]
 
     class Config:
