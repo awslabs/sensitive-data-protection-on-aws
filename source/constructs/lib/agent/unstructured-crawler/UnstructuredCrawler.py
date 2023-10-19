@@ -1,6 +1,7 @@
 import os
 import json
 import boto3
+import botocore
 import pathlib
 import random
 import datetime
@@ -32,21 +33,30 @@ def extract_file_details(file_path: str):
     file_suffix, file_basename, file_parent = pathlib_path.suffix, pathlib_path.stem, pathlib_path.parent
     return file_suffix, file_basename, str(file_parent)
 
-def add_file_to_dict(files_dict, file_parent, file_suffix, file_basename):
+def add_file_to_dict(files_dict, file_parent, file_suffix, file_basename, file_last_modified):
     file_key = f"{file_parent}/*{file_suffix}"
     if file_key not in files_dict:
         files_dict[file_key] = {
             "file_type": file_suffix,
             "file_path": file_parent,
-            "sample_files": []
+            "sample_files": [],
+            "detected_files": {}
         }
     files_dict[file_key]["sample_files"].append(file_basename)
+    files_dict[file_key]["detected_files"][file_basename] = {"last_modified": file_last_modified}
     return files_dict
 
 def update_dict_files(files_dict, page_files_dict):
     for key, value in page_files_dict.items():
+        # If key exists, check if the file is already detected
         if files_dict.get(key):
-            files_dict[key]["sample_files"].extend(value["sample_files"])
+            for sample_file_key, sample_file_value in value["detected_files"].items():
+                if (sample_file_key, sample_file_value) not in files_dict[key]["detected_files"].items():
+                    files_dict[key]["sample_files"].append(sample_file_key)
+                    files_dict[key]["detected_files"][sample_file_key] = sample_file_value
+                else:
+                    # File already detected, remove from sample files
+                    files_dict[key]["sample_files"].remove(sample_file_key) if sample_file_key in files_dict[key]["sample_files"] else None
         else:
             files_dict[key] = value
     return files_dict
@@ -58,16 +68,14 @@ def summarize_page(page, supported_types, include_file_extensions, exclude_file_
     page_detection_files, page_include_files, page_exclude_files = {}, {}, {}
     for obj in page['Contents']:
         file_path = obj['Key']
+        last_modified_date = str(obj["LastModified"])
         file_suffix, file_basename, file_parent = extract_file_details(file_path)
-        # print(file_suffix, file_basename, file_parent)
-        if not file_suffix:
-            continue
-        elif file_suffix in include_file_extensions:
-            add_file_to_dict(page_include_files, file_parent, file_suffix, file_basename)
+        if file_suffix in include_file_extensions:
+            add_file_to_dict(page_include_files, file_parent, file_suffix, file_basename, last_modified_date)
         elif file_suffix in exclude_file_extensions:
-            add_file_to_dict(page_exclude_files, file_parent, file_suffix, file_basename)
+            add_file_to_dict(page_exclude_files, file_parent, file_suffix, file_basename, last_modified_date)
         elif file_suffix in supported_types:
-            add_file_to_dict(page_detection_files, file_parent, file_suffix, file_basename)
+            add_file_to_dict(page_detection_files, file_parent, file_suffix, file_basename, last_modified_date)
     return page_detection_files, page_include_files, page_exclude_files
 
 def postprocess_crawler_result(crawler_result, scan_depth):
@@ -80,7 +88,7 @@ def postprocess_crawler_result(crawler_result, scan_depth):
             value["sample_files"] = random.sample(value["sample_files"], sample_size)
     return crawler_result
 
-def list_s3_objects(bucket_name, scan_depth, include_file_extensions, exclude_file_extensions, prefix=''):
+def list_s3_objects(bucket_name, result_bucket_name, scan_depth, include_file_extensions, exclude_file_extensions, prefix='', result_prefix="crawler_results"):
     """
     Lists the objects in the s3 bucket and returns the crawler result.
     
@@ -94,6 +102,21 @@ def list_s3_objects(bucket_name, scan_depth, include_file_extensions, exclude_fi
     """
     bucket_info = {}
     detection_files, include_files, exclude_files = {}, {}, {}
+
+    # Use NamedTemporaryFile to load the json file to s3
+    # File path is result_bucket_name, f"{result_prefix}/{source_bucket_name}_info.json"
+    try:
+        with NamedTemporaryFile(mode='w', delete=False) as tmp_file:
+            s3_client.download_file(result_bucket_name, f"{result_prefix}/{bucket_name}_info.json", tmp_file.name)
+            with open(tmp_file.name, 'r') as f:
+                data = json.load(f)
+                detection_files = data['detection_files']
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise e
+
     paginator = s3_client.get_paginator('list_objects_v2')
     pages = paginator.paginate(Bucket=bucket_name, Prefix=prefix, PaginationConfig={'PageSize': 1000})
 
@@ -128,12 +151,12 @@ def list_s3_objects(bucket_name, scan_depth, include_file_extensions, exclude_fi
 
     return bucket_info
 
-def upload_bucket_info(bucket_info, source_bucket_name, result_bucket_name, prefix=''):
+def upload_bucket_info(bucket_info, source_bucket_name, result_bucket_name, result_prefix=''):
     # dump json format content to a file and save to s3
     json_file_path = NamedTemporaryFile().name
     with open(json_file_path, 'w') as json_file:
         json.dump(bucket_info, json_file, ensure_ascii=False)
-    s3_client.upload_file(json_file_path, result_bucket_name, f"{prefix}/{source_bucket_name}_info.json")
+    s3_client.upload_file(json_file_path, result_bucket_name, f"{result_prefix}/{source_bucket_name}_info.json")
 
     # delete the tmp file
     os.remove(json_file_path)
@@ -148,8 +171,8 @@ def lambda_handler(event, context):
     exclude_file_extensions = event['ExcludeFileExtensions']
     
 
-    bucket_info = list_s3_objects(source_bucket_name, scan_depth, include_file_extensions, exclude_file_extensions)
-    upload_bucket_info(bucket_info, source_bucket_name, result_bucket_name=result_bucket_name, prefix="crawler_results")
+    bucket_info = list_s3_objects(source_bucket_name, result_bucket_name, scan_depth, include_file_extensions, exclude_file_extensions, prefix='', result_prefix="crawler_results")
+    upload_bucket_info(bucket_info, source_bucket_name, result_bucket_name=result_bucket_name, result_prefix="crawler_results")
 
 
     return {
