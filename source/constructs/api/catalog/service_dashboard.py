@@ -57,7 +57,8 @@ def agg_catalog_summay(database_type: str):
     elif database_type == DatabaseType.RDS.value \
             or database_type == DatabaseType.GLUE.value \
             or database_type == DatabaseType.JDBC.value \
-            or database_type == DatabaseType.JDBC.value \
+            or database_type == DatabaseType.JDBC_TENCENT.value \
+            or database_type == DatabaseType.JDBC_GOOGLE.value \
             or database_type == DatabaseType.JDBC_ALIYUN.value \
             or database_type == DatabaseType.JDBC_AWS.value:
         result_dict = crud.get_rds_column_summary()[0]._asdict()
@@ -92,7 +93,8 @@ def agg_catalog_summary_by_attr(database_type: str,  agg_attribute: str, need_me
     elif database_type == DatabaseType.RDS.value \
             or database_type == DatabaseType.GLUE.value \
             or database_type == DatabaseType.JDBC.value \
-            or database_type == DatabaseType.JDBC.value \
+            or database_type == DatabaseType.JDBC_TENCENT.value \
+            or database_type == DatabaseType.JDBC_GOOGLE.value \
             or database_type == DatabaseType.JDBC_ALIYUN.value \
             or database_type == DatabaseType.JDBC_AWS.value:
         attr_rows = crud.get_rds_database_summary_with_attr(database_type, agg_attribute, need_merge)
