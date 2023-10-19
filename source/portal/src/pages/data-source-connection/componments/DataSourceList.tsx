@@ -120,9 +120,19 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
   const [showAddConnection, setShowAddConnection] = useState(false);
   const [showEditConnection, setShowEditConnection] = useState(false);
 
-  // useEffect(() => {
-  //   getPageData();
-  // }, []);
+  useEffect(() => {
+    if(tagType === DATA_TYPE_ENUM.jdbc && !showAddConnection){
+      getPageData();
+      // refreshJdbcData()
+    }
+  }, [showAddConnection]);
+
+  useEffect(() => {
+    if(tagType === DATA_TYPE_ENUM.jdbc && !showEditConnection){
+      getPageData();
+      // refreshJdbcData()
+    }
+  }, [showEditConnection]);
 
   useEffect(() => {
     getPageData();
@@ -138,7 +148,10 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       setRdsUserPwd('');
     }
   }, [showRdsPwdModal]);
+  // const refreshJdbcData = async () =>{
 
+  //   await getDataSourceJdbcByPage(requestParam, accountData.account_provider_id)
+  // }
   const genActions = (tagType: string)=>{
     let res = [
       {

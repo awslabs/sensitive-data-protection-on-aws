@@ -47,7 +47,7 @@ class DetectionHistory(BaseModel):
     id: int
     detect_uuid: Optional[UUID]
     detection_time: Optional[datetime.datetime]
-    provider_id: Optional[int]
+    provider: Optional[int]
     account_id: Optional[int]
     source_type: Optional[str]
     state: Optional[int]

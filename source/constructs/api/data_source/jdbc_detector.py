@@ -26,6 +26,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 async def detect_jdbc_connection(provider_id: int, account_id: str, session: Session):
+    print(f"detect {account_id}....")
     not_exist_connections = []
     if provider_id == Provider.AWS_CLOUD.value:
         history = DetectionHistory(account_id=account_id, source_type='jdbc', state=0)
@@ -50,16 +51,20 @@ async def detect_jdbc_connection(provider_id: int, account_id: str, session: Ses
             aws_session_token=credentials['SessionToken'],
             region_name=region)
         res: list[JDBCInstanceSource] = crud.list_jdbc_connection_by_account(provider_id, account_id)
-
+        print(f"JDBCInstanceSource length is......:{len(res)}")
         for item in res:
-            try:
-                client.get_connection(Name=item.glue_connection)
-            except ClientError as e:
-                if e.response['Error']['Code'] == 'EntityNotFoundException':
-                    not_exist_connections.append(item.id)
-            except Exception as e:
-                raise BizException(MessageEnum.BIZ_UNKNOWN_ERR.get_code(),
-                                   MessageEnum.BIZ_UNKNOWN_ERR.get_msg())
+            if item.glue_connection:
+                try:
+                    # item.glue_connection
+                    client.get_connection(Name=item.glue_connection)
+                except ClientError as e:
+                    if e.response['Error']['Code'] == 'EntityNotFoundException':
+                        not_exist_connections.append(item.id)
+                except Exception as e:
+                    raise BizException(MessageEnum.BIZ_UNKNOWN_ERR.get_code(),
+                                       MessageEnum.BIZ_UNKNOWN_ERR.get_msg())
+            else:
+                not_exist_connections.append(item.id)
     # delete not existed jdbc
     crud.delete_jdbc_connection_by_accounts(not_exist_connections)
 
@@ -74,4 +79,5 @@ async def detect_multiple_account_in_async(provider_id, accounts):
 
 
 def detect(provider_id, accounts):
+    print("start detect jdbc....")
     asyncio.run(detect_multiple_account_in_async(provider_id, accounts))

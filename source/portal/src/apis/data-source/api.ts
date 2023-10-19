@@ -191,6 +191,11 @@ const createConnection =  async (params: any) => {
   return result;
 };
 
+const updateConnection =  async (params: any) => {
+  const result = await apiRequest('post', 'data-source/update-jdbc-conn', params);
+  return result;
+};
+
 const queryConnectionDetails =  async (params: any) => {
   const result = await apiRequest('post', 'data-source/query-connection-detail', params);
   return result;
