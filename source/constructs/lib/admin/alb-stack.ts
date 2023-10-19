@@ -277,7 +277,7 @@ export class AlbStack extends NestedStack {
 
   private createPortal(listener: ApplicationListener) {
     let portalFunction;
-    if (BuildConfig.PortalTag) {
+    if (BuildConfig.PortalRepository && BuildConfig.PortalTag) {
       portalFunction = new DockerImageFunction(this, 'PortalFunction', {
         // functionName: `${SolutionInfo.SOLUTION_NAME}-Portal-${this.identifier}`,
         description: `${SolutionInfo.SOLUTION_FULL_NAME} - portal Lambda function`,

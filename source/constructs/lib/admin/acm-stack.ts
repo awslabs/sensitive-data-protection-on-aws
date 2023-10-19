@@ -44,7 +44,7 @@ export class AcmStack extends Construct {
           command: [
             'bash',
             '-c',
-            `pip install --platform manylinux2014_x86_64 --only-binary=:all: -r requirements.txt ${BuildConfig.PIP_MIRROR_PARAMETER} -t /asset-output/python`,
+            `pip install --platform manylinux2014_x86_64 --only-binary=:all: -r requirements.txt ${BuildConfig.PIP_PARAMETER} -t /asset-output/python`,
           ],
         },
       }),
