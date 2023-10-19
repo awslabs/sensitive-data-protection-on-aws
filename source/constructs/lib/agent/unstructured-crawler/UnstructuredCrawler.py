@@ -42,7 +42,6 @@ def add_file_to_dict(files_dict, file_parent, file_suffix, file_basename, file_l
             "sample_files": [],
             "detected_files": {}
         }
-    files_dict[file_key]["sample_files"].append(file_basename)
     files_dict[file_key]["detected_files"][file_basename] = {"last_modified": file_last_modified}
     return files_dict
 
@@ -50,15 +49,16 @@ def update_dict_files(files_dict, page_files_dict):
     for key, value in page_files_dict.items():
         # If key exists, check if the file is already detected
         if files_dict.get(key):
+            previous_detected_files = files_dict[key]["detected_files"]
             for sample_file_key, sample_file_value in value["detected_files"].items():
-                if (sample_file_key, sample_file_value) not in files_dict[key]["detected_files"].items():
+                # If the file is not detected, add to sample files
+                if (sample_file_key, sample_file_value) not in previous_detected_files.items():
                     files_dict[key]["sample_files"].append(sample_file_key)
                     files_dict[key]["detected_files"][sample_file_key] = sample_file_value
-                else:
-                    # File already detected, remove from sample files
-                    files_dict[key]["sample_files"].remove(sample_file_key) if sample_file_key in files_dict[key]["sample_files"] else None
         else:
             files_dict[key] = value
+            files_dict[key]["sample_files"] = list(value["detected_files"].keys())
+
     return files_dict
 
 def summarize_page(page, supported_types, include_file_extensions, exclude_file_extensions):
@@ -70,7 +70,9 @@ def summarize_page(page, supported_types, include_file_extensions, exclude_file_
         file_path = obj['Key']
         last_modified_date = str(obj["LastModified"])
         file_suffix, file_basename, file_parent = extract_file_details(file_path)
-        if file_suffix in include_file_extensions:
+        if not file_suffix:
+            continue
+        elif file_suffix in include_file_extensions:
             add_file_to_dict(page_include_files, file_parent, file_suffix, file_basename, last_modified_date)
         elif file_suffix in exclude_file_extensions:
             add_file_to_dict(page_exclude_files, file_parent, file_suffix, file_basename, last_modified_date)
@@ -111,6 +113,9 @@ def list_s3_objects(bucket_name, result_bucket_name, scan_depth, include_file_ex
             with open(tmp_file.name, 'r') as f:
                 data = json.load(f)
                 detection_files = data['detection_files']
+                # Clear previous sample files
+                for key, value in detection_files.items():
+                    value['sample_files'] = []
     except botocore.exceptions.ClientError as e:
         if e.response['Error']['Code'] == "404":
             print("The object does not exist.")
