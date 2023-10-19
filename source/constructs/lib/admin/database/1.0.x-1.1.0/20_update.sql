@@ -16,6 +16,7 @@ alter table source_account add connected_jdbc_instance int default 0 after total
 alter table source_account add account_provider_id int default 1 after id;
 alter table template_identifier add max_distance int default null after exclude_keywords;
 alter table template_identifier add min_occurrence int default null after exclude_keywords;
+alter table source_detection_history add provider varchar(255) default null after detection_time;
 
 create table source_jdbc_instance
 (

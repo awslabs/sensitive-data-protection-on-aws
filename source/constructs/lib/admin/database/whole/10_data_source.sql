@@ -138,6 +138,7 @@ create table source_detection_history
     id             int auto_increment primary key,
     detect_uuid    varchar(255) null,
     detection_time datetime     null,
+    provider       varchar(255) null,
     account_id     int          null,
     source_type    varchar(255) null,
     state          int          null,

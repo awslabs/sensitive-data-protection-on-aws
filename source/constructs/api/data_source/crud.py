@@ -183,6 +183,16 @@ def list_jdbc_instance_source_without_condition(provider_id: int):
         or_(JDBCInstanceSource.detection_history_id != -1, JDBCInstanceSource.detection_history_id is None)
     )
 
+def list_jdbc_connection_by_account(provider_id: int, account_id: str) -> list[JDBCInstanceSource]:
+    return get_session().query(JDBCInstanceSource).filter(
+        JDBCInstanceSource.account_provider_id == provider_id,
+        JDBCInstanceSource.account_id == account_id
+    ).all()
+
+def delete_jdbc_connection_by_accounts(accounts: list):
+    session = get_session()
+    session.query(JDBCInstanceSource).filter(JDBCInstanceSource.id.in_(accounts)).delete()
+    session.commit()
 
 def set_jdbc_connection_glue_state(provider_id: int, account_id: str, region: str, instance_id: str, state: str):
     session = get_session()
@@ -798,7 +808,6 @@ def import_glue_database(glue_database_param: schemas.SourceGlueDatabase, res: d
     session.add(glue_database)
     session.commit()
     session.refresh(glue_database)
-
     return glue_database
 
 def copy_properties(jdbc_instance_target: JDBCInstanceSource, jdbc_instance_origin: schemas.JDBCInstanceSourceFullInfo):

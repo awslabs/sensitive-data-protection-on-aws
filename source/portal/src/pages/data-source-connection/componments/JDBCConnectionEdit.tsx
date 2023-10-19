@@ -5,15 +5,14 @@ import {
   Form,
   FormField,
   Input,
-  // S3ResourceSelector,
   Select,
   SelectProps,
   SpaceBetween,
+  Spinner,
   Tiles,
 } from '@cloudscape-design/components';
 import S3ResourceSelector from "@cloudscape-design/components/s3-resource-selector";
 import {
-  listGlueConnection,
   getSecrets,
   queryNetworkInfo,
   queryBuckets,
@@ -23,7 +22,7 @@ import {
 import RightModal from 'pages/right-modal';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { alertMsg, showHideSpinner } from 'tools/tools';
+import { alertMsg } from 'tools/tools';
 import { i18ns } from '../types/s3_selector_config';
 
 interface JDBCConnectionProps {
@@ -52,8 +51,6 @@ type connectionType ={
   network_availability_zone: string,
   network_subnet_id: string,
   network_sg_id: string,
-  creation_time: string,
-  last_updated_time: string,
   jdbc_driver_class_name: string,
   jdbc_driver_jar_uri: string
 }
@@ -66,6 +63,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
   // const [jdbcType, setJdbcType] = useState('import');
   const [connections, setConnections] = useState([] as any[]);
   const [credential, setCredential] = useState('secret');
+  const [isLoading, setIsLoading] = useState(true);
   // const [vpc, setVpc] = useState(null);
 
   const originalData: connectionType = {
@@ -85,61 +83,42 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
     network_availability_zone: '',
     network_subnet_id: '',
     network_sg_id: '',
-    creation_time: '',
-    last_updated_time: '',
     jdbc_driver_class_name: '',
     jdbc_driver_jar_uri: ''
   }
   const [jdbcConnectionData, setJdbcConnectionData] = useState<connectionType>(originalData);
   const [disabled, setDisabled] = useState(true)
-  const [credentialType, setCredentialType] = useState('secret_manager')
   const [secretOption, setSecretOption] = useState([] as any);
-  const [network, setNetwork] = useState([] as any);
+  const [vpcOption, setVpcOption] = useState([] as any);
+  const [subnetOption, setSubnetOption] = useState([] as any);
+  const [sgOption, setSgOption] = useState([] as any);
+  // const [network, setNetwork] = useState([] as any);
   const [buckets, setBuckets] = useState([] as any);
   const [vpc, setVpc] = useState<SelectProps.Option | null>(null);
   const [subnet, setSubnet] = useState<SelectProps.Option | null>(null);
   const [sg, setSg] = useState<SelectProps.Option | null>(null);
   const [secretItem, setSecretItem] = useState<SelectProps.Option | null>(null);
 
-  useEffect(() => {
-    if (credentialType === 'secret_manager') {
-      loadAccountSecrets();
-    }
-  }, [credentialType]);
+  // useEffect(() => {
+  //   if (credentialType === 'secret_manager') {
+  //     loadAccountSecrets();
+  //   }
+  // }, [credentialType]);
 
   useEffect(()=>{
     if(jdbcConnectionData.jdbc_enforce_ssl==='false'){
       let temp = jdbcConnectionData;
     temp={...temp,skip_custom_jdbc_cert_validation:'false',custom_jdbc_cert:'',custom_jdbc_cert_string:''};
-    // setJdbcConnectionData({...jdbcConnectionData, new:temp});
     }
   },[jdbcConnectionData.jdbc_enforce_ssl])
 
   useEffect(()=>{
-      listBuckets()
-      loadNetworkInfo()
-      getConnectionDetails()
+      getPageData()
+      // setSecretItem()
   },[])
 
-  // useEffect(()=>{
-  //   console.log(jdbcConnectionData)
-  // },[jdbcConnectionData])
-
   useEffect(()=>{
-
     console.log("")
-
-    // if(props.providerId !== 1){
-    //   setJdbcType('new')
-    //   // load network info
-    //   loadNetworkInfo()
-    // } else {
-    //   try {
-    //     glueConnection()
-    //   } catch (error) {
-    //     setConnections([]);
-    //   }
-    // }
   },[])
 
   useEffect(()=>{
@@ -157,15 +136,27 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
     },[jdbcConnectionData,jdbcConnectionData,vpc,]
   )
 
+  const getPageData = async () =>{    
+    loadNetworkInfo()
+    loadAccountSecrets()
+    getConnectionDetails()
+    listBuckets()
+  }
+
+
   const loadNetworkInfo = async ()=>{
     const requestParam = {
       account_provider_id: props.providerId,
       account_id: props.accountId,
       region: props.region
     }
+    setIsLoading(true)
     const res= await queryNetworkInfo(requestParam);
-    setNetwork(res)
-    // console.log("network is", res)
+    setVpcOption([])
+    setSubnetOption([])
+    setSgOption([])
+
+    // setNetwork(res)
   }
 
   const loadAccountSecrets = async () => {
@@ -189,29 +180,9 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
     }
   };
 
-  const glueConnection =async()=>{
-    const requestParam = {
-      account_id: props.accountId,
-      region: props.region,
-    };
-    const connectionList:any[] = [];
-    // const jdbcConnectionData = 
-    const res= await listGlueConnection(requestParam);
-    (res as any[]).forEach((item) => {
-      const times = item.CreationTime.split('.')[0].split('T')
-      connectionList.push({
-        label: item.Name,
-        value: item.Name,
-        iconName: 'share',
-        description: item.Description||'-',
-        labelTag: times[0]+' '+times[1]
-      })
-    })
-    setConnections(connectionList)
-  }
-
   const updateJdbcConnection =async()=>{
     try{
+      console.log("jdbcConnectionData is:",jdbcConnectionData)
       await createConnection(jdbcConnectionData)
       alertMsg(t('successAdd'), 'success');
       props.setShowModal(false)
@@ -220,32 +191,16 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
     }
   }
 
-  const changeConnectionName = (detail:any)=>{
-    // console.log(detail)
-    let temp = jdbcConnectionData;
-    temp={...temp,instance_id:detail};
-    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
-  }
-
   const changeRequiredSSL =(detail:any)=>{
-    // console.log(detail)
-    let temp = jdbcConnectionData;
-    temp={...temp,jdbc_enforce_ssl:detail?'true':'false'};
-    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    setJdbcConnectionData({...jdbcConnectionData,jdbc_enforce_ssl:detail?'true':'false'});
   }
 
   const changeDescription =(detail:any)=>{
-    // console.log(detail)
-    let temp = jdbcConnectionData;
-    temp={...temp,description:detail};
-    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    setJdbcConnectionData({...jdbcConnectionData,description:detail});
   }
 
   const changeJDBCUrl =(detail:any)=>{
-    // console.log(detail)
-    let temp = jdbcConnectionData;
-    temp={...temp,jdbc_connection_url:detail};
-    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    setJdbcConnectionData({...jdbcConnectionData,jdbc_connection_url:detail});
   }
 
   const changeVPC =(detail:any)=>{
@@ -254,26 +209,20 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
 
   const changeSubnet =(detail:any)=>{
     setSubnet(detail)
-    let temp = jdbcConnectionData;
-    temp={...temp,network_subnet_id:detail.value};
-    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    setJdbcConnectionData({...jdbcConnectionData,network_subnet_id:detail.value});
   }
 
   const changeSG =(detail:any)=>{
     setSg(detail)
-    let temp = jdbcConnectionData;
-    temp={...temp,network_sg_id:detail.value};
-    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    setJdbcConnectionData({...jdbcConnectionData,network_sg_id:detail.value});
   }
 
   const changeSecret =(detail:any)=>{
     setSecretItem(detail)
-    let temp = jdbcConnectionData;
-    temp={...temp,secret:detail.value};
-    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    console.log("secret is :",detail)
+    setJdbcConnectionData({...jdbcConnectionData,secret:detail.value});
   }
   const getConnectionDetails = async()=>{
-    // showHideSpinner(true);
     const requestParam = {
       account_provider_id: props.providerId,
       account_id: props.accountId,
@@ -281,6 +230,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
       instance_id: props.instanceId
     }
     try{
+      
       const res:any = await queryConnectionDetails(requestParam);
 
       setJdbcConnectionData({...jdbcConnectionData,
@@ -290,18 +240,25 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                             jdbc_enforce_ssl:res["ConnectionProperties"]["JDBC_ENFORCE_SSL"],
                             master_username: res["ConnectionProperties"]["USERNAME"],
                             password: res["ConnectionProperties"]["PASSWORD"],
-                            // secret: string,
-                            // skip_custom_jdbc_cert_validation: string,
-                            // custom_jdbc_cert: string,
-                            // custom_jdbc_cert_string: string,
+                            secret: res["ConnectionProperties"]["SECRET_ID"],
+                            skip_custom_jdbc_cert_validation: res["ConnectionProperties"]['SKIP_CUSTOM_JDBC_CERT_VALIDATION'],
+                            custom_jdbc_cert: res["ConnectionProperties"]['CUSTOM_JDBC_CERT'],
+                            custom_jdbc_cert_string: res["ConnectionProperties"]['CUSTOM_JDBC_CERT_STRING'],
                             network_availability_zone: res["PhysicalConnectionRequirements"]["AvailabilityZone"],
                             network_subnet_id: res["PhysicalConnectionRequirements"]["SubnetId"],
                             network_sg_id: res["PhysicalConnectionRequirements"]["SecurityGroupIdList"][0],
-                            // jdbc_driver_class_name: string,
-                            // jdbc_driver_jar_uri: string
+                            jdbc_driver_class_name: res["ConnectionProperties"]['JDBC_DRIVER_CLASS_NAME'],
+                            jdbc_driver_jar_uri: res["ConnectionProperties"]['JDBC_DRIVER_JAR_URI']
                           })
-      
-      // showHideSpinner(false);
+      if(res["ConnectionProperties"]["USERNAME"] === ''&& res["ConnectionProperties"]["PASSWORD"] ===''){
+        setCredential('secret')
+        console.log("secretOption is:",secretOption)
+        const secrets = secretOption.filter((option:any) => option.value === res["ConnectionProperties"]["SECRET_ID"])
+        setSecretItem(secrets[0])
+      } else {
+        setCredential('password')
+      }
+      console.log("secretOption is :",secretOption)                   
     }catch(error){
       alertMsg(error as string, 'error');
     }
@@ -315,58 +272,44 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
     try{
       const res= await queryBuckets(requestParam);
       setBuckets(res)
+      setIsLoading(false)
+      
     }catch(error){
+      setIsLoading(false)
       alertMsg(t('failLoadBuckets'), 'error');
     }
   }
 
   const changeJDBCcertificate =(detail:any)=>{
-    let temp = jdbcConnectionData;
-    temp={...temp,custom_jdbc_cert:detail.resource.uri};
-    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    setJdbcConnectionData({...jdbcConnectionData,custom_jdbc_cert:detail.resource.uri});
   }
 
   const changeSkipCerValid =(detail:any)=>{
-    // console.log("skip!!!",detail)
-    let temp = jdbcConnectionData;
-    temp={...temp,skip_custom_jdbc_cert_validation:detail?'true':'false'};
-    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    setJdbcConnectionData({...jdbcConnectionData,skip_custom_jdbc_cert_validation:detail?'true':'false'});
   }
 
   const changeJDBCCertString =(detail:any)=>{
-    let temp = jdbcConnectionData;
-    temp={...temp,custom_jdbc_cert_string:detail};
-    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    setJdbcConnectionData({...jdbcConnectionData,custom_jdbc_cert_string:detail});
   }
 
   const changeDriverClassName=(detail:any)=>{
-    let temp = jdbcConnectionData;
-    temp={...temp,jdbc_driver_class_name:detail};
-    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    setJdbcConnectionData({...jdbcConnectionData,jdbc_driver_class_name:detail});
   }
 
   const changeDriverPath=(detail:any)=>{
-    let temp = jdbcConnectionData;
-    temp={...temp,jdbc_driver_jar_uri:detail.resource.uri};
-    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    setJdbcConnectionData({...jdbcConnectionData,jdbc_driver_jar_uri:detail.resource.uri});
   }
 
   const changeUserName=(detail:any)=>{
-    let temp = jdbcConnectionData;
-    temp={...temp,master_username:detail};
-    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    setJdbcConnectionData({...jdbcConnectionData,master_username:detail});
   }
 
   const changePassword=(detail:any)=>{
-    let temp = jdbcConnectionData;
-    temp={...temp,password:detail};
-    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    setJdbcConnectionData({...jdbcConnectionData,password:detail});
   }
 
   const resetCredentials=()=>{
-    let temp = jdbcConnectionData;
-    temp={...temp,password:'',master_username:'',secret:''};
-    // setJdbcConnectionData({...jdbcConnectionData,new:temp});
+    setJdbcConnectionData({...jdbcConnectionData,password:'',master_username:'',secret:''});
     setSecretItem(null)
   }
 
@@ -379,9 +322,13 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
       }}
       showModal={showModal}
       header="Edit JDBC Connection"
-
-    >
-      <div className="add-jdbc-container">
+    > 
+    <div className="add-jdbc-container" >
+      {isLoading?(
+        <div style={{margin:"auto"}}>
+        <Spinner />
+        </div>
+      ):(
         <Form
           variant="full-page"
           actions={
@@ -406,7 +353,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                   description="Enter a unique name for your connection."
                 >
                   <Input
-                    onChange={(e)=>changeConnectionName(e.detail.value)}
+                    onChange={(e)=>{console.log("you can not change this item")}}
                     value={jdbcConnectionData.instance_id}
                     disabled
                   />
@@ -590,7 +537,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                       onChange={({ detail }) =>
                         changeVPC(detail.selectedOption)
                       }
-                      options={[{label: network[0], value: network[0]}]}
+                      options={vpcOption}
                     />
                   </FormField>
                   <FormField stretch label="Subnet" description='Choose the subnet within your VPC.'>
@@ -600,7 +547,8 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                       onChange={({ detail }) =>
                       changeSubnet(detail.selectedOption)
                       }
-                      options={[{label: network[1], value: network[1]}]}
+                      options={subnetOption}
+                      // options={[{label: network[1], value: network[1]}]}
                     />
                   </FormField>
                   <FormField stretch label="Security groups" description='Choose one or more security groups to allow access to the data store in your VPC subnet. Security groups are associated to the ENI attached to your subnet. You must choose at least one security group with a self-referencing inbound rule for all TCP ports.'>
@@ -610,13 +558,15 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                       onChange={({ detail }) =>
                          changeSG(detail.selectedOption)
                       }
-                      options={[{label: network[2], value: network[2]}]}
+                      options={sgOption}
+                      // options={[{label: network[2], value: network[2]}]}
                     />
                   </FormField>
       
                 </ExpandableSection>
           </SpaceBetween>
         </Form>
+      )}
       </div>
     </RightModal>
   );

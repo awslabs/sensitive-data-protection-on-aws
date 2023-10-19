@@ -156,6 +156,7 @@ class DetectionHistory(Base):
     detection_time = sa.Column(sa.DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
     source_type = sa.Column(sa.String(255))
     state = sa.Column(sa.Integer())
+    provider = sa.Column(sa.String(255))
     account_id = sa.Column(sa.String(255))
     version = sa.Column(sa.Integer())
     create_by = sa.Column(sa.String(255))
