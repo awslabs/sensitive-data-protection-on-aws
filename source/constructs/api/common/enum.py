@@ -68,7 +68,7 @@ class MessageEnum(Enum):
     SOURCE_RDS_NO_DATABASE = {1231: "Catalog has not been created"}
     SOURCE_S3_CONNECTION_DELETE_ERROR = {1205: "Failed to delete S3 bucket connection"}
     SOURCE_RDS_CONNECTION_DELETE_ERROR = {1206: "Failed to delete RDS instance connection"}
-    SOURCE_CONNECTION_NOT_FINISHED = {1207: "Connection being created"}
+    SOURCE_CONNECTION_NOT_FINISHED = {1207: "Connection is being established, please wait"}
     SOURCE_CONNECTION_FAILED = {1208: "Database connection created failed"}
     SOURCE_CONNECTION_ACTIVE = {1209: "Database connection already created"}
     SOURCE_CONNECTION_CRAWLING = {1210: "Data catalog being crawled"}

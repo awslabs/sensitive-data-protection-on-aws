@@ -769,7 +769,8 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                       href={`/catalog?catalogId=${
                         (e as any)[COLUMN_OBJECT_STR.Buckets] ||
                         (e as any)[COLUMN_OBJECT_STR.RDSInstances]||
-                        (e as any)[COLUMN_OBJECT_STR.JDBCInstanceName]
+                        (e as any)[COLUMN_OBJECT_STR.JDBCInstanceName] ||
+                        (e as any)[COLUMN_OBJECT_STR.GlueConnectionName]
                       }&tagType=${tagType}`}
                       target="_blank"
                       rel="noreferrer"

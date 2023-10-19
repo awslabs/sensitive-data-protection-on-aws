@@ -335,24 +335,33 @@ def check_link(credentials, region_name: str, vpc_id: str, rds_secret_id: str):
     logger.info(secret_endpoint_exists)
 
 def sync_glue_database(account_id, region, glue_database_name):
-    sqs = boto3.client(
-        'sqs',
-        region_name=region
-    )
-    message = {
-        "detail": {
-            "databaseName": glue_database_name,
-            "databaseType": "glue",
-            "accountId": account_id,
-            "state": "Succeeded"
-        },
-        "region": region
-    }
-    sqs.send_message(
-        QueueUrl=sqs.get_queue_url(QueueName=f"{const.SOLUTION_NAME}-Crawler")['QueueUrl'],
-        MessageBody=json.dumps(message)
-    )
-    # TODO 
+
+    state = crud.get_glue_database_source_glue_state(account_id, region, glue_database_name)
+    if state == ConnectionState.PENDING.value:
+        raise BizException(MessageEnum.SOURCE_CONNECTION_NOT_FINISHED.get_code(),
+                           MessageEnum.SOURCE_CONNECTION_NOT_FINISHED.get_msg())
+    try:
+        sqs = boto3.client(
+            'sqs',
+            region_name=region
+        )
+        message = {
+            "detail": {
+                "databaseName": glue_database_name,
+                "databaseType": "glue",
+                "accountId": account_id,
+                "state": "Succeeded"
+            },
+            "region": region
+        }
+        sqs.send_message(
+            QueueUrl=sqs.get_queue_url(QueueName=f"{const.SOLUTION_NAME}-Crawler")['QueueUrl'],
+            MessageBody=json.dumps(message)
+        )
+        crud.set_glue_database_glue_state(account_id, region, glue_database_name, ConnectionState.PENDING.value)
+    except Exception as err:
+        crud.set_glue_database_glue_state(account_id, region, glue_database_name, str(err))
+
 
 def sync_jdbc_connection(jdbc: JDBCInstanceSourceBase):
     accont_id = jdbc.account_id if jdbc.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id

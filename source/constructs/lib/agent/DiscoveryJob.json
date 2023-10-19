@@ -5,8 +5,21 @@
       "Type": "Parallel",
       "Branches": [
         {
-          "StartAt": "NeedRunCrawler",
+          "StartAt": "NeedRunStructured",
           "States": {
+            "NeedRunStructured": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Not": {
+                    "Variable": "$.DepthStructured",
+                    "StringEquals": "0"
+                  },
+                  "Next": "NeedRunCrawler"
+                }
+              ],
+              "Default": "Structured Job Succeeded"
+            },
             "NeedRunCrawler": {
               "Type": "Choice",
               "Choices": [
@@ -178,7 +191,18 @@
                   "BackoffRate": 2
                 }
               ],
-              "Next": "Map"
+              "Next": "NeedRunStructuredJob"
+            },
+            "NeedRunStructuredJob": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.JobNumber",
+                  "NumericEquals": 0,
+                  "Next": "Structured Job Succeeded"
+                }
+              ],
+              "Default": "Map"
             },
             "Map": {
               "Type": "Map",
@@ -234,7 +258,8 @@
                 }
               },
               "Next": "Structured Job Succeeded",
-              "OutputPath": "$.[0]"
+              "OutputPath": "$.[0]",
+              "ItemsPath": "$.JobItems"
             },
             "Structured Job Failed": {
               "Type": "Pass",
@@ -261,14 +286,24 @@
           }
         },
         {
-          "StartAt": "NeedRunUnstructuredJob",
+          "StartAt": "NeedRunUnstructured",
           "States": {
-            "NeedRunUnstructuredJob": {
+            "NeedRunUnstructured": {
               "Type": "Choice",
               "Choices": [
                 {
-                  "Variable": "$.DatabaseType",
-                  "StringEquals": "s3",
+                  "And": [
+                    {
+                      "Variable": "$.DatabaseType",
+                      "StringEquals": "s3"
+                    },
+                    {
+                      "Not": {
+                        "Variable": "$.DepthUnstructured",
+                        "StringEquals": "0"
+                      }
+                    }
+                  ],
                   "Next": "UnstructuredCrawler"
                 }
               ],
@@ -483,7 +518,18 @@
                   "BackoffRate": 2
                 }
               ],
-              "Next": "MapUnstructured"
+              "Next": "NeedRunUnstructuredJob"
+            },
+            "NeedRunUnstructuredJob": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.JobNumber",
+                  "NumericEquals": 0,
+                  "Next": "Unstructured Job Succeeded"
+                }
+              ],
+              "Default": "MapUnstructured"
             },
             "MapUnstructured": {
               "Type": "Map",
@@ -529,7 +575,8 @@
                 }
               },
               "Next": "Unstructured Job Succeeded",
-              "OutputPath": "$.[0]"
+              "OutputPath": "$.[0]",
+              "ItemsPath": "$.JobItems"
             },
             "Unstructured Job Succeeded": {
               "Type": "Pass",
