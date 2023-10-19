@@ -209,20 +209,6 @@ def set_jdbc_connection_glue_state(provider_id: int, account_id: str, region: st
     else:
         return None
 
-def set_glue_database_glue_state(provider_id: int, account_id: str, region: str, instance_id: str, state: str):
-    session = get_session()
-    glue_database_source = session.query(SourceGlueDatabase).filter(SourceGlueDatabase.account_provider_id == provider_id,
-                                                                    SourceGlueDatabase.instance_id == instance_id,
-                                                                    SourceGlueDatabase.region == region,
-                                                                    SourceGlueDatabase.account_id == account_id).order_by(
-        desc(SourceGlueDatabase.detection_history_id)).first()
-    if glue_database_source is not None:
-        glue_database_source.glue_state = state
-        session.merge(glue_database_source)
-        session.commit()
-    else:
-        return None
-
 def set_rds_instance_source_glue_state(account: str, region: str, instance_id: str, state: str):
     session = get_session()
     rds_instance_source = session.query(RdsInstanceSource).filter(RdsInstanceSource.instance_id == instance_id,
@@ -318,6 +304,28 @@ def get_glue_database_source(account: str, region: str, name: str):
                                                           SourceGlueDatabase.region == region,
                                                           SourceGlueDatabase.glue_database_name == name).scalar()
 
+def get_glue_database_source_glue_state(account: str, region: str, database: str):
+    query = get_session().query(SourceGlueDatabase).filter(SourceGlueDatabase.account_id == account,
+                                                          SourceGlueDatabase.region == region,
+                                                          SourceGlueDatabase.glue_database_name == database).order_by(
+        desc(SourceGlueDatabase.detection_history_id)).first()
+    if query is None:
+        return None
+    return query.glue_state
+
+
+def set_glue_database_glue_state(account, region, database, state):
+    session = get_session()
+    query = get_session().query(SourceGlueDatabase).filter(SourceGlueDatabase.account_id == account,
+                                                           SourceGlueDatabase.region == region,
+                                                           SourceGlueDatabase.glue_database_name == database).order_by(
+        desc(SourceGlueDatabase.detection_history_id)).first()
+    if query is not None:
+        query.glue_state = state
+        session.merge(query)
+        session.commit()
+    else:
+        return None
 
 def get_jdbc_instance_source(provider: int, account: str, region: str, instance_id: str)->JDBCInstanceSource:
     return get_session().query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == provider,

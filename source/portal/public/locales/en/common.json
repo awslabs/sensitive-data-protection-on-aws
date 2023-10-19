@@ -318,7 +318,7 @@
   "loadDataError": "Load data error",
   "startConnectAllS3": "Start connect all S3",
   "loadNetworkError": "Load Network Error, check security group is configured correctly",
-  "startConnect": "Start connect",
+  "startConnect": "Connection initiation has started",
   "successConnect": "Connect succeeded!",
   "failedConnect": "Connect failed!",
   "successImport": "Import succeeded!",
