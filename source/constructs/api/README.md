@@ -75,3 +75,17 @@ app.include_router(discovery_router)
 zip -r api.zip * -x "venv/*" "lambda/*_test.py"
 ```
 Then put this zip file into lambda and run it.
+
+## PyTest
+### 1. Installation package
+```shell
+pip install pytest==7.4.2
+pip install pytest-mock==3.11.1
+pip install httpx==0.25.0
+pip install anyio==3.6.2
+```
+
+### 2. Test
+```shell
+python -m pytest pytest -s
+```

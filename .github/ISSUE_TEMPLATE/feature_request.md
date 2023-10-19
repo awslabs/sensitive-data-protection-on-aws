@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea for aws-cloudfront-extensions
+about: Suggest an idea for sensitive-data-protection-on-aws
 title: ''
 labels: feature-request
 assignees: ''

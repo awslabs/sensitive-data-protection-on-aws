@@ -12,7 +12,7 @@
  */
 
 import path from 'path';
-import { Stack, aws_s3 as s3, Aws, Size, Duration, CustomResource } from 'aws-cdk-lib';
+import { Stack, aws_s3 as s3, Aws, Size, Duration, CustomResource, Tags } from 'aws-cdk-lib';
 import * as events from 'aws-cdk-lib/aws-events';
 import * as targets from 'aws-cdk-lib/aws-events-targets';
 import {
@@ -244,5 +244,6 @@ export class GlueStack extends Construct {
       schedule: events.Schedule.cron({ minute: '1', hour: '0' }),
     });
     addPartitionRule.addTarget(new targets.LambdaFunction(addPartitionFunction));
+    Tags.of(addPartitionRule).add(SolutionInfo.TAG_KEY, SolutionInfo.TAG_VALUE);
   }
 }
