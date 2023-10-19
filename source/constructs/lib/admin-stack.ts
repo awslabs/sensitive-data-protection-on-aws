@@ -324,16 +324,9 @@ export class AdminStack extends Stack {
   }
 
   private setBuildConfig() {
-    BuildConfig.BuildInChina = this.node.tryGetContext('BuildInChina') != undefined;
-    BuildConfig.InternetFacing = this.node.tryGetContext('InternetFacing') != undefined;
-    const portalRepository = this.node.tryGetContext('PortalRepository');
-    if (portalRepository) {
-      BuildConfig.PortalRepository = portalRepository;
-    }
+    BuildConfig.PortalRepository = this.node.tryGetContext('PortalRepository');
     BuildConfig.PortalTag = this.node.tryGetContext('PortalTag');
-    if (BuildConfig.BuildInChina) {
-      BuildConfig.PIP_MIRROR_PARAMETER = `-i ${BuildConfig.PIP_MIRROR_CHINA_URL}`;
-    }
+    BuildConfig.PIP_PARAMETER = this.node.tryGetContext('PipParameter') ?? '';
   }
 
 }

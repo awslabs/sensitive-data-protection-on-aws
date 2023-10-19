@@ -51,7 +51,7 @@ export class DeleteAgentResourcesStack extends Construct {
           command: [
             'bash',
             '-c',
-            `pip install -r requirements.txt ${BuildConfig.PIP_MIRROR_PARAMETER} -t /asset-output/python`,
+            `pip install -r requirements.txt ${BuildConfig.PIP_PARAMETER} -t /asset-output/python`,
           ],
         },
       }),

@@ -12,10 +12,8 @@
  */
 
 export class BuildConfig {
-  static BuildInChina = false;
   static InternetFacing = false;
   static PortalRepository = '';
   static PortalTag = undefined;
-  static PIP_MIRROR_PARAMETER = '';
-  static PIP_MIRROR_CHINA_URL = 'https://opentuna.cn/pypi/web/simple';
+  static PIP_PARAMETER = '';
 }

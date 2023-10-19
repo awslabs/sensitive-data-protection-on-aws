@@ -34,9 +34,9 @@ export class AgentStack extends Stack {
       adminAccountId: adminAccountId,
     });
 
-    new AgentRoleStack(scope, 'AgentRole', {
-      adminAccountId: adminAccountId,
-    });
+    // new AgentRoleStack(scope, 'AgentRole', {
+    //   adminAccountId: adminAccountId,
+    // });
 
     new BucketStack(scope, 'AgentS3', {
       prefix: SolutionInfo.SOLUTION_AGENT_S3_BUCKET,
