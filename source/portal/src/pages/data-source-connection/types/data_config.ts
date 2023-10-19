@@ -11,7 +11,7 @@ export const COLUMN_OBJECT_STR = {
   GlueState: 'glue_state',
   JDBCInstanceName: 'jdbc_instance_name',
   ConnectionStatus:'connection_status',
-  GlueConnectionName:'glue_connection_name',
+  GlueConnectionName:'glue_database_name',
   glueDatabaseCreatedTime:'create_time',
   glueDatabaseDescription:'glue_database_description',
   glueDatabaseLocationUri:'locationUri'
@@ -93,6 +93,16 @@ export const GLUE_COLUMN_LIST = [
     id: COLUMN_OBJECT_STR.glueDatabaseLocationUri,
     label: 'table.label.locationUri',
     filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.GlueState,
+    label: 'table.label.catalogStatus',
+    filter: true,
+  },
+  {
+    id: 'data_catalog',
+    label: 'table.label.dataCatalog',
+    filter: false,
   },
   {
     id: 'glue_database_create_time',
