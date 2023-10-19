@@ -26,7 +26,6 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 async def detect_jdbc_connection(provider_id: int, account_id: str, session: Session):
-    print(f"detect {account_id}....")
     not_exist_connections = []
     if provider_id == Provider.AWS_CLOUD.value:
         history = DetectionHistory(account_id=account_id, source_type='jdbc', state=0)
@@ -79,5 +78,4 @@ async def detect_multiple_account_in_async(provider_id, accounts):
 
 
 def detect(provider_id, accounts):
-    print("start detect jdbc....")
     asyncio.run(detect_multiple_account_in_async(provider_id, accounts))

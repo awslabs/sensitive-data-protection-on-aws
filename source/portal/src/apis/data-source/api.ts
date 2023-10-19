@@ -242,5 +242,6 @@ export {
   disconnectAndDeleteJDBC,
   queryConnectionDetails,
   connectDataSourceGlue,
-  deleteGlueDatabase
+  deleteGlueDatabase,
+  updateConnection
 };

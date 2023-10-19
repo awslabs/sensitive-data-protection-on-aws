@@ -16,7 +16,7 @@ import {
   getSecrets,
   queryNetworkInfo,
   queryBuckets,
-  createConnection,
+  updateConnection,
   queryConnectionDetails
 } from 'apis/data-source/api';
 import RightModal from 'pages/right-modal';
@@ -172,11 +172,11 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
   const updateJdbcConnection =async()=>{
     try{
       console.log("jdbcConnectionData is:",jdbcConnectionData)
-      await createConnection(jdbcConnectionData)
-      alertMsg(t('successAdd'), 'success');
+      await updateConnection(jdbcConnectionData)
+      alertMsg(t('successUpdate'), 'success');
       props.setShowModal(false)
     } catch(error){
-      alertMsg(t('failAdd'), 'error');
+      alertMsg(t('failUpdate'), 'error');
     }
   }
 
