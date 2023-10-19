@@ -48,7 +48,9 @@ def lambda_handler(event, context):
         job_item["TableBegin"] = str(-1)
         job_item["TableEnd"] = str(-1)
         job_items.append(job_item)
-        return job_items
+        event["JobItems"]=job_items
+        event["JobNumber"]=len(job_items)
+        return event
     
     glue_database_name = event['GlueDatabaseName']
     if event.get("IsUnstructured") == 'true':
@@ -56,7 +58,9 @@ def lambda_handler(event, context):
     logger.info(f"glue_database_name:{glue_database_name}")
     table_count = get_table_count(glue_database_name, base_time)
     if table_count == 0:
-        return job_items
+        event["JobItems"]=job_items
+        event["JobNumber"]=len(job_items)  # Used to determine whether to execute a job
+        return event
         
     job_number = get_job_number(event)
     logger.info(f"init JobNumber:{job_number}")
@@ -75,4 +79,6 @@ def lambda_handler(event, context):
         job_item["TableEnd"] = str(table_end)
         job_items.append(job_item)
     logger.info(f"actual JobNumber:{len(job_items)}")
-    return job_items
+    event["JobItems"]=job_items
+    event["JobNumber"]=len(job_items)
+    return event

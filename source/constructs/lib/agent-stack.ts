@@ -26,30 +26,30 @@ import { SolutionInfo } from './common/solution-info';
 export class AgentStack extends Stack {
   public static createStack(scope: Construct, adminAccountId: string) {
 
-    // new DiscoveryJobStack(scope, 'DiscoveryJobStateMachine', {
-    //   adminAccountId: adminAccountId,
-    // });
+    new DiscoveryJobStack(scope, 'DiscoveryJobStateMachine', {
+      adminAccountId: adminAccountId,
+    });
 
-    // new CrawlerEventbridgeStack(scope, 'CrawlerEventbridge', {
-    //   adminAccountId: adminAccountId,
-    // });
+    new CrawlerEventbridgeStack(scope, 'CrawlerEventbridge', {
+      adminAccountId: adminAccountId,
+    });
 
-    // new AgentRoleStack(scope, 'AgentRole', {
-    //   adminAccountId: adminAccountId,
-    // });
+    new AgentRoleStack(scope, 'AgentRole', {
+      adminAccountId: adminAccountId,
+    });
 
-    // new BucketStack(scope, 'AgentS3', {
-    //   prefix: SolutionInfo.SOLUTION_AGENT_S3_BUCKET,
-    // });
+    new BucketStack(scope, 'AgentS3', {
+      prefix: SolutionInfo.SOLUTION_AGENT_S3_BUCKET,
+    });
 
     new DeleteAgentResourcesStack(scope, 'DeleteAgentResources', {
       adminAccountId: adminAccountId,
       queueName: `${SolutionInfo.SOLUTION_NAME}-AutoSyncData`,
     });
 
-    // new RenameResourcesStack(scope, 'RenameResources', {
-    //   adminAccountId: adminAccountId,
-    // });
+    new RenameResourcesStack(scope, 'RenameResources', {
+      adminAccountId: adminAccountId,
+    });
   }
 
   constructor(scope: Construct, id: string, props?: StackProps) {
