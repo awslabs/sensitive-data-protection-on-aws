@@ -26,7 +26,7 @@ from common.abilities import convert_provider_id_2_database_type
 from db.models_data_source import (Account,
                                    JDBCInstanceSource,
                                    SourceRegion)
-from . import s3_detector, rds_detector, glue_database_detector, crud
+from . import s3_detector, rds_detector, glue_database_detector, jdbc_detector, crud
 from .schemas import (AccountInfo, AdminAccountInfo,
                       JDBCInstanceSource, JDBCInstanceSourceUpdate,
                       ProviderResourceFullInfo, SourceNewAccount, SourceRegion,
@@ -352,6 +352,7 @@ def sync_glue_database(account_id, region, glue_database_name):
         QueueUrl=sqs.get_queue_url(QueueName=f"{const.SOLUTION_NAME}-Crawler")['QueueUrl'],
         MessageBody=json.dumps(message)
     )
+    # TODO 
 
 def sync_jdbc_connection(jdbc: JDBCInstanceSourceBase):
     accont_id = jdbc.account_id if jdbc.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id
@@ -1366,7 +1367,7 @@ def refresh_data_source(provider_id: int, accounts: list[str], type: str):
     if provider_id == Provider.AWS_CLOUD.value:
         refresh_aws_data_source(accounts, type)
     else:
-        pass
+        refresh_third_data_source(accounts, type)
 
 
 def refresh_aws_data_source(accounts: list[str], type: str):
@@ -1383,14 +1384,33 @@ def refresh_aws_data_source(accounts: list[str], type: str):
         elif type == DataSourceType.glue_database.value:
             glue_database_detector.detect(accounts)
 
+        elif type == DataSourceType.jdbc.value:
+            print("jdbc_detector start...")
+            jdbc_detector.detect(Provider.AWS_CLOUD.value, accounts)
         elif type == DataSourceType.all.value:
             s3_detector.detect(accounts)
             rds_detector.detect(accounts)
             glue_database_detector.detect(accounts)
+            jdbc_detector.detect(accounts)
     except Exception as e:
         logger.error(traceback.format_exc())
         raise BizException(MessageEnum.SOURCE_CONNECTION_FAILED.get_code(), str(e))
 
+def refresh_third_data_source(accounts: list[str], type: str):
+    if type is None or len(accounts) == 0:
+        raise BizException(MessageEnum.SOURCE_REFRESH_FAILED.get_code(),
+                           MessageEnum.SOURCE_REFRESH_FAILED.get_msg())
+    try:
+        # if type == DataSourceType.jdbc.value:
+        jdbc_detector.detect(accounts)
+        # elif type == DataSourceType.all.value:
+        #     s3_detector.detect(accounts)
+        #     rds_detector.detect(accounts)
+        #     glue_database_detector.detect(accounts)
+        #     jdbc_detector.detect(accounts)
+    except Exception as e:
+        logger.error(traceback.format_exc())
+        raise BizException(MessageEnum.SOURCE_CONNECTION_FAILED.get_code(), str(e))
 
 def get_data_source_coverage(provider_id):
     provider_id = int(provider_id)

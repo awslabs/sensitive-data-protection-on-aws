@@ -1,4 +1,5 @@
 from common.enum import (Provider,
+                         ProviderName,
                          DatabaseType)
 
 
@@ -18,3 +19,13 @@ def convert_provider_id_2_database_type(provider: int) -> str:
         return DatabaseType.JDBC_ALIYUN.value
     else:
         return DatabaseType.JDBC_AWS.value
+    
+def convert_provider_id_2_name(provider: int) -> str:
+    if provider == Provider.TENCENT_CLOUD.value:
+        return ProviderName.TENCENT_CLOUD.value
+    elif provider == Provider.ALI_CLOUD.value:
+        return ProviderName.ALI_CLOUD.value
+    elif provider == Provider.GOOGLE_CLOUD.value:
+        return ProviderName.GOOGLE_CLOUD.value
+    else:
+        return ProviderName.AWS_CLOUD.value

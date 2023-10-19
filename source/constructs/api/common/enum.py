@@ -296,6 +296,13 @@ class Provider(Enum):
     ALI_CLOUD = 4
 
 @unique
+class ProviderName(Enum):
+    AWS_CLOUD = 'AWS'
+    TENCENT_CLOUD = 'TENCENT CLOUD'
+    GOOGLE_CLOUD = 'GOOGLE CLOUD'
+    ALI_CLOUD = 'ALI CLOUD'
+
+@unique
 class SourceCreateType(Enum):
     ADD = 1
     IMPORT = 0
