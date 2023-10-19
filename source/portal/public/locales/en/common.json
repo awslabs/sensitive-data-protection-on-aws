@@ -325,6 +325,8 @@
   "failedImport": "Import failed!",
   "successAdd": "Create succeeded!",
   "failedAdd": "Create failed!",
+  "successUpdate": "Update succeeded!",
+  "failedUpdate": "Update failed!",
   "inputRDSUserOrPassword": "Please input rds user or password!",
   "selectSecretManage": "Please select sercret manager!",
   "connectFailed": "Connected failed",

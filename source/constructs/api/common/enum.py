@@ -113,7 +113,8 @@ class MessageEnum(Enum):
     SOURCE_SECURITYGROUP_NOT_FOUND = {1248: "SecurityGroup not found"}
     SOURCE_JDBC_CONNECTION_NOT_EXIST = {1249: "JDBC connection not exist"}
     SOURCE_SUBNET_NOT_EXIST = {1250: "Subnet for JDBC connection not exist in target account"}
-    SOURCE_UNCONNECTED = {1251: "UNCONNECTED"}
+    SOURCE_JDBC_INPUT_INVALID = {1251: "Validation for connection properties failed"}
+    SOURCE_UNCONNECTED = {1252: "UNCONNECTED"}
     # label
     LABEL_EXIST_FAILED = {1611: "Cannot create duplicated label"}
 

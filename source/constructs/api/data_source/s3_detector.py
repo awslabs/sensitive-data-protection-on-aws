@@ -2,6 +2,7 @@ import os
 
 import boto3
 import logging
+from sqlalchemy import desc
 
 from common.constant import const
 from common.enum import ConnectionState, DatabaseType
@@ -62,8 +63,7 @@ async def detect_s3_data_source(session: Session, aws_account_id: str):
         if _region in agent_regions:
             s3_bucket_source = session.query(S3BucketSource).filter(S3BucketSource.bucket_name == bucket.name,
                                                                     S3BucketSource.region == _region,
-                                                                    S3BucketSource.account_id == aws_account_id).scalar()
-            
+                                                                    S3BucketSource.account_id == aws_account_id).order_by(desc(S3BucketSource.detection_history_id)).first()
             if s3_bucket_source is None:
                 s3_bucket_source = S3BucketSource(bucket_name=bucket.name, region=_region,
                                                   account_id=aws_account_id)

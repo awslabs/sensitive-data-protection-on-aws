@@ -41,6 +41,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
   const { t } = useTranslation();
   const { showModal, setShowModal } = props;
   const [jdbcType, setJdbcType] = useState('import');
+  const [expanded, setExpanded] = useState(true);
   const [connections, setConnections] = useState([] as any[]);
   const [credential, setCredential] = useState('secret');
   // const [vpc, setVpc] = useState(null);
@@ -82,11 +83,15 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
   const [disabled, setDisabled] = useState(true)
   const [credentialType, setCredentialType] = useState('secret_manager')
   const [secretOption, setSecretOption] = useState([] as any);
+  const [vpcOption, setVpcOption] = useState([] as any);
+  const [subnetOption, setSubnetOption] = useState([] as any);
+  const [sgOption, setSgOption] = useState([] as any);
   const [network, setNetwork] = useState([] as any);
   const [buckets, setBuckets] = useState([] as any);
   const [vpc, setVpc] = useState<SelectProps.Option | null>(null);
   const [subnet, setSubnet] = useState<SelectProps.Option | null>(null);
   const [sg, setSg] = useState<SelectProps.Option | null>(null);
+  
   const [importGlue, setImportGlue] = useState<SelectProps.Option | null>(null);
   const [secretItem, setSecretItem] = useState<SelectProps.Option | null>(null);
 
@@ -160,7 +165,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
 
 
   },[jdbcConnectionData,jdbcConnectionData.new,jdbcConnectionData.import,vpc,])
-
+  // options={[{label: network[0], value: network[0]}]}
   const loadNetworkInfo = async ()=>{
     const requestParam = {
       account_provider_id: props.providerId,
@@ -168,13 +173,19 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
       region: props.region
     }
     try{
-       const res= await queryNetworkInfo(requestParam);
-       setNetwork(res)
+       const vpcOptions:any[] = []
+       const res:any= await queryNetworkInfo(requestParam);
+       const vpcs = res?.vpcs
+       vpcs.forEach((item:any)=>{
+        vpcOptions.push({label: item.vpcId, value: item.vpcId})
+       })
+       setNetwork(vpcs)
+       setVpcOption(vpcOptions)
+
+
     } catch (error){
       alertMsg(t('loadNetworkError'), 'error');
     }
-    // console.log("network res is:",res)
-    // console.log("network is", res)
   }
 
   const loadAccountSecrets = async () => {
@@ -268,7 +279,31 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
   }
 
   const changeVPC =(detail:any)=>{
+    const subnetOptions:any[] =[]
+    const sgOptions:any[] = []
     setVpc(detail)
+    // console.log("detail is ",detail.value)
+    const subnets = network.filter((item:any) => item.vpcId === detail.value)[0].subnets
+    subnets.forEach((item: any)=>{
+      subnetOptions.push({
+        label:item.subnetId,
+        value:item.subnetId,
+        description:item.arn
+      })
+    })
+
+    const securityGroups = network.filter((item:any) => item.vpcId === detail.value)[0].securityGroups
+    securityGroups.forEach((item: any)=>{
+      sgOptions.push({
+        label:item.securityGroupId,
+        value:item.securityGroupId,
+        description:item.securityGroupName
+      })
+    })
+    // console.log("hahahaha is ",network)
+
+    setSubnetOption(subnetOptions)
+    setSgOption(sgOptions)
   }
 
   const changeSubnet =(detail:any)=>{
@@ -612,7 +647,8 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                 )}
                 <ExpandableSection
                   headerText="Network options" 
-                  expanded
+                  onChange ={()=> setExpanded(!expanded)}
+                  expanded={expanded}
                   headerDescription='If your Amazon Glue job needs to jdbc resource which existed in other vpc or other cloud provider environment, you must provide additional VPC-specific configuration information.'>
                 <FormField stretch label="VPC" description='Choose the virtual private cloud that contains your data source.'>
                     <Select
@@ -621,7 +657,8 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                       onChange={({ detail }) =>
                         changeVPC(detail.selectedOption)
                       }
-                      options={[{label: network[0], value: network[0]}]}
+                      options={vpcOption}
+                      // options={[{label: network[0], value: network[0]}]}
                     />
                   </FormField>
                   <FormField stretch label="Subnet" description='Choose the subnet within your VPC.'>
@@ -631,7 +668,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                       onChange={({ detail }) =>
                       changeSubnet(detail.selectedOption)
                       }
-                      options={[{label: network[1], value: network[1]}]}
+                      options={subnetOption}
                     />
                   </FormField>
                   <FormField stretch label="Security groups" description='Choose one or more security groups to allow access to the data store in your VPC subnet. Security groups are associated to the ENI attached to your subnet. You must choose at least one security group with a self-referencing inbound rule for all TCP ports.'>
@@ -641,7 +678,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                       onChange={({ detail }) =>
                          changeSG(detail.selectedOption)
                       }
-                      options={[{label: network[2], value: network[2]}]}
+                      options={sgOption}
                     />
                   </FormField>
       

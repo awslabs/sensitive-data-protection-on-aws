@@ -1376,7 +1376,7 @@ def refresh_data_source(provider_id: int, accounts: list[str], type: str):
     if provider_id == Provider.AWS_CLOUD.value:
         refresh_aws_data_source(accounts, type)
     else:
-        refresh_third_data_source(accounts, type)
+        refresh_third_data_source(provider_id, accounts, type)
 
 
 def refresh_aws_data_source(accounts: list[str], type: str):
@@ -1405,13 +1405,13 @@ def refresh_aws_data_source(accounts: list[str], type: str):
         logger.error(traceback.format_exc())
         raise BizException(MessageEnum.SOURCE_CONNECTION_FAILED.get_code(), str(e))
 
-def refresh_third_data_source(accounts: list[str], type: str):
-    if type is None or len(accounts) == 0:
+def refresh_third_data_source(provider_id: int, accounts: list[str], type: str):
+    if type is None or not accounts:
         raise BizException(MessageEnum.SOURCE_REFRESH_FAILED.get_code(),
                            MessageEnum.SOURCE_REFRESH_FAILED.get_msg())
     try:
         # if type == DataSourceType.jdbc.value:
-        jdbc_detector.detect(accounts)
+        jdbc_detector.detect(provider_id, accounts)
         # elif type == DataSourceType.all.value:
         #     s3_detector.detect(accounts)
         #     rds_detector.detect(accounts)
@@ -1712,7 +1712,8 @@ def update_connection(jdbc_instance: JDBCInstanceSourceUpdate, assume_account, a
         raise BizException(MessageEnum.SOURCE_JDBC_CONNECTION_NOT_EXIST.get_code(),
                            MessageEnum.SOURCE_JDBC_CONNECTION_NOT_EXIST.get_msg())
     
-    logger.info(f"source.glue_connection is: {source.glue_connection}")
+    # logger.info(f"source.glue_connection is: {source.glue_connection}")
+    connectionProperties_dict = gen_conn_properties(jdbc_instance)
     response = __glue(account=assume_account, region=assume_role).update_connection(
         CatalogId=assume_account,
         Name=source.glue_connection,
@@ -1720,18 +1721,7 @@ def update_connection(jdbc_instance: JDBCInstanceSourceUpdate, assume_account, a
             'Name': source.glue_connection,
             'Description': jdbc_instance.description,
             'ConnectionType': 'JDBC',
-            'ConnectionProperties': {
-                # 'CUSTOM_JDBC_CERT': jdbcConn.custom_jdbc_cert,
-                # 'CUSTOM_JDBC_CERT_STRING': jdbcConn.custom_jdbc_cert_string,
-                'JDBC_CONNECTION_URL': jdbc_instance.jdbc_connection_url,
-                'JDBC_ENFORCE_SSL': jdbc_instance.jdbc_enforce_ssl,
-                # 'KAFKA_SSL_ENABLED': jdbcConn.kafka_ssl_enabled,
-                # 'SKIP_CUSTOM_JDBC_CERT_VALIDATION': jdbcConn.skip_custom_jdbc_cert_validation,
-                'USERNAME': jdbc_instance.master_username,
-                'PASSWORD': jdbc_instance.password,
-                # 'JDBC_DRIVER_CLASS_NAME': jdbcConn.jdbc_driver_class_name,
-                # 'JDBC_DRIVER_JAR_URI': jdbcConn.jdbc_driver_jar_uri
-            },
+            'ConnectionProperties': connectionProperties_dict,
             'PhysicalConnectionRequirements': {
                 'SubnetId': jdbc_instance.network_subnet_id,
                 'SecurityGroupIdList': [
@@ -1759,26 +1749,10 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
     try:
         availability_zone = ec2_client.describe_subnets(SubnetIds=[jdbcConn.network_subnet_id])['Subnets'][0]['AvailabilityZone']
         try:
-            connectionProperties_dict = {}
-            if jdbcConn.jdbc_enforce_ssl != 'false' and jdbcConn.custom_jdbc_cert:
-                connectionProperties_dict['CUSTOM_JDBC_CERT'] = jdbcConn.custom_jdbc_cert
-            if jdbcConn.jdbc_enforce_ssl != 'false' and jdbcConn.custom_jdbc_cert_string:
-                connectionProperties_dict['CUSTOM_JDBC_CERT_STRING'] = jdbcConn.custom_jdbc_cert_string
-            if jdbcConn.jdbc_driver_class_name:
-                connectionProperties_dict['JDBC_DRIVER_CLASS_NAME'] = jdbcConn.jdbc_driver_class_name
-            if jdbcConn.jdbc_driver_jar_uri:
-                connectionProperties_dict['JDBC_DRIVER_JAR_URI'] = jdbcConn.jdbc_driver_jar_uri
-            if jdbcConn.master_username:
-                connectionProperties_dict['USERNAME'] = jdbcConn.master_username
-            if jdbcConn.password:
-                connectionProperties_dict['PASSWORD'] = jdbcConn.password
-            if jdbcConn.secret:
-                connectionProperties_dict['SECRET_ID'] = jdbcConn.secret
-            connectionProperties_dict['JDBC_CONNECTION_URL'] = jdbcConn.jdbc_connection_url
-            connectionProperties_dict['JDBC_ENFORCE_SSL'] = jdbcConn.jdbc_enforce_ssl
-            if not (jdbcConn.jdbc_enforce_ssl == 'false'):
-                connectionProperties_dict['SKIP_CUSTOM_JDBC_CERT_VALIDATION'] = jdbcConn.skip_custom_jdbc_cert_validation
+            connectionProperties_dict = gen_conn_properties(jdbcConn)
             
+
+            # print(f"connectionProperties_dict is {connectionProperties_dict}")
             response = __glue(account=account_id, region=region).create_connection(
                 CatalogId=account_id,
                 ConnectionInput={
@@ -1795,6 +1769,12 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
                     }
                 }
             )
+        except ClientError as ce:
+            logger.error(traceback.format_exc())
+            if ce.response['Error']['Code'] == 'InvalidInputException':
+                raise BizException(MessageEnum.SOURCE_JDBC_INPUT_INVALID.get_code(),
+                                   MessageEnum.SOURCE_JDBC_INPUT_INVALID.get_msg())
+
         except Exception as e:
             logger.error(traceback.format_exc())
         if response['ResponseMetadata']['HTTPStatusCode'] != 200:
@@ -1841,6 +1821,28 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
     except Exception as e:
         raise BizException(MessageEnum.BIZ_UNKNOWN_ERR.get_code(),
                            MessageEnum.BIZ_UNKNOWN_ERR.get_msg())
+
+def gen_conn_properties(jdbcConn):
+    connectionProperties_dict = {}
+    if jdbcConn.jdbc_enforce_ssl != 'false' and jdbcConn.custom_jdbc_cert:
+        connectionProperties_dict['CUSTOM_JDBC_CERT'] = jdbcConn.custom_jdbc_cert
+    if jdbcConn.jdbc_enforce_ssl != 'false' and jdbcConn.custom_jdbc_cert_string:
+        connectionProperties_dict['CUSTOM_JDBC_CERT_STRING'] = jdbcConn.custom_jdbc_cert_string
+    if jdbcConn.jdbc_driver_class_name:
+        connectionProperties_dict['JDBC_DRIVER_CLASS_NAME'] = jdbcConn.jdbc_driver_class_name
+    if jdbcConn.jdbc_driver_jar_uri:
+        connectionProperties_dict['JDBC_DRIVER_JAR_URI'] = jdbcConn.jdbc_driver_jar_uri
+    if jdbcConn.master_username:
+        connectionProperties_dict['USERNAME'] = jdbcConn.master_username
+    if jdbcConn.password:
+        connectionProperties_dict['PASSWORD'] = jdbcConn.password
+    if jdbcConn.secret:
+        connectionProperties_dict['SECRET_ID'] = jdbcConn.secret
+    connectionProperties_dict['JDBC_CONNECTION_URL'] = jdbcConn.jdbc_connection_url
+    connectionProperties_dict['JDBC_ENFORCE_SSL'] = jdbcConn.jdbc_enforce_ssl
+    if not (jdbcConn.jdbc_enforce_ssl == 'false'):
+        connectionProperties_dict['SKIP_CUSTOM_JDBC_CERT_VALIDATION'] = jdbcConn.skip_custom_jdbc_cert_validation
+    return connectionProperties_dict
 
 def test_jdbc_conn(jdbc_conn_param: JDBCInstanceSourceBase):
     res = "FAIL"
@@ -2444,20 +2446,30 @@ def query_glue_databases(account: AdminAccountInfo):
     return __glue(account=account.account_id, region=account.region).get_databases()['DatabaseList']
 
 def query_account_network(account: AccountInfo):
-    # accont_id, region = gen_assume_info(account)
     accont_id = account.account_id if account.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id
     region = account.region if account.region == Provider.AWS_CLOUD.value else _admin_account_region
     logger.info(f'accont_id is:{accont_id},region is {region}')
     ec2_client, __ = __ec2(account=accont_id, region=region)
+    # accont_id, region = gen_assume_info(account)
+    if account.account_provider_id != Provider.AWS_CLOUD.value or account.account_id == _admin_account_id:
+        res =  query_account_network_not_agent(ec2_client)
+        logger.info(f"query_account_network_not_agent res is {res}")
+        return res
+    else:
+        return query_account_network_agent(ec2_client)
+
+def query_account_network_not_agent(ec2_client: any):
     try:
         response = ec2_client.describe_security_groups(GroupNames=[const.SECURITY_GROUP_JDBC])
-        logger.info(f'response is:{response}')
         vpc_ids = [item['VpcId'] for item in response['SecurityGroups']]
         subnets = ec2_client.describe_subnets(Filters=[{'Name': 'vpc-id', 'Values': [vpc_ids[0]]}])['Subnets']
         private_subnet = list(filter(lambda x: not x["MapPublicIpOnLaunch"], subnets))
-        return ec2_client.describe_vpcs(VpcIds=[vpc_ids[0]])['Vpcs'][0]['VpcId'], \
-            private_subnet[0]['SubnetId'] if private_subnet else subnets[0]['SubnetId'], \
-            response['SecurityGroups'][0]['GroupId']
+        return {"vpcs": [{'vpcId': ec2_client.describe_vpcs(VpcIds=[vpc_ids[0]])['Vpcs'][0]['VpcId'],
+                          'subnets': [{'subnetId': private_subnet[0]['SubnetId'] if private_subnet else subnets[0]['SubnetId'],
+                                       'arn': private_subnet[0]['SubnetArn'] if private_subnet else subnets[0]['SubnetArn']}],
+                          'securityGroups': [{'securityGroupId': response['SecurityGroups'][0]['GroupId'],
+                                              'securityGroupName': response['SecurityGroups'][0]['GroupName']}]}]
+                }
     except ClientError as ce:
         logger.error(traceback.format_exc())
         if ce.response['Error']['Code'] == 'InvalidGroup.NotFound':
@@ -2470,10 +2482,24 @@ def query_account_network(account: AccountInfo):
         raise BizException(MessageEnum.BIZ_UNKNOWN_ERR.get_code(),
                            MessageEnum.BIZ_UNKNOWN_ERR.get_msg())
 
+def query_account_network_agent(ec2_client: any):
+    res = []
+    vpc_list = [vpc['VpcId'] for vpc in ec2_client.describe_vpcs()['Vpcs']]
+
+    subnets = ec2_client.describe_subnets()['Subnets']
+    securityGroups = ec2_client.describe_security_groups()['SecurityGroups']
+    for vpcId in vpc_list:
+        vpc = {'vpcId': vpcId}
+        vpc['subnets'] = [{"subnetId": subnet['SubnetId'], "arn": subnet['SubnetArn']} for subnet in subnets if subnet['VpcId'] == vpcId]
+        vpc['securityGroups'] = [{"securityGroupId": security['GroupId'], "securityGroupName": security['GroupName']} for security in securityGroups if security['VpcId'] == vpcId]
+        res.append(vpc)
+    return {'vpcs': res}
+
+
 def gen_assume_info(account):
     accont_id = account.account_id if account.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id
     region = account.region if account.region == Provider.AWS_CLOUD.value else _admin_account_region
-    return accont_id,region
+    return accont_id, region
 
 
 def test_glue_conn(account, connection):

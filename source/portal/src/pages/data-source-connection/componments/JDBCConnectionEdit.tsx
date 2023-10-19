@@ -16,7 +16,7 @@ import {
   getSecrets,
   queryNetworkInfo,
   queryBuckets,
-  createConnection,
+  updateConnection,
   queryConnectionDetails
 } from 'apis/data-source/api';
 import RightModal from 'pages/right-modal';
@@ -92,7 +92,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
   const [vpcOption, setVpcOption] = useState([] as any);
   const [subnetOption, setSubnetOption] = useState([] as any);
   const [sgOption, setSgOption] = useState([] as any);
-  // const [network, setNetwork] = useState([] as any);
+  const [network, setNetwork] = useState([] as any);
   const [buckets, setBuckets] = useState([] as any);
   const [vpc, setVpc] = useState<SelectProps.Option | null>(null);
   const [subnet, setSubnet] = useState<SelectProps.Option | null>(null);
@@ -137,27 +137,16 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
   )
 
   const getPageData = async () =>{    
-    loadNetworkInfo()
-    loadAccountSecrets()
     getConnectionDetails()
+    // loadNetworkInfo(physicalConnection)
+    loadAccountSecrets()
     listBuckets()
   }
 
 
-  const loadNetworkInfo = async ()=>{
-    const requestParam = {
-      account_provider_id: props.providerId,
-      account_id: props.accountId,
-      region: props.region
-    }
-    setIsLoading(true)
-    const res= await queryNetworkInfo(requestParam);
-    setVpcOption([])
-    setSubnetOption([])
-    setSgOption([])
-
-    // setNetwork(res)
-  }
+  // const loadNetworkInfo = async (physicalConnection:any )=>{
+    
+  // }
 
   const loadAccountSecrets = async () => {
     const requestParam = {
@@ -183,11 +172,11 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
   const updateJdbcConnection =async()=>{
     try{
       console.log("jdbcConnectionData is:",jdbcConnectionData)
-      await createConnection(jdbcConnectionData)
-      alertMsg(t('successAdd'), 'success');
+      await updateConnection(jdbcConnectionData)
+      alertMsg(t('successUpdate'), 'success');
       props.setShowModal(false)
     } catch(error){
-      alertMsg(t('failAdd'), 'error');
+      alertMsg(t('failUpdate'), 'error');
     }
   }
 
@@ -203,8 +192,37 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
     setJdbcConnectionData({...jdbcConnectionData,jdbc_connection_url:detail});
   }
 
+  const genOptions=(source:any[], vpcId:string)=> {
+    const subnetOptions: any[] = [];
+    const sgOptions: any[] = [];
+    const subnets = source.filter((item: any) => item.vpcId === vpcId)[0].subnets;
+    subnets.forEach((item: any) => {
+      subnetOptions.push({
+        label: item.subnetId,
+        value: item.subnetId,
+        description: item.arn
+      });
+    });
+
+    const securityGroups = source.filter((item: any) => item.vpcId === vpcId)[0].securityGroups;
+    securityGroups.forEach((item: any) => {
+      sgOptions.push({
+        label: item.securityGroupId,
+        value: item.securityGroupId,
+        description: item.securityGroupName
+      });
+    });
+    return { subnetOptions, sgOptions };
+  }
+
+
   const changeVPC =(detail:any)=>{
     setVpc(detail)
+    const { subnetOptions, sgOptions }: { subnetOptions: any[]; sgOptions: any[]; } = genOptions(network, detail.value);
+    setSubnetOption(subnetOptions)
+    setSgOption(sgOptions)
+    setSubnet(null)
+    setSg(null)
   }
 
   const changeSubnet =(detail:any)=>{
@@ -223,11 +241,17 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
     setJdbcConnectionData({...jdbcConnectionData,secret:detail.value});
   }
   const getConnectionDetails = async()=>{
+    setIsLoading(true)
     const requestParam = {
       account_provider_id: props.providerId,
       account_id: props.accountId,
       region: props.region,
       instance_id: props.instanceId
+    }
+    const requestParam_network = {
+      account_provider_id: props.providerId,
+      account_id: props.accountId,
+      region: props.region
     }
     try{
       
@@ -258,7 +282,45 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
       } else {
         setCredential('password')
       }
-      console.log("secretOption is :",secretOption)                   
+      console.log("secretOption is :",secretOption) 
+      try{
+         const vpcOptions:any[] = []
+         const network_res:any= await queryNetworkInfo(requestParam_network);
+         const vpcs = network_res?.vpcs
+         let currentVPCId = ''
+         console.log("vpcs is:",vpcs)
+         vpcs.forEach((item:any)=>{
+          const subnetId: string[] = []
+          const sgId: string[] = []
+          vpcOptions.push({label: item.vpcId, value: item.vpcId})
+          item.subnets.forEach((i:any)=>subnetId.push(i.subnetId))
+          item.securityGroups.forEach((i:any)=>sgId.push(i.securityGroupId))
+          if(subnetId.includes(res["PhysicalConnectionRequirements"]["SubnetId"]) && sgId.includes(res["PhysicalConnectionRequirements"]["SecurityGroupIdList"][0])){
+            currentVPCId = item.vpcId
+          }
+          // if()
+         })
+         setNetwork(vpcs)
+         setVpcOption(vpcOptions)
+        //  if(currentVPCId === '') {
+         const vid= currentVPCId === ''?vpcs[0].vpcId:currentVPCId
+         const { subnetOptions, sgOptions }: { subnetOptions: any[]; sgOptions: any[]; } = genOptions(vpcs, vid);
+         setSubnetOption(subnetOptions)
+         setSgOption(sgOptions)
+         setVpc({label:vid.vpcId, value:vid})
+         setSubnet({label:res["PhysicalConnectionRequirements"]["SubnetId"], value:res["PhysicalConnectionRequirements"]["SubnetId"]})
+         setSg({label:res["PhysicalConnectionRequirements"]["SecurityGroupIdList"][0], value:res["PhysicalConnectionRequirements"]["SecurityGroupIdList"][0]})
+        //  }else {
+        //  const { subnetOptions, sgOptions }: { subnetOptions: any[]; sgOptions: any[]; } = genOptions(vpcs, currentVPCId);
+        //  setSubnetOption(subnetOptions)
+        //  setSgOption(sgOptions)
+        //  setVpc({label:currentVPCId, value:currentVPCId})
+        //  setSubnet({label:jdbcConnectionData.network_subnet_id, value:jdbcConnectionData.network_subnet_id})
+        //  setSg({label:jdbcConnectionData.network_sg_id, value:jdbcConnectionData.network_sg_id})
+        // }
+      } catch (error){
+        alertMsg(t('loadNetworkError'), 'error');
+      }
     }catch(error){
       alertMsg(error as string, 'error');
     }

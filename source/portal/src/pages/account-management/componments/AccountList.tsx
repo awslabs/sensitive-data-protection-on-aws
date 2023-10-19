@@ -91,7 +91,7 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
     try {
       // call refresh all account api
       const requestRefreshAccountParam = {
-        provider: provider?.id,
+        provider_id: provider?.id,
         accounts: accountData?.map((element: any) => element.account_id),
         type: 'all',
       };
@@ -160,7 +160,7 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
   const clkRefreshDatasource = async (rowData: any) => {
     setIsLoading(true);
     const requestParam = {
-      provider: provider?.id,
+      provider_id: provider?.id,
       accounts: [rowData.account_id],
       type: 'all',
     };
