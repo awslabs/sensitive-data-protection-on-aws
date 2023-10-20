@@ -17,6 +17,7 @@ create table catalog_column_level_classification
     comments             varchar(255)  null,
     manual_tag           varchar(20)   null,
     job_keyword          varchar(255)  null,
+    column_path          varchar(255)  null,
     state                varchar(20)   null,
     version              int           null,
     create_by            varchar(255)  null,
