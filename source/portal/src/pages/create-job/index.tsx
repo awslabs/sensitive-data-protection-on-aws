@@ -460,7 +460,7 @@ const CreateJobContent = () => {
                     setJobData((prev) => {
                       return {
                         ...prev,
-                        scanUnstructuredDepthO: option,
+                        scanUnstructuredDepthObj: option,
                         depth_unstructured: option?.value ?? '',
                       };
                     });

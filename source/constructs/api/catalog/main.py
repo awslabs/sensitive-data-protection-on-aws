@@ -92,11 +92,11 @@ def search_catalog_tables(condition: QueryCondition):
     "/gen-s3-presigned-url-by-id"
 )
 @inject_session
-def gen_s3_presigned_url_by_table_id(table_id: str):
-    catalog = crud.get_catalog_table_level_classification_by_id(table_id)
+def gen_s3_presigned_url_by_column_id(column_id: str):
+    catalog = crud.get_catalog_column_level_classification_by_id(column_id)
     if catalog:
-        if catalog.storage_location:
-            bucket_name, key = service.__get_s3_bucket_key_from_location(catalog.storage_location)
+        if catalog.column_path:
+            bucket_name, key = service.__get_s3_bucket_key_from_location(catalog.column_path)
             pre_url = gen_s3_temp_uri(bucket_name, key)
             return pre_url
     return ""
@@ -178,6 +178,14 @@ def get_s3_sample_objects(
     limit: int,
 ):
     return service.list_s3_sample_objects(account_id, region, s3_location, limit)
+
+
+@router.get("/get-unstructured-sample-objects", response_model=BaseResponse)
+@inject_session
+def get_unstructured_sample_objects(
+    table_id: str,
+):
+    return service.list_unstructured_sample_objects(table_id)
 
 
 @router.get("/get-rds-table-sample-records", response_model=BaseResponse)

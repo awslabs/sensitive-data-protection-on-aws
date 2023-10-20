@@ -24,6 +24,7 @@ class CatalogColumnLevelClassification(Base):
     manual_tag = sa.Column(sa.String(20))
     job_keyword = sa.Column(sa.String(255))
     state = sa.Column(sa.String(20))
+    column_path = sa.Column(sa.String(255))
     version = sa.Column(sa.Integer())
     create_by = sa.Column(sa.String(255))
     create_time = sa.Column(sa.DateTime())
