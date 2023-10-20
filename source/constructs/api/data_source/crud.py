@@ -177,15 +177,11 @@ def list_jdbc_instance_source_without_condition(provider_id: int):
     account_ids = []
     for account in accounts:
         account_ids.append(account.account_id)
-    print(f"!!!!!!!account_ids is:{account_ids}")
     res = get_session().query(JDBCInstanceSource).filter(
         JDBCInstanceSource.account_id.in_(account_ids),
         JDBCInstanceSource.account_provider_id == provider_id,
         or_(JDBCInstanceSource.detection_history_id != -1, JDBCInstanceSource.detection_history_id is None)
     )
-
-    print(f"!!!!!!!res length is:{len(res.all())}")
-    
     return res
 
 def list_glue_database_source_without_condition():
