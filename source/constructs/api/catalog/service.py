@@ -436,6 +436,27 @@ def list_s3_sample_objects(account_id: str, region: str, s3_location: str, limit
     return result_list
 
 
+def list_unstructured_sample_objects(table_id: str):
+    table_catalog = crud.get_catalog_table_level_classification_by_id(table_id)
+    result_list = []
+    if table_catalog:
+        s3_client = get_boto3_client(table_catalog.account_id, table_catalog.region, "s3")
+        column_catalogs = crud.get_catalog_column_level_classification_by_table(table_catalog.account_id, table_catalog.region, table_catalog.database_type, table_catalog.database_name, table_catalog.table_name)
+        for column_catalog in column_catalogs:
+            bucket_name, key = __get_s3_bucket_key_from_location(column_catalog.column_path)
+            response = s3_client.get_object(Bucket=bucket_name, Key=key)
+            file_size = response['ContentLength']
+            obj_dict = {
+                "id": column_catalog.id,
+                "privacy": column_catalog.privacy,
+                "s3_full_path": column_catalog.column_path,
+                "file_size": file_size,
+                "file_type": key.split(".")[-1].upper(),
+            }
+            result_list.append(obj_dict)
+    return result_list
+
+
 def get_rds_table_sample_records(
         account_id: str,
         region: str,
@@ -498,7 +519,7 @@ def __query_job_result_by_athena(
     # Select result
     select_sql = (
             (
-                """SELECT table_name,column_name,cast(identifiers as json) as identifiers_str,CASE WHEN sample_data is NULL then '' else array_join(sample_data, \'|\') end as sample_str, privacy, table_size
+                """SELECT table_name,column_name,cast(identifiers as json) as identifiers_str,CASE WHEN sample_data is NULL then '' else array_join(sample_data, \'|\') end as sample_str, privacy, table_size, s3_location 
             FROM %s 
             WHERE account_id='%s'
                 AND region='%s' 
@@ -622,6 +643,7 @@ def sync_job_detection_result(
                     column_sample_data = __get_athena_column_value(row["Data"][3], "str")
                     privacy = int(__get_athena_column_value(row["Data"][4], "int"))
                     table_size = int(__get_athena_column_value(row["Data"][5], "int"))
+                    column_path = __get_athena_column_value(row["Data"][6], "str")
                     table_size_dict[table_name] = table_size
                     if table_name in table_column_dict:
                         table_column_dict[table_name].append(column_name)
@@ -647,6 +669,7 @@ def sync_job_detection_result(
                             "id": catalog_column.id,
                             "identifier": json.dumps(identifier_dict),
                             "column_value_example": column_sample_data,
+                            "column_path": column_path,
                             "privacy": column_privacy,
                             "state": CatalogState.DETECTED.value,
                             "manual_tag": const.SYSTEM,

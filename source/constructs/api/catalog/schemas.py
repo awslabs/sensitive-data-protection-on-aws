@@ -22,6 +22,7 @@ class CatalogColumnLevelClassification(BaseModel):
     comments: Optional[str]
     manual_tag: Optional[str]
     job_keyword: Optional[str]
+    column_path: Optional[str]
     state: Optional[str]
     version: Optional[int]
     create_by: Optional[str]
