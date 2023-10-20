@@ -49,6 +49,19 @@ export const SOURCE_TYPE = {
   JDBC_GOOGLE: 'jdbc_google',
 };
 
+export const getJDBCTypeByProviderId = (providerId: number) => {
+  switch (providerId) {
+    case 1:
+      return SOURCE_TYPE.JDBC_AWS;
+    case 2:
+      return SOURCE_TYPE.JDBC_TENCENT;
+    case 3:
+      return SOURCE_TYPE.JDBC_GOOGLE;
+    default:
+      return SOURCE_TYPE.JDBC;
+  }
+};
+
 export const getSourceTypeByProvider = (providerId: string) => {
   switch (providerId) {
     case '1':

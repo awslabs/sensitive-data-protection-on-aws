@@ -183,6 +183,17 @@ def list_jdbc_instance_source_without_condition(provider_id: int):
         or_(JDBCInstanceSource.detection_history_id != -1, JDBCInstanceSource.detection_history_id is None)
     )
 
+def list_glue_database_source_without_condition():
+    accounts = get_session().query(Account).filter(Account.account_provider_id == Provider.AWS_CLOUD.value,
+                                                   Account.status == 1).all()
+    account_ids = []
+    for account in accounts:
+        account_ids.append(account.account_id)
+    return get_session().query(SourceGlueDatabase).filter(
+        SourceGlueDatabase.account_id.in_(account_ids),
+        SourceGlueDatabase.detection_history_id != -1
+    )
+
 def list_jdbc_connection_by_account(provider_id: int, account_id: str) -> list[JDBCInstanceSource]:
     return get_session().query(JDBCInstanceSource).filter(
         JDBCInstanceSource.account_provider_id == provider_id,
@@ -194,13 +205,13 @@ def delete_jdbc_connection_by_accounts(accounts: list):
     session.query(JDBCInstanceSource).filter(JDBCInstanceSource.id.in_(accounts)).delete()
     session.commit()
 
-def set_jdbc_connection_glue_state(provider_id: int, account_id: str, region: str, instance_id: str, state: str):
+def set_jdbc_connection_glue_state(provider: int, account: str, region: str, instance: str, state: str):
     session = get_session()
     jdbc_connection_source = session.query(JDBCInstanceSource).filter(
-        JDBCInstanceSource.account_provider_id == provider_id,
-        JDBCInstanceSource.instance_id == instance_id,
+        JDBCInstanceSource.account_provider_id == provider,
+        JDBCInstanceSource.instance_id == instance,
         JDBCInstanceSource.region == region,
-        JDBCInstanceSource.account_id == account_id).order_by(
+        JDBCInstanceSource.account_id == account).order_by(
         desc(JDBCInstanceSource.detection_history_id)).first()
     if jdbc_connection_source is not None:
         jdbc_connection_source.glue_state = state
@@ -414,10 +425,10 @@ def update_glue_database_count(account: str, region: str):
     session.commit()
 
 
-def update_jdbc_instance_count(provider_id: int, account: str, region: str):
+def update_jdbc_instance_count(provider: int, account: str, region: str):
     session = get_session()
 
-    connected = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == provider_id,
+    connected = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == provider,
                                                          JDBCInstanceSource.region == region,
                                                          JDBCInstanceSource.account_id == account,
                                                          JDBCInstanceSource.glue_state == ConnectionState.ACTIVE.value).count()
@@ -601,7 +612,7 @@ def update_jdbc_connection_full(jdbc_instance: schemas.JDBCInstanceSourceUpdate)
     # network_sg_id: Optional[str]
     # jdbc_driver_class_name: Optional[str]
     # jdbc_driver_jar_uri: Optional[str]
-
+    jdbc_instance_source.detection_history_id = 0
     jdbc_instance_source.description = jdbc_instance.description
     jdbc_instance_source.jdbc_connection_url = jdbc_instance.jdbc_connection_url
     jdbc_instance_source.jdbc_enforce_ssl = jdbc_instance.jdbc_enforce_ssl
@@ -865,36 +876,6 @@ def update_jdbc_conn(jdbc_conn_param: schemas.JDBCInstanceSourceFullInfo):
     jdbc_instance_source: JDBCInstanceSource = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == Provider.AWS_CLOUD.value,
                                                                                         JDBCInstanceSource.account_id == jdbc_conn_param.account_id,
                                                                                         JDBCInstanceSource.instance_id == jdbc_conn_param.instance_id).first()
-    # target: JDBCInstanceSource = copy_properties(jdbc_instance_source, jdbcConn)
-    # jdbc_instance_source = JDBCInstanceSource()
-    # jdbc_instance_source.instance_id = jdbcConn.instance_id
-    # jdbc_instance_source.description = jdbcConn.description
-    # jdbc_instance_source.jdbc_connection_url = jdbcConn.jdbc_connection_url
-    # jdbc_instance_source.jdbc_enforce_ssl = jdbcConn.jdbc_enforce_ssl
-    # jdbc_instance_source.kafka_ssl_enabled = jdbcConn.kafka_ssl_enabled
-    # jdbc_instance_source.master_username = jdbcConn.master_username
-    # jdbc_instance_source.skip_custom_jdbc_cert_validation = jdbcConn.skip_custom_jdbc_cert_validation
-    # jdbc_instance_source.custom_jdbc_cert = jdbcConn.custom_jdbc_cert
-    # jdbc_instance_source.custom_jdbc_cert_string = jdbcConn.custom_jdbc_cert_string
-    # jdbc_instance_source.network_availability_zone = jdbcConn.network_availability_zone
-    # jdbc_instance_source.network_subnet_id = jdbcConn.network_subnet_id
-    # jdbc_instance_source.network_sg_id = jdbcConn.network_sg_id
-    # jdbc_instance_source.jdbc_driver_class_name = jdbcConn.jdbc_driver_class_name
-    # jdbc_instance_source.jdbc_driver_jar_uri = jdbcConn.jdbc_driver_jar_uri
-    # # jdbc_instance_source.instance_class = jdbcConn.instance_class
-    # # jdbc_instance_source.instance_status = jdbcConn.instance_status
-    # jdbc_instance_source.account_provider_id = jdbcConn.account_provider_id
-    # jdbc_instance_source.account_id = jdbcConn.account_id
-    # jdbc_instance_source.region = jdbcConn.region
-    # # jdbc_instance_source.data_source_id = jdbcConn.data_source_id
-    # # jdbc_instance_source.detection_history_id = jdbcConn.detection_history_id
-    # # jdbc_instance_source.glue_database = jdbcConn.glue_database
-    # # jdbc_instance_source.glue_crawler = jdbcConn.glue_crawler
-    # jdbc_instance_source.glue_connection = jdbcConn.glue_connection
-    # # jdbc_instance_source.glue_vpc_endpoint = jdbcConn.glue_vpc_endpoint
-    # # jdbc_instance_source.glue_state = jdbcConn.glue_state
-    # jdbc_instance_source.create_type = jdbcConn.create_type
-    # # jdbc_instance_source.
     jdbc_instance_source = copy_properties(jdbc_instance_source, jdbc_conn_param)
 
     # session.add(jdbc_instance_source)
@@ -955,3 +936,12 @@ def get_total_jdbc_instances_count(provider_id):
 def get_connected_jdbc_instances_count(provider_id):
     list = list_jdbc_instance_source_without_condition(provider_id)
     return 0 if list is None else list.filter(JDBCInstanceSource.glue_state == ConnectionState.ACTIVE.value).count()
+
+def get_total_glue_database_count():
+    list = list_glue_database_source_without_condition()
+    return 0 if list is None else list.count()
+
+
+def get_connected_glue_database_count():
+    list = list_glue_database_source_without_condition()
+    return 0 if list is None else list.filter(SourceGlueDatabase.glue_state == ConnectionState.ACTIVE.value).count()

@@ -139,7 +139,7 @@ def sync_crawler_result(
             provider_id, account_id, region, database_name
         )
         if jdbc_database:
-            jdbc_engine_type = jdbc_database.engine
+            jdbc_engine_type = jdbc_database.jdbc_connection_url.split(':')[1]
 
     glue_client = get_boto3_client(account_id, region, "glue")
     glue_database_name = database_name if is_custom_glue else (
@@ -343,11 +343,11 @@ def sync_crawler_result(
             data_source_crud.set_s3_bucket_source_glue_state(account_id, region, database_name,
                                                              ConnectionState.UNSUPPORTED.value)
         elif database_type.startswith(DatabaseType.JDBC.value):
-            data_source_crud.set_jdbc_instance_glue_state(account_id, region, database_name,
-                                                                ConnectionState.UNSUPPORTED.value)
+            data_source_crud.set_jdbc_connection_glue_state(account_id, region, database_name,
+                                                            ConnectionState.UNSUPPORTED.value)
         elif database_type == DatabaseType.GLUE.value:
-            data_source_crud.set_custom_glue_glue_state(account_id, region, database_name,
-                                                                ConnectionState.UNSUPPORTED.value)
+            data_source_crud.set_glue_database_glue_state(account_id, region, database_name,
+                                                          ConnectionState.UNSUPPORTED.value)
         original_database = crud.get_catalog_database_level_classification_by_name(account_id, region,
                                                                                    database_type,
                                                                                    database_name)
