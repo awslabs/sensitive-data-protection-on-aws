@@ -7,6 +7,7 @@ import data_source.crud as data_source_crud
 from common.constant import const
 from common.enum import DatabaseType, ConnectionState, GlueResourceNameSuffix
 from db.database import gen_session, close_session
+from common.abilities import convert_database_type_2_provider
 
 logger = logging.getLogger(const.LOGGER_API)
 logger.setLevel(logging.DEBUG)
@@ -83,14 +84,13 @@ def sync_result(input_event):
             )
             logger.info("update glue datasource finished")
         elif database_type.startswith(DatabaseType.JDBC.value):
-            logger.info(f"input_event is: {input_event}")
             data_source_crud.update_jdbc_instance_count(
-                # provider=input_event['providerId'],
+                provider=convert_database_type_2_provider(database_type),
                 account=input_event['detail']['accountId'],
                 region=input_event['region'],
             )
             data_source_crud.set_jdbc_connection_glue_state(
-                # provider=input_event['providerId'],
+                provider=convert_database_type_2_provider(database_type),
                 account=input_event['detail']['accountId'],
                 region=input_event['region'],
                 instance=database_name,

@@ -177,7 +177,6 @@ def list_jdbc_instance_source_without_condition(provider_id: int):
     account_ids = []
     for account in accounts:
         account_ids.append(account.account_id)
-    print(f"account_provider_id is {provider_id} account_ids is {account_ids}")
     return get_session().query(JDBCInstanceSource).filter(
         JDBCInstanceSource.account_id.in_(account_ids),
         JDBCInstanceSource.account_provider_id == provider_id,
@@ -429,11 +428,7 @@ def update_glue_database_count(account: str, region: str):
 def update_jdbc_instance_count(provider: int, account: str, region: str):
     session = get_session()
 
-    # connected = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == provider,
-    #                                                      JDBCInstanceSource.region == region,
-    #                                                      JDBCInstanceSource.account_id == account,
-    #                                                      JDBCInstanceSource.glue_state == ConnectionState.ACTIVE.value).count()
-    connected = session.query(JDBCInstanceSource).filter(
+    connected = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == provider,
                                                          JDBCInstanceSource.region == region,
                                                          JDBCInstanceSource.account_id == account,
                                                          JDBCInstanceSource.glue_state == ConnectionState.ACTIVE.value).count()
