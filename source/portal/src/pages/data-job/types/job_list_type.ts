@@ -20,16 +20,16 @@ export const JOB_LIST_COLUMN_LIST = [
     label: 'table.label.jobName',
     filter: true,
   },
-  // {
-  //   id: 'dataSource',
-  //   label: 'table.label.dataSource',
-  //   filter: true,
-  // },
-  // {
-  //   id: 'provider',
-  //   label: 'table.label.provider',
-  //   filter: true,
-  // },
+  {
+    id: 'dataSource',
+    label: 'table.label.dataSource',
+    filter: true,
+  },
+  {
+    id: 'provider',
+    label: 'table.label.provider',
+    filter: true,
+  },
   // {
   //   id: 'description',
   //   label: 'table.label.description',
@@ -153,8 +153,8 @@ export const INIT_JOB_DATA: IJobType = {
   schedule: '',
   description: '',
   range: '1',
-  depth_structured: '100',
-  depth_unstructured: '10',
+  depth_structured: '1000',
+  depth_unstructured: '0',
   detection_threshold: '0.2',
   all_s3: '0',
   all_rds: '0',

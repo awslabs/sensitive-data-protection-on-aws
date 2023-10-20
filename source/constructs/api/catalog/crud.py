@@ -89,6 +89,18 @@ def get_catalog_column_level_classification_by_name(
     return result
 
 
+def get_catalog_column_level_classification_by_id(
+        column_id: str
+):
+    result = (
+        get_session()
+        .query(models.CatalogColumnLevelClassification)
+        .filter(models.CatalogColumnLevelClassification.id == column_id)
+        .first()
+    )
+    return result
+
+
 def get_catalog_database_level_classification_by_params(
         account_id: str, region: str, database_type: str
 ):

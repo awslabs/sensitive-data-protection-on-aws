@@ -45,7 +45,7 @@ def count_aws_account_region():
 def count_third_account_region(provider_id):
     provider_id = int(provider_id)
     account = data_source_crud.get_account_list_by_provider(provider_id)
-    region = data_source_crud.get_region_list_by_provider(provider_id)
+    region = data_source_crud.get_distinct_region_list_by_provider(provider_id)
     return account, region
 
 def agg_catalog_summay(database_type: str):

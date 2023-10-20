@@ -177,12 +177,12 @@ def list_jdbc_instance_source_without_condition(provider_id: int):
     account_ids = []
     for account in accounts:
         account_ids.append(account.account_id)
-    print(f"account_provider_id is {provider_id} account_ids is {account_ids}")
-    return get_session().query(JDBCInstanceSource).filter(
+    res = get_session().query(JDBCInstanceSource).filter(
         JDBCInstanceSource.account_id.in_(account_ids),
         JDBCInstanceSource.account_provider_id == provider_id,
         or_(JDBCInstanceSource.detection_history_id != -1, JDBCInstanceSource.detection_history_id is None)
     )
+    return res
 
 def list_glue_database_source_without_condition():
     accounts = get_session().query(Account).filter(Account.account_provider_id == Provider.AWS_CLOUD.value,
@@ -272,6 +272,7 @@ def delete_not_exist_glue_database(refresh_list: list[str]):
 
 
 def update_glue_database_count(account: str, region: str):
+    print(f"update_glue_database_count start, params are: {account}-{region}")
     session = get_session()
 
     connected = session.query(SourceGlueDatabase).filter(SourceGlueDatabase.region == region,
@@ -413,39 +414,36 @@ def update_s3_bucket_count(account: str, region: str):
     session.merge(account)
     session.commit()
 
-def update_glue_database_count(account: str, region: str):
-    session = get_session()
-    total = session.query(SourceGlueDatabase).filter(SourceGlueDatabase.region == region,
-                                                     SourceGlueDatabase.account_id == account).count()
+# def update_glue_database_count(account: str, region: str):
+#     session = get_session()
+#     total = session.query(SourceGlueDatabase).filter(SourceGlueDatabase.region == region,
+#                                                      SourceGlueDatabase.account_id == account).count()
 
-    account = session.query(Account).filter(Account.account_id == account, Account.region == region).first()
-    if account is not None:
-        account.connected_jdbc_instance = total
-        account.total_jdbc_instance = total
-    session.merge(account)
-    session.commit()
+#     account = session.query(Account).filter(Account.account_id == account, Account.region == region).first()
+#     if account is not None:
+#         account.connected_jdbc_instance = total
+#         account.total_jdbc_instance = total
+#     session.merge(account)
+#     session.commit()
 
 
 def update_jdbc_instance_count(provider: int, account: str, region: str):
     session = get_session()
-
-    # connected = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == provider,
-    #                                                      JDBCInstanceSource.region == region,
-    #                                                      JDBCInstanceSource.account_id == account,
-    #                                                      JDBCInstanceSource.glue_state == ConnectionState.ACTIVE.value).count()
-    connected = session.query(JDBCInstanceSource).filter(
-                                                         JDBCInstanceSource.region == region,
-                                                         JDBCInstanceSource.account_id == account,
-                                                         JDBCInstanceSource.glue_state == ConnectionState.ACTIVE.value).count()
-    total = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.region == region,
-                                                     JDBCInstanceSource.account_id == account).count()
-
-    account: Account = session.query(Account).filter(Account.account_id == account, Account.region == region).first()
-    if account is not None:
-        account.connected_jdbc_instance = connected
-        account.total_jdbc_instance = total
-    session.merge(account)
-    session.commit()
+    if region:
+        connected = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == provider,
+                                                             JDBCInstanceSource.region == region,
+                                                             JDBCInstanceSource.account_id == account,
+                                                             JDBCInstanceSource.glue_state == ConnectionState.ACTIVE.value).count()
+        total = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.region == region,
+                                                         JDBCInstanceSource.account_id == account).count()
+        account: Account = session.query(Account).filter(Account.account_id == account, Account.region == region).first()
+        if account is not None:
+            account.connected_jdbc_instance = connected
+            account.total_jdbc_instance = total
+        session.merge(account)
+        session.commit()
+    else:
+        pass
 
 
 def update_jdbc_connection(provider_id: int,
@@ -928,9 +926,8 @@ def list_distinct_region_by_provider(provider_id) -> list[SourceRegion]:
         SourceRegion.region_name).all()
 
 
-def get_region_list_by_provider(provider_id):
-    return get_session().query(SourceRegion).filter(SourceRegion.provider_id == provider_id,
-                                                    SourceRegion.status == SourceRegionStatus.ENABLE.value).all()
+def get_distinct_region_list_by_provider(provider_id):
+    return get_session().query(Account.region).filter(Account.account_provider_id == provider_id).distinct(Account.region).all()
 
 
 def get_total_jdbc_instances_count(provider_id):

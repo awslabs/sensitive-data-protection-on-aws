@@ -108,8 +108,15 @@ const SelectRDSCatalog: React.FC<SelectRDSCatalogProps> = (
       const requestParam: any = {
         page: currentPage,
         size: preferences.pageSize,
+        conditions: [
+          {
+            column: 'database_type',
+            values: [jobData.database_type],
+            condition: 'and',
+            operation: ':',
+          },
+        ] as any,
       };
-
       const result = await searchCatalogTables(requestParam);
       setRdsFolderData((result as any)?.items);
       setIsLoading(false);

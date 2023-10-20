@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import Tabs from '@cloudscape-design/components/tabs';
 import ButtonDropdown from '@cloudscape-design/components/button-dropdown';
 import CatalogList from './componments/CatalogList';
-import { TAB_LIST } from 'enum/common_types';
+import {
+  SOURCE_TYPE,
+  TAB_LIST,
+  getJDBCTypeByProviderId,
+} from 'enum/common_types';
 import { useSearchParams } from 'react-router-dom';
 import format from 'date-fns/format';
 import { getExportS3Url, clearS3Object } from 'apis/data-catalog/api';
@@ -181,7 +185,7 @@ const DataCatalogList: React.FC = () => {
                           content: (
                             <CatalogList
                               label={t(TAB_LIST.JDBC.label)}
-                              catalogType={TAB_LIST.JDBC.id}
+                              catalogType={getJDBCTypeByProviderId(1)}
                             />
                           ),
                         },
@@ -191,13 +195,13 @@ const DataCatalogList: React.FC = () => {
                   {curProvider?.id === 2 && (
                     <CatalogList
                       label={t(TAB_LIST.JDBC.label)}
-                      catalogType={TAB_LIST.JDBC.id}
+                      catalogType={getJDBCTypeByProviderId(2)}
                     />
                   )}
                   {curProvider?.id === 3 && (
                     <CatalogList
                       label={t(TAB_LIST.JDBC.label)}
-                      catalogType={TAB_LIST.JDBC.id}
+                      catalogType={getJDBCTypeByProviderId(3)}
                     />
                   )}
                 </Container>
