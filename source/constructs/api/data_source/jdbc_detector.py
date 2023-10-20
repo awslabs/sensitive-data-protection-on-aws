@@ -66,6 +66,7 @@ async def detect_jdbc_connection(provider_id: int, account_id: str, session: Ses
                 not_exist_connections.append(item.id)
     # delete not existed jdbc
     crud.delete_jdbc_connection_by_accounts(not_exist_connections)
+    crud.update_jdbc_instance_count(provider=provider_id, account=account_id, region=None)
 
 async def detect_multiple_account_in_async(provider_id, accounts):
     session = get_session()

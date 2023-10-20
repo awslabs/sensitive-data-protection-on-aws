@@ -9,6 +9,8 @@
   "auth": "Authorization",
   "s3OfTotal": "S3 connected (of total) ",
   "rdsOfTotal": "RDS connected (of total)",
+  "glueOfTotal": "Glue connected (of total)",
+  "jdbcOfTotal": "JDBC connected (of total)",
   "operate": "Operate",
   "connectToDataSource": "Connect to data source",
   "connectToDataSourceDesc": "Onboard accounts to this platform. Connect/disconnect to the data source to create/remove data catalogs.",
