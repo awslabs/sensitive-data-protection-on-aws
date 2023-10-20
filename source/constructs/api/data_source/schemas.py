@@ -244,6 +244,8 @@ class SourceCoverage(BaseModel):
     s3_total: Optional[int]
     rds_connected: Optional[int]
     rds_total: Optional[int]
+    glue_connected: Optional[int]
+    glue_total: Optional[int]
     jdbc_connected: Optional[int]
     jdbc_total: Optional[int]
 

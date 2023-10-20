@@ -462,8 +462,6 @@ def condition_check(ec2_client, credentials, state, connection: dict):
                            MessageEnum.SOURCE_AVAILABILITY_ZONE_NOT_EXISTS.get_msg())
 
 def sync(glue, lakeformation, credentials, crawler_role_arn, jdbc: JDBCInstanceSourceBase, url: str):
-    logger.info(f"START SYNC ...{url}")
-
     jdbc_targets = []
     database_type = convert_provider_id_2_database_type(jdbc.account_provider_id)
     # glue_connection_name = f"{const.SOLUTION_NAME}-{database_type}-{jdbc.instance}"
@@ -1400,7 +1398,7 @@ def refresh_aws_data_source(accounts: list[str], type: str):
             s3_detector.detect(accounts)
             rds_detector.detect(accounts)
             glue_database_detector.detect(accounts)
-            jdbc_detector.detect(accounts)
+            jdbc_detector.detect(Provider.AWS_CLOUD.value, accounts)
     except Exception as e:
         logger.error(traceback.format_exc())
         raise BizException(MessageEnum.SOURCE_CONNECTION_FAILED.get_code(), str(e))
@@ -1428,6 +1426,8 @@ def get_data_source_coverage(provider_id):
                              s3_connected=crud.get_connected_s3_buckets_size(),
                              rds_total=crud.get_total_rds_instances_count(),
                              rds_connected=crud.get_connected_rds_instances_count(),
+                             glue_total=crud.get_total_glue_database_count(),
+                             glue_connected=crud.get_connected_glue_database_count(),
                              jdbc_total=crud.get_total_jdbc_instances_count(provider_id),
                              jdbc_connected=crud.get_connected_jdbc_instances_count(provider_id)
                              )
@@ -1787,6 +1787,7 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
         jdbc_conn_insert.account_provider_id = jdbcConn.account_provider_id
         jdbc_conn_insert.account_id = jdbcConn.account_id
         jdbc_conn_insert.region = jdbcConn.region
+        jdbc_conn_insert.detection_history_id = 0
         jdbc_conn_insert.description = jdbcConn.description
         jdbc_conn_insert.jdbc_connection_url = jdbcConn.jdbc_connection_url
         jdbc_conn_insert.jdbc_enforce_ssl = jdbcConn.jdbc_enforce_ssl
@@ -2018,6 +2019,7 @@ def import_jdbc_conn(jdbcConn: JDBCInstanceSourceBase):
     jdbc_conn_insert.account_id = jdbcConn.account_id
     jdbc_conn_insert.region = jdbcConn.region
     jdbc_conn_insert.account_provider_id = jdbcConn.account_provider_id
+    jdbc_conn_insert.detection_history_id = 0
     jdbc_conn_insert.instance_id = jdbcConn.instance_id
     # jdbc_conn_insert.connection_status = 'UNCONNECTED'
     jdbc_conn_insert.glue_connection = jdbcConn.instance_id

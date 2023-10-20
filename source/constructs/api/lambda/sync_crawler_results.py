@@ -83,16 +83,17 @@ def sync_result(input_event):
             )
             logger.info("update glue datasource finished")
         elif database_type.startswith(DatabaseType.JDBC.value):
+            logger.info(f"input_event is: {input_event}")
             data_source_crud.update_jdbc_instance_count(
-                provider=input_event['provider_id'],
+                # provider=input_event['providerId'],
                 account=input_event['detail']['accountId'],
                 region=input_event['region'],
             )
             data_source_crud.set_jdbc_connection_glue_state(
-                provider=input_event['provider_id'],
+                # provider=input_event['providerId'],
                 account=input_event['detail']['accountId'],
                 region=input_event['region'],
-                bucket=database_name,
+                instance=database_name,
                 state=state
             )
             logger.info("update jdbc datasource finished")
