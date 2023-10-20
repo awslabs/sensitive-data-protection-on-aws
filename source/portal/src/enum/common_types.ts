@@ -49,6 +49,29 @@ export const SOURCE_TYPE = {
   JDBC_GOOGLE: 'jdbc_google',
 };
 
+export const getProviderByJob = (jobData: any) => {
+  switch (jobData.provider_id) {
+    case 1:
+      return 'AWS';
+    case 2:
+      return 'Tencent Cloud';
+    case 3:
+      return 'Google Cloud';
+    default:
+      return '-';
+  }
+};
+
+export const getSourceByJob = (jobData: any) => {
+  if (jobData?.database_type?.startsWith(SOURCE_TYPE.JDBC)) {
+    return 'JDBC';
+  } else if (jobData?.database_type) {
+    return jobData?.database_type?.toUpperCase();
+  } else {
+    return '-';
+  }
+};
+
 export const getJDBCTypeByProviderId = (providerId: number) => {
   switch (providerId) {
     case 1:

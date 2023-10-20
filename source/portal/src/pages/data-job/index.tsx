@@ -34,7 +34,11 @@ import { RouterEnum } from 'routers/routerEnum';
 import JobDetailModal from './componments/JobDetailModal';
 import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import Navigation from 'pages/left-menu/Navigation';
-import { TABLE_NAME } from 'enum/common_types';
+import {
+  TABLE_NAME,
+  getProviderByJob,
+  getSourceByJob,
+} from 'enum/common_types';
 import { useTranslation } from 'react-i18next';
 import HelpInfo from 'common/HelpInfo';
 import { buildDocLink } from 'ts/common';
@@ -208,6 +212,16 @@ const DataJobContent: React.FC<any> = (props: any) => {
     setShowDetailModal,
     detailRow,
   };
+
+  const getWidth = (columnName: string) => {
+    if (columnName === 'id') {
+      return 100;
+    } else if (columnName === 'state') {
+      return 250;
+    } else {
+      return undefined;
+    }
+  };
   return (
     <SpaceBetween direction="vertical" size="xl" className="job-container">
       <Table
@@ -246,10 +260,10 @@ const DataJobContent: React.FC<any> = (props: any) => {
                   : '-';
               }
               if (item.id === 'dataSource') {
-                return 'S3'; // TODO
+                return getSourceByJob(e); // TODO
               }
               if (item.id === 'provider') {
-                return 'AWS'; // TODO
+                return getProviderByJob(e); // TODO
               }
               if (item.id === 'last_end_time') {
                 let runTime = '';
@@ -303,7 +317,7 @@ const DataJobContent: React.FC<any> = (props: any) => {
               }
               return (e as any)[item.id];
             },
-            width: item.id === 'id' ? 100 : undefined,
+            width: getWidth(item.id),
           };
         })}
         header={
