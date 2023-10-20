@@ -1,5 +1,6 @@
 import { Tabs } from '@cloudscape-design/components';
 import { getSourceProviders } from 'apis/data-source/api';
+import { getJDBCTypeByProviderId } from 'enum/common_types';
 import React, { useEffect, useState } from 'react';
 
 export interface ProviderType {
@@ -12,6 +13,7 @@ export interface ProviderType {
   version: string;
   create_time: string;
   modify_time: string;
+  jdbc_type: string;
 }
 
 interface ProviderTabProps {
@@ -32,6 +34,7 @@ const ProviderTab: React.FC<ProviderTabProps> = (props: ProviderTabProps) => {
       tmpTabList.push({
         label: element.provider_name,
         id: element.id,
+        jdbc_type: getJDBCTypeByProviderId(element.id),
       });
     });
     if (providers.length > 0) {

@@ -210,7 +210,7 @@ export const SCAN_STRUCTURED_DEPTH_OPTIONS = [
 ];
 
 export const SCAN_UNSTRUCTURED_DEPTH_OPTIONS = [
-  { label: 'Skip unstructured data', value: '' },
+  { label: 'Skip unstructured data', value: '0' },
   { label: '10 files (recommended)', value: '10' },
   { label: '50 files', value: '50' },
   { label: '100 files', value: '100' },
