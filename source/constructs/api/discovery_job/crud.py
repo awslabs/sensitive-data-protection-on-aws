@@ -173,7 +173,7 @@ def init_run(job_id: int) -> int:
             catalog_databases = get_catalog_database_level_classification_by_params(job_database.account_id,job_database.region,job_database.database_type).all()
             for catalog_database in catalog_databases:
                 base_time = base_time_dict.get(
-                    f'{job_database.account_id}-{job_database.region}-{job_database.database_type}-{catalog_database.database_name}')
+                    f'{job_database.account_id}-{job_database.region}-{job_database.database_type}-{catalog_database.database_name}', datetime.datetime.min)
                 run_database = models.DiscoveryJobRunDatabase(run_id=run.id,
                                                               account_id=job_database.account_id,
                                                               region=job_database.region,
