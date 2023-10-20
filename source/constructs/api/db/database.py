@@ -12,6 +12,7 @@ secret_id = os.getenv("SecretId", const.SOLUTION_NAME)
 secrets_client = boto3.client('secretsmanager')
 secret_response = secrets_client.get_secret_value(SecretId=secret_id)
 secrets = json.loads(secret_response['SecretString'])
+print(f"db info:{secret_id}-{secrets}")
 SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{secrets['username']}:{secrets['password']}@{secrets['host']}:{secrets['port']}/{secrets['dbname']}"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=False, pool_size=1, max_overflow=0)
