@@ -443,15 +443,17 @@ def list_unstructured_sample_objects(table_id: str):
         s3_client = get_boto3_client(table_catalog.account_id, table_catalog.region, "s3")
         column_catalogs = crud.get_catalog_column_level_classification_by_table(table_catalog.account_id, table_catalog.region, table_catalog.database_type, table_catalog.database_name, table_catalog.table_name)
         for column_catalog in column_catalogs:
-            bucket_name, key = __get_s3_bucket_key_from_location(column_catalog.column_path)
-            response = s3_client.get_object(Bucket=bucket_name, Key=key)
-            file_size = response['ContentLength']
+            file_size = 0
+            if column_catalog.column_path:
+                bucket_name, key = __get_s3_bucket_key_from_location(column_catalog.column_path)
+                response = s3_client.get_object(Bucket=bucket_name, Key=key)
+                file_size = response['ContentLength']
             obj_dict = {
                 "id": column_catalog.id,
                 "privacy": column_catalog.privacy,
                 "s3_full_path": column_catalog.column_path,
                 "file_size": file_size,
-                "file_type": key.split(".")[-1].upper(),
+                "file_type": column_catalog.column_path.split(".")[-1].upper() if column_catalog.column_path else '',
             }
             result_list.append(obj_dict)
     return result_list
