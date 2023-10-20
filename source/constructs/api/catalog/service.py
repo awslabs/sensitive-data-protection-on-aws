@@ -620,6 +620,14 @@ def sync_job_detection_result(
         database_name,
         job_run_id,
     )
+    if database_type == DatabaseType.S3.value:
+        job_result_list += __query_job_result_by_athena(
+            account_id,
+            region,
+            DatabaseType.S3_UNSTRUCTURED.value,
+            database_name,
+            job_run_id,
+        )
     logger.info("athena time")
     table_privacy_dict = {}
     table_identifier_dict = {}
@@ -630,7 +638,14 @@ def sync_job_detection_result(
     column_dict_list = []
     # query column by database
     database_catalog_columns_dict = crud.get_catalog_column_level_classification_by_database(account_id, region,
-                                                                                             database_type, database_name)
+                                                                                             database_type,
+                                                                                             database_name)
+    if database_type == DatabaseType.S3.value:
+        database_catalog_columns_dict_unstructured = crud.get_catalog_column_level_classification_by_database(account_id, region,
+                                                                 DatabaseType.S3_UNSTRUCTURED.value,
+                                                                 database_name)
+        database_catalog_columns_dict.update(database_catalog_columns_dict_unstructured)
+
     logger.info("column db time")
     logger.info(len(database_catalog_columns_dict))
     logger.debug(database_catalog_columns_dict)
@@ -656,14 +671,6 @@ def sync_job_detection_result(
                     if key_name not in database_catalog_columns_dict:
                         continue
                     catalog_column = database_catalog_columns_dict[key_name]
-                    # catalog_column = crud.get_catalog_column_level_classification_by_name(
-                    #     account_id,
-                    #     region,
-                    #     database_type,
-                    #     database_name,
-                    #     table_name,
-                    #     column_name,
-                    # )
                     identifier_dict = __convert_identifiers_to_dict(identifier)
                     if catalog_column is not None and (overwrite or (
                             not overwrite and catalog_column.manual_tag != const.MANUAL)):
@@ -701,16 +708,19 @@ def sync_job_detection_result(
     if not table_size_dict:
         logger.info(
             "sync_job_detection_result - RESET NA TABLE AND COLUMNS WHEN TABLE_SIZE IS ZERO ")
-        # crud.update_catalog_table_none_privacy_by_name(account_id, region, database_type,
-        #                                                database_name, None, overwrite)
-        # crud.update_catalog_column_none_privacy_by_table(account_id, region, database_type,
-        #                                                  database_name, None, None, overwrite)
     # Initialize database privacy with NON-PII
     database_privacy = Privacy.NON_PII.value
     # The two dict has all tables as key.
     table_dict_list = []
     database_catalog_table_dict = crud.get_catalog_table_level_classification_by_database_all(account_id, region,
-                                                                                          database_type, database_name)
+                                                                                              database_type,
+                                                                                              database_name)
+    if database_type == DatabaseType.S3.value:
+        database_catalog_table_dict_unstructured = crud.get_catalog_table_level_classification_by_database_all(
+            account_id, region,
+            DatabaseType.S3_UNSTRUCTURED.value,
+            database_name)
+        database_catalog_table_dict.update(database_catalog_table_dict_unstructured)
     logger.info("table db time")
     logger.debug(database_catalog_table_dict)
     for table_name in table_size_dict:
@@ -718,23 +728,13 @@ def sync_job_detection_result(
         if table_size <= 0:
             logger.info(
                 "sync_job_detection_result - RESET TABLE AND COLUMNS WHEN TABLE_SIZE IS ZERO : !")
-            # crud.update_catalog_table_none_privacy_by_name(account_id, region, database_type, database_name, table_name,
-            #                                                overwrite)
-            # crud.update_catalog_column_none_privacy_by_table(account_id, region, database_type, database_name,
-            #                                                  table_name, None, overwrite)
             continue
         row_count += table_size
         catalog_table = None
         if table_name in database_catalog_table_dict:
             catalog_table = database_catalog_table_dict[table_name]
-        # catalog_table = crud.get_catalog_table_level_classification_by_name(
-        #     account_id, region, database_type, database_name, table_name
-        # )
-        # columns = table_column_dict[table_name]
         logger.debug(
             "sync_job_detection_result - RESET ADDITIONAL COLUMNS : " + json.dumps(table_column_dict[table_name]))
-        # crud.update_catalog_column_none_privacy_by_table(account_id, region, database_type, database_name,
-        #                                                  table_name, columns, overwrite)
         if table_name not in table_privacy_dict:
             if catalog_table is not None:
                 table_dict = {
@@ -770,6 +770,7 @@ def sync_job_detection_result(
     catalog_database = crud.get_catalog_database_level_classification_by_name(
         account_id, region, database_type, database_name
     )
+
     if catalog_database is not None and (overwrite or (
                         not overwrite and catalog_database.manual_tag != const.MANUAL)):
         database_dict = {
@@ -781,6 +782,21 @@ def sync_job_detection_result(
         crud.update_catalog_database_level_classification_by_id(
             catalog_database.id, database_dict
         )
+    if database_type == DatabaseType.S3.value:
+        catalog_database_unstructured = crud.get_catalog_database_level_classification_by_name(account_id, region,
+                                                                                               DatabaseType.S3_UNSTRUCTURED.value,
+                                                                                               database_name)
+        if catalog_database_unstructured is not None and (overwrite or (
+                not overwrite and catalog_database_unstructured.manual_tag != const.MANUAL)):
+            database_dict = {
+                "privacy": database_privacy,
+                "state": CatalogState.DETECTED.value,
+                "row_count": row_count,
+                "manual_tag": const.SYSTEM,
+            }
+            crud.update_catalog_database_level_classification_by_id(
+                catalog_database_unstructured.id, database_dict
+            )
     logger.info("Sync detection result sucessfully!")
     logger.info("end time")
     return True
