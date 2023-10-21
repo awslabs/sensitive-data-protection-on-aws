@@ -11,10 +11,13 @@
   background: #89bdee !important;
 }
 
-.classified-badge {
-  user-select: none;
+.word-wrap {
   word-break: break-all !important;
   white-space: break-spaces;
+}
+
+.classified-badge {
+  user-select: none;
   .classified-icon {
     top: 4px;
   }
