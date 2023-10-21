@@ -229,7 +229,10 @@
       "glueConnectionName": "Glue connection",
       "locationUri": "Location uri",
       "glueDatabaseCreateTime": "Database create time",
-      "identifierType": "Identifier Type"
+      "identifierType": "Identifier Type",
+      "accountId": "Account",
+      "region": "Region",
+      "accountStatus": "Authorization Status"
     }
   },
   "tab": {

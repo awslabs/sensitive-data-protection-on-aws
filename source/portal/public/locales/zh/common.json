@@ -229,7 +229,10 @@
       "glueConnectionName": "连通性",
       "locationUri": "Uri",
       "glueDatabaseCreateTime": "数据库创建时间",
-      "identifierType": "标识符类型"
+      "identifierType": "标识符类型",
+      "accountId": "账户",
+      "region": "区域",
+      "accountStatus": "认证状态"
     }
   },
   "tab": {

@@ -35,6 +35,22 @@ import {
 import SelectRDSCatalog from './components/SelectRDSCatalog';
 import SelectGlueCatalog from './components/SelectGlueCatalog';
 import SelectJDBCCatalog from './components/SelectJDBCCatalog';
+import { IAccountData } from 'pages/account-management/types/account_type';
+
+export const convertAccountListToJobDatabases = (
+  accountList: IAccountData[],
+  source_type: string
+) => {
+  return accountList.map((element) => {
+    return {
+      account_id: element.account_id,
+      region: element.region,
+      database_type: source_type,
+      database_name: '',
+      table_name: '',
+    };
+  });
+};
 
 export const convertDataSourceListToJobDatabases = (
   dataSources: IDataSourceType[],

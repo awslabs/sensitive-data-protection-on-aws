@@ -26,3 +26,31 @@ export const ACCOUNT_COLUMN_LIST = [
   },
   { id: TYPE_COLUMN.FRONT_OPERATE, label: 'account:operate', filter: false },
 ];
+
+export interface IAccountData {
+  account_alias: null | string;
+  account_email: null | string;
+  account_id: string;
+  account_provider_id: number;
+  connect_rds_instance: number;
+  connected_glue_database: number;
+  connected_jdbc_instance: number;
+  connected_s3_bucket: number;
+  delegated_account_id: string | null;
+  detection_role_name: string;
+  detection_role_status: number;
+  id: number;
+  last_updated: string;
+  organization_unit_id: string | null;
+  region: string;
+  stack_id: string | null;
+  stack_instance_status: string | null;
+  stack_status: string | null;
+  stackset_id: string | null;
+  stackset_name: string | null;
+  status: number;
+  total_glue_database: number;
+  total_jdbc_instance: number;
+  total_rds_instance: number;
+  total_s3_bucket: number;
+}

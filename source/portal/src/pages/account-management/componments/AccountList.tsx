@@ -167,7 +167,10 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
     try {
       await refreshDataSource(requestParam);
       await getPageData();
-      alertMsg(t('account:filterAWSAccounxts', {PROVIDER: provider?.provider_name}), 'success');
+      alertMsg(
+        t('account:filterAWSAccounxts', { PROVIDER: provider?.provider_name }),
+        'success'
+      );
     } catch (e) {
       console.warn('Refresh Data Error:', e);
     }

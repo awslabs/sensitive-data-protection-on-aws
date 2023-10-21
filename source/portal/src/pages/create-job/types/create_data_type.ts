@@ -64,6 +64,24 @@ export const RDS_CATALOG_COLUMS = [
   },
 ];
 
+export const GLUE_ACCOUNTS_COLUMNS = [
+  {
+    id: 'account_id',
+    label: 'table.label.accountId',
+    filter: false,
+  },
+  {
+    id: 'region',
+    label: 'table.label.region',
+    filter: false,
+  },
+  {
+    id: 'status',
+    label: 'table.label.accountStatus',
+    filter: false,
+  },
+];
+
 export const RDS_FOLDER_COLUMS = [
   {
     id: 'table_name',
