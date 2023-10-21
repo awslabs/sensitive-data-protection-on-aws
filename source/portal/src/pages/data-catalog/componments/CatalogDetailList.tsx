@@ -34,6 +34,7 @@ import {
   searchTablesByDatabase,
   getS3UnstructuredSampleObjects,
   getPreSignedUrlById,
+  getTablePropertyById,
 } from 'apis/data-catalog/api';
 import { alertMsg, formatSize, toJSON, deepClone } from 'tools/tools';
 import moment from 'moment';
@@ -221,6 +222,12 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
         case COLUMN_OBJECT_STR.BucketProperties:
           await getPropertiesData();
           break;
+        case COLUMN_OBJECT_STR.TableDetail:
+          await getTablePropertiesData();
+          break;
+        case COLUMN_OBJECT_STR.FolderDetail:
+          await getTablePropertiesData();
+          break;
         default:
           break;
       }
@@ -290,10 +297,45 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
         });
         setDataList(tempPropertiesData);
       }
-      return;
     };
 
-    const getDataPreview = () => {
+    const getTablePropertiesData = async () => {
+      const requestParam = {
+        table_id: selectRowData.id,
+      };
+      const result: any = await getTablePropertyById(requestParam);
+      console.info('result:', result);
+      if (result && result.length >= 0) {
+        const tempPropertiesData = [] as any[];
+        result.forEach((item: any[]) => {
+          if (item[0] === 'CreationDate') {
+            tempPropertiesData.push({
+              property: item[0],
+              value: item[1]
+                ? moment(item[1]).add(8, 'h').format('YYYY-MM-DD HH:mm')
+                : item[1],
+            });
+          } else if (item[0] === 'Tags') {
+            tempPropertiesData.push({
+              property: item[0],
+              isTag: true,
+              value: item[1],
+            });
+          } else {
+            tempPropertiesData.push({
+              property: item[0],
+              value:
+                item[1] !== undefined && item[1] !== null
+                  ? item[1].toString()
+                  : item[1],
+            });
+          }
+        });
+        setDataList(tempPropertiesData);
+      }
+    };
+
+    const getDataPreview = async () => {
       setDataList(previewDataList);
     };
 

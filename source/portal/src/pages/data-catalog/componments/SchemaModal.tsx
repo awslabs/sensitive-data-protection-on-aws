@@ -102,9 +102,7 @@ const SchemaModal: React.FC<any> = (props: any) => {
     const propertiesProps = {
       columnList: BUCKET_PROPERTIES_COLUMN,
       catalogType,
-      tagId: '', // TODO
-      detailDesInfo: '', // TODO
-      detailDesHeader: '', //TODO
+      tagId: COLUMN_OBJECT_STR.FolderDetail,
       selectRowData,
     };
     console.info('dataType:', dataType);
@@ -153,9 +151,7 @@ const SchemaModal: React.FC<any> = (props: any) => {
     const propertiesProps = {
       columnList: BUCKET_PROPERTIES_COLUMN,
       catalogType,
-      tagId: '', // TODO
-      detailDesInfo: '', // TODO
-      detailDesHeader: '', //TODO
+      tagId: COLUMN_OBJECT_STR.TableDetail,
       selectRowData,
     };
     tabsContent = [

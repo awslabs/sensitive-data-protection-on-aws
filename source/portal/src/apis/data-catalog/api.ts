@@ -197,6 +197,11 @@ const getPreSignedUrlById = async (params: { column_id: string }) => {
   return result;
 };
 
+const getTablePropertyById = async (params: { table_id: string }) => {
+  const result = await apiRequest('get', `catalog/get-table-property`, params);
+  return result;
+};
+
 export {
   getTablesByDatabase,
   searchTablesByDatabase,
@@ -218,4 +223,5 @@ export {
   searchCatalogTables,
   getS3UnstructuredSampleObjects,
   getPreSignedUrlById,
+  getTablePropertyById,
 };
