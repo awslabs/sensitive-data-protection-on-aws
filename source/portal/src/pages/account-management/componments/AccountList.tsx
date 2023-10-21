@@ -19,7 +19,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
 import { getAccountList, deleteAccount } from 'apis/account-manager/api';
-import { ACCOUNT_COLUMN_LIST, TYPE_COLUMN } from '../types/account_type';
+import { ACCOUNT_COLUMN_LIST, THIRD_PROVIDER_COLUMN_LIST, TYPE_COLUMN } from '../types/account_type';
 import { TABLE_NAME } from 'enum/common_types';
 import '../style.scss';
 import { refreshDataSource } from 'apis/data-source/api';
@@ -34,7 +34,8 @@ interface AccountListProps {
 
 const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
   const { setTotalAccount, provider } = props;
-  const columnList = ACCOUNT_COLUMN_LIST;
+  console.log("provider is",provider)
+  const columnList = provider?.id === 1?ACCOUNT_COLUMN_LIST:THIRD_PROVIDER_COLUMN_LIST;
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -279,7 +280,9 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
 
               if (
                 item.id === TYPE_COLUMN.S3_CONNECTION ||
-                item.id === TYPE_COLUMN.RDS_CONNECTION
+                item.id === TYPE_COLUMN.RDS_CONNECTION ||
+                item.id === TYPE_COLUMN.GLUE_CONNECTION ||
+                item.id === TYPE_COLUMN.JDBC_CONNECTION
               ) {
                 let showText = '';
                 let percentCls = 'progress-percent';
@@ -317,6 +320,40 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
                   showText = `${
                     e[TYPE_COLUMN.CONNECTED_RDS_INSTANCE]
                   } (of total ${e[TYPE_COLUMN.TOTAL_RDS_INSTANCE]})`;
+                }
+                if (item.id === TYPE_COLUMN.GLUE_CONNECTION) {
+                  if (
+                    !e[TYPE_COLUMN.TOTAL_GLUE_DATABASE] ||
+                    e[TYPE_COLUMN.TOTAL_GLUE_DATABASE] === 0
+                  ) {
+                    return (
+                      <div className="progress-percent">
+                        <Icon name="status-in-progress" />
+                        &nbsp;&nbsp;
+                        <span>0</span>
+                      </div>
+                    );
+                  }
+                  showText = `${
+                    e[TYPE_COLUMN.CONNECTED_GLUE_DATABASE]
+                  } (of total ${e[TYPE_COLUMN.TOTAL_GLUE_DATABASE]})`;
+                }
+                if (item.id === TYPE_COLUMN.JDBC_CONNECTION) {
+                  if (
+                    !e[TYPE_COLUMN.TOTAL_JDBC_CONNECTION] ||
+                    e[TYPE_COLUMN.TOTAL_JDBC_CONNECTION] === 0
+                  ) {
+                    return (
+                      <div className="progress-percent">
+                        <Icon name="status-in-progress" />
+                        &nbsp;&nbsp;
+                        <span>0</span>
+                      </div>
+                    );
+                  }
+                  showText = `${
+                    e[TYPE_COLUMN.TOTAL_JDBC_CONNECTION]
+                  }`;
                 }
 
                 if (

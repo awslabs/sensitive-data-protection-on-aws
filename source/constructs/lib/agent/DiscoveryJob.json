@@ -319,7 +319,8 @@
                   "ResultBucketName.$": "$.AgentBucketName",
                   "ScanDepth.$": "$.DepthUnstructured",
                   "IncludeFileExtensions.$": "$.IncludeFileExtensions",
-                  "ExcludeFileExtensions.$": "$.ExcludeFileExtensions"
+                  "ExcludeFileExtensions.$": "$.ExcludeFileExtensions",
+                  "BaseTime.$": "$.BaseTime"
                 }
               },
               "Retry": [
