@@ -62,7 +62,7 @@
     "exeOnce": "Execute once",
     "copyToNew": "Copy to new",
     "viewMore": "View more",
-    "backToAWSAccount": "Back to AWS accounts view",
+    "backToAWSAccount": "Back to accounts view",
     "connectAll": "Sync ALL to data catalogs",
     "connect": "Sync to data catalog",
     "testConnection": "Test connection",

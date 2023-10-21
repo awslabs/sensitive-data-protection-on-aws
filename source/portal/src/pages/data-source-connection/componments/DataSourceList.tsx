@@ -56,7 +56,7 @@ import {
   testConnect,
   connectDataSourceJDBC,
   connectDataSourceGlue,
-  deleteGlueDatabase
+  deleteGlueDatabase,
   // queryGlueConns,
   // testGlueConns,
   // addGlueConn,
@@ -77,7 +77,13 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const columnList =
-    tagType === DATA_TYPE_ENUM.s3 ? S3_COLUMN_LIST : tagType === DATA_TYPE_ENUM.rds ? RDS_COLUMN_LIST :  tagType === DATA_TYPE_ENUM.glue ? GLUE_COLUMN_LIST:JDBC_COLUMN_LIST;
+    tagType === DATA_TYPE_ENUM.s3
+      ? S3_COLUMN_LIST
+      : tagType === DATA_TYPE_ENUM.rds
+      ? RDS_COLUMN_LIST
+      : tagType === DATA_TYPE_ENUM.glue
+      ? GLUE_COLUMN_LIST
+      : JDBC_COLUMN_LIST;
   const [totalCount, setTotalCount] = useState(0);
   const [preferences, setPreferences] = useState({
     pageSize: 20,
@@ -121,14 +127,14 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
   const [showEditConnection, setShowEditConnection] = useState(false);
 
   useEffect(() => {
-    if(tagType === DATA_TYPE_ENUM.jdbc && !showAddConnection){
+    if (tagType === DATA_TYPE_ENUM.jdbc && !showAddConnection) {
       getPageData();
       // refreshJdbcData()
     }
   }, [showAddConnection]);
 
   useEffect(() => {
-    if(tagType === DATA_TYPE_ENUM.jdbc && !showEditConnection){
+    if (tagType === DATA_TYPE_ENUM.jdbc && !showEditConnection) {
       getPageData();
       // refreshJdbcData()
     }
@@ -139,7 +145,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
   }, [currentPage, preferences.pageSize, query, selectedCrawler, sortDetail]);
 
   useEffect(() => {
-    console.log("accountData is :",accountData)
+    console.log('accountData is :', accountData);
   }, []);
 
   useEffect(() => {
@@ -152,7 +158,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
 
   //   await getDataSourceJdbcByPage(requestParam, accountData.account_provider_id)
   // }
-  const genActions = (tagType: string)=>{
+  const genActions = (tagType: string) => {
     let res = [
       {
         text: t('disconnect') || '',
@@ -167,8 +173,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       {
         text: 'Add data source',
         id: 'addDataSource',
-        disabled:
-          tagType !== DATA_TYPE_ENUM.jdbc,
+        disabled: tagType !== DATA_TYPE_ENUM.jdbc,
       },
       {
         text: 'Delete data source',
@@ -185,49 +190,50 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         id: 'disconnectAndDelete',
         disabled: selectedItems.length === 0,
       },
-    ]
-    if(tagType === DATA_TYPE_ENUM.glue){
-      res = [{
-        text: 'Delete Database',
-        id: 'deleteDatabase',
-        disabled: selectedItems.length === 0,
-      },]
+    ];
+    if (tagType === DATA_TYPE_ENUM.glue) {
+      res = [
+        {
+          text: 'Delete Database',
+          id: 'deleteDatabase',
+          disabled: selectedItems.length === 0,
+        },
+      ];
     }
-    if(tagType === DATA_TYPE_ENUM.jdbc){
-      res = [{
-        text: 'Add data source',
-        id: 'addImportJdbc',
-        disabled:
-          tagType !== DATA_TYPE_ENUM.jdbc,
-      },
-      {
-        text: 'Edit data source',
-        id: 'editJdbc',
-        disabled: selectedItems.length === 0,
-      },
-      {
-        text: 'Delete data source',
-        id: 'delete_ds',
-        disabled: 
-          tagType === DATA_TYPE_ENUM.rds ||
-          selectedItems.length === 0,
-      },
-      {
-        text: 'Delete data catalog only',
-        id: 'delete_dc',
-        disabled:
-          tagType !== DATA_TYPE_ENUM.jdbc &&
-          tagType !== DATA_TYPE_ENUM.glue,
-      },
-      {
-        text: 'Disconnect & Delete catalog',
-        id: 'disconnect_dc',
-        disabled: selectedItems.length === 0,
-      },]
+    if (tagType === DATA_TYPE_ENUM.jdbc) {
+      res = [
+        {
+          text: 'Add data source',
+          id: 'addImportJdbc',
+          disabled: tagType !== DATA_TYPE_ENUM.jdbc,
+        },
+        {
+          text: 'Edit data source',
+          id: 'editJdbc',
+          disabled: selectedItems.length === 0,
+        },
+        {
+          text: 'Delete data source',
+          id: 'delete_ds',
+          disabled:
+            tagType === DATA_TYPE_ENUM.rds || selectedItems.length === 0,
+        },
+        {
+          text: 'Delete data catalog only',
+          id: 'delete_dc',
+          disabled:
+            tagType !== DATA_TYPE_ENUM.jdbc && tagType !== DATA_TYPE_ENUM.glue,
+        },
+        {
+          text: 'Disconnect & Delete catalog',
+          id: 'disconnect_dc',
+          disabled: selectedItems.length === 0,
+        },
+      ];
     }
 
-    return res
-  }
+    return res;
+  };
 
   const getPageData = async () => {
     setIsLoading(true);
@@ -238,7 +244,9 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       sort_column:
         tagType === DATA_TYPE_ENUM.s3
           ? COLUMN_OBJECT_STR.LastModifyAt
-          : tagType === DATA_TYPE_ENUM.rds?COLUMN_OBJECT_STR.RdsCreatedTime:COLUMN_OBJECT_STR.glueDatabaseCreatedTime,
+          : tagType === DATA_TYPE_ENUM.rds
+          ? COLUMN_OBJECT_STR.RdsCreatedTime
+          : COLUMN_OBJECT_STR.glueDatabaseCreatedTime,
       asc: false,
       conditions: [] as any,
     };
@@ -270,9 +278,14 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
     const result: any =
       tagType === DATA_TYPE_ENUM.s3
         ? await getDataSourceS3ByPage(requestParam)
-        :(tagType === DATA_TYPE_ENUM.rds ? await getDataSourceRdsByPage(requestParam):(
-          tagType === DATA_TYPE_ENUM.glue? await getDataSourceGlueByPage(requestParam):await getDataSourceJdbcByPage(requestParam, accountData.account_provider_id)
-        )) ;
+        : tagType === DATA_TYPE_ENUM.rds
+        ? await getDataSourceRdsByPage(requestParam)
+        : tagType === DATA_TYPE_ENUM.glue
+        ? await getDataSourceGlueByPage(requestParam)
+        : await getDataSourceJdbcByPage(
+            requestParam,
+            accountData.account_provider_id
+          );
     setIsLoading(false);
     if (!result || !result.items) {
       alertMsg(t('loadDataError'), 'error');
@@ -319,24 +332,24 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       return;
     }
     const requestParam = {
-        account_provider_id: selectedItems[0].account_provider_id,
-        account_id: selectedItems[0].account_id,
-        region: selectedItems[0].region,
-        instance_id: selectedItems[0].instance_id,
-      };
-      showHideSpinner(true);
-      try {
-        await testConnect(requestParam);
-        showHideSpinner(false);
-        alertMsg(t('successConnect'), 'success');
-        setSelectedItems([]);
-        getPageData();
-      } catch (error) {
-        alertMsg(t('failedConnect'), 'error');
-        setSelectedItems([]);
-        showHideSpinner(false);
-      }
-  }
+      account_provider_id: selectedItems[0].account_provider_id,
+      account_id: selectedItems[0].account_id,
+      region: selectedItems[0].region,
+      instance_id: selectedItems[0].instance_id,
+    };
+    showHideSpinner(true);
+    try {
+      await testConnect(requestParam);
+      showHideSpinner(false);
+      alertMsg(t('successConnect'), 'success');
+      setSelectedItems([]);
+      getPageData();
+    } catch (error) {
+      alertMsg(t('failedConnect'), 'error');
+      setSelectedItems([]);
+      showHideSpinner(false);
+    }
+  };
 
   const clkDeleteDatabase = async () => {
     if (!selectedItems || selectedItems.length === 0) {
@@ -344,24 +357,24 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       return;
     }
     const requestParam = {
-        account_provider: 1,
-        account_id: selectedItems[0].account_id,
-        region: selectedItems[0].region,
-        name: selectedItems[0].glue_database_name,
-      };
-      showHideSpinner(true);
-      try {
-        await deleteGlueDatabase(requestParam);
-        showHideSpinner(false);
-        alertMsg(t('successDelete'), 'success');
-        setSelectedItems([]);
-        getPageData();
-      } catch (error) {
-        alertMsg(t('failedDelete'), 'error');
-        setSelectedItems([]);
-        showHideSpinner(false);
-      }
-  }
+      account_provider: 1,
+      account_id: selectedItems[0].account_id,
+      region: selectedItems[0].region,
+      name: selectedItems[0].glue_database_name,
+    };
+    showHideSpinner(true);
+    try {
+      await deleteGlueDatabase(requestParam);
+      showHideSpinner(false);
+      alertMsg(t('successDelete'), 'success');
+      setSelectedItems([]);
+      getPageData();
+    } catch (error) {
+      alertMsg(t('failedDelete'), 'error');
+      setSelectedItems([]);
+      showHideSpinner(false);
+    }
+  };
   const clkConnected = async () => {
     if (!selectedItems || selectedItems.length === 0) {
       alertMsg(t('selectOneItem'), 'error');
@@ -384,7 +397,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         setSelectedItems([]);
         showHideSpinner(false);
       }
-    } else if(tagType === DATA_TYPE_ENUM.glue){
+    } else if (tagType === DATA_TYPE_ENUM.glue) {
       const requestParam = {
         account_id: selectedItems[0].account_id,
         region: selectedItems[0].region,
@@ -401,7 +414,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         setSelectedItems([]);
         showHideSpinner(false);
       }
-    } else if(tagType === DATA_TYPE_ENUM.jdbc){
+    } else if (tagType === DATA_TYPE_ENUM.jdbc) {
       const requestParam = {
         account_id: selectedItems[0].account_id,
         account_provider_id: selectedItems[0].account_provider_id,
@@ -531,7 +544,6 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
     }
     showHideSpinner(true);
     try {
-
       if (tagType === DATA_TYPE_ENUM.s3) {
         await deleteDataCatalogS3(requestParam);
       } else if (tagType === DATA_TYPE_ENUM.rds) {
@@ -571,7 +583,6 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
     }
     showHideSpinner(true);
     try {
-
       if (tagType === DATA_TYPE_ENUM.s3) {
         await disconnectAndDeleteS3(requestParam);
       } else if (tagType === DATA_TYPE_ENUM.rds) {
@@ -612,7 +623,6 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
     }
     showHideSpinner(true);
     try {
-
       if (tagType === DATA_TYPE_ENUM.s3) {
         await hideDataSourceS3(requestParam);
       } else if (tagType === DATA_TYPE_ENUM.rds) {
@@ -653,14 +663,13 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
   };
 
   const clkAddSource = (type: string) => {
-    if(type==='addImportJdbc'){
+    if (type === 'addImportJdbc') {
       setShowAddConnection(true);
-    } else if(type==='editJdbc'){
+    } else if (type === 'editJdbc') {
       setShowEditConnection(true);
-    }else {
-      console.log('type not found')
+    } else {
+      console.log('type not found');
     }
-
   };
 
   return (
@@ -766,9 +775,11 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                   }
                   return (
                     <a
-                      href={`/catalog?catalogId=${
+                      href={`/catalog?provider=${
+                        accountData.account_provider_id
+                      }&catalogId=${
                         (e as any)[COLUMN_OBJECT_STR.Buckets] ||
-                        (e as any)[COLUMN_OBJECT_STR.RDSInstances]||
+                        (e as any)[COLUMN_OBJECT_STR.RDSInstances] ||
                         (e as any)[COLUMN_OBJECT_STR.JDBCInstanceName] ||
                         (e as any)[COLUMN_OBJECT_STR.GlueConnectionName]
                       }&tagType=${tagType}`}
@@ -781,20 +792,22 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                   );
                 }
                 if (item.id === COLUMN_OBJECT_STR.JDBCInstanceName) {
-                  return e.instance_id 
+                  return e.instance_id;
                 }
                 if (item.id === COLUMN_OBJECT_STR.ConnectionStatus) {
                   // if(e.connection_status === 'Connected') return 'Connected'
-                  return e.connection_status == null ? '-' : e.connection_status
+                  return e.connection_status == null
+                    ? '-'
+                    : e.connection_status;
                 }
                 if (item.id === COLUMN_OBJECT_STR.GlueConnectionName) {
-                  return e.glue_database_name||'-'
+                  return e.glue_database_name || '-';
                 }
                 if (item.id === COLUMN_OBJECT_STR.glueDatabaseDescription) {
-                  return e.glue_database_description||'-'
+                  return e.glue_database_description || '-';
                 }
                 if (item.id === COLUMN_OBJECT_STR.glueDatabaseLocationUri) {
-                  return e.glue_database_location_uri||'-'
+                  return e.glue_database_location_uri || '-';
                 }
                 return (e as any)[item.id];
               },
@@ -853,12 +866,14 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                     disabled={isLoading}
                     iconName="refresh"
                   />
-                  {tagType === DATA_TYPE_ENUM.jdbc && <Button
-                    disabled={isLoading || selectedItems.length === 0}
-                    onClick={clkTestConnected}
-                  >
-                    {t('button.testConnection')}
-                  </Button>}
+                  {tagType === DATA_TYPE_ENUM.jdbc && (
+                    <Button
+                      disabled={isLoading || selectedItems.length === 0}
+                      onClick={clkTestConnected}
+                    >
+                      {t('button.testConnection')}
+                    </Button>
+                  )}
                   <Button
                     disabled={isLoading || selectedItems.length === 0}
                     onClick={clkConnected}
@@ -882,13 +897,22 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                       if (detail.id === 'editJdbc') {
                         clkAddSource('editJdbc');
                       }
-                      if (detail.id === 'deleteDataSource' || detail.id === 'delete_ds') {
+                      if (
+                        detail.id === 'deleteDataSource' ||
+                        detail.id === 'delete_ds'
+                      ) {
                         clkDeleteDataSource(detail);
                       }
-                      if (detail.id === 'deleteCatalog' || detail.id === 'delete_dc') {
+                      if (
+                        detail.id === 'deleteCatalog' ||
+                        detail.id === 'delete_dc'
+                      ) {
                         clkDeleteDataCatalog(detail);
                       }
-                      if (detail.id === 'disconnectAndDelete' || detail.id === 'disconnect_dc') {
+                      if (
+                        detail.id === 'disconnectAndDelete' ||
+                        detail.id === 'disconnect_dc'
+                      ) {
                         clkDisconnectAndDelete(detail);
                       }
                     }}

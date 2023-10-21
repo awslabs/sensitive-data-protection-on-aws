@@ -26,27 +26,30 @@ const AccountForm: React.FC<AccountFormProps> = (props: AccountFormProps) => {
   const navigate = useNavigate();
   const list: any[] = [];
   const [regionGeo, setRegionGeo] = useState<any[]>([]);
-  const [coorMap, setCoorMap] = useState<Map<string,string>>();
+  const [coorMap, setCoorMap] = useState<Map<string, string>>();
   const [regionList, setRegionList] = useState<SelectProps.Option[]>([]);
   const [accountId, setAccountId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [currentRegion, setCurrentRegion] = useState<SelectProps.Option | null>(
     null
-    );
-    
-  const coorMapTemp = new Map()
+  );
+
+  const coorMapTemp = new Map();
   const getRegionListByProvider = async (provider_id: any) => {
     const accountData = await getProviderRegions(parseInt(provider_id));
-    if(Array.isArray(accountData)){
-      accountData.forEach(item => {
-       list.push({label:item['region_name'], id: item['id'], labelTag: item['region_alias']});
-       coorMapTemp.set(item['region_name'], item['region_cord'])
-      })
+    if (Array.isArray(accountData)) {
+      accountData.forEach((item) => {
+        list.push({
+          label: item['region_name'],
+          id: item['id'],
+          labelTag: item['region_alias'],
+        });
+        coorMapTemp.set(item['region_name'], item['region_cord']);
+      });
     }
-    setRegionList(list)
-    setCoorMap(coorMapTemp)
+    setRegionList(list);
+    setCoorMap(coorMapTemp);
   };
-
 
   const changeRegion = (option: SelectProps.Option) => {
     setRegionGeo([
@@ -54,7 +57,10 @@ const AccountForm: React.FC<AccountFormProps> = (props: AccountFormProps) => {
         markerOffset: 25,
         name: option.labelTag,
         region: option.label,
-        coordinates: [coorMap?.get(option.label||'')?.split(',')[0],coorMap?.get(option.label||'')?.split(',')[1]],
+        coordinates: [
+          coorMap?.get(option.label || '')?.split(',')[0],
+          coorMap?.get(option.label || '')?.split(',')[1],
+        ],
       },
     ]);
   };
@@ -65,28 +71,21 @@ const AccountForm: React.FC<AccountFormProps> = (props: AccountFormProps) => {
       await addAccount({
         account_provider: provider.id,
         account_id: accountId,
-        region: currentRegion?.label
+        region: currentRegion?.label,
       });
       setIsLoading(false);
-   } catch {
+    } catch {
       setIsLoading(false);
-   }
+    }
 
-
-
-
-    navigate(RouterEnum.AccountManagement.path, {
-      state: { activeTab: provider.id },
-    });
+    navigate(`${RouterEnum.AccountManagement.path}?provider=${provider.id}`);
   };
-         
-  useEffect(() => {
-  //  console.log()
-     getRegionListByProvider(provider.id)
-  //  const list: any[] = [];
-   
 
-  },[]);
+  useEffect(() => {
+    //  console.log()
+    getRegionListByProvider(provider.id);
+    //  const list: any[] = [];
+  }, []);
 
   return (
     <div className="mt-20 account-map">
@@ -140,7 +139,7 @@ const AccountForm: React.FC<AccountFormProps> = (props: AccountFormProps) => {
             <FormField label="Region/Location">
               <Select
                 onChange={(e) => {
-                  console.log("e is:",e)
+                  console.log('e is:', e);
                   setCurrentRegion(e.detail.selectedOption);
                   changeRegion(e.detail.selectedOption);
                 }}

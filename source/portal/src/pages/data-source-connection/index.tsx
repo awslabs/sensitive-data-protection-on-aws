@@ -26,6 +26,7 @@ const DataSourceConnectionHeader: React.FC = () => {
   const {
     accountData = {
       account_id: '',
+      account_provider_id: '',
     },
   } = location.state || {};
   return (
@@ -33,7 +34,13 @@ const DataSourceConnectionHeader: React.FC = () => {
       variant="h1"
       description={t('datasource:connectToDataSourceForAccountDesc')}
       actions={
-        <Button onClick={() => navigate(RouterEnum.AccountManagement.path)}>
+        <Button
+          onClick={() =>
+            navigate(
+              `${RouterEnum.AccountManagement.path}?provider=${accountData.account_provider_id}`
+            )
+          }
+        >
           {t('button.backToAWSAccount')}
         </Button>
       }
@@ -43,47 +50,37 @@ const DataSourceConnectionHeader: React.FC = () => {
   );
 };
 
-
-const genTabs = (accountData:any, t:TFunction<"translation", undefined, "translation">) =>{
+const genTabs = (
+  accountData: any,
+  t: TFunction<'translation', undefined, 'translation'>
+) => {
   const res_aws = [
     {
       label: t(TAB_LIST.S3.label),
       id: TAB_LIST.S3.id,
       content: (
-        <DataSourceList
-          tagType={TAB_LIST.S3.id}
-          accountData={accountData}
-        />
+        <DataSourceList tagType={TAB_LIST.S3.id} accountData={accountData} />
       ),
     },
     {
       label: t(TAB_LIST.RDS.label),
       id: TAB_LIST.RDS.id,
       content: (
-        <DataSourceList
-          tagType={TAB_LIST.RDS.id}
-          accountData={accountData}
-        />
+        <DataSourceList tagType={TAB_LIST.RDS.id} accountData={accountData} />
       ),
     },
     {
       label: t(TAB_LIST.GLUE.label),
       id: TAB_LIST.GLUE.id,
       content: (
-        <DataSourceList
-          tagType={TAB_LIST.GLUE.id}
-          accountData={accountData}
-        />
+        <DataSourceList tagType={TAB_LIST.GLUE.id} accountData={accountData} />
       ),
     },
     {
       label: t(TAB_LIST.JDBC.label),
       id: TAB_LIST.JDBC.id,
       content: (
-        <DataSourceList
-          tagType={TAB_LIST.JDBC.id}
-          accountData={accountData}
-        />
+        <DataSourceList tagType={TAB_LIST.JDBC.id} accountData={accountData} />
       ),
     },
   ];
@@ -92,16 +89,13 @@ const genTabs = (accountData:any, t:TFunction<"translation", undefined, "transla
       label: t(TAB_LIST.JDBC.label),
       id: TAB_LIST.JDBC.id,
       content: (
-        <DataSourceList
-          tagType={TAB_LIST.JDBC.id}
-          accountData={accountData}
-        />
+        <DataSourceList tagType={TAB_LIST.JDBC.id} accountData={accountData} />
       ),
     },
   ];
-  if(accountData.account_provider_id === 1) return res_aws 
-  return res
-}
+  if (accountData.account_provider_id === 1) return res_aws;
+  return res;
+};
 
 const DataSourceConnectionContent: React.FC = () => {
   const location = useLocation();
@@ -125,9 +119,7 @@ const DataSourceConnectionContent: React.FC = () => {
         )}
       </div>
       <Container disableContentPaddings>
-        <Tabs
-          tabs={genTabs(accountData, t)}
-        />
+        <Tabs tabs={genTabs(accountData, t)} />
       </Container>
     </SpaceBetween>
   );
