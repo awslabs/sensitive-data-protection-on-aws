@@ -31,6 +31,7 @@ export const COLUMN_OBJECT_STR = {
   UnstructuredData: 'unstructured',
   FolderDetail: 'folderDetail',
   TableDetail: 'tableDetail',
+  Download: 'file_download',
 };
 
 // S3 catalog column
@@ -276,6 +277,39 @@ export const SAMPLE_OBJECT_COLUMN = [
   {
     id: 'file_size',
     label: 'table.label.fileSize',
+    filter: false,
+  },
+  {
+    id: 's3_full_path',
+    label: 'table.label.s3FullPath',
+    filter: false,
+  },
+];
+
+export const UNSTRUCTURED_SAMPLE_OBJECT_COLUMN = [
+  {
+    id: 's3objects',
+    label: 'table.label.s3Objects',
+    filter: true,
+  },
+  {
+    id: 'file_type',
+    label: 'table.label.fileType',
+    filter: true,
+  },
+  {
+    id: 'file_size',
+    label: 'table.label.fileSize',
+    filter: false,
+  },
+  {
+    id: COLUMN_OBJECT_STR.Privacy,
+    label: 'table.label.privacy',
+    filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.Download,
+    label: 'table.label.download',
     filter: false,
   },
   {

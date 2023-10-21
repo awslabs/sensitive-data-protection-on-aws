@@ -42,11 +42,7 @@ const getTablesByDatabaseIdentifier = async (params: any) => {
 
 // search_catalog_tables_catalog_search_tables_post
 const searchCatalogTables = async (params: any) => {
-  const result = await apiRequest(
-    'post',
-    'catalog/search-tables',
-    params
-  );
+  const result = await apiRequest('post', 'catalog/search-tables', params);
   return result;
 };
 
@@ -118,6 +114,16 @@ const getS3SampleObjects = async (params: any) => {
   return result;
 };
 
+// 获取S3 unstructured sample数据
+const getS3UnstructuredSampleObjects = async (params: any) => {
+  const result = await apiRequest(
+    'get',
+    'catalog/get-unstructured-sample-objects',
+    params
+  );
+  return result;
+};
+
 // 获取rds sample数据
 const getRdsTableSampleRecords = async (params: any) => {
   const result = await apiRequest(
@@ -174,11 +180,19 @@ const getExportS3Url = async (params: any) => {
 };
 
 const clearS3Object = async (timeStr: any) => {
-  console.log("delete start s3Object name is: "+timeStr)
   const result = await apiRequest(
     'get',
     `catalog/clear_s3_object/${timeStr}`,
     ''
+  );
+  return result;
+};
+
+const getPreSignedUrlById = async (params: { column_id: string }) => {
+  const result = await apiRequest(
+    'post',
+    'catalog/gen-s3-presigned-url-by-id?column_id=' + params.column_id,
+    {}
   );
   return result;
 };
@@ -202,4 +216,6 @@ export {
   getExportS3Url,
   clearS3Object,
   searchCatalogTables,
+  getS3UnstructuredSampleObjects,
+  getPreSignedUrlById,
 };

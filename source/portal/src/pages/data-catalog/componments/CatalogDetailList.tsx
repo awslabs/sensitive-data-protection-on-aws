@@ -32,6 +32,8 @@ import {
   getS3SampleObjects,
   getBucketProperties,
   searchTablesByDatabase,
+  getS3UnstructuredSampleObjects,
+  getPreSignedUrlById,
 } from 'apis/data-catalog/api';
 import { alertMsg, formatSize, toJSON, deepClone } from 'tools/tools';
 import moment from 'moment';
@@ -137,6 +139,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       selectPageRowData: selectRowData,
       setSelectRowData: setSelectDetailRowData,
       updateFatherPage,
+      dataType: dataType,
     };
 
     const clickEditIcon = (rowData: any, type: string) => {
@@ -295,18 +298,31 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
     };
 
     const getDataSampleObjects = async () => {
-      const requestParam = {
-        account_id: selectRowData.account_id,
-        region: selectRowData.region,
-        s3_location: selectRowData.storage_location,
-        limit: 10,
-      };
-      const result = await getS3SampleObjects(requestParam);
-      if (typeof result !== 'object') {
-        alertMsg(result as any, 'error');
-        return;
+      console.info('selectRowData:', selectRowData);
+      if (dataType === 'unstructured') {
+        const requestParam = {
+          table_id: selectRowData.id,
+        };
+        const result = await getS3UnstructuredSampleObjects(requestParam);
+        if (typeof result !== 'object') {
+          alertMsg(result as any, 'error');
+          return;
+        }
+        setDataList(result);
+      } else {
+        const requestParam = {
+          account_id: selectRowData.account_id,
+          region: selectRowData.region,
+          s3_location: selectRowData.storage_location,
+          limit: 10,
+        };
+        const result = await getS3SampleObjects(requestParam);
+        if (typeof result !== 'object') {
+          alertMsg(result as any, 'error');
+          return;
+        }
+        setDataList(result);
       }
-      setDataList(result);
     };
 
     const getDataIdentifiers = async () => {
@@ -482,6 +498,27 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       }
       setDataList(tempDataList);
       setUpdateData(tempDataList);
+    };
+
+    const downloadSampleObject = async (objId: string) => {
+      const tempUrl = await getPreSignedUrlById({
+        column_id: objId,
+      });
+      window.open(tempUrl as string, '_blank');
+    };
+
+    const buildDownloadLink = (item: any) => {
+      return (
+        <div
+          onClick={() => {
+            downloadSampleObject(item.id);
+          }}
+          className="flex-inline align-center link"
+        >
+          <Icon name="download" />
+          <span className="ml-5">Download</span>
+        </div>
+      );
     };
 
     return (
@@ -889,6 +926,9 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                       ) : (
                         ''
                       );
+                    }
+                    if (item.id === COLUMN_OBJECT_STR.Download) {
+                      return buildDownloadLink(e);
                     }
                     if (item.id === COLUMN_OBJECT_STR.ObjectCount) {
                       return nFormatter((e as any)[item.id], 2);

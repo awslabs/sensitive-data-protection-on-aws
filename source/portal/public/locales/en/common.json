@@ -232,7 +232,8 @@
       "identifierType": "Identifier Type",
       "accountId": "Account",
       "region": "Region",
-      "accountStatus": "Authorization Status"
+      "accountStatus": "Authorization Status",
+      "download": "Download"
     }
   },
   "tab": {

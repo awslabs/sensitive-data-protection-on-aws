@@ -232,7 +232,8 @@
       "identifierType": "标识符类型",
       "accountId": "账户",
       "region": "区域",
-      "accountStatus": "认证状态"
+      "accountStatus": "认证状态",
+      "download": "下载"
     }
   },
   "tab": {
