@@ -16,7 +16,7 @@ import './style.scss';
  * @returns
  */
 const CommonBadge: React.FC<CommonBadgeProps> = (props: CommonBadgeProps) => {
-  const { badgeType, badgeLabel = '', labelType, className } = props;
+  const { noWrap, badgeType, badgeLabel = '', labelType, className } = props;
   if (badgeLabel === 'N/A') {
     return <>N/A</>;
   }
@@ -44,6 +44,7 @@ const CommonBadge: React.FC<CommonBadgeProps> = (props: CommonBadgeProps) => {
     return <Badge className="data-indf-badge">{badgeLabel}</Badge>;
   }
   const badgeCls = classnames({
+    'word-wrap': !noWrap,
     'classified-badge': true,
     'success-badge': labelType === CLSAAIFIED_TYPE.Success,
     'system-badge':

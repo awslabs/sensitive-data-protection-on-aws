@@ -11,20 +11,19 @@ import {
   SpaceBetween,
   Tiles,
 } from '@cloudscape-design/components';
-import S3ResourceSelector, { S3ResourceSelectorProps } from "@cloudscape-design/components/s3-resource-selector";
+import S3ResourceSelector from '@cloudscape-design/components/s3-resource-selector';
 import {
   listGlueConnection,
   importGlueConnection,
   getSecrets,
   queryNetworkInfo,
   queryBuckets,
-  createConnection
+  createConnection,
 } from 'apis/data-source/api';
 import RightModal from 'pages/right-modal';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { alertMsg } from 'tools/tools';
-import { ErrorAlert } from './Alert';
 import { i18ns } from '../types/s3_selector_config';
 
 interface JDBCConnectionProps {
@@ -49,17 +48,17 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
     instance_id: '',
     account_id: props.accountId,
     region: props.region,
-    account_provider_id: 1
-  }
+    account_provider_id: 1,
+  };
 
   const newOriginalData = {
-    instance_id:'',
+    instance_id: '',
     account_provider_id: props.providerId,
     account_id: props.accountId,
     region: props.region,
-    description:'',
-    jdbc_connection_url:'',
-    jdbc_enforce_ssl:'false',
+    description: '',
+    jdbc_connection_url: '',
+    jdbc_enforce_ssl: 'false',
     // kafka_ssl_enabled:'',
     master_username: '',
     password: '',
@@ -73,15 +72,15 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
     creation_time: '',
     last_updated_time: '',
     jdbc_driver_class_name: '',
-    jdbc_driver_jar_uri: ''
-  }
+    jdbc_driver_jar_uri: '',
+  };
   const [jdbcConnectionData, setJdbcConnectionData] = useState({
-    createType: props.providerId === 1?'import':'new',
+    createType: props.providerId === 1 ? 'import' : 'new',
     import: importOriginalData,
-    new: newOriginalData
+    new: newOriginalData,
   });
-  const [disabled, setDisabled] = useState(true)
-  const [credentialType, setCredentialType] = useState('secret_manager')
+  const [disabled, setDisabled] = useState(true);
+  const [credentialType, setCredentialType] = useState('secret_manager');
   const [secretOption, setSecretOption] = useState([] as any);
   const [vpcOption, setVpcOption] = useState([] as any);
   const [subnetOption, setSubnetOption] = useState([] as any);
@@ -91,7 +90,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
   const [vpc, setVpc] = useState<SelectProps.Option | null>(null);
   const [subnet, setSubnet] = useState<SelectProps.Option | null>(null);
   const [sg, setSg] = useState<SelectProps.Option | null>(null);
-  
+
   const [importGlue, setImportGlue] = useState<SelectProps.Option | null>(null);
   const [secretItem, setSecretItem] = useState<SelectProps.Option | null>(null);
 
@@ -101,92 +100,103 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
     }
   }, [credentialType]);
 
-  useEffect(()=>{
-    console.log("jdbcConnectionData.import.instance_id reset",jdbcConnectionData.import);
-    if(jdbcConnectionData.createType === 'import' && jdbcConnectionData.import.instance_id !==''){
-      setDisabled(false)
+  useEffect(() => {
+    console.log(
+      'jdbcConnectionData.import.instance_id reset',
+      jdbcConnectionData.import
+    );
+    if (
+      jdbcConnectionData.createType === 'import' &&
+      jdbcConnectionData.import.instance_id !== ''
+    ) {
+      setDisabled(false);
     }
 
-    if(jdbcConnectionData.createType === 'new'){
+    if (jdbcConnectionData.createType === 'new') {
       // load network info
-      loadNetworkInfo()
+      loadNetworkInfo();
       // listBuckets()
     }
+  }, [importGlue]);
 
-  },[importGlue])
-
-  useEffect(()=>{
-    if(jdbcConnectionData.new.jdbc_enforce_ssl==='false'){
+  useEffect(() => {
+    if (jdbcConnectionData.new.jdbc_enforce_ssl === 'false') {
       let temp = jdbcConnectionData.new;
-    temp={...temp,skip_custom_jdbc_cert_validation:'false',custom_jdbc_cert:'',custom_jdbc_cert_string:''};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
+      temp = {
+        ...temp,
+        skip_custom_jdbc_cert_validation: 'false',
+        custom_jdbc_cert: '',
+        custom_jdbc_cert_string: '',
+      };
+      setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
     }
-  },[jdbcConnectionData.new.jdbc_enforce_ssl])
+  }, [jdbcConnectionData.new.jdbc_enforce_ssl]);
 
-  useEffect(()=>{
-      listBuckets()
-  },[])
+  useEffect(() => {
+    listBuckets();
+  }, []);
 
   // useEffect(()=>{
   //   console.log(jdbcConnectionData)
   // },[jdbcConnectionData.new])
 
-  useEffect(()=>{
-
-    if(props.providerId !== 1){
-      setJdbcType('new')
+  useEffect(() => {
+    if (props.providerId !== 1) {
+      setJdbcType('new');
       // load network info
-      loadNetworkInfo()
+      loadNetworkInfo();
     } else {
       try {
-        glueConnection()
+        glueConnection();
       } catch (error) {
         setConnections([]);
       }
     }
-  },[])
+  }, []);
 
-  useEffect(()=>{
-    if(jdbcConnectionData.createType==='import'){
-        jdbcConnectionData.import.instance_id!==''&& setDisabled(false)
+  useEffect(() => {
+    if (jdbcConnectionData.createType === 'import') {
+      jdbcConnectionData.import.instance_id !== '' && setDisabled(false);
     } else {
-      if(jdbcConnectionData.new.instance_id!=='' &&
-         jdbcConnectionData.new.jdbc_connection_url !=='' &&
-         (jdbcConnectionData.new.secret !== '' || 
-          (jdbcConnectionData.new.master_username !== '' && 
-           jdbcConnectionData.new.password !=='')) &&
-         jdbcConnectionData.new.network_sg_id !=='' &&
-         jdbcConnectionData.new.network_subnet_id !=='' &&
-         vpc !== null
-         ){
-        setDisabled(false)
+      if (
+        jdbcConnectionData.new.instance_id !== '' &&
+        jdbcConnectionData.new.jdbc_connection_url !== '' &&
+        (jdbcConnectionData.new.secret !== '' ||
+          (jdbcConnectionData.new.master_username !== '' &&
+            jdbcConnectionData.new.password !== '')) &&
+        jdbcConnectionData.new.network_sg_id !== '' &&
+        jdbcConnectionData.new.network_subnet_id !== '' &&
+        vpc !== null
+      ) {
+        setDisabled(false);
       }
     }
-
-
-  },[jdbcConnectionData,jdbcConnectionData.new,jdbcConnectionData.import,vpc,])
+  }, [
+    jdbcConnectionData,
+    jdbcConnectionData.new,
+    jdbcConnectionData.import,
+    vpc,
+  ]);
   // options={[{label: network[0], value: network[0]}]}
-  const loadNetworkInfo = async ()=>{
+  const loadNetworkInfo = async () => {
     const requestParam = {
       account_provider_id: props.providerId,
       account_id: props.accountId,
-      region: props.region
-    }
-    try{
-       const vpcOptions:any[] = []
-       const res:any= await queryNetworkInfo(requestParam);
-       const vpcs = res?.vpcs
-       vpcs.forEach((item:any)=>{
-        vpcOptions.push({label: item.vpcId, value: item.vpcId})
-       })
-       setNetwork(vpcs)
-       setVpcOption(vpcOptions)
-
-
-    } catch (error){
+      region: props.region,
+    };
+    try {
+      const vpcOptions: any[] = [];
+      const res: any = await queryNetworkInfo(requestParam);
+      const vpcs = res?.vpcs;
+      vpcs.forEach((item: any) => {
+        vpcOptions.push({ label: item.vpcId, value: item.vpcId });
+      });
+      setNetwork(vpcs);
+      setVpcOption(vpcOptions);
+    } catch (error) {
       alertMsg(t('loadNetworkError'), 'error');
     }
-  }
+  };
 
   const loadAccountSecrets = async () => {
     const requestParam = {
@@ -209,185 +219,191 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
     }
   };
 
-  const glueConnection =async()=>{
+  const glueConnection = async () => {
     const requestParam = {
       account_id: props.accountId,
       region: props.region,
     };
-    const connectionList:any[] = [];
-    // const jdbcConnectionData = 
-    const res= await listGlueConnection(requestParam);
+    const connectionList: any[] = [];
+    // const jdbcConnectionData =
+    const res = await listGlueConnection(requestParam);
     (res as any[]).forEach((item) => {
-      const times = item.CreationTime.split('.')[0].split('T')
+      const times = item.CreationTime.split('.')[0].split('T');
       connectionList.push({
         label: item.Name,
         value: item.Name,
         iconName: 'share',
-        description: item.Description||'-',
-        labelTag: times[0]+' '+times[1]
-      })
-    })
-    setConnections(connectionList)
-  }
+        description: item.Description || '-',
+        labelTag: times[0] + ' ' + times[1],
+      });
+    });
+    setConnections(connectionList);
+  };
 
-  const addJdbcConnection =async()=>{
-    if(jdbcConnectionData.createType === 'import'){
-      try{
-        await importGlueConnection(jdbcConnectionData.import)
+  const addJdbcConnection = async () => {
+    if (jdbcConnectionData.createType === 'import') {
+      try {
+        await importGlueConnection(jdbcConnectionData.import);
         alertMsg(t('successImport'), 'success');
-        props.setShowModal(false)
-      } catch(error){
+        props.setShowModal(false);
+      } catch (error) {
         alertMsg(t('failImport'), 'error');
       }
     } else {
-      try{
-        await createConnection(jdbcConnectionData.new)
+      try {
+        await createConnection(jdbcConnectionData.new);
         alertMsg(t('successAdd'), 'success');
-        props.setShowModal(false)
-      } catch(error){
+        props.setShowModal(false);
+      } catch (error) {
         alertMsg(t('failAdd'), 'error');
       }
     }
-  }
+  };
 
-  const changeConnectionName = (detail:any)=>{
+  const changeConnectionName = (detail: any) => {
     // console.log(detail)
     let temp = jdbcConnectionData.new;
-    temp={...temp,instance_id:detail};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
-  }
+    temp = { ...temp, instance_id: detail };
+    setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
+  };
 
-  const changeRequiredSSL =(detail:any)=>{
+  const changeRequiredSSL = (detail: any) => {
     // console.log(detail)
     let temp = jdbcConnectionData.new;
-    temp={...temp,jdbc_enforce_ssl:detail?'true':'false'};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
-  }
+    temp = { ...temp, jdbc_enforce_ssl: detail ? 'true' : 'false' };
+    setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
+  };
 
-  const changeDescription =(detail:any)=>{
+  const changeDescription = (detail: any) => {
     // console.log(detail)
     let temp = jdbcConnectionData.new;
-    temp={...temp,description:detail};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
-  }
+    temp = { ...temp, description: detail };
+    setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
+  };
 
-  const changeJDBCUrl =(detail:any)=>{
+  const changeJDBCUrl = (detail: any) => {
     // console.log(detail)
     let temp = jdbcConnectionData.new;
-    temp={...temp,jdbc_connection_url:detail};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
-  }
+    temp = { ...temp, jdbc_connection_url: detail };
+    setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
+  };
 
-  const changeVPC =(detail:any)=>{
-    const subnetOptions:any[] =[]
-    const sgOptions:any[] = []
-    setVpc(detail)
+  const changeVPC = (detail: any) => {
+    const subnetOptions: any[] = [];
+    const sgOptions: any[] = [];
+    setVpc(detail);
     // console.log("detail is ",detail.value)
-    const subnets = network.filter((item:any) => item.vpcId === detail.value)[0].subnets
-    subnets.forEach((item: any)=>{
+    const subnets = network.filter(
+      (item: any) => item.vpcId === detail.value
+    )[0].subnets;
+    subnets.forEach((item: any) => {
       subnetOptions.push({
-        label:item.subnetId,
-        value:item.subnetId,
-        description:item.arn
-      })
-    })
+        label: item.subnetId,
+        value: item.subnetId,
+        description: item.arn,
+      });
+    });
 
-    const securityGroups = network.filter((item:any) => item.vpcId === detail.value)[0].securityGroups
-    securityGroups.forEach((item: any)=>{
+    const securityGroups = network.filter(
+      (item: any) => item.vpcId === detail.value
+    )[0].securityGroups;
+    securityGroups.forEach((item: any) => {
       sgOptions.push({
-        label:item.securityGroupId,
-        value:item.securityGroupId,
-        description:item.securityGroupName
-      })
-    })
+        label: item.securityGroupId,
+        value: item.securityGroupId,
+        description: item.securityGroupName,
+      });
+    });
     // console.log("hahahaha is ",network)
 
-    setSubnetOption(subnetOptions)
-    setSgOption(sgOptions)
-  }
+    setSubnetOption(subnetOptions);
+    setSgOption(sgOptions);
+  };
 
-  const changeSubnet =(detail:any)=>{
-    setSubnet(detail)
+  const changeSubnet = (detail: any) => {
+    setSubnet(detail);
     let temp = jdbcConnectionData.new;
-    temp={...temp,network_subnet_id:detail.value};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
-  }
+    temp = { ...temp, network_subnet_id: detail.value };
+    setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
+  };
 
-  const changeSG =(detail:any)=>{
-    setSg(detail)
+  const changeSG = (detail: any) => {
+    setSg(detail);
     let temp = jdbcConnectionData.new;
-    temp={...temp,network_sg_id:detail.value};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
-  }
+    temp = { ...temp, network_sg_id: detail.value };
+    setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
+  };
 
-  const changeSecret =(detail:any)=>{
-    setSecretItem(detail)
+  const changeSecret = (detail: any) => {
+    setSecretItem(detail);
     let temp = jdbcConnectionData.new;
-    temp={...temp,secret:detail.value};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
-  }
+    temp = { ...temp, secret: detail.value };
+    setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
+  };
 
-  const listBuckets = async()=>{
+  const listBuckets = async () => {
     const requestParam = {
       account_provider_id: props.providerId,
       account_id: props.accountId,
-      region: props.region
-    }
-    const res= await queryBuckets(requestParam);
-    console.log("res is:",res)
-    setBuckets(res)
-  }
+      region: props.region,
+    };
+    const res = await queryBuckets(requestParam);
+    console.log('res is:', res);
+    setBuckets(res);
+  };
 
-  const changeJDBCcertificate =(detail:any)=>{
+  const changeJDBCcertificate = (detail: any) => {
     let temp = jdbcConnectionData.new;
-    temp={...temp,custom_jdbc_cert:detail.resource.uri};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
-  }
+    temp = { ...temp, custom_jdbc_cert: detail.resource.uri };
+    setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
+  };
 
-  const changeSkipCerValid =(detail:any)=>{
+  const changeSkipCerValid = (detail: any) => {
     // console.log("skip!!!",detail)
     let temp = jdbcConnectionData.new;
-    temp={...temp,skip_custom_jdbc_cert_validation:detail?'true':'false'};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
-  }
+    temp = {
+      ...temp,
+      skip_custom_jdbc_cert_validation: detail ? 'true' : 'false',
+    };
+    setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
+  };
 
-  const changeJDBCCertString =(detail:any)=>{
+  const changeJDBCCertString = (detail: any) => {
     let temp = jdbcConnectionData.new;
-    temp={...temp,custom_jdbc_cert_string:detail};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
-  }
+    temp = { ...temp, custom_jdbc_cert_string: detail };
+    setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
+  };
 
-  const changeDriverClassName=(detail:any)=>{
+  const changeDriverClassName = (detail: any) => {
     let temp = jdbcConnectionData.new;
-    temp={...temp,jdbc_driver_class_name:detail};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
-  }
+    temp = { ...temp, jdbc_driver_class_name: detail };
+    setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
+  };
 
-  const changeDriverPath=(detail:any)=>{
+  const changeDriverPath = (detail: any) => {
     let temp = jdbcConnectionData.new;
-    temp={...temp,jdbc_driver_jar_uri:detail.resource.uri};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
-  }
+    temp = { ...temp, jdbc_driver_jar_uri: detail.resource.uri };
+    setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
+  };
 
-  const changeUserName=(detail:any)=>{
+  const changeUserName = (detail: any) => {
     let temp = jdbcConnectionData.new;
-    temp={...temp,master_username:detail};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
-  }
+    temp = { ...temp, master_username: detail };
+    setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
+  };
 
-  const changePassword=(detail:any)=>{
+  const changePassword = (detail: any) => {
     let temp = jdbcConnectionData.new;
-    temp={...temp,password:detail};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
-  }
+    temp = { ...temp, password: detail };
+    setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
+  };
 
-  const resetCredentials=()=>{
+  const resetCredentials = () => {
     let temp = jdbcConnectionData.new;
-    temp={...temp,password:'',master_username:'',secret:''};
-    setJdbcConnectionData({...jdbcConnectionData,new:temp});
-    setSecretItem(null)
-  }
-
+    temp = { ...temp, password: '', master_username: '', secret: '' };
+    setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
+    setSecretItem(null);
+  };
 
   return (
     <RightModal
@@ -396,7 +412,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
         setShowModal(show);
       }}
       showModal={showModal}
-      header="Add JDBC Connection"
+      header={t('datasource:jdbc.addConnection')}
     >
       <div className="add-jdbc-container">
         <Form
@@ -412,15 +428,23 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
               >
                 {t('button.cancel')}
               </Button>
-              <Button variant="primary" disabled={disabled} onClick={()=>{addJdbcConnection()}}>{t('button.save')}</Button>
+              <Button
+                variant="primary"
+                disabled={disabled}
+                onClick={() => {
+                  addJdbcConnection();
+                }}
+              >
+                {t('button.save')}
+              </Button>
             </SpaceBetween>
           }
         >
           <SpaceBetween direction="vertical" size="s">
-            <FormField stretch label="Select a Glue connection">
+            <FormField stretch label={t('datasource:jdbc.selectGlue')}>
               <Tiles
                 onChange={({ detail }) => {
-                  console.log("detail is:",detail)
+                  console.log('detail is:', detail);
                   const data = jdbcConnectionData;
                   data.import = importOriginalData;
                   data.new = newOriginalData;
@@ -429,14 +453,18 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                   setImportGlue(null);
                   setJdbcType(detail.value);
                   setDisabled(true);
-                  if(detail.value === 'new'){
-                    loadNetworkInfo()
+                  if (detail.value === 'new') {
+                    loadNetworkInfo();
                   }
                 }}
                 value={jdbcType}
                 items={[
-                  { label: 'Import glue connection', value: 'import', disabled: props.providerId !== 1},
-                  { label: 'Create new connection', value: 'new' },
+                  {
+                    label: t('datasource:jdbc.importGlue'),
+                    value: 'import',
+                    disabled: props.providerId !== 1,
+                  },
+                  { label: t('datasource:jdbc.createNew'), value: 'new' },
                 ]}
               />
             </FormField>
@@ -445,20 +473,20 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
               <>
                 <FormField
                   stretch
-                  label="Glue connection"
-                  description="Choose an existing Glue connection from AWS account where the SDP platform installed."
+                  label={t('datasource:jdbc.glueConnection')}
+                  description={t('datasource:jdbc.glueConnectionDesc')}
                 >
                   <Select
-                    placeholder="Please select connection"
+                    placeholder={t('datasource:jdbc.gcPlaceholder') ?? ''}
                     selectedOption={importGlue}
                     onChange={({ detail }) => {
-                      const temp = jdbcConnectionData
-                      temp.import.instance_id = detail.selectedOption.value||''
-                      setJdbcConnectionData(temp)
-                      setImportGlue(detail.selectedOption)
-                      console.log("final data is:",jdbcConnectionData)
-                    } 
-                    }
+                      const temp = jdbcConnectionData;
+                      temp.import.instance_id =
+                        detail.selectedOption.value || '';
+                      setJdbcConnectionData(temp);
+                      setImportGlue(detail.selectedOption);
+                      console.log('final data is:', jdbcConnectionData);
+                    }}
                     options={connections}
                   />
                 </FormField>
@@ -469,161 +497,171 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
               <>
                 <FormField
                   stretch
-                  label="connection name"
-                  description="Enter a unique name for your connection."
+                  label={t('datasource:jdbc.connectionName')}
+                  description={t('datasource:jdbc.connectionNameDesc')}
                 >
                   <Input
-                    onChange={(e)=>changeConnectionName(e.detail.value)}
+                    onChange={(e) => changeConnectionName(e.detail.value)}
                     value={jdbcConnectionData.new.instance_id}
                   />
                 </FormField>
                 <FormField
-                  description="The connection will fail if it's unable to connect over SSL."
-                  label="SSL connection"
-                >
-                  <Checkbox 
-                    checked={jdbcConnectionData.new.jdbc_enforce_ssl!=='false'}
-                    onChange={({ detail })=>{
-                      changeRequiredSSL(detail.checked)
-                      }
-                    }>
-                    Require SSL connection
-                  </Checkbox>
-                </FormField>
-                {jdbcConnectionData.new.jdbc_enforce_ssl!=='false'&&(<>
-                  <FormField
-                  label="Custom JDBC certificate"
-                  description="Choose your X.509 certificate. Must be DER-encoded Base64 PEM format."
-                  constraintText="Use s3://bucket/prefix/object format."
-                  errorText=''
-                  stretch={true}
-                >
-                  <S3ResourceSelector
-                    onChange={({ detail }) =>
-                      // setResource(detail.resource)
-                      changeJDBCcertificate(detail)
-                    }
-                    resource={{uri:jdbcConnectionData.new.custom_jdbc_cert}}
-                    objectsIsItemDisabled={item => !item.IsFolder}
-                    fetchBuckets={() =>{
-                      return Promise.resolve(buckets)
-                    }
-                      
-                    }
-                    fetchObjects={() =>
-                      Promise.resolve([])
-                    }
-                    fetchVersions={() =>
-                      Promise.resolve([])
-                    }
-                    i18nStrings={i18ns}
-                    selectableItemsTypes={["buckets", "objects"]}
-                  />
-                </FormField>
-                <FormField
-                  description="By default your custom certificate is validated before use. Turn on this option to skip validation of the certificate algorithm and key length during connection."
-                  label="certificate validation"
+                  description={t('datasource:jdbc.sslConnectionDesc')}
+                  label={t('datasource:jdbc.sslConnection')}
                 >
                   <Checkbox
-                    checked={jdbcConnectionData.new.skip_custom_jdbc_cert_validation!=='false'}
-                    onChange={({ detail })=>{
-                      changeSkipCerValid(detail.checked)
-                      }
+                    checked={
+                      jdbcConnectionData.new.jdbc_enforce_ssl !== 'false'
                     }
-                    >
-                    Skip certificate validation
+                    onChange={({ detail }) => {
+                      changeRequiredSSL(detail.checked);
+                    }}
+                  >
+                    {t('datasource:jdbc.requireSSL')}
                   </Checkbox>
                 </FormField>
-                <FormField
-                  description="Enter your database specific custom certificate info."
-                  label="Custom JDBC certificate string"
-                  constraintText='For Oracle Database this maps to SSL_SERVER_CERT_DN, and for SQL Server it maps to hostNameInCertificate.'
-                >
-                  <Input 
-                    onChange={(e)=>changeJDBCCertString(e.detail.value)}
-                    value={jdbcConnectionData.new.custom_jdbc_cert_string} />
-                </FormField>
-                
-                
-                </>) }
-                
+                {jdbcConnectionData.new.jdbc_enforce_ssl !== 'false' && (
+                  <>
+                    <FormField
+                      label={t('datasource:jdbc.customJDBCCert')}
+                      description={t('datasource:jdbc.chooseCert')}
+                      constraintText={t('datasource:jdbc.useS3Format')}
+                      errorText=""
+                      stretch={true}
+                    >
+                      <S3ResourceSelector
+                        onChange={({ detail }) =>
+                          // setResource(detail.resource)
+                          changeJDBCcertificate(detail)
+                        }
+                        resource={{
+                          uri: jdbcConnectionData.new.custom_jdbc_cert,
+                        }}
+                        objectsIsItemDisabled={(item) => !item.IsFolder}
+                        fetchBuckets={() => {
+                          return Promise.resolve(buckets);
+                        }}
+                        fetchObjects={() => Promise.resolve([])}
+                        fetchVersions={() => Promise.resolve([])}
+                        i18nStrings={i18ns}
+                        selectableItemsTypes={['buckets', 'objects']}
+                      />
+                    </FormField>
+                    <FormField
+                      description={t('datasource:jdbc.certValidationDesc')}
+                      label={t('datasource:jdbc.certValidation')}
+                    >
+                      <Checkbox
+                        checked={
+                          jdbcConnectionData.new
+                            .skip_custom_jdbc_cert_validation !== 'false'
+                        }
+                        onChange={({ detail }) => {
+                          changeSkipCerValid(detail.checked);
+                        }}
+                      >
+                        {t('datasource:jdbc.skipValidation')}
+                      </Checkbox>
+                    </FormField>
+                    <FormField
+                      description={t(
+                        'datasource:jdbc.customJDBCCertStringDesc'
+                      )}
+                      label={t('datasource:jdbc.customJDBCCertString')}
+                      constraintText={t(
+                        'datasource:jdbc.customJDBCCertConstraint'
+                      )}
+                    >
+                      <Input
+                        onChange={(e) => changeJDBCCertString(e.detail.value)}
+                        value={jdbcConnectionData.new.custom_jdbc_cert_string}
+                      />
+                    </FormField>
+                  </>
+                )}
+
                 <FormField
                   stretch
-                  label="Description - optional"
-                  description="Descriptions can be up to 2048 characters long."
+                  label={t('datasource:jdbc.description')}
+                  description={t('datasource:jdbc.descriptionDesc')}
                 >
                   <Input
-                    onChange={(e)=>changeDescription(e.detail.value)}
+                    onChange={(e) => changeDescription(e.detail.value)}
                     value={jdbcConnectionData.new.description}
                   />
                 </FormField>
                 <>
-                  <FormField stretch label="JDBC URL"
-                    description='Use the JDBC protocol to access Amazon Redshift, Amazon RDS, and publicly accessible databases.'
-                    constraintText='JDBC syntax for most database engines is jdbc:protocol://host:port/databasename.'
-                    >
-                    <Input
-                      onChange={(e)=>changeJDBCUrl(e.detail.value)}
-                      placeholder="jdbc:xxx.xxx"
-                      value={jdbcConnectionData.new.jdbc_connection_url} />
-                  </FormField>
-                  <FormField 
+                  <FormField
                     stretch
-                    label="JDBC Driver Class name - optional"
-                    constraintText="Type a custom JDBC driver class name for the crawler to connect to the data source."
-                    >
-                    <Input 
-                      onChange={(e)=>changeDriverClassName(e.detail.value)}
-                      value={jdbcConnectionData.new.jdbc_driver_class_name} />
+                    label={t('datasource:jdbc.jdbcURL')}
+                    description={t('datasource:jdbc.jdbcURLDesc')}
+                    constraintText={t('datasource:jdbc.jdbcURLConstraint')}
+                  >
+                    <Input
+                      onChange={(e) => changeJDBCUrl(e.detail.value)}
+                      placeholder="jdbc:xxx.xxx"
+                      value={jdbcConnectionData.new.jdbc_connection_url}
+                    />
                   </FormField>
-                  <FormField stretch
-                    label="JDBC Driver S3 path - optional"
-                    constraintText='Browse for or enter an existing S3 path to a .jar file.'>
+                  <FormField
+                    stretch
+                    label={t('datasource:jdbc.jdbcClassName')}
+                    constraintText={t('datasource:jdbc.jdbcClassNameDesc')}
+                  >
+                    <Input
+                      onChange={(e) => changeDriverClassName(e.detail.value)}
+                      value={jdbcConnectionData.new.jdbc_driver_class_name}
+                    />
+                  </FormField>
+                  <FormField
+                    stretch
+                    label={t('datasource:jdbc.jdbcS3Path')}
+                    constraintText={t('datasource:jdbc.jdbcS3PathDesc')}
+                  >
                     <S3ResourceSelector
-                    onChange={({ detail }) =>
-                      changeDriverPath(detail)
-                    }
-                    resource={{uri:jdbcConnectionData.new.jdbc_driver_jar_uri}}
-                    objectsIsItemDisabled={item => !item.IsFolder}
-                    fetchBuckets={() =>{
-                      return Promise.resolve(buckets)
-                    }
-                      
-                    }
-                    fetchObjects={() =>
-                      Promise.resolve([])
-                    }
-                    fetchVersions={() =>
-                      Promise.resolve([])
-                    }
-                    i18nStrings={i18ns}
-                    selectableItemsTypes={["buckets", "objects"]}
-                  />
+                      onChange={({ detail }) => changeDriverPath(detail)}
+                      resource={{
+                        uri: jdbcConnectionData.new.jdbc_driver_jar_uri,
+                      }}
+                      objectsIsItemDisabled={(item) => !item.IsFolder}
+                      fetchBuckets={() => {
+                        return Promise.resolve(buckets);
+                      }}
+                      fetchObjects={() => Promise.resolve([])}
+                      fetchVersions={() => Promise.resolve([])}
+                      i18nStrings={i18ns}
+                      selectableItemsTypes={['buckets', 'objects']}
+                    />
                   </FormField>
                 </>
 
-                <FormField stretch label="Credentials">
+                <FormField stretch label={t('datasource:jdbc.credential')}>
                   <Tiles
                     onChange={({ detail }) => {
-                      resetCredentials()
-                      setCredential(detail.value)
-                    }
-                  }
+                      resetCredentials();
+                      setCredential(detail.value);
+                    }}
                     value={credential}
                     items={[
-                      { label: 'Secret Manager', value: 'secret' },
-                      { label: 'Username/Password', value: 'password' },
+                      {
+                        label: t('datasource:jdbc.secretManager'),
+                        value: 'secret',
+                      },
+                      {
+                        label: t('datasource:jdbc.userPwd'),
+                        value: 'password',
+                      },
                     ]}
                   />
                 </FormField>
 
                 {credential === 'secret' && (
-                  <FormField stretch label="Secrets">
+                  <FormField stretch label={t('datasource:jdbc.secret')}>
                     <Select
-                      placeholder="Please select secret"
+                      placeholder={t('datasource:jdbc.selectSecret') ?? ''}
                       selectedOption={secretItem}
-                      onChange={({ detail }) =>
-                         changeSecret(detail.selectedOption)
+                      onChange={
+                        ({ detail }) => changeSecret(detail.selectedOption)
                         // setSecretItem(detail.selectedOption)
                       }
                       options={secretOption}
@@ -633,26 +671,38 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
 
                 {credential === 'password' && (
                   <>
-                    <FormField stretch label="Username">
+                    <FormField stretch label={t('datasource:jdbc.username')}>
                       <Input
-                       value={jdbcConnectionData.new.master_username}
-                       onChange={({detail})=>{changeUserName(detail.value)}}/>
+                        value={jdbcConnectionData.new.master_username}
+                        onChange={({ detail }) => {
+                          changeUserName(detail.value);
+                        }}
+                      />
                     </FormField>
-                    <FormField stretch label="Password">
-                      <Input type="password"
+                    <FormField stretch label={t('datasource:jdbc.password')}>
+                      <Input
+                        type="password"
                         value={jdbcConnectionData.new.password}
-                        onChange={({detail})=>{changePassword(detail.value)}}/>
+                        onChange={({ detail }) => {
+                          changePassword(detail.value);
+                        }}
+                      />
                     </FormField>
                   </>
                 )}
                 <ExpandableSection
-                  headerText="Network options" 
-                  onChange ={()=> setExpanded(!expanded)}
+                  headerText={t('datasource:jdbc.networkOption')}
+                  onChange={() => setExpanded(!expanded)}
                   expanded={expanded}
-                  headerDescription='If your Amazon Glue job needs to jdbc resource which existed in other vpc or other cloud provider environment, you must provide additional VPC-specific configuration information.'>
-                <FormField stretch label="VPC" description='Choose the virtual private cloud that contains your data source.'>
+                  headerDescription={t('datasource:jdbc.networkDesc') ?? ''}
+                >
+                  <FormField
+                    stretch
+                    label={t('datasource:jdbc.vpc')}
+                    description={t('datasource:jdbc.vpcDesc')}
+                  >
                     <Select
-                      placeholder="Choose one VPC"
+                      placeholder={t('datasource:jdbc.chooseVPC') ?? ''}
                       selectedOption={vpc}
                       onChange={({ detail }) =>
                         changeVPC(detail.selectedOption)
@@ -661,27 +711,32 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                       // options={[{label: network[0], value: network[0]}]}
                     />
                   </FormField>
-                  <FormField stretch label="Subnet" description='Choose the subnet within your VPC.'>
+                  <FormField
+                    stretch
+                    label={t('datasource:jdbc.subnet')}
+                    description={t('datasource:jdbc.subnetDesc')}
+                  >
                     <Select
-                      placeholder="Choose one subnet"
+                      placeholder={t('datasource:jdbc.chooseSubnet') ?? ''}
                       selectedOption={subnet}
                       onChange={({ detail }) =>
-                      changeSubnet(detail.selectedOption)
+                        changeSubnet(detail.selectedOption)
                       }
                       options={subnetOption}
                     />
                   </FormField>
-                  <FormField stretch label="Security groups" description='Choose one or more security groups to allow access to the data store in your VPC subnet. Security groups are associated to the ENI attached to your subnet. You must choose at least one security group with a self-referencing inbound rule for all TCP ports.'>
+                  <FormField
+                    stretch
+                    label={t('datasource:jdbc.sg')}
+                    description={t('datasource:jdbc.sgDesc') ?? ''}
+                  >
                     <Select
-                      placeholder="Choose one or more security groups"
+                      placeholder={t('datasource:jdbc.chooseSG') ?? ''}
                       selectedOption={sg}
-                      onChange={({ detail }) =>
-                         changeSG(detail.selectedOption)
-                      }
+                      onChange={({ detail }) => changeSG(detail.selectedOption)}
                       options={sgOption}
                     />
                   </FormField>
-      
                 </ExpandableSection>
               </>
             )}

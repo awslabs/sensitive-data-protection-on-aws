@@ -29,6 +29,10 @@ code {
   flex-direction: row;
 }
 
+.flex-inline {
+  display: inline-flex;
+}
+
 .align-center {
   align-items: center;
 }
@@ -64,6 +68,14 @@ code {
 
 .justify-spacebetween {
   justify-content: space-between;
+}
+
+.link {
+  color: #007bff;
+  cursor: pointer;
+  :hover {
+    text-decoration: underline;
+  }
 }
 
 .pd-10 {

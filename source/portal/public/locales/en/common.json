@@ -62,7 +62,7 @@
     "exeOnce": "Execute once",
     "copyToNew": "Copy to new",
     "viewMore": "View more",
-    "backToAWSAccount": "Back to AWS accounts view",
+    "backToAWSAccount": "Back to accounts view",
     "connectAll": "Sync ALL to data catalogs",
     "connect": "Sync to data catalog",
     "testConnection": "Test connection",
@@ -92,7 +92,14 @@
     "exportDataCatalogs": "Export data catalogs",
     "exportProcessing": "Export processing ...",
     "savexlsx": "Download .xlsx file",
-    "savecsv": "Download .csv file"
+    "savecsv": "Download .csv file",
+    "addDataSource": "Add data source",
+    "deleteDataSource": "Delete data source",
+    "deleteDataSourceOnly": "Delete data catalog only",
+    "disconnectDeleteCatalog": "Disconnect & Delete catalog",
+    "deleteDB": "Delete Database",
+    "editDataSource": "Edit data source",
+    "download": "Download"
   },
   "label": {
     "label": "Custom label",
@@ -229,7 +236,11 @@
       "glueConnectionName": "Glue connection",
       "locationUri": "Location uri",
       "glueDatabaseCreateTime": "Database create time",
-      "identifierType": "Identifier Type"
+      "identifierType": "Identifier Type",
+      "accountId": "Account",
+      "region": "Region",
+      "accountStatus": "Authorization Status",
+      "download": "Download"
     }
   },
   "tab": {
@@ -362,5 +373,9 @@
   "allCategory": "All Categories",
   "allLabel": "All Labels",
   "learnMore": "Learn more",
-  "allType": "All Types"
+  "allType": "All Types",
+  "s3": "Amazon S3",
+  "rds": "Amazon RDS",
+  "glue": "Glue data catalogs",
+  "jdbc": "Custom database (JDBC)"
 }

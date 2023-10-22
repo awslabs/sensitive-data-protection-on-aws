@@ -64,7 +64,28 @@
     "exclusiveRules": "Advanced rules：Exclude keywords for this job",
     "exclusiveRulesDesc": "If any of the following keywords appeared in column header, then the column will not be marked as Contains PII. This rule applies to all data catalogs selected in this job. This job rule will override identifier rule.",
     "exclusiveRulesToggle": "Please list keywords to be excluded",
-    "exclusives": "Please list keywords to be excluded"
+    "exclusives": "Please list keywords to be excluded",
+    "selectProvider": "Select Provider and data source",
+    "provider": "Provider",
+    "dataSource": "Data source",
+    "chooseProviderSource": "Choose cloud provider and data sources",
+    "chooseProviderSourceDesc": "Select cloud provider and data source",
+    "selectDataCatalog": "Select existing data catalogs",
+    "advancedSettings": "Advanced settings: Exclude keywords",
+    "scanDepthForStructured": "Scan depth for structured files",
+    "scanDepthForStructuredInfo": "Scan depth for structured files information.",
+    "scanDepthForUnstructured": "Scan depth for unstructured data (per folder)",
+    "scanDepthForUnstructuredInfo": "Scan depth for unstructured data (per folder) information",
+    "keywordDesc1": "Exclude: If keywords appeared in column header, then the column will be marked as 'Non-PII'",
+    "keywordDesc2": "Include: If keywords appeared in column header, then the column will be marked as 'Contains-PII'",
+    "keywordDesc3": "This rule applies to all data catalogs selected in this job. This job rule will override identifier rule.",
+    "excludeKeywords": "Exclude keywords",
+    "includeKeywords": "Include keywords",
+    "fileDesc1": "Exclude: The files with the following extensions will be marked as 'Non-PII'",
+    "fileDesc2": "Include: The files with the following extensions will be marked as 'Contains-PII'",
+    "advancedFile": "Advanced rules：Exclude file extensions for this job",
+    "excludeFile": "Exclude file extensions",
+    "includeFile": "Include file extensions"
   },
   "cataLogOption": {
     "all": "All data catalogs",
@@ -73,6 +94,7 @@
     "skipScanRDS": "Skip scan for Amazon RDS"
   },
   "detail": {
+    "name": "Job details",
     "detailForJob": "Details for job: ",
     "detailForJobDesc": "Sensitive data discovery job consists of Glue jobs that run in AWS accounts. ",
     "jobInfo": "Job information",
@@ -85,6 +107,8 @@
     "glueJobStatus": "Glue job status",
     "glueJobs": "Glue jobs",
     "glueJobsDesc": "The glue jobs that run in AWS accounts. Once all glue jobs finished, the sensitive discovery job will mark as Completed.",
-    "errorLog": "Error log"
+    "errorLog": "Error log",
+    "provider": "Provider",
+    "dataSource": "Data source"
   }
 }

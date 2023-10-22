@@ -13,6 +13,7 @@ import { getProviderRegions, addAccount } from 'apis/account-manager/api';
 import { ProviderType } from 'common/ProviderTab';
 import MapMarker from 'pages/summary/comps/charts/items/MapMarker';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 import { RouterEnum } from 'routers/routerEnum';
@@ -24,29 +25,33 @@ interface AccountFormProps {
 const AccountForm: React.FC<AccountFormProps> = (props: AccountFormProps) => {
   const { provider } = props;
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const list: any[] = [];
   const [regionGeo, setRegionGeo] = useState<any[]>([]);
-  const [coorMap, setCoorMap] = useState<Map<string,string>>();
+  const [coorMap, setCoorMap] = useState<Map<string, string>>();
   const [regionList, setRegionList] = useState<SelectProps.Option[]>([]);
   const [accountId, setAccountId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [currentRegion, setCurrentRegion] = useState<SelectProps.Option | null>(
     null
-    );
-    
-  const coorMapTemp = new Map()
+  );
+
+  const coorMapTemp = new Map();
   const getRegionListByProvider = async (provider_id: any) => {
     const accountData = await getProviderRegions(parseInt(provider_id));
-    if(Array.isArray(accountData)){
-      accountData.forEach(item => {
-       list.push({label:item['region_name'], id: item['id'], labelTag: item['region_alias']});
-       coorMapTemp.set(item['region_name'], item['region_cord'])
-      })
+    if (Array.isArray(accountData)) {
+      accountData.forEach((item) => {
+        list.push({
+          label: item['region_name'],
+          id: item['id'],
+          labelTag: item['region_alias'],
+        });
+        coorMapTemp.set(item['region_name'], item['region_cord']);
+      });
     }
-    setRegionList(list)
-    setCoorMap(coorMapTemp)
+    setRegionList(list);
+    setCoorMap(coorMapTemp);
   };
-
 
   const changeRegion = (option: SelectProps.Option) => {
     setRegionGeo([
@@ -54,7 +59,10 @@ const AccountForm: React.FC<AccountFormProps> = (props: AccountFormProps) => {
         markerOffset: 25,
         name: option.labelTag,
         region: option.label,
-        coordinates: [coorMap?.get(option.label||'')?.split(',')[0],coorMap?.get(option.label||'')?.split(',')[1]],
+        coordinates: [
+          coorMap?.get(option.label || '')?.split(',')[0],
+          coorMap?.get(option.label || '')?.split(',')[1],
+        ],
       },
     ]);
   };
@@ -65,28 +73,21 @@ const AccountForm: React.FC<AccountFormProps> = (props: AccountFormProps) => {
       await addAccount({
         account_provider: provider.id,
         account_id: accountId,
-        region: currentRegion?.label
+        region: currentRegion?.label,
       });
       setIsLoading(false);
-   } catch {
+    } catch {
       setIsLoading(false);
-   }
+    }
 
-
-
-
-    navigate(RouterEnum.AccountManagement.path, {
-      state: { activeTab: provider.id },
-    });
+    navigate(`${RouterEnum.AccountManagement.path}?provider=${provider.id}`);
   };
-         
-  useEffect(() => {
-  //  console.log()
-     getRegionListByProvider(provider.id)
-  //  const list: any[] = [];
-   
 
-  },[]);
+  useEffect(() => {
+    //  console.log()
+    getRegionListByProvider(provider.id);
+    //  const list: any[] = [];
+  }, []);
 
   return (
     <div className="mt-20 account-map">
@@ -101,7 +102,7 @@ const AccountForm: React.FC<AccountFormProps> = (props: AccountFormProps) => {
                 navigate(-1);
               }}
             >
-              Cancel
+              {t('button.cancel')}
             </Button>
             <Button
               loading={isLoading}
@@ -110,16 +111,16 @@ const AccountForm: React.FC<AccountFormProps> = (props: AccountFormProps) => {
                 addAccountButton();
               }}
             >
-              Add this account
+              {t('button.addThisAccount')}
             </Button>
           </SpaceBetween>
         }
       >
         <Container
-          header={<Header variant="h3">Basic source information</Header>}
+          header={<Header variant="h3">{t('account:add.basicInfo')}</Header>}
         >
           <SpaceBetween direction="vertical" size="xs">
-            <FormField label="Source">
+            <FormField label={t('account:add.provider')}>
               <div className="add-account-logo">
                 <div className="name">{provider.provider_name}</div>
                 <div className="desc">{provider.description}</div>
@@ -128,23 +129,23 @@ const AccountForm: React.FC<AccountFormProps> = (props: AccountFormProps) => {
                 </div>
               </div>
             </FormField>
-            <FormField label="Account id">
+            <FormField label={t('account:add.accountId')}>
               <Input
-                placeholder="Account id"
+                placeholder={t('account:add.accountIdPlaceholder') ?? ''}
                 value={accountId}
                 onChange={(e) => {
                   setAccountId(e.detail.value);
                 }}
               />
             </FormField>
-            <FormField label="Region/Location">
+            <FormField label={t('account:add.regionLocation')}>
               <Select
                 onChange={(e) => {
-                  console.log("e is:",e)
+                  console.log('e is:', e);
                   setCurrentRegion(e.detail.selectedOption);
                   changeRegion(e.detail.selectedOption);
                 }}
-                placeholder="Select a region"
+                placeholder={t('account:add.regionLocationPlaceholder') ?? ''}
                 options={regionList}
                 selectedOption={currentRegion}
               />

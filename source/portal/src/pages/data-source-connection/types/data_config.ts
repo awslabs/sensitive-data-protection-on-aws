@@ -6,15 +6,15 @@ export const COLUMN_OBJECT_STR = {
   DataCatalog: 'data_catalog',
   RunStatus: 'run_status',
   RdsCreatedTime: 'created_time',
-  AWSAccount: 'aws_account',
+  AWSAccount: 'account_id',
   AccountID: 'account_id',
   GlueState: 'glue_state',
   JDBCInstanceName: 'jdbc_instance_name',
-  ConnectionStatus:'connection_status',
-  GlueConnectionName:'glue_database_name',
-  glueDatabaseCreatedTime:'create_time',
-  glueDatabaseDescription:'glue_database_description',
-  glueDatabaseLocationUri:'locationUri'
+  ConnectionStatus: 'connection_status',
+  GlueConnectionName: 'glue_database_name',
+  glueDatabaseCreatedTime: 'create_time',
+  glueDatabaseDescription: 'glue_database_description',
+  glueDatabaseLocationUri: 'locationUri',
 };
 
 export const S3_COLUMN_LIST = [
@@ -75,7 +75,7 @@ export const JDBC_COLUMN_LIST = [
     id: COLUMN_OBJECT_STR.GlueConnectionName,
     label: 'table.label.glueConnectionName',
     filter: true,
-  }
+  },
 ];
 
 export const GLUE_COLUMN_LIST = [

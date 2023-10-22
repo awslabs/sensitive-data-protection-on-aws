@@ -12,6 +12,7 @@ import { ProviderType } from 'common/ProviderTab';
 import { getSourceTypeByProvider } from 'enum/common_types';
 import { IJobType } from 'pages/data-job/types/job_list_type';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface SelectProviderProps {
   jobData: IJobType;
@@ -22,6 +23,7 @@ interface SelectProviderProps {
 const SelectProvider: React.FC<SelectProviderProps> = (
   props: SelectProviderProps
 ) => {
+  const { t } = useTranslation();
   const { jobData, changeProvider, changeDataSource } = props;
   const [loadingProvider, setLoadingProvider] = useState(false);
   const [providerOptionList, setProviderOptionList] = useState<
@@ -85,13 +87,13 @@ const SelectProvider: React.FC<SelectProviderProps> = (
 
   return (
     <Container
-      header={<Header variant="h2">Select Provider and data source</Header>}
+      header={<Header variant="h2">{t('job:create.selectProvider')}</Header>}
     >
       {loadingProvider ? (
         <Spinner />
       ) : (
         <SpaceBetween direction="vertical" size="l">
-          <FormField stretch label="Provider">
+          <FormField stretch label={t('job:create.provider')}>
             <Tiles
               onChange={({ detail }) => changeProvider(detail.value)}
               value={jobData.provider_id}
@@ -100,7 +102,7 @@ const SelectProvider: React.FC<SelectProviderProps> = (
             />
           </FormField>
 
-          <FormField stretch label="Data source">
+          <FormField stretch label={t('job:create.dataSource')}>
             <Tiles
               onChange={({ detail }) => changeDataSource(detail.value)}
               value={jobData.database_type}

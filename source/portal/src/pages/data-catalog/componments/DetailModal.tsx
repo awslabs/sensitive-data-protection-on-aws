@@ -48,6 +48,7 @@ const DetailModal: React.FC<any> = (props: any) => {
     selectRowData,
     setSelectRowData,
     updateFatherPage,
+    dataType,
   } = props;
   const { t } = useTranslation();
 
@@ -161,6 +162,7 @@ const DetailModal: React.FC<any> = (props: any) => {
         selectRowData,
         clickTableCountProp,
         needByPage: true,
+        dataType: dataType,
       };
     }
     if (item.id === 'dataIdentifiers' && catalogType === DATA_TYPE_ENUM.rds) {

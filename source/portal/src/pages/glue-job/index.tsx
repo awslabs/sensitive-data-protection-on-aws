@@ -36,6 +36,7 @@ import { alertMsg, useDidUpdateEffect } from 'tools/tools';
 import { useTranslation } from 'react-i18next';
 import HelpInfo from 'common/HelpInfo';
 import { buildDocLink } from 'ts/common';
+import { getProviderByProviderId, getSourceByJob } from 'enum/common_types';
 
 interface ProgressType {
   run_database_id: number;
@@ -383,10 +384,14 @@ const GlueJobContent = () => {
             <div className="job-header-id">
               <p className="p-title">{t('job:detail.jobId')}</p>
               <p>{jobDetailData.job_id}</p>
+              <p className="p-title">{t('job:detail.provider')}</p>
+              <p>{getProviderByProviderId(jobData.provider_id).name}</p>
             </div>
             <div className="job-header-status">
               <p className="p-title">{t('job:detail.jobStatus')}</p>
               <Badge jobRowData={jobDetailData} />
+              <p className="p-title">{t('job:detail.dataSource')}</p>
+              <p>{getSourceByJob(jobData)}</p>
             </div>
             <div className="job-header-status">
               <p className="p-title">{t('job:detail.jobStartedAt')}</p>

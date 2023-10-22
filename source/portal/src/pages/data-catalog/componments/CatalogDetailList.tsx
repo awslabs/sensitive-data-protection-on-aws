@@ -32,6 +32,9 @@ import {
   getS3SampleObjects,
   getBucketProperties,
   searchTablesByDatabase,
+  getS3UnstructuredSampleObjects,
+  getPreSignedUrlById,
+  getTablePropertyById,
 } from 'apis/data-catalog/api';
 import { alertMsg, formatSize, toJSON, deepClone } from 'tools/tools';
 import moment from 'moment';
@@ -137,6 +140,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       selectPageRowData: selectRowData,
       setSelectRowData: setSelectDetailRowData,
       updateFatherPage,
+      dataType: dataType,
     };
 
     const clickEditIcon = (rowData: any, type: string) => {
@@ -218,6 +222,12 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
         case COLUMN_OBJECT_STR.BucketProperties:
           await getPropertiesData();
           break;
+        case COLUMN_OBJECT_STR.TableDetail:
+          await getTablePropertiesData();
+          break;
+        case COLUMN_OBJECT_STR.FolderDetail:
+          await getTablePropertiesData();
+          break;
         default:
           break;
       }
@@ -287,26 +297,74 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
         });
         setDataList(tempPropertiesData);
       }
-      return;
     };
 
-    const getDataPreview = () => {
+    const getTablePropertiesData = async () => {
+      const requestParam = {
+        table_id: selectRowData.id,
+      };
+      const result: any = await getTablePropertyById(requestParam);
+      console.info('result:', result);
+      if (result && result.length >= 0) {
+        const tempPropertiesData = [] as any[];
+        result.forEach((item: any[]) => {
+          if (item[0] === 'CreationDate') {
+            tempPropertiesData.push({
+              property: item[0],
+              value: item[1]
+                ? moment(item[1]).add(8, 'h').format('YYYY-MM-DD HH:mm')
+                : item[1],
+            });
+          } else if (item[0] === 'Tags') {
+            tempPropertiesData.push({
+              property: item[0],
+              isTag: true,
+              value: item[1],
+            });
+          } else {
+            tempPropertiesData.push({
+              property: item[0],
+              value:
+                item[1] !== undefined && item[1] !== null
+                  ? item[1].toString()
+                  : item[1],
+            });
+          }
+        });
+        setDataList(tempPropertiesData);
+      }
+    };
+
+    const getDataPreview = async () => {
       setDataList(previewDataList);
     };
 
     const getDataSampleObjects = async () => {
-      const requestParam = {
-        account_id: selectRowData.account_id,
-        region: selectRowData.region,
-        s3_location: selectRowData.storage_location,
-        limit: 10,
-      };
-      const result = await getS3SampleObjects(requestParam);
-      if (typeof result !== 'object') {
-        alertMsg(result as any, 'error');
-        return;
+      console.info('selectRowData:', selectRowData);
+      if (dataType === 'unstructured') {
+        const requestParam = {
+          table_id: selectRowData.id,
+        };
+        const result = await getS3UnstructuredSampleObjects(requestParam);
+        if (typeof result !== 'object') {
+          alertMsg(result as any, 'error');
+          return;
+        }
+        setDataList(result);
+      } else {
+        const requestParam = {
+          account_id: selectRowData.account_id,
+          region: selectRowData.region,
+          s3_location: selectRowData.storage_location,
+          limit: 10,
+        };
+        const result = await getS3SampleObjects(requestParam);
+        if (typeof result !== 'object') {
+          alertMsg(result as any, 'error');
+          return;
+        }
+        setDataList(result);
       }
-      setDataList(result);
     };
 
     const getDataIdentifiers = async () => {
@@ -482,6 +540,27 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       }
       setDataList(tempDataList);
       setUpdateData(tempDataList);
+    };
+
+    const downloadSampleObject = async (objId: string) => {
+      const tempUrl = await getPreSignedUrlById({
+        column_id: objId,
+      });
+      window.open(tempUrl as string, '_blank');
+    };
+
+    const buildDownloadLink = (item: any) => {
+      return (
+        <div
+          onClick={() => {
+            downloadSampleObject(item.id);
+          }}
+          className="flex-inline align-center link"
+        >
+          <Icon name="download" />
+          <span className="ml-5">{t('button.download')}</span>
+        </div>
+      );
     };
 
     return (
@@ -889,6 +968,9 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                       ) : (
                         ''
                       );
+                    }
+                    if (item.id === COLUMN_OBJECT_STR.Download) {
+                      return buildDownloadLink(e);
                     }
                     if (item.id === COLUMN_OBJECT_STR.ObjectCount) {
                       return nFormatter((e as any)[item.id], 2);

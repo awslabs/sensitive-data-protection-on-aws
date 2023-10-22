@@ -22,6 +22,7 @@ import {
   SCHEMA_COLUMN,
   UPDATE_FLAG,
   BUCKET_PROPERTIES_COLUMN,
+  UNSTRUCTURED_SAMPLE_OBJECT_COLUMN,
 } from '../types/data_config';
 import { DATA_TYPE_ENUM } from 'enum/common_types';
 import {
@@ -50,6 +51,7 @@ const SchemaModal: React.FC<any> = (props: any) => {
     selectPageRowData,
     setSelectRowData,
     updateFatherPage,
+    dataType,
   } = props;
   const { t } = useTranslation();
   const [saveLoading, setSaveLoading] = useState(false);
@@ -72,12 +74,16 @@ const SchemaModal: React.FC<any> = (props: any) => {
   if (catalogType === DATA_TYPE_ENUM.s3) {
     const objectsProps = {
       dataList: [],
-      columnList: SAMPLE_OBJECT_COLUMN,
+      columnList:
+        dataType === 'unstructured'
+          ? UNSTRUCTURED_SAMPLE_OBJECT_COLUMN
+          : SAMPLE_OBJECT_COLUMN,
       catalogType,
       tagId: COLUMN_OBJECT_STR.SampleObjects,
       selectRowData,
       selectPageRowData,
       setSaveDisabled,
+      dataType: dataType,
     };
     const schemaProps = {
       dataList: [],
@@ -96,17 +102,20 @@ const SchemaModal: React.FC<any> = (props: any) => {
     const propertiesProps = {
       columnList: BUCKET_PROPERTIES_COLUMN,
       catalogType,
-      tagId: '', // TODO
-      detailDesInfo: '', // TODO
-      detailDesHeader: '', //TODO
+      tagId: COLUMN_OBJECT_STR.FolderDetail,
       selectRowData,
     };
+    console.info('dataType:', dataType);
     tabsContent = [
-      {
-        id: COLUMN_OBJECT_STR.Schema,
-        label: t('tab.schema'),
-        content: <CatalogDetailList {...schemaProps} />,
-      },
+      ...(dataType === 'unstructured'
+        ? []
+        : [
+            {
+              id: COLUMN_OBJECT_STR.Schema,
+              label: t('tab.schema'),
+              content: <CatalogDetailList {...schemaProps} />,
+            },
+          ]),
       {
         id: COLUMN_OBJECT_STR.SampleObjects,
         label: t('tab.sampleObjects'),
@@ -142,9 +151,7 @@ const SchemaModal: React.FC<any> = (props: any) => {
     const propertiesProps = {
       columnList: BUCKET_PROPERTIES_COLUMN,
       catalogType,
-      tagId: '', // TODO
-      detailDesInfo: '', // TODO
-      detailDesHeader: '', //TODO
+      tagId: COLUMN_OBJECT_STR.TableDetail,
       selectRowData,
     };
     tabsContent = [
