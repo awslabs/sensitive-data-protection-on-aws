@@ -44,18 +44,9 @@ const AdvancedSettings: React.FC<AdvancedSettingsProps> = (
             variant="h2"
             description={
               <div>
-                <div>
-                  Exclude: If keywords appeared in column header, then the
-                  column will be marked as "Non-PII"
-                </div>
-                <div>
-                  Include: If keywords appeared in column header, then the
-                  column will be marked as "Contains-PII"
-                </div>
-                <div>
-                  This rule applies to all data catalogs selected in this job.
-                  This job rule will override identifier rule.
-                </div>
+                <div>{t('job:create.keywordDesc1')}</div>
+                <div>{t('job:create.keywordDesc2')}</div>
+                <div>{t('job:create.keywordDesc3')}</div>
               </div>
             }
           >
@@ -65,7 +56,7 @@ const AdvancedSettings: React.FC<AdvancedSettingsProps> = (
       >
         <Grid gridDefinition={[{ colspan: 6 }, { colspan: 6 }]}>
           <RuleKeywords
-            title="Exclude keywords"
+            title={t('job:create.excludeKeywords')}
             placeholder={`.xml\n.abc\n.ddl`}
             enabled={jobData.excludeKeyWordsEnable}
             changeEnable={(enable) => {
@@ -77,7 +68,7 @@ const AdvancedSettings: React.FC<AdvancedSettingsProps> = (
             }}
           />
           <RuleKeywords
-            title="Include keywords"
+            title={t('job:create.includeKeywords')}
             placeholder={`.xml\n.abc\n.ddl`}
             enabled={jobData.includeKeyWordsEnable}
             changeEnable={(enable) => {
@@ -98,24 +89,18 @@ const AdvancedSettings: React.FC<AdvancedSettingsProps> = (
               variant="h2"
               description={
                 <div>
-                  <div>
-                    Exclude: The files with the following extensions will be
-                    marked as "Non-PII"
-                  </div>
-                  <div>
-                    Include: The files with the following extensions will be
-                    marked as "Contains-PII"
-                  </div>
+                  <div>{t('job:create.fileDesc1')}</div>
+                  <div>{t('job:create.fileDesc2')}</div>
                 </div>
               }
             >
-              Advanced rules：Exclude file extensions for this job
+              {t('job:create.advancedFile')}
             </Header>
           }
         >
           <Grid gridDefinition={[{ colspan: 6 }, { colspan: 6 }]}>
             <RuleKeywords
-              title="Exclude file extensions"
+              title={t('job:create.excludeFile')}
               placeholder={`.xml\n.abc\n.ddl`}
               enabled={jobData.excludeExtensionsEnable}
               changeEnable={(enable) => {
@@ -127,7 +112,7 @@ const AdvancedSettings: React.FC<AdvancedSettingsProps> = (
               }}
             />
             <RuleKeywords
-              title="Include file extensions"
+              title={t('job:create.includeFile')}
               placeholder={`.xml\n.abc\n.ddl`}
               enabled={jobData.includeExtensionsEnable}
               changeEnable={(enable) => {

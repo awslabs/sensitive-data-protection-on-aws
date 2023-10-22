@@ -2,6 +2,7 @@ import { Tabs } from '@cloudscape-design/components';
 import { getSourceProviders } from 'apis/data-source/api';
 import { getJDBCTypeByProviderId } from 'enum/common_types';
 import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export interface ProviderType {
   status: number;
@@ -23,8 +24,13 @@ interface ProviderTabProps {
 
 const ProviderTab: React.FC<ProviderTabProps> = (props: ProviderTabProps) => {
   const { changeProvider, loadingProvider } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [activatedId, setActivatedId] = useState('');
   const [providers, setProviders] = useState([]);
   const [providerTabList, setProviderTabList] = useState([]);
+  const queryParams = new URLSearchParams(location.search);
+  const defaultProvider = queryParams.get('provider');
 
   const getProviders = async () => {
     loadingProvider(true);
@@ -33,12 +39,23 @@ const ProviderTab: React.FC<ProviderTabProps> = (props: ProviderTabProps) => {
     providers.forEach((element: ProviderType) => {
       tmpTabList.push({
         label: element.provider_name,
-        id: element.id,
+        id: element.id.toString(),
         jdbc_type: getJDBCTypeByProviderId(element.id),
       });
     });
     if (providers.length > 0) {
-      changeProvider(providers[0]);
+      // has default provider
+      if (defaultProvider) {
+        const defaultObj = providers.find(
+          (item: any) => item.id === parseInt(defaultProvider)
+        );
+        console.info('defaultObj:', defaultObj);
+        changeProvider(defaultObj);
+        setActivatedId(defaultProvider);
+      } else {
+        setActivatedId(providers?.[0]?.id?.toString());
+        changeProvider(providers[0]);
+      }
     }
     setProviders(providers);
     setProviderTabList(tmpTabList);
@@ -54,7 +71,19 @@ const ProviderTab: React.FC<ProviderTabProps> = (props: ProviderTabProps) => {
       <Tabs
         disableContentPaddings
         tabs={providerTabList}
+        activeTabId={activatedId}
         onChange={(e) => {
+          const queryParams = new URLSearchParams();
+          // if (!queryParams.has("provider")) {
+          //   // URL没有provider，不进行任何操作
+          //   return;
+          // }
+          // 如果存在，则修改参数的值
+          queryParams.set('provider', e.detail.activeTabId);
+          //将新的查询字符串push到历史堆栈中
+          navigate(location.pathname + '?' + queryParams.toString());
+          // window.history.replaceState(null, '', `?${queryParams.toString()}`);
+          setActivatedId(e.detail.activeTabId);
           changeProvider(
             providers.find(
               (element: ProviderType) =>

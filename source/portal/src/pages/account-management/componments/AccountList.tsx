@@ -19,7 +19,11 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
 import { getAccountList, deleteAccount } from 'apis/account-manager/api';
-import { ACCOUNT_COLUMN_LIST, THIRD_PROVIDER_COLUMN_LIST, TYPE_COLUMN } from '../types/account_type';
+import {
+  ACCOUNT_COLUMN_LIST,
+  THIRD_PROVIDER_COLUMN_LIST,
+  TYPE_COLUMN,
+} from '../types/account_type';
 import { TABLE_NAME } from 'enum/common_types';
 import '../style.scss';
 import { refreshDataSource } from 'apis/data-source/api';
@@ -34,8 +38,9 @@ interface AccountListProps {
 
 const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
   const { setTotalAccount, provider } = props;
-  console.log("provider is",provider)
-  const columnList = provider?.id === 1?ACCOUNT_COLUMN_LIST:THIRD_PROVIDER_COLUMN_LIST;
+  console.log('provider is', provider);
+  const columnList =
+    provider?.id === 1 ? ACCOUNT_COLUMN_LIST : THIRD_PROVIDER_COLUMN_LIST;
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -168,7 +173,10 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
     try {
       await refreshDataSource(requestParam);
       await getPageData();
-      alertMsg(t('account:filterAWSAccounxts', {PROVIDER: provider?.provider_name}), 'success');
+      alertMsg(
+        t('account:filterAWSAccounxts', { PROVIDER: provider?.provider_name }),
+        'success'
+      );
     } catch (e) {
       console.warn('Refresh Data Error:', e);
     }
@@ -257,6 +265,7 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
                 }
                 return (
                   <CommonBadge
+                    noWrap
                     badgeType={BADGE_TYPE.Classified}
                     badgeLabel={badgeLabelData}
                     labelType={labelType}
@@ -348,9 +357,7 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
                       </div>
                     );
                   }
-                  showText = `${
-                    e[TYPE_COLUMN.TOTAL_JDBC_CONNECTION]
-                  }`;
+                  showText = `${e[TYPE_COLUMN.TOTAL_JDBC_CONNECTION]}`;
                 }
 
                 if (

@@ -34,7 +34,7 @@ const JobDetailModal = (props: any) => {
       className="job-detail"
       setShowModal={setShowDetailModal}
       showModal={showDetailModal}
-      header="Job details"
+      header={t('job:detail.name')}
       showFolderIcon={true}
     >
       <div className="modal-body-header">

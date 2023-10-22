@@ -10,6 +10,7 @@ import {
   SegmentedControl,
 } from '@cloudscape-design/components';
 import {
+  GLUE_ACCOUNTS_COLUMNS,
   RDS_CATALOG_COLUMS,
   RDS_FOLDER_COLUMS,
   S3_CATALOG_COLUMS,
@@ -19,6 +20,7 @@ import { formatSize } from 'tools/tools';
 import CommonBadge from 'pages/common-badge';
 import {
   BADGE_TYPE,
+  CLSAAIFIED_TYPE,
   PRIVARY_TYPE_INT_DATA,
 } from 'pages/common-badge/types/badge_type';
 import ResourcesFilter from 'pages/resources-filter';
@@ -26,9 +28,12 @@ import { TABLE_NAME } from 'enum/common_types';
 import { useTranslation } from 'react-i18next';
 import { IDataSourceType, IJobType } from 'pages/data-job/types/job_list_type';
 import {
+  convertAccountListToJobDatabases,
   convertDataSourceListToJobDatabases,
   convertTableSourceToJobDatabases,
 } from '../index';
+import { getAccountList } from 'apis/account-manager/api';
+import { TYPE_COLUMN } from 'pages/account-management/types/account_type';
 
 interface SelectS3CatalogProps {
   jobData: IJobType;
@@ -49,11 +54,10 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
   const { t } = useTranslation();
   const [glueCatalogData, setGlueCatalogData] = useState<IDataSourceType[]>([]);
   const [glueFolderData, setGlueFolderData] = useState([] as any);
+  const [glueAccountData, setGlueAccountData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [glueTotal, setGlueTotal] = useState(0);
-  const [selectedGlueItems, setSelectedGlueItems] = useState<IDataSourceType[]>(
-    []
-  );
+  const [selectedGlueItems, setSelectedGlueItems] = useState<any[]>([]);
 
   const [preferences, setPreferences] = useState({
     pageSize: 20,
@@ -104,6 +108,7 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
   };
 
   const getGlueFolderData = async (nameFilter?: string) => {
+    setIsLoading(true);
     try {
       const requestParam: any = {
         page: currentPage,
@@ -127,6 +132,36 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
     }
   };
 
+  const getAwsAccountList = async () => {
+    setIsLoading(true);
+    try {
+      const requestParam = {
+        page: currentPage,
+        size: preferences.pageSize,
+        conditions: [
+          {
+            column: 'status',
+            values: [1],
+            operation: '=',
+            condition: 'and',
+          },
+          {
+            column: 'account_provider_id',
+            values: [1],
+            operation: '=',
+            condition: 'and',
+          },
+        ],
+      };
+      const result: any = await getAccountList(requestParam);
+      setGlueAccountData(result.items);
+      setGlueTotal(result?.total);
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (jobData.all_glue === '0') {
       if (jobData.glueSelectedView === 'glue-instance-view') {
@@ -134,8 +169,7 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
       } else if (jobData.glueSelectedView === 'glue-table-view') {
         getGlueFolderData();
       } else {
-        // Account view
-        // TODO
+        getAwsAccountList();
       }
     }
   }, [
@@ -162,8 +196,12 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
         )
       );
     } else {
-      // account view
-      //TODO
+      changeSelectDatabases(
+        convertAccountListToJobDatabases(
+          selectedGlueItems,
+          jobData.database_type
+        )
+      );
     }
   }, [selectedGlueItems]);
 
@@ -378,6 +416,147 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
                           <CommonBadge
                             badgeType={BADGE_TYPE.Privacy}
                             badgeLabel={(e as any)[item.id]}
+                          />
+                        );
+                      }
+                      return e[item.id];
+                    },
+                  };
+                })}
+                loading={isLoading}
+                pagination={
+                  <Pagination
+                    currentPageIndex={currentPage}
+                    onChange={({ detail }) =>
+                      setCurrentPage(detail.currentPageIndex)
+                    }
+                    pagesCount={Math.ceil(glueTotal / preferences.pageSize)}
+                    ariaLabels={{
+                      nextPageLabel: t('table.nextPage') || '',
+                      previousPageLabel: t('table.previousPage') || '',
+                      pageLabel: (pageNumber) =>
+                        `${t('table.pageLabel', {
+                          pageNumber: pageNumber,
+                        })}`,
+                    }}
+                  />
+                }
+                preferences={
+                  <CollectionPreferences
+                    onConfirm={({ detail }) => setPreferences(detail)}
+                    preferences={preferences}
+                    title={t('table.preferences')}
+                    confirmLabel={t('table.confirm')}
+                    cancelLabel={t('table.cancel')}
+                    pageSizePreference={{
+                      title: t('table.selectPageSize'),
+                      options: [
+                        {
+                          value: 10,
+                          label: t('table.pageSize10'),
+                        },
+                        {
+                          value: 20,
+                          label: t('table.pageSize20'),
+                        },
+                        {
+                          value: 50,
+                          label: t('table.pageSize50'),
+                        },
+                        {
+                          value: 100,
+                          label: t('table.pageSize100'),
+                        },
+                      ],
+                    }}
+                    visibleContentPreference={{
+                      title: t('table.selectVisibleContent'),
+                      options: [
+                        {
+                          label: t('table.mainDistributionProp'),
+                          options: S3_CATALOG_COLUMS,
+                        },
+                      ],
+                    }}
+                  />
+                }
+              />
+            )}
+            {jobData.glueSelectedView === 'glue-account-view' && (
+              <Table
+                className="job-table-width"
+                resizableColumns
+                variant="embedded"
+                selectionType="multi"
+                selectedItems={selectedGlueItems}
+                onSelectionChange={({ detail }) =>
+                  setSelectedGlueItems(detail.selectedItems)
+                }
+                ariaLabels={{
+                  selectionGroupLabel: t('table.itemsSelection') || '',
+                  allItemsSelectionLabel: ({ selectedItems }) =>
+                    `${selectedItems.length} ${
+                      selectedItems.length === 1
+                        ? t('table.item')
+                        : t('table.items')
+                    } ${t('table.selected')}`,
+                  itemSelectionLabel: ({ selectedItems }, item) => {
+                    const isItemSelected = selectedItems.filter(
+                      (i) =>
+                        (i as any)[S3_CATALOG_COLUMS[0].id] ===
+                        (item as any)[S3_CATALOG_COLUMS[0].id]
+                    ).length;
+                    return `${(item as any)[S3_CATALOG_COLUMS[0].id]} ${t(
+                      'table.is'
+                    )} ${isItemSelected ? '' : t('table.not')} ${t(
+                      'table.selected'
+                    )}`;
+                  },
+                }}
+                items={glueAccountData}
+                filter={<ResourcesFilter {...glueFilterProps} />}
+                columnDefinitions={GLUE_ACCOUNTS_COLUMNS.map((item) => {
+                  return {
+                    id: item.id,
+                    header: t(item.label),
+                    cell: (e: any) => {
+                      if (item.id === TYPE_COLUMN.STATUS) {
+                        let labelType = CLSAAIFIED_TYPE.Unconnected;
+                        let badgeLabelData = (e as any)[TYPE_COLUMN.STATUS];
+                        switch ((e as any)[TYPE_COLUMN.STATUS]) {
+                          case 1:
+                            labelType = CLSAAIFIED_TYPE.Success;
+                            badgeLabelData = 'SUCCEEDED';
+                            break;
+                          case null:
+                            badgeLabelData = (e as any)[
+                              TYPE_COLUMN.STACK_STATUS
+                            ];
+                            if (
+                              (e as any)[TYPE_COLUMN.STACK_STATUS] ===
+                              'SUCCEEDED'
+                            ) {
+                              labelType = CLSAAIFIED_TYPE.Success;
+                            } else if (
+                              (e as any)[TYPE_COLUMN.STACK_STATUS] === 'CURRENT'
+                            ) {
+                              labelType = CLSAAIFIED_TYPE.SystemMark;
+                            } else if (
+                              (e as any)[TYPE_COLUMN.STACK_STATUS] === 'PENDING'
+                            ) {
+                              labelType = CLSAAIFIED_TYPE.Unconnected;
+                            }
+                            break;
+                          default:
+                            labelType = CLSAAIFIED_TYPE.Unconnected;
+                            badgeLabelData = 'PENDING';
+                            break;
+                        }
+                        return (
+                          <CommonBadge
+                            badgeType={BADGE_TYPE.Classified}
+                            badgeLabel={badgeLabelData}
+                            labelType={labelType}
                           />
                         );
                       }

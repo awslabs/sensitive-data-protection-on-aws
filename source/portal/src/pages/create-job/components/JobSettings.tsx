@@ -304,14 +304,16 @@ const JobSettings: React.FC<JobSettingsProps> = (props: JobSettingsProps) => {
           {jobData.database_type === SOURCE_TYPE.S3 ? (
             <>
               <FormField
-                label="Scan depth for structured files"
+                label={t('job:create.scanDepthForStructured')}
                 info={
                   <Popover
                     dismissButton={false}
                     position="right"
                     size="large"
                     content={
-                      <StatusIndicator type="info">TODO</StatusIndicator>
+                      <StatusIndicator type="info">
+                        {t('job:create.scanDepthForStructuredInfo')}
+                      </StatusIndicator>
                     }
                   >
                     <b className="title-info">{t('info')}</b>
@@ -331,14 +333,16 @@ const JobSettings: React.FC<JobSettingsProps> = (props: JobSettingsProps) => {
               </FormField>
 
               <FormField
-                label="Scan depth for unstructured data (per folder)"
+                label={t('job:create.scanDepthForUnstructured')}
                 info={
                   <Popover
                     dismissButton={false}
                     position="right"
                     size="large"
                     content={
-                      <StatusIndicator type="info">TODO</StatusIndicator>
+                      <StatusIndicator type="info">
+                        {t('job:create.scanDepthForUnstructuredInfo')}
+                      </StatusIndicator>
                     }
                   >
                     <b className="title-info">{t('info')}</b>

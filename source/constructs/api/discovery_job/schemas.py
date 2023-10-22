@@ -87,7 +87,7 @@ class DiscoveryJobDatabaseBase(BaseModel):
     account_id: str
     region: str
     database_type: str
-    database_name: str
+    database_name: Optional[str]
     table_name: Optional[str]
 
 
