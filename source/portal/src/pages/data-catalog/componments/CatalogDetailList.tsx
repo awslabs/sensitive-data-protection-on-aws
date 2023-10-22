@@ -558,7 +558,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
           className="flex-inline align-center link"
         >
           <Icon name="download" />
-          <span className="ml-5">Download</span>
+          <span className="ml-5">{t('button.download')}</span>
         </div>
       );
     };

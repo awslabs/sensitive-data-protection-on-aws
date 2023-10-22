@@ -143,24 +143,24 @@ const JobPreview: React.FC<JobPreviewProps> = (props: JobPreviewProps) => {
         <FormField label={t('job:create.override')}>
           <span>{jobData?.overrideObj?.label}</span>
         </FormField>
-        <FormField label="Exclude keywords">
+        <FormField label={t('job:create.excludeKeywords')}>
           <span>
             <pre>{jobData.exclude_keywords}</pre>
           </span>
         </FormField>
-        <FormField label="Include keywords">
+        <FormField label={t('job:create.includeKeywords')}>
           <span>
             <pre>{jobData.include_keywords}</pre>
           </span>
         </FormField>
         {jobData.database_type === SOURCE_TYPE.S3 && (
           <>
-            <FormField label="Exclude file extensions">
+            <FormField label={t('job:create.excludeFile')}>
               <span>
                 <pre>{jobData.exclude_file_extensions}</pre>
               </span>
             </FormField>
-            <FormField label="Include file extensions">
+            <FormField label={t('job:create.includeFile')}>
               <span>
                 <pre>{jobData.include_file_extensions}</pre>
               </span>

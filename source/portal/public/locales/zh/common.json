@@ -98,7 +98,8 @@
     "deleteDataSourceOnly": "仅删除数据目录",
     "disconnectDeleteCatalog": "断开连接并删除目录",
     "deleteDB": "删除数据库",
-    "editDataSource": "编辑数据源"
+    "editDataSource": "编辑数据源",
+    "download": "下载"
   },
   "label": {
     "label": "标签",

@@ -301,9 +301,9 @@ const CreateJobContent = () => {
         // allowSkipTo
         steps={[
           {
-            title: 'Choose cloud provider and data sources',
+            title: t('job:create.chooseProviderSource'),
             info: <Link variant="info">Info</Link>,
-            description: 'Select cloud provider and data source',
+            description: t('job:create.chooseProviderSourceDesc'),
             content: (
               <SelectProvider
                 jobData={jobData}
@@ -328,7 +328,7 @@ const CreateJobContent = () => {
             ),
           },
           {
-            title: 'Select existing data catalogs',
+            title: t('job:create.selectDataCatalog'),
             content: (
               <>
                 {jobData.database_type === SOURCE_TYPE.S3 && (
@@ -434,7 +434,7 @@ const CreateJobContent = () => {
             ),
           },
           {
-            title: 'Job settings',
+            title: t('job:create.jobSettings'),
             content: (
               <>
                 <JobSettings
@@ -545,7 +545,7 @@ const CreateJobContent = () => {
             ),
           },
           {
-            title: 'Advanced settings: Exclude keywords',
+            title: t('job:create.advancedSettings'),
             content: (
               <>
                 <AdvancedSettings
@@ -615,7 +615,7 @@ const CreateJobContent = () => {
             ),
           },
           {
-            title: 'Job preview',
+            title: t('job:create.jobPreview'),
             content: <JobPreview jobData={jobData} />,
           },
         ]}

@@ -98,7 +98,8 @@
     "deleteDataSourceOnly": "Delete data catalog only",
     "disconnectDeleteCatalog": "Disconnect & Delete catalog",
     "deleteDB": "Delete Database",
-    "editDataSource": "Edit data source"
+    "editDataSource": "Edit data source",
+    "download": "Download"
   },
   "label": {
     "label": "Custom label",

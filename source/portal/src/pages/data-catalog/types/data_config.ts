@@ -280,6 +280,11 @@ export const SAMPLE_OBJECT_COLUMN = [
     filter: false,
   },
   {
+    id: COLUMN_OBJECT_STR.Download,
+    label: 'table.label.download',
+    filter: false,
+  },
+  {
     id: 's3_full_path',
     label: 'table.label.s3FullPath',
     filter: false,
