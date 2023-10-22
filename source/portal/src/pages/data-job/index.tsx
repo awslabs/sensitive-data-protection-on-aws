@@ -36,7 +36,7 @@ import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import Navigation from 'pages/left-menu/Navigation';
 import {
   TABLE_NAME,
-  getProviderByJob,
+  getProviderByProviderId,
   getSourceByJob,
 } from 'enum/common_types';
 import { useTranslation } from 'react-i18next';
@@ -256,10 +256,10 @@ const DataJobContent: React.FC<any> = (props: any) => {
                   : '-';
               }
               if (item.id === 'dataSource') {
-                return getSourceByJob(e); // TODO
+                return getSourceByJob(e);
               }
               if (item.id === 'provider') {
-                return getProviderByJob(e); // TODO
+                return getProviderByProviderId(e.provider_id).name;
               }
               if (item.id === 'last_end_time') {
                 let runTime = '';

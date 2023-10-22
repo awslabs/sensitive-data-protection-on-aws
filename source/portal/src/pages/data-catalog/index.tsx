@@ -2,11 +2,7 @@ import React, { useState } from 'react';
 import Tabs from '@cloudscape-design/components/tabs';
 import ButtonDropdown from '@cloudscape-design/components/button-dropdown';
 import CatalogList from './componments/CatalogList';
-import {
-  SOURCE_TYPE,
-  TAB_LIST,
-  getJDBCTypeByProviderId,
-} from 'enum/common_types';
+import { TAB_LIST, getJDBCTypeByProviderId } from 'enum/common_types';
 import { useSearchParams } from 'react-router-dom';
 import format from 'date-fns/format';
 import { getExportS3Url, clearS3Object } from 'apis/data-catalog/api';
@@ -161,30 +157,30 @@ const DataCatalogList: React.FC = () => {
                       }
                       tabs={[
                         {
-                          label: t(TAB_LIST.S3.label),
+                          label: t(TAB_LIST.S3.id),
                           id: TAB_LIST.S3.id,
                           content: <CatalogList catalogType={TAB_LIST.S3.id} />,
                         },
                         {
-                          label: t(TAB_LIST.RDS.label),
+                          label: t(TAB_LIST.RDS.id),
                           id: TAB_LIST.RDS.id,
                           content: (
                             <CatalogList catalogType={TAB_LIST.RDS.id} />
                           ),
                         },
                         {
-                          label: t(TAB_LIST.GLUE.label),
+                          label: t(TAB_LIST.GLUE.id),
                           id: TAB_LIST.GLUE.id,
                           content: (
                             <CatalogList catalogType={TAB_LIST.GLUE.id} />
                           ),
                         },
                         {
-                          label: t(TAB_LIST.JDBC.label),
+                          label: t(TAB_LIST.JDBC.id),
                           id: TAB_LIST.JDBC.id,
                           content: (
                             <CatalogList
-                              label={t(TAB_LIST.JDBC.label)}
+                              label={t(TAB_LIST.JDBC.id)}
                               catalogType={getJDBCTypeByProviderId(1)}
                             />
                           ),
@@ -194,13 +190,13 @@ const DataCatalogList: React.FC = () => {
                   )}
                   {curProvider?.id === 2 && (
                     <CatalogList
-                      label={t(TAB_LIST.JDBC.label)}
+                      label={t(TAB_LIST.JDBC.id)}
                       catalogType={getJDBCTypeByProviderId(2)}
                     />
                   )}
                   {curProvider?.id === 3 && (
                     <CatalogList
-                      label={t(TAB_LIST.JDBC.label)}
+                      label={t(TAB_LIST.JDBC.id)}
                       catalogType={getJDBCTypeByProviderId(3)}
                     />
                   )}

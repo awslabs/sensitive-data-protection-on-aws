@@ -67,7 +67,6 @@ import { alertMsg, showHideSpinner } from 'tools/tools';
 import SourceBadge from './SourceBadge';
 import ErrorBadge from 'pages/error-badge';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 // import { RouterEnum } from 'routers/routerEnum';
 import JDBCConnection from './JDBCConnection';
 import JDBCConnectionEdit from './JDBCConnectionEdit';
@@ -75,7 +74,6 @@ import JDBCConnectionEdit from './JDBCConnectionEdit';
 const DataSourceList: React.FC<any> = memo((props: any) => {
   const { tagType, accountData } = props;
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const columnList =
     tagType === DATA_TYPE_ENUM.s3
       ? S3_COLUMN_LIST
@@ -171,22 +169,22 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         disabled: tagType === DATA_TYPE_ENUM.rds,
       },
       {
-        text: 'Add data source',
+        text: t('button.addDataSource'),
         id: 'addDataSource',
         disabled: tagType !== DATA_TYPE_ENUM.jdbc,
       },
       {
-        text: 'Delete data source',
+        text: t('button.deleteDataSource'),
         id: 'deleteDataSource',
         disabled: selectedItems.length === 0,
       },
       {
-        text: 'Delete data catalog only',
+        text: t('button.deleteDataSourceOnly'),
         id: 'deleteCatalog',
         disabled: selectedItems.length === 0,
       },
       {
-        text: 'Disconnect & Delete catalog',
+        text: t('button.disconnectDeleteCatalog'),
         id: 'disconnectAndDelete',
         disabled: selectedItems.length === 0,
       },
@@ -194,7 +192,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
     if (tagType === DATA_TYPE_ENUM.glue) {
       res = [
         {
-          text: 'Delete Database',
+          text: t('button.deleteDB'),
           id: 'deleteDatabase',
           disabled: selectedItems.length === 0,
         },
@@ -203,29 +201,29 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
     if (tagType === DATA_TYPE_ENUM.jdbc) {
       res = [
         {
-          text: 'Add data source',
+          text: t('button.addDataSource'),
           id: 'addImportJdbc',
           disabled: tagType !== DATA_TYPE_ENUM.jdbc,
         },
         {
-          text: 'Edit data source',
+          text: t('button.editDataSource'),
           id: 'editJdbc',
           disabled: selectedItems.length === 0,
         },
         {
-          text: 'Delete data source',
+          text: t('button.deleteDataSource'),
           id: 'delete_ds',
           disabled:
             tagType === DATA_TYPE_ENUM.rds || selectedItems.length === 0,
         },
         {
-          text: 'Delete data catalog only',
+          text: t('button.deleteDataSourceOnly'),
           id: 'delete_dc',
           disabled:
             tagType !== DATA_TYPE_ENUM.jdbc && tagType !== DATA_TYPE_ENUM.glue,
         },
         {
-          text: 'Disconnect & Delete catalog',
+          text: t('button.disconnectDeleteCatalog'),
           id: 'disconnect_dc',
           disabled: selectedItems.length === 0,
         },
@@ -1107,14 +1105,14 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
           </FormField>
           {cedentialType === 'username_pwd' && (
             <>
-              <FormField label="Username">
+              <FormField label={t('datasource:username')}>
                 <Input
                   value={rdsUser}
                   onChange={({ detail }) => setRdsUser(detail.value)}
                 />
               </FormField>
 
-              <FormField label="Password">
+              <FormField label={t('datasource:password')}>
                 <Input
                   value={rdsUserPwd}
                   onChange={({ detail }) => setRdsUserPwd(detail.value)}

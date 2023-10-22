@@ -30,6 +30,12 @@
   "forChina": "中国区使用",
   "forGlobal": "海外区使用",
   "add": {
+    "basicInfo": "基本信息",
+    "provider": "提供商",
+    "accountId": "账户 ID",
+    "accountIdPlaceholder": "请输入账户 ID",
+    "regionLocation": "区域/位置",
+    "regionLocationPlaceholder": "请选择一个区域/位置",
     "addAWSAccount": "添加 AWS 账户",
     "addAWSAccountDesc": "设置和管理您希望平台发现敏感数据的 AWS 账户。",
     "org": {

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import '../style.scss';
 import SourceBadge from './SourceBadge';
 import { useTranslation } from 'react-i18next';
+import { getProviderByProviderId } from 'enum/common_types';
 
 const DataSourceInfo: React.FC<any> = ({ accountData }: any) => {
   const { t } = useTranslation();
@@ -14,22 +15,14 @@ const DataSourceInfo: React.FC<any> = ({ accountData }: any) => {
   // genProvider(accountData.account_provider_id)
 
   useEffect(() => {
-    let type = 'AWS';
-    if (accountData.account_provider_id === 2) {
-      type = 'TENCENT CLOUD';
-    } else if (accountData.provider_id === 3) {
-      type = 'GOOGLE CLOUD';
-    }
-    setProviderType(type);
+    const providerName = getProviderByProviderId(
+      accountData.account_provider_id
+    ).name;
+    setProviderType(providerName);
   }, []);
+
   const genProvider = (provider_id: number): string => {
-    if (provider_id == 2) {
-      return 'TENCENT CLOUD';
-    } else if (provider_id == 3) {
-      return 'GOOGLE CLOUD';
-    } else {
-      return 'AWS CLOUD';
-    }
+    return getProviderByProviderId(provider_id).name;
   };
   return (
     <Container
@@ -43,7 +36,7 @@ const DataSourceInfo: React.FC<any> = ({ accountData }: any) => {
         </Header>
       }
     >
-      <div>
+      <div className="flex justify-spacebetween">
         {accountData.account_provider_id !== 1 && (
           <div className="datasource-container-item">
             <p className="p-title">{t('table.label.provider')}</p>

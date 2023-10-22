@@ -11,9 +11,7 @@ import {
   SpaceBetween,
   Tiles,
 } from '@cloudscape-design/components';
-import S3ResourceSelector, {
-  S3ResourceSelectorProps,
-} from '@cloudscape-design/components/s3-resource-selector';
+import S3ResourceSelector from '@cloudscape-design/components/s3-resource-selector';
 import {
   listGlueConnection,
   importGlueConnection,
@@ -26,7 +24,6 @@ import RightModal from 'pages/right-modal';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { alertMsg } from 'tools/tools';
-import { ErrorAlert } from './Alert';
 import { i18ns } from '../types/s3_selector_config';
 
 interface JDBCConnectionProps {
@@ -415,7 +412,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
         setShowModal(show);
       }}
       showModal={showModal}
-      header="Add JDBC Connection"
+      header={t('datasource:jdbc.addConnection')}
     >
       <div className="add-jdbc-container">
         <Form
@@ -444,7 +441,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
           }
         >
           <SpaceBetween direction="vertical" size="s">
-            <FormField stretch label="Select a Glue connection">
+            <FormField stretch label={t('datasource:jdbc.selectGlue')}>
               <Tiles
                 onChange={({ detail }) => {
                   console.log('detail is:', detail);
@@ -463,11 +460,11 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                 value={jdbcType}
                 items={[
                   {
-                    label: 'Import glue connection',
+                    label: t('datasource:jdbc.importGlue'),
                     value: 'import',
                     disabled: props.providerId !== 1,
                   },
-                  { label: 'Create new connection', value: 'new' },
+                  { label: t('datasource:jdbc.createNew'), value: 'new' },
                 ]}
               />
             </FormField>
@@ -476,11 +473,11 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
               <>
                 <FormField
                   stretch
-                  label="Glue connection"
-                  description="Choose an existing Glue connection from AWS account where the SDP platform installed."
+                  label={t('datasource:jdbc.glueConnection')}
+                  description={t('datasource:jdbc.glueConnectionDesc')}
                 >
                   <Select
-                    placeholder="Please select connection"
+                    placeholder={t('datasource:jdbc.gcPlaceholder') ?? ''}
                     selectedOption={importGlue}
                     onChange={({ detail }) => {
                       const temp = jdbcConnectionData;
@@ -500,8 +497,8 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
               <>
                 <FormField
                   stretch
-                  label="connection name"
-                  description="Enter a unique name for your connection."
+                  label={t('datasource:jdbc.connectionName')}
+                  description={t('datasource:jdbc.connectionNameDesc')}
                 >
                   <Input
                     onChange={(e) => changeConnectionName(e.detail.value)}
@@ -509,8 +506,8 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                   />
                 </FormField>
                 <FormField
-                  description="The connection will fail if it's unable to connect over SSL."
-                  label="SSL connection"
+                  description={t('datasource:jdbc.sslConnectionDesc')}
+                  label={t('datasource:jdbc.sslConnection')}
                 >
                   <Checkbox
                     checked={
@@ -520,15 +517,15 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                       changeRequiredSSL(detail.checked);
                     }}
                   >
-                    Require SSL connection
+                    {t('datasource:jdbc.requireSSL')}
                   </Checkbox>
                 </FormField>
                 {jdbcConnectionData.new.jdbc_enforce_ssl !== 'false' && (
                   <>
                     <FormField
-                      label="Custom JDBC certificate"
-                      description="Choose your X.509 certificate. Must be DER-encoded Base64 PEM format."
-                      constraintText="Use s3://bucket/prefix/object format."
+                      label={t('datasource:jdbc.customJDBCCert')}
+                      description={t('datasource:jdbc.chooseCert')}
+                      constraintText={t('datasource:jdbc.useS3Format')}
                       errorText=""
                       stretch={true}
                     >
@@ -551,8 +548,8 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                       />
                     </FormField>
                     <FormField
-                      description="By default your custom certificate is validated before use. Turn on this option to skip validation of the certificate algorithm and key length during connection."
-                      label="certificate validation"
+                      description={t('datasource:jdbc.certValidationDesc')}
+                      label={t('datasource:jdbc.certValidation')}
                     >
                       <Checkbox
                         checked={
@@ -563,13 +560,17 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                           changeSkipCerValid(detail.checked);
                         }}
                       >
-                        Skip certificate validation
+                        {t('datasource:jdbc.skipValidation')}
                       </Checkbox>
                     </FormField>
                     <FormField
-                      description="Enter your database specific custom certificate info."
-                      label="Custom JDBC certificate string"
-                      constraintText="For Oracle Database this maps to SSL_SERVER_CERT_DN, and for SQL Server it maps to hostNameInCertificate."
+                      description={t(
+                        'datasource:jdbc.customJDBCCertStringDesc'
+                      )}
+                      label={t('datasource:jdbc.customJDBCCertString')}
+                      constraintText={t(
+                        'datasource:jdbc.customJDBCCertConstraint'
+                      )}
                     >
                       <Input
                         onChange={(e) => changeJDBCCertString(e.detail.value)}
@@ -581,8 +582,8 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
 
                 <FormField
                   stretch
-                  label="Description - optional"
-                  description="Descriptions can be up to 2048 characters long."
+                  label={t('datasource:jdbc.description')}
+                  description={t('datasource:jdbc.descriptionDesc')}
                 >
                   <Input
                     onChange={(e) => changeDescription(e.detail.value)}
@@ -592,9 +593,9 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                 <>
                   <FormField
                     stretch
-                    label="JDBC URL"
-                    description="Use the JDBC protocol to access Amazon Redshift, Amazon RDS, and publicly accessible databases."
-                    constraintText="JDBC syntax for most database engines is jdbc:protocol://host:port/databasename."
+                    label={t('datasource:jdbc.jdbcURL')}
+                    description={t('datasource:jdbc.jdbcURLDesc')}
+                    constraintText={t('datasource:jdbc.jdbcURLConstraint')}
                   >
                     <Input
                       onChange={(e) => changeJDBCUrl(e.detail.value)}
@@ -604,8 +605,8 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                   </FormField>
                   <FormField
                     stretch
-                    label="JDBC Driver Class name - optional"
-                    constraintText="Type a custom JDBC driver class name for the crawler to connect to the data source."
+                    label={t('datasource:jdbc.jdbcClassName')}
+                    constraintText={t('datasource:jdbc.jdbcClassNameDesc')}
                   >
                     <Input
                       onChange={(e) => changeDriverClassName(e.detail.value)}
@@ -614,8 +615,8 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                   </FormField>
                   <FormField
                     stretch
-                    label="JDBC Driver S3 path - optional"
-                    constraintText="Browse for or enter an existing S3 path to a .jar file."
+                    label={t('datasource:jdbc.jdbcS3Path')}
+                    constraintText={t('datasource:jdbc.jdbcS3PathDesc')}
                   >
                     <S3ResourceSelector
                       onChange={({ detail }) => changeDriverPath(detail)}
@@ -634,7 +635,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                   </FormField>
                 </>
 
-                <FormField stretch label="Credentials">
+                <FormField stretch label={t('datasource:jdbc.credential')}>
                   <Tiles
                     onChange={({ detail }) => {
                       resetCredentials();
@@ -642,16 +643,22 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                     }}
                     value={credential}
                     items={[
-                      { label: 'Secret Manager', value: 'secret' },
-                      { label: 'Username/Password', value: 'password' },
+                      {
+                        label: t('datasource:jdbc.secretManager'),
+                        value: 'secret',
+                      },
+                      {
+                        label: t('datasource:jdbc.userPwd'),
+                        value: 'password',
+                      },
                     ]}
                   />
                 </FormField>
 
                 {credential === 'secret' && (
-                  <FormField stretch label="Secrets">
+                  <FormField stretch label={t('datasource:jdbc.secret')}>
                     <Select
-                      placeholder="Please select secret"
+                      placeholder={t('datasource:jdbc.selectSecret') ?? ''}
                       selectedOption={secretItem}
                       onChange={
                         ({ detail }) => changeSecret(detail.selectedOption)
@@ -664,7 +671,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
 
                 {credential === 'password' && (
                   <>
-                    <FormField stretch label="Username">
+                    <FormField stretch label={t('datasource:jdbc.username')}>
                       <Input
                         value={jdbcConnectionData.new.master_username}
                         onChange={({ detail }) => {
@@ -672,7 +679,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                         }}
                       />
                     </FormField>
-                    <FormField stretch label="Password">
+                    <FormField stretch label={t('datasource:jdbc.password')}>
                       <Input
                         type="password"
                         value={jdbcConnectionData.new.password}
@@ -684,18 +691,18 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                   </>
                 )}
                 <ExpandableSection
-                  headerText="Network options"
+                  headerText={t('datasource:jdbc.networkOption')}
                   onChange={() => setExpanded(!expanded)}
                   expanded={expanded}
-                  headerDescription="If your Amazon Glue job needs to jdbc resource which existed in other vpc or other cloud provider environment, you must provide additional VPC-specific configuration information."
+                  headerDescription={t('datasource:jdbc.networkDesc') ?? ''}
                 >
                   <FormField
                     stretch
-                    label="VPC"
-                    description="Choose the virtual private cloud that contains your data source."
+                    label={t('datasource:jdbc.vpc')}
+                    description={t('datasource:jdbc.vpcDesc')}
                   >
                     <Select
-                      placeholder="Choose one VPC"
+                      placeholder={t('datasource:jdbc.chooseVPC') ?? ''}
                       selectedOption={vpc}
                       onChange={({ detail }) =>
                         changeVPC(detail.selectedOption)
@@ -706,11 +713,11 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                   </FormField>
                   <FormField
                     stretch
-                    label="Subnet"
-                    description="Choose the subnet within your VPC."
+                    label={t('datasource:jdbc.subnet')}
+                    description={t('datasource:jdbc.subnetDesc')}
                   >
                     <Select
-                      placeholder="Choose one subnet"
+                      placeholder={t('datasource:jdbc.chooseSubnet') ?? ''}
                       selectedOption={subnet}
                       onChange={({ detail }) =>
                         changeSubnet(detail.selectedOption)
@@ -720,11 +727,11 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                   </FormField>
                   <FormField
                     stretch
-                    label="Security groups"
-                    description="Choose one or more security groups to allow access to the data store in your VPC subnet. Security groups are associated to the ENI attached to your subnet. You must choose at least one security group with a self-referencing inbound rule for all TCP ports."
+                    label={t('datasource:jdbc.sg')}
+                    description={t('datasource:jdbc.sgDesc') ?? ''}
                   >
                     <Select
-                      placeholder="Choose one or more security groups"
+                      placeholder={t('datasource:jdbc.chooseSG') ?? ''}
                       selectedOption={sg}
                       onChange={({ detail }) => changeSG(detail.selectedOption)}
                       options={sgOption}

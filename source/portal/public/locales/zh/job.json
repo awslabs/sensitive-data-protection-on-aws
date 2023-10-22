@@ -73,6 +73,7 @@
     "skipScanRDS": "跳过Amazon RDS 的扫描"
   },
   "detail": {
+    "name": "作业详情",
     "detailForJob": "作业详情： ",
     "detailForJobDesc": "敏感数据发现任务由在 AWS 账户中运行的 Glue 任务组成。 ",
     "jobInfo": "作业信息",
@@ -85,6 +86,8 @@
     "glueJobStatus": "Glue 作业状态",
     "glueJobs": "Glue 作业",
     "glueJobsDesc": "在 AWS 账户中运行的 Glue 任务。所有 Glue 作业完成后，敏感发现作业将标记为 “已完成”。",
-    "errorLog": "错误日志"
+    "errorLog": "错误日志",
+    "provider": "提供商",
+    "dataSource": "数据源"
   }
 }

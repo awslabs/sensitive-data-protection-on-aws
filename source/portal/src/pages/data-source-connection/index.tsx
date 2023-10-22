@@ -56,28 +56,28 @@ const genTabs = (
 ) => {
   const res_aws = [
     {
-      label: t(TAB_LIST.S3.label),
+      label: t(TAB_LIST.S3.id),
       id: TAB_LIST.S3.id,
       content: (
         <DataSourceList tagType={TAB_LIST.S3.id} accountData={accountData} />
       ),
     },
     {
-      label: t(TAB_LIST.RDS.label),
+      label: t(TAB_LIST.RDS.id),
       id: TAB_LIST.RDS.id,
       content: (
         <DataSourceList tagType={TAB_LIST.RDS.id} accountData={accountData} />
       ),
     },
     {
-      label: t(TAB_LIST.GLUE.label),
+      label: t(TAB_LIST.GLUE.id),
       id: TAB_LIST.GLUE.id,
       content: (
         <DataSourceList tagType={TAB_LIST.GLUE.id} accountData={accountData} />
       ),
     },
     {
-      label: t(TAB_LIST.JDBC.label),
+      label: t(TAB_LIST.JDBC.id),
       id: TAB_LIST.JDBC.id,
       content: (
         <DataSourceList tagType={TAB_LIST.JDBC.id} accountData={accountData} />
@@ -86,7 +86,7 @@ const genTabs = (
   ];
   const res = [
     {
-      label: t(TAB_LIST.JDBC.label),
+      label: t(TAB_LIST.JDBC.id),
       id: TAB_LIST.JDBC.id,
       content: (
         <DataSourceList tagType={TAB_LIST.JDBC.id} accountData={accountData} />

@@ -30,6 +30,12 @@
   "forChina": "For China Regions deployment",
   "forGlobal": "For Global Regions deployment",
   "add": {
+    "basicInfo": "Basic source information",
+    "provider": "Provider",
+    "accountId": "Account id",
+    "accountIdPlaceholder": "Please input account id",
+    "regionLocation": "Region/Location",
+    "regionLocationPlaceholder": "Please select a region/location",
     "addAWSAccount": "Add AWS accounts",
     "addAWSAccountDesc": "Setup and manage the AWS accounts that you want the platform to discover sensitive data.",
     "org": {
@@ -43,7 +49,7 @@
       "step1list4": "In the Register delegated administrator dialog box, choose Register delegated administrator.",
       "step1check": "The success message indicates that the member account has successfully been registered as a delegated administrator.",
       "step1Copy": "Copy [CloudFormationStack-IT] CloudFormation stack's Amazon S3 URL",
-      "step2": "Step2: Authroize trust access for organization management or delegated administrator account",
+      "step2": "Step2: Authorize trust access for organization management or delegated administrator account",
       "step2Desc": "Deploy the stack in the AWS orgnization AWS account or the delegated administrator account.",
       "step2list1": "Log in to the AWS account of the AWS orgnization account or the delegated administrator account.",
       "step2list2": "Go to the CloudFormation console of the AWS account.",

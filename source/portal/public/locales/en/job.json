@@ -73,6 +73,7 @@
     "skipScanRDS": "Skip scan for Amazon RDS"
   },
   "detail": {
+    "name": "Job details",
     "detailForJob": "Details for job: ",
     "detailForJobDesc": "Sensitive data discovery job consists of Glue jobs that run in AWS accounts. ",
     "jobInfo": "Job information",
@@ -85,6 +86,8 @@
     "glueJobStatus": "Glue job status",
     "glueJobs": "Glue jobs",
     "glueJobsDesc": "The glue jobs that run in AWS accounts. Once all glue jobs finished, the sensitive discovery job will mark as Completed.",
-    "errorLog": "Error log"
+    "errorLog": "Error log",
+    "provider": "Provider",
+    "dataSource": "Data source"
   }
 }

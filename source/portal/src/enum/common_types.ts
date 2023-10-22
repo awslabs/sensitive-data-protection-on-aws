@@ -4,10 +4,10 @@ export const REGION_TYPE = {
 };
 
 export const TAB_LIST = {
-  S3: { label: 'Amazon S3', id: 's3' },
-  RDS: { label: 'Amazon RDS', id: 'rds' },
-  GLUE: { label: 'Glue data catalogs', id: 'glue' },
-  JDBC: { label: 'Custom database (JDBC)', id: 'jdbc' },
+  S3: { label: '', id: 's3' },
+  RDS: { label: '', id: 'rds' },
+  GLUE: { label: '', id: 'glue' },
+  JDBC: { label: '', id: 'jdbc' },
   CN_NORTH1: { label: REGION_TYPE.CN_NORTH1, id: REGION_TYPE.CN_NORTH1 },
   CN_NORTHWEST1: {
     label: REGION_TYPE.CN_NORTHWEST1,
@@ -49,16 +49,19 @@ export const SOURCE_TYPE = {
   JDBC_GOOGLE: 'jdbc_google',
 };
 
-export const getProviderByJob = (jobData: any) => {
-  switch (jobData.provider_id) {
+export const getProviderByProviderId = (providerId: number | string) => {
+  if (typeof providerId === 'string') {
+    providerId = parseInt(providerId);
+  }
+  switch (providerId) {
     case 1:
-      return 'AWS';
+      return { name: 'AWS' };
     case 2:
-      return 'Tencent Cloud';
+      return { name: 'Tencent Cloud' };
     case 3:
-      return 'Google Cloud';
+      return { name: 'Google Cloud' };
     default:
-      return '-';
+      return { name: '-' };
   }
 };
 

@@ -92,7 +92,13 @@
     "exportDataCatalogs": "Export data catalogs",
     "exportProcessing": "Export processing ...",
     "savexlsx": "Download .xlsx file",
-    "savecsv": "Download .csv file"
+    "savecsv": "Download .csv file",
+    "addDataSource": "Add data source",
+    "deleteDataSource": "Delete data source",
+    "deleteDataSourceOnly": "Delete data catalog only",
+    "disconnectDeleteCatalog": "Disconnect & Delete catalog",
+    "deleteDB": "Delete Database",
+    "editDataSource": "Edit data source"
   },
   "label": {
     "label": "Custom label",
@@ -366,5 +372,9 @@
   "allCategory": "All Categories",
   "allLabel": "All Labels",
   "learnMore": "Learn more",
-  "allType": "All Types"
+  "allType": "All Types",
+  "s3": "Amazon S3",
+  "rds": "Amazon RDS",
+  "glue": "Glue data catalogs",
+  "jdbc": "Custom database (JDBC)"
 }

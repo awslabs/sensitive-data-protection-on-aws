@@ -13,6 +13,7 @@ import { getProviderRegions, addAccount } from 'apis/account-manager/api';
 import { ProviderType } from 'common/ProviderTab';
 import MapMarker from 'pages/summary/comps/charts/items/MapMarker';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 import { RouterEnum } from 'routers/routerEnum';
@@ -24,6 +25,7 @@ interface AccountFormProps {
 const AccountForm: React.FC<AccountFormProps> = (props: AccountFormProps) => {
   const { provider } = props;
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const list: any[] = [];
   const [regionGeo, setRegionGeo] = useState<any[]>([]);
   const [coorMap, setCoorMap] = useState<Map<string, string>>();
@@ -100,7 +102,7 @@ const AccountForm: React.FC<AccountFormProps> = (props: AccountFormProps) => {
                 navigate(-1);
               }}
             >
-              Cancel
+              {t('button.cancel')}
             </Button>
             <Button
               loading={isLoading}
@@ -109,16 +111,16 @@ const AccountForm: React.FC<AccountFormProps> = (props: AccountFormProps) => {
                 addAccountButton();
               }}
             >
-              Add this account
+              {t('button.addThisAccount')}
             </Button>
           </SpaceBetween>
         }
       >
         <Container
-          header={<Header variant="h3">Basic source information</Header>}
+          header={<Header variant="h3">{t('account:add.basicInfo')}</Header>}
         >
           <SpaceBetween direction="vertical" size="xs">
-            <FormField label="Source">
+            <FormField label={t('account:add.provider')}>
               <div className="add-account-logo">
                 <div className="name">{provider.provider_name}</div>
                 <div className="desc">{provider.description}</div>
@@ -127,23 +129,23 @@ const AccountForm: React.FC<AccountFormProps> = (props: AccountFormProps) => {
                 </div>
               </div>
             </FormField>
-            <FormField label="Account id">
+            <FormField label={t('account:add.accountId')}>
               <Input
-                placeholder="Account id"
+                placeholder={t('account:add.accountIdPlaceholder') ?? ''}
                 value={accountId}
                 onChange={(e) => {
                   setAccountId(e.detail.value);
                 }}
               />
             </FormField>
-            <FormField label="Region/Location">
+            <FormField label={t('account:add.regionLocation')}>
               <Select
                 onChange={(e) => {
                   console.log('e is:', e);
                   setCurrentRegion(e.detail.selectedOption);
                   changeRegion(e.detail.selectedOption);
                 }}
-                placeholder="Select a region"
+                placeholder={t('account:add.regionLocationPlaceholder') ?? ''}
                 options={regionList}
                 selectedOption={currentRegion}
               />
