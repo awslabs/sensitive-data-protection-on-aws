@@ -1,7 +1,7 @@
 import datetime
 from operator import or_
 
-from sqlalchemy import desc
+from sqlalchemy import desc, func
 import logging
 from common.enum import (ConnectionState,
                          MessageEnum,
@@ -438,14 +438,29 @@ def update_jdbc_instance_count(provider: int, account: str, region: str):
                                                              JDBCInstanceSource.glue_state == ConnectionState.ACTIVE.value).count()
         total = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.region == region,
                                                          JDBCInstanceSource.account_id == account).count()
-        account: Account = session.query(Account).filter(Account.account_id == account, Account.region == region).first()
-        if account is not None:
+        account: Account = session.query(Account).filter(Account.account_provider_id == provider, Account.account_id == account, Account.region == region).first()
+        if account:
             account.connected_jdbc_instance = connected
             account.total_jdbc_instance = total
         session.merge(account)
         session.commit()
     else:
-        pass
+        total = {}
+        connected = {}
+        conns: list[JDBCInstanceSource] = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == provider,
+                                                                                   JDBCInstanceSource.account_id == account).all()
+        for conn in conns:
+            if conn.detection_history_id != -1:
+                total[conn.account_id + '-' + conn.region] = 1 if conn.account_id + '-' + conn.region not in total else total[conn.account_id + '-' + conn.region] + 1
+                if conn.glue_state == 'ACTIVE':
+                    connected[conn.account_id + '-' + conn.region] = 1 if conn.account_id + '-' + conn.region not in connected else connected[conn.account_id + '-' + conn.region] + 1
+
+        account: Account = session.query(Account).filter(Account.account_provider_id == provider, Account.account_id == account).first()
+        if account:
+            account.connected_jdbc_instance = 0 if account.account_id + '-' + account.region not in connected else connected[account.account_id + '-' + account.region]
+            account.total_jdbc_instance = 0 if account.account_id + '-' + account.region not in total else total[account.account_id + '-' + account.region]
+            session.merge(account)
+            session.commit()
 
 
 def update_jdbc_connection(provider_id: int,
