@@ -391,7 +391,7 @@ def sync_jdbc_connection(jdbc: JDBCInstanceSourceBase):
 
 
 def condition_check(ec2_client, credentials, state, connection: dict):
-    
+    security_groups = []
     # if not jdbc.master_username:
     #     raise BizException(MessageEnum.SOURCE_JDBC_NO_CREDENTIAL.get_code(),
     #                        MessageEnum.SOURCE_JDBC_NO_CREDENTIAL.get_msg())
@@ -427,15 +427,22 @@ def condition_check(ec2_client, credentials, state, connection: dict):
     if credentials is None:
         raise BizException(MessageEnum.SOURCE_ASSUME_ROLE_FAILED.get_code(),
                            MessageEnum.SOURCE_ASSUME_ROLE_FAILED.get_msg())
-    
-    security_groups = ec2_client.describe_security_groups(GroupNames=[const.SECURITY_GROUP_JDBC])["SecurityGroups"]
+    vpc_list = [vpc['VpcId'] for vpc in ec2_client.describe_vpcs()['Vpcs']]
+    try:
+        security_groups = ec2_client.describe_security_groups(Filters=[
+            {'Name': 'vpc-id', 'Values': vpc_list},
+            {'Name': 'group-name', 'Values': [const.SECURITY_GROUP_JDBC]}
+        ])["SecurityGroups"]
+    except Exception as e:
+        logger.error(traceback.format_exc())
+        raise BizException(MessageEnum.SOURCE_SECURITY_GROUP_NOT_EXISTS.get_code(),
+                           MessageEnum.SOURCE_SECURITY_GROUP_NOT_EXISTS.get_msg())
     if not security_groups:
         raise BizException(MessageEnum.SOURCE_SECURITY_GROUP_NOT_EXISTS.get_code(),
                            MessageEnum.SOURCE_SECURITY_GROUP_NOT_EXISTS.get_msg())
     security_group = list(filter(lambda sg: sg["GroupName"] == const.SECURITY_GROUP_JDBC, security_groups))[0]
     inbound_route = security_group["IpPermissions"][0]
-    if inbound_route["IpProtocol"] != "tcp" or inbound_route["FromPort"] != 0 or inbound_route["ToPort"] != 65535 \
-       or not inbound_route["IpRanges"] or inbound_route["IpRanges"][0]["CidrIp"] != "0.0.0.0/0":
+    if inbound_route["IpProtocol"] != "tcp" or inbound_route["FromPort"] != 0 or inbound_route["ToPort"] != 65535:
         raise BizException(MessageEnum.SOURCE_SG_INBOUND_ROUTE_NOT_VALID.get_code(),
                            MessageEnum.SOURCE_SG_INBOUND_ROUTE_NOT_VALID.get_msg())
     outbound_route = security_group["IpPermissionsEgress"][0]
@@ -1671,15 +1678,14 @@ def import_glue_database(glueDataBase: SourceGlueDatabaseBase):
     # return response
     crud.import_glue_database(glueDataBase, response)
 
-def update_jdbc_conn(jdbcConn: JDBCInstanceSource):
-    account_id = jdbcConn.account_id if jdbcConn.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id
-    region = jdbcConn.region if jdbcConn.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_region
-    check_connection(jdbcConn, account_id, region)
-    update_connection(jdbcConn, account_id, region)
+def update_jdbc_conn(jdbc_conn: JDBCInstanceSource):
+    account_id = jdbc_conn.account_id if jdbc_conn.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id
+    region = jdbc_conn.region if jdbc_conn.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_region
+    res: JDBCInstanceSourceFullInfo = crud.get_jdbc_instance_source_glue(jdbc_conn.account_provider_id, jdbc_conn.account_id, jdbc_conn.region, jdbc_conn.instance_id)
+    check_connection(res, jdbc_conn, account_id, region)
+    update_connection(res, jdbc_conn, account_id, region)
 
-def check_connection(jdbc_instance: JDBCInstanceSource, assume_account, assume_role):
-
-    res = crud.get_jdbc_instance_source_glue(jdbc_instance.account_provider_id, jdbc_instance.account_id, jdbc_instance.region, jdbc_instance.instance_id)
+def check_connection(res: JDBCInstanceSourceFullInfo, jdbc_instance: JDBCInstanceSource, assume_account, assume_role):
     if not res:
         raise BizException(MessageEnum.SOURCE_JDBC_CONNECTION_NOT_EXIST.get_code(),
                            MessageEnum.SOURCE_JDBC_CONNECTION_NOT_EXIST.get_msg())
@@ -1689,7 +1695,7 @@ def check_connection(jdbc_instance: JDBCInstanceSource, assume_account, assume_r
     elif res.glue_state == ConnectionState.CRAWLING.value:
         try:
             # Stop the crawler
-            __glue(account=assume_account, region=assume_role).stop_crawler(Name=jdbc_instance.glue_crawler)
+            __glue(account=assume_account, region=assume_role).stop_crawler(Name=res.glue_crawler)
         except Exception as e:
             logger.error(traceback.format_exc())
         raise BizException(MessageEnum.SOURCE_DELETE_WHEN_CONNECTING.get_code(),
@@ -1703,22 +1709,14 @@ def check_connection(jdbc_instance: JDBCInstanceSource, assume_account, assume_r
     else:
         pass
 
-def update_connection(jdbc_instance: JDBCInstanceSourceUpdate, assume_account, assume_role):
-    source: JDBCInstanceSourceFullInfo = crud.get_jdbc_instance_source_glue(provider_id=jdbc_instance.account_provider_id,
-                                                                            account=jdbc_instance.account_id,
-                                                                            region=jdbc_instance.region,
-                                                                            instance_id=jdbc_instance.instance_id)
-    if not source:
-        raise BizException(MessageEnum.SOURCE_JDBC_CONNECTION_NOT_EXIST.get_code(),
-                           MessageEnum.SOURCE_JDBC_CONNECTION_NOT_EXIST.get_msg())
-    
+def update_connection(res: JDBCInstanceSourceFullInfo, jdbc_instance: JDBCInstanceSourceUpdate, assume_account, assume_role):
     # logger.info(f"source.glue_connection is: {source.glue_connection}")
     connectionProperties_dict = gen_conn_properties(jdbc_instance)
     response = __glue(account=assume_account, region=assume_role).update_connection(
         CatalogId=assume_account,
-        Name=source.glue_connection,
+        Name=res.glue_connection,
         ConnectionInput={
-            'Name': source.glue_connection,
+            'Name': res.glue_connection,
             'Description': jdbc_instance.description,
             'ConnectionType': 'JDBC',
             'ConnectionProperties': connectionProperties_dict,
@@ -2452,17 +2450,22 @@ def query_account_network(account: AccountInfo):
     region = account.region if account.region == Provider.AWS_CLOUD.value else _admin_account_region
     logger.info(f'accont_id is:{accont_id},region is {region}')
     ec2_client, __ = __ec2(account=accont_id, region=region)
+    vpc_list = [vpc['VpcId'] for vpc in ec2_client.describe_vpcs()['Vpcs']]
     # accont_id, region = gen_assume_info(account)
     if account.account_provider_id != Provider.AWS_CLOUD.value or account.account_id == _admin_account_id:
-        res =  query_account_network_not_agent(ec2_client)
+        res =  query_account_network_not_agent(vpc_list, ec2_client)
         logger.info(f"query_account_network_not_agent res is {res}")
         return res
     else:
-        return query_account_network_agent(ec2_client)
+        return query_account_network_agent(vpc_list, ec2_client)
 
-def query_account_network_not_agent(ec2_client: any):
+def query_account_network_not_agent(vpc_list, ec2_client: any):
     try:
-        response = ec2_client.describe_security_groups(GroupNames=[const.SECURITY_GROUP_JDBC])
+
+        response = ec2_client.describe_security_groups(Filters=[
+            {'Name': 'vpc-id', 'Values': vpc_list},
+            {'Name': 'group-name', 'Values': [const.SECURITY_GROUP_JDBC]}
+        ])
         vpc_ids = [item['VpcId'] for item in response['SecurityGroups']]
         subnets = ec2_client.describe_subnets(Filters=[{'Name': 'vpc-id', 'Values': [vpc_ids[0]]}])['Subnets']
         private_subnet = list(filter(lambda x: not x["MapPublicIpOnLaunch"], subnets))
@@ -2484,10 +2487,8 @@ def query_account_network_not_agent(ec2_client: any):
         raise BizException(MessageEnum.BIZ_UNKNOWN_ERR.get_code(),
                            MessageEnum.BIZ_UNKNOWN_ERR.get_msg())
 
-def query_account_network_agent(ec2_client: any):
+def query_account_network_agent(vpc_list, ec2_client: any):
     res = []
-    vpc_list = [vpc['VpcId'] for vpc in ec2_client.describe_vpcs()['Vpcs']]
-
     subnets = ec2_client.describe_subnets()['Subnets']
     securityGroups = ec2_client.describe_security_groups()['SecurityGroups']
     for vpcId in vpc_list:
