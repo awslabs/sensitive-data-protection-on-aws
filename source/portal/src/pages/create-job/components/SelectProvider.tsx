@@ -52,7 +52,11 @@ const SelectProvider: React.FC<SelectProviderProps> = (
       });
     });
     if (providers.length > 0) {
-      changeProvider(tmpProviderList[0].value);
+      if (jobData.provider_id) {
+        changeProvider(jobData.provider_id.toString());
+      } else {
+        changeProvider(tmpProviderList[0].value);
+      }
     }
     setProviderOptionList(tmpProviderList);
     setLoadingProvider(false);
@@ -77,7 +81,12 @@ const SelectProvider: React.FC<SelectProviderProps> = (
     );
     setDataSourceOptionList(sourceOptionList);
     if (sourceOptionList.length > 0) {
-      changeDataSource(sourceOptionList[0].value);
+      // has data source
+      if (jobData.database_type) {
+        changeDataSource(jobData.database_type);
+      } else {
+        changeDataSource(sourceOptionList[0].value);
+      }
     }
   }, [jobData.provider_id]);
 
