@@ -154,6 +154,8 @@ def sync_s3(snapshot_no):
         else:
             item_json['exclude_keywords'] = []
         item_json['description'] = item[10]
+        item_json['max_distance'] = item[12]
+        item_json['min_occurrence'] = item[13]
         identifiers.append(item_json)
     json_str = S3WrapEncoder.convert(template, ['id', 'name'])
     res_json['template_id'] = json_str['id']
