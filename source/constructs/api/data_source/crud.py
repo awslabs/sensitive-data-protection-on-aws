@@ -1,7 +1,7 @@
 import datetime
 from operator import or_
 
-from sqlalchemy import desc
+from sqlalchemy import desc, func
 import logging
 from common.enum import (ConnectionState,
                          MessageEnum,
@@ -21,6 +21,8 @@ from db.models_data_source import (S3BucketSource,
                                    SourceResource,
                                    SourceGlueDatabase)
 from common.exception_handler import BizException
+from common.reference_parameter import partition, admin_region
+from common.constant import const
 from . import schemas
 
 
@@ -259,7 +261,6 @@ def get_rds_instance_source_glue_state(account: str, region: str, instance_id: s
 
 
 def get_jdbc_instance_source_glue(provider_id: int, account: str, region: str, instance_id: str) -> schemas.JDBCInstanceSourceFullInfo:
-    print(f"params is {provider_id}-{account}-{region}-{instance_id}")
     return get_session().query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == provider_id,
                                                           JDBCInstanceSource.account_id == account,
                                                           JDBCInstanceSource.region == region,
@@ -319,8 +320,8 @@ def get_glue_database_source(account: str, region: str, name: str):
 
 def get_glue_database_source_glue_state(account: str, region: str, database: str):
     query = get_session().query(SourceGlueDatabase).filter(SourceGlueDatabase.account_id == account,
-                                                          SourceGlueDatabase.region == region,
-                                                          SourceGlueDatabase.glue_database_name == database).order_by(
+                                                           SourceGlueDatabase.region == region,
+                                                           SourceGlueDatabase.glue_database_name == database).order_by(
         desc(SourceGlueDatabase.detection_history_id)).first()
     if query is None:
         return None
@@ -353,7 +354,8 @@ def get_s3_bucket_source(account: str, region: str, bucket_name: str):
                                                       S3BucketSource.bucket_name == bucket_name).scalar()
 
 def get_iam_role(account: str):
-    return get_session().query(Account).filter(Account.account_id == account).first().detection_role_name
+    res = get_session().query(Account).filter(Account.account_id == account).first()
+    return res.detection_role_name if res else f"arn:{partition}:iam::{account}:role/{const.SOLUTION_NAME}RoleForAdmin-{admin_region}"
 
 
 def create_s3_connection(account: str, region: str, bucket: str, glue_connection_name, glue_database_name: str,
@@ -436,14 +438,29 @@ def update_jdbc_instance_count(provider: int, account: str, region: str):
                                                              JDBCInstanceSource.glue_state == ConnectionState.ACTIVE.value).count()
         total = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.region == region,
                                                          JDBCInstanceSource.account_id == account).count()
-        account: Account = session.query(Account).filter(Account.account_id == account, Account.region == region).first()
-        if account is not None:
+        account: Account = session.query(Account).filter(Account.account_provider_id == provider, Account.account_id == account, Account.region == region).first()
+        if account:
             account.connected_jdbc_instance = connected
             account.total_jdbc_instance = total
         session.merge(account)
         session.commit()
     else:
-        pass
+        total = {}
+        connected = {}
+        conns: list[JDBCInstanceSource] = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == provider,
+                                                                                   JDBCInstanceSource.account_id == account).all()
+        for conn in conns:
+            if conn.detection_history_id != -1:
+                total[conn.account_id + '-' + conn.region] = 1 if conn.account_id + '-' + conn.region not in total else total[conn.account_id + '-' + conn.region] + 1
+                if conn.glue_state == 'ACTIVE':
+                    connected[conn.account_id + '-' + conn.region] = 1 if conn.account_id + '-' + conn.region not in connected else connected[conn.account_id + '-' + conn.region] + 1
+
+        account: Account = session.query(Account).filter(Account.account_provider_id == provider, Account.account_id == account).first()
+        if account:
+            account.connected_jdbc_instance = 0 if account.account_id + '-' + account.region not in connected else connected[account.account_id + '-' + account.region]
+            account.total_jdbc_instance = 0 if account.account_id + '-' + account.region not in total else total[account.account_id + '-' + account.region]
+            session.merge(account)
+            session.commit()
 
 
 def update_jdbc_connection(provider_id: int,
@@ -600,21 +617,6 @@ def update_jdbc_connection_full(jdbc_instance: schemas.JDBCInstanceSourceUpdate)
                                                                                         JDBCInstanceSource.account_id == jdbc_instance.account_id,
                                                                                         JDBCInstanceSource.account_provider_id == jdbc_instance.account_provider_id).order_by(
         desc(JDBCInstanceSource.detection_history_id)).first()
-    
-    # description: Optional[str]
-    # jdbc_connection_url: Optional[str]
-    # jdbc_enforce_ssl: Optional[str]
-    # kafka_ssl_enabled: Optional[str]
-    # master_username: Optional[str]
-    # password: Optional[str]
-    # skip_custom_jdbc_cert_validation: Optional[str]
-    # custom_jdbc_cert: Optional[str]
-    # custom_jdbc_cert_string: Optional[str]
-    # network_availability_zone: Optional[str]
-    # network_subnet_id: Optional[str]
-    # network_sg_id: Optional[str]
-    # jdbc_driver_class_name: Optional[str]
-    # jdbc_driver_jar_uri: Optional[str]
     jdbc_instance_source.detection_history_id = 0
     jdbc_instance_source.description = jdbc_instance.description
     jdbc_instance_source.jdbc_connection_url = jdbc_instance.jdbc_connection_url
@@ -657,19 +659,6 @@ def get_connected_rds_instances_count():
     count = list_rds_instance_source(None)
     return 0 if count is None else count.filter(RdsInstanceSource.glue_state == ConnectionState.ACTIVE.value).count()
 
-
-# def add_account(account_id: str, assumed_role_name: str):
-#     session = get_session()
-#     account = session.query(Account).filter(Account.account_id == account_id, Account.status == 1).scalar()
-#     if account is None:
-#         account = Account(aws_account_id=account_id)
-#
-#     account.status = 1  # always 1
-#     account.detection_role_name = assumed_role_name
-#     account.last_updated = datetime.datetime.utcnow()
-#     account = session.merge(account)
-#     session.commit()
-#     return True
 
 def delete_account_by_region(account_id: str, region: str):
     session = get_session()

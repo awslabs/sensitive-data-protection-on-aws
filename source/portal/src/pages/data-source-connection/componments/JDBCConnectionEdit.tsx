@@ -281,7 +281,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
 
       setJdbcConnectionData({
         ...jdbcConnectionData,
-        instance_id: res['Name'],
+        instance_id: props.instanceId,
         description: res['Description'],
         jdbc_connection_url: res['ConnectionProperties']['JDBC_CONNECTION_URL'],
         jdbc_enforce_ssl: res['ConnectionProperties']['JDBC_ENFORCE_SSL'],

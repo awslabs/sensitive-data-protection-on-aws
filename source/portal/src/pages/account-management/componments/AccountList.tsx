@@ -357,7 +357,9 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
                       </div>
                     );
                   }
-                  showText = `${e[TYPE_COLUMN.TOTAL_JDBC_CONNECTION]}`;
+                  showText = `${
+                    e[TYPE_COLUMN.CONNECTED_JDBC_CONNECTION]
+                  } (of total ${e[TYPE_COLUMN.TOTAL_JDBC_CONNECTION]})`;
                 }
 
                 if (
