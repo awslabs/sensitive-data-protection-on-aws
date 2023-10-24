@@ -1,6 +1,6 @@
 {
-    "name": "aws-sensitive-data-protection",
-    "version": "1.0.0",
+    "name": "sensitive-data-protection-on-aws",
+    "version": "1.1.0",
     "bin": {
         "sensitive-data-protection": "bin/main.js"
     },
@@ -19,7 +19,6 @@
         "@types/node": "^14",
         "@typescript-eslint/eslint-plugin": "^5",
         "@typescript-eslint/parser": "^5",
-        "aws-cdk": "^2.102.0",
         "esbuild": "^0.15.12",
         "eslint": "^8",
         "eslint-config-standard-with-typescript": "^34.0.1",
@@ -36,12 +35,9 @@
         "typescript": "^4.8.4"
     },
     "dependencies": {
-        "@aws-cdk/aws-lambda-python-alpha": "^2.38.0-alpha.0",
-        "aws-cdk-lib": "^2.38.0",
+        "aws-cdk-lib": "^2.102.0",
         "cdk-bootstrapless-synthesizer": "^2.2.7",
-        "cdk-ecr-deployment": "^2.5.6",
-        "cdk-nag": "^2.20.6",
-        "constructs": "^10.0.5"
+        "cdk-nag": "^2.20.6"
     },
     "license": "Apache-2.0",
     "jest": {
