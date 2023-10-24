@@ -360,7 +360,6 @@ cython_debug/
 *.code-workspace
 
 # End of https://www.toptal.com/developers/gitignore/api/python,pycharm,visualstudiocode,macos
-source/constructs/package-lock.json
 /bin/
 *_test.py
 source/constructs/lib/test*
