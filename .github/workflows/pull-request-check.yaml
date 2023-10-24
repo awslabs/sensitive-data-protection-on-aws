@@ -175,6 +175,8 @@ jobs:
           pip3 install pytest-mock==3.11.1
           pip3 install httpx==0.25.0
           pip3 install anyio==3.6.2
+          pip3 install mock==5.1.0
+          pip3 install mock-alchemy==0.2.6
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
