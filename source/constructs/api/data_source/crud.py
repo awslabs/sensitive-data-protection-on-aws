@@ -181,8 +181,7 @@ def list_jdbc_instance_source_without_condition(provider_id: int):
         account_ids.append(account.account_id)
     res = get_session().query(JDBCInstanceSource).filter(
         JDBCInstanceSource.account_id.in_(account_ids),
-        JDBCInstanceSource.account_provider_id == provider_id,
-        or_(JDBCInstanceSource.detection_history_id != -1, JDBCInstanceSource.detection_history_id is None)
+        JDBCInstanceSource.account_provider_id == provider_id
     )
     return res
 
@@ -438,12 +437,12 @@ def update_jdbc_instance_count(provider: int, account: str, region: str):
                                                              JDBCInstanceSource.glue_state == ConnectionState.ACTIVE.value).count()
         total = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.region == region,
                                                          JDBCInstanceSource.account_id == account).count()
-        account: Account = session.query(Account).filter(Account.account_provider_id == provider, Account.account_id == account, Account.region == region).first()
-        if account:
-            account.connected_jdbc_instance = connected
-            account.total_jdbc_instance = total
-        session.merge(account)
-        session.commit()
+        accountInfo: Account = session.query(Account).filter(Account.account_provider_id == provider, Account.account_id == account, Account.region == region).first()
+        if accountInfo:
+            accountInfo.connected_jdbc_instance = connected
+            accountInfo.total_jdbc_instance = total
+            session.merge(accountInfo)
+            session.commit()
     else:
         total = {}
         connected = {}
@@ -455,11 +454,11 @@ def update_jdbc_instance_count(provider: int, account: str, region: str):
                 if conn.glue_state == 'ACTIVE':
                     connected[conn.account_id + '-' + conn.region] = 1 if conn.account_id + '-' + conn.region not in connected else connected[conn.account_id + '-' + conn.region] + 1
 
-        account: Account = session.query(Account).filter(Account.account_provider_id == provider, Account.account_id == account).first()
-        if account:
-            account.connected_jdbc_instance = 0 if account.account_id + '-' + account.region not in connected else connected[account.account_id + '-' + account.region]
-            account.total_jdbc_instance = 0 if account.account_id + '-' + account.region not in total else total[account.account_id + '-' + account.region]
-            session.merge(account)
+        accountInfo: Account = session.query(Account).filter(Account.account_provider_id == provider, Account.account_id == account).first()
+        if accountInfo:
+            accountInfo.connected_jdbc_instance = 0 if accountInfo.account_id + '-' + accountInfo.region not in connected else connected[accountInfo.account_id + '-' + accountInfo.region]
+            accountInfo.total_jdbc_instance = 0 if accountInfo.account_id + '-' + accountInfo.region not in total else total[accountInfo.account_id + '-' + accountInfo.region]
+            session.merge(accountInfo)
             session.commit()
 
 

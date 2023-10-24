@@ -195,7 +195,9 @@ def get_ref_identifiers(id: int):
                                models.TemplateIdentifier.privacy,
                                models.TemplateIdentifier.header_keywords,
                                models.TemplateIdentifier.description,
-                               models.TemplateIdentifier.exclude_keywords
+                               models.TemplateIdentifier.exclude_keywords,
+                               models.TemplateIdentifier.max_distance,
+                               models.TemplateIdentifier.min_occurrence
                                ).filter(
         models.TemplateMapping.template_id == id).filter(models.TemplateMapping.status == 1).join(
         models.TemplateMapping, models.TemplateMapping.identifier_id == models.TemplateIdentifier.id).all()
