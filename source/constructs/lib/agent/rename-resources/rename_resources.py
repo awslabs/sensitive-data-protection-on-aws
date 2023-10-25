@@ -68,6 +68,7 @@ def send_response(event, response_status = "SUCCESS", reason = "OK"):
 
 def on_create(event):
     logger.info("Got create")
+    list_crawlers()
 
 
 def on_update(event):

@@ -196,14 +196,15 @@ INSERT INTO template_identifier (id, description, type, name, rule, create_by) V
 -- discovery job
 alter table discovery_job add all_glue int null after all_emr;
 alter table discovery_job add all_jdbc int null after all_glue;
-alter table discovery_job add provider_id int null after include_file_extensions;
-alter table discovery_job add database_type varchar(20) null after provider_id;
 alter table discovery_job add depth_structured int null after `range`;
 alter table discovery_job add depth_unstructured int null after depth_structured;
-update discovery_job set depth_structured = depth;
+update discovery_job set depth_structured = depth where depth_structured is null;
 alter table discovery_job add include_keywords varchar(1000) null after exclude_keywords;
 alter table discovery_job add exclude_file_extensions varchar(200) null after include_keywords;
 alter table discovery_job add include_file_extensions varchar(200) null after exclude_file_extensions;
+alter table discovery_job add provider_id int null after include_file_extensions;
+update discovery_job set provider_id = 1 where provider_id is null;
+alter table discovery_job add database_type varchar(20) null after provider_id;
 
 alter table discovery_job_database modify account_id varchar(20) not null;
 alter table discovery_job_database modify database_type varchar(20) not null;
@@ -218,4 +219,10 @@ alter table discovery_job_run_database modify account_id varchar(20) not null;
 alter table discovery_job_run_database modify database_type varchar(20) null;
 alter table discovery_job_run_database add table_count_unstructured int null after table_count;
 
-alter table catalog_column_level_classification add column_path varchar(255)  null after job_keyword;
+alter table catalog_column_level_classification add job_keyword varchar(255) null after manual_tag;
+alter table catalog_column_level_classification add column_path varchar(255) null after job_keyword;
+
+alter table catalog_table_level_classification add struct_type varchar(20) null after classification;
+alter table catalog_table_level_classification add detected_time datetime null after struct_type;
+alter table catalog_table_level_classification add serde_info varchar(255) null after detected_time;
+alter table catalog_table_level_classification add table_properties varchar(1024) null after serde_info;

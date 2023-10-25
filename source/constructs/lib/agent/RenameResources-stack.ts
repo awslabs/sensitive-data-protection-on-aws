@@ -69,6 +69,7 @@ export class RenameResourcesStack extends Construct {
         new PolicyStatement({
           effect: Effect.ALLOW,
           actions: [
+            'iam:PassRole',
             'glue:GetCrawler',
             'glue:GetDatabase',
             'glue:GetConnection',
