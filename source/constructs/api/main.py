@@ -66,7 +66,7 @@ async def validate(request: Request, call_next):
                 'Access-Control-Allow-Credentials': 'true'
             },
         )
-    authorization = hs.get("authorization")
+    authorization = hs.get("Authorization")
     os.environ[const.USER] = const.USER_DEFAULT_NAME
     if request.scope["path"] in const.EXCLUDE_PATH_LIST:
         pass

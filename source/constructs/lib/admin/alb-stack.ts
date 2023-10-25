@@ -234,7 +234,7 @@ export class AlbStack extends NestedStack {
       // targetGroupName: `${SolutionInfo.SOLUTION_NAME}-API-Target-${this.identifier}`,
       priority: this.apiPriority,
       targets: apiTarget,
-      conditions: [ListenerCondition.httpHeader('authorization', ['*'])],
+      conditions: [ListenerCondition.httpHeader('Authorization', ['*'])],
     });
     Tags.of(apiTargetGroup).add(SolutionInfo.TAG_NAME, 'API');
   }
