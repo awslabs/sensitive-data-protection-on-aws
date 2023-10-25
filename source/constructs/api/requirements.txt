@@ -1,6 +1,6 @@
-boto3==1.26.135
+boto3==1.28.70
 fastapi==0.104.0
-mangum==0.16.0
+mangum==0.17.0
 sqlalchemy==1.4.44
 fastapi-pagination==0.12.11
 openpyxl==3.0.10
