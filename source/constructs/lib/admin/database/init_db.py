@@ -62,6 +62,7 @@ def on_update(event):
     logger.info("Got Update")
     main(event,"1.0.0-1.0.1")
     main(event,"1.0.1-1.0.2")
+    main(event,"1.0.x-1.1.0")
 
 
 def on_delete(event):
@@ -123,7 +124,7 @@ def main(event,path):
     try:
         check_result = __check_version(cursor, path)
         if not check_result:
-            logger.info("The upgrade script is currently included")
+            logger.info(f"The upgrade script({path}) is currently included.")
             return
         sql_files = __get_sql_files(path)
         for sql_file in sql_files:
