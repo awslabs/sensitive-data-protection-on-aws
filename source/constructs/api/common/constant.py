@@ -1,4 +1,4 @@
-class _const(object):
+class _Const(object):
     class ConstError(TypeError):
         def __init__(self, msg):
             super().__init__(msg)
@@ -13,7 +13,7 @@ class _const(object):
         self.__dict__[name] = value
 
 
-const = _const()
+const = _Const()
 
 const.SOLUTION_FULL_NAME = "Sensitive Data Protect Solution"
 const.SOLUTION_NAME = "SDPS"
