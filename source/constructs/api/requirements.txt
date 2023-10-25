@@ -9,3 +9,4 @@ sqlakeyset==1.0.1659142803
 requests==2.31.0
 urllib3==1.26.18
 python-jose==3.3.0
+pydantic==1.10.13
