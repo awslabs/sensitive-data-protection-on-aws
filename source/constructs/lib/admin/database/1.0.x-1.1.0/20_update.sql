@@ -3,10 +3,8 @@ alter table source_detection_history drop column account_id;
 alter table source_detection_history change column aws_account account_id varchar(255);
 alter table source_rds_instance drop column account_id;
 alter table source_rds_instance change column aws_account account_id varchar(255);
--- alter table source_rds_instance change column aws_account_id account_id varchar(255);
 alter table source_s3_bucket drop column account_id;
 alter table source_s3_bucket change column aws_account account_id varchar(255);
--- alter table source_s3_bucket change column aws_account_id account_id varchar(255);
 alter table source_account change column aws_account_id account_id varchar(255);
 alter table source_account change column aws_account_alias account_alias varchar(255);
 alter table source_account change column aws_account_email account_email varchar(255);
@@ -189,10 +187,10 @@ INSERT INTO source_resource (resource_name, provider_id) VALUES ('CustomJDBC', 1
 INSERT INTO source_resource (resource_name, provider_id) VALUES ('CustomJDBC', 2);
 INSERT INTO source_resource (resource_name, provider_id) VALUES ('CustomJDBC', 3);
 
-INSERT INTO template_identifier (description, type, name, create_by) VALUES ('Face identifier for image detecting (Built-in)',3,'FACE','SDPS');
-INSERT INTO template_identifier (description, type, name, create_by) VALUES ('Business license identifier for image detecting (Built-in)',3,'Business License','SDPS');
-INSERT INTO template_identifier (description, type, name, create_by) VALUES ('Car license identifier for image detecting (Built-in)',3,'Car_License','SDPS');
-INSERT INTO template_identifier (description, type, name, create_by) VALUES ('ID card identifier for image detecting (Built-in)',3,'ID_Card','SDPS');
+INSERT INTO template_identifier (id, description, type, name, rule, create_by) VALUES (274,'Face identifier for image detecting (Built-in)',3,'FACE_IMAGE','FACE_IMAGE','SDPS');
+INSERT INTO template_identifier (id, description, type, name, rule, create_by) VALUES (275,'Business license identifier for image detecting (Built-in)',3,'BUSINESS_LICENSE_IMAGE','BUSINESS_LICENSE_IMAGE','SDPS');
+INSERT INTO template_identifier (id, description, type, name, rule, create_by) VALUES (276,'Car license identifier for image detecting (Built-in)',3,'CAR_LICENSE_IMAGE','CAR_LICENSE_IMAGE','SDPS');
+INSERT INTO template_identifier (id, description, type, name, rule, create_by) VALUES (277,'ID card identifier for image detecting (Built-in)',3,'CHINESE_ID_IMAGE','CHINESE_ID_IMAGE','SDPS');
 
 
 -- discovery job
