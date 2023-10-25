@@ -276,10 +276,10 @@ INSERT INTO template_identifier (id, description, type, name, classification, pr
 INSERT INTO template_identifier (id, description, type, name, classification, privacy, rule, header_keywords, create_by) VALUES (272,'Regex-based identifier for detecting Gender (Built-in)',0,'CHINA_GENDER',1, 1,'^(男|女|男生|女生|男性|女性|transgender|male|female|man|woman|men|women)$','[\"sex\",\"gender\",\"xingbie\",\"性别\"]','SDPS');
 INSERT INTO template_identifier (id, description, type, name, classification, privacy, rule, header_keywords, create_by) VALUES (273,'Regex-based identifier for detecting for Id Card type (Built-in)',0,'CHINA_ID_TYPE',1, 1,'^(.+证|.+证明|.+证明书|.+证书|户口簿|户口本|驾照|驾驶本|行驶本|护照|社会保障卡|社保卡|居民死亡医学证明\(推断\)书|.+一卡通|居住卡|医保卡)$','[\"id type\",\"id card type\",\"id card\",\"id_type\",\"id_card_type\",\"id_card\",\"identification\",\"identity\",\"document\",\"license\",\"certificate\",\"registration\",\"card\",\"证明\",\"证件\",\"zhengming\",\"zhengjian\"]','SDPS');
 
-INSERT INTO template_identifier (id, description, type, name, create_by) VALUES (274,'Face identifier for image detecting (Built-in)',3,'FACE_IMAGE','SDPS');
-INSERT INTO template_identifier (id, description, type, name, create_by) VALUES (275,'Business license identifier for image detecting (Built-in)',3,'BUSINESS_LICENSE_IMAGE','SDPS');
-INSERT INTO template_identifier (id, description, type, name, create_by) VALUES (276,'Car license identifier for image detecting (Built-in)',3,'CAR_LICENSE_IMAGE','SDPS');
-INSERT INTO template_identifier (id, description, type, name, create_by) VALUES (277,'ID card identifier for image detecting (Built-in)',3,'CHINESE_ID_IMAGE','SDPS');
+INSERT INTO template_identifier (id, description, type, name, rule, create_by) VALUES (274,'Face identifier for image detecting (Built-in)',3,'FACE_IMAGE','FACE_IMAGE','SDPS');
+INSERT INTO template_identifier (id, description, type, name, rule, create_by) VALUES (275,'Business license identifier for image detecting (Built-in)',3,'BUSINESS_LICENSE_IMAGE','BUSINESS_LICENSE_IMAGE','SDPS');
+INSERT INTO template_identifier (id, description, type, name, rule, create_by) VALUES (276,'Car license identifier for image detecting (Built-in)',3,'CAR_LICENSE_IMAGE','CAR_LICENSE_IMAGE','SDPS');
+INSERT INTO template_identifier (id, description, type, name, rule, create_by) VALUES (277,'ID card identifier for image detecting (Built-in)',3,'CHINESE_ID_IMAGE','CHINESE_ID_IMAGE','SDPS');
 
 DELETE FROM template_identifier_prop_ref WHERE id < 10001;
 -- buildin identifier-category mapping
