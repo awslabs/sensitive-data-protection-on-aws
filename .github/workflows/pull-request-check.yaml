@@ -175,13 +175,15 @@ jobs:
           pip3 install pytest-mock==3.11.1
           pip3 install httpx==0.25.0
           pip3 install anyio==3.6.2
+          pip3 install mock==5.1.0
+          pip3 install mock-alchemy==0.2.6
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_CN }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_CN }}
           aws-region: ${{ secrets.AWS_REGION_CN }}
-      - name: test python code
+      - name: Test with pytest
         run: |
           cd source/constructs/api
           python -m pytest pytest -s
