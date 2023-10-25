@@ -1,11 +1,12 @@
-boto3==1.26.135
-fastapi==0.87.0
-mangum==0.16.0
+boto3==1.28.70
+fastapi==0.104.0
+mangum==0.17.0
 sqlalchemy==1.4.44
-fastapi-pagination==0.11.0
+fastapi-pagination==0.12.11
 openpyxl==3.0.10
 pymysql==1.0.2
 sqlakeyset==1.0.1659142803
 requests==2.31.0
 urllib3==1.26.18
 python-jose==3.3.0
+pydantic==1.10.13
