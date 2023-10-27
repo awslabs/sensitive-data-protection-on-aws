@@ -608,8 +608,10 @@ def get_run_progress(job_id: int, run_id: int) -> list[schemas.DiscoveryJobRunDa
         current_table_count = run_current_table_count.get(run_database.id)
         if current_table_count is None:
             current_table_count = 0
+        table_count_unstructured = -1
         current_table_count_unstructured = -1
         if run_database.database_type == DatabaseType.S3.value:
+            table_count_unstructured = run_database.table_count_unstructured
             current_table_count_unstructured = run_current_table_count.get(f"{run_database.id}-{DatabaseType.S3_UNSTRUCTURED.value}")
             if current_table_count_unstructured is None:
                 current_table_count_unstructured = 0
@@ -617,7 +619,7 @@ def get_run_progress(job_id: int, run_id: int) -> list[schemas.DiscoveryJobRunDa
                                                            current_table_count=current_table_count,
                                                            table_count=run_database.table_count,
                                                            current_table_count_unstructured=current_table_count_unstructured,
-                                                           table_count_unstructured=run_database.table_count_unstructured)
+                                                           table_count_unstructured=table_count_unstructured)
         run_progress.append(progress)
     return run_progress
 
