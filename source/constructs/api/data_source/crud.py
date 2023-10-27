@@ -539,9 +539,10 @@ def hide_s3_bucket_connection(account: str, region: str, bucket_name: str):
                                                             S3BucketSource.region == region,
                                                             S3BucketSource.account_id == account).scalar()
 
-    s3_bucket_source.detection_history_id = -1
-    session.merge(s3_bucket_source)
-    session.commit()
+    if s3_bucket_source is not None:
+        s3_bucket_source.detection_history_id = -1
+        session.merge(s3_bucket_source)
+        session.commit()
 
 def delete_rds_connection(account: str, region: str, instance: str):
     session = get_session()
@@ -564,9 +565,10 @@ def hide_rds_connection(account: str, region: str, instance: str):
                                                                   RdsInstanceSource.region == region,
                                                                   RdsInstanceSource.account_id == account).order_by(
         desc(RdsInstanceSource.detection_history_id)).first()
-    rds_instance_source.detection_history_id = -1
-    session.merge(rds_instance_source)
-    session.commit()
+    if rds_instance_source is not None:
+        rds_instance_source.detection_history_id = -1
+        session.merge(rds_instance_source)
+        session.commit()
 
 def delete_glue_database(account: str, region: str, instance: str):
     session = get_session()

@@ -50,7 +50,6 @@ def create_label(label: schemas.LabelCreate) -> models.Label:
     session = get_session()
     session.add(db_label)
     session.commit()
-    print(db_label.id)
     return db_label
 
 
@@ -62,6 +61,8 @@ def update_label(label: schemas.LabelUpdate):
         .update(label.dict(exclude_unset=True))  # column.dict(exclude_unset=True)
     )
     get_session().commit()
+    if size is None:
+        return False
     return size > 0
 
 
