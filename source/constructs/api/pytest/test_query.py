@@ -9,8 +9,6 @@ from fastapi_pagination import Page
 from mock_alchemy.mocking import UnifiedAlchemyMagicMock
 
 import db.models_data_source as data_source_models
-import db.models_label as label_models
-import label.schemas as label_schemas
 import search.crud
 import search.main
 from main import app
@@ -26,20 +24,6 @@ def setup_validation(mocker):
 
 def setup_session(mocker):
     session = UnifiedAlchemyMagicMock(data=[
-        (
-            [mock.call.query(label_models.Label),
-             mock.call.filter(
-                 label_models.Label.id.in_([fake_account_id]),
-             )],
-            [label_schemas.Label(
-                id=1,
-                label_name='fake label name',
-                classification='fake classification',
-                type='fake type',
-                style_type='fake style type',
-                style_value='fake style value'
-            )]
-        ),
         (
             [mock.call.query(data_source_models.S3BucketSource.bucket_name)],
             [
