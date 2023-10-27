@@ -163,11 +163,11 @@ def __rename(old_crawler_name: str):
     new_crawler_name = f"{solution_name}-{old_crawler_name[:-8]}"
     new_database_name = new_crawler_name
     new_connection_name = new_crawler_name
-    __rename_database(new_database_name)
-    __rename_crawler(old_crawler_name, new_crawler_name, new_database_name, new_connection_name)
     if old_crawler_name.startswith("rds-"):
         old_connection_name = f"{old_crawler_name[:-8]}-connection"
         __rename_connection(old_connection_name, new_connection_name)
+    __rename_database(new_database_name)
+    __rename_crawler(old_crawler_name, new_crawler_name, new_database_name, new_connection_name)
 
 
 def list_crawlers():
