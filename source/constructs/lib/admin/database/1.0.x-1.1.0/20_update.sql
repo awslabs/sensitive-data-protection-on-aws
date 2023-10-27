@@ -199,6 +199,7 @@ alter table discovery_job add all_jdbc int null after all_glue;
 alter table discovery_job add depth_structured int null after `range`;
 alter table discovery_job add depth_unstructured int null after depth_structured;
 update discovery_job set depth_structured = depth where depth_structured is null;
+update discovery_job set depth_unstructured = 0 where depth_unstructured is null;
 alter table discovery_job add include_keywords varchar(1000) null after exclude_keywords;
 alter table discovery_job add exclude_file_extensions varchar(200) null after include_keywords;
 alter table discovery_job add include_file_extensions varchar(200) null after exclude_file_extensions;

@@ -939,6 +939,9 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
         port = rds_instance['Endpoint']['Port']
         rds_vpc_id = rds_instance['DBSubnetGroup']['VpcId']
         rds_az = rds_instance['AvailabilityZone']
+        # Currently Glue crawler connection does not support cn-north-1d.
+        if rds_az == 'cn-north-1d':
+            rds_az = 'cn-north-1a'
         rds_security_groups = []
         for vpc_sg in rds_instance['VpcSecurityGroups']:
             if vpc_sg['Status'] == 'active':
