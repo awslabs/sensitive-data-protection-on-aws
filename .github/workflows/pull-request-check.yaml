@@ -264,7 +264,7 @@ jobs:
           echo "BE Content is shown as below:"
           ls -L ${{ github.workspace }}/source/constructs/cdk.out
   all-build:
-    needs: [pyflakes, git-secrets, opensource-license-review, semgrep-scan, viperlight, py-test, cdk-unit-test, api-unit-test, code-build-portal, code-build-backend]
+    needs: [pyflakes, git-secrets, opensource-license-review, viperlight, py-test, cdk-unit-test, api-unit-test, code-build-portal, code-build-backend]
     runs-on: ubuntu-latest
     env:
       CI: "false"
