@@ -209,7 +209,7 @@ jobs:
           true
 
   code-build-portal:
-    needs: [cdk-unit-test, api-unit-test]
+    needs: semantic-validate
     runs-on: ubuntu-latest
     env:
       CI: "false"
@@ -235,7 +235,7 @@ jobs:
           ls -L ${{ github.workspace }}/source/portal
 
   code-build-backend:
-    needs: [cdk-unit-test, api-unit-test]
+    needs: semantic-validate
     runs-on: ubuntu-latest
     env:
       CI: "false"
@@ -263,3 +263,12 @@ jobs:
           echo "Build BE END>>>>>>>>>>>>>>>"
           echo "BE Content is shown as below:"
           ls -L ${{ github.workspace }}/source/constructs/cdk.out
+  all-build:
+    needs: [pyflakes, git-secrets, opensource-license-review, semgrep-scan, viperlight, py-test, cdk-unit-test, api-unit-test, code-build-portal, code-build-backend]
+    runs-on: ubuntu-latest
+    env:
+      CI: "false"
+    steps:
+      - name: demo test
+        run: |
+          true

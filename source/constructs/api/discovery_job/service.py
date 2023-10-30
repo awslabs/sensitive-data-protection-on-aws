@@ -666,9 +666,13 @@ def __get_table_count_from_agent(run_database: models.DiscoveryJobRunDatabase, i
     next_token = ""
     count = 0
     while True:
-        response = glue.get_tables(
-            DatabaseName=glue_database_name,
-            NextToken=next_token)
+        try:
+            response = glue.get_tables(
+                DatabaseName=glue_database_name,
+                NextToken=next_token)
+        except Exception as e:
+            logger.exception(e)
+            return -1
         for table in response['TableList']:
             if table.get('Parameters', {}).get('classification', '') != 'UNKNOWN':
                 count += 1

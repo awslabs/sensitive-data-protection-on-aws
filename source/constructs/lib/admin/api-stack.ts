@@ -93,6 +93,8 @@ export class ApiStack extends Construct {
     const autoSyncDataSqsStack = new SqsStack(this, 'AutoSyncDataQueue', { name: 'AutoSyncData', visibilityTimeout: 900 });
     const autoSyncDataEventSource = new SqsEventSource(autoSyncDataSqsStack.queue);
     autoSyncDataFunction.addEventSource(autoSyncDataEventSource);
+
+    this.createFunction('RefreshAccount', 'lambda.refresh_account.lambda_handler', props, 60, `${SolutionInfo.SOLUTION_NAME}-RefreshAccount`);
   }
 
   private createFunction(name: string, handler: string, props: ApiProps, timeout?: number, functionName?: string) {
