@@ -6,6 +6,7 @@ import requests
 import os
 
 events_client = boto3.client('events')
+lambda_client = boto3.client('lambda')
 
 logger = logging.getLogger('delete_resources')
 logger.setLevel(logging.INFO)
@@ -62,11 +63,18 @@ def on_create(event):
 
 def on_update(event):
     logger.info("Got Update")
+    refresh_account(event)
 
 
 def on_delete(event):
     logger.info("Got Delete")
     delete_event_rules()
+
+
+def refresh_account(event):
+    response = lambda_client.invoke(FunctionName=f'{solution_name}-RefreshAccount',
+                                    Payload='{"UpdateEvent":"RerefshAccount"}')
+    print(response)
 
 
 def __do_delete_rule(rule_name):
