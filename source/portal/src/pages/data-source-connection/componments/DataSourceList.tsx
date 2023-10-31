@@ -799,7 +799,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                     : e.connection_status;
                 }
                 if (item.id === COLUMN_OBJECT_STR.GlueConnectionName) {
-                  return e.glue_connection || '-';
+                  return e.glue_database_name || '-';
                 }
                 if (item.id === COLUMN_OBJECT_STR.glueDatabaseDescription) {
                   return e.glue_database_description || '-';

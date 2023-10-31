@@ -234,6 +234,7 @@
       "jdbcInstanceName": "Instance name",
       "glueState": "Catalog status",
       "glueConnectionName": "Glue connection",
+      "glueDatabaseName": "Glue database",
       "locationUri": "Location uri",
       "glueDatabaseCreateTime": "Database create time",
       "identifierType": "Identifier Type",
