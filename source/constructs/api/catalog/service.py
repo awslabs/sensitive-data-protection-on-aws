@@ -141,7 +141,14 @@ def sync_crawler_result(
         if jdbc_database:
             jdbc_engine_type = jdbc_database.jdbc_connection_url.split(':')[1]
 
-    glue_client = get_boto3_client(account_id, region, "glue")
+    if database_type.startswith(DatabaseType.JDBC.value) and not database_type.startswith(DatabaseType.JDBC_AWS.value):
+        caller_identity = boto3.client('sts').get_caller_identity()
+        _admin_account_id = caller_identity.get('Account')
+        _admin_account_region = boto3.session.Session().region_name
+        glue_client = get_boto3_client(_admin_account_id, _admin_account_region, "glue")
+    else:
+        glue_client = get_boto3_client(account_id, region, "glue")
+
     glue_database_name = database_name if is_custom_glue else (
         const.SOLUTION_NAME + "-" + database_type + "-" + database_name
     ).lower()
@@ -343,7 +350,7 @@ def sync_crawler_result(
             data_source_crud.set_s3_bucket_source_glue_state(account_id, region, database_name,
                                                              ConnectionState.UNSUPPORTED.value)
         elif database_type.startswith(DatabaseType.JDBC.value):
-            data_source_crud.set_jdbc_connection_glue_state(account_id, region, database_name,
+            data_source_crud.set_jdbc_connection_glue_state(provider_id, account_id, region, database_name,
                                                             ConnectionState.UNSUPPORTED.value)
         elif database_type == DatabaseType.GLUE.value:
             data_source_crud.set_glue_database_glue_state(account_id, region, database_name,

@@ -23,6 +23,8 @@ def sync_result(input_event):
 
     if 'detail' in input_event and 'crawlerName' in input_event['detail']:
         crawler_name = input_event['detail']['crawlerName']
+        crawler_account_id = input_event['detail']['accountId']
+        crawler_region = input_event['region']
         if not crawler_name.startswith(crawler_prefixes):
             return
         # add type support for jdbc
@@ -39,46 +41,52 @@ def sync_result(input_event):
         # database_type = DatabaseType.GLUE.value
         database_type = input_event['detail']['databaseType']
         database_name = input_event['detail']['databaseName']
+
+    if database_type.startswith(DatabaseType.JDBC.value):
+        jdbc_source = data_source_crud.get_jdbc_instance_source_by_crawler_name(crawler_name)
+        crawler_account_id = jdbc_source.account_id
+        crawler_region = jdbc_source.region
+
     logger.info(f"sync_result database_type:{database_type} database_name:{database_name}")
     try:
-        if catalog_service.sync_crawler_result(account_id=input_event['detail']['accountId'],
-                                               region=input_event['region'],
+        if catalog_service.sync_crawler_result(account_id=crawler_account_id,
+                                               region=crawler_region,
                                                database_type=database_type,
                                                database_name=database_name):
-            state = ConnectionState.UNSUPPORTED.value
+            state = state if input_event['detail']['state'] == 'Failed' else ConnectionState.ACTIVE.value
         logger.info("sync_crawler_result finished ,start to update datasource")
         if database_type == DatabaseType.S3.value:
             data_source_crud.update_s3_bucket_count(
-                account=input_event['detail']['accountId'],
-                region=input_event['region'],
+                account=crawler_account_id,
+                region=crawler_region,
             )
             data_source_crud.set_s3_bucket_source_glue_state(
-                account=input_event['detail']['accountId'],
-                region=input_event['region'],
+                account=crawler_account_id,
+                region=crawler_region,
                 bucket=database_name,
                 state=state
             )
             logger.info("update s3 datasource finished")
         elif database_type == DatabaseType.RDS.value:
             data_source_crud.update_rds_instance_count(
-                account=input_event['detail']['accountId'],
-                region=input_event['region'],
+                account=crawler_account_id,
+                region=crawler_region,
             )
             data_source_crud.set_rds_instance_source_glue_state(
-                account=input_event['detail']['accountId'],
-                region=input_event['region'],
+                account=crawler_account_id,
+                region=crawler_region,
                 instance_id=database_name,
                 state=state
             )
             logger.info("update rds datasource finished")
         elif database_type == DatabaseType.GLUE.value:
             data_source_crud.update_glue_database_count(
-                account=input_event['detail']['accountId'],
-                region=input_event['region'],
+                account=crawler_account_id,
+                region=crawler_region,
             )
             data_source_crud.set_glue_database_glue_state(
-                account=input_event['detail']['accountId'],
-                region=input_event['region'],
+                account=crawler_account_id,
+                region=crawler_region,
                 database=database_name,
                 state=state
             )
@@ -86,13 +94,13 @@ def sync_result(input_event):
         elif database_type.startswith(DatabaseType.JDBC.value):
             data_source_crud.update_jdbc_instance_count(
                 provider=convert_database_type_2_provider(database_type),
-                account=input_event['detail']['accountId'],
-                region=input_event['region'],
+                account=crawler_account_id,
+                region=crawler_region,
             )
             data_source_crud.set_jdbc_connection_glue_state(
                 provider=convert_database_type_2_provider(database_type),
-                account=input_event['detail']['accountId'],
-                region=input_event['region'],
+                account=crawler_account_id,
+                region=crawler_region,
                 instance=database_name,
                 state=state
             )
