@@ -267,6 +267,11 @@ def get_jdbc_instance_source_glue(provider_id: int, account: str, region: str, i
         desc(JDBCInstanceSource.detection_history_id)).first()
 
 
+def get_jdbc_instance_source_by_crawler_name(crawler: str):
+    return get_session().query(JDBCInstanceSource).filter(JDBCInstanceSource.glue_crawler == crawler).order_by(
+        desc(JDBCInstanceSource.detection_history_id)).first()
+
+
 def delete_not_exist_glue_database(refresh_list: list[str]):
     get_session().query(SourceGlueDatabase).filter(SourceGlueDatabase.glue_database_name.in_(refresh_list)).delete()
 
