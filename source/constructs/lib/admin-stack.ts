@@ -302,7 +302,8 @@ export class AdminStack extends Stack {
       }
     }
 
-    new DeleteResourcesStack(this, 'DeleteResources');
+    const deleteResourcesStack = new DeleteResourcesStack(this, 'DeleteResources');
+    deleteResourcesStack.node.addDependency(rdsStack);
 
     // new CallRegionStack(this, "CallRegion");
 

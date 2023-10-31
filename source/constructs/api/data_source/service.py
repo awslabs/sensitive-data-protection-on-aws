@@ -2331,7 +2331,7 @@ def __assume_role(account_id: str, role_arn: str):
         )
         return True
     except Exception as error:
-        logger.error(traceback.format_exc())
+        logger.info(traceback.format_exc())
     return False
 
 
