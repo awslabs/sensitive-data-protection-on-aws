@@ -171,6 +171,7 @@ def __rename(old_crawler_name: str):
 
 
 def list_crawlers():
+    time.sleep(30)
     next_page = ''
     while True:
         # In v1.0 version, only the AdminAcountId parameter is used
