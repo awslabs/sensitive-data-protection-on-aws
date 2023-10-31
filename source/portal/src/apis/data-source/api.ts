@@ -75,13 +75,13 @@ const connectDataSourceRDS = async (params: any) => {
 
 // 取消Rds连接
 const disconnectDataSourceRDS = async (params: any) => {
-  const result = await apiRequest('post', 'data-source/delete_rds', params);
+  const result = await apiRequest('post', 'data-source/delete-rds', params);
   return result;
 };
 
 // 取消S3连接
 const disconnectDataSourceS3 = async (params: any) => {
-  const result = await apiRequest('post', 'data-source/delete_s3', params);
+  const result = await apiRequest('post', 'data-source/delete-s3', params);
   return result;
 };
 

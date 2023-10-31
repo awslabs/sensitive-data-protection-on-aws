@@ -234,6 +234,7 @@
       "jdbcInstanceName": "实例名",
       "glueState": "数据目录",
       "glueConnectionName": "连通性",
+      "glueDatabaseName": "Glue 数据库",
       "locationUri": "Uri",
       "glueDatabaseCreateTime": "数据库创建时间",
       "identifierType": "标识符类型",
