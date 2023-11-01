@@ -34,7 +34,7 @@ class HtmlParser(BaseParser):
             if not string:
                 string = self._find_any_text(elem)
             string = string.strip()
-            if not string > 0:
+            if not string:
                 html += "\n" + string + "\n"
         return [html]
 

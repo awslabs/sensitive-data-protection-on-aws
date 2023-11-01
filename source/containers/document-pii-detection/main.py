@@ -40,6 +40,8 @@ def organize_table_info(table_name, result_bucket_name, original_bucket_name, fi
                   'originalFilePath': file_info['file_path'],
                   'originalFileSample': ', '.join(file_info['sample_files'][:10]),
                   'originalFileCategory': file_category,
+                  'sizeKey': str(file_info['total_file_size']),
+                  'objectCount': str(file_info['total_file_count']),
                   'Unstructured': 'true',
                   'classification': 'csv'}
     glue_table_columns = [{'Name': 'index', 'Type': 'string'}]
@@ -54,7 +56,8 @@ def organize_table_info(table_name, result_bucket_name, original_bucket_name, fi
             'Location': s3_location,
             'InputFormat': input_format,
             'OutputFormat': output_format,
-            'SerdeInfo': serde_info
+            'SerdeInfo': serde_info,
+            'Parameters': parameters
         },
         'PartitionKeys': [],
         'TableType': table_type,
@@ -90,7 +93,7 @@ def batch_process_files(s3_client, bucket_name, file_info, file_category):
         parser = ParserFactory.create_parser(file_type=file_type, s3_client=s3_client)
 
         for sample_file in sample_files:
-            object_key = f"{file_path}/{sample_file}{file_type}"
+            object_key = f"{file_path}/{sample_file}"
             file_content = parser.load_content(bucket_name, object_key)
             file_contents[f"{sample_file}"] = file_content
 

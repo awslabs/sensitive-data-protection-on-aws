@@ -22,7 +22,7 @@ sample_crawler_result = {
 }
 """
 
-supported_text_types = [".doc", ".docx", ".pdf", ".eml", ".htm", ".html", ".txt", ".gz"]
+supported_text_types = [".doc", ".docx", ".pdf", ".eml", ".htm", ".html", ".txt", ".java", ".py"]
 suported_image_types = [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".tif"]
 s3_client = boto3.client('s3')
 
@@ -34,15 +34,19 @@ def extract_file_details(file_path: str):
     file_suffix, file_basename, file_parent = pathlib_path.suffix, pathlib_path.stem, pathlib_path.parent
     return file_suffix, file_basename, str(file_parent)
 
-def add_file_to_dict(files_dict, file_parent, file_suffix, file_basename):
+def add_file_to_dict(files_dict, file_parent, file_suffix, file_basename, file_size):
     file_key = f"{file_parent}/*{file_suffix}"
     if file_key not in files_dict:
         files_dict[file_key] = {
             "file_type": file_suffix,
             "file_path": file_parent,
+            "total_file_size": 0,
+            "total_file_count": 0,
             "sample_files": []
         }
-    files_dict[file_key]["sample_files"].append(file_basename)
+    files_dict[file_key]["sample_files"].append(f"{file_basename}{file_suffix}")
+    files_dict[file_key]["total_file_size"] += file_size
+    files_dict[file_key]["total_file_count"] += 1
 
     return files_dict
 
@@ -66,15 +70,16 @@ def summarize_page(page, supported_types, include_file_extensions, exclude_file_
         file_path = obj['Key']
         # obj["LastModified"] is already in UTC
         last_modified_date = obj["LastModified"]
+        file_size = obj["Size"]
         file_suffix, file_basename, file_parent = extract_file_details(file_path)
         if not file_suffix or last_modified_date < base_time:
             continue
-        elif file_suffix in include_file_extensions:
-            add_file_to_dict(page_include_files, file_parent, file_suffix, file_basename)
-        elif file_suffix in exclude_file_extensions:
-            add_file_to_dict(page_exclude_files, file_parent, file_suffix, file_basename)
-        elif file_suffix in supported_types:
-            add_file_to_dict(page_detection_files, file_parent, file_suffix, file_basename)
+        elif file_suffix.lower() in include_file_extensions:
+            add_file_to_dict(page_include_files, file_parent, file_suffix, file_basename, file_size)
+        elif file_suffix.lower() in exclude_file_extensions:
+            add_file_to_dict(page_exclude_files, file_parent, file_suffix, file_basename, file_size)
+        elif file_suffix.lower() in supported_types:
+            add_file_to_dict(page_detection_files, file_parent, file_suffix, file_basename, file_size)
     return page_detection_files, page_include_files, page_exclude_files
 
 def postprocess_crawler_result(crawler_result, scan_depth):

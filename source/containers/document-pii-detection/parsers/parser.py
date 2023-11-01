@@ -53,6 +53,7 @@ class BaseParser:
                 else:
                     processed_content.append(item)
 
+        processed_content = processed_content[:10000]
         return processed_content
 
     def get_encoding(self, file_path):
