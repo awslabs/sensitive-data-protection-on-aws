@@ -50,7 +50,7 @@ class ImageParser(BaseParser):
         face_detection_result, _ = self.face_detection_pipeline(img)
         ocr_pipeline_result = self.ocr_pipeline(img)
 
-        contain_face = True if len(face_detection_result) > 0 else False
+        contain_face = True if face_detection_result.size > 0 else False
         business_license_keywords = ['营', '业', '执', '照', '信用代码']
         cnid_keywords = ['公', '民', '身', '份', '号', '码']
         car_license_keywords = ['机动车', '驾驶证']

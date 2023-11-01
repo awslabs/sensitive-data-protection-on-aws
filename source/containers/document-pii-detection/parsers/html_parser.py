@@ -118,13 +118,13 @@ class HtmlParser(BaseParser):
         v_sep_len = len(v_separator)
         v_left_sep = v_separator.lstrip()
         for t in tables:
-            html = ''
+            html_element_list = []
             trs = t['trs']
             h_length = 1 + (v_sep_len * len(t['col_width'])) + t['width']
             head_foot = (h_separator * h_length) + "\n"
-            html += head_foot
+            html_element_list.append(head_foot)
             for tr in trs:
-                html += v_left_sep
+                html_element_list.append(v_left_sep)
                 for i, td in enumerate(tr):
                     text = td['text']
                     col_width = t['col_width'][i] + v_sep_len
@@ -133,11 +133,11 @@ class HtmlParser(BaseParser):
                             j = j + 1
                             if (i+j) < len(t['col_width']):
                                 col_width += t['col_width'][i+j] + v_sep_len
-                    html += ('%' + str(col_width) + 's') % (text + v_separator)
-                html += "\n"
-            html += head_foot
+                    html_element_list.append('%' + str(col_width) + 's') % (text + v_separator)
+                html_element_list.append("\n")
+            html_element_list.append(head_foot)
             new_table = soup.new_tag('div')
-            new_table.string = html
+            new_table.string = ''.join(html_element_list)
             t['table'].replace_with(new_table)
         return soup
 
