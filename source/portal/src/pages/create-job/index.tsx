@@ -20,6 +20,7 @@ import AdvancedSettings from './components/AdvancedSettings';
 import JobPreview from './components/JobPreview';
 import {
   IDataSourceType,
+  IDataSourceS3BucketType,
   IJobType,
   INIT_JOB_DATA,
 } from 'pages/data-job/types/job_list_type';
@@ -62,6 +63,21 @@ export const convertDataSourceListToJobDatabases = (
       region: element.region,
       database_type: source_type,
       database_name: element.database_name,
+      table_name: '',
+    };
+  });
+};
+
+export const convertS3BucketDataSourceListToJobDatabases = (
+  dataSources: IDataSourceS3BucketType[],
+  source_type: string
+) => {
+  return dataSources.map((element) => {
+    return {
+      account_id: element.account_id,
+      region: element.region,
+      database_type: source_type,
+      database_name: element.bucket_name,
       table_name: '',
     };
   });

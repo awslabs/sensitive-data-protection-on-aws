@@ -3,13 +3,12 @@ import {
   Container,
   Header,
   SpaceBetween,
-  Tiles,
   Table,
   Pagination,
   CollectionPreferences,
 } from '@cloudscape-design/components';
 import { S3_CATALOG_COLUMS } from '../types/create_data_type';
-import { getDataBaseByType } from 'apis/data-catalog/api';
+import { getDataSourceS3ByPage } from 'apis/data-source/api';
 import { formatSize } from 'tools/tools';
 import CommonBadge from 'pages/common-badge';
 import {
@@ -19,8 +18,8 @@ import {
 import ResourcesFilter from 'pages/resources-filter';
 import { TABLE_NAME } from 'enum/common_types';
 import { useTranslation } from 'react-i18next';
-import { IDataSourceType, IJobType } from 'pages/data-job/types/job_list_type';
-import { convertDataSourceListToJobDatabases } from '../index';
+import { IJobType, IDataSourceS3BucketType } from 'pages/data-job/types/job_list_type';
+import { convertS3BucketDataSourceListToJobDatabases } from '../index';
 
 interface SelectS3CatalogProps {
   jobData: IJobType;
@@ -33,10 +32,10 @@ const SelectS3Catalog: React.FC<SelectS3CatalogProps> = (
 ) => {
   const { jobData, changeSelectType, changeSelectDatabases } = props;
   const { t } = useTranslation();
-  const [s3CatalogData, setS3CatalogData] = useState<IDataSourceType[]>([]);
+  const [s3CatalogData, setS3CatalogData] = useState<IDataSourceS3BucketType[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [s3Total, setS3Total] = useState(0);
-  const [selectedS3Items, setSelectedS3Items] = useState<IDataSourceType[]>([]);
+  const [selectedS3Items, setSelectedS3Items] = useState<IDataSourceS3BucketType[]>([]);
 
   const [preferences, setPreferences] = useState({
     pageSize: 20,
@@ -71,11 +70,6 @@ const SelectS3Catalog: React.FC<SelectS3CatalogProps> = (
       sort_column: '',
       asc: true,
       conditions: [
-        {
-          column: 'database_type',
-          values: ['s3'],
-          condition: 'and',
-        },
       ] as any,
     };
     if (s3Query.tokens) {
@@ -87,7 +81,7 @@ const SelectS3Catalog: React.FC<SelectS3CatalogProps> = (
         });
       });
     }
-    const dataResult = await getDataBaseByType(requestParam);
+    const dataResult = await getDataSourceS3ByPage(requestParam);
     setS3CatalogData((dataResult as any)?.items);
     setS3Total((dataResult as any)?.total);
     setIsLoading(false);
@@ -114,7 +108,7 @@ const SelectS3Catalog: React.FC<SelectS3CatalogProps> = (
 
   useEffect(() => {
     changeSelectDatabases(
-      convertDataSourceListToJobDatabases(
+      convertS3BucketDataSourceListToJobDatabases(
         selectedS3Items,
         jobData.database_type
       )
@@ -126,17 +120,6 @@ const SelectS3Catalog: React.FC<SelectS3CatalogProps> = (
       header={<Header variant="h2">{t('job:create.selectScanS3')}</Header>}
     >
       <SpaceBetween direction="vertical" size="l">
-        <Tiles
-          onChange={({ detail }) => changeSelectType(detail.value)}
-          value={jobData.all_s3}
-          items={[
-            { label: t('job:cataLogOption.all'), value: '1' },
-            {
-              label: t('job:cataLogOption.specify'),
-              value: '0',
-            },
-          ]}
-        />
         {jobData.all_s3 === '0' && (
           <Table
             className="job-table-width"

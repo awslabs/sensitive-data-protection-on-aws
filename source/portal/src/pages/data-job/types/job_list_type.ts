@@ -97,6 +97,13 @@ export interface IDataSourceType {
   labels: Array<any>;
   table_name: string;
 }
+export interface IDataSourceS3BucketType {
+  bucket_name: string;
+  size: string;
+  account_id: string;
+  region: string;
+  aws_account: string;
+}
 
 export interface IJobType {
   provider_id: string;

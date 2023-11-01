@@ -1,5 +1,5 @@
 export const COLUMN_OBJECT_STR = {
-  DatabaseName: 'database_name',
+  DatabaseName: 'bucket_name',
 };
 
 export const S3_CATALOG_COLUMS = [
@@ -8,21 +8,21 @@ export const S3_CATALOG_COLUMS = [
     label: 'table.label.bucketName',
     filter: true,
   },
-  {
-    id: 'object_count',
-    label: 'table.label.objects',
-    filter: true,
-  },
-  {
-    id: 'size_key',
-    label: 'table.label.size',
-    filter: false,
-  },
-  {
-    id: 'privacy',
-    label: 'table.label.privacy',
-    filter: true,
-  },
+  // {
+  //   id: 'object_count',
+  //   label: 'table.label.objects',
+  //   filter: true,
+  // },
+  // {
+  //   id: 'size_key',
+  //   label: 'table.label.size',
+  //   filter: false,
+  // },
+  // {
+  //   id: 'privacy',
+  //   label: 'table.label.privacy',
+  //   filter: true,
+  // },
   {
     id: 'account_id',
     label: 'table.label.awsAccount',
