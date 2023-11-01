@@ -31,10 +31,10 @@ class HtmlParser(BaseParser):
         elements = [el for el in filter(self._visible, elements)]
         for elem in elements:
             string = elem.string
-            if string is None:
+            if not string:
                 string = self._find_any_text(elem)
             string = string.strip()
-            if len(string) > 0:
+            if not string > 0:
                 html += "\n" + string + "\n"
         return [html]
 
@@ -86,11 +86,11 @@ class HtmlParser(BaseParser):
         for t in soup.find_all('table'):
             t_dict = {'width': 0, 'table': t, 'trs': [], 'col_width': {}}
             trs = t.find_all('tr')
-            if len(trs) > 0:
+            if trs:
                 for tr in trs:
                     tr_dict = []
                     tds = tr.find_all('th') + tr.find_all('td')
-                    if len(tds) > 0:
+                    if tds:
                         for i, td in enumerate(tds):
                             td_text = self._find_any_text(td)
                             length = len(td_text)

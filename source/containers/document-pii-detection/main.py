@@ -162,7 +162,9 @@ def main(param_dict):
     with tempfile.NamedTemporaryFile(mode='w') as temp:
         temp_file_path = temp.name
         s3_client.download_file(Bucket=crawler_result_bucket_name, Key=crawler_result_object_key, Filename=temp_file_path)
-        bucket_info = json.load(open(temp_file_path, 'r'))
+        with open(temp_file_path, 'r') as f:
+            bucket_info = json.load(f)
+
 
     
     # 4. Batch process files in same folder with same type

@@ -111,13 +111,13 @@ class SCRFD:
     def prepare(self, ctx_id, **kwargs):
         if ctx_id<0:
             self.session.set_providers(['CPUExecutionProvider'])
-        nms_thresh = kwargs.get('nms_thresh', None)
+        nms_thresh = kwargs.get('nms_thresh')
         if nms_thresh is not None:
             self.nms_thresh = nms_thresh
-        det_thresh = kwargs.get('det_thresh', None)
+        det_thresh = kwargs.get('det_thresh')
         if det_thresh is not None:
             self.det_thresh = det_thresh
-        input_size = kwargs.get('input_size', None)
+        input_size = kwargs.get('input_size')
         if input_size is not None:
             if self.input_size is not None:
                 print('warning: det_size is already set in scrfd model, ignore')

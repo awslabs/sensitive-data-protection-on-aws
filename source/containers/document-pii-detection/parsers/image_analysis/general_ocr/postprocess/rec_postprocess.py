@@ -18,15 +18,16 @@ class BaseRecLabelDecode(object):
             self.character_str = "0123456789abcdefghijklmnopqrstuvwxyz"
             dict_character = list(self.character_str)
         elif character_type in ["ch", "french", "german", "japan", "korean"]:
-            self.character_str = ""
+            self.character_str_list = []
             assert character_dict_path is not None, "character_dict_path should not be None when character_type is ch"
             with open(character_dict_path, "rb") as fin:
                 lines = fin.readlines()
                 for line in lines:
                     line = line.decode('utf-8').strip("\n").strip("\r\n")
-                    self.character_str += line
+                    self.character_str_list.append(line)
             if use_space_char:
-                self.character_str += " "
+                self.character_str_list.append(" ")
+            self.character_str = "".join(self.character_str_list)
             dict_character = list(self.character_str)
         elif character_type == "en_sensitive":
             # same with ASTER setting (use 94 char).

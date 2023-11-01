@@ -21,6 +21,14 @@ def create_operators(op_param_list, global_config=None):
     Args:
         params(list): a dict list, used to create some operators
     """
+
+    operator_mapping = {
+        'DecodeImage': DecodeImage,
+        'NormalizeImage': NormalizeImage,
+        'ToCHWImage': ToCHWImage,
+        'KeepKeys': KeepKeys,
+        'DetResizeForTest': DetResizeForTest
+    }
     assert isinstance(op_param_list, list), ('operator config should be a list')
     ops = []
     for operator in op_param_list:
@@ -30,6 +38,6 @@ def create_operators(op_param_list, global_config=None):
         param = {} if operator[op_name] is None else operator[op_name]
         if global_config is not None:
             param.update(global_config)
-        op = eval(op_name)(**param)
+        op = operator_mapping[op_name](**param)
         ops.append(op)
     return ops

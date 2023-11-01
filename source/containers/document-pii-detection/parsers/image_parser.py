@@ -28,7 +28,8 @@ class ImageParser(BaseParser):
         # additional PdfParser constructor code here
     
     def read_img(self, file_path):
-        img = np.array(Image.open(file_path).convert('RGB'))[:, :, :3]
+        with Image.open(file_path) as img:
+            img = np.array(img.convert('RGB'))[:, :, :3]
         
         return img
 

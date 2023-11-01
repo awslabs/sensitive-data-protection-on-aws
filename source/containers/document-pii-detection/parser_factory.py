@@ -14,7 +14,9 @@ class ParserFactory:
         elif file_type in ['.eml', '.EML']:
             return EmailParser(s3_client=s3_client)
         elif file_type in ['.jpg', '.jpeg', '.png', '.JPG', '.JPEG', '.PNG']:
-            return ImageParser(s3_client=s3_client, fd_model_path='./fd_model/', 
-                               ocr_model_path='./ocr_model/')
+            # return ImageParser(s3_client=s3_client, fd_model_path='./fd_model/', 
+            #                    ocr_model_path='./ocr_model/')
+            return ImageParser(s3_client=s3_client, fd_model_path='/home/ubuntu/icyxu/models/SDP/container/fd_model/', 
+                               ocr_model_path='/home/ubuntu/icyxu/models/SDP/container/ocr_model/')
         else:
             raise ValueError('Unsupported file type')

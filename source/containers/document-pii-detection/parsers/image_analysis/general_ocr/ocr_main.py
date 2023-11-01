@@ -83,7 +83,10 @@ class TextClassifier():
         # Sorting can speed up the cls process
         indices = np.argsort(np.array(width_list))
 
-        cls_res = [['', 0.0]] * img_num
+        cls_res = []
+        for i in range(img_num):
+            cls_res.append(['', 0.0])
+
         batch_num = self.cls_batch_num
         for beg_img_no in range(0, img_num, batch_num):
             end_img_no = min(img_num, beg_img_no + batch_num)
@@ -282,8 +285,10 @@ class TextRecognizer():
         # Sorting can speed up the recognition process
         indices = np.argsort(np.array(width_list))
 
-        # rec_res = []
-        rec_res = [['', 0.0]] * img_num
+        rec_res = []
+        for i in range(img_num):
+            rec_res.append(['', 0.0])
+            
         batch_num = self.rec_batch_num
         for beg_img_no in range(0, img_num, batch_num):
             end_img_no = min(img_num, beg_img_no + batch_num)

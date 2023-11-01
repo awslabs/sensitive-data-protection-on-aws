@@ -47,7 +47,7 @@ class BaseParser:
                     split_items = re.split(r'(?<=[.。;])', item)
                     # 
                     for split_item in split_items:
-                        if len(split_item) != 0:
+                        if not split_item:
                             # Avoid too long item
                             processed_content.append(split_item[:256])
                 else:
@@ -59,7 +59,9 @@ class BaseParser:
         """
         Returns the encoding of the file.
         """
-        blob = open(file_path, 'rb').read()
+
+        with open(file_path, 'rb') as f:
+            blob = f.read()
         m = magic.Magic(mime_encoding=True)
         encoding = m.from_buffer(blob)
         return encoding
