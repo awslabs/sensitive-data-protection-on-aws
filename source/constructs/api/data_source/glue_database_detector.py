@@ -48,9 +48,13 @@ async def detect_glue_database_connection(session: Session, aws_account_id: str)
         if not item.glue_database_name.upper().startswith(DatabaseType.JDBC.value):
             db_database_name_list.append(item.glue_database_name)
     for glue_database_item in glue_database_list:
-        if item.glue_database_name.upper().startswith(const.SOLUTION_NAME):
+        if glue_database_item.glue_database_name.upper().startswith(const.SOLUTION_NAME):
             continue
         glue_database: dict = glue_database_item
+        if glue_database["Name"].upper().startswith(const.SOLUTION_NAME):
+            refresh_list.append(glue_database["Name"])
+            continue
+
         glue_database_name_list.append(glue_database["Name"])
         if glue_database["Name"] not in db_database_name_list:
             source_glue_database = schemas.SourceGlueDatabase()

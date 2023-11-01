@@ -809,23 +809,26 @@ def get_source_rds_account_region():
             )
 
 def import_glue_database(glue_database_param: schemas.SourceGlueDatabase, res: dict):
-    CreateTableDefaultPermissions = res['CreateTableDefaultPermissions'][0]
-    session = get_session()
-    glue_database = SourceGlueDatabase()
-    glue_database.glue_database_name = glue_database_param.glue_database_name
-    glue_database.glue_database_location_uri = res['LocationUri'] if 'LocationUri' in res else None
-    glue_database.glue_database_description = res['Description'] if 'Description' in res else None
-    glue_database.glue_database_create_time = res['CreateTime'] if 'CreateTime' in res else None
-    glue_database.glue_database_catalog_id = res['CatalogId'] if 'CatalogId' in res else None
-    glue_database.data_lake_principal_identifier = CreateTableDefaultPermissions['Principal']['DataLakePrincipalIdentifier']
-    glue_database.permissions = CreateTableDefaultPermissions['Permissions']
-    glue_database.region = glue_database_param.region
-    glue_database.account_id = glue_database_param.account_id
-    glue_database.detection_history_id = glue_database_param.detection_history_id
-    session.add(glue_database)
-    session.commit()
-    session.refresh(glue_database)
-    return glue_database
+    if len(res['CreateTableDefaultPermissions']) == 1:
+        CreateTableDefaultPermissions = res['CreateTableDefaultPermissions'][0]
+        session = get_session()
+        glue_database = SourceGlueDatabase()
+        glue_database.glue_database_name = glue_database_param.glue_database_name
+        glue_database.glue_database_location_uri = res['LocationUri'] if 'LocationUri' in res else None
+        glue_database.glue_database_description = res['Description'] if 'Description' in res else None
+        glue_database.glue_database_create_time = res['CreateTime'] if 'CreateTime' in res else None
+        glue_database.glue_database_catalog_id = res['CatalogId'] if 'CatalogId' in res else None
+        glue_database.data_lake_principal_identifier = CreateTableDefaultPermissions['Principal']['DataLakePrincipalIdentifier']
+        glue_database.permissions = CreateTableDefaultPermissions['Permissions']
+        glue_database.region = glue_database_param.region
+        glue_database.account_id = glue_database_param.account_id
+        glue_database.detection_history_id = glue_database_param.detection_history_id
+        session.add(glue_database)
+        session.commit()
+        session.refresh(glue_database)
+        return glue_database
+    else:
+        return False
 
 def copy_properties(jdbc_instance_target: JDBCInstanceSource, jdbc_instance_origin: schemas.JDBCInstanceSourceFullInfo):
     jdbc_instance_target.instance_id = jdbc_instance_origin.instance_id
