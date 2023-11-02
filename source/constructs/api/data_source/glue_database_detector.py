@@ -45,8 +45,11 @@ async def detect_glue_database_connection(session: Session, aws_account_id: str)
         glue_database_list = client.get_databases()['DatabaseList']
     db_glue_list = crud.list_glue_database_ar(account_id=aws_account_id, region=admin_account_region)
     for item in db_glue_list:
-        db_database_name_list.append(item.glue_database_name)
+        if not item.glue_database_name.upper().startswith(DatabaseType.JDBC.value):
+            db_database_name_list.append(item.glue_database_name)
     for glue_database_item in glue_database_list:
+        if glue_database_item.glue_database_name.upper().startswith(const.SOLUTION_NAME):
+            continue
         glue_database: dict = glue_database_item
         if glue_database["Name"].upper().startswith(const.SOLUTION_NAME):
             refresh_list.append(glue_database["Name"])

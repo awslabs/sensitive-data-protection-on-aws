@@ -210,9 +210,11 @@ def sync_s3_connection(account: str, region: str, bucket: str):
             except Exception as e:
                 logger.info("update_crawler s3 error")
                 logger.info(str(e))
-            response = glue.start_crawler(
-                Name=crawler_name
-            )
+
+            # data source create crawler, job to run crawler
+            # response = glue.start_crawler(
+            #     Name=crawler_name
+            # )
             logger.info(response)
         except Exception as e:
             response = glue.create_crawler(
@@ -228,10 +230,11 @@ def sync_s3_connection(account: str, region: str, bucket: str):
                 },
             )
             logger.info(response)
-            response = glue.start_crawler(
-                Name=crawler_name
-            )
-            logger.info(response)
+            # data source create crawler, job to run crawler
+            # response = glue.start_crawler(
+            #     Name=crawler_name
+            # )
+            # logger.info(response)
 
         crud.create_s3_connection(account, region, bucket, glue_connection_name, glue_database_name, crawler_name)
     except Exception as err:

@@ -375,7 +375,7 @@ def create_s3_connection(account: str, region: str, bucket: str, glue_connection
     s3_bucket_source.glue_database = glue_database_name
     s3_bucket_source.glue_crawler = crawler_name
     s3_bucket_source.glue_crawler_last_updated = datetime.datetime.utcnow()
-    s3_bucket_source.glue_state = ConnectionState.CRAWLING.value
+    s3_bucket_source.glue_state = ConnectionState.ACTIVE.value
     session.merge(s3_bucket_source)
     session.commit()
 
