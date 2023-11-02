@@ -78,6 +78,8 @@ class CatalogDatabaseLevelClassification(Base):
     sensitivity = sa.Column(sa.String(255), nullable=False)
     object_count = sa.Column(sa.BigInteger())
     size_key = sa.Column(sa.BigInteger())
+    origin_obj_count = sa.Column(sa.BigInteger())
+    origin_size_key = sa.Column(sa.BigInteger())
     table_count = sa.Column(sa.Integer(), info={'searchable': True})
     column_count = sa.Column(sa.Integer())
     row_count = sa.Column(sa.Integer())

@@ -227,3 +227,8 @@ alter table catalog_table_level_classification add struct_type varchar(20) null 
 alter table catalog_table_level_classification add detected_time datetime null after struct_type;
 alter table catalog_table_level_classification add serde_info varchar(255) null after detected_time;
 alter table catalog_table_level_classification add table_properties varchar(1024) null after serde_info;
+
+
+alter table catalog_database_level_classification add origin_obj_count bigint null after size_key;
+alter table catalog_database_level_classification add origin_size_key bigint null after origin_obj_count;
+

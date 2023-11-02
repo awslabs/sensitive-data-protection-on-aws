@@ -298,6 +298,18 @@ def sync_job_detection_result(catalog_detection: schemas.CatalogJobResultDetecti
     )
 
 
+@router.post("/sync-s3-results", response_model=BaseResponse)
+@inject_session
+def sync_s3_result(s3_sync: schemas.CatalogCrawlerResultSync):
+
+    return service.sync_s3_result(
+        s3_sync.account_id,
+        s3_sync.region,
+        s3_sync.database_type,
+        s3_sync.database_name,
+    )
+
+
 @router.get("/get-database-property", response_model=BaseResponse)
 @inject_session
 def get_database_property(
