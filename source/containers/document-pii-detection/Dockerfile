@@ -1,6 +1,6 @@
 FROM public.ecr.aws/lambda/python:3.9
 
-ARG FUNCTION_DIR="/opt/ml/code/"
+ARG FUNCTION_DIR="/opt/ml/code"
 COPY requirements.txt ${FUNCTION_DIR}/requirements.txt
 RUN python3.9 -m pip install -r ${FUNCTION_DIR}/requirements.txt
 
