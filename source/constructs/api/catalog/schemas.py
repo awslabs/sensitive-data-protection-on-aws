@@ -78,6 +78,8 @@ class CatalogDatabaseLevelClassification(BaseModel):
     sensitivity: str
     object_count: Optional[int]
     size_key: Optional[int]
+    origin_obj_count: Optional[int]
+    origin_size_key: Optional[int]
     table_count: Optional[int]
     column_count: Optional[int]
     row_count: Optional[int]

@@ -78,6 +78,8 @@ create table catalog_database_level_classification
     sensitivity      varchar(255)  not null,
     object_count     bigint        null,
     size_key         bigint        null,
+    origin_obj_count bigint        null,
+    origin_size_key  bigint        null,
     table_count      int           null,
     column_count     int           null,
     row_count        int           null,

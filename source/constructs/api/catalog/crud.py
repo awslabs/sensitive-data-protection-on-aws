@@ -127,6 +127,13 @@ def get_catalog_database_level_classification_by_type_all(database_type: str):
 
 
 def get_catalog_database_level_classification_by_type(condition: QueryCondition):
+    for condition_value in condition.conditions:
+        if condition_value.column == 'database_type' and DatabaseType.S3.value in condition_value.values:
+            if len(condition_value.values) == 1 and condition_value.values[0] == DatabaseType.S3.value:
+                condition_value.values = [DatabaseType.S3.value, DatabaseType.S3_UNSTRUCTURED.value]
+                condition_value.operation = 'in'
+                condition.group_column = 'database_name'
+
     return query_with_condition(get_session().query(models.CatalogDatabaseLevelClassification), condition)
 
 

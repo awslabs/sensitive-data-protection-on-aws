@@ -32,6 +32,7 @@ from common.exception_handler import BizException
 import traceback
 from label.crud import (get_labels_by_id_list, get_all_labels)
 from openpyxl import Workbook
+from datetime import datetime, timedelta
 
 
 sql_result = "SELECT database_type,account_id,region,s3_bucket,s3_location,rds_instance_id,table_name,column_name,identifiers,sample_data,'','','' FROM job_detection_output_table"
@@ -113,6 +114,93 @@ def get_database_identifiers_from_tables(
         result_list.append(k_dict)
     logger.info(result_list)
     return result_list
+
+
+def get_s3_cloudwatch_metric(
+        account_id: str,
+        region: str,
+        database_name: str,
+        metric_name: str):
+    cloudwatch_client = get_boto3_client(account_id, region, 'cloudwatch')
+    response = {}
+    if metric_name == const.NUMBER_OF_OBJECTS:
+        response = cloudwatch_client.get_metric_statistics(
+            Namespace='AWS/S3',
+            MetricName='NumberOfObjects',
+            Dimensions=[
+                {
+                    'Name': 'BucketName',
+                    'Value': f'{database_name}'
+                },
+                {
+                    'Name': 'StorageType',
+                    'Value': 'AllStorageTypes'
+                }
+            ],
+            StartTime=datetime.utcnow() - timedelta(days=2),  # Define your start time
+            EndTime=datetime.utcnow(),  # Define your end time
+            Period=86400,  # 24 hours in seconds (daily average)
+            # Period=600,
+            Statistics=['Average'],  # or other statistic type like 'Sum', 'Minimum', 'Maximum', etc.
+            # Unit='Bytes'
+        )
+    elif metric_name == const.BUCKET_SIZE_BYTES:
+        response = cloudwatch_client.get_metric_statistics(
+            Namespace='AWS/S3',
+            MetricName='BucketSizeBytes',
+            Dimensions=[
+                {
+                    'Name': 'BucketName',
+                    'Value': f'{database_name}'
+                },
+                {
+                    'Name': 'StorageType',
+                    'Value': 'StandardStorage'
+                }
+            ],
+            StartTime=datetime.utcnow() - timedelta(days=2),  # Define your start time
+            EndTime=datetime.utcnow(),  # Define your end time
+            Period=86400,  # 24 hours in seconds (daily average)
+            # Period=600,
+            Statistics=['Average'],  # or other statistic type like 'Sum', 'Minimum', 'Maximum', etc.
+            Unit='Bytes'
+        )
+    # 获取最近时间的数据
+    if not response or not response.get('Datapoints'):
+        return None
+    # 根据 Timestamp 对 Datapoints 列表进行排序，取时间最近的那个
+    latest_data = max(response['Datapoints'], key=lambda x: x['Timestamp'])
+    latest_timestamp = latest_data['Timestamp']
+    latest_average = latest_data['Average']
+    logger.debug("最近时间的 Average 值：", latest_average)
+    logger.debug("最近时间的 Timestamp：", latest_timestamp)
+    return latest_average
+
+
+def sync_s3_result(
+        account_id: str,
+        region: str,
+        database_type: str,
+        database_name: str,
+):
+    s3_client = get_boto3_client(account_id, region, 's3')
+    # # 列出存储桶中的对象
+    response = s3_client.list_objects_v2(Bucket=database_name)
+    total_objects = response['KeyCount']  # 获取对象总数
+    total_size = sum(obj['Size'] for obj in response.get('Contents', []))  # 计算对象总大小
+    while response['IsTruncated']:
+        response = s3_client.list_objects_v2(Bucket=database_name, ContinuationToken=response['NextContinuationToken'])
+        total_objects += response['KeyCount']
+        total_size += sum(obj['Size'] for obj in response.get('Contents', []))
+        database_size = total_size
+        database_object_count = total_objects
+    logger.debug(f"Total Objects: {total_objects}")
+    logger.debug(f"Total Size: {total_size} bytes")
+
+    # response = s3_client.list_bucket_metrics_configurations(Bucket=database_name, ExpectedBucketOwner=account_id)
+    # response = s3_client.get_bucket_metrics_configuration(Bucket=database_name, Id='NumberOfObjects')
+    # response = s3_client.list_bucket_inventory_configurations(Bucket=database_name, ExpectedBucketOwner=account_id)
+    return database_size, database_object_count
 
 
 def sync_crawler_result(
@@ -363,28 +451,35 @@ def sync_crawler_result(
             crud.delete_catalog_database_level_classification(original_database.id)
 
     # create database
+    origin_size_key = 0
+    origin_obj_count = 0
     if table_count > 0:
         if database_type == DatabaseType.S3.value:
             storage_location = "s3://" + database_name + "/"
+            origin_size_key = get_s3_cloudwatch_metric(account_id, region, database_name, const.NUMBER_OF_OBJECTS)
+            origin_obj_count = get_s3_cloudwatch_metric(account_id, region, database_name, const.BUCKET_SIZE_BYTES)
         elif database_type == DatabaseType.RDS.value:
             storage_location = rds_engine_type
         elif database_type.startswith(DatabaseType.JDBC.value):
             storage_location = rds_engine_type
         elif database_type == DatabaseType.GLUE.value:
             storage_location = const.NA
-
         catalog_database_dict = {
             "account_id": account_id,
             "region": region,
             "database_type": database_type,
             "database_name": database_name,
             "object_count": database_object_count,
-            "size_key": database_size,
-            "table_count": table_count,
+            # not error ， logic change when 1.1.0
+            "size_key": origin_size_key,
+            "table_count": origin_obj_count,
             "column_count": database_column_count,
             # "row_count": database_row_count,
             # Store location for s3 and engine type for rds
-            "storage_location": "s3://" + database_name + "/"
+            # new column record old size and count
+            "origin_size_key": database_size,
+            "origin_obj_count": table_count,
+            "storage_location": storage_location
             if database_type == DatabaseType.S3.value
             else rds_engine_type,
         }
