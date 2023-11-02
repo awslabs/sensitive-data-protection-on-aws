@@ -106,6 +106,7 @@ const AccountForm: React.FC<AccountFormProps> = (props: AccountFormProps) => {
             </Button>
             <Button
               loading={isLoading}
+              disabled={isLoading || accountId.length < 1}
               variant="primary"
               onClick={() => {
                 addAccountButton();
