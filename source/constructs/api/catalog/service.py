@@ -453,11 +453,18 @@ def sync_crawler_result(
     # create database
     origin_size_key = 0
     origin_obj_count = 0
+    access_type = None
     if table_count > 0:
         if database_type == DatabaseType.S3.value:
             storage_location = "s3://" + database_name + "/"
             origin_size_key = get_s3_cloudwatch_metric(account_id, region, database_name, const.NUMBER_OF_OBJECTS)
             origin_obj_count = get_s3_cloudwatch_metric(account_id, region, database_name, const.BUCKET_SIZE_BYTES)
+            s3_client = get_boto3_client(account_id, region, DatabaseType.S3.value)
+            response = s3_client.get_bucket_acl(Bucket=database_name)
+            if __get_s3_public_access(response) == const.YES:
+                access_type = const.PUBLIC
+            else:
+                access_type = const.PRIVATE
         elif database_type == DatabaseType.RDS.value:
             storage_location = rds_engine_type
         elif database_type.startswith(DatabaseType.JDBC.value):
@@ -474,6 +481,7 @@ def sync_crawler_result(
             "size_key": origin_size_key,
             "table_count": origin_obj_count,
             "column_count": database_column_count,
+            "access_type": access_type,
             # "row_count": database_row_count,
             # Store location for s3 and engine type for rds
             # new column record old size and count

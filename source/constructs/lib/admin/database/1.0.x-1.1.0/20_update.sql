@@ -231,4 +231,5 @@ alter table catalog_table_level_classification add table_properties varchar(1024
 
 alter table catalog_database_level_classification add origin_obj_count bigint null after size_key;
 alter table catalog_database_level_classification add origin_size_key bigint null after origin_obj_count;
+alter table catalog_database_level_classification add access_type varchar(20) null after manual_tag;
 

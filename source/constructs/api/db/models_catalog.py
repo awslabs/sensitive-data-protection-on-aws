@@ -86,6 +86,7 @@ class CatalogDatabaseLevelClassification(Base):
     storage_location = sa.Column(sa.String(2048), info={'searchable': True})
     label_ids = sa.Column(sa.String(255))
     manual_tag = sa.Column(sa.String(20))
+    access_type = sa.Column(sa.String(20))
     state = sa.Column(sa.String(20))
     version = sa.Column(sa.Integer())
     create_by = sa.Column(sa.String(255))

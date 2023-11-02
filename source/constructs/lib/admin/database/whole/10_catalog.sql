@@ -86,6 +86,7 @@ create table catalog_database_level_classification
     storage_location varchar(2048) null,
     label_ids        varchar(255)  null,
     manual_tag       varchar(20)   null,
+    access_type      varchar(20)   null,
     state            varchar(20)   null,
     version          int           null,
     create_by        varchar(255)  null,
