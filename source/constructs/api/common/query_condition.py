@@ -19,6 +19,7 @@ class QueryCondition(BaseModel):
     sort_column: Optional[str] = const.EMPTY_STR
     asc: Optional[bool] = True
     conditions: Optional[list[Condition]]
+    group_column: Optional[str] = const.EMPTY_STR
 
 
 def query_with_condition(query: Query, condition: QueryCondition):
@@ -59,6 +60,9 @@ def query_with_condition(query: Query, condition: QueryCondition):
             query = query.order_by(sort_column.desc())
     else:
         query = query.order_by(getattr(table_obj, 'modify_time').desc())
+    if condition and condition.group_column:
+        group_column = getattr(table_obj, condition.group_column)
+        query = query.group_by(group_column)
     return query
 
 
