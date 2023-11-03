@@ -972,10 +972,17 @@ def get_database_prorpery(account_id: str,
                 result_list.append(["VpcId", instance_info["DBSubnetGroup"]["VpcId"]])
                 result_list.append(["PubliclyAccessible", "Yes" if instance_info["PubliclyAccessible"] else "No"])
         elif database_type == DatabaseType.GLUE.value:
-            raise BizException(
-                MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_code(),
-                MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_msg(),
-            )
+            glue_client = get_boto3_client(account_id, region, DatabaseType.GLUE.value)
+            # 获取数据库属性
+            response = glue_client.get_database(Name=database_name)
+            database = response.get('Database', {})
+            database_properties = database.get('Parameters', {})
+            logger.info("Database Properties:")
+            logger.info(database_properties)
+            result_list.append(["Name", database_name])
+            result_list.append(["Description", None])
+            result_list.append(["Location", None])
+            result_list.append(["Created on (UTC)", response['Database']['CreateTime']])
         elif database_type.startswith(DatabaseType.JDBC.value):
             raise BizException(
                 MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_code(),
