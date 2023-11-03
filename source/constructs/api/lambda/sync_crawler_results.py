@@ -1,13 +1,14 @@
 import json
 import logging
 import re
+import traceback
 
 import catalog.service as catalog_service
 import data_source.crud as data_source_crud
-from common.constant import const
-from common.enum import DatabaseType, ConnectionState, GlueResourceNameSuffix
-from db.database import gen_session, close_session
 from common.abilities import convert_database_type_2_provider
+from common.constant import const
+from common.enum import DatabaseType, ConnectionState
+from db.database import gen_session, close_session
 
 logger = logging.getLogger(const.LOGGER_API)
 logger.setLevel(logging.DEBUG)
@@ -21,9 +22,9 @@ def sync_result(input_event):
         state = input_event['detail']['errorMessage']
 
 
+    crawler_name = input_event['detail']['crawlerName']
+    crawler_account_id = input_event['detail']['accountId']
     if 'detail' in input_event and 'crawlerName' in input_event['detail']:
-        crawler_name = input_event['detail']['crawlerName']
-        crawler_account_id = input_event['detail']['accountId']
         crawler_region = input_event['region']
         if not crawler_name.startswith(crawler_prefixes):
             return
@@ -106,8 +107,8 @@ def sync_result(input_event):
             )
             logger.info("update jdbc datasource finished")
 
-    except Exception as e:
-        logger.error(str(e))
+    except Exception:
+        logger.error(traceback.format_exc())
 
 
 def lambda_handler(event, context):

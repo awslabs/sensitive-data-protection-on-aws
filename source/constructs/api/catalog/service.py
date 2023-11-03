@@ -1,39 +1,36 @@
-import datetime
 
-import boto3
+import csv
+import json
 import os
 import tempfile
-import json
-import csv
-
-import label.crud
-from . import crud, schemas
-from zipfile import ZipFile
-from data_source import crud as data_source_crud
 import time
+import traceback
+from datetime import datetime, timedelta
 from time import sleep
-from common.constant import const
+from zipfile import ZipFile
+
+import boto3
+from openpyxl import Workbook
+
 from common.concurrent_upload2s3 import concurrent_upload
-from template.service import get_identifiers
-from common.query_condition import QueryCondition
+from common.constant import const
 from common.enum import (
     DatabaseType,
     CatalogState,
     AthenaQueryState,
-    GlueResourceNameSuffix,
     GlueCrawlerState,
     Privacy,
     MessageEnum,
     ConnectionState,
     ExportFileType
 )
-from common.reference_parameter import logger, admin_bucket_name, partition
 from common.exception_handler import BizException
-import traceback
+from common.query_condition import QueryCondition
+from common.reference_parameter import logger, admin_bucket_name, partition
+from data_source import crud as data_source_crud
 from label.crud import (get_labels_by_id_list, get_all_labels)
-from openpyxl import Workbook
-from datetime import datetime, timedelta
-
+from template.service import get_identifiers
+from . import crud, schemas
 
 sql_result = "SELECT database_type,account_id,region,s3_bucket,s3_location,rds_instance_id,table_name,column_name,identifiers,sample_data,'','','' FROM job_detection_output_table"
 tmp_folder = tempfile.gettempdir()
@@ -381,7 +378,7 @@ def sync_crawler_result(
                     "storage_location": table_location,
                     "classification": table_classification,
                     "struct_type": False if (database_type == DatabaseType.S3_UNSTRUCTURED.value) else True,
-                    "detected_time": datetime.datetime.now(),
+                    "detected_time": datetime.now(),
                     "serde_info": str(serde_info),
                     "table_properties": str(table_properties)
                 }
