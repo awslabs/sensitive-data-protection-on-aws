@@ -107,10 +107,10 @@ def get_run_status(id: int, run_id: int):
     return service.get_run_status(id, run_id)
 
 
-@router.get("/{id}/runs/{run_id}/{run_database_id}/progress", response_model=BaseResponse[schemas.DiscoveryJobRunDatabaseProgress])
-@inject_session
-def get_run_database_progress(id: int, run_id: int, run_database_id: int):
-    return service.get_run_database_progress(id, run_id, run_database_id)
+# @router.get("/{id}/runs/{run_id}/{run_database_id}/progress", response_model=BaseResponse[schemas.DiscoveryJobRunDatabaseProgress])
+# @inject_session
+# def get_run_database_progress(id: int, run_id: int, run_database_id: int):
+#     return service.get_run_database_progress(id, run_id, run_database_id)
 
 
 @router.get("/{id}/runs/{run_id}/progress", response_model=BaseResponse[list[schemas.DiscoveryJobRunDatabaseProgress]])
@@ -119,18 +119,18 @@ def get_run_progress(id: int, run_id: int):
     return service.get_run_progress(id, run_id)
 
 
-@router.get("/{id}/runs/{run_id}/report",
-            response_class=RedirectResponse,
-            responses={
-                200: {
-                    "content": {const.MIME_XLSX: {}},
-                    "description": "Return a report in xlsx format.",
-                }
-            },
-            )
-def download_report(id: int, run_id: int):
-    url = service.get_report_url(run_id)
-    return RedirectResponse(url)
+# @router.get("/{id}/runs/{run_id}/report",
+#             response_class=RedirectResponse,
+#             responses={
+#                 200: {
+#                     "content": {const.MIME_XLSX: {}},
+#                     "description": "Return a report in xlsx format.",
+#                 }
+#             },
+#             )
+# def download_report(id: int, run_id: int):
+#     url = service.get_report_url(run_id)
+#     return RedirectResponse(url)
 
 
 @router.get("/{id}/runs/{run_id}/report_url", response_model=BaseResponse[str])
