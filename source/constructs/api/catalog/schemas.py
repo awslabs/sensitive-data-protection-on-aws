@@ -86,6 +86,7 @@ class CatalogDatabaseLevelClassification(BaseModel):
     storage_location: Optional[str]
     label_ids: Optional[str]
     manual_tag: Optional[str]
+    access_type: Optional[str]
     state: Optional[str]
     version: Optional[int]
     create_by: Optional[str]

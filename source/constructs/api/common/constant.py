@@ -72,3 +72,7 @@ const.EXPORT_RDS_MARK_STR = "Amazon_RDS"
 const.SECURITY_GROUP_JDBC = "SDPS-CustomDB"
 const.NUMBER_OF_OBJECTS = 'NumberOfObjects'
 const.BUCKET_SIZE_BYTES = 'BucketSizeBytes'
+const.YES = 'Yes'
+const.NO = 'No'
+const.PUBLIC = 'Public'
+const.PRIVATE = 'Private'
