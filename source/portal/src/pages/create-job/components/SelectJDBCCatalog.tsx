@@ -10,9 +10,10 @@ import {
   SegmentedControl,
 } from '@cloudscape-design/components';
 import {
-  RDS_CATALOG_COLUMS,
-  RDS_FOLDER_COLUMS,
-  S3_CATALOG_COLUMS,
+  JDBC_INSTANCE_COLUMS,
+  JDBC_TABLE_COLUMS,
+  COLUMN_OBJECT_STR
+
 } from '../types/create_data_type';
 import { getDataBaseByType, searchCatalogTables } from 'apis/data-catalog/api';
 import { formatSize } from 'tools/tools';
@@ -69,7 +70,7 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
     totalCount: jdbcTotal,
     query: jdbcQuery,
     setQuery: setJdbcQuery,
-    columnList: RDS_CATALOG_COLUMS.filter((i) => i.filter),
+    columnList: JDBC_INSTANCE_COLUMS.filter((i:any) => i.filter),
     tableName: TABLE_NAME.CATALOG_DATABASE_LEVEL_CLASSIFICATION,
     filteringPlaceholder: t('job:filterInstances'),
   };
@@ -218,10 +219,10 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
                   itemSelectionLabel: ({ selectedItems }, item) => {
                     const isItemSelected = selectedItems.filter(
                       (i) =>
-                        (i as any)[S3_CATALOG_COLUMS[0].id] ===
-                        (item as any)[S3_CATALOG_COLUMS[0].id]
+                        (i as any)[JDBC_INSTANCE_COLUMS[0].id] ===
+                        (item as any)[JDBC_INSTANCE_COLUMS[0].id]
                     ).length;
-                    return `${(item as any)[S3_CATALOG_COLUMS[0].id]} ${t(
+                    return `${(item as any)[JDBC_INSTANCE_COLUMS[0].id]} ${t(
                       'table.is'
                     )} ${isItemSelected ? '' : t('table.not')} ${t(
                       'table.selected'
@@ -230,11 +231,14 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
                 }}
                 items={jdbcCatalogData}
                 filter={<ResourcesFilter {...jdbcFilterProps} />}
-                columnDefinitions={RDS_CATALOG_COLUMS.map((item) => {
+                columnDefinitions={JDBC_INSTANCE_COLUMS.map((item:any) => {
                   return {
                     id: item.id,
                     header: t(item.label),
                     cell: (e: any) => {
+                      if (item.id === COLUMN_OBJECT_STR.ConnectionName) {
+                        return e["database_name"];
+                      }
                       if (item.id === 'size_key') {
                         return formatSize((e as any)[item.id]);
                       }
@@ -309,7 +313,7 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
                       options: [
                         {
                           label: t('table.mainDistributionProp'),
-                          options: S3_CATALOG_COLUMS,
+                          options: JDBC_INSTANCE_COLUMS,
                         },
                       ],
                     }}
@@ -338,10 +342,10 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
                   itemSelectionLabel: ({ selectedItems }, item) => {
                     const isItemSelected = selectedItems.filter(
                       (i) =>
-                        (i as any)[S3_CATALOG_COLUMS[0].id] ===
-                        (item as any)[S3_CATALOG_COLUMS[0].id]
+                        (i as any)[JDBC_TABLE_COLUMS[0].id] ===
+                        (item as any)[JDBC_TABLE_COLUMS[0].id]
                     ).length;
-                    return `${(item as any)[S3_CATALOG_COLUMS[0].id]} ${t(
+                    return `${(item as any)[JDBC_TABLE_COLUMS[0].id]} ${t(
                       'table.is'
                     )} ${isItemSelected ? '' : t('table.not')} ${t(
                       'table.selected'
@@ -350,11 +354,20 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
                 }}
                 items={jdbcFolderData}
                 filter={<ResourcesFilter {...jdbcFilterProps} />}
-                columnDefinitions={RDS_FOLDER_COLUMS.map((item) => {
+                columnDefinitions={JDBC_TABLE_COLUMS.map((item) => {
                   return {
                     id: item.id,
                     header: t(item.label),
                     cell: (e: any) => {
+                      if (item.id === COLUMN_OBJECT_STR.JDBCTableName) {
+                        return e["table_name"];
+                      }
+                      if (item.id === COLUMN_OBJECT_STR.ConnectionName) {
+                        return e["database_name"];
+                      }
+                      if (item.id === COLUMN_OBJECT_STR.JDBCTableRow) {
+                        return e["row_count"];
+                      }
                       if (item.id === 'size_key') {
                         return formatSize((e as any)[item.id]);
                       }
@@ -429,7 +442,7 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
                       options: [
                         {
                           label: t('table.mainDistributionProp'),
-                          options: S3_CATALOG_COLUMS,
+                          options: JDBC_TABLE_COLUMS,
                         },
                       ],
                     }}
