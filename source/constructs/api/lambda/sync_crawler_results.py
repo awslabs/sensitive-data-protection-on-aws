@@ -21,11 +21,10 @@ def sync_result(input_event):
     if input_event['detail']['state'] == 'Failed':
         state = input_event['detail']['errorMessage']
 
-
-    crawler_name = input_event['detail']['crawlerName']
     crawler_account_id = input_event['detail']['accountId']
+    crawler_region = input_event['region']
     if 'detail' in input_event and 'crawlerName' in input_event['detail']:
-        crawler_region = input_event['region']
+        crawler_name = input_event['detail']['crawlerName']
         if not crawler_name.startswith(crawler_prefixes):
             return
         # add type support for jdbc
@@ -38,15 +37,14 @@ def sync_result(input_event):
         # database_type = '-'.join(parts[:2]) if is_jdbc else parts[0]
         database_type = parts[1]
         database_name = '-'.join(parts[2:])
+        if database_type.startswith(DatabaseType.JDBC.value):
+            jdbc_source = data_source_crud.get_jdbc_instance_source_by_crawler_name(crawler_name)
+            crawler_account_id = jdbc_source.account_id
+            crawler_region = jdbc_source.region
     elif 'detail' in input_event and 'databaseName' in input_event['detail']:
         # database_type = DatabaseType.GLUE.value
         database_type = input_event['detail']['databaseType']
         database_name = input_event['detail']['databaseName']
-
-    if database_type.startswith(DatabaseType.JDBC.value):
-        jdbc_source = data_source_crud.get_jdbc_instance_source_by_crawler_name(crawler_name)
-        crawler_account_id = jdbc_source.account_id
-        crawler_region = jdbc_source.region
 
     logger.info(f"sync_result database_type:{database_type} database_name:{database_name}")
     try:
