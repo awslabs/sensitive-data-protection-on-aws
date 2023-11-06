@@ -427,6 +427,11 @@ def sync_crawler_result(
                 crud.delete_catalog_column_level_classification_by_table_name(account_id, region, database_type,
                                                                               database_name, catalog.table_name,
                                                                               column_list)
+
+    # create database
+    origin_size_key = 0
+    origin_obj_count = 0
+    access_type = None
     if table_count == 0:
         if database_type == DatabaseType.RDS.value:
             data_source_crud.set_rds_instance_source_glue_state(account_id, region, database_name,
@@ -443,15 +448,23 @@ def sync_crawler_result(
         original_database = crud.get_catalog_database_level_classification_by_name(account_id, region,
                                                                                    database_type,
                                                                                    database_name)
-        if original_database is not None:
-            logger.info("sync_crawler_result table_count is 0 and delete exist catalog")
-            crud.delete_catalog_database_level_classification(original_database.id)
-
-    # create database
-    origin_size_key = 0
-    origin_obj_count = 0
-    access_type = None
-    if table_count > 0:
+        # if original_database is not None:
+        #     logger.info("sync_crawler_result table_count is 0 and not delete exist catalog")
+        #     crud.delete_catalog_database_level_classification(original_database.id)
+        origin_size_key = get_s3_cloudwatch_metric(account_id, region, database_name, const.NUMBER_OF_OBJECTS)
+        origin_obj_count = get_s3_cloudwatch_metric(account_id, region, database_name, const.BUCKET_SIZE_BYTES)
+        s3_client = get_boto3_client(account_id, region, DatabaseType.S3.value)
+        response = s3_client.get_bucket_acl(Bucket=database_name)
+        if __get_s3_public_access(response) == const.YES:
+            access_type = const.PUBLIC
+        else:
+            access_type = const.PRIVATE
+        catalog_database_dict = {"object_count": database_object_count, "size_key": origin_size_key,
+                                 "table_count": origin_obj_count, "column_count": database_column_count,
+                                 "access_type": access_type, "origin_size_key": database_size,
+                                 "origin_obj_count": table_count, 'modify_by': original_database.modify_by}
+        crud.update_catalog_database_level_classification_by_id(original_database.id, catalog_database_dict)
+    elif table_count > 0:
         if database_type == DatabaseType.S3.value:
             storage_location = "s3://" + database_name + "/"
             origin_size_key = get_s3_cloudwatch_metric(account_id, region, database_name, const.NUMBER_OF_OBJECTS)
@@ -501,7 +514,8 @@ def sync_crawler_result(
         + str(table_count)
         + " tables affected."
     )
-    return table_count == 0
+    # return table_count == 0
+    return True
 
 
 def __get_s3_bucket_key_from_location(s3_location: str):
