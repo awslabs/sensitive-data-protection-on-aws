@@ -646,8 +646,13 @@ def __get_current_table_count(run_database_id: int):
 
 def __get_table_count_from_agent(run_database: models.DiscoveryJobRunDatabase, is_structured=True):
     client_sts = boto3.client('sts')
+    account_id = run_database.account_id
+    region = run_database.region
+    if need_change_account_id(run_database.database_type):
+        account_id = admin_account_id
+        region = admin_region
     assumed_role_object = client_sts.assume_role(
-        RoleArn=f'arn:{partition}:iam::{run_database.account_id}:role/{const.SOLUTION_NAME}RoleForAdmin-{run_database.region}',
+        RoleArn=f'arn:{partition}:iam::{account_id}:role/{const.SOLUTION_NAME}RoleForAdmin-{region}',
         RoleSessionName="AssumeRoleSession1"
     )
     credentials = assumed_role_object['Credentials']
@@ -656,7 +661,7 @@ def __get_table_count_from_agent(run_database: models.DiscoveryJobRunDatabase, i
                         aws_access_key_id=credentials['AccessKeyId'],
                         aws_secret_access_key=credentials['SecretAccessKey'],
                         aws_session_token=credentials['SessionToken'],
-                        region_name=run_database.region,
+                        region_name=region,
                         )
     glue_database_name = f'{const.SOLUTION_NAME}-{run_database.database_type}-{run_database.database_name}'
     if not is_structured:
