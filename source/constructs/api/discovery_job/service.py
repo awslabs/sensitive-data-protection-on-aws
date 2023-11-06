@@ -15,6 +15,7 @@ from openpyxl import Workbook
 from tempfile import NamedTemporaryFile
 from catalog.service import sync_job_detection_result
 from tools.str_tool import is_empty
+from common.abilities import need_change_account_id
 
 version = os.getenv(const.VERSION, '')
 controller_function_name = os.getenv("ControllerFunctionName", f"{const.SOLUTION_NAME}-Controller")
@@ -196,12 +197,6 @@ def start_sample_job(job_id: int, table_name: str):
     logger.info(run_id)
     if run_id >= 0:
         __start_sample_run(job_id, run_id, table_name)
-
-
-def need_change_account_id(database_type: str):
-    if database_type.startswith(DatabaseType.JDBC.value) and database_type != DatabaseType.JDBC_AWS.value:
-        return True
-    return False
 
 
 def __start_run(job_id: int, run_id: int):
