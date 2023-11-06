@@ -8,23 +8,23 @@ import argparse
 import copy
 import logging
 import tempfile
+import pathlib
+from collections import defaultdict
 
 from parser_factory import ParserFactory
 
-def check_include_file_type(file_info, include_file_types):
+def group_files_by_extension(sample_files):
     """
-    Check if the file type is included in the include_file_types list.
+    Group files by extension.
 
-    :param file_info: file info
-    :param include_file_types: list of file types to include
+    :param sample_files: list of sample files
 
     """
-    file_type = file_info['file_type']
-
-    if file_type in include_file_types:
-        return True
-    else:
-        return False
+    sample_file_extension_dict = defaultdict(list)
+    for sample_file in sample_files:
+        sample_file_extension = pathlib.Path(sample_file).suffix
+        sample_file_extension_dict[sample_file_extension].append(sample_file)
+    return sample_file_extension_dict
 
 def organize_table_info(table_name, result_bucket_name, original_bucket_name, file_info, columns, file_category):
 
@@ -38,7 +38,7 @@ def organize_table_info(table_name, result_bucket_name, original_bucket_name, fi
     parameters = {'originalFileBucketName': original_bucket_name,
                   'originalFileType': file_info['file_type'],
                   'originalFilePath': file_info['file_path'],
-                  'originalFileSample': ', '.join(file_info['sample_files'][:10]),
+                  'originalFileSample': json.dumps(file_info['sample_files'], ensure_ascii=False),
                   'originalFileCategory': file_category,
                   'sizeKey': str(file_info['total_file_size']),
                   'objectCount': str(file_info['total_file_count']),
@@ -89,21 +89,28 @@ def batch_process_files(s3_client, bucket_name, file_info, file_category):
     sample_files = file_info['sample_files']
 
     if file_category == 'detection_files':
-        
-        parser = ParserFactory.create_parser(file_type=file_type, s3_client=s3_client)
 
-        for sample_file in sample_files:
-            object_key = f"{file_path}/{sample_file}"
-            file_content = parser.load_content(bucket_name, object_key)
-            file_contents[f"{sample_file}"] = file_content
+        grouped_sample_files = group_files_by_extension(sample_files)
+
+        for sample_file_extension, sample_file_extension_files in grouped_sample_files.items():
+        
+            parser = ParserFactory.create_parser(file_type=sample_file_extension, s3_client=s3_client)
+
+            for sample_file in sample_file_extension_files:
+                object_key = f"{file_path}/{sample_file}"
+                file_content = parser.load_content(bucket_name, object_key)
+                sample_file_name_no_dot = sample_file.replace('.', '_')
+                file_contents[f"{sample_file_name_no_dot}"] = file_content
 
     elif file_category == 'include_files':
         for sample_file in sample_files:
-            file_contents[f"{sample_file}"] = ['This file is marked as Contains-PII.']
+            sample_file_name_no_dot = sample_file.replace('.', '_')
+            file_contents[f"{sample_file_name_no_dot}"] = ['This file is marked as Contains-PII.']
     
     elif file_category == 'exclude_files':
         for sample_file in sample_files:
-            file_contents[f"{sample_file}"] = ['This file is marked as Non-PII.']
+            sample_file_name_no_dot = sample_file.replace('.', '_')
+            file_contents[f"{sample_file_name_no_dot}"] = ['This file is marked as Non-PII.']
             
     return file_contents
 

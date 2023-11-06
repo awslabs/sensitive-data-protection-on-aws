@@ -10,8 +10,8 @@ from datetime import timezone
 
 """
 sample_crawler_result = {
-    "path_to_files_jpg": {
-        "file_type": "jpg",
+    "path_to_files_document": {
+        "file_type": "document",
         "file_path": "path_to_files",
         "sample_files": [
             "file_1",
@@ -22,29 +22,66 @@ sample_crawler_result = {
 }
 """
 
-supported_text_types = [".doc", ".docx", ".pdf", ".eml", ".htm", ".html", ".txt", ".java", ".py"]
-suported_image_types = [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".tif"]
+supported_file_types = {
+    "document": [".doc", ".docx", ".pdf"],
+    "webpage": [".htm", ".html"],
+    "email": [".eml"],
+    "code": [".java", ".py", ".cpp", ".c", ".h", ".html", ".css", ".js", ".php", ".rb", ".swift", ".go", ".sql", ".json"],
+    "text": [".txt", ".md", ".log"],
+    "image": [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".tif"]
+}
+
 s3_client = boto3.client('s3')
+
+def get_file_type_from_extension(file_extension):
+    for file_type, file_extensions in supported_file_types.items():
+        if file_extension.lower() in file_extensions:
+            return file_type
+    return "unknown"
+
+def split_s3_path(s3_path, max_folder_depth=5):
+    """
+    Splits the s3 path into parent directories and remaining path.
+    
+    Args:
+        s3_path: s3 path of the file
+    
+    Returns:
+        parent_directories: first 5 parent directories
+        remaining_path: remaining path
+    """
+    # Split the path into individual directories
+    directories = s3_path.split("/")
+
+    parent_directories = "/".join(directories[:max_folder_depth])
+    remaining_path = "/".join(directories[max_folder_depth:])
+
+    remaining_path = f"{remaining_path}/" if remaining_path else ""
+
+    return parent_directories, remaining_path
 
 def extract_file_details(file_path: str):
     """
-    Extracts the file details (suffix, basename, parent) from the file path.
+    Extracts the file details (extension, basename, parent) from the file path.
     """
     pathlib_path = pathlib.Path(file_path)
-    file_suffix, file_basename, file_parent = pathlib_path.suffix, pathlib_path.stem, pathlib_path.parent
-    return file_suffix, file_basename, str(file_parent)
+    file_extension, file_basename, file_parent = pathlib_path.suffix, pathlib_path.stem, pathlib_path.parent
+    return file_extension, file_basename, str(file_parent)
 
-def add_file_to_dict(files_dict, file_parent, file_suffix, file_basename, file_size):
-    file_key = f"{file_parent}/*{file_suffix}"
+def add_file_to_dict(files_dict, file_parent, file_extension, file_basename, file_size, mode = "detect"):
+
+    parent_directories, remaining_path = split_s3_path(file_parent)
+    file_type = get_file_type_from_extension(file_extension)
+    file_key = f"{parent_directories}/{file_type}_{mode}"
     if file_key not in files_dict:
         files_dict[file_key] = {
-            "file_type": file_suffix,
-            "file_path": file_parent,
+            "file_type": file_type,
+            "file_path": parent_directories,
             "total_file_size": 0,
             "total_file_count": 0,
             "sample_files": []
         }
-    files_dict[file_key]["sample_files"].append(f"{file_basename}{file_suffix}")
+    files_dict[file_key]["sample_files"].append(f"{remaining_path}{file_basename}{file_extension}")
     files_dict[file_key]["total_file_size"] += file_size
     files_dict[file_key]["total_file_count"] += 1
 
@@ -71,15 +108,15 @@ def summarize_page(page, supported_types, include_file_extensions, exclude_file_
         # obj["LastModified"] is already in UTC
         last_modified_date = obj["LastModified"]
         file_size = obj["Size"]
-        file_suffix, file_basename, file_parent = extract_file_details(file_path)
-        if not file_suffix or last_modified_date < base_time:
+        file_extension, file_basename, file_parent = extract_file_details(file_path)
+        if not file_extension or last_modified_date < base_time:
             continue
-        elif file_suffix.lower() in include_file_extensions:
-            add_file_to_dict(page_include_files, file_parent, file_suffix, file_basename, file_size)
-        elif file_suffix.lower() in exclude_file_extensions:
-            add_file_to_dict(page_exclude_files, file_parent, file_suffix, file_basename, file_size)
-        elif file_suffix.lower() in supported_types:
-            add_file_to_dict(page_detection_files, file_parent, file_suffix, file_basename, file_size)
+        elif file_extension.lower() in include_file_extensions:
+            add_file_to_dict(page_include_files, file_parent, file_extension, file_basename, file_size, mode = "include")
+        elif file_extension.lower() in exclude_file_extensions:
+            add_file_to_dict(page_exclude_files, file_parent, file_extension, file_basename, file_size, mode = "exclude")
+        elif file_extension.lower() in supported_types:
+            add_file_to_dict(page_detection_files, file_parent, file_extension, file_basename, file_size, mode = "detect")
     return page_detection_files, page_include_files, page_exclude_files
 
 def postprocess_crawler_result(crawler_result, scan_depth):
@@ -111,8 +148,8 @@ def list_s3_objects(bucket_name, scan_depth, include_file_extensions,
     pages = paginator.paginate(Bucket=bucket_name, Prefix=prefix, PaginationConfig={'PageSize': 1000})
 
     supported_types = []
-    for file_extension in supported_text_types + suported_image_types:
-        supported_types.append(file_extension)
+    for file_type, file_extensiones in supported_file_types.items():
+        supported_types.extend(file_extensiones)
     
     detection_files, include_files, exclude_files = {}, {}, {}
 
