@@ -206,6 +206,7 @@ def sync_crawler_result(
         database_type: str,
         database_name: str,
 ):
+    logger.info(f"start params {account_id} {region} {database_type} {database_name}")
     rds_engine_type = const.NA
     # custom glue type will not use crawler, just syncing the catalog from existing glue tables
     is_custom_glue = database_type == DatabaseType.GLUE.value
