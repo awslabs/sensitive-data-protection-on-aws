@@ -169,8 +169,8 @@ def get_s3_cloudwatch_metric(
     latest_data = max(response['Datapoints'], key=lambda x: x['Timestamp'])
     latest_timestamp = latest_data['Timestamp']
     latest_average = latest_data['Average']
-    logger.debug("最近时间的 Average 值：", latest_average)
-    logger.debug("最近时间的 Timestamp：", latest_timestamp)
+    logger.debug(f"最近时间的 Average 值：{latest_average}")
+    logger.debug(f"最近时间的 Timestamp：{latest_timestamp}")
     return latest_average
 
 
