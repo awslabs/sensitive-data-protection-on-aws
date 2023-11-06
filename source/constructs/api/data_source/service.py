@@ -1797,7 +1797,6 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
         jdbc_conn_insert.jdbc_enforce_ssl = jdbcConn.jdbc_enforce_ssl
         jdbc_conn_insert.kafka_ssl_enabled = jdbcConn.kafka_ssl_enabled
         jdbc_conn_insert.master_username = jdbcConn.master_username
-        jdbc_conn_insert.secret = jdbcConn.secret
         # jdbc_conn_insert.password = jdbcConn.password
         jdbc_conn_insert.skip_custom_jdbc_cert_validation = jdbcConn.skip_custom_jdbc_cert_validation
         jdbc_conn_insert.custom_jdbc_cert = jdbcConn.custom_jdbc_cert
