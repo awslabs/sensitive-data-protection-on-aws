@@ -1,6 +1,9 @@
 export const COLUMN_OBJECT_STR = {
   DatabaseName: 'bucket_name',
-};
+  ConnectionName:'connection_name',
+  JDBCTableName:'jdbc_table_name',
+  JDBCTableRow:'jdbc_table_row',
+}; 
 
 export const S3_CATALOG_COLUMS = [
   {
@@ -40,6 +43,95 @@ export const RDS_CATALOG_COLUMS = [
   {
     id: COLUMN_OBJECT_STR.DatabaseName,
     label: 'table.label.instanceName',
+    filter: true,
+  },
+  {
+    id: 'object_count',
+    label: 'table.label.tables',
+    filter: true,
+  },
+  {
+    id: 'privacy',
+    label: 'table.label.privacy',
+    filter: true,
+  },
+  {
+    id: 'account_id',
+    label: 'table.label.awsAccount',
+    filter: true,
+  },
+  {
+    id: 'region',
+    label: 'table.label.awsRegion',
+    filter: true,
+  },
+];
+
+export const JDBC_INSTANCE_COLUMS = [
+  {
+    id: COLUMN_OBJECT_STR.ConnectionName,
+    label: 'table.label.connectionName',
+    filter: true,
+  },
+  {
+    id: 'object_count',
+    label: 'table.label.tables',
+    filter: true,
+  },
+  {
+    id: 'privacy',
+    label: 'table.label.privacy',
+    filter: true,
+  },
+  {
+    id: 'account_id',
+    label: 'table.label.awsAccount',
+    filter: true,
+  },
+  {
+    id: 'region',
+    label: 'table.label.awsRegion',
+    filter: true,
+  },
+];
+
+export const JDBC_TABLE_COLUMS = [
+  {
+    id: COLUMN_OBJECT_STR.JDBCTableName,
+    label: 'table.label.jdbcTableName',
+    filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.ConnectionName,
+    label: 'table.label.connectionName',
+    filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.JDBCTableRow,
+    label: 'table.label.items',
+    filter: true,
+  },
+  {
+    id: 'privacy',
+    label: 'table.label.privacy',
+    filter: true,
+  },
+  {
+    id: 'account_id',
+    label: 'table.label.awsAccount',
+    filter: true,
+  },
+  {
+    id: 'region',
+    label: 'table.label.awsRegion',
+    filter: true,
+  },
+];
+
+export const JDBC_ACCOUNT_COLUMS = [
+  {
+    id: COLUMN_OBJECT_STR.ConnectionName,
+    label: 'table.label.connectionName',
     filter: true,
   },
   {

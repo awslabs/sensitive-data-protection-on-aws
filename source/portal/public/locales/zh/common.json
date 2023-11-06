@@ -175,6 +175,7 @@
       "awsAccount": "账户",
       "awsRegion": "区域",
       "instanceName": "实例名称",
+      "connectionName": "连接名",
       "tables": "数据表",
       "operate": "操作",
       "catalogLabels": "目录标签",

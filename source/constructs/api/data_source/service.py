@@ -389,7 +389,7 @@ def sync_jdbc_connection(jdbc: JDBCInstanceSourceBase):
 
     logger.info(f"conn_response type is:{type(conn_response)}")
     logger.info(f"conn_response is:{conn_response}")
-    condition_check(ec2_client, credentials, source.glue_state, conn_response['PhysicalConnectionRequirements'])
+    # condition_check(ec2_client, credentials, source.glue_state, conn_response['PhysicalConnectionRequirements'])
     sync(glue_client, lakeformation_client, credentials, crawler_role_arn, jdbc, conn_response['ConnectionProperties']['JDBC_CONNECTION_URL'])
 
 
@@ -1797,6 +1797,7 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
         jdbc_conn_insert.jdbc_enforce_ssl = jdbcConn.jdbc_enforce_ssl
         jdbc_conn_insert.kafka_ssl_enabled = jdbcConn.kafka_ssl_enabled
         jdbc_conn_insert.master_username = jdbcConn.master_username
+        jdbc_conn_insert.secret = jdbcConn.secret
         # jdbc_conn_insert.password = jdbcConn.password
         jdbc_conn_insert.skip_custom_jdbc_cert_validation = jdbcConn.skip_custom_jdbc_cert_validation
         jdbc_conn_insert.custom_jdbc_cert = jdbcConn.custom_jdbc_cert
@@ -2032,7 +2033,8 @@ def import_jdbc_conn(jdbcConn: JDBCInstanceSourceBase):
     jdbc_conn_insert.jdbc_connection_url = res_connection['ConnectionProperties']['JDBC_CONNECTION_URL']
     jdbc_conn_insert.jdbc_enforce_ssl = res_connection['ConnectionProperties']['JDBC_ENFORCE_SSL']
     # jdbc_conn_insert.kafka_ssl_enabled = res_connection['ConnectionProperties']['KAFKA_SSL_ENABLED']
-    jdbc_conn_insert.master_username = res_connection['ConnectionProperties']['USERNAME']
+    if 'USERNAME' in res_connection['ConnectionProperties']:
+        jdbc_conn_insert.master_username = res_connection['ConnectionProperties']['USERNAME']
     # jdbc_conn_insert.skip_custom_jdbc_cert_validation = res_connection['Description']
     # jdbc_conn_insert.custom_jdbc_cert = res_connection['Description']
     # jdbc_conn_insert.custom_jdbc_cert_string = res_connection['Description']
