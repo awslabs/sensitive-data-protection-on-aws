@@ -41,7 +41,7 @@ export const S3_CATALOG_COLUMS = [
 
 export const RDS_CATALOG_COLUMS = [
   {
-    id: COLUMN_OBJECT_STR.DatabaseName,
+    id: 'database_name',
     label: 'table.label.instanceName',
     filter: true,
   },
