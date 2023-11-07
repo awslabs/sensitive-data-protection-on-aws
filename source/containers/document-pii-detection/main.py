@@ -3,7 +3,7 @@ import boto3
 import os
 import sys
 import pandas as pd
-import base64
+import re
 import argparse
 import copy
 import logging
@@ -12,6 +12,15 @@ import pathlib
 from collections import defaultdict
 
 from parser_factory import ParserFactory
+
+def remove_symbols(input_string):
+    # Define the pattern to match symbols
+    symbol_pattern = r'\W'
+
+    # Remove symbols using regular expression substitution
+    output_string = re.sub(symbol_pattern, '_', input_string)
+
+    return output_string
 
 def group_files_by_extension(sample_files):
     """
@@ -25,6 +34,26 @@ def group_files_by_extension(sample_files):
         sample_file_extension = pathlib.Path(sample_file).suffix
         sample_file_extension_dict[sample_file_extension].append(sample_file)
     return sample_file_extension_dict
+
+def get_previous_tables(glue_client, database_name):
+
+    tables = []
+
+    next_token = ""
+    while True:
+        response = glue_client.get_tables(
+            DatabaseName=database_name,
+            NextToken=next_token
+        )
+        for table in response.get('TableList', []):
+            if table.get('Parameters', {}).get('classification', '') != 'UNKNOWN':
+                tables.append(table)
+        next_token = response.get('NextToken')
+        if not next_token:
+            break
+
+    return tables
+
 
 def organize_table_info(table_name, result_bucket_name, original_bucket_name, file_info, columns, file_category):
 
@@ -99,18 +128,18 @@ def batch_process_files(s3_client, bucket_name, file_info, file_category):
             for sample_file in sample_file_extension_files:
                 object_key = f"{file_path}/{sample_file}"
                 file_content = parser.load_content(bucket_name, object_key)
-                sample_file_name_no_dot = sample_file.replace('.', '_')
-                file_contents[f"{sample_file_name_no_dot}"] = file_content
+                sample_file_name_no_symbol = remove_symbols(sample_file)
+                file_contents[f"{sample_file_name_no_symbol}"] = file_content
 
     elif file_category == 'include_files':
         for sample_file in sample_files:
-            sample_file_name_no_dot = sample_file.replace('.', '_')
-            file_contents[f"{sample_file_name_no_dot}"] = ['This file is marked as Contains-PII.']
+            sample_file_name_no_symbol = remove_symbols(sample_file)
+            file_contents[f"{sample_file_name_no_symbol}"] = ['This file is marked as Contains-PII.']
     
     elif file_category == 'exclude_files':
         for sample_file in sample_files:
-            sample_file_name_no_dot = sample_file.replace('.', '_')
-            file_contents[f"{sample_file_name_no_dot}"] = ['This file is marked as Non-PII.']
+            sample_file_name_no_symbol = remove_symbols(sample_file)
+            file_contents[f"{sample_file_name_no_symbol}"] = ['This file is marked as Non-PII.']
             
     return file_contents
 
@@ -167,6 +196,15 @@ def main(param_dict):
         )
     except glue_client.exceptions.AlreadyExistsException:
         print(f"Database '{destination_database}' already exists. Skipping database creation...")
+        # Need to delete previous created tables
+        print(f"Deleting all tables in database '{destination_database}'...")
+        previous_tables = get_previous_tables(glue_client, destination_database)
+        for table in previous_tables:
+            response = glue_client.delete_table(
+                DatabaseName=destination_database,
+                Name=table['Name']
+            )
+        print(f"Deleted all tables in database '{destination_database}'. Start creating tables...")
 
     # 2. Download the crawler result from S3 and 
     with tempfile.NamedTemporaryFile(mode='w') as temp:
