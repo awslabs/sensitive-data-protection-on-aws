@@ -101,10 +101,6 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
   }, [credentialType]);
 
   useEffect(() => {
-    console.log(
-      'jdbcConnectionData.import.instance_id reset',
-      jdbcConnectionData.import
-    );
     if (
       jdbcConnectionData.createType === 'import' &&
       jdbcConnectionData.import.instance_id !== ''
@@ -247,7 +243,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
         alertMsg(t('successImport'), 'success');
         props.setShowModal(false);
       } catch (error) {
-        alertMsg(t('failImport'), 'error');
+        alertMsg(error + '', 'error');
       }
     } else {
       try {
@@ -255,7 +251,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
         alertMsg(t('successAdd'), 'success');
         props.setShowModal(false);
       } catch (error) {
-        alertMsg(t('failAdd'), 'error');
+        alertMsg(error + '', 'error');
       }
     }
   };
@@ -348,7 +344,6 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
       region: props.region,
     };
     const res = await queryBuckets(requestParam);
-    console.log('res is:', res);
     setBuckets(res);
   };
 
@@ -444,7 +439,6 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
             <FormField stretch label={t('datasource:jdbc.selectGlue')}>
               <Tiles
                 onChange={({ detail }) => {
-                  console.log('detail is:', detail);
                   const data = jdbcConnectionData;
                   data.import = importOriginalData;
                   data.new = newOriginalData;
@@ -485,7 +479,6 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                         detail.selectedOption.value || '';
                       setJdbcConnectionData(temp);
                       setImportGlue(detail.selectedOption);
-                      console.log('final data is:', jdbcConnectionData);
                     }}
                     options={connections}
                   />
