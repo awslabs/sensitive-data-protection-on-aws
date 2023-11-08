@@ -30,9 +30,10 @@ const CatalogListHeader: React.FC = () => {
 
   const clkExportDataCatalog = async (fileType: string) => {
     setIsExporting(true);
+    const sensitiveFlag = fileType.endsWith('-sen')?'sensitive':'all'
     const timeStr = format(new Date(), 'yyyyMMddHHmmss');
     try {
-      const result: any = await getExportS3Url({ fileType, timeStr });
+      const result: any = await getExportS3Url({ fileType: fileType.split('-')[0], sensitiveFlag, timeStr });
       if (result) {
         window.open(result, '_blank');
         setTimeout(() => {
@@ -81,6 +82,16 @@ const CatalogListHeader: React.FC = () => {
                   id: 'csv',
                   disabled: false,
                 },
+                {
+                  text: t('button.savexlsxSensitiveOnly').toString(),
+                  id: 'xlsx-sen',
+                  disabled: false,
+                },
+                {
+                  text: t('button.savecsvSensitiveOnly').toString(),
+                  id: 'csv-sen',
+                  disabled: false,
+                }
               ]}
               onItemClick={({ detail }) => clkExportDataCatalog(detail.id)}
             >

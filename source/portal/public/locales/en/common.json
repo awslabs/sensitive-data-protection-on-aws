@@ -93,6 +93,8 @@
     "exportProcessing": "Export processing ...",
     "savexlsx": "Download .xlsx file",
     "savecsv": "Download .csv file",
+    "savexlsxSensitiveOnly": "Download .xlsx file (Sensitive data only)",
+    "savecsvSensitiveOnly": "Download .csv file (Sensitive data only)",
     "addDataSource": "Add data source",
     "deleteDataSource": "Delete data source",
     "deleteDataSourceOnly": "Delete data catalog only",

@@ -390,10 +390,10 @@ def get_database_property(
                 "size": condition.size}
     return response
 
-@router.get("/data_catalog_export_url/{fileType}/{timeStr}", response_model=BaseResponse[str])
+@router.get("/data_catalog_export_url/{file_type}/{sensitive_flag}/{time_str}", response_model=BaseResponse[str])
 @inject_session
-def get_catalog_export_url(fileType: str, timeStr: str):
-    url = service.get_catalog_export_url(fileType, timeStr)
+def get_catalog_export_url(file_type: str, sensitive_flag: str, time_str: str):
+    url = service.get_catalog_export_url(file_type, sensitive_flag, time_str)
     return url
 
 
