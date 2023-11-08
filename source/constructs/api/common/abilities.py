@@ -32,6 +32,8 @@ def convert_provider_id_2_name(provider: int) -> str:
         return ProviderName.AWS_CLOUD.value
 
 
+# This function is used for detecting the glue connection/crawler is created for third-party JDBC connections,
+# it only returns true when the JDBC connection is a third-party JDBC connection.
 def need_change_account_id(database_type: str) -> bool:
     if database_type.startswith(DatabaseType.JDBC.value) and database_type != DatabaseType.JDBC_AWS.value:
         return True

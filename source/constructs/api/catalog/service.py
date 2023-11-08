@@ -31,6 +31,8 @@ from data_source import crud as data_source_crud
 from label.crud import (get_labels_by_id_list, get_all_labels)
 from template.service import get_identifiers
 from . import crud, schemas
+from common.reference_parameter import logger, admin_account_id, admin_region
+from common.abilities import need_change_account_id
 
 sql_result = "SELECT database_type,account_id,region,s3_bucket,s3_location,rds_instance_id,table_name,column_name,identifiers,sample_data,'','','' FROM job_detection_output_table"
 tmp_folder = tempfile.gettempdir()
@@ -226,11 +228,8 @@ def sync_crawler_result(
         if jdbc_database:
             jdbc_engine_type = jdbc_database.jdbc_connection_url.split(':')[1]
 
-    if database_type.startswith(DatabaseType.JDBC.value) and not database_type.startswith(DatabaseType.JDBC_AWS.value):
-        caller_identity = boto3.client('sts').get_caller_identity()
-        _admin_account_id = caller_identity.get('Account')
-        _admin_account_region = boto3.session.Session().region_name
-        glue_client = get_boto3_client(_admin_account_id, _admin_account_region, "glue")
+    if need_change_account_id(database_type):
+        glue_client = get_boto3_client(admin_account_id, admin_region, "glue")
     else:
         glue_client = get_boto3_client(account_id, region, "glue")
 
