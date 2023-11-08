@@ -210,9 +210,9 @@
                 "ProcessorConfig": {
                   "Mode": "INLINE"
                 },
-                "StartAt": "Glue StartJobRun",
+                "StartAt": "GlueStartJobRunStructured",
                 "States": {
-                  "Glue StartJobRun": {
+                  "GlueStartJobRunStructured": {
                     "Type": "Task",
                     "Resource": "arn:${AWS::Partition}:states:::glue:startJobRun.sync",
                     "Parameters": {
@@ -247,7 +247,7 @@
                     "Retry": [
                       {
                         "ErrorEquals": [
-                          "States.ALL"
+                          "States.TaskFailed"
                         ],
                         "BackoffRate": 2,
                         "IntervalSeconds": 100,
@@ -571,7 +571,17 @@
                       }
                     },
                     "ResultPath": "$.StartJobRun",
-                    "End": true
+                    "End": true,
+                    "Retry": [
+                      {
+                        "ErrorEquals": [
+                          "States.TaskFailed"
+                        ],
+                        "BackoffRate": 2,
+                        "IntervalSeconds": 100,
+                        "MaxAttempts": 3
+                      }
+                    ]
                   }
                 }
               },
