@@ -115,6 +115,8 @@ class MessageEnum(Enum):
     SOURCE_SUBNET_NOT_EXIST = {1250: "Subnet for JDBC connection not exist in target account"}
     SOURCE_JDBC_INPUT_INVALID = {1251: "Validation for connection properties failed"}
     SOURCE_UNCONNECTED = {1252: "UNCONNECTED"}
+    SOURCE_JDBC_URL_FORMAT_ERROR = {1253: "JDBC URL is incorrect, please refer to https://docs.aws.amazon.com/glue/latest/dg/connection-properties.html#connection-properties-jdbc"}
+    SOURCE_JDBC_JDBC_NO_DATABASE = {1254: "Database name is missing, please refer to https://docs.aws.amazon.com/glue/latest/dg/connection-properties.html#connection-properties-jdbc"}
     # label
     LABEL_EXIST_FAILED = {1611: "Cannot create duplicated label"}
 
