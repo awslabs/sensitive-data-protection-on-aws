@@ -16,7 +16,7 @@ def get_identifiers(condition: QueryCondition):
             props_filter.append(item)
         else:
             if item.column == 'type' and int(item.values[0])==0:
-                item.values = [0, 2]
+                # item.values = item.values
                 item.operation = 'in'
             props_filter_not.append(item)
     condition.conditions = props_filter_not
