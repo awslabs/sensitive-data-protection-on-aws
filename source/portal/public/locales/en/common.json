@@ -175,6 +175,8 @@
       "awsAccount": "Account",
       "awsRegion": "Region",
       "instanceName": "Instance name",
+      "connectionName": "Connection name",
+      "jdbcTableName": "Table name",
       "tables": "Tables",
       "operate": "Operate",
       "catalogLabels": "Catalog labels",

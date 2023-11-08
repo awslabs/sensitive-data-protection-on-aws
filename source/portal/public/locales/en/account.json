@@ -29,6 +29,7 @@
   "addSuccess": "Add Success",
   "forChina": "For China Regions deployment",
   "forGlobal": "For Global Regions deployment",
+  "dataLoading": "Cannot proceed while account data is loading",
   "add": {
     "basicInfo": "Basic source information",
     "provider": "Provider",

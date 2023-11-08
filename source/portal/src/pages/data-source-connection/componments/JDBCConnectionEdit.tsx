@@ -55,6 +55,8 @@ type connectionType = {
   jdbc_driver_jar_uri: string;
 };
 
+let tempOptList:any[]=[]
+
 const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
   props: JDBCConnectionProps
 ) => {
@@ -160,7 +162,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
     };
     const secretsResult: any = await getSecrets(requestParam);
     if (secretsResult && secretsResult.length > 0) {
-      const tempOptList = secretsResult.map((item: { Name: any; ARN: any }) => {
+      tempOptList = secretsResult.map((item: { Name: any; ARN: any }) => {
         return {
           label: item.Name,
           value: item.Name,
@@ -303,12 +305,12 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
         jdbc_driver_jar_uri: res['ConnectionProperties']['JDBC_DRIVER_JAR_URI'],
       });
       if (
-        res['ConnectionProperties']['USERNAME'] === '' &&
-        res['ConnectionProperties']['PASSWORD'] === ''
+        (res['ConnectionProperties']['USERNAME'] == null || res['ConnectionProperties']['USERNAME'] === '') &&
+        (res['ConnectionProperties']['USERNAME'] == null || res['ConnectionProperties']['PASSWORD'] === '')
       ) {
         setCredential('secret');
         console.log('secretOption is:', secretOption);
-        const secrets = secretOption.filter(
+        const secrets = tempOptList.filter(
           (option: any) =>
             option.value === res['ConnectionProperties']['SECRET_ID']
         );

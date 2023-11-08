@@ -19,7 +19,8 @@ def convert_provider_id_2_database_type(provider: int) -> str:
         return DatabaseType.JDBC_ALIYUN.value
     else:
         return DatabaseType.JDBC_AWS.value
-    
+
+
 def convert_provider_id_2_name(provider: int) -> str:
     if provider == Provider.TENCENT_CLOUD.value:
         return ProviderName.TENCENT_CLOUD.value
@@ -29,3 +30,10 @@ def convert_provider_id_2_name(provider: int) -> str:
         return ProviderName.GOOGLE_CLOUD.value
     else:
         return ProviderName.AWS_CLOUD.value
+
+
+def need_change_account_id(database_type: str) -> bool:
+    if database_type.startswith(DatabaseType.JDBC.value) and database_type != DatabaseType.JDBC_AWS.value:
+        return True
+    return False
+

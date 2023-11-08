@@ -34,7 +34,7 @@ class HtmlParser(BaseParser):
             if not string:
                 string = self._find_any_text(elem)
             string = string.strip()
-            if not string:
+            if string:
                 html += "\n" + string + "\n"
         return [html]
 
@@ -133,7 +133,7 @@ class HtmlParser(BaseParser):
                             j = j + 1
                             if (i+j) < len(t['col_width']):
                                 col_width += t['col_width'][i+j] + v_sep_len
-                    html_element_list.append('%' + str(col_width) + 's') % (text + v_separator)
+                    html_element_list.append(('%' + str(col_width) + 's') % (text + v_separator))
                 html_element_list.append("\n")
             html_element_list.append(head_foot)
             new_table = soup.new_tag('div')
