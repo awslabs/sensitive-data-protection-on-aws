@@ -1236,7 +1236,6 @@ def get_database_sample_data(account_id: str, region: str, database_name: str, t
 
 
 def get_catalog_export_url(file_type: str, sensitive_flag: str, time_str: str) -> str:
-    # print(f"file_type is {file_type}")
     run_result = crud.get_export_catalog_data()
     all_labels = get_all_labels()
     all_labels_dict = dict()
@@ -1273,7 +1272,6 @@ def filter_records(all_items: list, all_labels_dict: dict, sensitive_flag: str):
     for row in all_items:
         row_result = [cell for cell in row]
         if sensitive_flag != 'all' and "N/A" in row_result[7]:
-            # print(f"row_result[7] is {row_result[7]}")
             continue        
         if row_result[9]:
             row_result[9] = ",".join(gen_labels(all_labels_dict, row_result[9]))
@@ -1307,7 +1305,7 @@ def gen_zip_file(header, record, tmp_filename, type):
     with ZipFile(tmp_filename, 'w') as zipf:
         for k, v in record.items():
             if not v:
-                break
+                continue
             if type == ExportFileType.XLSX.value:
                 batches = int(len(v) / const.EXPORT_XLSX_MAX_LINES)
                 if batches < 1:
