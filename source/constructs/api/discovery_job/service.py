@@ -226,6 +226,7 @@ def __start_run(job_id: int, run_id: int):
 
     job_placeholder = ","
     account_first_wait = {}
+    failed_run_count = 0
     for run_database in run_databases:
         try:
             account_id = run_database.account_id
@@ -302,12 +303,17 @@ def __start_run(job_id: int, run_id: int):
             __exec_run(execution_input)
             run_database.state = RunDatabaseState.RUNNING.value
         except Exception:
+            failed_run_count += 1
             msg = traceback.format_exc()
             run_database.state = RunDatabaseState.FAILED.value
             run_database.end_time = mytime.get_time()
             run_database.error_log = msg
             logger.exception("Run StepFunction exception:%s" % msg)
     crud.save_run_databases(run_databases)
+    if failed_run_count == len(run_databases):
+        crud.complete_run(run_id)
+        raise BizException(MessageEnum.DISCOVERY_JOB_ALL_RUN_FAILED.get_code(),
+                           MessageEnum.DISCOVERY_JOB_ALL_RUN_FAILED.get_msg())
 
 
 def __start_sample_run(job_id: int, run_id: int, table_name: str):
@@ -398,6 +404,20 @@ def __create_job(database_type: str, account_id, region, database_name, job_name
                                    )
 
 
+def __check_sfn_version(client_sfn, arn, account_id):
+    response = client_sfn.describe_state_machine(stateMachineArn=arn)
+    sfn_comment = json.loads(response['definition']).get('Comment', '')
+    version_index = sfn_comment.find('Version:')
+    if version_index == -1:
+        raise BizException(MessageEnum.DISCOVERY_JOB_AGENT_MISMATCHING_VERSION.get_code(),
+                           MessageEnum.DISCOVERY_JOB_AGENT_MISMATCHING_VERSION.get_msg())
+    agent_version = sfn_comment[version_index + len('Version:'):-1]
+    logger.info(f"{account_id} version is:{agent_version}")
+    if not version.startswith(agent_version):
+        raise BizException(MessageEnum.DISCOVERY_JOB_AGENT_MISMATCHING_VERSION.get_code(),
+                           MessageEnum.DISCOVERY_JOB_AGENT_MISMATCHING_VERSION.get_msg())
+
+
 def __exec_run(execution_input):
     account_id = execution_input["AccountId"]
     region = execution_input["Region"]
@@ -417,8 +437,10 @@ def __exec_run(execution_input):
                               aws_session_token=credentials['SessionToken'],
                               region_name=region,
                               )
+    arn = f'arn:{partition}:states:{region}:{account_id}:stateMachine:{const.SOLUTION_NAME}-DiscoveryJob'
+    __check_sfn_version(client_sfn, arn, account_id)
     client_sfn.start_execution(
-        stateMachineArn=f'arn:{partition}:states:{region}:{account_id}:stateMachine:{const.SOLUTION_NAME}-DiscoveryJob',
+        stateMachineArn=arn,
         name=execution_input["RunName"],
         input=json.dumps(execution_input),
     )

@@ -42,6 +42,8 @@ class MessageEnum(Enum):
     DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE = {1519: "This database cannot be deleted because it has running job(s)."}
     DISCOVERY_RUN_NON_EXIST_TEMPLATE_SNAPSHOT = {1520: "This running does not have a template snapshot."}
     DISCOVERY_JOB_STOPPING = {1521: "The job is stopping"}
+    DISCOVERY_JOB_AGENT_MISMATCHING_VERSION = {1522: "Agent mismatching version"}
+    DISCOVERY_JOB_ALL_RUN_FAILED = {1523: "All job run failed"}
 
     # catalog
     CATALOG_RDS_TABLE_HAS_NO_COLUMNS = {1301: "RDS table columns does not exist"}

@@ -508,8 +508,8 @@ def sync(glue, lakeformation, credentials, crawler_role_arn, jdbc: JDBCInstanceS
             try:
                 glue.get_database(Name=glue_database_name)
             except Exception as e:
-                logger.error(traceback.format_exc())
-                raise BizException(MessageEnum.SOURCE_CONNECTION_NOT_EXIST.get_code(), str(e))
+                response = glue.create_database(DatabaseInput={'Name': glue_database_name})
+                logger.debug(response)
             # """ :type : pyboto3.lakeformation """
             grant_lakeformation_permission(lakeformation, crawler_role_arn, glue_database_name, GRANT_PERMISSIONS_RETRIES)
             logger.debug(jdbc_targets)
