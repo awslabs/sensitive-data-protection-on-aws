@@ -202,6 +202,11 @@ def list_jdbc_connection_by_account(provider_id: int, account_id: str) -> list[J
         JDBCInstanceSource.account_id == account_id
     ).all()
 
+def list_jdbc_connection_by_connection(connection_name: str) -> list[JDBCInstanceSource]:
+    return get_session().query(JDBCInstanceSource).filter(
+        JDBCInstanceSource.glue_connection == connection_name
+    ).all()
+
 def delete_jdbc_connection_by_accounts(accounts: list):
     session = get_session()
     session.query(JDBCInstanceSource).filter(JDBCInstanceSource.id.in_(accounts)).delete()
@@ -665,6 +670,8 @@ def get_connected_rds_instances_count():
     count = list_rds_instance_source(None)
     return 0 if count is None else count.filter(RdsInstanceSource.glue_state == ConnectionState.ACTIVE.value).count()
 
+def query_jdbc_connections_sub_info():
+    return get_session().query(JDBCInstanceSource.glue_connection, JDBCInstanceSource.account_provider_id, JDBCInstanceSource.account_id).all()
 
 def delete_account_by_region(account_id: str, region: str):
     session = get_session()
