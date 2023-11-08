@@ -1,6 +1,7 @@
 
 import os
 from .parser import BaseParser
+import quopri
 from email.parser import Parser as PyEmailParser
 
 class EmailParser(BaseParser):
@@ -13,6 +14,8 @@ class EmailParser(BaseParser):
         Extracts text from a eml file and returns a string of content.
         """
 
+        file_encoding = self.get_encoding(eml_path)
+
         with open(eml_path) as stream:
             parser = PyEmailParser()
             message = parser.parse(stream)
@@ -20,6 +23,12 @@ class EmailParser(BaseParser):
         file_content = []
         for part in message.walk():
             if part.get_content_type().startswith('text/plain'):
-                file_content.append(part.get_payload())
+                part_payload = part.get_payload()
+                if file_encoding == 'us-ascii':
+                    decoded_string = quopri.decodestring(part_payload).decode('utf-8')
+                else:
+                    decoded_string = part_payload
+                file_content.append(decoded_string)
+
 
         return ['\n'.join(file_content)]

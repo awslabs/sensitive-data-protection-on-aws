@@ -26,7 +26,11 @@ class BaseParser:
             self.s3_client.download_file(Bucket=bucket, Key=object_key, Filename=temp_file.name)
             file_path = temp_file.name
 
-            file_content = self.parse_file(file_path)
+            try:
+                file_content = self.parse_file(file_path)
+            except Exception as e:
+                print(f"Failed to parse file {object_key}. Error: {e}")
+                file_content = []
             processed_content = self.postprocess_content(file_content)
 
         return processed_content
@@ -47,7 +51,7 @@ class BaseParser:
                     split_items = re.split(r'(?<=[.。;])', item)
                     # 
                     for split_item in split_items:
-                        if not split_item:
+                        if split_item:
                             # Avoid too long item
                             processed_content.append(split_item[:256])
                 else:

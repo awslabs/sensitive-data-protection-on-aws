@@ -8,6 +8,7 @@ import {
   Pagination,
   SpaceBetween,
   Table,
+  StatusIndicator
 } from '@cloudscape-design/components';
 import CommonBadge from 'pages/common-badge';
 import {
@@ -38,7 +39,6 @@ interface AccountListProps {
 
 const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
   const { setTotalAccount, provider } = props;
-  console.log('provider is', provider);
   const columnList =
     provider?.id === 1 ? ACCOUNT_COLUMN_LIST : THIRD_PROVIDER_COLUMN_LIST;
   const navigate = useNavigate();
@@ -52,10 +52,12 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
   } as any);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [accountsLoaded, setAccountsLoaded] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [pageData, setPageData] = useState([] as any);
   const [sortDetail, setSortDetail] = useState({});
   const [selectedItems, setSelectedItems] = useState([] as any);
+  const [selectedAccount, setSelectedAccount] = useState('');
   const [query, setQuery] = useState({
     tokens: [],
     operation: 'and',
@@ -74,6 +76,7 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
   useEffect(() => {
     if (provider) {
       getPageData();
+      dynamicLoadAccounts();
     }
   }, [provider]);
 
@@ -136,10 +139,6 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
         operation: '=',
         condition: 'and',
       });
-      const getAccountListresult: any = await getAccountList(requestParam);
-      if (getAccountListresult?.items?.length > 0) {
-        await refreshAllAccountData(getAccountListresult.items);
-      }
       const result: any = await getAccountList(requestParam);
       setSelectedItems([]);
       setPageData(result.items);
@@ -149,6 +148,47 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
     } catch (error) {
       setIsLoading(false);
     }
+  };
+
+  const dynamicLoadAccounts = async () => {
+    setAccountsLoaded(false);
+    const requestParam = {
+      page: currentPage,
+      size: preferences.pageSize,
+      conditions: [] as any,
+    };
+    query.tokens &&
+      query.tokens.forEach((item: any) => {
+        requestParam.conditions.push({
+          column: item.propertyKey,
+          values: [
+            item.propertyKey === 'status'
+              ? item.value === 'SUCCEEDED'
+                ? 1
+                : 0
+              : `${item.value}`,
+          ],
+          operation: item.operator,
+          condition: query.operation,
+        });
+      });
+    requestParam.conditions.push({
+      column: 'account_provider_id',
+      values: [Number(provider?.id)],
+      operation: '=',
+      condition: 'and',
+    });
+    const result: any = await getAccountList(requestParam);
+    await refreshAllAccountData(result.items);
+    setAccountsLoaded(true);
+    setPageData(result.items);
+  };
+
+  const dynamicLoadSingleAccount = async (rowData: any) => {
+    await refreshDataSource(rowData);
+    setAccountsLoaded(true);
+    setSelectedAccount('');
+    getPageData();
   };
 
   const clkAddNew = () => {
@@ -164,23 +204,19 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
   };
 
   const clkRefreshDatasource = async (rowData: any) => {
+    if (selectedAccount !== '' || isLoading) {
+      alertMsg(t('account:dataLoading'), 'success');
+      return;
+    }
     setIsLoading(true);
     const requestParam = {
       provider_id: provider?.id,
       accounts: [rowData.account_id],
       type: 'all',
     };
-    try {
-      await refreshDataSource(requestParam);
-      await getPageData();
-      alertMsg(
-        t('account:filterAWSAccounxts', { PROVIDER: provider?.provider_name }),
-        'success'
-      );
-    } catch (e) {
-      console.warn('Refresh Data Error:', e);
-    }
+    setSelectedAccount(rowData.account_id);
     setIsLoading(false);
+    dynamicLoadSingleAccount(requestParam);
   };
 
   const clkDeleteAccount = async () => {
@@ -189,7 +225,6 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
       return;
     }
     setDeleteLoading(true);
-    console.log('selectedItems:', selectedItems);
     const requestParam = {
       account_id: selectedItems[0]?.account_id,
       account_provider: provider?.id,
@@ -294,69 +329,33 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
                 let percentCls = 'progress-percent';
                 let percentIcon: IconProps.Name = 'status-in-progress';
                 if (item.id === TYPE_COLUMN.S3_CONNECTION) {
-                  if (
-                    !e[TYPE_COLUMN.TOTAL_S3_BUCKET] ||
-                    e[TYPE_COLUMN.TOTAL_S3_BUCKET] === 0
-                  ) {
-                    return (
-                      <div className="progress-percent">
-                        <Icon name="status-in-progress" />
-                        &nbsp;&nbsp;
-                        <span>0</span>
-                      </div>
-                    );
-                  }
+                  // if (
+                  //   !e[TYPE_COLUMN.TOTAL_S3_BUCKET] ||
+                  //   e[TYPE_COLUMN.TOTAL_S3_BUCKET] === 0
+                  // ) {
+                  //   return (
+                  //     <div className="progress-percent">
+                  //       <Icon name="status-in-progress" />
+                  //       &nbsp;&nbsp;
+                  //       <span>0</span>
+                  //     </div>
+                  //   );
+                  // }
                   showText = `${e[TYPE_COLUMN.CONNECTED_S3_BUCKET]} (${t(
                     'table.ofTotal'
                   )} ${e[TYPE_COLUMN.TOTAL_S3_BUCKET]})`;
                 }
                 if (item.id === TYPE_COLUMN.RDS_CONNECTION) {
-                  if (
-                    !e[TYPE_COLUMN.TOTAL_RDS_INSTANCE] ||
-                    e[TYPE_COLUMN.TOTAL_RDS_INSTANCE] === 0
-                  ) {
-                    return (
-                      <div className="progress-percent">
-                        <Icon name="status-in-progress" />
-                        &nbsp;&nbsp;
-                        <span>0</span>
-                      </div>
-                    );
-                  }
                   showText = `${
                     e[TYPE_COLUMN.CONNECTED_RDS_INSTANCE]
                   } (of total ${e[TYPE_COLUMN.TOTAL_RDS_INSTANCE]})`;
                 }
                 if (item.id === TYPE_COLUMN.GLUE_CONNECTION) {
-                  if (
-                    !e[TYPE_COLUMN.TOTAL_GLUE_DATABASE] ||
-                    e[TYPE_COLUMN.TOTAL_GLUE_DATABASE] === 0
-                  ) {
-                    return (
-                      <div className="progress-percent">
-                        <Icon name="status-in-progress" />
-                        &nbsp;&nbsp;
-                        <span>0</span>
-                      </div>
-                    );
-                  }
                   showText = `${
                     e[TYPE_COLUMN.CONNECTED_GLUE_DATABASE]
                   } (of total ${e[TYPE_COLUMN.TOTAL_GLUE_DATABASE]})`;
                 }
                 if (item.id === TYPE_COLUMN.JDBC_CONNECTION) {
-                  if (
-                    !e[TYPE_COLUMN.TOTAL_JDBC_CONNECTION] ||
-                    e[TYPE_COLUMN.TOTAL_JDBC_CONNECTION] === 0
-                  ) {
-                    return (
-                      <div className="progress-percent">
-                        <Icon name="status-in-progress" />
-                        &nbsp;&nbsp;
-                        <span>0</span>
-                      </div>
-                    );
-                  }
                   showText = `${
                     e[TYPE_COLUMN.CONNECTED_JDBC_CONNECTION]
                   } (of total ${e[TYPE_COLUMN.TOTAL_JDBC_CONNECTION]})`;
@@ -388,14 +387,28 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
                   percentCls = 'info-percent';
                   percentIcon = 'status-info';
                 }
-
-                return (
-                  <div className={percentCls}>
-                    <Icon name={percentIcon} />
-                    &nbsp;&nbsp;
-                    <span>{showText}</span>
-                  </div>
-                );
+                if (selectedAccount !== '' && e['account_id'] === selectedAccount) {
+                  return (
+                    <div className={percentCls}>
+                      <StatusIndicator type="loading" />
+                    </div>
+                  );
+                }
+                if (!accountsLoaded) {
+                  return (
+                    <div className={percentCls}>
+                      <StatusIndicator type="loading" />
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div className={percentCls}>
+                      <Icon name={percentIcon} />
+                      &nbsp;&nbsp;
+                      <span>{showText}</span>
+                    </div>
+                  )
+                }
               }
 
               if (item.id === TYPE_COLUMN.FRONT_OPERATE) {
@@ -433,14 +446,17 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
             actions={
               <SpaceBetween direction="horizontal" size="xs">
                 <Button
-                  onClick={getPageData}
-                  loading={isLoading || deleteLoading}
+                  onClick={() => {
+                    getPageData();
+                    dynamicLoadAccounts();
+                  }}
+                  loading={isLoading || deleteLoading || selectedAccount !== ''}
                   iconName="refresh"
                 />
                 <Button
                   onClick={clkDeleteAccount}
-                  loading={isLoading || deleteLoading}
-                  disabled={selectedItems.length === 0}
+                  loading={deleteLoading}
+                  disabled={selectedItems.length === 0 || isLoading || selectedAccount !== ''}
                 >
                   {t('button.delete')}
                 </Button>
