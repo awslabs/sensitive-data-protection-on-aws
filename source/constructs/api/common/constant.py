@@ -83,3 +83,12 @@ const.YES = 'Yes'
 const.NO = 'No'
 const.PUBLIC = 'Public'
 const.PRIVATE = 'Private'
+
+const.UNSTRUCTURED_FILES = {
+    "document": [".doc", ".docx", ".pdf"],
+    "webpage": [".htm", ".html"],
+    "email": [".eml"],
+    "code": [".java", ".py", ".cpp", ".c", ".h", ".html", ".css", ".js", ".php", ".rb", ".swift", ".go", ".sql"],
+    "text": [".txt", ".md", ".log"],
+    "image": [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".tif"]
+}

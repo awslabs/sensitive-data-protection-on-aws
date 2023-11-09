@@ -70,6 +70,8 @@ _jdbc_url_patterns = [
         r'jdbc:sqlserver://[\w.-]+:\d+;databaseName=([\w-]+)',
         r'jdbc:sqlserver://[\w.-]+:\d+;database=([\w-]+)'
     ]
+
+
 def build_s3_targets(bucket, credentials, region, is_init):
     s3 = boto3.client('s3',
                       aws_access_key_id=credentials['AccessKeyId'],
@@ -90,7 +92,7 @@ def build_s3_targets(bucket, credentials, region, is_init):
                 {
                     "Path": f"s3://{bucket}/{common_prefix['Prefix']}",
                     "SampleSize": 20,
-                    "Exclusions": []
+                    "Exclusions": __get_excludes_file_exts()
                 }
             )
     if 'Contents' in response:
@@ -99,7 +101,7 @@ def build_s3_targets(bucket, credentials, region, is_init):
                 {
                     "Path": f"s3://{bucket}",
                     "SampleSize": 20,
-                    "Exclusions": []
+                    "Exclusions": __get_excludes_file_exts()
                 }
             )
         else:
@@ -108,7 +110,7 @@ def build_s3_targets(bucket, credentials, region, is_init):
                     {
                         "Path": f"s3://{bucket}/{content['Key']}",
                         "SampleSize": 20,
-                        "Exclusions": []
+                        "Exclusions": __get_excludes_file_exts()
                     }
                 )
     logger.info("build_s3_targets")
@@ -2541,3 +2543,11 @@ def query_connection_detail(account: JDBCInstanceSourceBase):
         raise BizException(MessageEnum.SOURCE_JDBC_CONNECTION_NOT_EXIST.get_code(),
                            MessageEnum.SOURCE_JDBC_CONNECTION_NOT_EXIST.get_msg())
     return __glue(account_id, region).get_connection(Name=source.glue_connection)['Connection']
+
+
+def __get_excludes_file_exts():
+    excluded_file_ext = []
+    for extensions in const.UNSTRUCTURED_FILES.values():
+        excluded_file_ext.extend(extensions)
+    return excluded_file_ext
+
