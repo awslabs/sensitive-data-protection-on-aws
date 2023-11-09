@@ -982,15 +982,17 @@ def get_database_prorpery(account_id: str,
             result_list.append(["Location", None])
             result_list.append(["Created on (UTC)", response['Database']['CreateTime']])
         elif database_type.startswith(DatabaseType.JDBC.value):
-            raise BizException(
-                MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_code(),
-                MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_msg(),
-            )
+            result_list.append(["Name", database_name])
+            # raise BizException(
+            #     MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_code(),
+            #     MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_msg(),
+            # )
         else:
-            raise BizException(
-                MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_code(),
-                MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_msg(),
-            )
+            result_list.append(["Name", database_name])
+            # raise BizException(
+            #     MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_code(),
+            #     MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_msg(),
+            # )
     except Exception as e:
         logger.error(''.join(traceback.TracebackException.from_exception(e).format()))
         raise BizException(
