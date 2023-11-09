@@ -50,7 +50,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
     instance_id: '',
     account_id: props.accountId,
     region: props.region,
-    account_provider_id: 1,
+    account_provider_id: props.providerId,
   };
 
   const newOriginalData = {
