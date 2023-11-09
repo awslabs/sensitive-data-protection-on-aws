@@ -81,12 +81,12 @@ async def detect_rds_data_source(session: Session, aws_account_id: str):
 
         session.commit()
         # Get RDS instance in data source table
-        query_result = session.query(RdsInstanceSource).filter(RdsInstanceSource.account_id == aws_account_id, RdsInstanceSource.account_id == 0).all()
+        query_result = session.query(RdsInstanceSource).filter(RdsInstanceSource.account_id == aws_account_id).all()
         rds_db_list = []
         rds_db_region_list = []
         rds_db_glue_state = []
         for row in query_result:
-            rds_db_list.append(row.bucket_name)
+            rds_db_list.append(row.instance_id)
             rds_db_region_list.append(row.region)
             rds_db_glue_state.append(row.glue_state) # None is unconnected
         deleted_rds_list = list(set(rds_db_list) - set(rds_agent_list))
