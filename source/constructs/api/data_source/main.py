@@ -317,7 +317,7 @@ def import_jdbc_conn(jdbcConn: schemas.JDBCInstanceSourceBase):
 
 @router.post("/query-glue-connections", response_model=BaseResponse)
 @inject_session
-def query_glue_connections(account: schemas.AdminAccountInfo):
+def query_glue_connections(account: schemas.AccountInfo):
     return service.query_glue_connections(account)
 
 @router.post("/query-glue-databases", response_model=BaseResponse)

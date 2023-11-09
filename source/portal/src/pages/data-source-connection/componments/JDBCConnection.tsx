@@ -25,6 +25,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { alertMsg } from 'tools/tools';
 import { i18ns } from '../types/s3_selector_config';
+import { DropdownStatusProps } from '@cloudscape-design/components/internal/components/dropdown-status';
 
 interface JDBCConnectionProps {
   providerId: number;
@@ -43,12 +44,13 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
   const [expanded, setExpanded] = useState(true);
   const [connections, setConnections] = useState([] as any[]);
   const [credential, setCredential] = useState('secret');
+  const [loading, setLoading] = useState('loading' as DropdownStatusProps.StatusType);
   // const [vpc, setVpc] = useState(null);
   const importOriginalData = {
     instance_id: '',
     account_id: props.accountId,
     region: props.region,
-    account_provider_id: 1,
+    account_provider_id: props.providerId,
   };
 
   const newOriginalData = {
@@ -75,7 +77,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
     jdbc_driver_jar_uri: '',
   };
   const [jdbcConnectionData, setJdbcConnectionData] = useState({
-    createType: props.providerId === 1 ? 'import' : 'new',
+    createType: 'import',
     import: importOriginalData,
     new: newOriginalData,
   });
@@ -137,17 +139,18 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
   // },[jdbcConnectionData.new])
 
   useEffect(() => {
-    if (props.providerId !== 1) {
-      setJdbcType('new');
-      // load network info
-      loadNetworkInfo();
-    } else {
+    // if (props.providerId !== 1) {
+    //   setJdbcType('new');
+    //   // load network info
+    //   loadNetworkInfo();
+    // } else {
       try {
         glueConnection();
+        setLoading('finished')
       } catch (error) {
         setConnections([]);
       }
-    }
+    // }
   }, []);
 
   useEffect(() => {
@@ -217,23 +220,45 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
 
   const glueConnection = async () => {
     const requestParam = {
+      account_provider_id: props.providerId,
       account_id: props.accountId,
       region: props.region,
     };
     const connectionList: any[] = [];
+    const disableConnectionList: any[] = [];
     // const jdbcConnectionData =
     const res = await listGlueConnection(requestParam);
     (res as any[]).forEach((item) => {
       const times = item.CreationTime.split('.')[0].split('T');
-      connectionList.push({
-        label: item.Name,
-        value: item.Name,
-        iconName: 'share',
-        description: item.Description || '-',
-        labelTag: times[0] + ' ' + times[1],
-      });
+      if(item.usedBy){
+        const str = t('datasource:jdbc.importComment')
+        // const tag = item.usedBy.split('-')
+        disableConnectionList.push({
+          label: item.Name,
+          value: item.Name,
+          iconName: 'share',
+          // description: item.Description || '-',
+          labelTag: times[0] + ' ' + times[1],
+          tags:[item.Description, str + item.usedBy]
+        });
+      } else {
+        connectionList.push({
+          label: item.Name,
+          value: item.Name,
+          iconName: 'share',
+          description: item.Description || '-',
+          labelTag: times[0] + ' ' + times[1],
+        });
+      }
     });
-    setConnections(connectionList);
+    if(disableConnectionList.length >0 && connectionList.length >0 ){
+      setConnections([{label: t('datasource:jdbc.importEnabled') ?? '',options: connectionList},{disabled: true, label: t('datasource:jdbc.importDisabled') ?? '',options: disableConnectionList}]);
+    } else if(disableConnectionList.length >0){
+      setConnections([{disabled: true, label: t('datasource:jdbc.importDisabled') ?? '',options: disableConnectionList}]);
+    } else {
+      setConnections(connectionList)
+    }
+    
   };
 
   const addJdbcConnection = async () => {
@@ -456,14 +481,14 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                   {
                     label: t('datasource:jdbc.importGlue'),
                     value: 'import',
-                    disabled: props.providerId !== 1,
+                    // disabled: props.providerId !== 1,
                   },
                   { label: t('datasource:jdbc.createNew'), value: 'new' },
                 ]}
               />
             </FormField>
 
-            {jdbcType === 'import' && props.providerId === 1 && (
+            {jdbcType === 'import' && (
               <>
                 <FormField
                   stretch
@@ -481,6 +506,8 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                       setImportGlue(detail.selectedOption);
                     }}
                     options={connections}
+                    loadingText={t('datasource:jdbc.loadingConnections') ?? ''}
+                    statusType={loading}
                   />
                 </FormField>
               </>

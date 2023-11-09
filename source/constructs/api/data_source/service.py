@@ -12,7 +12,7 @@ from botocore.exceptions import ClientError
 
 from catalog.service import delete_catalog_by_account_region as delete_catalog_by_account
 from catalog.service import delete_catalog_by_database_region as delete_catalog_by_database_region
-from common.abilities import convert_provider_id_2_database_type
+from common.abilities import (convert_provider_id_2_database_type, convert_provider_id_2_name)
 from common.constant import const
 from common.enum import (MessageEnum,
                          ConnectionState,
@@ -1915,13 +1915,15 @@ def test_jdbc_conn2(jdbc_conn_param: JDBCInstanceSourceBase):
     # 返回结果
     return "success" if created == 1 else "fail"
 
-def import_jdbc_conn(jdbcConn: JDBCInstanceSourceBase):
+def import_jdbc_conn(jdbc_conn: JDBCInstanceSourceBase):
     res_connection = None
-    if jdbcConn.account_provider_id != Provider.AWS_CLOUD.value:
-        raise BizException(MessageEnum.SOURCE_NOT_AWS_ACCOUNT.get_code(),
-                           MessageEnum.SOURCE_NOT_AWS_ACCOUNT.get_msg())
+    if crud.list_jdbc_connection_by_connection(jdbc_conn.instance_id):
+        raise BizException(MessageEnum.SOURCE_JDBC_ALREADY_IMPORTED.get_code(),
+                           MessageEnum.SOURCE_JDBC_ALREADY_IMPORTED.get_msg())        
+    account_id = jdbc_conn.account_id if jdbc_conn.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id
+    region = jdbc_conn.region if jdbc_conn.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_region
     try:
-        res_connection = __glue(jdbcConn.account_id, jdbcConn.region).get_connection(Name=jdbcConn.instance_id)['Connection']
+        res_connection = __glue(account_id, region).get_connection(Name=jdbc_conn.instance_id)['Connection']
     except ClientError as ce:
         logger.error(traceback.format_exc())
         if ce.response['Error']['Code'] == 'EntityNotFoundException':
@@ -1936,13 +1938,13 @@ def import_jdbc_conn(jdbcConn: JDBCInstanceSourceBase):
                            MessageEnum.BIZ_UNKNOWN_ERR.get_msg())
     logger.info(f"connection info:{res_connection}")
     jdbc_conn_insert = JDBCInstanceSourceFullInfo()
-    jdbc_conn_insert.account_id = jdbcConn.account_id
-    jdbc_conn_insert.region = jdbcConn.region
-    jdbc_conn_insert.account_provider_id = jdbcConn.account_provider_id
+    jdbc_conn_insert.account_id = jdbc_conn.account_id
+    jdbc_conn_insert.region = jdbc_conn.region
+    jdbc_conn_insert.account_provider_id = jdbc_conn.account_provider_id
     jdbc_conn_insert.detection_history_id = 0
-    jdbc_conn_insert.instance_id = jdbcConn.instance_id
+    jdbc_conn_insert.instance_id = jdbc_conn.instance_id
     # jdbc_conn_insert.connection_status = 'UNCONNECTED'
-    jdbc_conn_insert.glue_connection = jdbcConn.instance_id
+    jdbc_conn_insert.glue_connection = jdbc_conn.instance_id
     jdbc_conn_insert.create_type = JDBCCreateType.IMPORT.value
     jdbc_conn_insert.description = res_connection['Description']
     jdbc_conn_insert.jdbc_connection_url = res_connection['ConnectionProperties']['JDBC_CONNECTION_URL']
@@ -1960,7 +1962,7 @@ def import_jdbc_conn(jdbcConn: JDBCInstanceSourceBase):
     jdbc_conn_insert.last_updated_time = res_connection['LastUpdatedTime']
     # jdbc_conn_insert.jdbc_driver_class_name = res_connection['Description']
     # jdbc_conn_insert.jdbc_driver_jar_uri = res_connection['Description']
-    res = crud.list_aws_jdbc_instance_source_by_account(jdbcConn)
+    res = crud.list_aws_jdbc_instance_source_by_account(jdbc_conn)
     if res:
         crud.update_jdbc_conn(jdbc_conn_insert)
     else:
@@ -2353,11 +2355,28 @@ def __delete_account(account_id: str, region: str):
         logger.error(traceback.format_exc())
 
 
-def query_glue_connections(account: AdminAccountInfo):
-    return __glue(account=account.account_id, region=account.region).get_connections(CatalogId=account.account_id,
-                                                                                     Filter={'ConnectionType': 'JDBC'},
-                                                                                     MaxResults=100,
-                                                                                     HidePassword=True)['ConnectionList']
+def query_glue_connections(account: AccountInfo):
+    res = []
+    account_id = account.account_id if account.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id
+    region = account.region if account.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_region
+    list =  __glue(account=account_id, region=region).get_connections(CatalogId=account_id,
+                                                                      Filter={'ConnectionType': 'JDBC'},
+                                                                      MaxResults=100,
+                                                                      HidePassword=True)['ConnectionList']
+    
+    jdbc_list = query_jdbc_connections_sub_info()
+    jdbc_dict = {item[0]:f"{convert_provider_id_2_name(item[1])}-{item[2]}" for item in jdbc_list}
+    # print(f"jdbc_dict is {jdbc_dict}")
+    for item in list:
+        if not item['Name'].startswith(const.SOLUTION_NAME):
+            if item['Name'] in jdbc_dict:
+                item['usedBy'] = jdbc_dict[item['Name']]
+            res.append(item)
+    # print(f"List is {list}")
+    return res
+    
+def query_jdbc_connections_sub_info():
+    return crud.query_jdbc_connections_sub_info()
 
 def list_buckets(account: AdminAccountInfo):
     _, region = gen_assume_info(account)
