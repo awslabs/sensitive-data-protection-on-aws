@@ -2268,8 +2268,17 @@ def __list_rds_schema(account, region, credentials, instance_name, payload, rds_
     )
     logger.info("__list_rds_schema get lambda")
     """ :type : pyboto3.lambda_ """
+    state = ''
     try:
-        lambda_.get_function(FunctionName=function_name)
+        response = lambda_.get_function(FunctionName=function_name)
+        # If lambda is not used for a long time, it will be in an inactive state and restored through invoke
+        state = response['Configuration']['State']
+        if state != 'Active':
+            response = lambda_.invoke(
+                FunctionName=function_name,
+                InvocationType='Event',
+                Payload="{}",
+            )
     except Exception as e:
         logger.info("__list_rds_schema get lambda error and create")
         logger.info(str(e))
@@ -2290,18 +2299,17 @@ def __list_rds_schema(account, region, credentials, instance_name, payload, rds_
                 'SecurityGroupIds': rds_security_groups
             },
         )
-        state = ''
-        time_elapsed = 0
-        timeout = 600
-        while state != 'Active':
-            response = lambda_.get_function(FunctionName=function_name)
-            logger.info("__list_rds_schema get lambda function:")
-            state = response['Configuration']['State']
-            logger.info(state)
-            sleep(SLEEP_TIME)
-            time_elapsed += SLEEP_TIME
-            if time_elapsed >= timeout:
-                break
+    time_elapsed = 0
+    timeout = 600
+    while state != 'Active':
+        sleep(SLEEP_TIME)
+        time_elapsed += SLEEP_TIME
+        if time_elapsed >= timeout:
+            break
+        response = lambda_.get_function(FunctionName=function_name)
+        logger.info("__list_rds_schema get lambda function:")
+        state = response['Configuration']['State']
+        logger.info(state)
 
     logger.info("__list_rds_schema get lambda function invoke:")
     response = lambda_.invoke(
