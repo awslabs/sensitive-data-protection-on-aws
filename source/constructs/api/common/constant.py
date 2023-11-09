@@ -85,10 +85,18 @@ const.PUBLIC = 'Public'
 const.PRIVATE = 'Private'
 
 const.UNSTRUCTURED_FILES = {
-    "document": [".doc", ".docx", ".pdf"],
-    "webpage": [".htm", ".html"],
-    "email": [".eml"],
-    "code": [".java", ".py", ".cpp", ".c", ".h", ".html", ".css", ".js", ".php", ".rb", ".swift", ".go", ".sql"],
-    "text": [".txt", ".md", ".log"],
-    "image": [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".tif"]
+    "document": ["doc", "docx", "pdf", "ppt", "pptx", "xls", "xlsx", "odp"],
+    "webpage": ["htm", "html"],
+    "email": ["eml"],
+    "code": ["java", "py", "cpp", "c", "h", "html", "css", "js", "php", "rb", "swift", "go", "sql", "yaml", "xml"],
+    "text": ["txt", "md", "log"],
+    "image": ["jpg", "jpeg", "png", "gif", "bmp", "tiff", "tif"],
+    "media": ["mp3", "wav", "aac", "flac", "wma", "ogg", "m4a", "opus", "mp4", "avi", "mkv", "wmv", "mov",
+              "flv", "webm", "m4v", "mp2", "m4r", "3ga", "mid", "ra", "amr", "ape", "wv", "dsf", "mpeg",
+              "3gp", "ogv", "vob", "mts", "rm"],
+    "ebook": ["epub", "mobi", "pdf", "azw", "djvu", "fb2", "lit", "pdb", "txt", "html", "cbz", "ibooks", "azw4"],
+    "archive": ["zip", "7z", "rar", "targz", "tgz", "tarbz2", "tbz2", "tarxz", "txz", "gz", "bz2", "xz", "zipx", "z"],
+    "temp": ["tmp", "swp", "~", "bak", "temp", "wbk", "chk", "dmgpart"],
+    "executable": ["exe", "dll", "app"],
+    "font": ["ttf", "otf"]
 }
