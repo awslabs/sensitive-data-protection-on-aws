@@ -2546,6 +2546,6 @@ def query_connection_detail(account: JDBCInstanceSourceBase):
 
 
 def __get_excludes_file_exts():
-    extensions = list(set([ext for extensions_list in aa.values() for ext in extensions_list]))
+    extensions = list(set([ext for extensions_list in const.UNSTRUCTURED_FILES.values() for ext in extensions_list]))
     return ["*.{" + ",".join(extensions) + "}"]
 
