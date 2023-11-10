@@ -649,7 +649,7 @@ def get_s3_database_summary():
         func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label("database_total"),
         func.sum(models.CatalogDatabaseLevelClassification.object_count).label("object_total"),
         func.sum(models.CatalogDatabaseLevelClassification.size_key).label("size_total"))
-            .filter(models.CatalogDatabaseLevelClassification.database_type == DatabaseType.S3.value)
+            .filter(models.CatalogDatabaseLevelClassification.database_type.in_([DatabaseType.S3.value, DatabaseType.S3_UNSTRUCTURED.value]))
             .all()
             )
 
