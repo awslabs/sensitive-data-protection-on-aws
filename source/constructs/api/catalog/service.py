@@ -171,8 +171,8 @@ def get_s3_cloudwatch_metric(
     latest_data = max(response['Datapoints'], key=lambda x: x['Timestamp'])
     latest_timestamp = latest_data['Timestamp']
     latest_average = latest_data['Average']
-    logger.debug("最近时间的 Average 值：", latest_average)
-    logger.debug("最近时间的 Timestamp：", latest_timestamp)
+    logger.debug(f"最近时间的 Average 值：{latest_average}")
+    logger.debug(f"最近时间的 Timestamp：{latest_timestamp}")
     return latest_average
 
 
@@ -208,6 +208,7 @@ def sync_crawler_result(
         database_type: str,
         database_name: str,
 ):
+    logger.info(f"start params {account_id} {region} {database_type} {database_name}")
     rds_engine_type = const.NA
     # custom glue type will not use crawler, just syncing the catalog from existing glue tables
     is_custom_glue = database_type == DatabaseType.GLUE.value
@@ -218,7 +219,7 @@ def sync_crawler_result(
         )
         if rds_database is not None:
             rds_engine_type = rds_database.engine
-    
+
     if database_type.startswith(DatabaseType.JDBC.value):
         from common.abilities import convert_database_type_2_provider
         provider_id = convert_database_type_2_provider(database_type)
@@ -980,15 +981,17 @@ def get_database_prorpery(account_id: str,
             result_list.append(["Location", None])
             result_list.append(["Created on (UTC)", response['Database']['CreateTime']])
         elif database_type.startswith(DatabaseType.JDBC.value):
-            raise BizException(
-                MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_code(),
-                MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_msg(),
-            )
+            result_list.append(["Name", database_name])
+            # raise BizException(
+            #     MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_code(),
+            #     MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_msg(),
+            # )
         else:
-            raise BizException(
-                MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_code(),
-                MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_msg(),
-            )
+            result_list.append(["Name", database_name])
+            # raise BizException(
+            #     MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_code(),
+            #     MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_msg(),
+            # )
     except Exception as e:
         logger.error(''.join(traceback.TracebackException.from_exception(e).format()))
         raise BizException(

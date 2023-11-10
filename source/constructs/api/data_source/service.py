@@ -70,6 +70,8 @@ _jdbc_url_patterns = [
         r'jdbc:sqlserver://[\w.-]+:\d+;databaseName=([\w-]+)',
         r'jdbc:sqlserver://[\w.-]+:\d+;database=([\w-]+)'
     ]
+
+
 def build_s3_targets(bucket, credentials, region, is_init):
     s3 = boto3.client('s3',
                       aws_access_key_id=credentials['AccessKeyId'],
@@ -90,7 +92,7 @@ def build_s3_targets(bucket, credentials, region, is_init):
                 {
                     "Path": f"s3://{bucket}/{common_prefix['Prefix']}",
                     "SampleSize": 20,
-                    "Exclusions": []
+                    "Exclusions": __get_excludes_file_exts()
                 }
             )
     if 'Contents' in response:
@@ -99,7 +101,7 @@ def build_s3_targets(bucket, credentials, region, is_init):
                 {
                     "Path": f"s3://{bucket}",
                     "SampleSize": 20,
-                    "Exclusions": []
+                    "Exclusions": __get_excludes_file_exts()
                 }
             )
         else:
@@ -108,7 +110,7 @@ def build_s3_targets(bucket, credentials, region, is_init):
                     {
                         "Path": f"s3://{bucket}/{content['Key']}",
                         "SampleSize": 20,
-                        "Exclusions": []
+                        "Exclusions": __get_excludes_file_exts()
                     }
                 )
     logger.info("build_s3_targets")
@@ -2271,8 +2273,17 @@ def __list_rds_schema(account, region, credentials, instance_name, payload, rds_
     )
     logger.info("__list_rds_schema get lambda")
     """ :type : pyboto3.lambda_ """
+    state = ''
     try:
-        lambda_.get_function(FunctionName=function_name)
+        response = lambda_.get_function(FunctionName=function_name)
+        # If lambda is not used for a long time, it will be in an inactive state and restored through invoke
+        state = response['Configuration']['State']
+        if state != 'Active':
+            response = lambda_.invoke(
+                FunctionName=function_name,
+                InvocationType='Event',
+                Payload="{}",
+            )
     except Exception as e:
         logger.info("__list_rds_schema get lambda error and create")
         logger.info(str(e))
@@ -2293,18 +2304,17 @@ def __list_rds_schema(account, region, credentials, instance_name, payload, rds_
                 'SecurityGroupIds': rds_security_groups
             },
         )
-        state = ''
-        time_elapsed = 0
-        timeout = 600
-        while state != 'Active':
-            response = lambda_.get_function(FunctionName=function_name)
-            logger.info("__list_rds_schema get lambda function:")
-            state = response['Configuration']['State']
-            logger.info(state)
-            sleep(SLEEP_TIME)
-            time_elapsed += SLEEP_TIME
-            if time_elapsed >= timeout:
-                break
+    time_elapsed = 0
+    timeout = 600
+    while state != 'Active':
+        sleep(SLEEP_TIME)
+        time_elapsed += SLEEP_TIME
+        if time_elapsed >= timeout:
+            break
+        response = lambda_.get_function(FunctionName=function_name)
+        logger.info("__list_rds_schema get lambda function:")
+        state = response['Configuration']['State']
+        logger.info(state)
 
     logger.info("__list_rds_schema get lambda function invoke:")
     response = lambda_.invoke(
@@ -2561,3 +2571,9 @@ def query_connection_detail(account: JDBCInstanceSourceBase):
         raise BizException(MessageEnum.SOURCE_JDBC_CONNECTION_NOT_EXIST.get_code(),
                            MessageEnum.SOURCE_JDBC_CONNECTION_NOT_EXIST.get_msg())
     return __glue(account_id, region).get_connection(Name=source.glue_connection)['Connection']
+
+
+def __get_excludes_file_exts():
+    extensions = list(set([ext for extensions_list in const.UNSTRUCTURED_FILES.values() for ext in extensions_list]))
+    return ["*.{" + ",".join(extensions) + "}"]
+

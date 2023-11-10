@@ -991,14 +991,14 @@ def get_export_catalog_data():
 def get_catalog_summay_by_provider_region(region: str):
     return (get_session()
             .query(models.CatalogDatabaseLevelClassification.database_type,
-            func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label(
-                "database_total"),
-            func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label(
-                "instance_total"),
-            func.sum(models.CatalogDatabaseLevelClassification.object_count).label("object_total"),
-            func.sum(models.CatalogDatabaseLevelClassification.size_key).label("size_total"),
-            func.sum(models.CatalogDatabaseLevelClassification.table_count).label("table_total"),
-            func.sum(models.CatalogDatabaseLevelClassification.column_count).label("row_total"))
+                   func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label(
+                       "database_total"),
+                   func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label(
+                       "instance_total"),
+                   func.sum(models.CatalogDatabaseLevelClassification.object_count).label("object_total"),
+                   func.sum(models.CatalogDatabaseLevelClassification.size_key).label("size_total"),
+                   func.sum(models.CatalogDatabaseLevelClassification.table_count).label("table_total"),
+                   func.sum(models.CatalogDatabaseLevelClassification.column_count).label("row_total"))
             .filter(models.CatalogDatabaseLevelClassification.region == region)
             .group_by(models.CatalogDatabaseLevelClassification.database_type)
             .all()
