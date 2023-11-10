@@ -16,6 +16,11 @@ export const TEMPLATE_COLUMN_LIST = [
     filter: false,
   },
   {
+    id: 'identifier-type',
+    label: 'table.label.identifierType',
+    filter: false,
+  },
+  {
     id: 'enabled',
     label: 'table.label.enabled',
     filter: false,

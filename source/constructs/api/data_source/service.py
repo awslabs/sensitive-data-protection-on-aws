@@ -1955,9 +1955,10 @@ def import_jdbc_conn(jdbc_conn: JDBCInstanceSourceBase):
     # jdbc_conn_insert.skip_custom_jdbc_cert_validation = res_connection['Description']
     # jdbc_conn_insert.custom_jdbc_cert = res_connection['Description']
     # jdbc_conn_insert.custom_jdbc_cert_string = res_connection['Description']
-    jdbc_conn_insert.network_availability_zone = res_connection['PhysicalConnectionRequirements']['AvailabilityZone']
-    jdbc_conn_insert.network_subnet_id = res_connection['PhysicalConnectionRequirements']['SubnetId']
-    jdbc_conn_insert.network_sg_id = "|".join(res_connection['PhysicalConnectionRequirements']['SecurityGroupIdList'])
+    if 'PhysicalConnectionRequirements' in res_connection:
+        jdbc_conn_insert.network_availability_zone = res_connection['PhysicalConnectionRequirements']['AvailabilityZone']
+        jdbc_conn_insert.network_subnet_id = res_connection['PhysicalConnectionRequirements']['SubnetId']
+        jdbc_conn_insert.network_sg_id = "|".join(res_connection['PhysicalConnectionRequirements']['SecurityGroupIdList'])
     jdbc_conn_insert.creation_time = res_connection['CreationTime']
     jdbc_conn_insert.last_updated_time = res_connection['LastUpdatedTime']
     # jdbc_conn_insert.jdbc_driver_class_name = res_connection['Description']

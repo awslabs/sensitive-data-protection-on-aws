@@ -508,6 +508,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                     options={connections}
                     loadingText={t('datasource:jdbc.loadingConnections') ?? ''}
                     statusType={loading}
+                    empty={t('datasource:jdbc.emptyConnections') ?? ''}
                   />
                 </FormField>
               </>
