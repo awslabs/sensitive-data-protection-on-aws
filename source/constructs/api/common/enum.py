@@ -44,6 +44,7 @@ class MessageEnum(Enum):
     DISCOVERY_JOB_STOPPING = {1521: "The job is stopping"}
     DISCOVERY_JOB_AGENT_MISMATCHING_VERSION = {1522: "Agent mismatching version"}
     DISCOVERY_JOB_ALL_RUN_FAILED = {1523: "All job run failed"}
+    DISCOVERY_JOB_DATABASE_IS_EMPTY = {1524: "Database is empty"}
 
     # catalog
     CATALOG_RDS_TABLE_HAS_NO_COLUMNS = {1301: "RDS table columns does not exist"}

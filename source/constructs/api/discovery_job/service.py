@@ -203,6 +203,10 @@ def __start_run(job_id: int, run_id: int):
     job = crud.get_job(job_id)
     run = crud.get_run(run_id)
     run_databases = run.databases
+    if 0 == len(run_databases):
+        crud.complete_run(run_id)
+        raise BizException(MessageEnum.DISCOVERY_JOB_DATABASE_IS_EMPTY.get_code(),
+                           MessageEnum.DISCOVERY_JOB_DATABASE_IS_EMPTY.get_msg())
     module_path = f's3://{admin_bucket_name}/job/ml-asset/python-module/'
     wheels = ["humanfriendly-10.0-py2.py3-none-any.whl",
               "protobuf-4.22.1-cp37-abi3-manylinux2014_x86_64.whl",
