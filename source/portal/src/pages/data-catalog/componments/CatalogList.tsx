@@ -220,6 +220,14 @@ const CatalogList: React.FC<any> = memo((props: any) => {
         size: preferences.pageSize,
         sort_column: curSortColumn?.sortingField,
         asc: !isDescending,
+        conditions: [
+          {
+            column: 'database_type',
+            values: [catalogType],
+            condition: 'and',
+            operation: ':',
+          },
+        ] as any,
       };
 
       const result = await searchCatalogTables(requestParam);
