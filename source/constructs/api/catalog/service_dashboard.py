@@ -57,7 +57,7 @@ def agg_catalog_summay(database_type: str):
     elif database_type == DatabaseType.RDS.value \
             or database_type == DatabaseType.GLUE.value \
             or database_type.startswith(DatabaseType.JDBC.value):
-        result_dict = crud.get_rds_column_summary()[0]._asdict()
+        result_dict = crud.get_rds_column_summary(database_type)[0]._asdict()
         table_list = crud.get_catalog_table_level_classification_by_type(database_type)
         result_dict['table_total'] = len(table_list)
        

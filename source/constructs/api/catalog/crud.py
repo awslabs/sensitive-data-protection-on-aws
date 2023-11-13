@@ -654,11 +654,11 @@ def get_s3_database_summary():
             )
 
 
-def get_rds_column_summary():
+def get_rds_column_summary(database_type: str):
     return (get_session()
             .query(func.count(distinct(models.CatalogColumnLevelClassification.database_name)).label("instance_total"),
                    func.count(models.CatalogColumnLevelClassification.column_name).label("column_total"))
-            .filter(models.CatalogColumnLevelClassification.database_type == DatabaseType.RDS.value)
+            .filter(models.CatalogColumnLevelClassification.database_type == database_type)
             .all()
             )
 
