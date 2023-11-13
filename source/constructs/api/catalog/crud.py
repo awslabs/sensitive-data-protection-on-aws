@@ -647,16 +647,16 @@ def get_s3_database_summary():
         func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label("database_total"),
         func.sum(models.CatalogDatabaseLevelClassification.object_count).label("object_total"),
         func.sum(models.CatalogDatabaseLevelClassification.size_key).label("size_total"))
-            .filter(models.CatalogDatabaseLevelClassification.database_type == DatabaseType.S3.value)
+            .filter(models.CatalogDatabaseLevelClassification.database_type.in_([DatabaseType.S3.value, DatabaseType.S3_UNSTRUCTURED.value]))
             .all()
             )
 
 
-def get_rds_column_summary():
+def get_rds_column_summary(database_type: str):
     return (get_session()
             .query(func.count(distinct(models.CatalogColumnLevelClassification.database_name)).label("instance_total"),
                    func.count(models.CatalogColumnLevelClassification.column_name).label("column_total"))
-            .filter(models.CatalogColumnLevelClassification.database_type == DatabaseType.RDS.value)
+            .filter(models.CatalogColumnLevelClassification.database_type == database_type)
             .all()
             )
 
