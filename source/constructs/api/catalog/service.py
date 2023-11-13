@@ -475,15 +475,15 @@ def sync_crawler_result(
             "database_name": database_name,
             "object_count": database_object_count,
             # not error ， logic change when 1.1.0
-            "size_key": origin_size_key,
-            "table_count": origin_obj_count,
+            "size_key": database_size,
+            "table_count": table_count,
             "column_count": database_column_count,
             "access_type": access_type,
             # "row_count": database_row_count,
             # Store location for s3 and engine type for rds
             # new column record old size and count
-            "origin_size_key": database_size,
-            "origin_obj_count": table_count,
+            "origin_size_key": origin_size_key,
+            "origin_obj_count": origin_obj_count,
             "storage_location": storage_location
             if database_type == DatabaseType.S3.value
             else rds_engine_type,
