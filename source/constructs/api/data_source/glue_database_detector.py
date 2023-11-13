@@ -18,7 +18,6 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 async def detect_glue_database_connection(session: Session, aws_account_id: str):
-    print(f"aws_account_id is {aws_account_id}")
     iam_role_name = crud.get_iam_role(aws_account_id)
     history = DetectionHistory(account_id=aws_account_id, source_type=DatabaseType.GLUE.value, state=0)
     session.add(history)
@@ -63,8 +62,6 @@ async def detect_glue_database_connection(session: Session, aws_account_id: str)
             source_glue_database.detection_history_id = history.id
             source_glue_database.glue_database_name = glue_database["Name"]
             crud.import_glue_database(source_glue_database, glue_database)
-    print(f"db_database_name_list is: {len(db_database_name_list)}")
-    print(f"db_database_name_list is: {len(glue_database_name_list)}")
     for item in db_database_name_list:
         if item not in glue_database_name_list:
             refresh_list.append(item)

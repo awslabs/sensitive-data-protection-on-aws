@@ -31,6 +31,8 @@ from data_source import crud as data_source_crud
 from label.crud import (get_labels_by_id_list, get_all_labels)
 from template.service import get_identifiers
 from . import crud, schemas
+from common.reference_parameter import logger, admin_account_id, admin_region
+from common.abilities import need_change_account_id
 
 sql_result = "SELECT database_type,account_id,region,s3_bucket,s3_location,rds_instance_id,table_name,column_name,identifiers,sample_data,'','','' FROM job_detection_output_table"
 tmp_folder = tempfile.gettempdir()
@@ -227,11 +229,8 @@ def sync_crawler_result(
         if jdbc_database:
             jdbc_engine_type = jdbc_database.jdbc_connection_url.split(':')[1]
 
-    if database_type.startswith(DatabaseType.JDBC.value) and not database_type.startswith(DatabaseType.JDBC_AWS.value):
-        caller_identity = boto3.client('sts').get_caller_identity()
-        _admin_account_id = caller_identity.get('Account')
-        _admin_account_region = boto3.session.Session().region_name
-        glue_client = get_boto3_client(_admin_account_id, _admin_account_region, "glue")
+    if need_change_account_id(database_type):
+        glue_client = get_boto3_client(admin_account_id, admin_region, "glue")
     else:
         glue_client = get_boto3_client(account_id, region, "glue")
 
@@ -1238,17 +1237,20 @@ def get_database_sample_data(account_id: str, region: str, database_name: str, t
     return response
 
 
-def get_catalog_export_url(fileType: str, timeStr: str) -> str:
+def get_catalog_export_url(file_type: str, sensitive_flag: str, time_str: str) -> str:
     run_result = crud.get_export_catalog_data()
     all_labels = get_all_labels()
     all_labels_dict = dict()
-    tmp_filename = f"{tmp_folder}/catalog_{timeStr}.zip"
-    report_file = f"report/catalog_{timeStr}.zip"
+    tmp_filename = f"{tmp_folder}/catalog_{time_str}.zip"
+    report_file = f"report/catalog_{time_str}.zip"
     for item in all_labels:
         all_labels_dict[item.id] = item.label_name
-    filtered_records = filter_records(run_result, all_labels_dict)
-    column_header = {const.EXPORT_S3_MARK_STR: const.EXPORT_FILE_S3_COLUMNS, const.EXPORT_RDS_MARK_STR: const.EXPORT_FILE_RDS_COLUMNS}
-    gen_zip_file(column_header, filtered_records, tmp_filename, fileType)
+    filtered_records = filter_records(run_result, all_labels_dict, sensitive_flag)
+    column_header = {const.EXPORT_S3_MARK_STR: const.EXPORT_FILE_S3_COLUMNS,
+                     const.EXPORT_RDS_MARK_STR: const.EXPORT_FILE_RDS_COLUMNS,
+                     const.EXPORT_GLUE_MARK_STR: const.EXPORT_FILE_GLUE_COLUMNS,
+                     const.EXPORT_JDBC_MARK_STR: const.EXPORT_FILE_JDBC_COLUMNS}
+    gen_zip_file(column_header, filtered_records, tmp_filename, file_type)
     stats = os.stat(tmp_filename)
     s3_client = boto3.client('s3')
     if stats.st_size < 6 * 1024 * 1024:
@@ -1264,24 +1266,38 @@ def get_catalog_export_url(fileType: str, timeStr: str) -> str:
     )
     return pre_url
 
-def filter_records(all_items: list, all_labels_dict: dict):
+def filter_records(all_items: list, all_labels_dict: dict, sensitive_flag: str):
     s3_records = []
     rds_records = []
+    glue_records = []
+    jdbc_records = []
     for row in all_items:
         row_result = [cell for cell in row]
-        if row_result[8]:
-            row_result[8] = ",".join(gen_labels(all_labels_dict, row_result[8]))
+        if sensitive_flag != 'all' and "N/A" in row_result[7]:
+            continue        
         if row_result[9]:
             row_result[9] = ",".join(gen_labels(all_labels_dict, row_result[9]))
-        catalog_type = row_result[0]
-        del row_result[0]
-        if catalog_type == DatabaseType.S3.value:
+        if row_result[10]:
+            row_result[10] = ",".join(gen_labels(all_labels_dict, row_result[10]))
+        catalog_type = row_result[2]
+        # del row_result[0]
+        if catalog_type == DatabaseType.S3.value or catalog_type == DatabaseType.S3_UNSTRUCTURED.value:
             s3_records.append([row_result])
         elif catalog_type == DatabaseType.RDS.value:
+            del row_result[6]
             rds_records.append([row_result])
+        elif catalog_type == DatabaseType.GLUE.value:
+            del row_result[6]
+            glue_records.append([row_result])
+        elif catalog_type.startswith(DatabaseType.JDBC.value):
+            del row_result[6]
+            jdbc_records.append([row_result])
         else:
             pass
-    return {const.EXPORT_S3_MARK_STR: s3_records, const.EXPORT_RDS_MARK_STR: rds_records}
+    return {const.EXPORT_S3_MARK_STR: s3_records,
+            const.EXPORT_RDS_MARK_STR: rds_records,
+            const.EXPORT_GLUE_MARK_STR: glue_records,
+            const.EXPORT_JDBC_MARK_STR: jdbc_records}
 
 def gen_labels(all_labels_dict, row_result_item):
     tmp = [all_labels_dict.get(int(result)) for result in row_result_item.split(",")]
@@ -1291,7 +1307,7 @@ def gen_zip_file(header, record, tmp_filename, type):
     with ZipFile(tmp_filename, 'w') as zipf:
         for k, v in record.items():
             if not v:
-                break
+                continue
             if type == ExportFileType.XLSX.value:
                 batches = int(len(v) / const.EXPORT_XLSX_MAX_LINES)
                 if batches < 1:
@@ -1341,9 +1357,9 @@ def gen_zip_file(header, record, tmp_filename, type):
 
 def __get_cell_value(cell: dict):
     if cell and "VarCharValue" in cell:
-        return cell["VarCharValue"]
+        return cell["VarCharValue"].replace('\x00', ' ').replace('\xa0', '  ') if cell["VarCharValue"] else cell["VarCharValue"]
     else:
-        return cell
+        return cell.replace('\x00', ' ').replace('\xa0', '  ') if cell else cell
 
 def clear_s3_object(time_str: str):
     s3 = boto3.client('s3')

@@ -70,6 +70,12 @@ const SelectS3Catalog: React.FC<SelectS3CatalogProps> = (
       sort_column: '',
       asc: true,
       conditions: [
+        {
+          column: 'glue_state',
+          values: ['ACTIVE'],
+          condition: 'and',
+          operation: ':',
+        },
       ] as any,
     };
     if (s3Query.tokens) {

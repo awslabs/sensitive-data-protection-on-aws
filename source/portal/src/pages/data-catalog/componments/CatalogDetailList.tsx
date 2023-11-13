@@ -386,7 +386,8 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       // frontend pagination
       const start = (currentPage - 1) * preferences.pageSize;
       setDataList(result.slice(start, start + preferences.pageSize));
-      setTotalCount(result.length);
+      // console.log("result.length is>>>>>"+result.length)
+      // setTotalCount(result.length);
     };
 
     const clearIdentifiersFilter = () => {

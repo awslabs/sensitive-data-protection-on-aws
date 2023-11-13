@@ -12,6 +12,8 @@ export const COLUMN_OBJECT_STR = {
   JDBCInstanceName: 'jdbc_instance_name',
   ConnectionStatus: 'connection_status',
   GlueConnectionName: 'glue_database_name',
+  JDBCConnectionName: 'glue_connection',
+  LastConnectionTime: 'last_connected',
   glueDatabaseCreatedTime: 'create_time',
   glueDatabaseDescription: 'glue_database_description',
   glueDatabaseLocationUri: 'locationUri',
@@ -72,10 +74,15 @@ export const JDBC_COLUMN_LIST = [
     filter: false,
   },
   {
-    id: COLUMN_OBJECT_STR.GlueConnectionName,
+    id: COLUMN_OBJECT_STR.JDBCConnectionName,
     label: 'table.label.glueConnectionName',
     filter: true,
   },
+  {
+    id: COLUMN_OBJECT_STR.LastConnectionTime,
+    label: 'table.label.lastConnectionTime',
+    filter: true,
+  }
 ];
 
 export const GLUE_COLUMN_LIST = [

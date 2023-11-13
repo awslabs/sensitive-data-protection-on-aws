@@ -25,6 +25,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { alertMsg } from 'tools/tools';
 import { i18ns } from '../types/s3_selector_config';
+import { DropdownStatusProps } from '@cloudscape-design/components/internal/components/dropdown-status';
 
 interface JDBCConnectionProps {
   providerId: number;
@@ -43,12 +44,13 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
   const [expanded, setExpanded] = useState(true);
   const [connections, setConnections] = useState([] as any[]);
   const [credential, setCredential] = useState('secret');
+  const [loading, setLoading] = useState('loading' as DropdownStatusProps.StatusType);
   // const [vpc, setVpc] = useState(null);
   const importOriginalData = {
     instance_id: '',
     account_id: props.accountId,
     region: props.region,
-    account_provider_id: 1,
+    account_provider_id: props.providerId,
   };
 
   const newOriginalData = {
@@ -75,7 +77,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
     jdbc_driver_jar_uri: '',
   };
   const [jdbcConnectionData, setJdbcConnectionData] = useState({
-    createType: props.providerId === 1 ? 'import' : 'new',
+    createType: 'import',
     import: importOriginalData,
     new: newOriginalData,
   });
@@ -101,10 +103,6 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
   }, [credentialType]);
 
   useEffect(() => {
-    console.log(
-      'jdbcConnectionData.import.instance_id reset',
-      jdbcConnectionData.import
-    );
     if (
       jdbcConnectionData.createType === 'import' &&
       jdbcConnectionData.import.instance_id !== ''
@@ -141,17 +139,18 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
   // },[jdbcConnectionData.new])
 
   useEffect(() => {
-    if (props.providerId !== 1) {
-      setJdbcType('new');
-      // load network info
-      loadNetworkInfo();
-    } else {
+    // if (props.providerId !== 1) {
+    //   setJdbcType('new');
+    //   // load network info
+    //   loadNetworkInfo();
+    // } else {
       try {
         glueConnection();
+        setLoading('finished')
       } catch (error) {
         setConnections([]);
       }
-    }
+    // }
   }, []);
 
   useEffect(() => {
@@ -193,6 +192,43 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
       });
       setNetwork(vpcs);
       setVpcOption(vpcOptions);
+      if(props.providerId !== 1){
+         setVpc(vpcOptions[0])
+         const subnet = vpcs[0].subnets[0];
+         setSubnet({
+          label: subnet.subnetId,
+          value: subnet.subnetId,
+          description: subnet.arn,
+         })
+      // let tempSubnet = jdbcConnectionData.new;
+      // tempSubnet = { ...tempSubnet, network_subnet_id: subnet.subnetId };
+      // setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
+        // subnets.forEach((item: any) => {
+        //   subnetOptions.push({
+        //     label: item.subnetId,
+        //     value: item.subnetId,
+        //     description: item.arn,
+        //   });
+        // });
+    
+        const securityGroup = vpcs[0].securityGroups[0];
+        setSg({
+          label: securityGroup.securityGroupId,
+          value: securityGroup.securityGroupId,
+          description: securityGroup.securityGroupName,
+        })
+        let temp = jdbcConnectionData.new;
+        temp = { ...temp, network_subnet_id: subnet.subnetId, network_sg_id: securityGroup.securityGroupId };
+        setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
+        // securityGroups.forEach((item: any) => {
+        //   sgOptions.push({
+        //     label: item.securityGroupId,
+        //     value: item.securityGroupId,
+        //     description: item.securityGroupName,
+        //   });
+        // });
+        // console.log("vpcOptions is"+vpcOptions)
+      }
     } catch (error) {
       alertMsg(t('loadNetworkError'), 'error');
     }
@@ -221,23 +257,45 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
 
   const glueConnection = async () => {
     const requestParam = {
+      account_provider_id: props.providerId,
       account_id: props.accountId,
       region: props.region,
     };
     const connectionList: any[] = [];
+    const disableConnectionList: any[] = [];
     // const jdbcConnectionData =
     const res = await listGlueConnection(requestParam);
     (res as any[]).forEach((item) => {
       const times = item.CreationTime.split('.')[0].split('T');
-      connectionList.push({
-        label: item.Name,
-        value: item.Name,
-        iconName: 'share',
-        description: item.Description || '-',
-        labelTag: times[0] + ' ' + times[1],
-      });
+      if(item.usedBy){
+        const str = t('datasource:jdbc.importComment')
+        // const tag = item.usedBy.split('-')
+        disableConnectionList.push({
+          label: item.Name,
+          value: item.Name,
+          iconName: 'share',
+          // description: item.Description || '-',
+          labelTag: times[0] + ' ' + times[1],
+          tags:[item.Description, str + item.usedBy]
+        });
+      } else {
+        connectionList.push({
+          label: item.Name,
+          value: item.Name,
+          iconName: 'share',
+          description: item.Description || '-',
+          labelTag: times[0] + ' ' + times[1],
+        });
+      }
     });
-    setConnections(connectionList);
+    if(disableConnectionList.length >0 && connectionList.length >0 ){
+      setConnections([{label: t('datasource:jdbc.importEnabled') ?? '',options: connectionList},{disabled: true, label: t('datasource:jdbc.importDisabled') ?? '',options: disableConnectionList}]);
+    } else if(disableConnectionList.length >0){
+      setConnections([{disabled: true, label: t('datasource:jdbc.importDisabled') ?? '',options: disableConnectionList}]);
+    } else {
+      setConnections(connectionList)
+    }
+    
   };
 
   const addJdbcConnection = async () => {
@@ -247,7 +305,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
         alertMsg(t('successImport'), 'success');
         props.setShowModal(false);
       } catch (error) {
-        alertMsg(t('failImport'), 'error');
+        alertMsg(error + '', 'error');
       }
     } else {
       try {
@@ -255,7 +313,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
         alertMsg(t('successAdd'), 'success');
         props.setShowModal(false);
       } catch (error) {
-        alertMsg(t('failAdd'), 'error');
+        alertMsg(error + '', 'error');
       }
     }
   };
@@ -321,6 +379,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
   };
 
   const changeSubnet = (detail: any) => {
+    console.log("detail is "+detail)
     setSubnet(detail);
     let temp = jdbcConnectionData.new;
     temp = { ...temp, network_subnet_id: detail.value };
@@ -348,7 +407,6 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
       region: props.region,
     };
     const res = await queryBuckets(requestParam);
-    console.log('res is:', res);
     setBuckets(res);
   };
 
@@ -444,7 +502,6 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
             <FormField stretch label={t('datasource:jdbc.selectGlue')}>
               <Tiles
                 onChange={({ detail }) => {
-                  console.log('detail is:', detail);
                   const data = jdbcConnectionData;
                   data.import = importOriginalData;
                   data.new = newOriginalData;
@@ -462,14 +519,14 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                   {
                     label: t('datasource:jdbc.importGlue'),
                     value: 'import',
-                    disabled: props.providerId !== 1,
+                    // disabled: props.providerId !== 1,
                   },
                   { label: t('datasource:jdbc.createNew'), value: 'new' },
                 ]}
               />
             </FormField>
 
-            {jdbcType === 'import' && props.providerId === 1 && (
+            {jdbcType === 'import' && (
               <>
                 <FormField
                   stretch
@@ -485,9 +542,11 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                         detail.selectedOption.value || '';
                       setJdbcConnectionData(temp);
                       setImportGlue(detail.selectedOption);
-                      console.log('final data is:', jdbcConnectionData);
                     }}
                     options={connections}
+                    loadingText={t('datasource:jdbc.loadingConnections') ?? ''}
+                    statusType={loading}
+                    empty={t('datasource:jdbc.emptyConnections') ?? ''}
                   />
                 </FormField>
               </>
@@ -640,6 +699,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                     onChange={({ detail }) => {
                       resetCredentials();
                       setCredential(detail.value);
+                      setDisabled(true)
                     }}
                     value={credential}
                     items={[
@@ -708,6 +768,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                         changeVPC(detail.selectedOption)
                       }
                       options={vpcOption}
+                      disabled={props.providerId !== 1}
                       // options={[{label: network[0], value: network[0]}]}
                     />
                   </FormField>
@@ -723,6 +784,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                         changeSubnet(detail.selectedOption)
                       }
                       options={subnetOption}
+                      disabled={props.providerId !== 1}
                     />
                   </FormField>
                   <FormField
@@ -735,6 +797,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                       selectedOption={sg}
                       onChange={({ detail }) => changeSG(detail.selectedOption)}
                       options={sgOption}
+                      disabled={props.providerId !== 1}
                     />
                   </FormField>
                 </ExpandableSection>

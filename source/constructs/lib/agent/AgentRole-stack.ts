@@ -59,6 +59,7 @@ export class AgentRoleStack extends Construct {
             'glue:StartCrawler',
             'glue:StopCrawler',
             'glue:GetConnection',
+            'glue:GetConnections',
             'glue:UpdateConnection',
           ],
           resources: ['*'],

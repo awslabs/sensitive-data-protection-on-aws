@@ -202,6 +202,11 @@ def list_jdbc_connection_by_account(provider_id: int, account_id: str) -> list[J
         JDBCInstanceSource.account_id == account_id
     ).all()
 
+def list_jdbc_connection_by_connection(connection_name: str) -> list[JDBCInstanceSource]:
+    return get_session().query(JDBCInstanceSource).filter(
+        JDBCInstanceSource.glue_connection == connection_name
+    ).all()
+
 def delete_jdbc_connection_by_accounts(accounts: list):
     session = get_session()
     session.query(JDBCInstanceSource).filter(JDBCInstanceSource.id.in_(accounts)).delete()
@@ -277,7 +282,6 @@ def delete_not_exist_glue_database(refresh_list: list[str]):
 
 
 def update_glue_database_count(account: str, region: str):
-    print(f"update_glue_database_count start, params are: {account}-{region}")
     session = get_session()
 
     connected = session.query(SourceGlueDatabase).filter(SourceGlueDatabase.region == region,
@@ -454,10 +458,9 @@ def update_jdbc_instance_count(provider: int, account: str, region: str):
         conns: list[JDBCInstanceSource] = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == provider,
                                                                                    JDBCInstanceSource.account_id == account).all()
         for conn in conns:
-            if conn.detection_history_id != -1:
-                total[conn.account_id + '-' + conn.region] = 1 if conn.account_id + '-' + conn.region not in total else total[conn.account_id + '-' + conn.region] + 1
-                if conn.glue_state == 'ACTIVE':
-                    connected[conn.account_id + '-' + conn.region] = 1 if conn.account_id + '-' + conn.region not in connected else connected[conn.account_id + '-' + conn.region] + 1
+            total[conn.account_id + '-' + conn.region] = 1 if conn.account_id + '-' + conn.region not in total else total[conn.account_id + '-' + conn.region] + 1
+            if conn.glue_state == 'ACTIVE':
+                connected[conn.account_id + '-' + conn.region] = 1 if conn.account_id + '-' + conn.region not in connected else connected[conn.account_id + '-' + conn.region] + 1
 
         accountInfo: Account = session.query(Account).filter(Account.account_provider_id == provider, Account.account_id == account).first()
         if accountInfo:
@@ -665,6 +668,8 @@ def get_connected_rds_instances_count():
     count = list_rds_instance_source(None)
     return 0 if count is None else count.filter(RdsInstanceSource.glue_state == ConnectionState.ACTIVE.value).count()
 
+def query_jdbc_connections_sub_info():
+    return get_session().query(JDBCInstanceSource.glue_connection, JDBCInstanceSource.account_provider_id, JDBCInstanceSource.account_id).all()
 
 def delete_account_by_region(account_id: str, region: str):
     session = get_session()
@@ -845,6 +850,7 @@ def copy_properties(jdbc_instance_target: JDBCInstanceSource, jdbc_instance_orig
     jdbc_instance_target.network_sg_id = jdbc_instance_origin.network_sg_id
     jdbc_instance_target.jdbc_driver_class_name = jdbc_instance_origin.jdbc_driver_class_name
     jdbc_instance_target.jdbc_driver_jar_uri = jdbc_instance_origin.jdbc_driver_jar_uri
+    jdbc_instance_target.detection_history_id = 0
     # jdbc_instance_target.instance_class = jdbc_instance_origin.instance_class
     # jdbc_instance_target.instance_status = jdbc_instance_origin.instance_status
     jdbc_instance_target.account_provider_id = jdbc_instance_origin.account_provider_id

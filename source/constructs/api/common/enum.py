@@ -42,6 +42,8 @@ class MessageEnum(Enum):
     DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE = {1519: "This database cannot be deleted because it has running job(s)."}
     DISCOVERY_RUN_NON_EXIST_TEMPLATE_SNAPSHOT = {1520: "This running does not have a template snapshot."}
     DISCOVERY_JOB_STOPPING = {1521: "The job is stopping"}
+    DISCOVERY_JOB_AGENT_MISMATCHING_VERSION = {1522: "Agent mismatching version"}
+    DISCOVERY_JOB_ALL_RUN_FAILED = {1523: "All job run failed"}
 
     # catalog
     CATALOG_RDS_TABLE_HAS_NO_COLUMNS = {1301: "RDS table columns does not exist"}
@@ -115,6 +117,9 @@ class MessageEnum(Enum):
     SOURCE_SUBNET_NOT_EXIST = {1250: "Subnet for JDBC connection not exist in target account"}
     SOURCE_JDBC_INPUT_INVALID = {1251: "Validation for connection properties failed"}
     SOURCE_UNCONNECTED = {1252: "UNCONNECTED"}
+    SOURCE_JDBC_URL_FORMAT_ERROR = {1253: "JDBC URL is incorrect, please refer to https://docs.aws.amazon.com/glue/latest/dg/connection-properties.html#connection-properties-jdbc"}
+    SOURCE_JDBC_JDBC_NO_DATABASE = {1254: "Database name is missing, please refer to https://docs.aws.amazon.com/glue/latest/dg/connection-properties.html#connection-properties-jdbc"}
+    SOURCE_JDBC_ALREADY_IMPORTED = {1255: "JDBC connection with the same instance already be imported"}
     # label
     LABEL_EXIST_FAILED = {1611: "Cannot create duplicated label"}
 

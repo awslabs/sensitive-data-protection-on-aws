@@ -323,6 +323,13 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
                   return 'Custom';
                 }
               }
+              if (item.id === 'identifier-type') {
+                if ((e as any)['type'] === 0 || (e as any)['type'] === 2) {
+                  return 'Text based';
+                } else {
+                  return 'Image based';
+                }
+              }
               if (item.id === 'enabled') {
                 return (
                   <Toggle

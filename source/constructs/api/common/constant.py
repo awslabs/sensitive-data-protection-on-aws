@@ -62,14 +62,20 @@ const.EMPTY_STR = ''
 const.MANUAL = 'manual'
 const.SYSTEM = 'system'
 const.SAMPLE_LIMIT = 1000
-const.EXPORT_FILE_S3_COLUMNS = ["account_id", "region", "s3_bucket", "folder_name", "column_name", "identifiers", "sample_data",
+const.EXPORT_FILE_S3_COLUMNS = ["account_id", "region", "type", "s3_bucket", "folder_name", "column_path", "column_name", "identifiers", "sample_data",
                                 "bucket_catalog_label", "folder_catalog_label", "comment"]
-const.EXPORT_FILE_RDS_COLUMNS = ["account_id", "region", "rds_instance_id", "table_name", "column_name", "identifiers", "sample_data",
+const.EXPORT_FILE_RDS_COLUMNS = ["account_id", "region", "type", "rds_instance_id", "table_name", "column_name", "identifiers", "sample_data",
+                                 "instance_catalog_label", "table_catalog_label", "comment"]
+const.EXPORT_FILE_GLUE_COLUMNS = ["account_id", "region", "type", "glue_database", "table_name",  "column_name", "identifiers", "sample_data",
+                                 "instance_catalog_label", "table_catalog_label", "comment"]
+const.EXPORT_FILE_JDBC_COLUMNS = ["account_id", "region", "type", "jdbc_connection", "table_name", "column_name", "identifiers", "sample_data",
                                  "instance_catalog_label", "table_catalog_label", "comment"]
 const.EXPORT_XLSX_MAX_LINES = 30000
 const.EXPORT_CSV_MAX_LINES = 60000
 const.EXPORT_S3_MARK_STR = "Amazon_S3"
 const.EXPORT_RDS_MARK_STR = "Amazon_RDS"
+const.EXPORT_GLUE_MARK_STR = "Amazon_GLUE"
+const.EXPORT_JDBC_MARK_STR = "JDBC"
 const.SECURITY_GROUP_JDBC = "SDPS-CustomDB"
 const.NUMBER_OF_OBJECTS = 'NumberOfObjects'
 const.BUCKET_SIZE_BYTES = 'BucketSizeBytes'
@@ -77,3 +83,20 @@ const.YES = 'Yes'
 const.NO = 'No'
 const.PUBLIC = 'Public'
 const.PRIVATE = 'Private'
+
+const.UNSTRUCTURED_FILES = {
+    "document": ["doc", "docx", "pdf", "ppt", "pptx", "xls", "xlsx", "odp"],
+    "webpage": ["htm", "html"],
+    "email": ["eml"],
+    "code": ["java", "py", "cpp", "c", "h", "html", "css", "js", "php", "rb", "swift", "go", "sql", "yaml", "xml"],
+    "text": ["txt", "md", "log"],
+    "image": ["jpg", "jpeg", "png", "gif", "bmp", "tiff", "tif"],
+    "media": ["mp3", "wav", "aac", "flac", "wma", "ogg", "m4a", "opus", "mp4", "avi", "mkv", "wmv", "mov",
+              "flv", "webm", "m4v", "mp2", "m4r", "3ga", "mid", "ra", "amr", "ape", "wv", "dsf", "mpeg",
+              "3gp", "ogv", "vob", "mts", "rm"],
+    "ebook": ["epub", "mobi", "pdf", "azw", "djvu", "fb2", "lit", "pdb", "txt", "html", "cbz", "ibooks", "azw4"],
+    "archive": ["zip", "7z", "rar", "targz", "tgz", "tarbz2", "tbz2", "tarxz", "txz", "gz", "bz2", "xz", "zipx", "z"],
+    "temp": ["tmp", "swp", "~", "bak", "temp", "wbk", "chk", "dmgpart"],
+    "executable": ["exe", "dll", "app"],
+    "font": ["ttf", "otf"]
+}

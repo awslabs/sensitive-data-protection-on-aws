@@ -173,7 +173,7 @@ const updateCatalogTableLabels = async (params: {
 const getExportS3Url = async (params: any) => {
   const result = await apiRequest(
     'get',
-    `catalog/data_catalog_export_url/${params.fileType}/${params.timeStr}`,
+    `catalog/data_catalog_export_url/${params.fileType}/${params.sensitiveFlag}/${params.timeStr}`,
     ''
   );
   return result;
