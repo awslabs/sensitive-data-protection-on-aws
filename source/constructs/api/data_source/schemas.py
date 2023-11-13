@@ -179,6 +179,7 @@ class JDBCInstanceSource(JDBCInstanceSourceBase):
     network_availability_zone: Optional[str]
     network_subnet_id: Optional[str]
     network_sg_id: Optional[str]
+    glue_crawler_last_updated: Optional[datetime.datetime]
     creation_time: Optional[str]
     last_updated_time: Optional[str]
     jdbc_driver_class_name: Optional[str]

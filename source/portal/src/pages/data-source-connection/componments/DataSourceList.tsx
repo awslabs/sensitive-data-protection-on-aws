@@ -801,6 +801,15 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                 if (item.id === COLUMN_OBJECT_STR.GlueConnectionName) {
                   return e.glue_database_name || '-';
                 }
+                if (item.id === COLUMN_OBJECT_STR.LastConnectionTime) {
+                  if (e.glue_crawler_last_updated == null){
+                    return '-'
+                  }
+                  return e.glue_crawler_last_updated.replace("T"," ");
+                }
+                if (item.id === COLUMN_OBJECT_STR.JDBCConnectionName) {
+                  return e.glue_connection|| '-';
+                }
                 if (item.id === COLUMN_OBJECT_STR.glueDatabaseDescription) {
                   return e.glue_database_description || '-';
                 }

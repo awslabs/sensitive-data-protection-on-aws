@@ -1357,9 +1357,9 @@ def gen_zip_file(header, record, tmp_filename, type):
 
 def __get_cell_value(cell: dict):
     if cell and "VarCharValue" in cell:
-        return cell["VarCharValue"]
+        return cell["VarCharValue"].replace('\x00', ' ').replace('\xa0', '  ') if cell["VarCharValue"] else cell["VarCharValue"]
     else:
-        return cell
+        return cell.replace('\x00', ' ').replace('\xa0', '  ') if cell else cell
 
 def clear_s3_object(time_str: str):
     s3 = boto3.client('s3')
