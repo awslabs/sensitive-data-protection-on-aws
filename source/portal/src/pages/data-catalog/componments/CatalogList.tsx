@@ -228,6 +228,14 @@ const CatalogList: React.FC<any> = memo((props: any) => {
         size: preferences.pageSize,
         sort_column: curSortColumn?.sortingField,
         asc: !isDescending,
+        conditions: [
+          {
+            column: 'database_type',
+            values: [catalogType],
+            condition: 'and',
+            operation: ':',
+          },
+        ] as any,
       };
 
       const result = await searchCatalogTables(requestParam);
@@ -396,6 +404,9 @@ const CatalogList: React.FC<any> = memo((props: any) => {
                     .format('YYYY-MM-DD HH:mm');
                 }
                 if (item.id === COLUMN_OBJECT_STR.Size) {
+                  return formatSize((e as any)[item.id]);
+                }
+                if (item.id === COLUMN_OBJECT_STR.RowCount) {
                   return formatSize((e as any)[item.id]);
                 }
 
