@@ -203,7 +203,7 @@ def __start_run(job_id: int, run_id: int):
     job = crud.get_job(job_id)
     run = crud.get_run(run_id)
     run_databases = run.databases
-    if 0 == len(run_databases):
+    if not len(run_databases):
         crud.complete_run(run_id)
         raise BizException(MessageEnum.DISCOVERY_JOB_DATABASE_IS_EMPTY.get_code(),
                            MessageEnum.DISCOVERY_JOB_DATABASE_IS_EMPTY.get_msg())
