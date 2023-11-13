@@ -629,6 +629,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                   onChange={({ detail }) => {
                     resetCredentials();
                     setCredential(detail.value);
+                    setDisabled(true)
                   }}
                   value={credential}
                   items={[
@@ -694,6 +695,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                     selectedOption={vpc}
                     onChange={({ detail }) => changeVPC(detail.selectedOption)}
                     options={vpcOption}
+                    disabled={props.providerId !== 1}
                   />
                 </FormField>
                 <FormField
@@ -708,6 +710,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                       changeSubnet(detail.selectedOption)
                     }
                     options={subnetOption}
+                    disabled={props.providerId !== 1}
                   />
                 </FormField>
                 <FormField
@@ -720,6 +723,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                     selectedOption={sg}
                     onChange={({ detail }) => changeSG(detail.selectedOption)}
                     options={sgOption}
+                    disabled={props.providerId !== 1}
                   />
                 </FormField>
               </ExpandableSection>

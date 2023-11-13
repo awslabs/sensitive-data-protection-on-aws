@@ -66,7 +66,7 @@ async def detect_jdbc_connection(provider_id: int, account_id: str, session: Ses
                 not_exist_connections.append(item.id)
     # delete not existed jdbc
     crud.delete_jdbc_connection_by_accounts(not_exist_connections)
-    region = admin_account_id if provider_id == Provider.AWS_CLOUD.value else None
+    region = admin_account_region if provider_id == Provider.AWS_CLOUD.value else None
     crud.update_jdbc_instance_count(provider=provider_id, account=account_id, region=region)
 
 async def detect_multiple_account_in_async(provider_id, accounts):

@@ -192,6 +192,43 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
       });
       setNetwork(vpcs);
       setVpcOption(vpcOptions);
+      if(props.providerId !== 1){
+         setVpc(vpcOptions[0])
+         const subnet = vpcs[0].subnets[0];
+         setSubnet({
+          label: subnet.subnetId,
+          value: subnet.subnetId,
+          description: subnet.arn,
+         })
+      // let tempSubnet = jdbcConnectionData.new;
+      // tempSubnet = { ...tempSubnet, network_subnet_id: subnet.subnetId };
+      // setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
+        // subnets.forEach((item: any) => {
+        //   subnetOptions.push({
+        //     label: item.subnetId,
+        //     value: item.subnetId,
+        //     description: item.arn,
+        //   });
+        // });
+    
+        const securityGroup = vpcs[0].securityGroups[0];
+        setSg({
+          label: securityGroup.securityGroupId,
+          value: securityGroup.securityGroupId,
+          description: securityGroup.securityGroupName,
+        })
+        let temp = jdbcConnectionData.new;
+        temp = { ...temp, network_subnet_id: subnet.subnetId, network_sg_id: securityGroup.securityGroupId };
+        setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
+        // securityGroups.forEach((item: any) => {
+        //   sgOptions.push({
+        //     label: item.securityGroupId,
+        //     value: item.securityGroupId,
+        //     description: item.securityGroupName,
+        //   });
+        // });
+        // console.log("vpcOptions is"+vpcOptions)
+      }
     } catch (error) {
       alertMsg(t('loadNetworkError'), 'error');
     }
@@ -342,6 +379,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
   };
 
   const changeSubnet = (detail: any) => {
+    console.log("detail is "+detail)
     setSubnet(detail);
     let temp = jdbcConnectionData.new;
     temp = { ...temp, network_subnet_id: detail.value };
@@ -661,6 +699,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                     onChange={({ detail }) => {
                       resetCredentials();
                       setCredential(detail.value);
+                      setDisabled(true)
                     }}
                     value={credential}
                     items={[
@@ -729,6 +768,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                         changeVPC(detail.selectedOption)
                       }
                       options={vpcOption}
+                      disabled={props.providerId !== 1}
                       // options={[{label: network[0], value: network[0]}]}
                     />
                   </FormField>
@@ -744,6 +784,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                         changeSubnet(detail.selectedOption)
                       }
                       options={subnetOption}
+                      disabled={props.providerId !== 1}
                     />
                   </FormField>
                   <FormField
@@ -756,6 +797,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                       selectedOption={sg}
                       onChange={({ detail }) => changeSG(detail.selectedOption)}
                       options={sgOption}
+                      disabled={props.providerId !== 1}
                     />
                   </FormField>
                 </ExpandableSection>
