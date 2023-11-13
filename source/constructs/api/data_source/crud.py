@@ -282,7 +282,6 @@ def delete_not_exist_glue_database(refresh_list: list[str]):
 
 
 def update_glue_database_count(account: str, region: str):
-    print(f"update_glue_database_count start, params are: {account}-{region}")
     session = get_session()
 
     connected = session.query(SourceGlueDatabase).filter(SourceGlueDatabase.region == region,

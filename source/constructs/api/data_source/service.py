@@ -1314,7 +1314,6 @@ def refresh_aws_data_source(accounts: list[str], type: str):
             glue_database_detector.detect(accounts)
 
         elif type == DataSourceType.jdbc.value:
-            print("jdbc_detector start...")
             jdbc_detector.detect(Provider.AWS_CLOUD.value, accounts)
         elif type == DataSourceType.all.value:
             s3_detector.detect(accounts)
@@ -1672,9 +1671,6 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
         availability_zone = ec2_client.describe_subnets(SubnetIds=[jdbcConn.network_subnet_id])['Subnets'][0]['AvailabilityZone']
         try:
             connectionProperties_dict = gen_conn_properties(jdbcConn)
-            
-
-            # print(f"connectionProperties_dict is {connectionProperties_dict}")
             response = __glue(account=account_id, region=region).create_connection(
                 CatalogId=account_id,
                 ConnectionInput={
@@ -2369,13 +2365,11 @@ def query_glue_connections(account: AccountInfo):
     
     jdbc_list = query_jdbc_connections_sub_info()
     jdbc_dict = {item[0]:f"{convert_provider_id_2_name(item[1])}-{item[2]}" for item in jdbc_list}
-    # print(f"jdbc_dict is {jdbc_dict}")
     for item in list:
         if not item['Name'].startswith(const.SOLUTION_NAME):
             if item['Name'] in jdbc_dict:
                 item['usedBy'] = jdbc_dict[item['Name']]
             res.append(item)
-    # print(f"List is {list}")
     return res
     
 def query_jdbc_connections_sub_info():

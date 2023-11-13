@@ -50,7 +50,6 @@ async def detect_jdbc_connection(provider_id: int, account_id: str, session: Ses
             aws_session_token=credentials['SessionToken'],
             region_name=region)
         res: list[JDBCInstanceSource] = crud.list_jdbc_connection_by_account(provider_id, account_id)
-        print(f"JDBCInstanceSource length is......:{len(res)}")
         for item in res:
             if item.glue_connection:
                 try:
