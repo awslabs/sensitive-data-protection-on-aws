@@ -15,6 +15,7 @@ import {
   Tiles,
   ButtonDropdown,
   ButtonDropdownProps,
+  StatusIndicator
 } from '@cloudscape-design/components';
 import { DATA_TYPE_ENUM, TABLE_NAME } from 'enum/common_types';
 import {
@@ -719,10 +720,12 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                 if (item.id === 'glue_state') {
                   let tempLabel = CLSAAIFIED_TYPE.Unconnected.toUpperCase();
                   let tempType = CLSAAIFIED_TYPE.SystemMark;
+                  let tempIsLoading = false;
                   switch ((e as any)[item.id]) {
                     case 'PENDING':
                       tempLabel = 'PENDING';
                       tempType = CLSAAIFIED_TYPE.SystemMark;
+                      tempIsLoading = true;
                       break;
                     case 'ACTIVE':
                       tempLabel = 'ACTIVE';
@@ -735,6 +738,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                     case 'CRAWLING':
                       tempLabel = 'CRAWLING';
                       tempType = CLSAAIFIED_TYPE.System;
+                      tempIsLoading = true;
                       break;
                     case '':
                       tempLabel = CLSAAIFIED_TYPE.Unconnected.toUpperCase();
@@ -759,13 +763,21 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                       </div>
                     );
                   }
-                  return (
-                    <CommonBadge
-                      badgeType={BADGE_TYPE.Classified}
-                      badgeLabel={tempLabel}
-                      labelType={tempType}
-                    />
-                  );
+                  if (tempIsLoading) {
+                    return (
+                      <StatusIndicator
+                        type="loading"
+                      >{tempLabel}</StatusIndicator>
+                    );
+                  } else {
+                    return (
+                      <CommonBadge
+                        badgeType={BADGE_TYPE.Classified}
+                        badgeLabel={tempLabel}
+                        labelType={tempType}
+                      />
+                    );
+                  }
                 }
                 if (item.id === COLUMN_OBJECT_STR.DataCatalog) {
                   if (e.glue_state !== 'ACTIVE') {
