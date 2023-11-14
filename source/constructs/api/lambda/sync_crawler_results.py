@@ -54,11 +54,11 @@ def sync_result(input_event):
 
     logger.debug(f"sync_result database_type:{database_type} database_name:{database_name}")
     try:
-        catalog_service.sync_crawler_result(account_id=crawler_account_id,
+        if catalog_service.sync_crawler_result(account_id=crawler_account_id,
                                             region=crawler_region,
                                             database_type=database_type,
-                                            database_name=database_name)
-        state = state if input_event['detail']['state'] == 'Failed' else ConnectionState.ACTIVE.value
+                                            database_name=database_name):
+            state = state if input_event['detail']['state'] == 'Failed' else ConnectionState.ACTIVE.value
         logger.debug("sync_crawler_result finished ,start to update datasource")
     except Exception as err:
         logger.error(traceback.format_exc())
