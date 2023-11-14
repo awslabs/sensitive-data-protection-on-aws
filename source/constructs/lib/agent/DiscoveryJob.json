@@ -71,7 +71,7 @@
                 }
               ],
               "Next": "SplitJob",
-              "ResultPath": "$.SendGlueSchemaMessage"
+              "ResultPath": "$.SendSchemaMessage"
             },
             "FirstWait": {
               "Type": "Wait",
@@ -490,7 +490,7 @@
                 }
               ],
               "Next": "AddIsUnstructuredParam",
-              "ResultPath": "$.SendGlueSchemaMessage"
+              "ResultPath": "$.SendSchemaMessage"
             },
             "AddIsUnstructuredParam": {
               "Type": "Pass",

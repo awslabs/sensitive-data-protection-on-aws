@@ -39,8 +39,19 @@ def get_job_number(event):
     return 3
 
 
+def __del_key(event, key):
+    if key in event:
+        del event[key]
+
+
 def lambda_handler(event, context):
     logger.info(event)
+    __del_key(event, "GetCrawler")
+    __del_key(event, "StartCrawler")
+    __del_key(event, "SendSchemaMessage")
+    __del_key(event, "RunCrawler")
+    __del_key(event, "CreateProcessingJob")
+    __del_key(event, "GetProcessingJob")
     base_time = parse(event['BaseTime']).replace(tzinfo=pytz.timezone('UTC'))
     job_items = []
     if not(event.get('TableName') is None or event.get('TableName') == '' or event.get('TableName') == ','):
