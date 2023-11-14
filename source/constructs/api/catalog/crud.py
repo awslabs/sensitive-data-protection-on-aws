@@ -142,13 +142,15 @@ def get_table_count_by_bucket_name(bucket_name: str):
         .filter(models.CatalogDatabaseLevelClassification.database_name == bucket_name)
         .all()
     )
-    resp = {}
+    s3_count = 0
+    unstructured_count = 0
     if result:
         for item in result:
             if item.database_type == DatabaseType.S3.value:
-                resp[DatabaseType.S3.value] = item.table_count if item.table_count else 0
+                s3_count = item.table_count
             elif item.database_type == DatabaseType.S3_UNSTRUCTURED.value:
-                resp[DatabaseType.S3_UNSTRUCTURED.value] = item.table_count if item.table_count else 0
+                unstructured_count = item.table_count
+    resp = {DatabaseType.S3.value: s3_count, DatabaseType.S3_UNSTRUCTURED.value: unstructured_count}
     return resp
 
 
