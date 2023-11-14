@@ -135,6 +135,25 @@ def get_catalog_database_level_classification_by_type(condition: QueryCondition)
     return query_with_condition(get_session().query(models.CatalogDatabaseLevelClassification), condition)
 
 
+def get_table_count_by_bucket_name(bucket_name: str):
+    result = (
+        get_session()
+        .query(models.CatalogDatabaseLevelClassification)
+        .filter(models.CatalogDatabaseLevelClassification.database_name == bucket_name)
+        .all()
+    )
+    s3_count = 0
+    unstructured_count = 0
+    if result:
+        for item in result:
+            if item.database_type == DatabaseType.S3.value:
+                s3_count = item.table_count
+            elif item.database_type == DatabaseType.S3_UNSTRUCTURED.value:
+                unstructured_count = item.table_count
+    resp = {DatabaseType.S3.value: s3_count, DatabaseType.S3_UNSTRUCTURED.value: unstructured_count}
+    return resp
+
+
 def get_catalog_database_level_classification_by_name(
         account_id: str,
         region: str,
