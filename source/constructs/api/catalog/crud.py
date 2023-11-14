@@ -101,18 +101,16 @@ def get_catalog_column_level_classification_by_id(
     return result
 
 
-def get_catalog_database_level_classification_by_params(
-        account_id: str, region: str, database_type: str
-):
+def get_catalog_database_level_classification_by_params(account_id: str, region: str, database_type: str, state: str = None):
     result = (
         get_session()
         .query(models.CatalogDatabaseLevelClassification)
         .filter(models.CatalogDatabaseLevelClassification.account_id == account_id)
         .filter(models.CatalogDatabaseLevelClassification.region == region)
-        .filter(
-            models.CatalogDatabaseLevelClassification.database_type == database_type
-        )
+        .filter(models.CatalogDatabaseLevelClassification.database_type == database_type)
     )
+    if state:
+        result = result.filter(models.CatalogDatabaseLevelClassification.state == state)
     return result
 
 
