@@ -681,6 +681,12 @@ def get_rds_column_summary(database_type: str):
 
 
 def get_catalog_table_level_classification_by_type(database_type: str):
+    if database_type == DatabaseType.S3.value or database_type == DatabaseType.S3_UNSTRUCTURED.value:
+        return (get_session()
+                .query(models.CatalogTableLevelClassification)
+                .filter(models.CatalogTableLevelClassification.database_type.in_([DatabaseType.S3.value, DatabaseType.S3_UNSTRUCTURED.value]))
+                .all()
+                )
     return (get_session()
             .query(models.CatalogTableLevelClassification)
             .filter(models.CatalogTableLevelClassification.database_type == database_type)
@@ -689,6 +695,14 @@ def get_catalog_table_level_classification_by_type(database_type: str):
 
 
 def get_catalog_table_count_by_type(database_type: str):
+    if database_type == DatabaseType.S3.value or database_type == DatabaseType.S3_UNSTRUCTURED.value:
+        return (get_session()
+                .query(models.CatalogTableLevelClassification.classification,
+                       func.count(models.CatalogTableLevelClassification.table_name).label("table_total"))
+                .filter(models.CatalogTableLevelClassification.database_type.in_([DatabaseType.S3.value, DatabaseType.S3_UNSTRUCTURED.value]))
+                .group_by(models.CatalogTableLevelClassification.classification)
+                .all()
+                )
     return (get_session()
             .query(models.CatalogTableLevelClassification.classification,
                    func.count(models.CatalogTableLevelClassification.table_name).label("table_total"))
