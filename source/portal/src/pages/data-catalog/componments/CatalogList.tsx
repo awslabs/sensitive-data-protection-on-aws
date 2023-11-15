@@ -407,7 +407,7 @@ const CatalogList: React.FC<any> = memo((props: any) => {
                   return formatSize((e as any)[item.id]);
                 }
                 if (item.id === COLUMN_OBJECT_STR.RowCount) {
-                  return formatSize((e as any)[item.id]);
+                  return formatNumber((e as any)[item.id]);
                 }
 
                 return (e as any)[item.id];
