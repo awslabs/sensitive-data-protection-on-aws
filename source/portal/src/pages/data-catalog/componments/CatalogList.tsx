@@ -36,7 +36,7 @@ import {
   searchCatalogTables,
 } from 'apis/data-catalog/api';
 import '../style.scss';
-import { formatSize, useDidUpdateEffect } from 'tools/tools';
+import { formatSize, formatNumber, useDidUpdateEffect } from 'tools/tools';
 import { useSearchParams } from 'react-router-dom';
 import IdentifierFilterTag from './IdentifierFilterTag';
 import { nFormatter } from 'ts/common';
