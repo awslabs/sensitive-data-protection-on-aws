@@ -16,6 +16,10 @@ export interface ColumnList {
   filter: boolean;
 }
 
+export const buildCommitLink = (commit: string) => {
+  return GIHUB_REPO_LINK + '/commit/' + (commit ?? 'main');
+};
+
 export const buildDocLink = (lang: string, url?: string) => {
   if (ZH_LANGUAGE_LIST.includes(lang)) {
     return CN_DOC_LINK + (url ?? '');
