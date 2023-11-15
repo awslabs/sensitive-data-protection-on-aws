@@ -132,7 +132,19 @@ def get_catalog_database_by_type(condition: QueryCondition):
         page=condition.page,
     ))
     service.fill_catalog_labels(rlt.items)
-    return rlt  
+    return rlt
+
+
+@router.post(
+    "/get-s3-table-counts",
+    # response_model=BaseResponse[Page[schemas.CatalogDatabaseLevelClassification]],
+)
+@inject_session
+# Removed database_type param because of it can be added in query condition
+def get_s3_table_counts(bucket_name: str):
+    rlt = crud.get_table_count_by_bucket_name(bucket_name)
+    return rlt
+
 
 @router.get(
     "/get-tables-by-database-identifier",

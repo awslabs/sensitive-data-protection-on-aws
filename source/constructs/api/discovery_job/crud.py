@@ -5,7 +5,7 @@ import tools.mytime as mytime
 from . import schemas
 from common.exception_handler import BizException
 from common.query_condition import QueryCondition, query_with_condition
-from common.enum import MessageEnum, JobState, RunState, RunDatabaseState, DatabaseType
+from common.enum import MessageEnum, JobState, RunState, RunDatabaseState, DatabaseType, ConnectionState
 from sqlalchemy import func
 from common.constant import const
 import uuid
@@ -170,7 +170,7 @@ def init_run(job_id: int) -> int:
         print(f"job_database.database_name:{job_database.database_name}")
         print(f"job_database.table_name:{job_database.table_name}")
         if is_empty(job_database.database_name) and is_empty(job_database.table_name):
-            catalog_databases = get_catalog_database_level_classification_by_params(job_database.account_id,job_database.region,job_database.database_type).all()
+            catalog_databases = get_catalog_database_level_classification_by_params(job_database.account_id,job_database.region,job_database.database_type,ConnectionState.ACTIVE.value).all()
             for catalog_database in catalog_databases:
                 base_time = base_time_dict.get(
                     f'{job_database.account_id}-{job_database.region}-{job_database.database_type}-{catalog_database.database_name}', datetime.datetime.min)
@@ -193,7 +193,7 @@ def init_run(job_id: int) -> int:
                                                           base_time=job_database.base_time,
                                                           state=RunDatabaseState.READY.value,
                                                           uuid=uuid.uuid4().hex)
-        run.databases.append(run_database)
+            run.databases.append(run_database)
     session.add(run)
     session.commit()
     return run.id
@@ -284,7 +284,7 @@ def complete_run_database(run_database_id: int, state: str, message: str) -> mod
     if run_database is None:
         return None
     run_database.state = state
-    run_database.log = message
+    run_database.error_log = message
     run_database.end_time = mytime.get_time()
     session.commit()
     return run_database

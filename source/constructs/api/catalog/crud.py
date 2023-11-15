@@ -101,18 +101,16 @@ def get_catalog_column_level_classification_by_id(
     return result
 
 
-def get_catalog_database_level_classification_by_params(
-        account_id: str, region: str, database_type: str
-):
+def get_catalog_database_level_classification_by_params(account_id: str, region: str, database_type: str, state: str = None):
     result = (
         get_session()
         .query(models.CatalogDatabaseLevelClassification)
         .filter(models.CatalogDatabaseLevelClassification.account_id == account_id)
         .filter(models.CatalogDatabaseLevelClassification.region == region)
-        .filter(
-            models.CatalogDatabaseLevelClassification.database_type == database_type
-        )
+        .filter(models.CatalogDatabaseLevelClassification.database_type == database_type)
     )
+    if state:
+        result = result.filter(models.CatalogDatabaseLevelClassification.state == state)
     return result
 
 
@@ -135,6 +133,25 @@ def get_catalog_database_level_classification_by_type(condition: QueryCondition)
                 condition.group_column = 'database_name'
 
     return query_with_condition(get_session().query(models.CatalogDatabaseLevelClassification), condition)
+
+
+def get_table_count_by_bucket_name(bucket_name: str):
+    result = (
+        get_session()
+        .query(models.CatalogDatabaseLevelClassification)
+        .filter(models.CatalogDatabaseLevelClassification.database_name == bucket_name)
+        .all()
+    )
+    s3_count = 0
+    unstructured_count = 0
+    if result:
+        for item in result:
+            if item.database_type == DatabaseType.S3.value:
+                s3_count = item.table_count
+            elif item.database_type == DatabaseType.S3_UNSTRUCTURED.value:
+                unstructured_count = item.table_count
+    resp = {DatabaseType.S3.value: s3_count, DatabaseType.S3_UNSTRUCTURED.value: unstructured_count}
+    return resp
 
 
 def get_catalog_database_level_classification_by_name(
@@ -649,16 +666,16 @@ def get_s3_database_summary():
         func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label("database_total"),
         func.sum(models.CatalogDatabaseLevelClassification.object_count).label("object_total"),
         func.sum(models.CatalogDatabaseLevelClassification.size_key).label("size_total"))
-            .filter(models.CatalogDatabaseLevelClassification.database_type == DatabaseType.S3.value)
+            .filter(models.CatalogDatabaseLevelClassification.database_type.in_([DatabaseType.S3.value, DatabaseType.S3_UNSTRUCTURED.value]))
             .all()
             )
 
 
-def get_rds_column_summary():
+def get_rds_column_summary(database_type: str):
     return (get_session()
             .query(func.count(distinct(models.CatalogColumnLevelClassification.database_name)).label("instance_total"),
                    func.count(models.CatalogColumnLevelClassification.column_name).label("column_total"))
-            .filter(models.CatalogColumnLevelClassification.database_type == DatabaseType.RDS.value)
+            .filter(models.CatalogColumnLevelClassification.database_type == database_type)
             .all()
             )
 

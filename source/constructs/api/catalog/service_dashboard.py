@@ -57,19 +57,19 @@ def agg_catalog_summay(database_type: str):
     elif database_type == DatabaseType.RDS.value \
             or database_type == DatabaseType.GLUE.value \
             or database_type.startswith(DatabaseType.JDBC.value):
-        result_dict = crud.get_rds_column_summary()[0]._asdict()
+        result_dict = crud.get_rds_column_summary(database_type)[0]._asdict()
         table_list = crud.get_catalog_table_level_classification_by_type(database_type)
         result_dict['table_total'] = len(table_list)
-       
+
         rds_database_set = set()
         for table in table_list:
             rds_database = table.storage_location.split('.')[0]
             # To avoid same database name in different account/region/instance, table.database_name is RDS instance_id
-            rds_database_full_name =  table.account_id + table.region + table.database_name + rds_database
+            rds_database_full_name = table.account_id + table.region + table.database_name + rds_database
             rds_database_set.add(rds_database_full_name)
         #TODO rds display database or instance
         result_dict['database_total'] = len(rds_database_set)
-    else: 
+    else:
         raise BizException(
             MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_code(),
             MessageEnum.CATALOG_DATABASE_TYPE_ERR.get_msg(),
