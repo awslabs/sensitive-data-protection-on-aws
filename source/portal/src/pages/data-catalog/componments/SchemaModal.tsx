@@ -228,14 +228,14 @@ const SchemaModal: React.FC<any> = (props: any) => {
   };
 
   const getDataPreview = async () => {
-    if (catalogType !== DATA_TYPE_ENUM.rds) {
+    if (catalogType !== DATA_TYPE_ENUM.rds && catalogType !== DATA_TYPE_ENUM.glue && catalogType !== DATA_TYPE_ENUM.jdbc) {
       return;
     }
     const requestParam = {
       account_id: selectRowData.account_id,
       region: selectRowData.region,
       database_name: selectRowData.database_name,
-      database_type: 'rds',
+      database_type: catalogType,
       table_name: selectRowData.name,
       limit: 10,
     };
