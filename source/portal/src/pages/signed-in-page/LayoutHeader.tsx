@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import TopNavigation from '@cloudscape-design/components/top-navigation';
 import './style.scss';
 import { AmplifyConfigType } from 'ts/types';
-import { AMPLIFY_CONFIG_JSON, buildDocLink } from 'ts/common';
+import { AMPLIFY_CONFIG_JSON, buildDocLink, buildCommitLink } from 'ts/common';
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
 
@@ -118,7 +118,8 @@ const LayoutHeader: React.FC<LayoutHeaderProps> = ({
                 {
                   id: 'version',
                   text: t('header.version') + ' @TEMPLATE_BUILD_VERSION@',
-                  disabled: true,
+                  href: buildCommitLink('@TEMPLATE_BUILD_VERSION@'),
+                  // disabled: true,
                   // href: RouterEnum.TimeLine.path,
                 },
               ],

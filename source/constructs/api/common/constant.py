@@ -51,6 +51,7 @@ const.JOB_INTERVAL_WAIT = 10
 const.JOB_QUEUE_NAME = const.SOLUTION_NAME + '-DiscoveryJob'
 const.RDS_SUPPORTED_ENGINES = ['aurora-mysql', 'mysql', 'aurora-postgres', 'postgres']
 const.RDS_AVAILABLE = 'available'
+const.RDS_DBID = 'sdps-rds'
 const.PARTITION_CN = 'aws-cn'
 const.URL_SUFFIX_CN = '.cn'
 const.DEFAULT_TEMPLATE_ID = 1

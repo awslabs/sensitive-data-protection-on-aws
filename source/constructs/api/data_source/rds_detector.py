@@ -42,10 +42,11 @@ async def detect_rds_data_source(session: Session, aws_account_id: str):
         rds_agent_list = []
         """ :type : pyboto3.rds """
         for instance in client.describe_db_instances()['DBInstances']:
-            logger.debug(instance)
             if str(instance['DBInstanceStatus']).lower() != const.RDS_AVAILABLE:
                 continue
             if instance['Engine'] not in const.RDS_SUPPORTED_ENGINES:
+                continue
+            if instance['DBInstanceIdentifier'] == const.RDS_DBID:
                 continue
             rds_agent_list.append(instance['DBInstanceIdentifier'])
             rds_instance_source = session.query(RdsInstanceSource).filter(
