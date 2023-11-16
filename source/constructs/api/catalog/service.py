@@ -326,7 +326,10 @@ def sync_crawler_result(
                 elif database_type.startswith(DatabaseType.JDBC.value):
                     table_classification = jdbc_engine_type
                 elif database_type == DatabaseType.S3_UNSTRUCTURED.value:
-                    if table_name and table_name.split('_') and len(table_name.split('_')) > 2:
+                    table_classification = table["StorageDescriptor"]["Parameters"][
+                        "originFileType"
+                    ]
+                    if not table_classification and table_name and table_name.split('_') and len(table_name.split('_')) > 2:
                         table_classification = table_name.split("_")[-2]
                 database_object_count += table_object_count
                 database_size += table_size_key
