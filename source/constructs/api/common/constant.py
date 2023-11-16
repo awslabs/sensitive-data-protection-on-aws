@@ -51,6 +51,7 @@ const.JOB_INTERVAL_WAIT = 10
 const.JOB_QUEUE_NAME = const.SOLUTION_NAME + '-DiscoveryJob'
 const.RDS_SUPPORTED_ENGINES = ['aurora-mysql', 'mysql', 'aurora-postgres', 'postgres']
 const.RDS_AVAILABLE = 'available'
+const.RDS_DBID = 'sdps-rds'
 const.PARTITION_CN = 'aws-cn'
 const.URL_SUFFIX_CN = '.cn'
 const.DEFAULT_TEMPLATE_ID = 1
@@ -62,7 +63,7 @@ const.EMPTY_STR = ''
 const.MANUAL = 'manual'
 const.SYSTEM = 'system'
 const.SAMPLE_LIMIT = 1000
-const.EXPORT_FILE_S3_COLUMNS = ["account_id", "region", "type", "s3_bucket", "folder_name", "column_path", "column_name", "identifiers", "sample_data",
+const.EXPORT_FILE_S3_COLUMNS = ["account_id", "region", "type", "s3_bucket", "folder_name", "column_name", "column_path", "identifiers", "sample_data",
                                 "bucket_catalog_label", "folder_catalog_label", "comment"]
 const.EXPORT_FILE_RDS_COLUMNS = ["account_id", "region", "type", "rds_instance_id", "table_name", "column_name", "identifiers", "sample_data",
                                  "instance_catalog_label", "table_catalog_label", "comment"]

@@ -378,16 +378,31 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
         sort_column: 'identifiers',
         asc: true,
       };
+      console.log(requestParam);
       const result: any = await getDatabaseIdentifiers(requestParam);
-      if (typeof result !== 'object') {
-        alertMsg(result as any, 'error');
+      let result_merged = result;
+      if (selectRowData.database_type === 's3') {
+        const requestParam = {
+          account_id: selectRowData.account_id,
+          region: selectRowData.region,
+          database_type: 'unstructured',
+          database_name: selectRowData.database_name,
+          page: currentPage,
+          size: preferences.pageSize,
+          sort_column: 'identifiers',
+          asc: true,
+        };
+        console.log(requestParam);
+        const unstructured_result: any = await getDatabaseIdentifiers(requestParam);
+        result_merged = [...result, ...unstructured_result];
+      }
+      if (typeof result_merged !== 'object') {
+        alertMsg(result_merged as any, 'error');
         return;
       }
       // frontend pagination
       const start = (currentPage - 1) * preferences.pageSize;
-      setDataList(result.slice(start, start + preferences.pageSize));
-      // console.log("result.length is>>>>>"+result.length)
-      // setTotalCount(result.length);
+      setDataList(result_merged.slice(start, start + preferences.pageSize));
     };
 
     const clearIdentifiersFilter = () => {
