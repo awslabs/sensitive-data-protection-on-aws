@@ -36,7 +36,7 @@ import {
   searchCatalogTables,
 } from 'apis/data-catalog/api';
 import '../style.scss';
-import { formatSize, useDidUpdateEffect } from 'tools/tools';
+import { formatNumber, formatSize, useDidUpdateEffect } from 'tools/tools';
 import { useSearchParams } from 'react-router-dom';
 import IdentifierFilterTag from './IdentifierFilterTag';
 import { nFormatter } from 'ts/common';
@@ -410,7 +410,7 @@ const CatalogList: React.FC<any> = memo((props: any) => {
                   return formatSize((e as any)[item.id]);
                 }
                 if (item.id === COLUMN_OBJECT_STR.RowCount) {
-                  return formatSize((e as any)[item.id]);
+                  return formatNumber((e as any)[item.id]);
                 }
 
                 return (e as any)[item.id];

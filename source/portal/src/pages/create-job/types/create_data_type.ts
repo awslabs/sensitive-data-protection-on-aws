@@ -196,8 +196,8 @@ export interface CombinedRDSDatabase {
 }
 
 export const SCAN_DEPTH_OPTIONS = [
-  { label: '1000 (recommended)', value: '1000' },
-  { label: '100', value: '100' },
+  { label: '100 (recommended)', value: '100' },
+  { label: '1000', value: '1000' },
 ];
 
 export const SCAN_RANGE_OPTIONS = [
