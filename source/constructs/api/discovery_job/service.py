@@ -377,9 +377,16 @@ def __create_job(database_type: str, account_id, region, database_name, job_name
                                region_name=region,
                                )
     try:
-        response = client_glue.get_job(JobName=job_name)
+        client_glue.get_job(JobName=job_name)
     except client_glue.exceptions.EntityNotFoundException as e:
         if database_type == DatabaseType.RDS.value or database_type.startswith(DatabaseType.JDBC.value):
+            # The imported connection name is not standardized
+            response = client_glue.get_crawler(Name=f'{const.SOLUTION_NAME}-{database_type}-{database_name}')
+            jdbc_targets = response["Crawler"]["Targets"]["JdbcTargets"]
+            connection_set = set()
+            if jdbc_targets:
+                for jdbc_target in jdbc_targets:
+                    connection_set.add(jdbc_target["ConnectionName"])
             client_glue.create_job(Name=job_name,
                                    Role=f'{const.SOLUTION_NAME}GlueDetectionJobRole-{region}',
                                    GlueVersion='4.0',
@@ -391,7 +398,7 @@ def __create_job(database_type: str, account_id, region, database_name, job_name
                                    NumberOfWorkers=2,
                                    WorkerType='G.1X',
                                    ExecutionProperty={'MaxConcurrentRuns': 100},
-                                   Connections={'Connections': [f'{const.SOLUTION_NAME}-{database_type}-{database_name}']},
+                                   Connections={'Connections': list(connection_set)},
                                    )
         else:
             client_glue.create_job(Name=job_name,

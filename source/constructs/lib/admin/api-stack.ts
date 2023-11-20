@@ -105,7 +105,7 @@ export class ApiStack extends Construct {
       runtime: Runtime.PYTHON_3_9,
       handler: handler,
       code: this.code,
-      memorySize: 4096,
+      memorySize: 3008,
       timeout: Duration.seconds(timeout ?? 20),
       vpc: props.vpc,
       vpcSubnets: props.vpc.selectSubnets({
