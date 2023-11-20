@@ -2410,7 +2410,8 @@ def query_account_network(account: AccountInfo):
     region = account.region if account.region == Provider.AWS_CLOUD.value else _admin_account_region
     logger.info(f'accont_id is:{accont_id},region is {region}')
     ec2_client, __ = __ec2(account=accont_id, region=region)
-    vpc_list = [vpc['VpcId'] for vpc in ec2_client.describe_vpcs()['Vpcs']]
+
+    vpc_list = [{"vpcId":vpc['VpcId'], "name":gen_resource_name(vpc)} for vpc in ec2_client.describe_vpcs()['Vpcs']]
     # accont_id, region = gen_assume_info(account)
     if account.account_provider_id != Provider.AWS_CLOUD.value or account.account_id == _admin_account_id:
         res =  query_account_network_not_agent(vpc_list, ec2_client)
@@ -2423,15 +2424,20 @@ def query_account_network_not_agent(vpc_list, ec2_client: any):
     try:
 
         response = ec2_client.describe_security_groups(Filters=[
-            {'Name': 'vpc-id', 'Values': vpc_list},
+            {'Name': 'vpc-id', 'Values': [vpc["vpcId"] for vpc in vpc_list]},
             {'Name': 'group-name', 'Values': [const.SECURITY_GROUP_JDBC]}
         ])
         vpc_ids = [item['VpcId'] for item in response['SecurityGroups']]
         subnets = ec2_client.describe_subnets(Filters=[{'Name': 'vpc-id', 'Values': [vpc_ids[0]]}])['Subnets']
         private_subnet = list(filter(lambda x: not x["MapPublicIpOnLaunch"], subnets))
-        return {"vpcs": [{'vpcId': ec2_client.describe_vpcs(VpcIds=[vpc_ids[0]])['Vpcs'][0]['VpcId'],
-                          'subnets': [{'subnetId': private_subnet[0]['SubnetId'] if private_subnet else subnets[0]['SubnetId'],
-                                       'arn': private_subnet[0]['SubnetArn'] if private_subnet else subnets[0]['SubnetArn']}],
+        target_subnet = private_subnet[0] if private_subnet else subnets[0]
+        vpc_info = ec2_client.describe_vpcs(VpcIds=[vpc_ids[0]])['Vpcs'][0]
+        return {"vpcs": [{'vpcId': vpc_info['VpcId'],
+                          'vpcName': [obj for obj in vpc_info['Tags'] if obj["Key"] == "Name"][0]["Value"],
+                          'subnets': [{'subnetId': target_subnet['SubnetId'],
+                                       'arn':  target_subnet['SubnetArn'],
+                                       "subnetName": gen_resource_name(target_subnet)
+                                       }],
                           'securityGroups': [{'securityGroupId': response['SecurityGroups'][0]['GroupId'],
                                               'securityGroupName': response['SecurityGroups'][0]['GroupName']}]}]
                 }
@@ -2451,13 +2457,21 @@ def query_account_network_agent(vpc_list, ec2_client: any):
     res = []
     subnets = ec2_client.describe_subnets()['Subnets']
     securityGroups = ec2_client.describe_security_groups()['SecurityGroups']
-    for vpcId in vpc_list:
-        vpc = {'vpcId': vpcId}
-        vpc['subnets'] = [{"subnetId": subnet['SubnetId'], "arn": subnet['SubnetArn']} for subnet in subnets if subnet['VpcId'] == vpcId]
-        vpc['securityGroups'] = [{"securityGroupId": security['GroupId'], "securityGroupName": security['GroupName']} for security in securityGroups if security['VpcId'] == vpcId]
+    for vpc_info in vpc_list:
+        vpc = { 'vpcId': vpc_info["vpcId"], 'vpcName': vpc_info["name"] }
+        vpc['subnets'] = [{"subnetId": subnet['SubnetId'],
+                           "arn": subnet['SubnetArn'],
+                           "subnetName": gen_resource_name(subnet)
+                           } for subnet in subnets if subnet['VpcId'] == vpc_info["vpcId"]]
+        vpc['securityGroups'] = [{"securityGroupId": security['GroupId'], "securityGroupName": security['GroupName']} for security in securityGroups if security['VpcId'] == vpc_info["vpcId"]]
         res.append(vpc)
     return {'vpcs': res}
 
+def gen_resource_name(resource):
+    if "Tags" in resource and "Name" in [tag["Key"] for tag in resource["Tags"]]:
+        return [tag["Value"] for tag in resource["Tags"] if tag["Key"] == "Name"][0]
+    else:
+        return '-'
 
 def gen_assume_info(account):
     accont_id = account.account_id if account.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id
