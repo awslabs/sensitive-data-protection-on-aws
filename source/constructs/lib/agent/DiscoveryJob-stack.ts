@@ -318,7 +318,7 @@ export class DiscoveryJobStack extends Construct {
       runtime: Runtime.PYTHON_3_9,
       handler: 'UnstructuredCrawler.lambda_handler',
       code: Code.fromAsset(path.join(__dirname, './unstructured-crawler')),
-      timeout: Duration.minutes(1),
+      timeout: Duration.minutes(15),
       role: unstructuredCrawlerRole,
     });
   }
