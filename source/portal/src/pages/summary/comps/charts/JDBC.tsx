@@ -163,7 +163,7 @@ export const JDBC: React.FC<JDBCProps> = (props: JDBCProps) => {
             <IdentifierTableData
               dataList={identifierData}
               keyLable={t('summary:dataIdentifier')}
-              valueLable={t('summary:rdsIntacnes')}
+              valueLable={t('summary:jdbcDatabase')}
               title={t('summary:topDataIdentifier')}
             />
           )}

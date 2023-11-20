@@ -63,5 +63,7 @@
   "totalGlue": "Total Glue",
   "totalJDBC": "Total JDBC",
   "jdbc": "JDBC",
-  "glue": "Glue"
+  "glue": "Glue",
+  "glueDatabase": "Glue Database",
+  "jdbcDatabase": "JDBC Database"
 }

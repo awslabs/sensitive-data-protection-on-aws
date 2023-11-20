@@ -146,7 +146,7 @@ export const AmazonGlue: React.FC<any> = () => {
             <IdentifierTableData
               dataList={identifierData}
               keyLable={t('summary:dataIdentifier')}
-              valueLable={t('summary:rdsIntacnes')}
+              valueLable={t('summary:glueDatabase')}
               title={t('summary:topDataIdentifier')}
             />
           )}
