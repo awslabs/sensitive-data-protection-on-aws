@@ -42,6 +42,7 @@ import { useSearchParams } from 'react-router-dom';
 import IdentifierFilterTag from './IdentifierFilterTag';
 import { nFormatter } from 'ts/common';
 import { useTranslation } from 'react-i18next';
+import SchemaModal from './SchemaModal';
 
 /**
  * S3/RDS CatalogList componment
@@ -113,6 +114,25 @@ const CatalogList: React.FC<any> = memo((props: any) => {
     tokens: getDefaultSearchParam(),
     operation: 'and',
   } as any);
+
+  const [showSchemaModal, setShowSchemaModal] = useState(false);
+  const [selectDetailRowData, setSelectDetailRowData] = useState({}); //click row data
+  const schemaModalProps = {
+    showSchemaModal,
+    setShowSchemaModal,
+    selectRowData: selectDetailRowData,
+    catalogType,
+    selectPageRowData: selectRowData,
+  };
+  // click Forder or database name to schema
+  const clickFolderName = (data: any) => {
+    const rowData = {
+      ...data,
+      name: data.table_name,
+    };
+    setSelectDetailRowData(rowData);
+    setShowSchemaModal(true);
+  };
 
   const TableName = TABLE_NAME.CATALOG_DATABASE_LEVEL_CLASSIFICATION;
 
@@ -439,6 +459,18 @@ const CatalogList: React.FC<any> = memo((props: any) => {
                   return formatNumber((e as any)[item.id]);
                 }
 
+                if (item.id === COLUMN_OBJECT_STR.FolderName) {
+                  return (
+                    <div
+                      style={{ cursor: 'pointer' }}
+                      className="catalog-detail-row-folders"
+                      onClick={() => clickFolderName(e as any)}
+                    >
+                      {(e as any)[item.id]}
+                    </div>
+                  );
+                }
+
                 return (e as any)[item.id];
               },
               minWidth: COLUMN_WIDTH[item.id],
@@ -523,6 +555,7 @@ const CatalogList: React.FC<any> = memo((props: any) => {
         }}
       />
       {showDetailModal && <DetailModal {...modalProps} />}
+      {showSchemaModal && <SchemaModal {...schemaModalProps} />}
     </>
   );
 });
