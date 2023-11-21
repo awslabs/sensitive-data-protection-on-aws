@@ -325,7 +325,7 @@ def sync_crawler_result(
                     table_classification = rds_engine_type
                 elif database_type.startswith(DatabaseType.JDBC.value):
                     table_classification = jdbc_engine_type
-                elif database_type == DatabaseType.S3_UNSTRUCTURED.value:
+                if database_type == DatabaseType.S3_UNSTRUCTURED.value:
                     table_classification = table["StorageDescriptor"]["Parameters"][
                         "originalFileType"
                     ]
