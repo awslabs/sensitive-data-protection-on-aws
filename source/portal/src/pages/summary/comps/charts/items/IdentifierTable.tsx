@@ -47,6 +47,9 @@ const IdentifierTableData: React.FC<IdentifierTableProps> = (
     useState<ITableListKeyValue[]>(dataList);
 
   const clkCount = (typeValue: any) => {
+    console.log(valueLable);
+    console.log(typeValue);
+    // return;
     if (valueLable === t('summary:s3Bucket')) {
       navigate(
         `${RouterEnum.Catalog.path}?tagType=s3&accountId=${typeValue}&privacy=1`
@@ -63,11 +66,48 @@ const IdentifierTableData: React.FC<IdentifierTableProps> = (
     }
 
     if (
+      valueLable === t('summary:glueDatabase') &&
+      keyLable === t('summary:awsAccount')
+    ) {
+      navigate(
+        `${RouterEnum.Catalog.path}?tagType=glue&accountId=${typeValue}&privacy=1`
+      );
+    }
+
+    if (
       valueLable === t('summary:rdsIntacnes') &&
       keyLable === t('summary:dataIdentifier')
     ) {
       navigate(
         `${RouterEnum.Catalog.path}?tagType=rds&identifiers=${typeValue}`
+      );
+    }
+    
+    if (
+      valueLable === t('summary:jdbcDatabase') &&
+      keyLable === t('summary:dataIdentifier')
+    ) {
+      navigate(
+        `${RouterEnum.Catalog.path}?tagType=jdbc&identifiers=${typeValue}`
+      );
+    }
+
+
+    if (
+      valueLable === t('summary:glueDatabase') &&
+      keyLable === t('summary:dataIdentifier')
+    ) {
+      navigate(
+        `${RouterEnum.Catalog.path}?tagType=glue&identifiers=${typeValue}`
+      );
+    }
+
+    if (
+      valueLable === t('summary:jdbcDatabase') &&
+      keyLable === t('summary:dataIdentifier')
+    ) {
+      navigate(
+        `${RouterEnum.Catalog.path}?tagType=jdbc&identifiers=${typeValue}`
       );
     }
 

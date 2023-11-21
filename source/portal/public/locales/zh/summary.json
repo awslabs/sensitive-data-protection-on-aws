@@ -63,5 +63,7 @@
   "totalGlue": "Glue 总数",
   "totalJDBC": "JDBC 总数",
   "jdbc": "JDBC",
-  "glue": "Glue"
+  "glue": "Glue",
+  "glueDatabase": "Glue 连接",
+  "jdbcDatabase": "JDBC 连接"
 }

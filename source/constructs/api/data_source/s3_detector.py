@@ -53,6 +53,9 @@ async def detect_s3_data_source(session: Session, aws_account_id: str):
     s3_agent_bucket_name_list = []
     
     for bucket in resource.buckets.all():
+        if bucket.name.startswith(('sdps-admin-', 'sdps-agent-')):
+            continue
+
         try:
             _region = client.get_bucket_location(Bucket=bucket.name)['LocationConstraint']
         except Exception:
