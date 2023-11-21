@@ -188,7 +188,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
       const res: any = await queryNetworkInfo(requestParam);
       const vpcs = res?.vpcs;
       vpcs.forEach((item: any) => {
-        vpcOptions.push({ label: item.vpcId, value: item.vpcId });
+        vpcOptions.push({ label: item.vpcId, value: item.vpcId, description: item.vpcName });
       });
       setNetwork(vpcs);
       setVpcOption(vpcOptions);
@@ -198,7 +198,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
          setSubnet({
           label: subnet.subnetId,
           value: subnet.subnetId,
-          description: subnet.arn,
+          description: subnet.subnetName,
          })
       // let tempSubnet = jdbcConnectionData.new;
       // tempSubnet = { ...tempSubnet, network_subnet_id: subnet.subnetId };
@@ -358,7 +358,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
       subnetOptions.push({
         label: item.subnetId,
         value: item.subnetId,
-        description: item.arn,
+        description: item.subnetName
       });
     });
 
