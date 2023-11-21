@@ -41,7 +41,8 @@ async def detect_glue_database_connection(session: Session, aws_account_id: str)
             aws_session_token=credentials['SessionToken'],
             region_name=region
         )
-        glue_database_list = client.get_databases()['DatabaseList']
+        # glue_database_list = client.get_databases()['DatabaseList']
+        glue_database_list = get_all_databases(client)
     db_glue_list = crud.list_glue_database_ar(account_id=aws_account_id, region=admin_account_region)
     for item in db_glue_list:
         if not item.glue_database_name.upper().startswith(DatabaseType.JDBC.value):
@@ -69,6 +70,28 @@ async def detect_glue_database_connection(session: Session, aws_account_id: str)
     crud.delete_not_exist_glue_database(refresh_list)
     crud.update_glue_database_count(account=aws_account_id, region=admin_account_region)
 
+
+def get_all_databases(glue_client):
+    all_databases = []
+    next_token = None
+    
+    while True:
+        if next_token:
+            response = glue_client.get_databases(
+                NextToken=next_token
+            )
+        else:
+            response = glue_client.get_databases()
+            
+        databases = response.get('DatabaseList', [])
+        all_databases.extend(databases)
+        
+        # Check if there are more databases to retrieve
+        next_token = response.get('NextToken')
+        if not next_token:
+            break
+    
+    return all_databases
 
 async def detect_multiple_account_in_async(accounts):
     session = get_session()
