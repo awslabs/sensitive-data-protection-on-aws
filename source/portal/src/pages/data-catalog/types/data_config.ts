@@ -1,3 +1,5 @@
+import { ColumnList } from 'ts/common';
+
 export const COLUMN_OBJECT_STR = {
   DataIdent: 'dataIdent',
   Folders: 'folders',
@@ -30,7 +32,7 @@ export const COLUMN_OBJECT_STR = {
 };
 
 // S3 catalog column
-export const S3_COLUMN_LIST = [
+export const S3_COLUMN_LIST: ColumnList[] = [
   {
     id: COLUMN_OBJECT_STR.DatabaseName,
     label: 'table.label.bucketName',
@@ -185,6 +187,54 @@ export const RDS_DATA_IDENT_COLUMN = [
     id: COLUMN_OBJECT_STR.IdentifierLabel,
     label: 'table.label.identifierLabel',
     filter: false,
+  },
+];
+
+export const TABLE_COLUMN: ColumnList[] = [
+  {
+    id: COLUMN_OBJECT_STR.FolderName,
+    label: 'table.label.table',
+    sortingField: COLUMN_OBJECT_STR.FolderName,
+  },
+  {
+    id: COLUMN_OBJECT_STR.Privacy,
+    label: 'table.label.privacy',
+    filter: true,
+    sortingField: COLUMN_OBJECT_STR.Privacy,
+  },
+  {
+    id: COLUMN_OBJECT_STR.ObjectCount,
+    label: 'table.label.columns',
+    sortingField: COLUMN_OBJECT_STR.ObjectCount,
+  },
+  {
+    id: COLUMN_OBJECT_STR.RowCount,
+    label: 'table.label.items',
+    sortingField: COLUMN_OBJECT_STR.RowCount,
+  },
+  {
+    id: COLUMN_OBJECT_STR.DatabaseName,
+    label: 'table.label.instanceName',
+    filter: true,
+    sortingField: COLUMN_OBJECT_STR.DatabaseName,
+    disableClick: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.Labels,
+    label: 'table.label.label',
+    filter: false,
+  },
+  {
+    id: 'modify_by',
+    label: 'table.label.lastUpdateBy',
+    filter: true,
+    sortingField: COLUMN_OBJECT_STR.LastModifyBy,
+  },
+  {
+    id: COLUMN_OBJECT_STR.LastModifyAt,
+    label: 'table.label.lastUpdateAt',
+    filter: false,
+    sortingField: COLUMN_OBJECT_STR.LastModifyAt,
   },
 ];
 
@@ -348,7 +398,7 @@ export const DATA_PERVIEW_COLUMN = [
   },
 ];
 
-export const RDS_COLUMN_LIST = [
+export const RDS_COLUMN_LIST: ColumnList[] = [
   {
     id: COLUMN_OBJECT_STR.DatabaseName,
     label: 'table.label.instanceName',
@@ -481,6 +531,29 @@ export const RDS_TABLE_FILTER_COLUMN = [
   {
     id: 'storage_location',
     label: 'table.label.engineType',
+    filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.AccountId,
+    label: 'table.label.awsAccount',
+    filter: true,
+  },
+  {
+    id: 'region',
+    label: 'table.label.awsRegion',
+    filter: true,
+  },
+];
+
+export const CATALOG_TABLE_FILTER_COLUMN = [
+  {
+    id: COLUMN_OBJECT_STR.DatabaseName,
+    label: 'table.label.instanceName',
+    filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.Privacy,
+    label: 'table.label.privacy',
     filter: true,
   },
   {

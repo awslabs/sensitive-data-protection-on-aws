@@ -13,7 +13,8 @@ export interface ColumnList {
   id: string;
   label: string;
   sortingField?: any;
-  filter: boolean;
+  filter?: boolean;
+  disableClick?: boolean;
 }
 
 export const buildDocLink = (lang: string, url?: string) => {
