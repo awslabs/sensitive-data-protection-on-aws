@@ -203,9 +203,8 @@ export const TABLE_COLUMN: ColumnList[] = [
     sortingField: COLUMN_OBJECT_STR.Privacy,
   },
   {
-    id: COLUMN_OBJECT_STR.ObjectCount,
+    id: COLUMN_OBJECT_STR.ColumnCount,
     label: 'table.label.columns',
-    sortingField: COLUMN_OBJECT_STR.ObjectCount,
   },
   {
     id: COLUMN_OBJECT_STR.RowCount,
