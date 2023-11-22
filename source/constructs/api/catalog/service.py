@@ -1012,10 +1012,10 @@ def filter_records(all_items: list, all_labels_dict: dict):
     rds_records = []
     for row in all_items:
         row_result = [cell for cell in row]
-        if row_result[8]:
-            row_result[8] = ",".join(gen_labels(all_labels_dict, row_result[8]))
         if row_result[9]:
             row_result[9] = ",".join(gen_labels(all_labels_dict, row_result[9]))
+        if row_result[10]:
+            row_result[10] = ",".join(gen_labels(all_labels_dict, row_result[10]))
         catalog_type = row_result[0]
         del row_result[0]
         if catalog_type == DatabaseType.S3.value:

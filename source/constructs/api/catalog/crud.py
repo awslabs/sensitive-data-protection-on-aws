@@ -910,6 +910,7 @@ def get_export_catalog_data():
                                models.CatalogColumnLevelClassification.database_name,
                                models.CatalogColumnLevelClassification.table_name,
                                models.CatalogColumnLevelClassification.column_name,
+                               models.CatalogColumnLevelClassification.column_path,
                                models.CatalogColumnLevelClassification.identifier,
                                models.CatalogColumnLevelClassification.column_value_example,
                                models.CatalogDatabaseLevelClassification.label_ids,
