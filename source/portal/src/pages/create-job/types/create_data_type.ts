@@ -79,11 +79,6 @@ export const RDS_FOLDER_COLUMS = [
     label: 'table.label.table',
   },
   {
-    id: COLUMN_OBJECT_STR.Privacy,
-    label: 'table.label.privacy',
-    filter: true,
-  },
-  {
     id: COLUMN_OBJECT_STR.ColumnCount,
     label: 'table.label.columns',
   },
@@ -94,6 +89,11 @@ export const RDS_FOLDER_COLUMS = [
   {
     id: COLUMN_OBJECT_STR.DatabaseName,
     label: 'table.label.instanceName',
+    filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.Privacy,
+    label: 'table.label.privacy',
     filter: true,
   },
   {

@@ -260,8 +260,22 @@ const CreateJobContent = () => {
       const requestParam: any = {
         page: currentPage,
         size: preferences.pageSize,
+        conditions: [
+          {
+            column: 'database_type',
+            values: ['rds'],
+            condition: 'and',
+          },
+        ] as any,
       };
-
+      rdsQuery.tokens &&
+        rdsQuery.tokens.forEach((item: any) => {
+          requestParam.conditions.push({
+            column: item.propertyKey,
+            values: [`${item.value}`],
+            condition: rdsQuery.operation,
+          });
+        });
       const result = await searchCatalogTables(requestParam);
       setRdsFolderData((result as any)?.items);
       setIsLoading(false);
