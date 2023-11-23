@@ -219,6 +219,16 @@ export const TABLE_COLUMN: ColumnList[] = [
     disableClick: true,
   },
   {
+    id: COLUMN_OBJECT_STR.AccountId,
+    label: 'table.label.awsAccount',
+    sortingField: COLUMN_OBJECT_STR.AccountId,
+  },
+  {
+    id: COLUMN_OBJECT_STR.Region,
+    label: 'table.label.awsRegion',
+    sortingField: COLUMN_OBJECT_STR.Region,
+  },
+  {
     id: COLUMN_OBJECT_STR.Labels,
     label: 'table.label.label',
     filter: false,

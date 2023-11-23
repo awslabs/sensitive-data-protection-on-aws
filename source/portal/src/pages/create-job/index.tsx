@@ -41,7 +41,12 @@ import {
 } from './types/create_data_type';
 import { getDataBaseByType, searchCatalogTables } from 'apis/data-catalog/api';
 import { createJob, getJobDetail, startJob } from 'apis/data-job/api';
-import { SUB_WEEK_CONFIG, alertMsg, formatSize } from 'tools/tools';
+import {
+  SUB_WEEK_CONFIG,
+  alertMsg,
+  formatNumber,
+  formatSize,
+} from 'tools/tools';
 import CommonBadge from 'pages/common-badge';
 import {
   BADGE_TYPE,
@@ -167,9 +172,8 @@ const CreateJobContent = () => {
   const [frequencyStart, setFrequencyStart] = useState(
     null as SelectProps.Option | null
   );
-  const [frequencyTimeStart, setFrequencyTimeStart] = useState<SelectProps.Option>(
-    { label: '00:00', value: '0' }
-  );
+  const [frequencyTimeStart, setFrequencyTimeStart] =
+    useState<SelectProps.Option>({ label: '00:00', value: '0' });
 
   const [timezone, setTimezone] = useState('');
 
@@ -208,11 +212,21 @@ const CreateJobContent = () => {
     if (s3CatalogType === SELECT_S3 && activeStepIndex === 0 && !hasOldData) {
       getS3CatalogData();
     }
-    if (rdsCatalogType === SELECT_RDS && activeStepIndex === 1 && !hasOldData && rdsSelectedView === "rds-instance-view") {
+    if (
+      rdsCatalogType === SELECT_RDS &&
+      activeStepIndex === 1 &&
+      !hasOldData &&
+      rdsSelectedView === 'rds-instance-view'
+    ) {
       setSelectedRdsItems([]);
       getRdsCatalogData();
     }
-    if (rdsCatalogType === SELECT_RDS && activeStepIndex === 1 && !hasOldData && rdsSelectedView === "rds-table-view") {
+    if (
+      rdsCatalogType === SELECT_RDS &&
+      activeStepIndex === 1 &&
+      !hasOldData &&
+      rdsSelectedView === 'rds-table-view'
+    ) {
       setSelectedRdsItems([]);
       getRdsFolderData();
     }
@@ -529,16 +543,16 @@ const CreateJobContent = () => {
     let tempFrequency =
       frequencyType === 'on_demand_run' ? 'OnDemand' : frequency;
 
-    let utcHourString = '0'
+    let utcHourString = '0';
     if (frequencyTimeStart.value != null) {
       const [hour] = frequencyTimeStart.value.split(':');
       const localDate = new Date();
       const localOffset = localDate.getTimezoneOffset() / 60;
       const utcHour = parseInt(hour) - localOffset;
-  
+
       // Ensure the UTC hour is within the range 0-23
       const utcHourNormalized = (utcHour + 24) % 24;
-  
+
       // Format the UTC hour as a string
       utcHourString = utcHourNormalized.toString().padStart(2, '0');
     }
@@ -590,7 +604,10 @@ const CreateJobContent = () => {
       requestParamJob.databases =
         requestParamJob.databases.concat(s3CatalogList);
     }
-    if (rdsCatalogType === SELECT_RDS && rdsSelectedView === 'rds-instance-view') {
+    if (
+      rdsCatalogType === SELECT_RDS &&
+      rdsSelectedView === 'rds-instance-view'
+    ) {
       const rdsCatalogList = selectedRdsItems.map((item: DbItemInfo) => {
         return {
           account_id: item.account_id,
@@ -604,27 +621,32 @@ const CreateJobContent = () => {
         requestParamJob.databases.concat(rdsCatalogList);
     }
     if (rdsCatalogType === SELECT_RDS && rdsSelectedView === 'rds-table-view') {
-
       const combined: CombinedRDSDatabase = {};
 
       selectedRdsItems.forEach((item: DbItemInfo) => {
-        if (Object.prototype.hasOwnProperty.call(combined, item.database_name)) {
+        if (
+          Object.prototype.hasOwnProperty.call(combined, item.database_name)
+        ) {
           combined[item.database_name].push(item);
         } else {
           combined[item.database_name] = [item];
         }
       });
-    
-      const rdsCatalogList: any = Object.entries(combined).map(([database_name, table_items]) => {
-        const table_names = Array.from(new Set(table_items.map(item => item.table_name))).join(',');
-        return {
-          account_id: table_items[0].account_id,
-          region: table_items[0].region,
-          database_type: 'rds',
-          database_name: database_name,
-          table_name: table_names,
-        };
-      });
+
+      const rdsCatalogList: any = Object.entries(combined).map(
+        ([database_name, table_items]) => {
+          const table_names = Array.from(
+            new Set(table_items.map((item) => item.table_name))
+          ).join(',');
+          return {
+            account_id: table_items[0].account_id,
+            region: table_items[0].region,
+            database_type: 'rds',
+            database_name: database_name,
+            table_name: table_names,
+          };
+        }
+      );
       requestParamJob.databases =
         requestParamJob.databases.concat(rdsCatalogList);
     }
@@ -677,7 +699,7 @@ const CreateJobContent = () => {
       '_blank'
     );
   };
-  
+
   useEffect(() => {
     const getTimezone = () => {
       const offset = new Date().getTimezoneOffset();
@@ -948,12 +970,18 @@ const CreateJobContent = () => {
                         <>
                           <SegmentedControl
                             selectedId={rdsSelectedView}
-                            options={[{ text: "Instance view", id: "rds-instance-view" }, { text: "Table view", id: "rds-table-view" }]}
-                            onChange={({ detail }) => 
-                            setRdsSelectedView(detail.selectedId)
+                            options={[
+                              {
+                                text: 'Instance view',
+                                id: 'rds-instance-view',
+                              },
+                              { text: 'Table view', id: 'rds-table-view' },
+                            ]}
+                            onChange={({ detail }) =>
+                              setRdsSelectedView(detail.selectedId)
                             }
                           />
-                          {rdsSelectedView === "rds-instance-view" && (
+                          {rdsSelectedView === 'rds-instance-view' && (
                             <Table
                               className="job-table-width"
                               resizableColumns
@@ -972,7 +1000,10 @@ const CreateJobContent = () => {
                                       ? t('table.item')
                                       : t('table.items')
                                   } ${t('table.selected')}`,
-                                itemSelectionLabel: ({ selectedItems }, item) => {
+                                itemSelectionLabel: (
+                                  { selectedItems },
+                                  item
+                                ) => {
                                   const isItemSelected = selectedItems.filter(
                                     (i) =>
                                       (i as any)[S3_CATALOG_COLUMS[0].id] ===
@@ -987,34 +1018,36 @@ const CreateJobContent = () => {
                               }}
                               items={rdsCatalogData}
                               filter={<ResourcesFilter {...rdsFilterProps} />}
-                              columnDefinitions={RDS_CATALOG_COLUMS.map((item) => {
-                                return {
-                                  id: item.id,
-                                  header: t(item.label),
-                                  cell: (e: any) => {
-                                    if (item.id === 'size_key') {
-                                      return formatSize((e as any)[item.id]);
-                                    }
-                                    if (item.id === 'privacy') {
-                                      if (
-                                        (e as any)[item.id] &&
-                                        ((e as any)[item.id] === 'N/A' ||
-                                          (e as any)[item.id].toString() ===
-                                            PRIVARY_TYPE_INT_DATA['N/A'])
-                                      ) {
-                                        return 'N/A';
+                              columnDefinitions={RDS_CATALOG_COLUMS.map(
+                                (item) => {
+                                  return {
+                                    id: item.id,
+                                    header: t(item.label),
+                                    cell: (e: any) => {
+                                      if (item.id === 'size_key') {
+                                        return formatSize((e as any)[item.id]);
                                       }
-                                      return (
-                                        <CommonBadge
-                                          badgeType={BADGE_TYPE.Privacy}
-                                          badgeLabel={(e as any)[item.id]}
-                                        />
-                                      );
-                                    }
-                                    return e[item.id];
-                                  },
-                                };
-                              })}
+                                      if (item.id === 'privacy') {
+                                        if (
+                                          (e as any)[item.id] &&
+                                          ((e as any)[item.id] === 'N/A' ||
+                                            (e as any)[item.id].toString() ===
+                                              PRIVARY_TYPE_INT_DATA['N/A'])
+                                        ) {
+                                          return 'N/A';
+                                        }
+                                        return (
+                                          <CommonBadge
+                                            badgeType={BADGE_TYPE.Privacy}
+                                            badgeLabel={(e as any)[item.id]}
+                                          />
+                                        );
+                                      }
+                                      return e[item.id];
+                                    },
+                                  };
+                                }
+                              )}
                               loading={isLoading}
                               pagination={
                                 <Pagination
@@ -1038,7 +1071,9 @@ const CreateJobContent = () => {
                               }
                               preferences={
                                 <CollectionPreferences
-                                  onConfirm={({ detail }) => setPreferences(detail)}
+                                  onConfirm={({ detail }) =>
+                                    setPreferences(detail)
+                                  }
                                   preferences={preferences}
                                   title={t('table.preferences')}
                                   confirmLabel={t('table.confirm')}
@@ -1046,10 +1081,22 @@ const CreateJobContent = () => {
                                   pageSizePreference={{
                                     title: t('table.selectPageSize'),
                                     options: [
-                                      { value: 10, label: t('table.pageSize10') },
-                                      { value: 20, label: t('table.pageSize20') },
-                                      { value: 50, label: t('table.pageSize50') },
-                                      { value: 100, label: t('table.pageSize100') },
+                                      {
+                                        value: 10,
+                                        label: t('table.pageSize10'),
+                                      },
+                                      {
+                                        value: 20,
+                                        label: t('table.pageSize20'),
+                                      },
+                                      {
+                                        value: 50,
+                                        label: t('table.pageSize50'),
+                                      },
+                                      {
+                                        value: 100,
+                                        label: t('table.pageSize100'),
+                                      },
                                     ],
                                   }}
                                   visibleContentPreference={{
@@ -1063,9 +1110,9 @@ const CreateJobContent = () => {
                                   }}
                                 />
                               }
-                              />
-                            )}
-                          {rdsSelectedView === "rds-table-view" && (
+                            />
+                          )}
+                          {rdsSelectedView === 'rds-table-view' && (
                             <Table
                               className="job-table-width"
                               resizableColumns
@@ -1084,7 +1131,10 @@ const CreateJobContent = () => {
                                       ? t('table.item')
                                       : t('table.items')
                                   } ${t('table.selected')}`,
-                                itemSelectionLabel: ({ selectedItems }, item) => {
+                                itemSelectionLabel: (
+                                  { selectedItems },
+                                  item
+                                ) => {
                                   const isItemSelected = selectedItems.filter(
                                     (i) =>
                                       (i as any)[S3_CATALOG_COLUMS[0].id] ===
@@ -1099,34 +1149,88 @@ const CreateJobContent = () => {
                               }}
                               items={rdsFolderData}
                               filter={<ResourcesFilter {...rdsFilterProps} />}
-                              columnDefinitions={RDS_FOLDER_COLUMS.map((item) => {
-                                return {
-                                  id: item.id,
-                                  header: t(item.label),
-                                  cell: (e: any) => {
-                                    if (item.id === 'size_key') {
-                                      return formatSize((e as any)[item.id]);
-                                    }
-                                    if (item.id === 'privacy') {
-                                      if (
-                                        (e as any)[item.id] &&
-                                        ((e as any)[item.id] === 'N/A' ||
-                                          (e as any)[item.id].toString() ===
-                                            PRIVARY_TYPE_INT_DATA['N/A'])
-                                      ) {
-                                        return 'N/A';
+                              columnDefinitions={RDS_FOLDER_COLUMS.map(
+                                (item) => {
+                                  return {
+                                    id: item.id,
+                                    header: t(item.label),
+                                    cell: (e: any) => {
+                                      if (item.id === 'size_key') {
+                                        return formatSize((e as any)[item.id]);
                                       }
-                                      return (
-                                        <CommonBadge
-                                          badgeType={BADGE_TYPE.Privacy}
-                                          badgeLabel={(e as any)[item.id]}
-                                        />
-                                      );
-                                    }
-                                    return e[item.id];
-                                  },
-                                };
-                              })}
+                                      if (item.id === 'privacy') {
+                                        if (
+                                          (e as any)[item.id] &&
+                                          ((e as any)[item.id] === 'N/A' ||
+                                            (e as any)[item.id].toString() ===
+                                              PRIVARY_TYPE_INT_DATA['N/A'])
+                                        ) {
+                                          return 'N/A';
+                                        }
+                                        return (
+                                          <CommonBadge
+                                            badgeType={BADGE_TYPE.Privacy}
+                                            badgeLabel={(e as any)[item.id]}
+                                          />
+                                        );
+                                      }
+                                      if (
+                                        item.id === COLUMN_OBJECT_STR.RowCount
+                                      ) {
+                                        return formatNumber(
+                                          (e as any)[item.id]
+                                        );
+                                      }
+                                      if (
+                                        item.id === COLUMN_OBJECT_STR.Labels
+                                      ) {
+                                        let hasMore = false;
+                                        if (e.labels?.length > 1) {
+                                          hasMore = true;
+                                        }
+                                        return e.labels?.length > 0 ? (
+                                          <div className="flex">
+                                            <span className="custom-badge label mr-5">
+                                              {e.labels?.[0]?.label_name}
+                                            </span>
+                                            {hasMore && (
+                                              <Popover
+                                                dismissButton={false}
+                                                position="top"
+                                                size="small"
+                                                triggerType="custom"
+                                                content={
+                                                  <div>
+                                                    {e.labels.map(
+                                                      (label: any) => {
+                                                        return (
+                                                          <span
+                                                            key={label.id}
+                                                            className="custom-badge label mr-5 mb-2"
+                                                          >
+                                                            {label.label_name}
+                                                          </span>
+                                                        );
+                                                      }
+                                                    )}
+                                                  </div>
+                                                }
+                                              >
+                                                <span className="custom-badge more">{`+${
+                                                  e.labels?.length - 1
+                                                }`}</span>
+                                              </Popover>
+                                            )}
+                                          </div>
+                                        ) : (
+                                          ''
+                                        );
+                                      }
+                                      return e[item.id];
+                                    },
+                                  };
+                                }
+                              )}
                               loading={isLoading}
                               pagination={
                                 <Pagination
@@ -1150,7 +1254,9 @@ const CreateJobContent = () => {
                               }
                               preferences={
                                 <CollectionPreferences
-                                  onConfirm={({ detail }) => setPreferences(detail)}
+                                  onConfirm={({ detail }) =>
+                                    setPreferences(detail)
+                                  }
                                   preferences={preferences}
                                   title={t('table.preferences')}
                                   confirmLabel={t('table.confirm')}
@@ -1158,10 +1264,22 @@ const CreateJobContent = () => {
                                   pageSizePreference={{
                                     title: t('table.selectPageSize'),
                                     options: [
-                                      { value: 10, label: t('table.pageSize10') },
-                                      { value: 20, label: t('table.pageSize20') },
-                                      { value: 50, label: t('table.pageSize50') },
-                                      { value: 100, label: t('table.pageSize100') },
+                                      {
+                                        value: 10,
+                                        label: t('table.pageSize10'),
+                                      },
+                                      {
+                                        value: 20,
+                                        label: t('table.pageSize20'),
+                                      },
+                                      {
+                                        value: 50,
+                                        label: t('table.pageSize50'),
+                                      },
+                                      {
+                                        value: 100,
+                                        label: t('table.pageSize100'),
+                                      },
                                     ],
                                   }}
                                   visibleContentPreference={{
@@ -1175,8 +1293,8 @@ const CreateJobContent = () => {
                                   }}
                                 />
                               }
-                              />
-                            )}
+                            />
+                          )}
                         </>
                       )}
                     </SpaceBetween>
@@ -1351,14 +1469,23 @@ const CreateJobContent = () => {
                       </FormField>
                       <div>
                         {frequencyType === 'daily' && (
-                          <FormField label={t('job:create.startHourOfDay')+' ('+timezone+')'}>
+                          <FormField
+                            label={
+                              t('job:create.startHourOfDay') +
+                              ' (' +
+                              timezone +
+                              ')'
+                            }
+                          >
                             <Select
                               selectedOption={frequencyTimeStart}
                               triggerVariant="option"
                               selectedAriaLabel={t('selected') || ''}
                               options={HOUR_OPTIONS}
                               onChange={(select) => {
-                                setFrequencyTimeStart(select.detail.selectedOption);
+                                setFrequencyTimeStart(
+                                  select.detail.selectedOption
+                                );
                               }}
                               onBlur={clkFrequencyApply}
                             ></Select>
@@ -1376,22 +1503,31 @@ const CreateJobContent = () => {
                               }}
                               onBlur={clkFrequencyApply}
                             ></Select>
-                            <p/>
+                            <p />
                           </FormField>
                         )}
                         {frequencyType === 'weekly' && (
-                          <FormField label={t('job:create.startHourOfDay')+' ('+timezone+')'}>
-                          <Select
-                            selectedOption={frequencyTimeStart}
-                            triggerVariant="option"
-                            selectedAriaLabel={t('selected') || ''}
-                            options={HOUR_OPTIONS}
-                            onChange={(select) => {
-                              setFrequencyTimeStart(select.detail.selectedOption);
-                            }}
-                            onBlur={clkFrequencyApply}
-                          ></Select>
-                        </FormField>
+                          <FormField
+                            label={
+                              t('job:create.startHourOfDay') +
+                              ' (' +
+                              timezone +
+                              ')'
+                            }
+                          >
+                            <Select
+                              selectedOption={frequencyTimeStart}
+                              triggerVariant="option"
+                              selectedAriaLabel={t('selected') || ''}
+                              options={HOUR_OPTIONS}
+                              onChange={(select) => {
+                                setFrequencyTimeStart(
+                                  select.detail.selectedOption
+                                );
+                              }}
+                              onBlur={clkFrequencyApply}
+                            ></Select>
+                          </FormField>
                         )}
                         {frequencyType === 'monthly' && (
                           <FormField
@@ -1408,22 +1544,31 @@ const CreateJobContent = () => {
                               }}
                               onBlur={clkFrequencyApply}
                             ></Select>
-                            <p/>
+                            <p />
                           </FormField>
                         )}
                         {frequencyType === 'monthly' && (
-                          <FormField label={t('job:create.startHourOfDay')+' ('+timezone+')'}>
-                          <Select
-                            selectedOption={frequencyTimeStart}
-                            triggerVariant="option"
-                            selectedAriaLabel={t('selected') || ''}
-                            options={HOUR_OPTIONS}
-                            onChange={(select) => {
-                              setFrequencyTimeStart(select.detail.selectedOption);
-                            }}
-                            onBlur={clkFrequencyApply}
-                          ></Select>
-                        </FormField>
+                          <FormField
+                            label={
+                              t('job:create.startHourOfDay') +
+                              ' (' +
+                              timezone +
+                              ')'
+                            }
+                          >
+                            <Select
+                              selectedOption={frequencyTimeStart}
+                              triggerVariant="option"
+                              selectedAriaLabel={t('selected') || ''}
+                              options={HOUR_OPTIONS}
+                              onChange={(select) => {
+                                setFrequencyTimeStart(
+                                  select.detail.selectedOption
+                                );
+                              }}
+                              onBlur={clkFrequencyApply}
+                            ></Select>
+                          </FormField>
                         )}
                       </div>
 
@@ -1535,13 +1680,18 @@ const CreateJobContent = () => {
                   </Container>
                   <Container
                     header={
-                      <Header variant="h2" description={t('job:create.exclusiveRulesDesc')}>
+                      <Header
+                        variant="h2"
+                        description={t('job:create.exclusiveRulesDesc')}
+                      >
                         {t('job:create.exclusiveRules')}
                       </Header>
                     }
                   >
                     <Toggle
-                      onChange={({ detail }) => setExclusiveToggle(detail.checked)}
+                      onChange={({ detail }) =>
+                        setExclusiveToggle(detail.checked)
+                      }
                       checked={exclusiveToggle}
                     >
                       <b>{t('job:create.exclusiveRulesToggle')}</b>
@@ -1610,10 +1760,11 @@ const CreateJobContent = () => {
                       </ul>
                     )}
                     <br></br>
-                    {rdsSelectedView === "rds-instance-view" && (
+                    {rdsSelectedView === 'rds-instance-view' && (
                       <>
                         <span className="sources-title">
-                          {t('job:create.rdsInstance')} ({RDS_OPTION[rdsCatalogType]}) :
+                          {t('job:create.rdsInstance')} (
+                          {RDS_OPTION[rdsCatalogType]}) :
                         </span>
                         {rdsCatalogType === SELECT_RDS &&
                           selectedRdsItems.map(
@@ -1644,11 +1795,13 @@ const CreateJobContent = () => {
                               );
                             }
                           )}
-                        </>)}
-                    {rdsSelectedView === "rds-table-view" && (
+                      </>
+                    )}
+                    {rdsSelectedView === 'rds-table-view' && (
                       <>
                         <span className="sources-title">
-                          {t('job:create.rdsTable')} ({RDS_OPTION[rdsCatalogType]}) :
+                          {t('job:create.rdsTable')} (
+                          {RDS_OPTION[rdsCatalogType]}) :
                         </span>
                         {rdsCatalogType === SELECT_RDS &&
                           selectedRdsItems.map(
@@ -1679,7 +1832,8 @@ const CreateJobContent = () => {
                               );
                             }
                           )}
-                        </>)}
+                      </>
+                    )}
                   </FormField>
                   <FormField label={t('job:create.name')}>
                     <span>{jobName}</span>
@@ -1716,7 +1870,9 @@ const CreateJobContent = () => {
                     <span>{overwrite ? overwrite.label : ''}</span>
                   </FormField>
                   <FormField label={t('job:create.exclusives')}>
-                    <span><pre>{exclusiveText ? exclusiveText : ''}</pre></span>
+                    <span>
+                      <pre>{exclusiveText ? exclusiveText : ''}</pre>
+                    </span>
                   </FormField>
                 </SpaceBetween>
               </Container>

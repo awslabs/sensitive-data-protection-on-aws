@@ -1,5 +1,14 @@
 export const COLUMN_OBJECT_STR = {
   DatabaseName: 'database_name',
+  FolderName: 'table_name',
+  Privacy: 'privacy',
+  ColumnCount: 'column_count',
+  RowCount: 'row_count',
+  AccountId: 'account_id',
+  Labels: 'labels',
+  Region: 'region',
+  LastModifyBy: 'modify_by',
+  LastModifyAt: 'modify_time',
 };
 
 export const S3_CATALOG_COLUMS = [
@@ -66,9 +75,21 @@ export const RDS_CATALOG_COLUMS = [
 
 export const RDS_FOLDER_COLUMS = [
   {
-    id: 'table_name',
-    label: 'table.label.folderName',
+    id: COLUMN_OBJECT_STR.FolderName,
+    label: 'table.label.table',
+  },
+  {
+    id: COLUMN_OBJECT_STR.Privacy,
+    label: 'table.label.privacy',
     filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.ColumnCount,
+    label: 'table.label.columns',
+  },
+  {
+    id: COLUMN_OBJECT_STR.RowCount,
+    label: 'table.label.items',
   },
   {
     id: COLUMN_OBJECT_STR.DatabaseName,
@@ -76,24 +97,27 @@ export const RDS_FOLDER_COLUMS = [
     filter: true,
   },
   {
-    id: 'row_count',
-    label: 'table.label.items',
-    filter: true,
-  },
-  {
-    id: 'privacy',
-    label: 'table.label.privacy',
-    filter: true,
-  },
-  {
-    id: 'account_id',
+    id: COLUMN_OBJECT_STR.AccountId,
     label: 'table.label.awsAccount',
+  },
+  {
+    id: COLUMN_OBJECT_STR.Region,
+    label: 'table.label.awsRegion',
+  },
+  {
+    id: COLUMN_OBJECT_STR.Labels,
+    label: 'table.label.label',
+    filter: false,
+  },
+  {
+    id: 'modify_by',
+    label: 'table.label.lastUpdateBy',
     filter: true,
   },
   {
-    id: 'region',
-    label: 'table.label.awsRegion',
-    filter: true,
+    id: COLUMN_OBJECT_STR.LastModifyAt,
+    label: 'table.label.lastUpdateAt',
+    filter: false,
   },
 ];
 
