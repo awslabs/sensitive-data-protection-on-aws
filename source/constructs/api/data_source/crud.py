@@ -941,18 +941,19 @@ def get_distinct_region_list_by_provider(provider_id):
 
 def get_total_jdbc_instances_count(provider_id):
     list = list_jdbc_instance_source_without_condition(provider_id)
-    return 0 if list is None else list.count()
+
+    return 0 if not list else list.filter(or_(not JDBCInstanceSource.detection_history_id,JDBCInstanceSource.detection_history_id != -1)).count()
 
 
 def get_connected_jdbc_instances_count(provider_id):
     list = list_jdbc_instance_source_without_condition(provider_id)
-    return 0 if list is None else list.filter(JDBCInstanceSource.glue_state == ConnectionState.ACTIVE.value).count()
+    return 0 if not list else list.filter(JDBCInstanceSource.detection_history_id != -1, JDBCInstanceSource.glue_state == ConnectionState.ACTIVE.value).count()
 
 def get_total_glue_database_count():
     list = list_glue_database_source_without_condition()
-    return 0 if list is None else list.count()
+    return 0 if not list else list.count()
 
 
 def get_connected_glue_database_count():
     list = list_glue_database_source_without_condition()
-    return 0 if list is None else list.filter(SourceGlueDatabase.glue_state == ConnectionState.ACTIVE.value).count()
+    return 0 if not list else list.filter(SourceGlueDatabase.glue_state == ConnectionState.ACTIVE.value).count()
