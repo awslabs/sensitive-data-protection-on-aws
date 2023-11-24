@@ -443,9 +443,11 @@ def update_jdbc_instance_count(provider: int, account: str, region: str):
         connected = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == provider,
                                                              JDBCInstanceSource.region == region,
                                                              JDBCInstanceSource.account_id == account,
-                                                             JDBCInstanceSource.glue_state == ConnectionState.ACTIVE.value).count()
+                                                             JDBCInstanceSource.glue_state == ConnectionState.ACTIVE.value,
+                                                             JDBCInstanceSource.detection_history_id != -1).count()
         total = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.region == region,
-                                                         JDBCInstanceSource.account_id == account).count()
+                                                         JDBCInstanceSource.account_id == account,
+                                                         JDBCInstanceSource.detection_history_id != -1).count()
         accountInfo: Account = session.query(Account).filter(Account.account_provider_id == provider, Account.account_id == account, Account.region == region).first()
         if accountInfo:
             accountInfo.connected_jdbc_instance = connected
@@ -458,6 +460,9 @@ def update_jdbc_instance_count(provider: int, account: str, region: str):
         conns: list[JDBCInstanceSource] = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == provider,
                                                                                    JDBCInstanceSource.account_id == account).all()
         for conn in conns:
+            if conn.detection_history_id == -1:
+                continue
+
             total[conn.account_id + '-' + conn.region] = 1 if conn.account_id + '-' + conn.region not in total else total[conn.account_id + '-' + conn.region] + 1
             if conn.glue_state == 'ACTIVE':
                 connected[conn.account_id + '-' + conn.region] = 1 if conn.account_id + '-' + conn.region not in connected else connected[conn.account_id + '-' + conn.region] + 1

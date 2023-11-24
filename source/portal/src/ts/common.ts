@@ -17,6 +17,9 @@ export interface ColumnList {
 }
 
 export const buildCommitLink = (commit: string) => {
+  if (commit.includes('-')) {
+    commit = commit.split('-')[1];
+  }
   return GIHUB_REPO_LINK + '/commit/' + (commit ?? 'main');
 };
 

@@ -378,14 +378,14 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
         sort_column: 'identifiers',
         asc: true,
       };
-      console.log(requestParam);
+      console.log(selectRowData.database_type);
       const result: any = await getDatabaseIdentifiers(requestParam);
       let result_merged = result;
-      if (selectRowData.database_type === 's3') {
+      if (selectRowData.database_type === 's3' || selectRowData.database_type === 'unstructured') {
         const requestParam = {
           account_id: selectRowData.account_id,
           region: selectRowData.region,
-          database_type: 'unstructured',
+          database_type: selectRowData.database_type === 's3' ? 'unstructured' : 's3',
           database_name: selectRowData.database_name,
           page: currentPage,
           size: preferences.pageSize,
