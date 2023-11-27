@@ -334,7 +334,9 @@ def sync_crawler_result(
                 database_object_count += table_object_count
                 database_size += table_size_key
                 column_order_num = 0
-                logger.info(f"start to process glue columns: {table_name}")
+                logger.debug(f"start to process glue columns: {table_name}")
+                original_column_list = crud.get_catalog_column_level_classification_by_table(account_id, region, database_type, database_name, table_name).all()
+                original_column_dict = {item.column_name: item for item in original_column_list}
                 for column in column_list:
                     column_order_num += 1
                     column_name = column["Name"].strip()
@@ -354,9 +356,10 @@ def sync_crawler_result(
                         "column_order_num": column_order_num,
                         "column_type": column_type,
                     }
-                    original_column = crud.get_catalog_column_level_classification_by_name(account_id, region,
-                                                                                           database_type, database_name,
-                                                                                           table_name, column_name)
+                    # original_column = crud.get_catalog_column_level_classification_by_name(account_id, region,
+                    #                                                                        database_type, database_name,
+                    #                                                                        table_name, column_name)
+                    original_column = original_column_dict[column_name]
                     if original_column == None:
                         column_create_list.append(catalog_column_dict)
                         # crud.create_catalog_column_level_classification(catalog_column_dict)
