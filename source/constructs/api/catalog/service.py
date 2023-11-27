@@ -569,6 +569,7 @@ def list_unstructured_sample_objects(table_id: str):
                 "id": column_catalog.id,
                 "example_data": column_catalog.column_value_example,
                 "privacy": column_catalog.privacy,
+                "identifier": column_catalog.identifier,
                 "s3_full_path": column_catalog.column_path,
                 "file_size": file_size,
                 "file_type": column_catalog.column_path.split(".")[-1].upper() if column_catalog.column_path else '',
