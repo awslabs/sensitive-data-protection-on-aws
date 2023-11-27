@@ -39,6 +39,7 @@ from .schemas import (AccountInfo, AdminAccountInfo,
                       DataLocationInfo,
                       JDBCInstanceSourceBase,
                       JDBCInstanceSourceFullInfo)
+from common.reference_parameter import logger, admin_account_id, admin_region, partition
 
 SLEEP_TIME = 5
 SLEEP_MIN_TIME = 2
@@ -52,14 +53,9 @@ _delegated_role_name = os.getenv("DelegatedRoleName", 'ListOrganizationRole')
 # CloudFormation Role names are: RoleForAdmin, APIRole, GlueDetectionJobRole
 _agent_role_name = os.getenv('AgentRoleNameList', 'RoleForAdmin')
 
-logger = logging.getLogger("api")
+
 sts = boto3.client('sts')
 """ :type : pyboto3.sts """
-
-caller_identity = boto3.client('sts').get_caller_identity()
-partition = caller_identity['Arn'].split(':')[1]
-_admin_account_id = caller_identity.get('Account')
-_admin_account_region = boto3.session.Session().region_name
 
 _jdbc_url_patterns = [
         r'jdbc:redshift://[\w.-]+:\d+/([\w-]+)',
@@ -122,7 +118,7 @@ def sync_s3_connection(account: str, region: str, bucket: str):
     glue_connection_name = f"{const.SOLUTION_NAME}-{DatabaseType.S3.value}-{bucket}"
     glue_database_name = f"{const.SOLUTION_NAME}-{DatabaseType.S3.value}-{bucket}"
     crawler_name = f"{const.SOLUTION_NAME}-{DatabaseType.S3.value}-{bucket}"
-    if region != _admin_account_region:
+    if region != admin_region:
         raise BizException(MessageEnum.SOURCE_DO_NOT_SUPPORT_CROSS_REGION.get_code(),
                            MessageEnum.SOURCE_DO_NOT_SUPPORT_CROSS_REGION.get_msg())
 
@@ -237,7 +233,7 @@ def sync_s3_connection(account: str, region: str, bucket: str):
                 },
                 Tags={
                     const.TAG_KEY: const.TAG_VALUE,
-                    const.TAG_ADMIN_ACCOUNT_ID: _admin_account_id
+                    const.TAG_ADMIN_ACCOUNT_ID: admin_account_id
                 },
             )
             logger.info(response)
@@ -378,8 +374,8 @@ def sync_glue_database(account_id, region, glue_database_name):
 
 
 def sync_jdbc_connection(jdbc: JDBCInstanceSourceBase):
-    account_id = jdbc.account_id if jdbc.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id
-    region = jdbc.region if jdbc.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_region
+    account_id = jdbc.account_id if jdbc.account_provider_id == Provider.AWS_CLOUD.value else admin_account_id
+    region = jdbc.region if jdbc.account_provider_id == Provider.AWS_CLOUD.value else admin_region
     ec2_client, credentials = __ec2(account=account_id, region=region)
     glue_client = __glue(account=account_id, region=region)
     lakeformation_client = __lakeformation(account=account_id, region=region)
@@ -428,7 +424,7 @@ def condition_check(ec2_client, credentials, state, connection: dict):
     # credentials = None
 
     # try:
-    #     iam_role_name = crud.get_iam_role(_admin_account_id)
+    #     iam_role_name = crud.get_iam_role(admin_account_id)
 
     #     assumed_role = sts.assume_role(
     #         RoleArn=f"{iam_role_name}",
@@ -554,7 +550,7 @@ def sync(glue, lakeformation, credentials, crawler_role_arn, jdbc: JDBCInstanceS
                         },
                         Tags={
                             const.TAG_KEY: const.TAG_VALUE,
-                            const.TAG_ADMIN_ACCOUNT_ID: _admin_account_id
+                            const.TAG_ADMIN_ACCOUNT_ID: admin_account_id
                         },
                     )
                 except Exception:
@@ -682,8 +678,8 @@ def before_delete_jdbc_connection(provider_id, account, region, instance_id, dat
         logger.info(f"delete jdbc connection: {account},{region},{database_type},{jdbc_instance.instance_id}")
 
 def gen_assume_account(provider_id, account, region):
-    account = account if provider_id == Provider.AWS_CLOUD.value else _admin_account_id
-    region = region if provider_id == Provider.AWS_CLOUD.value else _admin_account_region
+    account = account if provider_id == Provider.AWS_CLOUD.value else admin_account_id
+    region = region if provider_id == Provider.AWS_CLOUD.value else admin_region
     return account, region
 
 def delete_glue_database(provider_id: int, account: str, region: str, name: str):
@@ -825,7 +821,7 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
         raise BizException(MessageEnum.SOURCE_RDS_DUPLICATE_AUTH.get_code(),
                            MessageEnum.SOURCE_RDS_DUPLICATE_AUTH.get_msg())
 
-    if region != _admin_account_region:
+    if region != admin_region:
         raise BizException(MessageEnum.SOURCE_DO_NOT_SUPPORT_CROSS_REGION.get_code(),
                            MessageEnum.SOURCE_DO_NOT_SUPPORT_CROSS_REGION.get_msg())
 
@@ -974,6 +970,10 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                                 'AvailabilityZone': rds_az,
                                 'SecurityGroupIdList': rds_security_groups
                             }
+                        },
+                        Tags={
+                            const.TAG_KEY: const.TAG_VALUE,
+                            const.TAG_ADMIN_ACCOUNT_ID: admin_account_id
                         }
                     )
                     logger.info(response)
@@ -994,7 +994,11 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                                 'AvailabilityZone': rds_az,
                                 'SecurityGroupIdList': rds_security_groups
                             }
-                        }
+                        },
+                        Tags={
+                            const.TAG_KEY: const.TAG_VALUE,
+                            const.TAG_ADMIN_ACCOUNT_ID: admin_account_id
+                        },
                     )
                     logger.info(response)
             try:
@@ -1083,7 +1087,7 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                     },
                     Tags={
                         const.TAG_KEY: const.TAG_VALUE,
-                        const.TAG_ADMIN_ACCOUNT_ID: _admin_account_id
+                        const.TAG_ADMIN_ACCOUNT_ID: admin_account_id
                     },
                 )
                 logger.info(response)
@@ -1379,7 +1383,7 @@ def reload_organization_account(it_account: str):
     member_accounts = []
     delegated_role_arn = __gen_role_arn(
         account_id=it_account,
-        region=_admin_account_region,
+        region=admin_region,
         role_name=_delegated_role_name)
     if __assume_role(it_account, delegated_role_arn):
         # do not clean up for autosync
@@ -1395,7 +1399,7 @@ def reload_organization_account(it_account: str):
                                 aws_access_key_id=credentials['AccessKeyId'],
                                 aws_secret_access_key=credentials['SecretAccessKey'],
                                 aws_session_token=credentials['SessionToken'],
-                                region_name=_admin_account_region
+                                region_name=admin_region
                                 )
             delegated = orgs.list_delegated_administrators()
             call_as = 'DELEGATED_ADMIN' if any(
@@ -1404,7 +1408,7 @@ def reload_organization_account(it_account: str):
                                           aws_access_key_id=credentials['AccessKeyId'],
                                           aws_secret_access_key=credentials['SecretAccessKey'],
                                           aws_session_token=credentials['SessionToken'],
-                                          region_name=_admin_account_region
+                                          region_name=admin_region
                                           )
             active_stack_sets = cloudformation.list_stack_sets(
                 Status='ACTIVE',
@@ -1450,14 +1454,14 @@ def add_account(account: SourceNewAccount):
     if account.account_provider == Provider.AWS_CLOUD.value:
         add_aws_account(account.account_id)
     else:
-        add_third_account(account, _admin_account_id, _admin_account_region)
+        add_third_account(account, admin_account_id, admin_region)
 
 
 def add_aws_account(account_id: str):
     # Open this loop for multiple region support
     # for region in const.CN_REGIONS:
     assumed_role = False
-    for region in [_admin_account_region]:
+    for region in [admin_region]:
         role_arn = __gen_role_arn(account_id=account_id, region=region, role_name=_agent_role_name)
         if __assume_role(account_id, role_arn):
             assumed_role = True
@@ -1499,7 +1503,7 @@ def delete_account(account_provider: int, account_id: str, region: str):
         delete_third_account(account_provider, account_id, region)
 
 def delete_aws_account(account_id):
-    accounts_by_region = crud.list_all_accounts_by_region(region=_admin_account_region)
+    accounts_by_region = crud.list_all_accounts_by_region(region=admin_region)
     list_accounts = [c[0] for c in accounts_by_region]
     if account_id not in list_accounts:
         raise BizException(MessageEnum.SOURCE_ACCOUNT_NOT_EXIST.get_code(),
@@ -1507,7 +1511,7 @@ def delete_aws_account(account_id):
     # this loop for multiple region support
     # for region in const.CN_REGIONS:
     assumed_role = False
-    for region in [_admin_account_region]:
+    for region in [admin_region]:
         role_arn = __gen_role_arn(account_id=account_id, region=region, role_name=_agent_role_name)
         if __assume_role(account_id, role_arn):
             assumed_role = True
@@ -1518,25 +1522,25 @@ def delete_aws_account(account_id):
         del_error = False
         try:
             # delete jobs in db
-            delete_job_by_account(account_id=account_id, region=_admin_account_region)
+            delete_job_by_account(account_id=account_id, region=admin_region)
         except Exception:
             del_error = True
             logger.error(traceback.format_exc())
         try:
             # delete catalogs in db
-            delete_catalog_by_account(account_id=account_id, region=_admin_account_region)
+            delete_catalog_by_account(account_id=account_id, region=admin_region)
         except Exception:
             del_error = True
             logger.error(traceback.format_exc())
         try:
             # delete data sources in db
-            __delete_data_source_by_account(account_id=account_id, region=_admin_account_region)
+            __delete_data_source_by_account(account_id=account_id, region=admin_region)
         except Exception:
             del_error = True
             logger.error(traceback.format_exc())
         try:
             # delete account in db
-            __delete_account(account_id=account_id, region=_admin_account_region)
+            __delete_account(account_id=account_id, region=admin_region)
         except Exception:
             del_error = True
             logger.error(traceback.format_exc())
@@ -1564,8 +1568,8 @@ def refresh_account():
 
 
 def get_secrets(provider: int, account: str, region: str):
-    account_id = account if provider == Provider.AWS_CLOUD.value else _admin_account_id
-    region_aws = region if provider == Provider.AWS_CLOUD.value else _admin_account_region
+    account_id = account if provider == Provider.AWS_CLOUD.value else admin_account_id
+    region_aws = region if provider == Provider.AWS_CLOUD.value else admin_region
     iam_role_name = crud.get_iam_role(account_id)
 
     assumed_role = sts.assume_role(
@@ -1593,7 +1597,7 @@ def get_secrets(provider: int, account: str, region: str):
 
 
 def get_admin_account_info():
-    return AdminAccountInfo(account_id=_admin_account_id, region=_admin_account_region)
+    return AdminAccountInfo(account_id=admin_account_id, region=admin_region)
 
 def import_glue_database(glueDataBase: SourceGlueDatabaseBase):
     list = crud.list_glue_database_by_account(glueDataBase.account_id, glueDataBase.region, glueDataBase.glue_database_name)
@@ -1606,8 +1610,8 @@ def import_glue_database(glueDataBase: SourceGlueDatabaseBase):
     crud.import_glue_database(glueDataBase, response)
 
 def update_jdbc_conn(jdbc_conn: JDBCInstanceSource):
-    account_id = jdbc_conn.account_id if jdbc_conn.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id
-    region = jdbc_conn.region if jdbc_conn.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_region
+    account_id = jdbc_conn.account_id if jdbc_conn.account_provider_id == Provider.AWS_CLOUD.value else admin_account_id
+    region = jdbc_conn.region if jdbc_conn.account_provider_id == Provider.AWS_CLOUD.value else admin_region
     res: JDBCInstanceSourceFullInfo = crud.get_jdbc_instance_source_glue(jdbc_conn.account_provider_id, jdbc_conn.account_id, jdbc_conn.region, jdbc_conn.instance_id)
     check_connection(res, jdbc_conn, account_id, region)
     update_connection(res, jdbc_conn, account_id, region)
@@ -1669,8 +1673,8 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
         raise BizException(MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_code(),
                            MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_msg())
 
-    account_id = jdbcConn.account_id if jdbcConn.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id
-    region = jdbcConn.region if jdbcConn.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_region
+    account_id = jdbcConn.account_id if jdbcConn.account_provider_id == Provider.AWS_CLOUD.value else admin_account_id
+    region = jdbcConn.region if jdbcConn.account_provider_id == Provider.AWS_CLOUD.value else admin_region
     list = crud.list_jdbc_instance_source_by_instance_id_account(jdbcConn, account_id)
     if list:
         raise BizException(MessageEnum.SOURCE_JDBC_ALREADY_EXISTS.get_code(),
@@ -1698,7 +1702,11 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
                         ],
                         'AvailabilityZone': availability_zone
                     }
-                }
+                },
+                Tags={
+                    const.TAG_KEY: const.TAG_VALUE,
+                    const.TAG_ADMIN_ACCOUNT_ID: admin_account_id
+                },
             )
         except ClientError as ce:
             logger.error(traceback.format_exc())
@@ -1824,8 +1832,8 @@ def test_jdbc_conn2(jdbc_conn_param: JDBCInstanceSourceBase):
     WAIT_INTERVAL_SECONDS = 10
     jdbc_targets = []
     created = 0
-    account_id = jdbc_conn_param.account_id if jdbc_conn_param.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id
-    region = jdbc_conn_param.region if jdbc_conn_param.region == Provider.AWS_CLOUD.value else _admin_account_region
+    account_id = jdbc_conn_param.account_id if jdbc_conn_param.account_provider_id == Provider.AWS_CLOUD.value else admin_account_id
+    region = jdbc_conn_param.region if jdbc_conn_param.region == Provider.AWS_CLOUD.value else admin_region
     lakeformation_client = __lakeformation(account=account_id, region=region)
     crawler_role_arn = __gen_role_arn(account_id=account_id,
                                       region=region,
@@ -1861,7 +1869,7 @@ def test_jdbc_conn2(jdbc_conn_param: JDBCInstanceSourceBase):
             TablePrefix=f'Temp_{t}_',
             Tags={
                 const.TAG_KEY: const.TAG_VALUE,
-                const.TAG_ADMIN_ACCOUNT_ID: _admin_account_id
+                const.TAG_ADMIN_ACCOUNT_ID: admin_account_id
             },
         )
         logger.info(response)
@@ -1931,8 +1939,8 @@ def import_jdbc_conn(jdbc_conn: JDBCInstanceSourceBase):
     if crud.list_jdbc_connection_by_connection(jdbc_conn.instance_id):
         raise BizException(MessageEnum.SOURCE_JDBC_ALREADY_IMPORTED.get_code(),
                            MessageEnum.SOURCE_JDBC_ALREADY_IMPORTED.get_msg())        
-    account_id = jdbc_conn.account_id if jdbc_conn.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id
-    region = jdbc_conn.region if jdbc_conn.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_region
+    account_id = jdbc_conn.account_id if jdbc_conn.account_provider_id == Provider.AWS_CLOUD.value else admin_account_id
+    region = jdbc_conn.region if jdbc_conn.account_provider_id == Provider.AWS_CLOUD.value else admin_region
     try:
         res_connection = __glue(account_id, region).get_connection(Name=jdbc_conn.instance_id)['Connection']
     except ClientError as ce:
@@ -2035,7 +2043,7 @@ def __update_access_policy_for_account():
     s3_resource = boto3.session.Session().resource('s3')
     # for cn_region in const.CN_REGIONS:
     # check if s3 bucket, sqs exists
-    bucket_name = f"{const.SOLUTION_NAME}-admin-{_admin_account_id}-{_admin_account_region}".lower()
+    bucket_name = f"{const.SOLUTION_NAME}-admin-{admin_account_id}-{admin_region}".lower()
     try:
         missing_resource = bucket_name
         s3_resource.meta.client.head_bucket(
@@ -2043,28 +2051,28 @@ def __update_access_policy_for_account():
         )
         sqs = boto3.client(
             'sqs',
-            region_name=_admin_account_region
+            region_name=admin_region
         )
         missing_resource = f"{const.SOLUTION_NAME}-Crawler"
         sqs.get_queue_url(
             QueueName=f"{const.SOLUTION_NAME}-Crawler",
-            QueueOwnerAWSAccountId=_admin_account_id
+            QueueOwnerAWSAccountId=admin_account_id
         )
         missing_resource = f"{const.SOLUTION_NAME}-DiscoveryJob"
         sqs.get_queue_url(
             QueueName=f"{const.SOLUTION_NAME}-DiscoveryJob",
-            QueueOwnerAWSAccountId=_admin_account_id
+            QueueOwnerAWSAccountId=admin_account_id
         )
         missing_resource = f"{const.SOLUTION_NAME}-AutoSyncData"
         sqs.get_queue_url(
             QueueName=f"{const.SOLUTION_NAME}-AutoSyncData",
-            QueueOwnerAWSAccountId=_admin_account_id
+            QueueOwnerAWSAccountId=admin_account_id
         )
     except Exception as err:
-        logger.error(f"Required resource {missing_resource} is missing, skipping region: {_admin_account_region}")
+        logger.error(f"Required resource {missing_resource} is missing, skipping region: {admin_region}")
         return
 
-    accounts: list[Account] = crud.list_all_accounts_by_region(region=_admin_account_region)
+    accounts: list[Account] = crud.list_all_accounts_by_region(region=admin_region)
     if len(accounts) > 0:
         bucket_access_principals = []
         sqs_job_trigger_principals = []
@@ -2153,7 +2161,7 @@ def __update_access_policy_for_account():
 
         sqs = boto3.client(
             'sqs',
-            region_name=_admin_account_region
+            region_name=admin_region
         )
         """ :type : pyboto3.sqs """
         sqs_job_trigger_policy = {
@@ -2162,10 +2170,10 @@ def __update_access_policy_for_account():
                 {
                     "Effect": "Allow",
                     "Principal": {
-                        "AWS": f"arn:{partition}:iam::{_admin_account_id}:root"
+                        "AWS": f"arn:{partition}:iam::{admin_account_id}:root"
                     },
                     "Action": "SQS:*",
-                    "Resource": f"arn:{partition}:sqs:{_admin_account_region}:{_admin_account_id}:{const.SOLUTION_NAME}-DiscoveryJob"
+                    "Resource": f"arn:{partition}:sqs:{admin_region}:{admin_account_id}:{const.SOLUTION_NAME}-DiscoveryJob"
                 },
                 {
                     "Effect": "Allow",
@@ -2173,7 +2181,7 @@ def __update_access_policy_for_account():
                         "AWS": sqs_job_trigger_principals
                     },
                     "Action": "SQS:SendMessage",
-                    "Resource": f"arn:{partition}:sqs:{_admin_account_region}:{_admin_account_id}:{const.SOLUTION_NAME}-DiscoveryJob"
+                    "Resource": f"arn:{partition}:sqs:{admin_region}:{admin_account_id}:{const.SOLUTION_NAME}-DiscoveryJob"
                 }
             ]
         }
@@ -2183,10 +2191,10 @@ def __update_access_policy_for_account():
                 {
                     "Effect": "Allow",
                     "Principal": {
-                        "AWS": f"arn:{partition}:iam::{_admin_account_id}:root"
+                        "AWS": f"arn:{partition}:iam::{admin_account_id}:root"
                     },
                     "Action": "SQS:*",
-                    "Resource": f"arn:{partition}:sqs:{_admin_account_region}:{_admin_account_id}:{const.SOLUTION_NAME}-Crawler"
+                    "Resource": f"arn:{partition}:sqs:{admin_region}:{admin_account_id}:{const.SOLUTION_NAME}-Crawler"
                 },
                 {
                     "Effect": "Allow",
@@ -2194,7 +2202,7 @@ def __update_access_policy_for_account():
                         "AWS": sqs_crawler_trigger_principals
                     },
                     "Action": "SQS:SendMessage",
-                    "Resource": f"arn:{partition}:sqs:{_admin_account_region}:{_admin_account_id}:{const.SOLUTION_NAME}-Crawler"
+                    "Resource": f"arn:{partition}:sqs:{admin_region}:{admin_account_id}:{const.SOLUTION_NAME}-Crawler"
                 }
             ]
         }
@@ -2204,10 +2212,10 @@ def __update_access_policy_for_account():
                 {
                     "Effect": "Allow",
                     "Principal": {
-                        "AWS": f"arn:{partition}:iam::{_admin_account_id}:root"
+                        "AWS": f"arn:{partition}:iam::{admin_account_id}:root"
                     },
                     "Action": "SQS:*",
-                    "Resource": f"arn:{partition}:sqs:{_admin_account_region}:{_admin_account_id}:{const.SOLUTION_NAME}-AutoSyncData"
+                    "Resource": f"arn:{partition}:sqs:{admin_region}:{admin_account_id}:{const.SOLUTION_NAME}-AutoSyncData"
                 },
                 {
                     "Effect": "Allow",
@@ -2215,7 +2223,7 @@ def __update_access_policy_for_account():
                         "AWS": auto_sync_data_trigger_principals
                     },
                     "Action": "SQS:SendMessage",
-                    "Resource": f"arn:{partition}:sqs:{_admin_account_region}:{_admin_account_id}:{const.SOLUTION_NAME}-AutoSyncData"
+                    "Resource": f"arn:{partition}:sqs:{admin_region}:{admin_account_id}:{const.SOLUTION_NAME}-AutoSyncData"
                 }
             ]
         }
@@ -2369,8 +2377,8 @@ def __delete_account(account_id: str, region: str):
 
 def query_glue_connections(account: AccountInfo):
     res = []
-    account_id = account.account_id if account.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id
-    region = account.region if account.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_region
+    account_id = account.account_id if account.account_provider_id == Provider.AWS_CLOUD.value else admin_account_id
+    region = account.region if account.account_provider_id == Provider.AWS_CLOUD.value else admin_region
     list =  __glue(account=account_id, region=region).get_connections(CatalogId=account_id,
                                                                       Filter={'ConnectionType': 'JDBC'},
                                                                       MaxResults=100,
@@ -2406,14 +2414,14 @@ def query_glue_databases(account: AdminAccountInfo):
     return __glue(account=account.account_id, region=account.region).get_databases()['DatabaseList']
 
 def query_account_network(account: AccountInfo):
-    accont_id = account.account_id if account.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id
-    region = account.region if account.region == Provider.AWS_CLOUD.value else _admin_account_region
+    accont_id = account.account_id if account.account_provider_id == Provider.AWS_CLOUD.value else admin_account_id
+    region = account.region if account.region == Provider.AWS_CLOUD.value else admin_region
     logger.info(f'accont_id is:{accont_id},region is {region}')
     ec2_client, __ = __ec2(account=accont_id, region=region)
 
     vpc_list = [{"vpcId":vpc['VpcId'], "name":gen_resource_name(vpc)} for vpc in ec2_client.describe_vpcs()['Vpcs']]
     # accont_id, region = gen_assume_info(account)
-    if account.account_provider_id != Provider.AWS_CLOUD.value or account.account_id == _admin_account_id:
+    if account.account_provider_id != Provider.AWS_CLOUD.value or account.account_id == admin_account_id:
         res =  query_account_network_not_agent(vpc_list, ec2_client)
         logger.info(f"query_account_network_not_agent res is {res}")
         return res
@@ -2474,8 +2482,8 @@ def gen_resource_name(resource):
         return '-'
 
 def gen_assume_info(account):
-    accont_id = account.account_id if account.account_provider_id == Provider.AWS_CLOUD.value else _admin_account_id
-    region = account.region if account.region == Provider.AWS_CLOUD.value else _admin_account_region
+    accont_id = account.account_id if account.account_provider_id == Provider.AWS_CLOUD.value else admin_account_id
+    region = account.region if account.region == Provider.AWS_CLOUD.value else admin_region
     return accont_id, region
 
 
@@ -2555,7 +2563,7 @@ def grant_lake_formation_permission(credentials, crawler_role_arn, glue_database
                                  aws_access_key_id=credentials['AccessKeyId'],
                                  aws_secret_access_key=credentials['SecretAccessKey'],
                                  aws_session_token=credentials['SessionToken'],
-                                 region_name=_admin_account_region)
+                                 region_name=admin_region)
     """ :type : pyboto3.lakeformation """
     # retry for grant permissions
     num_retries = GRANT_PERMISSIONS_RETRIES
