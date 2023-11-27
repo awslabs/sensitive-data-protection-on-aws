@@ -48,7 +48,7 @@ class DetectionHistory(BaseModel):
     detect_uuid: Optional[UUID]
     detection_time: Optional[datetime.datetime]
     provider: Optional[int]
-    account_id: Optional[int]
+    account_id: Optional[str]
     source_type: Optional[str]
     state: Optional[int]
     aws_account: Optional[str]
@@ -77,7 +77,7 @@ class S3BucketSource(BaseModel):
 
 class DynamodbTableSource(BaseModel):
     id: int
-    account_id: Optional[int]
+    account_id: Optional[str]
     table_name: Optional[str]
     region: Optional[str]
     data_source_id: int
@@ -129,7 +129,7 @@ class RdsInstanceSource(BaseModel):
     port: Optional[int]
     master_username: Optional[str]
     instance_status: Optional[str]
-    account_id: Optional[int]
+    account_id: Optional[str]
     region: Optional[str]
     data_source_id: Optional[int]
     detection_history_id: Optional[int]
