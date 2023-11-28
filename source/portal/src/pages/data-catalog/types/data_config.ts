@@ -57,6 +57,11 @@ export const S3_COLUMN_LIST = [
     sortingField: COLUMN_OBJECT_STR.Privacy,
   },
   {
+    id: COLUMN_OBJECT_STR.Identifier,
+    label: 'table.label.identifier',
+    sortingField: COLUMN_OBJECT_STR.Identifier,
+  },
+  {
     id: COLUMN_OBJECT_STR.AccountId,
     label: 'table.label.awsAccount',
     sortingField: COLUMN_OBJECT_STR.AccountId,
@@ -310,6 +315,11 @@ export const UNSTRUCTURED_SAMPLE_OBJECT_COLUMN = [
   {
     id: COLUMN_OBJECT_STR.Privacy,
     label: 'table.label.privacy',
+    filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.Identifier,
+    label: 'table.label.identifier',
     filter: true,
   },
   {
