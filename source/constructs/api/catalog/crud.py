@@ -11,7 +11,7 @@ from common.enum import (
     Privacy,
     DatabaseType
 )
-from common.query_condition import QueryCondition, query_with_condition
+from common.query_condition import QueryCondition, query_with_condition, query_with_func_condition
 from db.database import get_session
 from tools.pydantic_tool import parse_pydantic_schema
 from . import schemas
@@ -132,7 +132,8 @@ def get_catalog_database_level_classification_by_type(condition: QueryCondition)
                 condition_value.operation = 'in'
                 condition.group_column = 'database_name'
 
-    return query_with_condition(get_session().query(models.CatalogDatabaseLevelClassification), condition)
+    return query_with_func_condition(get_session().query(models.CatalogDatabaseLevelClassification), condition,
+                                     ['object_count', 'size_key'])
 
 
 def get_table_count_by_bucket_name(bucket_name: str):

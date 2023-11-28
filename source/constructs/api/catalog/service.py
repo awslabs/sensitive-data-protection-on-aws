@@ -1234,6 +1234,28 @@ def fill_catalog_labels(catalogs):
     return catalogs
 
 
+def rebuild_catalog_labels(catalogs):
+    result = []
+    for catalogDic in catalogs:
+        print(f"1  {catalogDic}")
+        catalog = catalogDic.CatalogDatabaseLevelClassification
+        print(f"2  {catalog}")
+        catalog.labels = []
+        if catalog.database_type == DatabaseType.S3_UNSTRUCTURED.value:
+            catalog.table_name = catalog.storage_location
+        if catalog is not None and catalog.label_ids is not None and len(catalog.label_ids) > 0:
+            label_list = catalog.label_ids.split(',')
+            label_id_list = list(map(int, label_list))
+            labels = get_labels_by_id_list(label_id_list)
+            if labels is not None:
+                labels_str = [{"id": label.id, "label_name": label.label_name} for label in labels]
+                catalog.labels = labels_str
+        catalog.object_count = catalogDic.object_count_sum
+        catalog.size_key = catalogDic.size_key_sum
+        result.append(catalog)
+    return result
+
+
 def get_s3_folder_sample_data(account_id: str, region: str, bucket_name: str, resource_name: str, refresh: bool):
     from .sample_service import init_s3_sample_job
     response = init_s3_sample_job(account_id, region, bucket_name, resource_name, refresh)
