@@ -97,6 +97,9 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
   }, [query]);
 
   const refreshAllAccountData = async (accountData: any) => {
+    if (accountData?.length === 0) {
+      return;
+    }
     try {
       // call refresh all account api
       const requestRefreshAccountParam = {
