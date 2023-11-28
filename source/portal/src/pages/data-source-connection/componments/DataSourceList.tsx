@@ -478,13 +478,11 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         await connectDataSourceRDS(requestParam);
         alertMsg(t('startConnect'), 'success');
         setBtnDisabled(false);
-        getPageData();
       } catch {
         alertMsg(t('connectFailed'), 'error');
         setBtnDisabled(false);
       }
     }
-    setSelectedItems([]);
   };
 
   const clkDisconnectDataSource = async (
@@ -885,14 +883,6 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                     disabled={isLoading}
                     iconName="refresh"
                   />
-                  {tagType === DATA_TYPE_ENUM.jdbc && (
-                    <Button
-                      disabled={isLoading || selectedItems.length === 0}
-                      onClick={clkTestConnected}
-                    >
-                      {t('button.testConnection')}
-                    </Button>
-                  )}
                   <Button
                     disabled={isLoading || selectedItems.length === 0}
                     onClick={clkConnected}
