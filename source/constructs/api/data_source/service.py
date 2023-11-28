@@ -2421,7 +2421,7 @@ def query_account_network(account: AccountInfo):
 
     vpc_list = [{"vpcId":vpc['VpcId'], "name":gen_resource_name(vpc)} for vpc in ec2_client.describe_vpcs()['Vpcs']]
     # accont_id, region = gen_assume_info(account)
-    if account.account_provider_id != Provider.AWS_CLOUD.value or account.account_id == admin_account_id:
+    if account.account_provider_id != Provider.AWS_CLOUD.value:
         res =  query_account_network_not_agent(vpc_list, ec2_client)
         logger.info(f"query_account_network_not_agent res is {res}")
         return res

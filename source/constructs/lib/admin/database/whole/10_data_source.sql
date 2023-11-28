@@ -226,6 +226,7 @@ create table source_jdbc_instance
     instance_id                        varchar(255) null,
     description                        varchar(2056) null,
     jdbc_connection_url                varchar(1024) null,
+    jdbc_connection_schema             varchar(1024) null,
     jdbc_enforce_ssl                   varchar(16) null,
     kafka_ssl_enabled                  varchar(16) null,
     master_username                    varchar(255) null,
