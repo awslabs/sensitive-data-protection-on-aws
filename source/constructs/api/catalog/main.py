@@ -131,7 +131,7 @@ def get_catalog_database_by_type(condition: QueryCondition):
         size=condition.size,
         page=condition.page,
     ))
-    service.fill_catalog_labels(rlt.items)
+    rlt.items = service.rebuild_catalog_labels(rlt.items)
     return rlt
 
 

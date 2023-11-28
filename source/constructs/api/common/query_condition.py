@@ -1,5 +1,6 @@
 from typing import Optional
 from sqlalchemy.orm import Query
+from sqlalchemy import func
 from pydantic import BaseModel
 from sqlalchemy import (or_, not_)
 from common.constant import const
@@ -20,6 +21,60 @@ class QueryCondition(BaseModel):
     asc: Optional[bool] = True
     conditions: Optional[list[Condition]]
     group_column: Optional[str] = const.EMPTY_STR
+
+
+def query_with_func_condition(query: Query, condition: QueryCondition,
+                              sum_aggregate_columns: [] = None, count_aggregate_columns: [] = None):
+    table_obj = query.column_descriptions[0]['type']
+    free_search_columns = []
+    free_search_conditions = []
+    in_conditions = []
+    if sum_aggregate_columns:
+        for sum_aggregate_column in sum_aggregate_columns:
+            aggregate_column_obj = getattr(table_obj, sum_aggregate_column)
+            query = query.add_columns(func.sum(aggregate_column_obj).label(f"{sum_aggregate_column}_sum"))
+    if count_aggregate_columns:
+        for count_aggregate_column in count_aggregate_columns:
+            aggregate_column_obj = getattr(table_obj, count_aggregate_column)
+            query = query.add_columns(func.sum(aggregate_column_obj).label(f"{count_aggregate_column}_count"))
+
+    for column in [item for item in dir(table_obj) if not item.startswith('_')]:
+        if hasattr(getattr(table_obj, column), 'info') and getattr(table_obj, column).info.get('searchable'):
+            free_search_columns.append(column)
+    if condition and condition.conditions:
+        for c in condition.conditions:
+            if c.column:
+                table_value = getattr(table_obj, c.column)
+                if c.operation == OperationType.EQUAL.value:
+                    query = query.filter(table_value == c.values)
+                elif c.operation == OperationType.NOT_EQUAL.value:
+                    query = query.filter(table_value != c.values)
+                elif c.operation == OperationType.CONTAIN.value:
+                    query = query.filter(table_value.contains(c.values))
+                elif c.operation == OperationType.IN.value:
+                    for item in c.values:
+                        in_conditions.append(table_value == item)
+                    query = query.filter(or_(*in_conditions))
+                else:
+                    query = query.filter(or_(table_value == None, not_(table_value.contains(c.values))))
+            elif free_search_columns:
+                for column in (free_search_columns or []):
+                    free_search_conditions.append(getattr(table_obj, column).contains(c.values[0], autoescape=True))
+                query = query.filter(or_(*free_search_conditions))
+            else:
+                pass
+    if condition and condition.sort_column:
+        sort_column = getattr(table_obj, condition.sort_column)
+        if condition.asc:
+            query = query.order_by(sort_column)
+        else:
+            query = query.order_by(sort_column.desc())
+    else:
+        query = query.order_by(getattr(table_obj, 'modify_time').desc())
+    if condition and condition.group_column:
+        group_column = getattr(table_obj, condition.group_column)
+        query = query.group_by(group_column)
+    return query
 
 
 def query_with_condition(query: Query, condition: QueryCondition):
