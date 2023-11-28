@@ -478,13 +478,11 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         await connectDataSourceRDS(requestParam);
         alertMsg(t('startConnect'), 'success');
         setBtnDisabled(false);
-        getPageData();
       } catch {
         alertMsg(t('connectFailed'), 'error');
         setBtnDisabled(false);
       }
     }
-    setSelectedItems([]);
   };
 
   const clkDisconnectDataSource = async (
