@@ -1237,9 +1237,7 @@ def fill_catalog_labels(catalogs):
 def rebuild_catalog_labels(catalogs):
     result = []
     for catalogDic in catalogs:
-        print(f"1  {catalogDic}")
         catalog = catalogDic.CatalogDatabaseLevelClassification
-        print(f"2  {catalog}")
         catalog.labels = []
         if catalog.database_type == DatabaseType.S3_UNSTRUCTURED.value:
             catalog.table_name = catalog.storage_location
