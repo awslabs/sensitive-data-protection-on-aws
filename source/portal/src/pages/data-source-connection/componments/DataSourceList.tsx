@@ -885,14 +885,6 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                     disabled={isLoading}
                     iconName="refresh"
                   />
-                  {tagType === DATA_TYPE_ENUM.jdbc && (
-                    <Button
-                      disabled={isLoading || selectedItems.length === 0}
-                      onClick={clkTestConnected}
-                    >
-                      {t('button.testConnection')}
-                    </Button>
-                  )}
                   <Button
                     disabled={isLoading || selectedItems.length === 0}
                     onClick={clkConnected}
