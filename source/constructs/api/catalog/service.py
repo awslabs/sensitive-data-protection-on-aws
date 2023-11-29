@@ -6,6 +6,7 @@ import tempfile
 import time
 import traceback
 from datetime import datetime, timedelta
+import tools.mytime as mytime
 from time import sleep
 from zipfile import ZipFile
 
@@ -366,6 +367,7 @@ def sync_crawler_result(
                     else:
                         # Keep the latest modify if it is a specfic user
                         catalog_column_dict['modify_by'] = original_column.modify_by
+                        catalog_column_dict['modify_time'] = mytime.get_time()
                         catalog_column_dict['id'] = original_column.id
                         column_update_list.append(catalog_column_dict)
                         # crud.update_catalog_column_level_classification_by_id(original_column.id, catalog_column_dict)
@@ -398,6 +400,7 @@ def sync_crawler_result(
                 else:
                     # Keep the latest modify if it is a specfic user
                     catalog_table_dict['modify_by'] = original_table.modify_by
+                    catalog_table_dict['modify_time'] = mytime.get_time()
                     catalog_table_dict['id'] = original_table.id
                     table_update_list.append(catalog_table_dict)
                     # crud.update_catalog_table_level_classification_by_id(original_table.id, catalog_table_dict)
