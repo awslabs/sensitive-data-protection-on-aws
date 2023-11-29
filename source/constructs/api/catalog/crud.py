@@ -828,11 +828,11 @@ def get_s3_database_summary_with_attr(database_type, attribute: str, need_merge:
             updated_database_list.append({
                 attribute: privacy,
                 "database_total": database["database_total"],
-                # "object_total": object_total,
-                "object_total": database["object_total"],
+                "object_total": object_total,
+                # "object_total": database["object_total"],
                 "size_total": database["size_total"],
-                # "table_total": table_total
-                "table_total": database["table_total"]
+                "table_total": table_total
+                # "table_total": database["table_total"]
             })
         for entry in table_list:
             privacy = entry["privacy"]
