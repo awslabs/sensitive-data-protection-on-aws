@@ -884,7 +884,8 @@ def get_s3_folder_summary_with_attr(attribute: str):
     return (get_session()
             .query(getattr(models.CatalogTableLevelClassification, attribute),
                    func.count(models.CatalogTableLevelClassification.table_name).label("table_total"))
-            .filter(models.CatalogTableLevelClassification.database_type == DatabaseType.S3.value)
+            .filter(models.CatalogTableLevelClassification.database_type.in_([DatabaseType.S3.value,
+                                                                              DatabaseType.S3_UNSTRUCTURED.value]))
             .group_by(getattr(models.CatalogTableLevelClassification, attribute))
             .all()
             )
@@ -906,7 +907,8 @@ def get_s3_object_summary_with_attr(attribute: str):
     return (get_session()
             .query(getattr(models.CatalogColumnLevelClassification, attribute),
                    func.count(models.CatalogColumnLevelClassification.column_name).label("object_total"))
-            .filter(models.CatalogColumnLevelClassification.database_type == DatabaseType.S3.value)
+            .filter(models.CatalogColumnLevelClassification.database_type.in_([DatabaseType.S3.value,
+                                                                              DatabaseType.S3_UNSTRUCTURED.value]))
             .group_by(getattr(models.CatalogColumnLevelClassification, attribute))
             .all()
             )
