@@ -1227,7 +1227,7 @@ def replace_special_chars_with_hyphen(input_string):
 
 def get_s3_unstructured_table_alias_name(bucket_name, table_name):
     prefix_str = f'{bucket_name}_{replace_special_chars_with_hyphen(bucket_name)}_'
-    table_name_without_tail = table_name.split("_")[-3]
+    table_name_without_tail = '_'.join(table_name.split("_")[:-2]) if len(table_name.split("_")) >= 3 else table_name
     new_name = table_name_without_tail.removeprefix(prefix_str)
     return new_name
 
@@ -1238,7 +1238,7 @@ def fill_catalog_labels(catalogs):
         if catalog is None:
             continue
         if catalog.database_type == DatabaseType.S3_UNSTRUCTURED.value:
-            catalog.table_name = get_s3_unstructured_table_alias_name(catalog.bucket_name, catalog.storage_location)
+            catalog.table_name = get_s3_unstructured_table_alias_name(catalog.database_name, catalog.table_name)
         if catalog.label_ids is None or len(catalog.label_ids) <= 0:
             continue
         label_list = catalog.label_ids.split(',')
