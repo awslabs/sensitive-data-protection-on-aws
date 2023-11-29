@@ -1238,6 +1238,8 @@ def rebuild_catalog_labels(catalogs):
     result = []
     for catalogDic in catalogs:
         catalog = catalogDic.CatalogDatabaseLevelClassification
+        if not catalog:
+            continue
         catalog.labels = []
         if catalog.database_type == DatabaseType.S3_UNSTRUCTURED.value:
             catalog.table_name = catalog.storage_location
