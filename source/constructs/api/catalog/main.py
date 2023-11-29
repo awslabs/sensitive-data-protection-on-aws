@@ -126,13 +126,27 @@ def get_catalog_database_by_params(
 @inject_session
 # Removed database_type param because of it can be added in query condition
 def get_catalog_database_by_type(condition: QueryCondition):
-    catalogs = crud.get_catalog_database_level_classification_by_type(condition)
-    rlt = paginate(catalogs, Params(
-        size=condition.size,
-        page=condition.page,
-    ))
-    rlt.items = service.rebuild_catalog_labels(rlt.items)
-    return rlt
+    s3_type = False
+    for condition_value in condition.conditions:
+        if condition_value.column == 'database_type' and 's3' in condition_value.values:
+            s3_type = True
+    if s3_type:
+        catalogs = crud.get_catalog_database_level_classification_s3(condition)
+        rlt = paginate(catalogs, Params(
+            size=condition.size,
+            page=condition.page,
+        ))
+        rlt.items = service.rebuild_catalog_labels(rlt.items)
+        return rlt
+    else:
+        catalogs = crud.get_catalog_database_level_classification_by_type(condition)
+        rlt = paginate(catalogs, Params(
+            size=condition.size,
+            page=condition.page,
+        ))
+        service.fill_catalog_labels(rlt.items)
+        return rlt
+
 
 
 @router.post(
