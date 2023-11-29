@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 import tools.mytime as mytime
 from time import sleep
 from zipfile import ZipFile
+import re
 
 import boto3
 from openpyxl import Workbook
@@ -1220,13 +1221,26 @@ def update_catalog_table_and_database_level_privacy(account_id, region, database
                                                                     {"privacy": default_database_privacy})
 
 
+def replace_special_chars_with_hyphen(input_string):
+    return re.sub(r'[^\w]+', '_', input_string)
+
+
+def get_s3_unstructured_table_alias_name(bucket_name, table_name):
+    prefix_str = f'{bucket_name}_{replace_special_chars_with_hyphen(bucket_name)}_'
+    table_name_without_tail = table_name.split("_")[-3]
+    new_name = table_name_without_tail.removeprefix(prefix_str)
+    return new_name
+
+
 def fill_catalog_labels(catalogs):
     for catalog in catalogs:
         catalog.labels = []
-        if catalog is None or catalog.label_ids is None or len(catalog.label_ids) <= 0:
+        if catalog is None:
             continue
         if catalog.database_type == DatabaseType.S3_UNSTRUCTURED.value:
-            catalog.table_name = catalog.storage_location
+            catalog.table_name = get_s3_unstructured_table_alias_name(catalog.bucket_name, catalog.storage_location)
+        if catalog.label_ids is None or len(catalog.label_ids) <= 0:
+            continue
         label_list = catalog.label_ids.split(',')
         label_id_list = list(map(int, label_list))
         labels = get_labels_by_id_list(label_id_list)
