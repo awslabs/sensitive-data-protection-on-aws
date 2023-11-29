@@ -1236,7 +1236,7 @@ def fill_catalog_labels(catalogs):
 
 def rebuild_catalog_labels(catalogs):
     result = []
-    if len(catalogs) == 0:
+    if not catalogs:
         return result
     for catalogDic in catalogs:
         catalog = catalogDic.CatalogDatabaseLevelClassification
