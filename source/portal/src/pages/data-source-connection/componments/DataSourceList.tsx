@@ -54,12 +54,10 @@ import {
   disconnectAndDeleteS3,
   disconnectAndDeleteRDS,
   disconnectAndDeleteJDBC,
-  testConnect,
   connectDataSourceJDBC,
   connectDataSourceGlue,
   deleteGlueDatabase,
   // queryGlueConns,
-  // testGlueConns,
   // addGlueConn,
   // queryRegions,
   // queryProviders,
@@ -322,31 +320,6 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       }
     } else {
       setShowRdsPwdModal(true);
-    }
-  };
-
-  const clkTestConnected = async () => {
-    if (!selectedItems || selectedItems.length === 0) {
-      alertMsg(t('selectOneItem'), 'error');
-      return;
-    }
-    const requestParam = {
-      account_provider_id: selectedItems[0].account_provider_id,
-      account_id: selectedItems[0].account_id,
-      region: selectedItems[0].region,
-      instance_id: selectedItems[0].instance_id,
-    };
-    showHideSpinner(true);
-    try {
-      await testConnect(requestParam);
-      showHideSpinner(false);
-      alertMsg(t('successConnect'), 'success');
-      setSelectedItems([]);
-      getPageData();
-    } catch (error) {
-      alertMsg(t('failedConnect'), 'error');
-      setSelectedItems([]);
-      showHideSpinner(false);
     }
   };
 

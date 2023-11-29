@@ -27,11 +27,6 @@ const queryGlueConns = async (params: any) => {
   return result;
 };
 
-const testGlueConns = async (params: any) => {
-  const result = await apiRequest('post', 'data-source/test-glue-conn', params);
-  return result;
-};
-
 const addGlueConn = async (params: any) => {
   const result = await apiRequest('post', 'data-source/add-jdbc-conn', params);
   return result;
@@ -151,11 +146,6 @@ const disconnectAndDeleteJDBC = async (params: any) => {
   return result;
 };
 
-const testConnect = async (params: any) => {
-  const result = await apiRequest('post', 'data-source/test-jdbc-conn', params);
-  return result;
-};
-
 const connectDataSourceJDBC = async (params: any) => {
   const result = await apiRequest('post', 'data-source/sync-jdbc', params);
   return result;
@@ -217,13 +207,11 @@ export {
   refreshDataSource,
   getSecrets,
   queryGlueConns,
-  testGlueConns,
   addGlueConn,
   queryRegions,
   queryProviders,
   getSourceProviders,
   getDataSourceGlueByPage,
-  testConnect,
   connectDataSourceJDBC,
   listGlueConnection,
   importGlueConnection,
