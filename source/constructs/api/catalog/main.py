@@ -88,20 +88,6 @@ def search_catalog_tables(condition: QueryCondition):
     return rlt
 
 
-@router.post(
-    "/gen-s3-presigned-url-by-id"
-)
-@inject_session
-def gen_s3_presigned_url_by_column_id(column_id: str):
-    # catalog = crud.get_catalog_column_level_classification_by_id(column_id)
-    # if catalog:
-        # if catalog.column_path:
-            # bucket_name, key = service.__get_s3_bucket_key_from_location(catalog.column_path)
-            # pre_url = gen_s3_temp_uri(bucket_name, key)
-            # return pre_url
-    return ""
-
-
 @router.get(
     "/get-databases-by-account-region-type",
     # response_model=BaseResponse[Page[schemas.CatalogDatabaseLevelClassification]],
