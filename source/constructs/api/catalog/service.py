@@ -6,8 +6,10 @@ import tempfile
 import time
 import traceback
 from datetime import datetime, timedelta
+import tools.mytime as mytime
 from time import sleep
 from zipfile import ZipFile
+import re
 
 import boto3
 from openpyxl import Workbook
@@ -359,13 +361,14 @@ def sync_crawler_result(
                     # original_column = crud.get_catalog_column_level_classification_by_name(account_id, region,
                     #                                                                        database_type, database_name,
                     #                                                                        table_name, column_name)
-                    original_column = original_column_dict[column_name]
+                    original_column = original_column_dict[column_name] if column_name in original_column_dict else None
                     if original_column == None:
                         column_create_list.append(catalog_column_dict)
                         # crud.create_catalog_column_level_classification(catalog_column_dict)
                     else:
                         # Keep the latest modify if it is a specfic user
                         catalog_column_dict['modify_by'] = original_column.modify_by
+                        catalog_column_dict['modify_time'] = mytime.get_time()
                         catalog_column_dict['id'] = original_column.id
                         column_update_list.append(catalog_column_dict)
                         # crud.update_catalog_column_level_classification_by_id(original_column.id, catalog_column_dict)
@@ -398,6 +401,7 @@ def sync_crawler_result(
                 else:
                     # Keep the latest modify if it is a specfic user
                     catalog_table_dict['modify_by'] = original_table.modify_by
+                    catalog_table_dict['modify_time'] = mytime.get_time()
                     catalog_table_dict['id'] = original_table.id
                     table_update_list.append(catalog_table_dict)
                     # crud.update_catalog_table_level_classification_by_id(original_table.id, catalog_table_dict)
@@ -1217,13 +1221,26 @@ def update_catalog_table_and_database_level_privacy(account_id, region, database
                                                                     {"privacy": default_database_privacy})
 
 
+def replace_special_chars_with_hyphen(input_string):
+    return re.sub(r'[^\w]+', '_', input_string)
+
+
+def get_s3_unstructured_table_alias_name(bucket_name, table_name):
+    prefix_str = f'{bucket_name}_{replace_special_chars_with_hyphen(bucket_name)}_'
+    table_name_without_tail = '_'.join(table_name.split("_")[:-2]) if len(table_name.split("_")) >= 3 else table_name
+    new_name = table_name_without_tail.removeprefix(prefix_str)
+    return new_name
+
+
 def fill_catalog_labels(catalogs):
     for catalog in catalogs:
         catalog.labels = []
-        if catalog is None or catalog.label_ids is None or len(catalog.label_ids) <= 0:
+        if catalog is None:
             continue
         if catalog.database_type == DatabaseType.S3_UNSTRUCTURED.value:
-            catalog.table_name = catalog.storage_location
+            catalog.table_name = get_s3_unstructured_table_alias_name(catalog.database_name, catalog.table_name)
+        if catalog.label_ids is None or len(catalog.label_ids) <= 0:
+            continue
         label_list = catalog.label_ids.split(',')
         label_id_list = list(map(int, label_list))
         labels = get_labels_by_id_list(label_id_list)
@@ -1236,8 +1253,12 @@ def fill_catalog_labels(catalogs):
 
 def rebuild_catalog_labels(catalogs):
     result = []
+    if not catalogs:
+        return result
     for catalogDic in catalogs:
         catalog = catalogDic.CatalogDatabaseLevelClassification
+        if not catalog:
+            continue
         catalog.labels = []
         if catalog.database_type == DatabaseType.S3_UNSTRUCTURED.value:
             catalog.table_name = catalog.storage_location

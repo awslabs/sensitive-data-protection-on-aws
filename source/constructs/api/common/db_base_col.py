@@ -3,10 +3,11 @@ from datetime import datetime
 from .constant import const
 import re
 
+
 def before_exec(conn, clause, multi_params, params):
-    if len(multi_params) > 0:
-        for current_params in multi_params:
-            __handle_params(clause, current_params)
+    if multi_params:
+        # The public fields for batch execution are processed by the business module itself
+        pass
     else:
         __handle_params(clause, params)
 

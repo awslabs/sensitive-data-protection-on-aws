@@ -84,7 +84,9 @@ export const JDBC: React.FC<JDBCProps> = (props: JDBCProps) => {
           <SpaceBetween direction="horizontal" size="xs">
             <Button
               onClick={() =>
-                navigate(`${RouterEnum.Catalog.path}?tagType=jdbc`)
+                navigate(
+                  `${RouterEnum.Catalog.path}?provider=${curProvider?.id}&tagType=jdbc`
+                )
               }
             >
               {t('button.browserCatalog')}
@@ -97,33 +99,12 @@ export const JDBC: React.FC<JDBCProps> = (props: JDBCProps) => {
       <JDBCCatalogOverview />
       <Grid
         gridDefinition={[
-          { colspan: 6 },
-          { colspan: 6 },
           { colspan: 12 },
+          { colspan: 6 },
+          { colspan: 6 },
           { colspan: 12 },
         ]}
       >
-        <div className="mt-20 pd-10">
-          <CircleChart
-            title={t('summary:lastUpdatedStatus')}
-            circleType="pie"
-            sourceType="jdbc"
-          />
-        </div>
-
-        <div className="mt-20 pd-10">
-          {loadingTableData ? (
-            <Spinner />
-          ) : (
-            <TableData
-              dataList={conatainsPIIData}
-              keyLable={t('summary:awsAccount')}
-              valueLable={t('summary:rdsIntacnes')}
-              title={t('summary:topAccountsContainPII')}
-            />
-          )}
-        </div>
-
         <div className="mt-20 pd-10">
           <Header variant="h3">{t('summary:privacyTagging')}</Header>
           <Grid
@@ -154,6 +135,26 @@ export const JDBC: React.FC<JDBCProps> = (props: JDBCProps) => {
               />
             </div>
           </Grid>
+        </div>
+        <div className="mt-20 pd-10">
+          <CircleChart
+            title={t('summary:lastUpdatedStatus')}
+            circleType="pie"
+            sourceType="jdbc"
+          />
+        </div>
+
+        <div className="mt-20 pd-10">
+          {loadingTableData ? (
+            <Spinner />
+          ) : (
+            <TableData
+              dataList={conatainsPIIData}
+              keyLable={t('summary:awsAccount')}
+              valueLable={t('summary:rdsIntacnes')}
+              title={t('summary:topAccountsContainPII')}
+            />
+          )}
         </div>
 
         <div className="mt-20 pd-10">

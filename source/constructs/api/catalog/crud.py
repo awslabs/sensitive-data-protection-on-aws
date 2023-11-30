@@ -125,15 +125,18 @@ def get_catalog_database_level_classification_by_type_all(database_type: str):
 
 
 def get_catalog_database_level_classification_by_type(condition: QueryCondition):
+    return query_with_condition(get_session().query(models.CatalogDatabaseLevelClassification), condition)
+
+
+def get_catalog_database_level_classification_s3(condition: QueryCondition):
     for condition_value in condition.conditions:
         if condition_value.column == 'database_type' and DatabaseType.S3.value in condition_value.values:
             if len(condition_value.values) == 1 and condition_value.values[0] == DatabaseType.S3.value:
                 condition_value.values = [DatabaseType.S3.value, DatabaseType.S3_UNSTRUCTURED.value]
                 condition_value.operation = 'in'
                 condition.group_column = 'database_name'
-
     return query_with_func_condition(get_session().query(models.CatalogDatabaseLevelClassification), condition,
-                                     ['object_count', 'size_key'])
+                                    ['object_count', 'size_key'])
 
 
 def get_table_count_by_bucket_name(bucket_name: str):
@@ -807,8 +810,8 @@ def get_s3_database_summary_with_attr(database_type, attribute: str, need_merge:
                                 func.sum(models.CatalogDatabaseLevelClassification.object_count).label("object_total"),
                                 func.sum(models.CatalogDatabaseLevelClassification.size_key).label("size_total"),
                                 func.sum(models.CatalogDatabaseLevelClassification.table_count).label("table_total"))
-                         .filter(models.CatalogDatabaseLevelClassification.database_type.in_(
-            [DatabaseType.S3.value, DatabaseType.S3_UNSTRUCTURED.value]))
+                         .filter(models.CatalogDatabaseLevelClassification.database_type.in_([DatabaseType.S3.value,
+                                                                                              DatabaseType.S3_UNSTRUCTURED.value]))
                          .group_by(getattr(models.CatalogDatabaseLevelClassification, attribute))
                          .all()
                          )
@@ -826,8 +829,10 @@ def get_s3_database_summary_with_attr(database_type, attribute: str, need_merge:
                 attribute: privacy,
                 "database_total": database["database_total"],
                 "object_total": object_total,
+                # "object_total": database["object_total"],
                 "size_total": database["size_total"],
                 "table_total": table_total
+                # "table_total": database["table_total"]
             })
         for entry in table_list:
             privacy = entry["privacy"]
@@ -881,7 +886,8 @@ def get_s3_folder_summary_with_attr(attribute: str):
     return (get_session()
             .query(getattr(models.CatalogTableLevelClassification, attribute),
                    func.count(models.CatalogTableLevelClassification.table_name).label("table_total"))
-            .filter(models.CatalogTableLevelClassification.database_type == DatabaseType.S3.value)
+            .filter(models.CatalogTableLevelClassification.database_type.in_([DatabaseType.S3.value,
+                                                                              DatabaseType.S3_UNSTRUCTURED.value]))
             .group_by(getattr(models.CatalogTableLevelClassification, attribute))
             .all()
             )
@@ -903,7 +909,8 @@ def get_s3_object_summary_with_attr(attribute: str):
     return (get_session()
             .query(getattr(models.CatalogColumnLevelClassification, attribute),
                    func.count(models.CatalogColumnLevelClassification.column_name).label("object_total"))
-            .filter(models.CatalogColumnLevelClassification.database_type == DatabaseType.S3.value)
+            .filter(models.CatalogColumnLevelClassification.database_type.in_([DatabaseType.S3.value,
+                                                                              DatabaseType.S3_UNSTRUCTURED.value]))
             .group_by(getattr(models.CatalogColumnLevelClassification, attribute))
             .all()
             )

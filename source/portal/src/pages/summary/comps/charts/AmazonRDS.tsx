@@ -78,11 +78,11 @@ export const AmazonRDS: React.FC<any> = () => {
       <RDSCatalogOverview />
       <Grid
         gridDefinition={[
+          { colspan: 12 },
           { colspan: 6 },
           { colspan: 6 },
           // { colspan: 12 },
           // { colspan: 6 },
-          { colspan: 12 },
           { colspan: 12 },
         ]}
       >
@@ -92,26 +92,6 @@ export const AmazonRDS: React.FC<any> = () => {
         {/* <div className="mt-20 pd-10">
           <MapChart sourceType="rds" title={t('summary:dataLocation')} />
         </div> */}
-        <div className="mt-20 pd-10">
-          <CircleChart
-            title={t('summary:lastUpdatedStatus')}
-            circleType="pie"
-            sourceType="rds"
-          />
-        </div>
-
-        <div className="mt-20 pd-10">
-          {loadingTableData ? (
-            <Spinner />
-          ) : (
-            <TableData
-              dataList={conatainsPIIData}
-              keyLable={t('summary:awsAccount')}
-              valueLable={t('summary:rdsIntacnes')}
-              title={t('summary:topAccountsContainPII')}
-            />
-          )}
-        </div>
 
         <div className="mt-20 pd-10">
           <Header variant="h3">{t('summary:privacyTagging')}</Header>
@@ -143,6 +123,27 @@ export const AmazonRDS: React.FC<any> = () => {
               />
             </div>
           </Grid>
+        </div>
+
+        <div className="mt-20 pd-10">
+          <CircleChart
+            title={t('summary:lastUpdatedStatus')}
+            circleType="pie"
+            sourceType="rds"
+          />
+        </div>
+
+        <div className="mt-20 pd-10">
+          {loadingTableData ? (
+            <Spinner />
+          ) : (
+            <TableData
+              dataList={conatainsPIIData}
+              keyLable={t('summary:awsAccount')}
+              valueLable={t('summary:rdsIntacnes')}
+              title={t('summary:topAccountsContainPII')}
+            />
+          )}
         </div>
 
         <div className="mt-20 pd-10">

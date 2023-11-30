@@ -61,19 +61,25 @@ const S3CatalogOverview = () => {
             gridDefinition={[{ colspan: 4 }, { colspan: 4 }, { colspan: 4 }]}
           >
             <div>
-              <Box variant="awsui-key-label">{t('summary:s3Bucket')}</Box>
+              <Box variant="awsui-key-label">
+                {t('summary:scannedS3Bucket')}
+              </Box>
               <CounterLink>
                 {formatNumber(catalogSummaryData?.database_total || 0)}
               </CounterLink>
             </div>
             <div>
-              <Box variant="awsui-key-label">{t('summary:s3Objects')}</Box>
+              <Box variant="awsui-key-label">
+                {t('summary:scannedS3Objects')}
+              </Box>
               <CounterLink>
                 {formatNumber(catalogSummaryData?.object_total || 0)}
               </CounterLink>
             </div>
             <div>
-              <Box variant="awsui-key-label">{t('summary:s3ObjectSize')}</Box>
+              <Box variant="awsui-key-label">
+                {t('summary:scannedS3ObjectSize')}
+              </Box>
               <CounterLink>
                 {formatSize(catalogSummaryData?.size_total || 0)}
               </CounterLink>

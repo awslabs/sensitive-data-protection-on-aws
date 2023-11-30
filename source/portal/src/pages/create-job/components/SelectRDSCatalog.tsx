@@ -8,14 +8,16 @@ import {
   Pagination,
   CollectionPreferences,
   SegmentedControl,
+  Popover,
 } from '@cloudscape-design/components';
 import {
+  COLUMN_OBJECT_STR,
   RDS_CATALOG_COLUMS,
   RDS_FOLDER_COLUMS,
   S3_CATALOG_COLUMS,
 } from '../types/create_data_type';
 import { getDataBaseByType, searchCatalogTables } from 'apis/data-catalog/api';
-import { formatSize } from 'tools/tools';
+import { formatNumber, formatSize } from 'tools/tools';
 import CommonBadge from 'pages/common-badge';
 import {
   BADGE_TYPE,
@@ -371,6 +373,50 @@ const SelectRDSCatalog: React.FC<SelectRDSCatalogProps> = (
                             badgeType={BADGE_TYPE.Privacy}
                             badgeLabel={(e as any)[item.id]}
                           />
+                        );
+                      }
+                      if (item.id === COLUMN_OBJECT_STR.RowCount) {
+                        return formatNumber((e as any)[item.id]);
+                      }
+                      if (item.id === COLUMN_OBJECT_STR.Labels) {
+                        let hasMore = false;
+                        if (e.labels?.length > 1) {
+                          hasMore = true;
+                        }
+                        return e.labels?.length > 0 ? (
+                          <div className="flex">
+                            <span className="custom-badge label mr-5">
+                              {e.labels?.[0]?.label_name}
+                            </span>
+                            {hasMore && (
+                              <Popover
+                                dismissButton={false}
+                                position="top"
+                                size="small"
+                                triggerType="custom"
+                                content={
+                                  <div>
+                                    {e.labels.map((label: any) => {
+                                      return (
+                                        <span
+                                          key={label.id}
+                                          className="custom-badge label mr-5 mb-2"
+                                        >
+                                          {label.label_name}
+                                        </span>
+                                      );
+                                    })}
+                                  </div>
+                                }
+                              >
+                                <span className="custom-badge more">{`+${
+                                  e.labels?.length - 1
+                                }`}</span>
+                              </Popover>
+                            )}
+                          </div>
+                        ) : (
+                          ''
                         );
                       }
                       return e[item.id];

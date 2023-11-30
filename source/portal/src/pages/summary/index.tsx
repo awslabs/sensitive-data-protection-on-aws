@@ -54,12 +54,12 @@ const HomeContent: React.FC = () => {
           </div>
           <div
             className="flex-v justify-spacebetween"
-            style={{ minWidth: 220 }}
+            style={{ minWidth: 270 }}
           >
             <div>{t('summary:step2')}</div>
             <div className="mt-20">
-              <Button onClick={() => navigate(RouterEnum.Catalog.path)}>
-                {t('button.browserCatalog')}
+              <Button onClick={() => navigate(RouterEnum.Datajob.path)}>
+                {t('button.runJob')}
               </Button>
             </div>
           </div>
@@ -76,12 +76,12 @@ const HomeContent: React.FC = () => {
           </div>
           <div
             className="flex-v justify-spacebetween"
-            style={{ minWidth: 270 }}
+            style={{ minWidth: 220 }}
           >
             <div>{t('summary:step4')}</div>
             <div className="mt-20">
-              <Button onClick={() => navigate(RouterEnum.Datajob.path)}>
-                {t('button.runJob')}
+              <Button onClick={() => navigate(RouterEnum.Catalog.path)}>
+                {t('button.browserCatalog')}
               </Button>
             </div>
           </div>

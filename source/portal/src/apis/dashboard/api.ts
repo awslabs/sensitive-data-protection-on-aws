@@ -15,15 +15,6 @@ const getAccountInfomation = async (params: any) => {
 };
 
 /**
- * Get Latest Job Time
- * @returns
- */
-const getLatestJobTime = async () => {
-  const result = await apiRequest('get', 'discovery-jobs/last-job-time', '');
-  return result;
-};
-
-/**
  * Get Catalog Summary
  * @param params
  * @returns
@@ -109,7 +100,6 @@ export {
   getCatalogSummaryByPrivacy,
   getCatalogSummaryByModifier,
   getCatalogTopNData,
-  getLatestJobTime,
   getCatalogSummaryByRegion,
   getSummaryAccountData,
 };

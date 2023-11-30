@@ -1,7 +1,7 @@
 import { Box, Grid, Spinner } from '@cloudscape-design/components';
 import React, { useEffect, useState } from 'react';
 import { CounterLink } from 'common/ConterLink';
-import HorizontalBarChart from './HorizontalBarChart';
+// import HorizontalBarChart from './HorizontalBarChart';
 import { getDatacatalogSummary } from 'apis/dashboard/api';
 import { ICatalogSummary, ColumnChartData } from 'ts/dashboard/types';
 import { formatNumber } from 'tools/tools';
@@ -53,27 +53,27 @@ const JDBCCatalogOverview = () => {
             gridDefinition={[{ colspan: 4 }, { colspan: 4 }, { colspan: 4 }]}
           >
             <div>
-              <Box variant="awsui-key-label">{t('summary:rdsIntacnes')}</Box>
+              <Box variant="awsui-key-label">{t('summary:scannedDB')}</Box>
               <CounterLink>
                 {formatNumber(catalogSummaryData?.instance_total || 0)}
               </CounterLink>
             </div>
             <div>
-              <Box variant="awsui-key-label">{t('summary:rdsTables')}</Box>
+              <Box variant="awsui-key-label">{t('summary:scannedTables')}</Box>
               <CounterLink>
                 {formatNumber(catalogSummaryData?.table_total || 0)}
               </CounterLink>
             </div>
             <div>
-              <Box variant="awsui-key-label">{t('summary:rdsColumns')}</Box>
+              <Box variant="awsui-key-label">{t('summary:scannedColumns')}</Box>
               <CounterLink>
                 {formatNumber(catalogSummaryData?.column_total || 0)}
               </CounterLink>
             </div>
           </Grid>
           <div>
-            <Box variant="awsui-key-label">{t('summary:rdsEngineTypes')}</Box>
-            <HorizontalBarChart chartData={columChartData} />
+            {/* <Box variant="awsui-key-label">{t('summary:rdsEngineTypes')}</Box>
+            <HorizontalBarChart chartData={columChartData} /> */}
           </div>
         </Grid>
       )}
