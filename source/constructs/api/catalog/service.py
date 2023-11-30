@@ -361,7 +361,7 @@ def sync_crawler_result(
                     # original_column = crud.get_catalog_column_level_classification_by_name(account_id, region,
                     #                                                                        database_type, database_name,
                     #                                                                        table_name, column_name)
-                    original_column = original_column_dict[column_name]
+                    original_column = original_column_dict[column_name] if column_name in original_column_dict else None
                     if original_column == None:
                         column_create_list.append(catalog_column_dict)
                         # crud.create_catalog_column_level_classification(catalog_column_dict)
