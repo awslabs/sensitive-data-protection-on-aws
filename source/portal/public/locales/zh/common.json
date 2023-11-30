@@ -19,7 +19,8 @@
     "defineTemplate": "定义分类模版",
     "manageIdentifier": "管理数据识别规则",
     "doc": "文档",
-    "version": "版本"
+    "version": "版本",
+    "dataDiscovery": "数据发现"
   },
   "breadcrumb": {
     "home": "敏感数据保护解决方案",
@@ -236,7 +237,7 @@
       "dataSource": "数据源",
       "provider": "服务商",
       "jdbcInstanceName": "实例名",
-      "glueState": "数据目录",
+      "glueState": "目录状态",
       "glueConnectionName": "Glue 连接",
       "lastConnectionTime": "最新连接时间",
       "glueDatabaseName": "Glue 数据库",

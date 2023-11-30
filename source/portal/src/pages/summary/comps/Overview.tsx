@@ -121,7 +121,7 @@ const Overview: React.FC<OverViewProps> = (props: OverViewProps) => {
             <Grid gridDefinition={[{ colspan: 6 }, { colspan: 6 }]}>
               <div>
                 <Box variant="awsui-key-label">
-                  {t('summary:totalAWSAccount', {
+                  {t('summary:totalAccounts', {
                     PROVIDER: currentProvider?.provider_name,
                   })}
                 </Box>

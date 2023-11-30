@@ -58,11 +58,11 @@ export const JDBC_COLUMN_LIST = [
     label: 'table.label.jdbcInstanceName',
     filter: true,
   },
-  {
-    id: COLUMN_OBJECT_STR.ConnectionStatus,
-    label: 'table.label.connectionStatus',
-    filter: true,
-  },
+  // {
+  //   id: COLUMN_OBJECT_STR.ConnectionStatus,
+  //   label: 'table.label.connectionStatus',
+  //   filter: true,
+  // },
   {
     id: COLUMN_OBJECT_STR.GlueState,
     label: 'table.label.glueState',
@@ -82,7 +82,7 @@ export const JDBC_COLUMN_LIST = [
     id: COLUMN_OBJECT_STR.LastConnectionTime,
     label: 'table.label.lastConnectionTime',
     filter: true,
-  }
+  },
 ];
 
 export const GLUE_COLUMN_LIST = [

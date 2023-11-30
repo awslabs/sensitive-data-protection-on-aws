@@ -19,7 +19,8 @@
     "defineTemplate": "Define classification template",
     "manageIdentifier": "Manage data identifiers",
     "doc": "Documentation",
-    "version": "Version"
+    "version": "Version",
+    "dataDiscovery": "Data discovery"
   },
   "breadcrumb": {
     "home": "Sensitive Data Protection Solution",

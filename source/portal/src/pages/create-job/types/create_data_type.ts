@@ -1,13 +1,23 @@
 export const COLUMN_OBJECT_STR = {
-  DatabaseName: 'bucket_name',
-  ConnectionName:'connection_name',
-  JDBCTableName:'jdbc_table_name',
-  JDBCTableRow:'jdbc_table_row',
-}; 
+  BucketName: 'bucket_name',
+  ConnectionName: 'connection_name',
+  JDBCTableName: 'jdbc_table_name',
+  JDBCTableRow: 'jdbc_table_row',
+  DatabaseName: 'database_name',
+  FolderName: 'table_name',
+  Privacy: 'privacy',
+  ColumnCount: 'column_count',
+  RowCount: 'row_count',
+  AccountId: 'account_id',
+  Labels: 'labels',
+  Region: 'region',
+  LastModifyBy: 'modify_by',
+  LastModifyAt: 'modify_time',
+};
 
 export const S3_CATALOG_COLUMS = [
   {
-    id: COLUMN_OBJECT_STR.DatabaseName,
+    id: COLUMN_OBJECT_STR.BucketName,
     label: 'table.label.bucketName',
     filter: true,
   },
@@ -107,24 +117,42 @@ export const JDBC_TABLE_COLUMS = [
     filter: true,
   },
   {
-    id: COLUMN_OBJECT_STR.JDBCTableRow,
-    label: 'table.label.items',
-    filter: true,
+    id: COLUMN_OBJECT_STR.ColumnCount,
+    label: 'table.label.columns',
   },
   {
-    id: 'privacy',
+    id: COLUMN_OBJECT_STR.RowCount,
+    label: 'table.label.items',
+  },
+  {
+    id: COLUMN_OBJECT_STR.Privacy,
     label: 'table.label.privacy',
     filter: true,
   },
   {
-    id: 'account_id',
+    id: COLUMN_OBJECT_STR.AccountId,
     label: 'table.label.awsAccount',
     filter: true,
   },
   {
-    id: 'region',
+    id: COLUMN_OBJECT_STR.Region,
     label: 'table.label.awsRegion',
     filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.Labels,
+    label: 'table.label.label',
+    filter: false,
+  },
+  {
+    id: 'modify_by',
+    label: 'table.label.lastUpdateBy',
+    filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.LastModifyAt,
+    label: 'table.label.lastUpdateAt',
+    filter: false,
   },
 ];
 
@@ -175,10 +203,14 @@ export const GLUE_ACCOUNTS_COLUMNS = [
 ];
 
 export const RDS_FOLDER_COLUMS = [
+  { id: COLUMN_OBJECT_STR.FolderName, label: 'table.label.table' },
   {
-    id: 'table_name',
-    label: 'table.label.folderName',
-    filter: true,
+    id: COLUMN_OBJECT_STR.ColumnCount,
+    label: 'table.label.columns',
+  },
+  {
+    id: COLUMN_OBJECT_STR.RowCount,
+    label: 'table.label.items',
   },
   {
     id: COLUMN_OBJECT_STR.DatabaseName,
@@ -186,24 +218,34 @@ export const RDS_FOLDER_COLUMS = [
     filter: true,
   },
   {
-    id: 'row_count',
-    label: 'table.label.items',
-    filter: true,
-  },
-  {
-    id: 'privacy',
+    id: COLUMN_OBJECT_STR.Privacy,
     label: 'table.label.privacy',
     filter: true,
   },
   {
-    id: 'account_id',
+    id: COLUMN_OBJECT_STR.AccountId,
     label: 'table.label.awsAccount',
     filter: true,
   },
   {
-    id: 'region',
+    id: COLUMN_OBJECT_STR.Region,
     label: 'table.label.awsRegion',
     filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.Labels,
+    label: 'table.label.label',
+    filter: false,
+  },
+  {
+    id: 'modify_by',
+    label: 'table.label.lastUpdateBy',
+    filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.LastModifyAt,
+    label: 'table.label.lastUpdateAt',
+    filter: false,
   },
 ];
 

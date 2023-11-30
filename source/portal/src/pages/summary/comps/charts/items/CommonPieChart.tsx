@@ -51,7 +51,7 @@ const CommonPieChart: React.FC<CommonPieChartProps> = (
     if (sourceType === 'rds') {
       switch (dataType) {
         case 'instance':
-          return t('summary:instances');
+          return t('summary:databases');
         case 'table':
           return t('summary:tables');
         case 'column':
@@ -69,7 +69,7 @@ const CommonPieChart: React.FC<CommonPieChartProps> = (
         sourceType,
         dataType
       )}
-      innerMetricValue={formatNumber(sourceTotal ?? 0)}
+      innerMetricValue={formatNumber(sourceTotal ?? 0).toString()}
       data={chartData}
       hideFilter={true}
       segmentDescription={(datum, sum) =>
