@@ -817,14 +817,17 @@ def get_s3_database_summary_with_attr(database_type, attribute: str, need_merge:
                          )
         table_list = get_s3_folder_summary_with_attr(attribute)
         table_dict = {table["privacy"]: table["table_total"] for table in table_list}
+        obj_dict = {table["privacy"]: table["object_count"] for table in table_list}
+        size_dict = {table["privacy"]: table["size_key"] for table in table_list}
         column_list = get_s3_object_summary_with_attr(attribute)
         column_dict = {column["privacy"]: column["object_total"] for column in column_list}
         updated_database_list = []
-        print(f"table_dict:{table_dict} column_dict: {column_dict}")
+        print(f"table_dict:{table_dict} column_dict: {obj_dict}")
         for database in database_list:
             privacy = database[attribute]
             table_total = table_dict.get(privacy, 0)
-            object_total = column_dict.get(privacy, 0)
+            object_total = obj_dict.get(privacy, 0)
+            # size_total = size_dict.get(privacy, 0)
             updated_database_list.append({
                 attribute: privacy,
                 "database_total": database["database_total"],
@@ -837,7 +840,7 @@ def get_s3_database_summary_with_attr(database_type, attribute: str, need_merge:
         for entry in table_list:
             privacy = entry["privacy"]
             if privacy not in [item[attribute] for item in updated_database_list]:
-                object_total = column_dict.get(privacy, 0)
+                object_total = object_total.get(privacy, 0)
                 updated_database_list.append({
                     attribute: privacy,
                     "database_total": 0,
@@ -850,10 +853,11 @@ def get_s3_database_summary_with_attr(database_type, attribute: str, need_merge:
             privacy = entry["privacy"]
             if privacy not in [item[attribute] for item in updated_database_list]:
                 table_total = table_dict.get(privacy, 0)
+                object_total = object_total.get(privacy, 0)
                 updated_database_list.append({
                     attribute: privacy,
                     "database_total": 0,
-                    "object_total": entry["object_total"],
+                    "object_total": object_total,
                     "size_total": 0,
                     "table_total": table_total
                 })
@@ -885,7 +889,9 @@ def get_rds_table_summary_with_attr(attribute: str):
 def get_s3_folder_summary_with_attr(attribute: str):
     return (get_session()
             .query(getattr(models.CatalogTableLevelClassification, attribute),
-                   func.count(models.CatalogTableLevelClassification.table_name).label("table_total"))
+                   func.count(models.CatalogTableLevelClassification.table_name).label("table_total"),
+                   func.sum(models.CatalogTableLevelClassification.object_count).label("object_count"),
+                   func.sum(models.CatalogTableLevelClassification.size_key).label("size_key"))
             .filter(models.CatalogTableLevelClassification.database_type.in_([DatabaseType.S3.value,
                                                                               DatabaseType.S3_UNSTRUCTURED.value]))
             .group_by(getattr(models.CatalogTableLevelClassification, attribute))
