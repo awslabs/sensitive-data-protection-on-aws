@@ -8,15 +8,15 @@ import {
   Pagination,
   CollectionPreferences,
   SegmentedControl,
+  Popover,
 } from '@cloudscape-design/components';
 import {
   JDBC_INSTANCE_COLUMS,
   JDBC_TABLE_COLUMS,
-  COLUMN_OBJECT_STR
-
+  COLUMN_OBJECT_STR,
 } from '../types/create_data_type';
 import { getDataBaseByType, searchCatalogTables } from 'apis/data-catalog/api';
-import { formatSize } from 'tools/tools';
+import { formatNumber, formatSize } from 'tools/tools';
 import CommonBadge from 'pages/common-badge';
 import {
   BADGE_TYPE,
@@ -70,7 +70,7 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
     totalCount: jdbcTotal,
     query: jdbcQuery,
     setQuery: setJdbcQuery,
-    columnList: JDBC_INSTANCE_COLUMS.filter((i:any) => i.filter),
+    columnList: JDBC_INSTANCE_COLUMS.filter((i: any) => i.filter),
     tableName: TABLE_NAME.CATALOG_DATABASE_LEVEL_CLASSIFICATION,
     filteringPlaceholder: t('job:filterInstances'),
   };
@@ -231,13 +231,13 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
                 }}
                 items={jdbcCatalogData}
                 filter={<ResourcesFilter {...jdbcFilterProps} />}
-                columnDefinitions={JDBC_INSTANCE_COLUMS.map((item:any) => {
+                columnDefinitions={JDBC_INSTANCE_COLUMS.map((item: any) => {
                   return {
                     id: item.id,
                     header: t(item.label),
                     cell: (e: any) => {
                       if (item.id === COLUMN_OBJECT_STR.ConnectionName) {
-                        return e["database_name"];
+                        return e['database_name'];
                       }
                       if (item.id === 'size_key') {
                         return formatSize((e as any)[item.id]);
@@ -360,13 +360,13 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
                     header: t(item.label),
                     cell: (e: any) => {
                       if (item.id === COLUMN_OBJECT_STR.JDBCTableName) {
-                        return e["table_name"];
+                        return e['table_name'];
                       }
                       if (item.id === COLUMN_OBJECT_STR.ConnectionName) {
-                        return e["database_name"];
+                        return e['database_name'];
                       }
                       if (item.id === COLUMN_OBJECT_STR.JDBCTableRow) {
-                        return e["row_count"];
+                        return e['row_count'];
                       }
                       if (item.id === 'size_key') {
                         return formatSize((e as any)[item.id]);
@@ -385,6 +385,50 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
                             badgeType={BADGE_TYPE.Privacy}
                             badgeLabel={(e as any)[item.id]}
                           />
+                        );
+                      }
+                      if (item.id === COLUMN_OBJECT_STR.RowCount) {
+                        return formatNumber((e as any)[item.id]);
+                      }
+                      if (item.id === COLUMN_OBJECT_STR.Labels) {
+                        let hasMore = false;
+                        if (e.labels?.length > 1) {
+                          hasMore = true;
+                        }
+                        return e.labels?.length > 0 ? (
+                          <div className="flex">
+                            <span className="custom-badge label mr-5">
+                              {e.labels?.[0]?.label_name}
+                            </span>
+                            {hasMore && (
+                              <Popover
+                                dismissButton={false}
+                                position="top"
+                                size="small"
+                                triggerType="custom"
+                                content={
+                                  <div>
+                                    {e.labels.map((label: any) => {
+                                      return (
+                                        <span
+                                          key={label.id}
+                                          className="custom-badge label mr-5 mb-2"
+                                        >
+                                          {label.label_name}
+                                        </span>
+                                      );
+                                    })}
+                                  </div>
+                                }
+                              >
+                                <span className="custom-badge more">{`+${
+                                  e.labels?.length - 1
+                                }`}</span>
+                              </Popover>
+                            )}
+                          </div>
+                        ) : (
+                          ''
                         );
                       }
                       return e[item.id];

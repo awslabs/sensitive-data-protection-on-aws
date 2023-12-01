@@ -25,8 +25,8 @@ import {
   S3_FILTER_COLUMN,
   RDS_FILTER_COLUMN,
   COLUMN_WIDTH,
-  FOLDERS_COLUMN,
-  RDS_TABLE_FILTER_COLUMN,
+  TABLE_COLUMN,
+  CATALOG_TABLE_FILTER_COLUMN,
 } from '../types/data_config';
 import { DATA_TYPE_ENUM, TABLE_NAME } from 'enum/common_types';
 import {
@@ -41,6 +41,7 @@ import { useSearchParams } from 'react-router-dom';
 import IdentifierFilterTag from './IdentifierFilterTag';
 import { nFormatter } from 'ts/common';
 import { useTranslation } from 'react-i18next';
+import SchemaModal from './SchemaModal';
 
 /**
  * S3/RDS CatalogList componment
@@ -58,7 +59,7 @@ const CatalogList: React.FC<any> = memo((props: any) => {
     catalogType === DATA_TYPE_ENUM.s3
       ? S3_COLUMN_LIST
       : rdsSelectedView === 'rds-table-view'
-      ? FOLDERS_COLUMN
+      ? TABLE_COLUMN
       : RDS_COLUMN_LIST;
   const [pageData, setPageData] = useState([] as any);
   // by page config
@@ -113,13 +114,32 @@ const CatalogList: React.FC<any> = memo((props: any) => {
     operation: 'and',
   } as any);
 
+  const [showSchemaModal, setShowSchemaModal] = useState(false);
+  const [selectDetailRowData, setSelectDetailRowData] = useState({}); //click row data
+  const schemaModalProps = {
+    showSchemaModal,
+    setShowSchemaModal,
+    selectRowData: selectDetailRowData,
+    catalogType,
+    selectPageRowData: selectRowData,
+  };
+  // click Forder or database name to schema
+  const clickFolderName = (data: any) => {
+    const rowData = {
+      ...data,
+      name: data.table_name,
+    };
+    setSelectDetailRowData(rowData);
+    setShowSchemaModal(true);
+  };
+
   const TableName = TABLE_NAME.CATALOG_DATABASE_LEVEL_CLASSIFICATION;
 
   const filterColumn =
     catalogType === DATA_TYPE_ENUM.s3
       ? S3_FILTER_COLUMN
       : rdsSelectedView === 'rds-table-view'
-      ? RDS_TABLE_FILTER_COLUMN
+      ? CATALOG_TABLE_FILTER_COLUMN
       : RDS_FILTER_COLUMN;
 
   const resourcesFilterProps = {
@@ -237,7 +257,19 @@ const CatalogList: React.FC<any> = memo((props: any) => {
           },
         ] as any,
       };
-
+      query.tokens &&
+        query.tokens.forEach((item: any) => {
+          const searchValues =
+            item.propertyKey === COLUMN_OBJECT_STR.Privacy
+              ? PRIVARY_TYPE_INT_DATA[item.value]
+              : item.value;
+          requestParam.conditions.push({
+            column: item.propertyKey,
+            values: [`${searchValues}`],
+            condition: query.operation,
+            operation: item.operator,
+          });
+        });
       const result = await searchCatalogTables(requestParam);
       // account_id region database_type database_name table_name
       setPageData((result as any)?.items);
@@ -304,7 +336,10 @@ const CatalogList: React.FC<any> = memo((props: any) => {
               sortingField: item.sortingField,
               // different column tag
               cell: (e: any) => {
-                if (item.id === COLUMN_OBJECT_STR.DatabaseName) {
+                if (
+                  item.id === COLUMN_OBJECT_STR.DatabaseName &&
+                  !item.disableClick
+                ) {
                   return (
                     <div
                       className="bucket-name"
@@ -409,7 +444,17 @@ const CatalogList: React.FC<any> = memo((props: any) => {
                 if (item.id === COLUMN_OBJECT_STR.RowCount) {
                   return formatNumber((e as any)[item.id]);
                 }
-
+                if (item.id === COLUMN_OBJECT_STR.FolderName) {
+                  return (
+                    <div
+                      style={{ cursor: 'pointer' }}
+                      className="catalog-detail-row-folders"
+                      onClick={() => clickFolderName(e as any)}
+                    >
+                      {(e as any)[item.id]}
+                    </div>
+                  );
+                }
                 return (e as any)[item.id];
               },
               minWidth: COLUMN_WIDTH[item.id],
@@ -515,6 +560,7 @@ const CatalogList: React.FC<any> = memo((props: any) => {
         }}
       />
       {showDetailModal && <DetailModal {...modalProps} />}
+      {showSchemaModal && <SchemaModal {...schemaModalProps} />}
     </>
   );
 });

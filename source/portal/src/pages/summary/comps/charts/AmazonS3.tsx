@@ -84,47 +84,17 @@ const AmazonS3: React.FC<any> = () => {
       <S3CatalogOverview />
       <Grid
         gridDefinition={[
+          { colspan: 12 },
           { colspan: 6 },
           { colspan: 6 },
           // { colspan: 12 },
           // { colspan: 6 },
-          { colspan: 12 },
           { colspan: 12 },
         ]}
       >
         {/* <div className="mt-20 pd-10">
           <MapChart sourceType="s3" title={t('summary:dataLocation')} />
         </div> */}
-        <div className="mt-20 pd-10">
-          <CircleChart
-            title={t('summary:lastUpdatedStatus')}
-            circleType="pie"
-            sourceType="s3"
-          />
-        </div>
-
-        <div className="mt-20 pd-10">
-          {loadingTableData ? (
-            <Spinner />
-          ) : (
-            <>
-              <TableData
-                dataList={allConatainsPIIDataData}
-                keyLable={t('summary:awsAccount')}
-                valueLable={t('summary:s3Bucket')}
-                title={t('summary:topAccountsContainPII')}
-              />
-              {allConatainsPIIDataData.length > 0 && (
-                <Pagination
-                  currentPage={currentPagePII}
-                  pageSize={pageSizePII}
-                  totalData={allConatainsPIIDataData.length}
-                  onPageChange={handlePageChangePII}
-                />
-              )}
-            </>
-          )}
-        </div>
 
         <div className="mt-20 pd-10">
           <Header variant="h3">{t('summary:privacyTagging')} </Header>
@@ -156,6 +126,37 @@ const AmazonS3: React.FC<any> = () => {
               />
             </div>
           </Grid>
+        </div>
+
+        <div className="mt-20 pd-10">
+          <CircleChart
+            title={t('summary:lastUpdatedStatus')}
+            circleType="pie"
+            sourceType="s3"
+          />
+        </div>
+
+        <div className="mt-20 pd-10">
+          {loadingTableData ? (
+            <Spinner />
+          ) : (
+            <>
+              <TableData
+                dataList={allConatainsPIIDataData}
+                keyLable={t('summary:awsAccount')}
+                valueLable={t('summary:s3Bucket')}
+                title={t('summary:topAccountsContainPII')}
+              />
+              {allConatainsPIIDataData.length > 0 && (
+                <Pagination
+                  currentPage={currentPagePII}
+                  pageSize={pageSizePII}
+                  totalData={allConatainsPIIDataData.length}
+                  onPageChange={handlePageChangePII}
+                />
+              )}
+            </>
+          )}
         </div>
 
         <div className="mt-20 pd-10">

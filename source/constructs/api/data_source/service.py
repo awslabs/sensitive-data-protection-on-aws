@@ -1780,7 +1780,7 @@ def gen_conn_properties(jdbcConn):
         connectionProperties_dict['SECRET_ID'] = jdbcConn.secret
     connectionProperties_dict['JDBC_CONNECTION_URL'] = jdbcConn.jdbc_connection_url
     connectionProperties_dict['JDBC_ENFORCE_SSL'] = jdbcConn.jdbc_enforce_ssl
-    if not (jdbcConn.jdbc_enforce_ssl == 'false'):
+    if jdbcConn.skip_custom_jdbc_cert_validation and jdbcConn.skip_custom_jdbc_cert_validation == 'true':
         connectionProperties_dict['SKIP_CUSTOM_JDBC_CERT_VALIDATION'] = jdbcConn.skip_custom_jdbc_cert_validation
     return connectionProperties_dict
 
@@ -1789,7 +1789,7 @@ def test_jdbc_conn(jdbc_conn_param: JDBCInstanceSourceBase):
     account_id, region = gen_assume_info(jdbc_conn_param)
     cursor = None
     connection = None
-     # get connection name from sdp db
+    # get connection name from sdp db
     source: JDBCInstanceSourceFullInfo = crud.get_jdbc_instance_source_glue(provider_id=jdbc_conn_param.account_provider_id,
                                                                             account=jdbc_conn_param.account_id,
                                                                             region=jdbc_conn_param.region,

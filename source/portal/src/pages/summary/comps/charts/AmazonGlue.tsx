@@ -80,33 +80,12 @@ export const AmazonGlue: React.FC<any> = () => {
       <GlueCatalogOverview />
       <Grid
         gridDefinition={[
-          { colspan: 6 },
-          { colspan: 6 },
           { colspan: 12 },
+          { colspan: 6 },
+          { colspan: 6 },
           { colspan: 12 },
         ]}
       >
-        <div className="mt-20 pd-10">
-          <CircleChart
-            title={t('summary:lastUpdatedStatus')}
-            circleType="pie"
-            sourceType="glue"
-          />
-        </div>
-
-        <div className="mt-20 pd-10">
-          {loadingTableData ? (
-            <Spinner />
-          ) : (
-            <TableData
-              dataList={conatainsPIIData}
-              keyLable={t('summary:awsAccount')}
-              valueLable={t('summary:rdsIntacnes')}
-              title={t('summary:topAccountsContainPII')}
-            />
-          )}
-        </div>
-
         <div className="mt-20 pd-10">
           <Header variant="h3">{t('summary:privacyTagging')}</Header>
           <Grid
@@ -137,6 +116,27 @@ export const AmazonGlue: React.FC<any> = () => {
               />
             </div>
           </Grid>
+        </div>
+
+        <div className="mt-20 pd-10">
+          <CircleChart
+            title={t('summary:lastUpdatedStatus')}
+            circleType="pie"
+            sourceType="glue"
+          />
+        </div>
+
+        <div className="mt-20 pd-10">
+          {loadingTableData ? (
+            <Spinner />
+          ) : (
+            <TableData
+              dataList={conatainsPIIData}
+              keyLable={t('summary:awsAccount')}
+              valueLable={t('summary:rdsIntacnes')}
+              title={t('summary:topAccountsContainPII')}
+            />
+          )}
         </div>
 
         <div className="mt-20 pd-10">

@@ -61,7 +61,13 @@ export const showHideSpinner = (isShow: boolean) => {
 };
 
 export const formatNumber = (num: number) => {
-  const units = ['', 'K', 'M', 'B', 'T', 'Q'];
+  if (!num) {
+    return '-';
+  }
+  if (num === 0 || num.toString() === '0') {
+    return 0;
+  }
+  const units = ['', 'k', 'M', 'B', 'T', 'Q'];
 
   for (let i = units.length - 1; i >= 0; i--) {
     const decimal = Math.pow(1000, i);
