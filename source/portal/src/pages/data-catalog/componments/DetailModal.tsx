@@ -18,6 +18,7 @@ import {
   TABLES_COLUMN,
   COLUMN_OBJECT_STR,
   RDS_DATA_IDENT_COLUMN,
+  S3_UNSTRUCTURED_FOLDERS_COLUMN,
 } from '../types/data_config';
 import {
   BADGE_TYPE,
@@ -145,6 +146,19 @@ const DetailModal: React.FC<any> = (props: any) => {
     }
   };
 
+  const buildLabel = (item: any) => {
+    if (item.id === 'unstructured') {
+      return `${t(item.label)} (${selectRowData.unstructuredDataCount})`;
+    }
+    if (item.id === 's3') {
+      return `${t(item.label)} (${selectRowData.structuredDataCount})`;
+    }
+    return item.id === COLUMN_OBJECT_STR.Folders ||
+      item.id === COLUMN_OBJECT_STR.Tables
+      ? `${t(item.label)} (${selectRowData.table_count})`
+      : `${t(item.label)}`;
+  };
+
   const tabsContent = modalTabs.map((item) => {
     let tempProps: CatalogDetailListProps = {
       columnList: DATA_IDENT_COLUMN,
@@ -210,7 +224,7 @@ const DetailModal: React.FC<any> = (props: any) => {
     }
     if (item.id === COLUMN_OBJECT_STR.UnstructuredData) {
       tempProps = {
-        columnList: FOLDERS_COLUMN,
+        columnList: S3_UNSTRUCTURED_FOLDERS_COLUMN,
         catalogType,
         tagId: item.id,
         needSchemaModal: true,
@@ -252,12 +266,7 @@ const DetailModal: React.FC<any> = (props: any) => {
 
     return {
       id: item.id,
-      label:
-        item.id === COLUMN_OBJECT_STR.Folders ||
-        item.id === COLUMN_OBJECT_STR.Tables ||
-        item.id === COLUMN_OBJECT_STR.StructuredData
-          ? `${t(item.label)} (${selectRowData.table_count})`
-          : `${t(item.label)}`,
+      label: buildLabel(item),
       content: <CatalogDetailList {...tempProps} />,
     };
   });

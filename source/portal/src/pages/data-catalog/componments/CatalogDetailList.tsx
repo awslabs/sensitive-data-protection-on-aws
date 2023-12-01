@@ -393,7 +393,9 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
           asc: true,
         };
         console.log(requestParam);
-        const unstructured_result: any = await getDatabaseIdentifiers(requestParam);
+        const unstructured_result: any = await getDatabaseIdentifiers(
+          requestParam
+        );
         result_merged = [...result, ...unstructured_result];
       }
       if (typeof result_merged !== 'object') {
@@ -411,14 +413,16 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
     };
 
     const getDataFolders = async (nameFilter?: string) => {
+      console.info('AAA:getDataFolders:', dataType);
       try {
         const requestParam: any = {
           account_id: selectRowData.account_id,
           region: selectRowData.region,
-          database_type:
-            selectRowData.database_type === 's3'
-              ? dataType
-              : selectRowData.database_type,
+          database_type: ['s3', 'unstructured'].includes(
+            selectRowData.database_type
+          )
+            ? dataType
+            : selectRowData.database_type,
           database_name: selectRowData.database_name,
           table_name: nameFilter,
           page: currentPage,
@@ -637,7 +641,11 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                         return '';
                       }
                       const pathList = (e as any)['s3_full_path'].split('/');
-                      return pathList[pathList.length - 1];
+                      return (
+                        <div className="wrap-line">
+                          {pathList[pathList.length - 1]}
+                        </div>
+                      );
                     }
                     if (
                       item.id === 'size' ||
