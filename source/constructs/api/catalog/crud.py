@@ -840,11 +840,12 @@ def get_s3_database_summary_with_attr(database_type, attribute: str, need_merge:
             privacy = entry["privacy"]
             if privacy not in [item[attribute] for item in updated_database_list]:
                 object_total = obj_dict.get(privacy, 0)
+                size_total = size_dict.get(privacy, 0)
                 updated_database_list.append({
                     attribute: privacy,
                     "database_total": 0,
                     "object_total": object_total,
-                    "size_total": 0,
+                    "size_total": size_total,
                     "table_total": entry["table_total"]
                 })
 
