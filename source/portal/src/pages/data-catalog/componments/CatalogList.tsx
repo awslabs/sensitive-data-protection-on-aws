@@ -34,6 +34,7 @@ import {
   getDataBaseByIdentifier,
   // getTablesByDatabase,
   searchCatalogTables,
+  getS3TableCount,
 } from 'apis/data-catalog/api';
 import '../style.scss';
 import { formatSize, formatNumber, useDidUpdateEffect } from 'tools/tools';
@@ -281,11 +282,26 @@ const CatalogList: React.FC<any> = memo((props: any) => {
   };
 
   // show bucket detail dialog
-  const clickRowName = (selectedRowData: any) => {
-    const tempData = {
+  const clickRowName = async (selectedRowData: any) => {
+    let tempData = {
       ...selectedRowData,
       name: selectedRowData[columnList[0].id],
     };
+    if (
+      selectedRowData.database_type === 's3' ||
+      selectedRowData.database_type === 'unstructured'
+    ) {
+      // get modal data count
+      const data: any = await getS3TableCount({
+        bucket_name: selectedRowData.database_name,
+      });
+      tempData = {
+        ...selectedRowData,
+        structuredDataCount: data.s3,
+        unstructuredDataCount: data.unstructured,
+        name: selectedRowData[columnList[0].id],
+      };
+    }
     setSelectedItems([selectedRowData]);
     setSelectRowData(tempData);
     setShowDetailModal(true);

@@ -202,6 +202,15 @@ const getTablePropertyById = async (params: { table_id: string }) => {
   return result;
 };
 
+const getS3TableCount = async (params: { bucket_name: string }) => {
+  const result = await apiRequest(
+    'post',
+    `catalog/get-s3-table-counts?bucket_name=${params.bucket_name}`,
+    {}
+  );
+  return result;
+};
+
 export {
   getTablesByDatabase,
   searchTablesByDatabase,
@@ -224,4 +233,5 @@ export {
   getS3UnstructuredSampleObjects,
   getPreSignedUrlById,
   getTablePropertyById,
+  getS3TableCount,
 };

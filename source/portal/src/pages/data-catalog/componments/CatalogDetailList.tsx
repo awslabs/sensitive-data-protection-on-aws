@@ -393,7 +393,9 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
           asc: true,
         };
         console.log(requestParam);
-        const unstructured_result: any = await getDatabaseIdentifiers(requestParam);
+        const unstructured_result: any = await getDatabaseIdentifiers(
+          requestParam
+        );
         result_merged = [...result, ...unstructured_result];
       }
       if (typeof result_merged !== 'object') {
