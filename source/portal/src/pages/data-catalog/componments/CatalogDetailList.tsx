@@ -413,14 +413,16 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
     };
 
     const getDataFolders = async (nameFilter?: string) => {
+      console.info('AAA:getDataFolders:', dataType);
       try {
         const requestParam: any = {
           account_id: selectRowData.account_id,
           region: selectRowData.region,
-          database_type:
-            selectRowData.database_type === 's3'
-              ? dataType
-              : selectRowData.database_type,
+          database_type: ['s3', 'unstructured'].includes(
+            selectRowData.database_type
+          )
+            ? dataType
+            : selectRowData.database_type,
           database_name: selectRowData.database_name,
           table_name: nameFilter,
           page: currentPage,
