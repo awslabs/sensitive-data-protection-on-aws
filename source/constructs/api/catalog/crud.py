@@ -822,7 +822,6 @@ def get_s3_database_summary_with_attr(database_type, attribute: str, need_merge:
         column_list = get_s3_object_summary_with_attr(attribute)
         column_dict = {column["privacy"]: column["object_total"] for column in column_list}
         updated_database_list = []
-        print(f"table_dict:{table_dict} column_dict: {obj_dict}")
         for database in database_list:
             privacy = database[attribute]
             table_total = table_dict.get(privacy, 0)
