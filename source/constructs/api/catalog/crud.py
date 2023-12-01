@@ -826,13 +826,13 @@ def get_s3_database_summary_with_attr(database_type, attribute: str, need_merge:
             privacy = database[attribute]
             table_total = table_dict.get(privacy, 0)
             object_total = obj_dict.get(privacy, 0)
-            # size_total = size_dict.get(privacy, 0)
+            size_total = size_dict.get(privacy, 0)
             updated_database_list.append({
                 attribute: privacy,
                 "database_total": database["database_total"],
                 "object_total": object_total,
                 # "object_total": database["object_total"],
-                "size_total": database["size_total"],
+                "size_total": size_total,
                 "table_total": table_total
                 # "table_total": database["table_total"]
             })
