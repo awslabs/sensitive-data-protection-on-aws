@@ -96,7 +96,7 @@ create table discovery_job_run_database
     start_time               datetime      null,
     end_time                 datetime      null,
     state                    varchar(10)   null,
-    error_content            text          null,
+    error_log                text          null,
     uuid                     varchar(32)   null,
     table_count              int           null,
     table_count_unstructured int           null,
