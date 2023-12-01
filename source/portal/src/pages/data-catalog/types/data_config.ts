@@ -94,6 +94,7 @@ export const S3_COLUMN_LIST: ColumnList[] = [
 export const DATA_TYPE = {
   s3: 's3Bucket',
   rds: 'rdsInstance',
+  glue: 'glue',
   jdbc: 'JDBC',
 };
 

@@ -8,7 +8,7 @@ import {
   Pagination,
   SpaceBetween,
   Table,
-  StatusIndicator
+  StatusIndicator,
 } from '@cloudscape-design/components';
 import CommonBadge from 'pages/common-badge';
 import {
@@ -349,19 +349,19 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
                   )} ${e[TYPE_COLUMN.TOTAL_S3_BUCKET]})`;
                 }
                 if (item.id === TYPE_COLUMN.RDS_CONNECTION) {
-                  showText = `${
-                    e[TYPE_COLUMN.CONNECTED_RDS_INSTANCE]
-                  } (of total ${e[TYPE_COLUMN.TOTAL_RDS_INSTANCE]})`;
+                  showText = `${e[TYPE_COLUMN.CONNECTED_RDS_INSTANCE]} (${t(
+                    'table.ofTotal'
+                  )} ${e[TYPE_COLUMN.TOTAL_RDS_INSTANCE]})`;
                 }
                 if (item.id === TYPE_COLUMN.GLUE_CONNECTION) {
-                  showText = `${
-                    e[TYPE_COLUMN.CONNECTED_GLUE_DATABASE]
-                  } (of total ${e[TYPE_COLUMN.TOTAL_GLUE_DATABASE]})`;
+                  showText = `${e[TYPE_COLUMN.CONNECTED_GLUE_DATABASE]} (${t(
+                    'table.ofTotal'
+                  )} ${e[TYPE_COLUMN.TOTAL_GLUE_DATABASE]})`;
                 }
                 if (item.id === TYPE_COLUMN.JDBC_CONNECTION) {
-                  showText = `${
-                    e[TYPE_COLUMN.CONNECTED_JDBC_CONNECTION]
-                  } (of total ${e[TYPE_COLUMN.TOTAL_JDBC_CONNECTION]})`;
+                  showText = `${e[TYPE_COLUMN.CONNECTED_JDBC_CONNECTION]} (${t(
+                    'table.ofTotal'
+                  )} ${e[TYPE_COLUMN.TOTAL_JDBC_CONNECTION]})`;
                 }
 
                 if (
@@ -382,6 +382,24 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
                 ) {
                   percentCls = 'success-percent';
                   percentIcon = 'status-positive';
+                } else if (
+                  // glue count
+                  (e[TYPE_COLUMN.STACK_STATUS] === 'SUCCEEDED' ||
+                    e[TYPE_COLUMN.CONNECTED_GLUE_DATABASE] ===
+                      e[TYPE_COLUMN.TOTAL_GLUE_DATABASE]) &&
+                  item.id === TYPE_COLUMN.GLUE_CONNECTION
+                ) {
+                  percentCls = 'success-percent';
+                  percentIcon = 'status-positive';
+                } else if (
+                  // glue count
+                  (e[TYPE_COLUMN.STACK_STATUS] === 'SUCCEEDED' ||
+                    e[TYPE_COLUMN.CONNECTED_JDBC_CONNECTION] ===
+                      e[TYPE_COLUMN.TOTAL_JDBC_CONNECTION]) &&
+                  item.id === TYPE_COLUMN.JDBC_CONNECTION
+                ) {
+                  percentCls = 'success-percent';
+                  percentIcon = 'status-positive';
                 } else if (e[TYPE_COLUMN.STACK_STATUS] === 'FAILED') {
                   // FAILED
                   percentCls = 'failed-percent';
@@ -390,7 +408,10 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
                   percentCls = 'info-percent';
                   percentIcon = 'status-info';
                 }
-                if (selectedAccount !== '' && e['account_id'] === selectedAccount) {
+                if (
+                  selectedAccount !== '' &&
+                  e['account_id'] === selectedAccount
+                ) {
                   return (
                     <div className={percentCls}>
                       <StatusIndicator type="loading" />
@@ -410,7 +431,7 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
                       &nbsp;&nbsp;
                       <span>{showText}</span>
                     </div>
-                  )
+                  );
                 }
               }
 
@@ -459,7 +480,11 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
                 <Button
                   onClick={clkDeleteAccount}
                   loading={deleteLoading}
-                  disabled={selectedItems.length === 0 || isLoading || selectedAccount !== ''}
+                  disabled={
+                    selectedItems.length === 0 ||
+                    isLoading ||
+                    selectedAccount !== ''
+                  }
                 >
                   {t('button.delete')}
                 </Button>

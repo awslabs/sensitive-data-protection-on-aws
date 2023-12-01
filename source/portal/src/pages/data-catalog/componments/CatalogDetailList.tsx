@@ -639,7 +639,11 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                         return '';
                       }
                       const pathList = (e as any)['s3_full_path'].split('/');
-                      return pathList[pathList.length - 1];
+                      return (
+                        <div className="wrap-line">
+                          {pathList[pathList.length - 1]}
+                        </div>
+                      );
                     }
                     if (
                       item.id === 'size' ||

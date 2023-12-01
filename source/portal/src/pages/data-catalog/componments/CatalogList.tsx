@@ -77,7 +77,7 @@ const CatalogList: React.FC<any> = memo((props: any) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showFilter, setShowFilter] = useState(!urlIdentifiers);
   const tableTitle = `${t('catalog:dataCatalog')} ${t(
-    (DATA_TYPE as any)[catalogType] || DATA_TYPE.rds
+    (DATA_TYPE as any)[catalogType] || 'jdbc'
   )}`;
   const [curSortColumn, setCurSortColumn] = useState<any>({
     sortingField: 'database_name',
@@ -524,7 +524,9 @@ const CatalogList: React.FC<any> = memo((props: any) => {
               </>
             }
           >
-            {props.label ?? tableTitle}
+            {/* {JSON.stringify(props.label)} */}
+            {tableTitle}
+            {/* {props.label ?? tableTitle} */}
           </Header>
         }
         pagination={
