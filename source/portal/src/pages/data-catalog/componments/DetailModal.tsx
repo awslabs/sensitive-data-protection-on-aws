@@ -18,6 +18,7 @@ import {
   TABLES_COLUMN,
   COLUMN_OBJECT_STR,
   RDS_DATA_IDENT_COLUMN,
+  S3_UNSTRUCTURED_FOLDERS_COLUMN,
 } from '../types/data_config';
 import {
   BADGE_TYPE,
@@ -223,7 +224,7 @@ const DetailModal: React.FC<any> = (props: any) => {
     }
     if (item.id === COLUMN_OBJECT_STR.UnstructuredData) {
       tempProps = {
-        columnList: FOLDERS_COLUMN,
+        columnList: S3_UNSTRUCTURED_FOLDERS_COLUMN,
         catalogType,
         tagId: item.id,
         needSchemaModal: true,
