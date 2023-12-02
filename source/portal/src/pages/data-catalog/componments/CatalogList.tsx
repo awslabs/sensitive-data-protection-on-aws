@@ -55,6 +55,7 @@ import {
   GLUE_ACCOUNTS_COLUMNS,
   RDS_FOLDER_COLUMS,
 } from 'pages/create-job/types/create_data_type';
+import { set } from 'lodash';
 
 /**
  * S3/RDS CatalogList componment
@@ -77,6 +78,7 @@ const CatalogList: React.FC<any> = memo((props: any) => {
     JDBC_VIEW.JDBC_INSTANCE_VIEW
   );
   const [columnList, setColumnList] = useState<any[]>([]);
+  const [filterColumns, setFilterColumns] = useState<ColumnList[]>([]);
   const [pageData, setPageData] = useState([] as any);
   const [preferences, setPreferences] = useState({
     pageSize: 20,
@@ -148,7 +150,7 @@ const CatalogList: React.FC<any> = memo((props: any) => {
   };
 
   const TableName = TABLE_NAME.CATALOG_DATABASE_LEVEL_CLASSIFICATION;
-  const filterColumn: ColumnList[] = []; // TODO
+  // const filterColumn: ColumnList[] = []; // TODO
   // const filterColumn =
   //   catalogType === DATA_TYPE_ENUM.s3
   //     ? S3_FILTER_COLUMN
@@ -158,7 +160,7 @@ const CatalogList: React.FC<any> = memo((props: any) => {
 
   const resourcesFilterProps = {
     totalCount,
-    columnList: filterColumn.filter((i) => i.filter),
+    columnList: filterColumns.filter((i) => i.filter),
     tableName: TableName,
     query,
     setQuery,
@@ -379,31 +381,37 @@ const CatalogList: React.FC<any> = memo((props: any) => {
   };
 
   useEffect(() => {
-    console.info('catalogType:', catalogType);
     if (catalogType === DATA_TYPE_ENUM.s3) {
       setColumnList(S3_COLUMN_LIST);
+      setFilterColumns(S3_FILTER_COLUMN);
     }
     if (catalogType === DATA_TYPE_ENUM.rds) {
       if (rdsSelectedView === RDS_VIEW.RDS_INSTANCE_VIEW) {
-        setColumnList(TABLE_COLUMN);
-      } else {
         setColumnList(RDS_COLUMN_LIST);
+        setFilterColumns(RDS_FILTER_COLUMN);
+      } else {
+        setColumnList(RDS_FOLDER_COLUMS);
+        setFilterColumns(CATALOG_TABLE_FILTER_COLUMN);
       }
     }
     if (catalogType === DATA_TYPE_ENUM.glue) {
       if (glueSelectedView === GLUE_VIEW.GLUE_TABLE_VIEW) {
         setColumnList(RDS_FOLDER_COLUMS);
+        setFilterColumns(CATALOG_TABLE_FILTER_COLUMN);
       } else if (glueSelectedView === GLUE_VIEW.GLUE_ACCOUNT_VIEW) {
         setColumnList(GLUE_ACCOUNTS_COLUMNS);
       } else {
         setColumnList(RDS_COLUMN_LIST);
+        setFilterColumns(RDS_FILTER_COLUMN);
       }
     }
     if (catalogType.startsWith('jdbc')) {
       if (jdbcSelectedView === JDBC_VIEW.JDBC_INSTANCE_VIEW) {
         setColumnList(RDS_COLUMN_LIST);
+        setFilterColumns(RDS_FILTER_COLUMN);
       } else {
         setColumnList(TABLE_COLUMN);
+        setFilterColumns(CATALOG_TABLE_FILTER_COLUMN);
       }
     }
   }, [catalogType, rdsSelectedView, glueSelectedView, jdbcSelectedView]);
