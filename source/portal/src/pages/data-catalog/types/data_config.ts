@@ -249,7 +249,7 @@ export const TABLE_COLUMN: ColumnList[] = [
   },
   {
     id: COLUMN_OBJECT_STR.Labels,
-    label: 'table.label.label',
+    label: 'table.label.catalogLabels',
     filter: false,
   },
   {
