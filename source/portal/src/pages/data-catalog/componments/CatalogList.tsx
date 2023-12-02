@@ -49,13 +49,7 @@ import IdentifierFilterTag from './IdentifierFilterTag';
 import { ColumnList, nFormatter } from 'ts/common';
 import { useTranslation } from 'react-i18next';
 import SchemaModal from './SchemaModal';
-import { getAccountList } from 'apis/account-manager/api';
-import { el } from 'date-fns/locale';
-import {
-  GLUE_ACCOUNTS_COLUMNS,
-  RDS_FOLDER_COLUMS,
-} from 'pages/create-job/types/create_data_type';
-import { set } from 'lodash';
+import { RDS_FOLDER_COLUMS } from 'pages/create-job/types/create_data_type';
 
 /**
  * S3/RDS CatalogList componment
@@ -215,10 +209,8 @@ const CatalogList: React.FC<any> = memo((props: any) => {
       if (glueSelectedView === GLUE_VIEW.GLUE_INSTANCE_VIEW) {
         // getGlueAccountList();
         getDataBases();
-      } else if (glueSelectedView === GLUE_VIEW.GLUE_TABLE_VIEW) {
-        getDataFolders();
       } else {
-        getGlueAccountList();
+        getDataFolders();
       }
     } else if (catalogType.startsWith('jdbc')) {
       if (jdbcSelectedView === JDBC_VIEW.JDBC_INSTANCE_VIEW) {
@@ -232,30 +224,6 @@ const CatalogList: React.FC<any> = memo((props: any) => {
       } catch (error) {
         setIsLoading(false);
       }
-    }
-  };
-
-  const getGlueAccountList = async () => {
-    setIsLoading(true);
-    try {
-      const requestParam = {
-        page: currentPage,
-        size: preferences.pageSize,
-        conditions: [
-          {
-            column: 'account_provider_id',
-            values: [1],
-            operation: '=',
-            condition: 'and',
-          },
-        ],
-      };
-      const result: any = await getAccountList(requestParam);
-      setPageData((result as any)?.items);
-      setIsLoading(false);
-      setIsLoading(false);
-    } catch (error) {
-      setIsLoading(false);
     }
   };
 
@@ -398,8 +366,6 @@ const CatalogList: React.FC<any> = memo((props: any) => {
       if (glueSelectedView === GLUE_VIEW.GLUE_TABLE_VIEW) {
         setColumnList(RDS_FOLDER_COLUMS);
         setFilterColumns(CATALOG_TABLE_FILTER_COLUMN);
-      } else if (glueSelectedView === GLUE_VIEW.GLUE_ACCOUNT_VIEW) {
-        setColumnList(GLUE_ACCOUNTS_COLUMNS);
       } else {
         setColumnList(RDS_COLUMN_LIST);
         setFilterColumns(RDS_FILTER_COLUMN);
@@ -633,10 +599,6 @@ const CatalogList: React.FC<any> = memo((props: any) => {
                           id: GLUE_VIEW.GLUE_INSTANCE_VIEW,
                         },
                         { text: 'Table view', id: GLUE_VIEW.GLUE_TABLE_VIEW },
-                        {
-                          text: 'Account view',
-                          id: GLUE_VIEW.GLUE_ACCOUNT_VIEW,
-                        },
                       ]}
                       onChange={({ detail }) =>
                         setGlueSelectedView(detail.selectedId)

@@ -281,8 +281,8 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
                     id: item.id,
                     header: t(item.label),
                     cell: (e: any) => {
-                      if (item.id === COLUMN_OBJECT_STR.DatabaseName){
-                        return e['database_name']
+                      if (item.id === COLUMN_OBJECT_STR.DatabaseName) {
+                        return e['database_name'];
                       }
                       if (item.id === 'size_key') {
                         return formatSize((e as any)[item.id]);
@@ -404,8 +404,8 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
                     id: item.id,
                     header: t(item.label),
                     cell: (e: any) => {
-                      if (item.id === COLUMN_OBJECT_STR.DatabaseName){
-                        return e['database_name']
+                      if (item.id === COLUMN_OBJECT_STR.DatabaseName) {
+                        return e['database_name'];
                       }
                       if (item.id === 'size_key') {
                         return formatSize((e as any)[item.id]);
