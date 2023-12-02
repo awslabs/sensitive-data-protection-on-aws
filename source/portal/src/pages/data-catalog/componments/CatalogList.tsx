@@ -28,7 +28,13 @@ import {
   TABLE_COLUMN,
   CATALOG_TABLE_FILTER_COLUMN,
 } from '../types/data_config';
-import { DATA_TYPE_ENUM, TABLE_NAME } from 'enum/common_types';
+import {
+  DATA_TYPE_ENUM,
+  GLUE_VIEW,
+  JDBC_VIEW,
+  RDS_VIEW,
+  TABLE_NAME,
+} from 'enum/common_types';
 import {
   getDataBaseByType,
   getDataBaseByIdentifier,
@@ -40,9 +46,15 @@ import '../style.scss';
 import { formatSize, formatNumber, useDidUpdateEffect } from 'tools/tools';
 import { useSearchParams } from 'react-router-dom';
 import IdentifierFilterTag from './IdentifierFilterTag';
-import { nFormatter } from 'ts/common';
+import { ColumnList, nFormatter } from 'ts/common';
 import { useTranslation } from 'react-i18next';
 import SchemaModal from './SchemaModal';
+import { getAccountList } from 'apis/account-manager/api';
+import { el } from 'date-fns/locale';
+import {
+  GLUE_ACCOUNTS_COLUMNS,
+  RDS_FOLDER_COLUMS,
+} from 'pages/create-job/types/create_data_type';
 
 /**
  * S3/RDS CatalogList componment
@@ -55,15 +67,17 @@ const CatalogList: React.FC<any> = memo((props: any) => {
   const urlAccountId = searchParams.get('accountId');
   const urlPrivacy = searchParams.get('privacy');
   const urlIdentifiers = searchParams.get('identifiers');
-  const [rdsSelectedView, setRdsSelectedView] = useState('rds-instance-view');
-  const columnList =
-    catalogType === DATA_TYPE_ENUM.s3
-      ? S3_COLUMN_LIST
-      : rdsSelectedView === 'rds-table-view'
-      ? TABLE_COLUMN
-      : RDS_COLUMN_LIST;
+  const [rdsSelectedView, setRdsSelectedView] = useState<string>(
+    RDS_VIEW.RDS_INSTANCE_VIEW
+  );
+  const [glueSelectedView, setGlueSelectedView] = useState<string>(
+    GLUE_VIEW.GLUE_INSTANCE_VIEW
+  );
+  const [jdbcSelectedView, setJdbcSelectedView] = useState<string>(
+    JDBC_VIEW.JDBC_INSTANCE_VIEW
+  );
+  const [columnList, setColumnList] = useState<any[]>([]);
   const [pageData, setPageData] = useState([] as any);
-  // by page config
   const [preferences, setPreferences] = useState({
     pageSize: 20,
     wrapLines: true,
@@ -106,7 +120,6 @@ const CatalogList: React.FC<any> = memo((props: any) => {
         operator: '=',
       });
     }
-
     return resultList;
   };
 
@@ -135,13 +148,13 @@ const CatalogList: React.FC<any> = memo((props: any) => {
   };
 
   const TableName = TABLE_NAME.CATALOG_DATABASE_LEVEL_CLASSIFICATION;
-
-  const filterColumn =
-    catalogType === DATA_TYPE_ENUM.s3
-      ? S3_FILTER_COLUMN
-      : rdsSelectedView === 'rds-table-view'
-      ? CATALOG_TABLE_FILTER_COLUMN
-      : RDS_FILTER_COLUMN;
+  const filterColumn: ColumnList[] = []; // TODO
+  // const filterColumn =
+  //   catalogType === DATA_TYPE_ENUM.s3
+  //     ? S3_FILTER_COLUMN
+  //     : rdsSelectedView === 'rds-table-view'
+  //     ? CATALOG_TABLE_FILTER_COLUMN
+  //     : RDS_FILTER_COLUMN;
 
   const resourcesFilterProps = {
     totalCount,
@@ -154,9 +167,11 @@ const CatalogList: React.FC<any> = memo((props: any) => {
 
   // onload data
   useEffect(() => {
-    preferences.visibleContent = columnList.map((o) => o.id);
-    getPageData();
-  }, [rdsSelectedView]);
+    if (columnList.length > 0) {
+      preferences.visibleContent = columnList.map((o) => o.id);
+      getPageData();
+    }
+  }, [columnList]);
 
   // change page data
   useDidUpdateEffect(() => {
@@ -175,7 +190,10 @@ const CatalogList: React.FC<any> = memo((props: any) => {
 
   // click single select show detail
   useDidUpdateEffect(() => {
-    if (selectedItems.length === 1 && rdsSelectedView === 'rds-instance-view') {
+    if (
+      selectedItems.length === 1 &&
+      rdsSelectedView === RDS_VIEW.RDS_INSTANCE_VIEW
+    ) {
       !showDetailModal && clickRowName(selectedItems[0]);
     }
   }, [selectedItems]);
@@ -188,58 +206,101 @@ const CatalogList: React.FC<any> = memo((props: any) => {
     setIsLoading(true);
     if (
       catalogType === DATA_TYPE_ENUM.rds &&
-      rdsSelectedView === 'rds-table-view'
+      rdsSelectedView === RDS_VIEW.RDS_TABLE_VIEW
     ) {
       getDataFolders();
+    } else if (catalogType === DATA_TYPE_ENUM.glue) {
+      if (glueSelectedView === GLUE_VIEW.GLUE_INSTANCE_VIEW) {
+        // getGlueAccountList();
+        getDataBases();
+      } else if (glueSelectedView === GLUE_VIEW.GLUE_TABLE_VIEW) {
+        getDataFolders();
+      } else {
+        getGlueAccountList();
+      }
+    } else if (catalogType.startsWith('jdbc')) {
+      if (jdbcSelectedView === JDBC_VIEW.JDBC_INSTANCE_VIEW) {
+        getDataBases();
+      } else {
+        getDataFolders();
+      }
     } else {
       try {
-        const requestParam = {
-          page: currentPage,
-          size: preferences.pageSize,
-          sort_column: curSortColumn?.sortingField,
-          asc: !isDescending,
-          conditions: [
-            {
-              column: 'database_type',
-              values: [catalogType],
-              condition: 'and',
-              operation: ':',
-            },
-          ] as any,
-        };
-        query.tokens &&
-          query.tokens.forEach((item: any) => {
-            const searchValues =
-              item.propertyKey === COLUMN_OBJECT_STR.Privacy
-                ? PRIVARY_TYPE_INT_DATA[item.value]
-                : item.value;
-            requestParam.conditions.push({
-              column: item.propertyKey,
-              values: [`${searchValues}`],
-              condition: query.operation,
-              operation: item.operator,
-            });
-          });
-
-        if (urlIdentifiers && !showFilter) {
-          requestParam.conditions.push({
-            column: COLUMN_OBJECT_STR.Identifiers,
-            values: [urlIdentifiers],
-            condition: 'and',
-          });
-        }
-        const queryResult =
-          urlIdentifiers && !showFilter
-            ? await getDataBaseByIdentifier(requestParam)
-            : await getDataBaseByType(requestParam);
-
-        setPageData((queryResult as any)?.items);
-        setTotalCount(queryResult ? (queryResult as any).total : 0);
-        setIsLoading(false);
+        getDataBases();
       } catch (error) {
         setIsLoading(false);
       }
     }
+  };
+
+  const getGlueAccountList = async () => {
+    setIsLoading(true);
+    try {
+      const requestParam = {
+        page: currentPage,
+        size: preferences.pageSize,
+        conditions: [
+          {
+            column: 'account_provider_id',
+            values: [1],
+            operation: '=',
+            condition: 'and',
+          },
+        ],
+      };
+      const result: any = await getAccountList(requestParam);
+      setPageData((result as any)?.items);
+      setIsLoading(false);
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+    }
+  };
+
+  const getDataBases = async () => {
+    const requestParam = {
+      page: currentPage,
+      size: preferences.pageSize,
+      sort_column: curSortColumn?.sortingField,
+      asc: !isDescending,
+      conditions: [
+        {
+          column: 'database_type',
+          values: [catalogType],
+          condition: 'and',
+          operation: ':',
+        },
+      ] as any,
+    };
+    query.tokens &&
+      query.tokens.forEach((item: any) => {
+        const searchValues =
+          item.propertyKey === COLUMN_OBJECT_STR.Privacy
+            ? PRIVARY_TYPE_INT_DATA[item.value]
+            : item.value;
+        requestParam.conditions.push({
+          column: item.propertyKey,
+          values: [`${searchValues}`],
+          condition: query.operation,
+          operation: item.operator,
+        });
+      });
+
+    if (urlIdentifiers && !showFilter) {
+      requestParam.conditions.push({
+        column: COLUMN_OBJECT_STR.Identifiers,
+        values: [urlIdentifiers],
+        condition: 'and',
+      });
+    }
+    const queryResult =
+      urlIdentifiers && !showFilter
+        ? await getDataBaseByIdentifier(requestParam)
+        : await getDataBaseByType(requestParam);
+
+    setPageData((queryResult as any)?.items);
+    setTotalCount(queryResult ? (queryResult as any).total : 0);
+    setIsLoading(false);
   };
 
   const getDataFolders = async (nameFilter?: string) => {
@@ -316,6 +377,36 @@ const CatalogList: React.FC<any> = memo((props: any) => {
     setSelectRowData,
     updateFatherPage,
   };
+
+  useEffect(() => {
+    console.info('catalogType:', catalogType);
+    if (catalogType === DATA_TYPE_ENUM.s3) {
+      setColumnList(S3_COLUMN_LIST);
+    }
+    if (catalogType === DATA_TYPE_ENUM.rds) {
+      if (rdsSelectedView === RDS_VIEW.RDS_INSTANCE_VIEW) {
+        setColumnList(TABLE_COLUMN);
+      } else {
+        setColumnList(RDS_COLUMN_LIST);
+      }
+    }
+    if (catalogType === DATA_TYPE_ENUM.glue) {
+      if (glueSelectedView === GLUE_VIEW.GLUE_TABLE_VIEW) {
+        setColumnList(RDS_FOLDER_COLUMS);
+      } else if (glueSelectedView === GLUE_VIEW.GLUE_ACCOUNT_VIEW) {
+        setColumnList(GLUE_ACCOUNTS_COLUMNS);
+      } else {
+        setColumnList(RDS_COLUMN_LIST);
+      }
+    }
+    if (catalogType.startsWith('jdbc')) {
+      if (jdbcSelectedView === JDBC_VIEW.JDBC_INSTANCE_VIEW) {
+        setColumnList(RDS_COLUMN_LIST);
+      } else {
+        setColumnList(TABLE_COLUMN);
+      }
+    }
+  }, [catalogType, rdsSelectedView, glueSelectedView, jdbcSelectedView]);
 
   return (
     <>
@@ -512,11 +603,52 @@ const CatalogList: React.FC<any> = memo((props: any) => {
                     <SegmentedControl
                       selectedId={rdsSelectedView}
                       options={[
-                        { text: 'Instance view', id: 'rds-instance-view' },
-                        { text: 'Table view', id: 'rds-table-view' },
+                        {
+                          text: 'Instance view',
+                          id: RDS_VIEW.RDS_INSTANCE_VIEW,
+                        },
+                        { text: 'Table view', id: RDS_VIEW.RDS_TABLE_VIEW },
                       ]}
                       onChange={({ detail }) =>
                         setRdsSelectedView(detail.selectedId)
+                      }
+                    />
+                  </div>
+                )}
+                {catalogType === DATA_TYPE_ENUM.glue && (
+                  <div style={{ paddingLeft: 20 }}>
+                    <SegmentedControl
+                      selectedId={glueSelectedView}
+                      options={[
+                        {
+                          text: 'Instance view',
+                          id: GLUE_VIEW.GLUE_INSTANCE_VIEW,
+                        },
+                        { text: 'Table view', id: GLUE_VIEW.GLUE_TABLE_VIEW },
+                        {
+                          text: 'Account view',
+                          id: GLUE_VIEW.GLUE_ACCOUNT_VIEW,
+                        },
+                      ]}
+                      onChange={({ detail }) =>
+                        setGlueSelectedView(detail.selectedId)
+                      }
+                    />
+                  </div>
+                )}
+                {catalogType.startsWith('jdbc') && (
+                  <div style={{ paddingLeft: 20 }}>
+                    <SegmentedControl
+                      selectedId={jdbcSelectedView}
+                      options={[
+                        {
+                          text: 'Instance view',
+                          id: JDBC_VIEW.JDBC_INSTANCE_VIEW,
+                        },
+                        { text: 'Table view', id: JDBC_VIEW.JDBC_TABLE_VIEW },
+                      ]}
+                      onChange={({ detail }) =>
+                        setJdbcSelectedView(detail.selectedId)
                       }
                     />
                   </div>

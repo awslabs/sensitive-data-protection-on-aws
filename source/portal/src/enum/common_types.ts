@@ -3,6 +3,22 @@ export const REGION_TYPE = {
   CN_NORTHWEST1: 'cn-northwest-1',
 };
 
+export enum RDS_VIEW {
+  RDS_INSTANCE_VIEW = 'rds-instance-view',
+  RDS_TABLE_VIEW = 'rds-table-view',
+}
+
+export enum GLUE_VIEW {
+  GLUE_INSTANCE_VIEW = 'glue-instance-view',
+  GLUE_TABLE_VIEW = 'glue-table-view',
+  GLUE_ACCOUNT_VIEW = 'glue-account-view',
+}
+
+export enum JDBC_VIEW {
+  JDBC_INSTANCE_VIEW = 'jdbc-instance-view',
+  JDBC_TABLE_VIEW = 'jdbc-table-view',
+}
+
 export const TAB_LIST = {
   S3: { label: '', id: 's3' },
   RDS: { label: '', id: 'rds' },
