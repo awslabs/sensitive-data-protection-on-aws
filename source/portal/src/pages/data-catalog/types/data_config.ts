@@ -60,11 +60,6 @@ export const S3_COLUMN_LIST: ColumnList[] = [
     sortingField: COLUMN_OBJECT_STR.Privacy,
   },
   {
-    id: COLUMN_OBJECT_STR.Identifier,
-    label: 'table.label.identifier',
-    sortingField: COLUMN_OBJECT_STR.Identifier,
-  },
-  {
     id: COLUMN_OBJECT_STR.AccountId,
     label: 'table.label.awsAccount',
     sortingField: COLUMN_OBJECT_STR.AccountId,

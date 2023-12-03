@@ -228,7 +228,11 @@ const SchemaModal: React.FC<any> = (props: any) => {
   };
 
   const getDataPreview = async () => {
-    if (catalogType !== DATA_TYPE_ENUM.rds && catalogType !== DATA_TYPE_ENUM.glue && catalogType !== DATA_TYPE_ENUM.jdbc) {
+    if (
+      catalogType !== DATA_TYPE_ENUM.rds &&
+      catalogType !== DATA_TYPE_ENUM.glue &&
+      catalogType !== DATA_TYPE_ENUM.jdbc
+    ) {
       return;
     }
     const requestParam = {

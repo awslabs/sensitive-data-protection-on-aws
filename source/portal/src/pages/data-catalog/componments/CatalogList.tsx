@@ -144,13 +144,6 @@ const CatalogList: React.FC<any> = memo((props: any) => {
   };
 
   const TableName = TABLE_NAME.CATALOG_DATABASE_LEVEL_CLASSIFICATION;
-  // const filterColumn: ColumnList[] = []; // TODO
-  // const filterColumn =
-  //   catalogType === DATA_TYPE_ENUM.s3
-  //     ? S3_FILTER_COLUMN
-  //     : rdsSelectedView === 'rds-table-view'
-  //     ? CATALOG_TABLE_FILTER_COLUMN
-  //     : RDS_FILTER_COLUMN;
 
   const resourcesFilterProps = {
     totalCount,
@@ -207,7 +200,6 @@ const CatalogList: React.FC<any> = memo((props: any) => {
       getDataFolders();
     } else if (catalogType === DATA_TYPE_ENUM.glue) {
       if (glueSelectedView === GLUE_VIEW.GLUE_INSTANCE_VIEW) {
-        // getGlueAccountList();
         getDataBases();
       } else {
         getDataFolders();
