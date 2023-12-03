@@ -523,7 +523,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
     };
 
     const clickTableCount = (rowData: any) => {
-      clickTableCountProp && clickTableCountProp(rowData);
+      clickTableCountProp && clickTableCountProp(rowData, selectedType);
     };
 
     const updateSelectChange = (

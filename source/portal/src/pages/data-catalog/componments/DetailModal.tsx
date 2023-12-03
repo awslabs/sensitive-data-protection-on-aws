@@ -86,10 +86,14 @@ const DetailModal: React.FC<any> = (props: any) => {
     }
   }, []);
 
-  const clickTableCountProp = (clickRowData: any) => {
+  const clickTableCountProp = (clickRowData: any, s3Type: string) => {
     setClickIdentifiers(clickRowData.identifier);
     if (catalogType === DATA_TYPE_ENUM.s3) {
-      setActiveTabId(COLUMN_OBJECT_STR.Folders);
+      if (s3Type === 'unstructured') {
+        setActiveTabId(COLUMN_OBJECT_STR.UnstructuredData);
+      } else {
+        setActiveTabId(COLUMN_OBJECT_STR.StructuredData);
+      }
     } else {
       setActiveTabId(COLUMN_OBJECT_STR.Tables);
     }
@@ -179,7 +183,10 @@ const DetailModal: React.FC<any> = (props: any) => {
         dataType: dataType,
       };
     }
-    if (item.id === 'dataIdentifiers' && catalogType === DATA_TYPE_ENUM.rds) {
+    if (
+      item.id === 'dataIdentifiers' &&
+      [DATA_TYPE_ENUM.rds, DATA_TYPE_ENUM.glue].indexOf(catalogType)
+    ) {
       tempProps = {
         columnList: RDS_DATA_IDENT_COLUMN,
         catalogType,
