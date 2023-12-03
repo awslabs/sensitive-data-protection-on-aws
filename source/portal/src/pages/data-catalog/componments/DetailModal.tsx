@@ -271,16 +271,24 @@ const DetailModal: React.FC<any> = (props: any) => {
     };
   });
 
+  const getModalTitle = () => {
+    if (catalogType === DATA_TYPE_ENUM.s3) {
+      return t('catalog:modal.s3BucketDetail');
+    } else if (catalogType === DATA_TYPE_ENUM.rds) {
+      return t('catalog:modal.rdsInstanceDetail');
+    } else if (catalogType === DATA_TYPE_ENUM.glue) {
+      return t('catalog:modal.glueDetail');
+    } else if (catalogType.startsWith('jdbc')) {
+      return t('catalog:modal.jdbcDetail');
+    }
+  };
+
   return (
     <RightModal
       className="detail-modal"
       setShowModal={setShowDetailModal}
       showModal={showDetailModal}
-      header={
-        catalogType === DATA_TYPE_ENUM.s3
-          ? t('catalog:modal.s3BucketDetail')
-          : t('catalog:modal.rdsInstanceDetail')
-      }
+      header={getModalTitle()}
       showFolderIcon={true}
     >
       <div className="modal-body-header">
