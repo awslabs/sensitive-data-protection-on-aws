@@ -13,6 +13,7 @@ import {
   Textarea,
   Multiselect,
   TextFilter,
+  SegmentedControl,
 } from '@cloudscape-design/components';
 import CommonBadge from 'pages/common-badge';
 import SchemaModal from './SchemaModal';
@@ -43,7 +44,7 @@ import {
   NA_OPTION,
   NON_PII_OPTION,
 } from 'pages/common-badge/componments/Options';
-import { TABLE_NAME } from 'enum/common_types';
+import { DATA_TYPE_ENUM, TABLE_NAME } from 'enum/common_types';
 import { getIdentifiersList } from 'apis/data-template/api';
 import { nFormatter } from 'ts/common';
 import { useTranslation } from 'react-i18next';
@@ -75,7 +76,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
     const { t } = useTranslation();
 
     const [currentPage, setCurrentPage] = useState(1);
-
+    const [selectedType, setSelectedType] = useState('s3');
     const [selectDetailRowData, setSelectDetailRowData] = useState({}); //click row data
     const [isLoading, setIsLoading] = useState(false);
     const [showSchemaModal, setShowSchemaModal] = useState(false);
@@ -180,6 +181,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       preferences.pageSize,
       isFolderDescending,
       curFolderSortColumn,
+      selectedType,
     ]);
 
     // useEffect(() => {
@@ -368,6 +370,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
     };
 
     const getDataIdentifiers = async () => {
+      console.info('selectRowData.database_type:', selectRowData.database_type);
       const requestParam = {
         account_id: selectRowData.account_id,
         region: selectRowData.region,
@@ -378,33 +381,39 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
         sort_column: 'identifiers',
         asc: true,
       };
-      console.log(requestParam);
+      if (
+        selectRowData.database_type === 's3' ||
+        selectRowData.database_type === 'unstructured'
+      ) {
+        requestParam.database_type = selectedType;
+      }
       const result: any = await getDatabaseIdentifiers(requestParam);
-      let result_merged = result;
-      if (selectRowData.database_type === 's3') {
-        const requestParam = {
-          account_id: selectRowData.account_id,
-          region: selectRowData.region,
-          database_type: 'unstructured',
-          database_name: selectRowData.database_name,
-          page: currentPage,
-          size: preferences.pageSize,
-          sort_column: 'identifiers',
-          asc: true,
-        };
-        console.log(requestParam);
-        const unstructured_result: any = await getDatabaseIdentifiers(
-          requestParam
-        );
-        result_merged = [...result, ...unstructured_result];
-      }
-      if (typeof result_merged !== 'object') {
-        alertMsg(result_merged as any, 'error');
-        return;
-      }
+      // let result_merged = result;
+      // if (selectRowData.database_type === 's3') {
+      //   const requestParam = {
+      //     account_id: selectRowData.account_id,
+      //     region: selectRowData.region,
+      //     database_type: 'unstructured',
+      //     database_name: selectRowData.database_name,
+      //     page: currentPage,
+      //     size: preferences.pageSize,
+      //     sort_column: 'identifiers',
+      //     asc: true,
+      //   };
+      //   console.log(requestParam);
+      // const unstructured_result: any = await getDatabaseIdentifiers(
+      //   requestParam
+      // );
+      // result_merged = [...result, ...unstructured_result];
+      // }
+      // if (typeof result_merged !== 'object') {
+      //   alertMsg(result_merged as any, 'error');
+      //   return;
+      // }
+      setDataList(result);
       // frontend pagination
-      const start = (currentPage - 1) * preferences.pageSize;
-      setDataList(result_merged.slice(start, start + preferences.pageSize));
+      // const start = (currentPage - 1) * preferences.pageSize;
+      // setDataList(result_merged.slice(start, start + preferences.pageSize));
     };
 
     const clearIdentifiersFilter = () => {
@@ -413,7 +422,6 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
     };
 
     const getDataFolders = async (nameFilter?: string) => {
-      console.info('AAA:getDataFolders:', dataType);
       try {
         const requestParam: any = {
           account_id: selectRowData.account_id,
@@ -1073,24 +1081,45 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
               </Box>
             }
             filter={
-              identifiersFilter ? (
-                <>
-                  <TextFilter
-                    filteringText={nameFilterText}
-                    onChange={({ detail }) => {
-                      setNameFilterText(detail.filteringText);
-                    }}
-                    countText={`${totalCount} ${t('filter.matches')}`}
+              <>
+                {identifiersFilter ? (
+                  <>
+                    <TextFilter
+                      filteringText={nameFilterText}
+                      onChange={({ detail }) => {
+                        setNameFilterText(detail.filteringText);
+                      }}
+                      countText={`${totalCount} ${t('filter.matches')}`}
+                    />
+                  </>
+                ) : needFilter ? (
+                  <ResourcesFilter
+                    isFreeText={isFreeText}
+                    {...resourcesFilterProps}
                   />
-                </>
-              ) : needFilter ? (
-                <ResourcesFilter
-                  isFreeText={isFreeText}
-                  {...resourcesFilterProps}
-                />
-              ) : (
-                <></>
-              )
+                ) : (
+                  <>
+                    {tagId === 'dataIdentifiers' &&
+                      catalogType === DATA_TYPE_ENUM.s3 && (
+                        <>
+                          <SegmentedControl
+                            selectedId={selectedType}
+                            onChange={({ detail }) =>
+                              setSelectedType(detail.selectedId)
+                            }
+                            options={[
+                              { text: t('structureData') ?? '', id: 's3' },
+                              {
+                                text: t('unstructuredData') ?? '',
+                                id: 'unstructured',
+                              },
+                            ]}
+                          />
+                        </>
+                      )}
+                  </>
+                )}
+              </>
             }
             header={
               detailDesHeader && (
