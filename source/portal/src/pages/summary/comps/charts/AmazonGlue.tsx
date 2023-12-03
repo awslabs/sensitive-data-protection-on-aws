@@ -133,7 +133,7 @@ export const AmazonGlue: React.FC<any> = () => {
             <TableData
               dataList={conatainsPIIData}
               keyLable={t('summary:awsAccount')}
-              valueLable={t('summary:rdsIntacnes')}
+              valueLable={t('summary:glueDatabase')}
               title={t('summary:topAccountsContainPII')}
             />
           )}

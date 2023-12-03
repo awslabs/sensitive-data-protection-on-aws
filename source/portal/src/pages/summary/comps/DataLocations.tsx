@@ -7,6 +7,8 @@ import {
   getSummaryAccountData,
 } from 'apis/dashboard/api';
 import { IRegionDataType } from 'ts/dashboard/types';
+import { useNavigate } from 'react-router-dom';
+import { RouterEnum } from 'routers/routerEnum';
 
 type SummaryDataType = {
   source: string;
@@ -23,7 +25,7 @@ const DataLocations = () => {
   const [markers, setMarkers] = useState<CoordinateType[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [resRegionData, setResRegionData] = useState<IRegionDataType[]>([]);
-
+  const navigate = useNavigate();
   const getSummaryDataByRegion = async () => {
     setLoadingData(true);
     const res = await getCatalogSummaryByRegion({
@@ -70,8 +72,9 @@ const DataLocations = () => {
       (
         <span
           onClick={() => {
-            // Redirect to account page
-            // TODO
+            navigate(
+              `${RouterEnum.AccountManagement.path}?provider=${item.provider_id}&region=${item.region}`
+            );
           }}
           className="source-count"
         >
