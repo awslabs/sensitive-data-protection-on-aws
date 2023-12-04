@@ -311,7 +311,7 @@ def __start_run(job_id: int, run_id: int):
             msg = traceback.format_exc()
             run_database.state = RunDatabaseState.FAILED.value
             run_database.end_time = mytime.get_time()
-            run_database.error_content = msg
+            run_database.error_log = msg
             logger.exception("Run StepFunction exception:%s" % msg)
     crud.save_run_databases(run_databases)
     if failed_run_count == len(run_databases):
@@ -356,7 +356,7 @@ def __start_sample_run(job_id: int, run_id: int, table_name: str):
             msg = traceback.format_exc()
             run_database.state = RunDatabaseState.FAILED.value
             run_database.end_time = mytime.get_time()
-            run_database.error_content = msg
+            run_database.error_log = msg
             logger.info(str(e))
             logger.exception("start_sample_run exception:%s" % msg)
     crud.save_run_databases(run_databases)
@@ -716,8 +716,8 @@ def __get_table_count_from_agent(run_database: models.DiscoveryJobRunDatabase, i
 
 
 def __send_complete_run_database_message(job_id, run_id, run_database_id, account_id, region,
-                                         database_type, database_name, over_write, state):
-    event = {'Result': {'State': state},
+                                         database_type, database_name, over_write, state, message=""):
+    event = {'Result': {'State': state, 'Message': message},
              'JobId': job_id,
              'RunId': run_id,
              'RunDatabaseId': run_database_id,
@@ -780,36 +780,23 @@ def check_running_run():
                     f",state:{run_database_state}")
         if run_database_state == RunDatabaseState.RUNNING.value.upper():
             continue
+        state = run_database_state
+        message = ""
         if run_database_state == RunDatabaseState.NOT_EXIST.value:
-            run_database.state = RunDatabaseState.NOT_EXIST.value
-            run_database.error_content = 'Execution Does Not Exist'
+            message = 'Execution Does Not Exist'
         elif run_database_state == RunDatabaseState.SUCCEEDED.value.upper():
-            run_database.state = RunDatabaseState.SUCCEEDED.value
+            state = RunDatabaseState.SUCCEEDED.value
         elif run_database_state == RunDatabaseState.FAILED.value.upper():
-            error_log = __get_run_error_log(run_database)
-            run_database.state = RunDatabaseState.FAILED.value
-            run_database.error_content = error_log
+            state = RunDatabaseState.FAILED.value
+            message = __get_run_error_log(run_database)
         elif run_database_state == RunDatabaseState.ABORTED.value.upper():
-            run_database.state = RunDatabaseState.STOPPED.value
+            state = RunDatabaseState.STOPPED.value
 
         job = crud.get_job_by_run_id(run_database.run_id)
-        if run_database_state != RunDatabaseState.NOT_EXIST.value:
-            __send_complete_run_database_message(job.id, run_database.run_id, run_database.id, run_database.account_id,
-                                                 run_database.region, run_database.database_type,
-                                                 run_database.database_name,
-                                                 job.overwrite == 1, run_database.state)
-        run_database.end_time = mytime.get_time()
-        crud.save_run_database(run_database)
-        change_run_state(run_database.run_id)
-        if run_database_state == RunDatabaseState.SUCCEEDED.value.upper():
-            job = crud.get_job_by_run_id(run_database.run_id)
-            crud.update_job_database_base_time(job.id,
-                                               run_database.account_id,
-                                               run_database.region,
-                                               run_database.database_type,
-                                               run_database.database_name,
-                                               run_database.start_time
-                                               )
+        __send_complete_run_database_message(job.id, run_database.run_id, run_database.id, run_database.account_id,
+                                             run_database.region, run_database.database_type,
+                                             run_database.database_name,
+                                             job.overwrite == 1, state, message)
 
 
 def __get_run_database_state_from_agent(run_database: models.DiscoveryJobRunDatabase) -> str:

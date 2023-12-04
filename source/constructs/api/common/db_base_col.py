@@ -1,26 +1,30 @@
 import os
 from datetime import datetime
 from .constant import const
-import re
 
 
 def before_exec(conn, clause, multi_params, params):
-    if multi_params:
-        # The public fields for batch execution are processed by the business module itself
-        pass
-    else:
-        __handle_params(clause, params)
-
-
-def __handle_params(clause, params):
+    operator = os.getenv(const.USER, const.USER_DEFAULT_NAME)
+    operation_time = datetime.utcnow()
     if str(clause).startswith('INSERT'):
-        params['create_by'] = os.getenv(const.USER, const.USER_DEFAULT_NAME)
-        params['create_time'] = datetime.utcnow()
-    if str(clause).startswith('UPDATE'):
-        # 编写正则表达式
-        pattern = r'\bmodify_by\b'
-        if re.search(pattern, str(clause)):
-            params['modify_time'] = datetime.utcnow()
+        if multi_params:
+            for current_params in multi_params:
+                __add_insert_params(current_params, operator, operation_time)
         else:
-            params['modify_by'] = params['modify_by'] if ('modify_by' in params) else os.getenv(const.USER, const.USER_DEFAULT_NAME)
-            params['modify_time'] = datetime.utcnow()
+            __add_insert_params(params, operator, operation_time)
+    elif str(clause).startswith('UPDATE'):
+        if multi_params:
+            for current_params in multi_params:
+                __add_update_params(current_params, operator, operation_time)
+        else:
+            __add_update_params(params, operator, operation_time)
+
+
+def __add_insert_params(params, operator, operation_time):
+    params['create_by'] = operator
+    params['create_time'] = operation_time
+
+
+def __add_update_params(params, default_operator, operation_time):
+    params['modify_by'] = params['modify_by'] if ('modify_by' in params) else default_operator
+    params['modify_time'] = operation_time

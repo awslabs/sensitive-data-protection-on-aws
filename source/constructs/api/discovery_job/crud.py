@@ -284,7 +284,7 @@ def complete_run_database(run_database_id: int, state: str, message: str) -> mod
     if run_database is None:
         return None
     run_database.state = state
-    run_database.error_content = message
+    run_database.error_log = message
     run_database.end_time = mytime.get_time()
     session.commit()
     return run_database

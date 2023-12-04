@@ -287,7 +287,6 @@ alter table discovery_job_run add exclude_file_extensions varchar(200) null afte
 alter table discovery_job_run add include_file_extensions varchar(200) null after exclude_file_extensions;
 
 alter table discovery_job_run_database drop column log;
-alter table discovery_job_run_database change error_log error_content text null;
 alter table discovery_job_run_database modify account_id varchar(20) not null;
 alter table discovery_job_run_database modify database_type varchar(20) null;
 alter table discovery_job_run_database add table_count_unstructured int null after table_count;

@@ -558,7 +558,7 @@ const GlueJobContent = () => {
         onDismiss={() => setErrlogModal(false)}
         header={<Header variant="h2">{t('job:detail.errorLog')}</Header>}
       >
-        {errrowData.error_content}
+        {errrowData.error_log}
       </Modal>
     </>
   );
