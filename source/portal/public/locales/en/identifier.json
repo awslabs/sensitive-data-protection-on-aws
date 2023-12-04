@@ -26,10 +26,11 @@
   "selectLabel": "Select a label",
   "deleteAlert": "If the identifier already exists in the data catalog, after running the sensitive data discovery job again, the identifier will be removed from the data catalog.",
   "keywordAlert": "Please fill in Keywords or turn off the switch button for identifying by keywords",
-  "unstructuredDataSettings": "Unstructured data settings (Optional)",
-  "maxDis": "Max. distance",
-  "maxDisDesc": "If keywords ...",
-  "minDis": "Min. occurrence of identification rule",
+  "unstructuredDataSettings": "Advanced Settings: unstructured data (Optional)",
+  "maxDis": "Max. number of characters between keyword and regex.",
+  "maxDisDesc": "This value applies to specific identification rules (both Keywords and Regex are enabled).",
+  "minDis": "Min. occurrence of identification rules",
+  "minDisDesc": "This value applies on any identification rules (only Keyword enabled, only Regex enabled, or both Keywords and Regex are enabled).",
   "textBased": "Text based",
   "imageBased": "Image based"
 }
