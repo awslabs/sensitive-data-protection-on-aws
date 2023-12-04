@@ -18,6 +18,8 @@
   "modal": {
     "s3BucketDetail": "S3 bucket details",
     "rdsInstanceDetail": "RDS instance details",
+    "glueDetail": "Glue catalog details",
+    "jdbcDetail": "Custom database (JDBC) Details",
     "customLabel": "Custom labels: "
   },
   "schemaModal": {

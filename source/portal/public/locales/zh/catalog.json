@@ -18,6 +18,8 @@
   "modal": {
     "s3BucketDetail": "S3 存储桶详细信息",
     "rdsInstanceDetail": "RDS 实例详细信息",
+    "glueDetail": "Glue 目录详细信息",
+    "jdbcDetail": "自定义数据库 (JDBC) 详细信息",
     "customLabel": "自定义标签： "
   },
   "schemaModal": {

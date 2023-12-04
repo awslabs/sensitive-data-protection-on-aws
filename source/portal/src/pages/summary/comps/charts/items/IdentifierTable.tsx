@@ -13,18 +13,20 @@ import { useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
 import { cloneDeep } from 'lodash';
+import { ProviderType } from 'common/ProviderTab';
 
 interface IdentifierTableProps {
   title: string;
   keyLable: string;
   valueLable: string;
   dataList: ITableListKeyValue[];
+  curProvider?: ProviderType;
 }
 
 const IdentifierTableData: React.FC<IdentifierTableProps> = (
   props: IdentifierTableProps
 ) => {
-  const { title, keyLable, valueLable, dataList } = props;
+  const { title, keyLable, valueLable, dataList, curProvider } = props;
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchIdentName, setSearchIdentName] = useState('');
@@ -52,7 +54,7 @@ const IdentifierTableData: React.FC<IdentifierTableProps> = (
     // return;
     if (valueLable === t('summary:s3Bucket')) {
       navigate(
-        `${RouterEnum.Catalog.path}?tagType=s3&accountId=${typeValue}&privacy=1`
+        `${RouterEnum.Catalog.path}?tagType=s3&accountId=${typeValue}&privacy=1&provider=${curProvider?.id}`
       );
     }
 
@@ -82,7 +84,7 @@ const IdentifierTableData: React.FC<IdentifierTableProps> = (
         `${RouterEnum.Catalog.path}?tagType=rds&identifiers=${typeValue}`
       );
     }
-    
+
     if (
       valueLable === t('summary:jdbcDatabase') &&
       keyLable === t('summary:dataIdentifier')
@@ -91,7 +93,6 @@ const IdentifierTableData: React.FC<IdentifierTableProps> = (
         `${RouterEnum.Catalog.path}?tagType=jdbc&identifiers=${typeValue}`
       );
     }
-
 
     if (
       valueLable === t('summary:glueDatabase') &&
@@ -107,7 +108,7 @@ const IdentifierTableData: React.FC<IdentifierTableProps> = (
       keyLable === t('summary:dataIdentifier')
     ) {
       navigate(
-        `${RouterEnum.Catalog.path}?tagType=jdbc&identifiers=${typeValue}`
+        `${RouterEnum.Catalog.path}?tagType=jdbc&identifiers=${typeValue}&provider=${curProvider?.id}`
       );
     }
 

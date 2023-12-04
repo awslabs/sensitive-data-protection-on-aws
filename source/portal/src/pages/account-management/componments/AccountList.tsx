@@ -17,7 +17,7 @@ import {
 } from 'pages/common-badge/types/badge_type';
 import ResourcesFilter from 'pages/resources-filter';
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
 import { getAccountList, deleteAccount } from 'apis/account-manager/api';
 import {
@@ -31,6 +31,7 @@ import { refreshDataSource } from 'apis/data-source/api';
 import { alertMsg, useDidUpdateEffect } from 'tools/tools';
 import { useTranslation } from 'react-i18next';
 import { ProviderType } from 'common/ProviderTab';
+import { COLUMN_OBJECT_STR } from 'pages/data-catalog/types/data_config';
 
 interface AccountListProps {
   setTotalAccount: (account: number) => void;
@@ -42,6 +43,7 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
   const columnList =
     provider?.id === 1 ? ACCOUNT_COLUMN_LIST : THIRD_PROVIDER_COLUMN_LIST;
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { t } = useTranslation();
 
   const [totalCount, setTotalCount] = useState(0);
@@ -50,6 +52,8 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
     wrapLines: true,
     visibleContent: columnList.map((o) => o.id),
   } as any);
+  const urlRegion = searchParams.get('region');
+
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [accountsLoaded, setAccountsLoaded] = useState(false);
@@ -59,7 +63,16 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
   const [selectedItems, setSelectedItems] = useState([] as any);
   const [selectedAccount, setSelectedAccount] = useState('');
   const [query, setQuery] = useState({
-    tokens: [],
+    tokens: urlRegion
+      ? [
+          {
+            propertyKey: COLUMN_OBJECT_STR.Region,
+            value: urlRegion,
+            operator: '=',
+            condition: 'Region',
+          },
+        ]
+      : [],
     operation: 'and',
   } as any);
   const resFilterProps = {
@@ -142,6 +155,13 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
         operation: '=',
         condition: 'and',
       });
+      // if (urlRegion) {
+      //   requestParam.conditions.push({
+      //     column: COLUMN_OBJECT_STR.Region,
+      //     values: [urlRegion],
+      //     condition: 'and',
+      //   });
+      // }
       const result: any = await getAccountList(requestParam);
       setSelectedItems([]);
       setPageData(result.items);
@@ -312,6 +332,7 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
               }
 
               if (item.id === 'account_id') {
+                console.info('e:', e);
                 return (
                   <span
                     className="account-id"

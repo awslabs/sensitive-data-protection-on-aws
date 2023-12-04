@@ -151,7 +151,7 @@ export const JDBC: React.FC<JDBCProps> = (props: JDBCProps) => {
             <TableData
               dataList={conatainsPIIData}
               keyLable={t('summary:awsAccount')}
-              valueLable={t('summary:rdsIntacnes')}
+              valueLable={t('summary:jdbcDatabase')}
               title={t('summary:topAccountsContainPII')}
             />
           )}
@@ -162,6 +162,7 @@ export const JDBC: React.FC<JDBCProps> = (props: JDBCProps) => {
             <Spinner />
           ) : (
             <IdentifierTableData
+              curProvider={curProvider}
               dataList={identifierData}
               keyLable={t('summary:dataIdentifier')}
               valueLable={t('summary:jdbcDatabase')}

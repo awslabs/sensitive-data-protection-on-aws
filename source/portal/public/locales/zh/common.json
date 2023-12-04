@@ -384,5 +384,7 @@
   "s3": "Amazon S3",
   "rds": "Amazon RDS",
   "glue": "Glue 数据目录",
-  "jdbc": "自定义数据库(JDBC)"
+  "jdbc": "自定义数据库(JDBC)",
+  "structureData": "结构化数据",
+  "unstructuredData": "非结构化数据"
 }
