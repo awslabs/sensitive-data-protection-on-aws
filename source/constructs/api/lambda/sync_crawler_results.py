@@ -10,9 +10,9 @@ from common.abilities import need_change_account_id
 from common.constant import const
 from common.enum import DatabaseType, ConnectionState
 from db.database import gen_session, close_session
+from common.reference_parameter import logger
 
-logger = logging.getLogger(const.LOGGER_API)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 crawler_prefixes = const.SOLUTION_NAME + "-"
 
 
@@ -121,7 +121,7 @@ def lambda_handler(event, context):
         gen_session()
         for record in event['Records']:
             payload = record["body"]
-            logger.debug(payload)
+            logger.info(payload)
             updated_string = re.sub(r'("[^"]*?)(\'.*?\')([^"]*?")', r'\1--\3', str(payload))
             payload = updated_string.replace("\'", "\"")
             sync_result(json.loads(payload))
