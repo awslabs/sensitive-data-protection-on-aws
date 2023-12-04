@@ -800,7 +800,10 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                           </div>
                         );
                       } else {
-                        if (tagId === COLUMN_OBJECT_STR.Schema) {
+                        if (
+                          tagId === COLUMN_OBJECT_STR.Schema ||
+                          tagId === COLUMN_OBJECT_STR.SampleObjects
+                        ) {
                           const showIdentifierObj = toJSON(
                             (e as any)[item.id]
                           ) || { 'N/A': 1 };
@@ -854,19 +857,21 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                                   }`}</span>
                                 </Popover>
                               )}
-                              <div
-                                onClick={() =>
-                                  clickEditIcon(
-                                    e as any,
-                                    COLUMN_OBJECT_STR.Identifier
-                                  )
-                                }
-                              >
-                                <Icon
-                                  name="edit"
-                                  className="modal-badge-edit"
-                                />
-                              </div>
+                              {tagId === COLUMN_OBJECT_STR.Schema && (
+                                <div
+                                  onClick={() =>
+                                    clickEditIcon(
+                                      e as any,
+                                      COLUMN_OBJECT_STR.Identifier
+                                    )
+                                  }
+                                >
+                                  <Icon
+                                    name="edit"
+                                    className="modal-badge-edit"
+                                  />
+                                </div>
+                              )}
                             </div>
                           ) : (
                             <div
