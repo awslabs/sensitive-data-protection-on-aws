@@ -281,6 +281,11 @@ export const FOLDERS_COLUMN = [
     sortingField: COLUMN_OBJECT_STR.RowCount,
   },
   {
+    id: COLUMN_OBJECT_STR.ColumnCount,
+    label: 'table.label.columns',
+    sortingField: COLUMN_OBJECT_STR.ColumnCount,
+  },
+  {
     id: COLUMN_OBJECT_STR.Size,
     label: 'table.label.size',
     filter: true,
@@ -319,16 +324,16 @@ export const S3_UNSTRUCTURED_FOLDERS_COLUMN = [
     sortingField: COLUMN_OBJECT_STR.FolderName,
   },
   {
-    id: COLUMN_OBJECT_STR.ObjectCount,
-    label: 'table.label.objects',
-    filter: true,
-    sortingField: COLUMN_OBJECT_STR.ObjectCount,
-  },
-  {
     id: COLUMN_OBJECT_STR.Classification,
     label: 'table.label.type',
     filter: true,
     sortingField: COLUMN_OBJECT_STR.Classification,
+  },
+  {
+    id: COLUMN_OBJECT_STR.ObjectCount,
+    label: 'table.label.objects',
+    filter: true,
+    sortingField: COLUMN_OBJECT_STR.ObjectCount,
   },
   {
     id: COLUMN_OBJECT_STR.Size,
@@ -390,11 +395,11 @@ export const SAMPLE_OBJECT_COLUMN = [
     label: 'table.label.fileSize',
     filter: false,
   },
-  {
-    id: COLUMN_OBJECT_STR.Download,
-    label: 'table.label.download',
-    filter: false,
-  },
+  // {
+  //   id: COLUMN_OBJECT_STR.Download,
+  //   label: 'table.label.download',
+  //   filter: false,
+  // },
   {
     id: 's3_full_path',
     label: 'table.label.s3FullPath',
@@ -428,11 +433,11 @@ export const UNSTRUCTURED_SAMPLE_OBJECT_COLUMN = [
     label: 'table.label.identifier',
     filter: true,
   },
-  {
-    id: COLUMN_OBJECT_STR.Download,
-    label: 'table.label.download',
-    filter: false,
-  },
+  // {
+  //   id: COLUMN_OBJECT_STR.Download,
+  //   label: 'table.label.download',
+  //   filter: false,
+  // },
   {
     id: 's3_full_path',
     label: 'table.label.s3FullPath',

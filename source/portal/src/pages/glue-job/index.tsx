@@ -43,6 +43,8 @@ interface ProgressType {
   run_database_id: number;
   current_table_count: number;
   table_count: number;
+  current_table_count_unstructured: number;
+  table_count_unstructured: number;
 }
 
 const GULE_JOB_COLUMN = [
@@ -361,10 +363,18 @@ const GlueJobContent = () => {
     if (!curProgress) {
       return '-';
     }
+    const curTableCountSum =
+      curProgress.current_table_count +
+      curProgress.current_table_count_unstructured;
+    const tableCountSum =
+      curProgress.table_count + curProgress.table_count_unstructured;
+
     if (curProgress.current_table_count === -1) {
       return t('pending');
+    } else if (tableCountSum === 0) {
+      return '-';
     } else {
-      return `${curProgress.current_table_count}/${curProgress.table_count}`;
+      return `${Math.floor(curTableCountSum / tableCountSum) * 100}%`;
     }
   };
 
@@ -478,7 +488,12 @@ const GlueJobContent = () => {
                     );
                   }
                   if (item.id === 'database_name') {
-                    return <GlueJobCatalog glueJob={e as any} />;
+                    return (
+                      <GlueJobCatalog
+                        glueJob={e as any}
+                        providerId={jobData.provider_id}
+                      />
+                    );
                   }
                   return (e as any)[item.id];
                 },

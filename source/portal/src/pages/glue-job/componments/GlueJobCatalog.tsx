@@ -20,19 +20,25 @@ export interface GlueJobType {
 }
 
 interface GlueJobCatalogProps {
+  providerId: string | number;
   glueJob: GlueJobType;
 }
 
 const GlueJobCatalog: React.FC<GlueJobCatalogProps> = (
   props: GlueJobCatalogProps
 ) => {
-  const { glueJob } = props;
+  const { glueJob, providerId } = props;
   const navigate = useNavigate();
   const [loadingData, setLoadingData] = useState(false);
   const [catalogList, setCatalogList] = useState([]);
+
   const clkCatalog = (rowData: GlueJobType) => {
+    let databaseType = rowData.database_type;
+    if (databaseType.startsWith('jdbc')) {
+      databaseType = 'jdbc';
+    }
     navigate(
-      `${RouterEnum.Catalog.path}?tagType=${rowData.database_type}&catalogId=${rowData.database_name}`
+      `${RouterEnum.Catalog.path}?provider=${providerId}&tagType=${databaseType}&catalogId=${rowData.database_name}`
     );
   };
 
