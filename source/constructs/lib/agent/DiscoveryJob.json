@@ -150,8 +150,16 @@
               "Type": "Choice",
               "Choices": [
                 {
-                  "Variable": "$.GetCrawler.Crawler.State",
-                  "StringEquals": "READY",
+                  "And": [
+                    {
+                      "Variable": "$.GetCrawler.Crawler.State",
+                      "StringEquals": "READY"
+                    },
+                    {
+                      "Variable": "$.GetCrawler.Crawler.LastCrawl.Status",
+                      "StringEquals": "SUCCEEDED"
+                    }
+                  ],
                   "Next": "SplitJob"
                 },
                 {
@@ -165,12 +173,18 @@
                       "StringEquals": "CANCELLED"
                     },
                     {
-                      "Variable": "$.GetCrawler.Crawler.LastCrawl.Status",
-                      "StringEquals": "FAILED"
-                    },
-                    {
-                      "Variable": "$.GetCrawler.Crawler.LastCrawl.Status",
-                      "StringEquals": "CANCELLED"
+                      "And": [
+                        {
+                          "Variable": "$.GetCrawler.Crawler.State",
+                          "StringEquals": "READY"
+                        },
+                        {
+                          "Not": {
+                            "Variable": "$.GetCrawler.Crawler.LastCrawl.Status",
+                            "StringEquals": "SUCCEEDED"
+                          }
+                        }
+                      ]
                     }
                   ],
                   "Next": "Structured Job Failed"
