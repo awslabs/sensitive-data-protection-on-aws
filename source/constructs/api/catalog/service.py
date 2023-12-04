@@ -422,8 +422,9 @@ def sync_crawler_result(
                 database_column_count += column_order_num
             try:
                 logger.info("batch delete glue tables" + json.dumps(delete_glue_table_names))
-                glue_client.batch_delete_table(DatabaseName=glue_database_name,
-                                          TablesToDelete=delete_glue_table_names)
+                if delete_glue_table_names:
+                    glue_client.batch_delete_table(DatabaseName=glue_database_name,
+                                                    TablesToDelete=delete_glue_table_names)
             except Exception as err:
                 logger.exception("batch delete glue tables error" + str(err))
             if logger.isEnabledFor(logging.DEBUG):
