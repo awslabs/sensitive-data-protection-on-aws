@@ -19,7 +19,7 @@
     "s3Info": "在此账户中发现的 S3 存储桶。连接到 S3 存储桶以创建数据目录。",
     "rdsTitle": "数据源：RDS 实例",
     "rdsInfo": "在此账户中发现的 RDS 实例。连接到 RDS 实例以创建数据目录。",
-    "jdbcTitle": "数据源：JDBC 连接",
+    "jdbcTitle": "数据源：自定义数据库(JDBC) 连接",
     "jdbcInfo": "在此账户中发现的 JDBC 连接。连接到 JDBC 以创建数据目录。",
     "glueTitle": "数据源：Glue 数据库",
     "glueInfo": "在此账户中发现的 Glue 数据库。"
@@ -34,7 +34,7 @@
     "selectGlue": "选择 Glue 连接",
     "importGlue": "导入 Glue 连接",
     "createNew": "创建新连接",
-    "importComment":"该链接已经被以下账号导入过：",
+    "importComment": "该链接已经被以下账号导入过：",
     "importEnabled": "可被导入",
     "importDisabled": "不可被导入",
     "emptyConnections": "没有可供选择的连接",

@@ -19,7 +19,7 @@
     "s3Info": "The S3 buckets that are discovered in this account. Connect to S3 buckets to create data catalogs.",
     "rdsTitle": "Data source: RDS instances",
     "rdsInfo": "The RDS instances that are discovered in this account. Connect to RDS instances to create data catalogs.",
-    "jdbcTitle": "Data source: JDBC connections",
+    "jdbcTitle": "Data source: Custom database (JDBC) connections",
     "jdbcInfo": "The JDBC connections that are discovered in this account. Connect to JDBC connection to create data catalogs.",
     "glueTitle": "Data source: Glue databases",
     "glueInfo": "The Glue databases that are discovered in this account."
@@ -34,7 +34,7 @@
     "selectGlue": "Select a Glue connection",
     "importGlue": "Import glue connection",
     "createNew": "Create new connection",
-    "importComment":"This connection has been imported by: ",
+    "importComment": "This connection has been imported by: ",
     "importEnabled": "Can be imported",
     "importDisabled": "Cannot be imported",
     "loadingConnections": "Loading connections",
