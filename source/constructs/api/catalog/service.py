@@ -859,10 +859,21 @@ def sync_job_detection_result(
         logger.debug(
             "sync_job_detection_result - RESET ADDITIONAL COLUMNS : " + json.dumps(table_column_dict[table_name]))
         if table_name not in table_privacy_dict:
-            if catalog_table is not None:
+            # if catalog_table is not None:
+            #     table_dict = {
+            #         "id": catalog_table.id,
+            #         "row_count": table_size,
+            #     }
+            #     table_dict_list.append(table_dict)
+            privacy = Privacy.PII.value
+            if catalog_table is not None and (overwrite or (
+                        not overwrite and catalog_table.manual_tag != const.MANUAL)):
                 table_dict = {
                     "id": catalog_table.id,
+                    "privacy": privacy,
+                    "state": CatalogState.DETECTED.value,
                     "row_count": table_size,
+                    "manual_tag": const.SYSTEM,
                 }
                 table_dict_list.append(table_dict)
             continue
