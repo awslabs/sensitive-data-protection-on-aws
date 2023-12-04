@@ -163,6 +163,14 @@
                     {
                       "Variable": "$.GetCrawler.Crawler.State",
                       "StringEquals": "CANCELLED"
+                    },
+                    {
+                      "Variable": "$.GetCrawler.Crawler.LastCrawl.Status",
+                      "StringEquals": "FAILED"
+                    },
+                    {
+                      "Variable": "$.GetCrawler.Crawler.LastCrawl.Status",
+                      "StringEquals": "CANCELLED"
                     }
                   ],
                   "Next": "Structured Job Failed"
