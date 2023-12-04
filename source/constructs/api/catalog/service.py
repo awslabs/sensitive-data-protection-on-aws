@@ -1,4 +1,4 @@
-
+import logging
 import csv
 import json
 import os
@@ -28,12 +28,11 @@ from common.enum import (
 )
 from common.exception_handler import BizException
 from common.query_condition import QueryCondition
-from common.reference_parameter import logger, admin_bucket_name, partition
 from data_source import crud as data_source_crud
 from label.crud import (get_labels_by_id_list, get_all_labels)
 from template.service import get_identifiers
 from . import crud, schemas
-from common.reference_parameter import logger, admin_account_id, admin_region
+from common.reference_parameter import logger, admin_account_id, admin_region, admin_bucket_name, partition
 from common.abilities import need_change_account_id
 
 sql_result = "SELECT database_type,account_id,region,s3_bucket,s3_location,rds_instance_id,table_name,column_name,identifiers,sample_data,'','','' FROM job_detection_output_table"
@@ -211,6 +210,7 @@ def sync_crawler_result(
         database_name: str,
 ):
     logger.info(f"start params {account_id} {region} {database_type} {database_name}")
+    start_time = time.time()
     rds_engine_type = const.NA
     # custom glue type will not use crawler, just syncing the catalog from existing glue tables
     is_custom_glue = database_type == DatabaseType.GLUE.value
@@ -273,6 +273,7 @@ def sync_crawler_result(
             tables_response = glue_client.get_tables(
                 DatabaseName=glue_database_name, NextToken=next_token
             )
+            logger.info(f"The number of tables is {len(tables_response['TableList'])}")
             # logger.info("get glue tables" + str(tables_response))
             delete_glue_table_names = []
             column_create_list = []
@@ -293,10 +294,10 @@ def sync_crawler_result(
                 serde_info = const.NA
                 table_properties = const.NA
                 if "SerdeInfo" in table["StorageDescriptor"]:
-                    logger.info(table["StorageDescriptor"]["SerdeInfo"])
+                    logger.debug(table["StorageDescriptor"]["SerdeInfo"])
                     serde_info = table["StorageDescriptor"]["SerdeInfo"]
                 if "TableProperties" in table:
-                    logger.info(table["TableProperties"])
+                    logger.debug(table["TableProperties"])
                     table_properties = table["TableProperties"]
                 # Delete empty table when Glue crawler not supported the S3 file type
                 # s3 can return directly ,but rds cannot
@@ -362,7 +363,7 @@ def sync_crawler_result(
                     #                                                                        database_type, database_name,
                     #                                                                        table_name, column_name)
                     original_column = original_column_dict[column_name] if column_name in original_column_dict else None
-                    if original_column == None:
+                    if original_column is None:
                         column_create_list.append(catalog_column_dict)
                         # crud.create_catalog_column_level_classification(catalog_column_dict)
                     else:
@@ -395,7 +396,7 @@ def sync_crawler_result(
                 }
                 original_table = crud.get_catalog_table_level_classification_by_name(account_id, region, database_type,
                                                                                      database_name, table_name)
-                if original_table == None:
+                if original_table is None:
                     table_create_list.append(catalog_table_dict)
                     # crud.create_catalog_table_level_classification(catalog_table_dict)
                 else:
@@ -411,35 +412,52 @@ def sync_crawler_result(
                 logger.info("batch delete glue tables" + json.dumps(delete_glue_table_names))
                 glue_client.batch_delete_table(DatabaseName=glue_database_name,
                                           TablesToDelete=delete_glue_table_names)
+                logger.info("batch delete glue tables end.") # To be deleted
             except Exception as err:
-                logger.info("batch delete glue tables error" + str(err))
-            logger.debug("batch create columns" + str(column_create_list))
+                logger.exception("batch delete glue tables error" + str(err))
+            if logger.isEnabledFor(logging.DEBUG):
+                logger.debug("batch create columns" + str(column_create_list))
+                logger.debug("batch update columns" + str(column_update_list))
+                logger.debug("batch create tables" + str(table_create_list))
+                logger.debug("batch update tables" + str(table_update_list))
+            logger.info("batch_create_catalog_column_level_classification.") # To be deleted
             crud.batch_create_catalog_column_level_classification(column_create_list)
-            logger.debug("batch update columns" + str(column_update_list))
+            logger.info("batch_update_catalog_column_level_classification_by_id.") # To be deleted
             crud.batch_update_catalog_column_level_classification_by_id(column_update_list)
-            logger.debug("batch create tables" + str(table_create_list))
+            logger.info("batch_create_catalog_table_level_classification.") # To be deleted
             crud.batch_create_catalog_table_level_classification(table_create_list)
-            logger.debug("batch update tables" + str(table_update_list))
+            logger.info("batch_update_catalog_table_level_classification_by_id.") # To be deleted
             crud.batch_update_catalog_table_level_classification_by_id(table_update_list)
+            logger.info("batch_update_catalog_table_level_classification_by_id 2.") # To be deleted
             next_token = tables_response.get("NextToken")
             if next_token is None:
                 break
+        logger.info("get_catalog_table_level_classification_by_database.") # To be deleted
         catalog_table_list = crud.get_catalog_table_level_classification_by_database(account_id, region,
                                                                                      database_type, database_name)
+        logger.info("for catalog in catalog_table_list.") # To be deleted
         for catalog in catalog_table_list:
             if catalog.table_name not in table_name_list:
-                logger.info("sync_crawler_result DELETE TABLE AND COLUMN WHEN NOT IN GLUE TABLES！！！" + catalog.table_name)
+                if logger.isEnabledFor(logging.DEBUG):
+                    logger.debug("sync_crawler_result DELETE TABLE AND COLUMN WHEN NOT IN GLUE TABLES！！！" + catalog.table_name)
+                logger.info("sync_crawler_result DELETE TABLE AND COLUMN WHEN NOT IN GLUE TABLES！！！" + catalog.table_name) # To be deleted
                 crud.delete_catalog_table_level_classification(catalog.id)
                 crud.delete_catalog_column_level_classification_by_table_name(account_id, region, database_type, database_name, catalog.table_name, None)
             if catalog.table_name in table_column_dict:
                 column_list = table_column_dict[catalog.table_name]
+                if logger.isEnabledFor(logging.DEBUG):
+                    logger.debug(
+                        "sync_crawler_result DELETE COLUMN WHEN NOT IN GLUE TABLES" + catalog.table_name + json.dumps(
+                            table_column_dict[catalog.table_name]))
                 logger.info(
                     "sync_crawler_result DELETE COLUMN WHEN NOT IN GLUE TABLES" + catalog.table_name + json.dumps(
-                        table_column_dict[catalog.table_name]))
+                        table_column_dict[catalog.table_name])) # To be deleted
                 crud.delete_catalog_column_level_classification_by_table_name(account_id, region, database_type,
                                                                               database_name, catalog.table_name,
                                                                               column_list)
+        logger.info("end for catalog in catalog_table_list.") # To be deleted
     if table_count == 0:
+        logger.info("table_count.")  # To be deleted
         if database_type == DatabaseType.RDS.value:
             data_source_crud.set_rds_instance_source_glue_state(account_id, region, database_name,
                                                                 ConnectionState.UNSUPPORTED.value)
@@ -500,6 +518,7 @@ def sync_crawler_result(
             if database_type == DatabaseType.S3.value
             else rds_engine_type,
         }
+        logger.info("get_catalog_database_level_classification_by_name.")  # To be deleted
         original_database = crud.get_catalog_database_level_classification_by_name(account_id, region, database_type,
                                                                                    database_name)
         if original_database == None:
@@ -513,6 +532,8 @@ def sync_crawler_result(
         + str(table_count)
         + " tables affected."
     )
+    execution_time = time.time() - start_time
+    logger.info(f"代码执行时间：{execution_time:.6f}秒")
     return table_count == 0
 
 
