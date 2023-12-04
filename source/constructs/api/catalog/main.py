@@ -181,6 +181,7 @@ def get_database_identifiers(
         account_id, region, database_type, database_name
     )
 
+
 @router.get("/get-s3-sample-objects", response_model=BaseResponse)
 @inject_session
 def get_s3_sample_objects(

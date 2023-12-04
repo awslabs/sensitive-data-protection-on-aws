@@ -203,6 +203,18 @@ def sync_s3_result(
     return database_size, database_object_count
 
 
+def delete_catalog_column_level_classification_by_table_name(
+        account_id: str, region: str, database_type: str, database_name: str, table_name: str, column_names: list):
+    column_list = crud.get_catalog_column_level_classification_by_table(account_id, region, database_type, database_name, table_name).all()
+    column_ids = []
+    if column_list:
+        for column in column_list:
+            if column.column_name not in column_names:
+                column_ids.append(column.id)
+    if len(column_ids) > 0:
+        crud.delete_catalog_table_level_classification_by_ids(column_ids)
+
+
 def sync_crawler_result(
         account_id: str,
         region: str,
@@ -452,7 +464,7 @@ def sync_crawler_result(
                 logger.info(
                     "sync_crawler_result DELETE COLUMN WHEN NOT IN GLUE TABLES" + catalog.table_name + json.dumps(
                         table_column_dict[catalog.table_name])) # To be deleted
-                crud.delete_catalog_column_level_classification_by_table_name(account_id, region, database_type,
+                delete_catalog_column_level_classification_by_table_name(account_id, region, database_type,
                                                                               database_name, catalog.table_name,
                                                                               column_list)
         logger.info("end for catalog in catalog_table_list.") # To be deleted
