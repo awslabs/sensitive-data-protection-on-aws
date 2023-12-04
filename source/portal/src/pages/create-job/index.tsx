@@ -140,6 +140,9 @@ const CreateJobContent = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const checkMustData = (requestedStepIndex: number) => {
+    if (requestedStepIndex < activeStepIndex) {
+      return true;
+    }
     if (
       jobData.database_type === SOURCE_TYPE.S3 &&
       jobData.all_s3 === '0' &&

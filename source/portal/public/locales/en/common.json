@@ -384,5 +384,7 @@
   "s3": "Amazon S3",
   "rds": "Amazon RDS",
   "glue": "Glue data catalogs",
-  "jdbc": "Custom database (JDBC)"
+  "jdbc": "Custom database (JDBC)",
+  "structureData": "Structured data",
+  "unstructuredData": "Unstructured data"
 }
