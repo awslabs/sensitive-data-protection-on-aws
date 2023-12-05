@@ -15,8 +15,10 @@ def convert_database_type_2_provider(database_type: str) -> int:
 def convert_provider_id_2_database_type(provider: int) -> str:
     if provider == Provider.TENCENT_CLOUD.value:
         return DatabaseType.JDBC_TENCENT.value
-    elif provider == Provider.ALI_CLOUD.value:
-        return DatabaseType.JDBC_ALIYUN.value
+    elif provider == Provider.GOOGLE_CLOUD.value:
+        return DatabaseType.JDBC_GOOGLE.value
+    elif provider == Provider.JDBC_PROXY.value:
+        return DatabaseType.JDBC_PROXY.value
     else:
         return DatabaseType.JDBC_AWS.value
 
