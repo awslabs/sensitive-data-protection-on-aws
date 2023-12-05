@@ -28,6 +28,8 @@ def convert_provider_id_2_name(provider: int) -> str:
         return ProviderName.ALI_CLOUD.value
     elif provider == Provider.GOOGLE_CLOUD.value:
         return ProviderName.GOOGLE_CLOUD.value
+    elif provider == Provider.JDBC_PROXY.value:
+        return ProviderName.JDBC_PROXY.value
     else:
         return ProviderName.AWS_CLOUD.value
 

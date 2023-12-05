@@ -63,6 +63,7 @@ export const SOURCE_TYPE = {
   JDBC_TENCENT: 'jdbc_tencent',
   JDBC_ALIYUN: 'jdbc_aliyun',
   JDBC_GOOGLE: 'jdbc_google',
+  JDBC_PROXY: 'jdbc_proxy',
 };
 
 export const getProviderByProviderId = (providerId: number | string) => {
@@ -76,6 +77,8 @@ export const getProviderByProviderId = (providerId: number | string) => {
       return { name: 'Tencent Cloud' };
     case 3:
       return { name: 'Google Cloud' };
+    case 4:
+      return { name: 'JDBC Proxy' };
     default:
       return { name: '-' };
   }
@@ -99,6 +102,8 @@ export const getJDBCTypeByProviderId = (providerId: number) => {
       return SOURCE_TYPE.JDBC_TENCENT;
     case 3:
       return SOURCE_TYPE.JDBC_GOOGLE;
+    case 4:
+      return SOURCE_TYPE.JDBC_PROXY;
     default:
       return SOURCE_TYPE.JDBC;
   }
@@ -136,6 +141,13 @@ export const getSourceTypeByProvider = (providerId: string) => {
           value: SOURCE_TYPE.JDBC_GOOGLE,
         },
       ];
+      case '4':
+        return [
+          {
+            label: 'Custom databases',
+            value: SOURCE_TYPE.JDBC_PROXY,
+          },
+        ];
     default:
       return [];
   }

@@ -51,6 +51,7 @@ const AddAccountContent = () => {
       )}
       {provider.id === 2 && <AccountForm provider={provider} />}
       {provider.id === 3 && <AccountForm provider={provider} />}
+      {provider.id === 4 && <AccountForm provider={provider} />}
     </>
   );
 };

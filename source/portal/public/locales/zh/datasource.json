@@ -61,6 +61,8 @@
     "jdbcURL": "JDBC URL",
     "jdbcURLDesc": "使用JDBC协议访问 Amazon Redshift，Amazon RDS 和公开访问的数据库。",
     "jdbcURLConstraint": "大多数数据库引擎的JDBC语法是 jdbc:protocol://host:port/databasename。",
+    "jdbcDatabase": "JDBC 数据库 - 可选",
+    "jdbcDatabaseDesc": "如果您的实例中有多个数据库，请在此处添加数据库名称列表。",
     "jdbcClassName": "JDBC驱动类名称 - 可选",
     "jdbcClassNameDesc": "输入自定义的 JDBC 驱动类名称，供爬虫连接到数据源。",
     "jdbcS3Path": "JDBC 驱动 S3 路径 - 可选",
