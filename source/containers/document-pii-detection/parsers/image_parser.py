@@ -52,10 +52,12 @@ class ImageParser(BaseParser):
 
         contain_face = True if face_detection_result.size > 0 else False
         business_license_keywords = ['营', '业', '执', '照', '信用代码']
+        business_license_keywords_2 = ['营', '业', '执', '照', '注册号']
         cnid_keywords = ['公', '民', '身', '份', '号', '码']
         car_license_keywords = ['机动车', '驾驶证']
         
         contain_business_license = check_keywords_exist(ocr_pipeline_result, business_license_keywords)
+        contain_business_license_2 = check_keywords_exist(ocr_pipeline_result, business_license_keywords_2)
         contain_cnid = check_keywords_exist(ocr_pipeline_result, cnid_keywords)
         contain_car_license = check_keywords_exist(ocr_pipeline_result, car_license_keywords)
         
@@ -67,7 +69,7 @@ class ImageParser(BaseParser):
             else:
                 file_content.append('FACE_IMAGE')
         else:
-            if contain_business_license:
+            if contain_business_license or contain_business_license_2:
                 file_content.append('BUSINESS_LICENSE_IMAGE')
             elif contain_car_license:
                 file_content.append('CAR_LICENSE_IMAGE')
