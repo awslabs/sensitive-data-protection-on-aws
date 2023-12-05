@@ -4,7 +4,7 @@ import { CounterLink } from 'common/ConterLink';
 import HorizontalBarChart from './HorizontalBarChart';
 import { getDatacatalogSummary } from 'apis/dashboard/api';
 import { ColumnChartData, ICatalogSummary } from 'ts/dashboard/types';
-import { formatNumber, formatSize } from 'tools/tools';
+import { formatNumber } from 'tools/tools';
 import { useTranslation } from 'react-i18next';
 
 const S3CatalogOverview = () => {
@@ -81,7 +81,7 @@ const S3CatalogOverview = () => {
                 {t('summary:scannedS3ObjectSize')}
               </Box>
               <CounterLink>
-                {formatSize(catalogSummaryData?.size_total || 0)}
+                {formatNumber(catalogSummaryData?.size_total || 0)}
               </CounterLink>
             </div>
           </Grid>

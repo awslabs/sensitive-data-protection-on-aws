@@ -37,11 +37,14 @@ import { useTranslation } from 'react-i18next';
 import HelpInfo from 'common/HelpInfo';
 import { buildDocLink } from 'ts/common';
 import { getProviderByProviderId, getSourceByJob } from 'enum/common_types';
+import GlueJobCatalog from './componments/GlueJobCatalog';
 
 interface ProgressType {
   run_database_id: number;
   current_table_count: number;
   table_count: number;
+  current_table_count_unstructured: number;
+  table_count_unstructured: number;
 }
 
 const GULE_JOB_COLUMN = [
@@ -109,11 +112,11 @@ const HomeHeader: React.FC = () => {
 
 const GlueJobContent = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const { jobDetailData, jobData } = location.state;
   const { t } = useTranslation();
   const [downloading, setDownloading] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
   const [pageData, setPageData] = useState([]);
   const [errlogModal, setErrlogModal] = useState(false);
@@ -203,20 +206,21 @@ const GlueJobContent = () => {
         });
       });
     const detailResult: any = await getGuleJobDetailList(requestParam);
+    setPageData(detailResult.items);
+    setTotalCount(detailResult.total);
+    setLoading(false);
     if (detailResult && detailResult.items) {
       // Batch to get JOB Progress
       if (detailResult.items.length > 0) {
+        setLoadingProgress(true);
         const progressDataList = await batchrequestJobProgress({
           id: jobData.id,
           run_id: detailResult.items[0].run_id,
         });
         setJobProgressList(progressDataList);
+        setLoadingProgress(false);
       }
-      setPageData(detailResult.items);
-      setTotalCount(detailResult.total);
     }
-
-    setLoading(false);
   };
 
   const getStatusData = async () => {
@@ -297,12 +301,6 @@ const GlueJobContent = () => {
     }
   };
 
-  const clkCatalog = (rowData: any) => {
-    navigate(
-      `${RouterEnum.Catalog.path}?tagType=${rowData.database_type}&catalogId=${rowData.database_name}`
-    );
-  };
-
   const clkDownloadTemplate = async (runId: any, jobId: any) => {
     setDownloading(true);
     try {
@@ -359,13 +357,24 @@ const GlueJobContent = () => {
     const curProgress = jobProgressList.find(
       (element) => element.run_database_id === databaseId
     );
+    if (loadingProgress) {
+      return <Spinner />;
+    }
     if (!curProgress) {
       return '-';
     }
+    const curTableCountSum =
+      curProgress.current_table_count +
+      curProgress.current_table_count_unstructured;
+    const tableCountSum =
+      curProgress.table_count + curProgress.table_count_unstructured;
+
     if (curProgress.current_table_count === -1) {
       return t('pending');
+    } else if (tableCountSum === 0) {
+      return '-';
     } else {
-      return `${curProgress.current_table_count}/${curProgress.table_count}`;
+      return `${Math.floor(curTableCountSum / tableCountSum) * 100}%`;
     }
   };
 
@@ -480,9 +489,10 @@ const GlueJobContent = () => {
                   }
                   if (item.id === 'database_name') {
                     return (
-                      <span className="job-name" onClick={() => clkCatalog(e)}>
-                        {(e as any)[item.id]}
-                      </span>
+                      <GlueJobCatalog
+                        glueJob={e as any}
+                        providerId={jobData.provider_id}
+                      />
                     );
                   }
                   return (e as any)[item.id];

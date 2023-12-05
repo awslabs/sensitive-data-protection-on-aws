@@ -4,11 +4,15 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 interface ProgressType {
+  run_database_id: number;
   current_table_count: number;
   table_count: number;
+  current_table_count_unstructured: number;
+  table_count_unstructured: number;
 }
 
 interface GlueJobProgressProps {
+  showValue?: boolean;
   refresh?: number;
   jobDetailData: any;
   jobRowData: any;
@@ -17,9 +21,10 @@ interface GlueJobProgressProps {
 const GlueJobProgress: React.FC<GlueJobProgressProps> = (
   props: GlueJobProgressProps
 ) => {
-  const { jobRowData, jobDetailData, refresh } = props;
+  const { jobRowData, jobDetailData, showValue, refresh } = props;
   const { t } = useTranslation();
   const [loadingData, setLoadingData] = useState(false);
+  const [jobProgressPercent, setJobProgressPercent] = useState(0);
   const [curCount, setCurCount] = useState(0);
   const [tableCount, setTableCount] = useState(0);
   const getJobProgress = async () => {
@@ -30,8 +35,15 @@ const GlueJobProgress: React.FC<GlueJobProgressProps> = (
         run_id: jobRowData.run_id,
         run_database_id: jobRowData.id,
       });
-      setCurCount(result.current_table_count);
-      setTableCount(result.table_count);
+      const curTableCountSum =
+        result.current_table_count + result.current_table_count_unstructured;
+      const tableCountSum =
+        result.table_count + result.table_count_unstructured;
+      setCurCount(curTableCountSum);
+      setTableCount(tableCountSum);
+      if (tableCountSum > 0) {
+        setJobProgressPercent(curTableCountSum / tableCountSum);
+      }
       setLoadingData(false);
     } catch (error) {
       setLoadingData(false);
@@ -47,17 +59,31 @@ const GlueJobProgress: React.FC<GlueJobProgressProps> = (
     getJobProgress();
   }, []);
 
-  return (
-    <div>
-      {loadingData ? (
-        <Spinner />
-      ) : curCount === -1 ? (
-        t('pending')
-      ) : (
-        <span>{`${curCount}/${tableCount}`}</span>
-      )}
-    </div>
-  );
+  if (loadingData) {
+    return <Spinner />;
+  }
+
+  if (showValue) {
+    return (
+      <div>
+        {curCount === -1 ? (
+          t('pending')
+        ) : (
+          <span>{`${curCount}/${tableCount}`}</span>
+        )}
+      </div>
+    );
+  } else {
+    return (
+      <div>
+        {curCount === -1 ? (
+          t('pending')
+        ) : (
+          <span>{`${Math.floor(jobProgressPercent) * 100}%`}</span>
+        )}
+      </div>
+    );
+  }
 };
 
 export default GlueJobProgress;
