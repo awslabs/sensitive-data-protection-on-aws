@@ -10,7 +10,7 @@ from common.query_condition import QueryCondition
 from common.reference_parameter import logger, admin_account_id, admin_region, admin_bucket_name, partition, url_suffix, public_account_id
 import traceback
 import tools.mytime as mytime
-import datetime, time
+import datetime, time, pytz
 from openpyxl import Workbook
 from tempfile import NamedTemporaryFile
 from catalog.service import sync_job_detection_result
@@ -483,7 +483,7 @@ def stop_job(job_id: int):
                            MessageEnum.DISCOVERY_JOB_NON_RUNNING.get_msg())
     if db_run.state == RunState.STOPPING.value:
         delta_seconds = (mytime.get_now() - db_run.modify_time).seconds
-        if delta_seconds < 900:
+        if delta_seconds < const.LAMBDA_MAX_RUNTIME:
             raise BizException(MessageEnum.DISCOVERY_JOB_STOPPING.get_code(),
                                MessageEnum.DISCOVERY_JOB_STOPPING.get_msg())
 
@@ -773,7 +773,7 @@ def complete_run_database(input_event):
 def check_running_run():
     run_databases = crud.get_running_run_databases()
     for run_database in run_databases:
-        run_database_state = __get_run_database_state_from_agent(run_database)
+        run_database_state, stop_time = __get_run_database_state_from_agent(run_database)
         logger.info(f"check running run,run id:{run_database.run_id},run database id:{run_database.id}"
                     f",account id:{run_database.account_id},region:{run_database.region}"
                     f",database type:{run_database.database_type},database name:{run_database.database_name}"
@@ -785,6 +785,9 @@ def check_running_run():
         if run_database_state == RunDatabaseState.NOT_EXIST.value:
             message = 'Execution Does Not Exist'
         elif run_database_state == RunDatabaseState.SUCCEEDED.value.upper():
+            if (datetime.datetime.now(pytz.timezone('UTC')) - stop_time).seconds < const.LAMBDA_MAX_RUNTIME:
+                logger.info(f"run id:{run_database.run_id},run database id:{run_database.id} continue")
+                continue
             state = RunDatabaseState.SUCCEEDED.value
         elif run_database_state == RunDatabaseState.FAILED.value.upper():
             state = RunDatabaseState.FAILED.value
@@ -799,7 +802,7 @@ def check_running_run():
                                              job.overwrite == 1, state, message)
 
 
-def __get_run_database_state_from_agent(run_database: models.DiscoveryJobRunDatabase) -> str:
+def __get_run_database_state_from_agent(run_database: models.DiscoveryJobRunDatabase) -> (str, datetime.datetime):
     account_id = run_database.account_id
     region = run_database.region
     if need_change_account_id(run_database.database_type):
@@ -823,9 +826,9 @@ def __get_run_database_state_from_agent(run_database: models.DiscoveryJobRunData
         response = client_sfn.describe_execution(
             executionArn=f'arn:{partition}:states:{region}:{account_id}:execution:{const.SOLUTION_NAME}-DiscoveryJob:{const.SOLUTION_NAME}-{run_database.run_id}-{run_database.id}-{run_database.uuid}',
         )
-        return response["status"]
+        return response.get("status"), response.get("stopDate")
     except client_sfn.exceptions.ExecutionDoesNotExist as e:
-        return RunDatabaseState.NOT_EXIST.value
+        return RunDatabaseState.NOT_EXIST.value, None
 
 
 def __get_run_error_log(run_database: models.DiscoveryJobRunDatabase) -> str:
