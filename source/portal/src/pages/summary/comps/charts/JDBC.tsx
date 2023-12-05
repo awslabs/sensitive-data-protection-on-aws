@@ -44,6 +44,8 @@ export const JDBC: React.FC<JDBCProps> = (props: JDBCProps) => {
       dbType = SOURCE_TYPE.JDBC_TENCENT;
     } else if (curProvider?.id === 3) {
       dbType = SOURCE_TYPE.JDBC_GOOGLE;
+    } else if (curProvider?.id === 4) {
+      dbType = SOURCE_TYPE.JDBC_PROXY;
     }
     try {
       const tableData = (await getCatalogTopNData({
