@@ -29,6 +29,7 @@ from common.enum import (
 from common.exception_handler import BizException
 from common.query_condition import QueryCondition
 from data_source import crud as data_source_crud
+from discovery_job import crud as job_crud
 from label.crud import (get_labels_by_id_list, get_all_labels)
 from template.service import get_identifiers
 from . import crud, schemas
@@ -755,6 +756,20 @@ def sync_job_detection_result(
         overwrite=True
 ):
     logger.info("start time")
+    deel_s3_all = True
+    if database_type == DatabaseType.S3.value:
+        job_run = job_crud.get_run(job_run_id)
+        if not job_run:
+            raise Exception("Query job error")
+        if job_run.depth_unstructured != const.ZERO:
+            if job_run.depth_structured == const.ZERO:
+                deel_s3_all = False
+                database_type = DatabaseType.S3_UNSTRUCTURED.value
+        if job_run.depth_structured != const.ZERO:
+            if job_run.depth_structured == const.ZERO:
+                deel_s3_all = False
+                database_type = DatabaseType.S3.value
+
     job_result_list = __query_job_result_by_athena(
         account_id,
         region,
@@ -762,7 +777,7 @@ def sync_job_detection_result(
         database_name,
         job_run_id,
     )
-    if database_type == DatabaseType.S3.value:
+    if database_type == DatabaseType.S3.value and deel_s3_all:
         job_result_list += __query_job_result_by_athena(
             account_id,
             region,
@@ -782,7 +797,7 @@ def sync_job_detection_result(
     database_catalog_columns_dict = crud.get_catalog_column_level_classification_by_database(account_id, region,
                                                                                              database_type,
                                                                                              database_name)
-    if database_type == DatabaseType.S3.value:
+    if database_type == DatabaseType.S3.value and deel_s3_all:
         database_catalog_columns_dict_unstructured = crud.get_catalog_column_level_classification_by_database(account_id, region,
                                                                  DatabaseType.S3_UNSTRUCTURED.value,
                                                                  database_name)
@@ -857,7 +872,7 @@ def sync_job_detection_result(
     database_catalog_table_dict = crud.get_catalog_table_level_classification_by_database_all(account_id, region,
                                                                                               database_type,
                                                                                               database_name)
-    if database_type == DatabaseType.S3.value:
+    if database_type == DatabaseType.S3.value and deel_s3_all:
         database_catalog_table_dict_unstructured = crud.get_catalog_table_level_classification_by_database_all(
             account_id, region,
             DatabaseType.S3_UNSTRUCTURED.value,
@@ -884,12 +899,11 @@ def sync_job_detection_result(
             #         "row_count": table_size,
             #     }
             #     table_dict_list.append(table_dict)
-            privacy = Privacy.PII.value
             if catalog_table is not None and (overwrite or (
                         not overwrite and catalog_table.manual_tag != const.MANUAL)):
                 table_dict = {
                     "id": catalog_table.id,
-                    "privacy": privacy,
+                    "privacy": Privacy.PII.value,
                     "state": CatalogState.DETECTED.value,
                     "row_count": table_size,
                     "manual_tag": const.SYSTEM,
@@ -935,7 +949,7 @@ def sync_job_detection_result(
         crud.update_catalog_database_level_classification_by_id(
             catalog_database.id, database_dict
         )
-    if database_type == DatabaseType.S3.value:
+    if database_type == DatabaseType.S3.value and deel_s3_all:
         catalog_database_unstructured = crud.get_catalog_database_level_classification_by_name(account_id, region,
                                                                                                DatabaseType.S3_UNSTRUCTURED.value,
                                                                                                database_name)

@@ -270,7 +270,8 @@ def get_database_by_identifier_paginate(condition: QueryCondition):
                                                                           database_info[1],
                                                                           database_info[2],
                                                                           database_info[3])
-        result_list.append(result_db)
+        if result_db:
+            result_list.append(result_db)
     if condition.size >= len(result_list):
         return result_list
     else:
