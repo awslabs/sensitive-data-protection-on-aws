@@ -103,12 +103,15 @@ def batch_process_files(s3_client, bucket_name, file_info, file_category):
 
     Sample file_info:
     {
-        "file_type": ".jpeg",
-        "file_path": "test_images/human_faces",
+        "file_type": "image",
+        "file_path": "test_images/business_license",
+        "total_file_size": 421226,
+        "total_file_count": 1,
         "sample_files": [
-            "1"
+            "工商营业执照.jpg"
         ]
     }
+
 
     """
     file_contents = {}
