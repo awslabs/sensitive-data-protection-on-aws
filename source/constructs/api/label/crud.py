@@ -50,6 +50,7 @@ def create_label(label: schemas.LabelCreate) -> models.Label:
     session = get_session()
     session.add(db_label)
     session.commit()
+    print(db_label.id)
     return db_label
 
 
