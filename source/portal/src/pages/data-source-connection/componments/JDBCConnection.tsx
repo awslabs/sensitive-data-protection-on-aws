@@ -680,6 +680,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                       onChange={(e) => changeDatabase(e.detail.value)}
                       placeholder={`crm_database\nuser_management\ninventory_management`}
                       value={jdbcConnectionData.new.jdbc_connection_schema}
+                      disabled={true}
                     />
                   </FormField>
                   <FormField
