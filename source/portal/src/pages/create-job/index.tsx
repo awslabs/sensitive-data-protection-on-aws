@@ -105,7 +105,7 @@ export const convertTableSourceToJobDatabases = (
       return {
         account_id: table_items[0].account_id,
         region: table_items[0].region,
-        database_type: 'rds',
+        database_type: table_items[0].database_type,
         database_name: database_name,
         table_name: table_names,
       };
