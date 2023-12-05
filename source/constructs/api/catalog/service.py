@@ -880,12 +880,11 @@ def sync_job_detection_result(
             #         "row_count": table_size,
             #     }
             #     table_dict_list.append(table_dict)
-            privacy = Privacy.PII.value
             if catalog_table is not None and (overwrite or (
                         not overwrite and catalog_table.manual_tag != const.MANUAL)):
                 table_dict = {
                     "id": catalog_table.id,
-                    "privacy": privacy,
+                    "privacy": Privacy.PII.value,
                     "state": CatalogState.DETECTED.value,
                     "row_count": table_size,
                     "manual_tag": const.SYSTEM,
