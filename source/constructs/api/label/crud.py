@@ -1,3 +1,5 @@
+import logging
+
 import db.models_label as models
 from tools.pydantic_tool import parse_pydantic_schema
 from db.database import get_session
@@ -50,7 +52,8 @@ def create_label(label: schemas.LabelCreate) -> models.Label:
     session = get_session()
     session.add(db_label)
     session.commit()
-    print(db_label.id)
+    # attention : do not delete because of serialize
+    logging.debug(db_label.id)
     return db_label
 
 
