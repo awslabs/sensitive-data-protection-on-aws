@@ -168,7 +168,7 @@ class JDBCInstanceSourceUpdateBase(BaseModel):
 class JDBCInstanceSource(JDBCInstanceSourceBase):
     description: Optional[str]
     jdbc_connection_url: Optional[str]
-    jdbc_datatbase_names: Optional[str]
+    jdbc_connection_schema: Optional[str]
     jdbc_enforce_ssl: Optional[str]
     kafka_ssl_enabled: Optional[str]
     master_username: Optional[str]

@@ -76,7 +76,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
     last_updated_time: '',
     jdbc_driver_class_name: '',
     jdbc_driver_jar_uri: '',
-    jdbc_datatbase_names: '',
+    jdbc_connection_schema: '',
   };
   const [jdbcConnectionData, setJdbcConnectionData] = useState({
     createType: 'import',
@@ -351,7 +351,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
   const changeDatabase = (detail: any) => {
     // console.log(detail)
     let temp = jdbcConnectionData.new;
-    temp = { ...temp, jdbc_datatbase_names: detail };
+    temp = { ...temp, jdbc_connection_schema: detail };
     setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
   };
 
@@ -679,7 +679,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                     <Textarea
                       onChange={(e) => changeDatabase(e.detail.value)}
                       placeholder={`crm_database\nuser_management\ninventory_management`}
-                      value={jdbcConnectionData.new.jdbc_connection_url}
+                      value={jdbcConnectionData.new.jdbc_connection_schema}
                     />
                   </FormField>
                   <FormField
