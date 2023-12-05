@@ -84,6 +84,7 @@ const.YES = 'Yes'
 const.NO = 'No'
 const.PUBLIC = 'Public'
 const.PRIVATE = 'Private'
+const.ZERO = 0
 
 const.UNSTRUCTURED_FILES = {
     "document": ["doc", "docx", "pdf", "ppt", "pptx", "xls", "xlsx", "odp"],
