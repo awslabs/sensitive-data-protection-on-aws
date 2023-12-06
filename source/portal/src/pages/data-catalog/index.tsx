@@ -203,12 +203,22 @@ const DataCatalogList: React.FC = () => {
                       ]}
                     />
                   )}
-                  {curProvider?.id !== 1 && (
+                  {curProvider?.id === 2 && (
                     <CatalogList
                       label={t(TAB_LIST.JDBC.id)}
-                      catalogType={getJDBCTypeByProviderId(
-                        curProvider?.id ?? 0
-                      )}
+                      catalogType={getJDBCTypeByProviderId(2)}
+                    />
+                  )}
+                  {curProvider?.id === 3 && (
+                    <CatalogList
+                      label={t(TAB_LIST.JDBC.id)}
+                      catalogType={getJDBCTypeByProviderId(3)}
+                    />
+                  )}
+                  {curProvider?.id === 4 && (
+                    <CatalogList
+                      label={t(TAB_LIST.JDBC.id)}
+                      catalogType={getJDBCTypeByProviderId(4)}
                     />
                   )}
                 </Container>
