@@ -23,13 +23,17 @@ import {
   PRIVARY_TYPE_INT_DATA,
 } from 'pages/common-badge/types/badge_type';
 import ResourcesFilter from 'pages/resources-filter';
-import { TABLE_NAME } from 'enum/common_types';
+import { JDBC_VIEW, TABLE_NAME } from 'enum/common_types';
 import { useTranslation } from 'react-i18next';
 import { IDataSourceType, IJobType } from 'pages/data-job/types/job_list_type';
 import {
   convertDataSourceListToJobDatabases,
   convertTableSourceToJobDatabases,
 } from '../index';
+import {
+  CATALOG_TABLE_FILTER_COLUMN,
+  RDS_FILTER_COLUMN,
+} from 'pages/data-catalog/types/data_config';
 
 interface SelectJDBCCatalogProps {
   jobData: IJobType;
@@ -70,7 +74,10 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
     totalCount: jdbcTotal,
     query: jdbcQuery,
     setQuery: setJdbcQuery,
-    columnList: JDBC_INSTANCE_COLUMS.filter((i: any) => i.filter),
+    columnList: (jobData.jdbcSelectedView === JDBC_VIEW.JDBC_INSTANCE_VIEW
+      ? RDS_FILTER_COLUMN
+      : CATALOG_TABLE_FILTER_COLUMN
+    ).filter((i) => i.filter),
     tableName: TABLE_NAME.CATALOG_DATABASE_LEVEL_CLASSIFICATION,
     filteringPlaceholder: t('job:filterInstances'),
   };
@@ -118,7 +125,14 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
           },
         ] as any,
       };
-
+      jdbcQuery.tokens &&
+        jdbcQuery.tokens.forEach((item: any) => {
+          requestParam.conditions.push({
+            column: item.propertyKey,
+            values: [`${item.value}`],
+            condition: jdbcQuery.operation,
+          });
+        });
       const result = await searchCatalogTables(requestParam);
       setJdbcFolderData((result as any)?.items);
       setJdbcTotal((result as any)?.total);
@@ -131,7 +145,7 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
 
   useEffect(() => {
     if (jobData.all_jdbc === '0') {
-      if (jobData.jdbcSelectedView === 'jdbc-instance-view') {
+      if (jobData.jdbcSelectedView === JDBC_VIEW.JDBC_INSTANCE_VIEW) {
         getJdbcCatalogData();
       } else {
         getJdbcFolderData();
@@ -146,7 +160,7 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
   ]);
 
   useEffect(() => {
-    if (jobData.jdbcSelectedView === 'jdbc-instance-view') {
+    if (jobData.jdbcSelectedView === JDBC_VIEW.JDBC_INSTANCE_VIEW) {
       changeSelectDatabases(
         convertDataSourceListToJobDatabases(
           selectedJdbcItems,
@@ -193,13 +207,13 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
               options={[
                 {
                   text: 'Instance view',
-                  id: 'jdbc-instance-view',
+                  id: JDBC_VIEW.JDBC_INSTANCE_VIEW,
                 },
-                { text: 'Table view', id: 'jdbc-table-view' },
+                { text: 'Table view', id: JDBC_VIEW.JDBC_TABLE_VIEW },
               ]}
               onChange={({ detail }) => changeJDBCSelectView(detail.selectedId)}
             />
-            {jobData.jdbcSelectedView === 'jdbc-instance-view' && (
+            {jobData.jdbcSelectedView === JDBC_VIEW.JDBC_INSTANCE_VIEW && (
               <Table
                 className="job-table-width"
                 resizableColumns
@@ -322,7 +336,7 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
                 }
               />
             )}
-            {jobData.jdbcSelectedView === 'jdbc-table-view' && (
+            {jobData.jdbcSelectedView === JDBC_VIEW.JDBC_TABLE_VIEW && (
               <Table
                 className="job-table-width"
                 resizableColumns
