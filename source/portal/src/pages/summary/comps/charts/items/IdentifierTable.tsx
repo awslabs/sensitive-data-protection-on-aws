@@ -176,7 +176,9 @@ const IdentifierTableData: React.FC<IdentifierTableProps> = (
 
   return (
     <div>
-      <Header variant="h3">{title}</Header>
+      <Header variant="h3">
+        {title} ({dataList.length})
+      </Header>
       <div className="flex gap-10">
         <div className="flex-2">
           <TextFilter

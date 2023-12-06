@@ -53,10 +53,12 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
   const [loadingUpdate, setLoadingUpdate] = useState(false);
   // const [newLabelName, setNewLabelName] = useState('');
   const [createOrUpdate, setCreateOrUpdate] = useState('create');
-  const [currentLabel, setCurrentLabel] = useState<Label>({
-    id: '',
-    label_name: '',
-  });
+  const [currentLabel, setCurrentLabel] = useState<Label>(
+    defaultSelectLabels?.[0] ?? {
+      id: '',
+      label_name: '',
+    }
+  );
   const [selectedItems, setSelectedItems] = useState<Label[]>(
     defaultSelectLabels || []
   );

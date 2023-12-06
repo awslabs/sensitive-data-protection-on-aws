@@ -21,10 +21,11 @@ import { SOURCE_TYPE } from 'enum/common_types';
 
 interface JDBCProps {
   curProvider?: ProviderType;
+  jdbcType: string;
 }
 
 export const JDBC: React.FC<JDBCProps> = (props: JDBCProps) => {
-  const { curProvider } = props;
+  const { curProvider, jdbcType } = props;
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [loadingTableData, setLoadingTableData] = useState(true);
@@ -98,7 +99,7 @@ export const JDBC: React.FC<JDBCProps> = (props: JDBCProps) => {
       >
         {t('summary:dataCatalogs')}
       </Header>
-      <JDBCCatalogOverview />
+      <JDBCCatalogOverview jdbcType={jdbcType} />
       <Grid
         gridDefinition={[
           { colspan: 12 },
@@ -116,7 +117,7 @@ export const JDBC: React.FC<JDBCProps> = (props: JDBCProps) => {
               <CircleChart
                 title=""
                 circleType="donut"
-                sourceType="jdbc"
+                sourceType={jdbcType}
                 dataType="instance"
               />
             </div>
@@ -124,7 +125,7 @@ export const JDBC: React.FC<JDBCProps> = (props: JDBCProps) => {
               <CircleChart
                 title=""
                 circleType="donut"
-                sourceType="jdbc"
+                sourceType={jdbcType}
                 dataType="table"
               />
             </div>
@@ -132,7 +133,7 @@ export const JDBC: React.FC<JDBCProps> = (props: JDBCProps) => {
               <CircleChart
                 title=""
                 circleType="donut"
-                sourceType="jdbc"
+                sourceType={jdbcType}
                 dataType="column"
               />
             </div>
@@ -142,7 +143,7 @@ export const JDBC: React.FC<JDBCProps> = (props: JDBCProps) => {
           <CircleChart
             title={t('summary:lastUpdatedStatus')}
             circleType="pie"
-            sourceType="jdbc"
+            sourceType={jdbcType}
           />
         </div>
 

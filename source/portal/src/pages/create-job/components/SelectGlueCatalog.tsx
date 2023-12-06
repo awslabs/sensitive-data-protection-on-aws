@@ -126,6 +126,7 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
 
       const result = await searchCatalogTables(requestParam);
       setGlueFolderData((result as any)?.items);
+      setGlueTotal((result as any)?.total);
       setIsLoading(false);
     } catch (e) {
       console.error(e);

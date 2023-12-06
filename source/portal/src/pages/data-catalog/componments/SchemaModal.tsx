@@ -231,7 +231,7 @@ const SchemaModal: React.FC<any> = (props: any) => {
     if (
       catalogType !== DATA_TYPE_ENUM.rds &&
       catalogType !== DATA_TYPE_ENUM.glue &&
-      catalogType !== DATA_TYPE_ENUM.jdbc
+      !catalogType.startsWith(DATA_TYPE_ENUM.jdbc)
     ) {
       return;
     }
@@ -248,6 +248,7 @@ const SchemaModal: React.FC<any> = (props: any) => {
       alertMsg(result as any, 'error');
       return;
     }
+    console.info('result:', result);
     changeRdsDataToPage(result);
   };
 
