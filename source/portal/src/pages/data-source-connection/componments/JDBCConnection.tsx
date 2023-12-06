@@ -497,6 +497,10 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
     setSecretItem(null);
   };
 
+  useEffect(() => {
+    loadNetworkInfo();
+  }, []);
+
   return (
     <RightModal
       className="detail-modal"
