@@ -25,7 +25,7 @@ import {
   PRIVARY_TYPE_INT_DATA,
 } from 'pages/common-badge/types/badge_type';
 import ResourcesFilter from 'pages/resources-filter';
-import { TABLE_NAME } from 'enum/common_types';
+import { GLUE_VIEW, TABLE_NAME } from 'enum/common_types';
 import { useTranslation } from 'react-i18next';
 import { IDataSourceType, IJobType } from 'pages/data-job/types/job_list_type';
 import {
@@ -35,6 +35,10 @@ import {
 } from '../index';
 import { getAccountList } from 'apis/account-manager/api';
 import { TYPE_COLUMN } from 'pages/account-management/types/account_type';
+import {
+  CATALOG_TABLE_FILTER_COLUMN,
+  RDS_FILTER_COLUMN,
+} from 'pages/data-catalog/types/data_config';
 
 interface SelectS3CatalogProps {
   jobData: IJobType;
@@ -70,11 +74,27 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
     operation: 'and',
   } as any);
 
+  const getFilterCloumnList = () => {
+    if (jobData.glueSelectedView === GLUE_VIEW.GLUE_INSTANCE_VIEW) {
+      return RDS_FILTER_COLUMN;
+    } else if (jobData.glueSelectedView === GLUE_VIEW.GLUE_TABLE_VIEW) {
+      return CATALOG_TABLE_FILTER_COLUMN;
+    } else {
+      return [
+        {
+          id: COLUMN_OBJECT_STR.AccountId,
+          label: 'table.label.awsAccount',
+          filter: true,
+        },
+      ];
+    }
+  };
+
   const glueFilterProps = {
     totalCount: glueTotal,
     query: glueQuery,
     setQuery: setGlueQuery,
-    columnList: RDS_CATALOG_COLUMS.filter((i) => i.filter),
+    columnList: getFilterCloumnList().filter((i) => i.filter),
     tableName: TABLE_NAME.CATALOG_DATABASE_LEVEL_CLASSIFICATION,
     filteringPlaceholder: t('job:filterInstances'),
   };
@@ -123,9 +143,18 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
           },
         ] as any,
       };
+      glueQuery.tokens &&
+        glueQuery.tokens.forEach((item: any) => {
+          requestParam.conditions.push({
+            column: item.propertyKey,
+            values: [`${item.value}`],
+            condition: glueQuery.operation,
+          });
+        });
 
       const result = await searchCatalogTables(requestParam);
       setGlueFolderData((result as any)?.items);
+      setGlueTotal((result as any)?.total);
       setIsLoading(false);
     } catch (e) {
       console.error(e);
@@ -154,6 +183,14 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
           },
         ],
       };
+      glueQuery.tokens &&
+        glueQuery.tokens.forEach((item: any) => {
+          requestParam.conditions.push({
+            column: item.propertyKey,
+            values: [`${item.value}`],
+            condition: glueQuery.operation,
+          } as any);
+        });
       const result: any = await getAccountList(requestParam);
       setGlueAccountData(result.items);
       setGlueTotal(result?.total);
@@ -165,9 +202,9 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
 
   useEffect(() => {
     if (jobData.all_glue === '0') {
-      if (jobData.glueSelectedView === 'glue-instance-view') {
+      if (jobData.glueSelectedView === GLUE_VIEW.GLUE_INSTANCE_VIEW) {
         getGlueCatalogData();
-      } else if (jobData.glueSelectedView === 'glue-table-view') {
+      } else if (jobData.glueSelectedView === GLUE_VIEW.GLUE_TABLE_VIEW) {
         getGlueFolderData();
       } else {
         getAwsAccountList();
@@ -182,14 +219,14 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
   ]);
 
   useEffect(() => {
-    if (jobData.glueSelectedView === 'glue-instance-view') {
+    if (jobData.glueSelectedView === GLUE_VIEW.GLUE_INSTANCE_VIEW) {
       changeSelectDatabases(
         convertDataSourceListToJobDatabases(
           selectedGlueItems,
           jobData.database_type
         )
       );
-    } else if (jobData.glueSelectedView === 'glue-table-view') {
+    } else if (jobData.glueSelectedView === GLUE_VIEW.GLUE_TABLE_VIEW) {
       changeSelectDatabases(
         convertTableSourceToJobDatabases(
           selectedGlueItems,
@@ -236,14 +273,14 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
               options={[
                 {
                   text: 'Instance view',
-                  id: 'glue-instance-view',
+                  id: GLUE_VIEW.GLUE_INSTANCE_VIEW,
                 },
-                { text: 'Table view', id: 'glue-table-view' },
-                { text: 'Account view', id: 'glue-account-view' },
+                { text: 'Table view', id: GLUE_VIEW.GLUE_TABLE_VIEW },
+                { text: 'Account view', id: GLUE_VIEW.GLUE_ACCOUNT_VIEW },
               ]}
               onChange={({ detail }) => changeGlueSelectView(detail.selectedId)}
             />
-            {jobData.glueSelectedView === 'glue-instance-view' && (
+            {jobData.glueSelectedView === GLUE_VIEW.GLUE_INSTANCE_VIEW && (
               <Table
                 className="job-table-width"
                 resizableColumns
@@ -366,7 +403,7 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
                 }
               />
             )}
-            {jobData.glueSelectedView === 'glue-table-view' && (
+            {jobData.glueSelectedView === GLUE_VIEW.GLUE_TABLE_VIEW && (
               <Table
                 className="job-table-width"
                 resizableColumns
@@ -489,7 +526,7 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
                 }
               />
             )}
-            {jobData.glueSelectedView === 'glue-account-view' && (
+            {jobData.glueSelectedView === GLUE_VIEW.GLUE_ACCOUNT_VIEW && (
               <Table
                 className="job-table-width"
                 resizableColumns

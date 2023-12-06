@@ -45,7 +45,7 @@ import {
   NON_PII_OPTION,
 } from 'pages/common-badge/componments/Options';
 import { DATA_TYPE_ENUM, TABLE_NAME } from 'enum/common_types';
-import { getIdentifiersList } from 'apis/data-template/api';
+import { getTemplateMappingList } from 'apis/data-template/api';
 import { nFormatter } from 'ts/common';
 import { useTranslation } from 'react-i18next';
 import { Props } from 'common/PropsModal';
@@ -242,9 +242,15 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
         size: 100,
         sort_column: '',
         asc: false,
-        conditions: [] as any,
+        conditions: [
+          {
+            column: 'template_id',
+            values: ['1'],
+            condition: 'and',
+          },
+        ] as any,
       };
-      const optList: any = await getIdentifiersList(requestParam);
+      const optList: any = await getTemplateMappingList(requestParam);
       if (!optList || !optList.items) {
         return;
       }
@@ -776,6 +782,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                           <div className="detail-edit-icon-max-width">
                             <Multiselect
                               hideTokens
+                              expandToViewport
                               placeholder={
                                 t('catalog:detail.selectIdentifier') || ''
                               }
@@ -800,7 +807,10 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                           </div>
                         );
                       } else {
-                        if (tagId === COLUMN_OBJECT_STR.Schema) {
+                        if (
+                          tagId === COLUMN_OBJECT_STR.Schema ||
+                          tagId === COLUMN_OBJECT_STR.SampleObjects
+                        ) {
                           const showIdentifierObj = toJSON(
                             (e as any)[item.id]
                           ) || { 'N/A': 1 };
@@ -854,19 +864,21 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                                   }`}</span>
                                 </Popover>
                               )}
-                              <div
-                                onClick={() =>
-                                  clickEditIcon(
-                                    e as any,
-                                    COLUMN_OBJECT_STR.Identifier
-                                  )
-                                }
-                              >
-                                <Icon
-                                  name="edit"
-                                  className="modal-badge-edit"
-                                />
-                              </div>
+                              {tagId === COLUMN_OBJECT_STR.Schema && (
+                                <div
+                                  onClick={() =>
+                                    clickEditIcon(
+                                      e as any,
+                                      COLUMN_OBJECT_STR.Identifier
+                                    )
+                                  }
+                                >
+                                  <Icon
+                                    name="edit"
+                                    className="modal-badge-edit"
+                                  />
+                                </div>
+                              )}
                             </div>
                           ) : (
                             <div

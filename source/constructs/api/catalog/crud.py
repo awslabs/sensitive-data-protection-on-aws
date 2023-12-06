@@ -642,6 +642,14 @@ def delete_catalog_table_level_classification_by_database_region(database: str, 
     session.commit()
 
 
+def delete_catalog_table_level_classification_by_ids(ids: list):
+    session = get_session()
+    session.query(models.CatalogTableLevelClassification).filter(
+        models.CatalogTableLevelClassification.id.in_(ids)
+    ).delete()
+    session.commit()
+
+
 def delete_catalog_database_level_classification_by_database_region(database: str, region: str, type: str):
     session = get_session()
     session.query(models.CatalogDatabaseLevelClassification).filter(
@@ -747,7 +755,6 @@ def get_rds_database_summary_with_attr(database_type, attribute: str, need_merge
         column_list = get_rds_column_summary_with_attr(attribute)
         column_dict = {column["privacy"]: column["row_total"] for column in column_list}
         updated_database_list = []
-        print(f"table_dict:{table_dict} column_dict: {column_dict}")
         for database in database_list:
             privacy = database[attribute]
             table_total = table_dict.get(privacy, 0)

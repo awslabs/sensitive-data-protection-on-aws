@@ -38,6 +38,7 @@ const AccountForm: React.FC<AccountFormProps> = (props: AccountFormProps) => {
 
   const coorMapTemp = new Map();
   const getRegionListByProvider = async (provider_id: any) => {
+    provider_id = parseInt(provider_id) === 4 ? 1 : provider_id;
     const accountData = await getProviderRegions(parseInt(provider_id));
     if (Array.isArray(accountData)) {
       accountData.forEach((item) => {
@@ -142,7 +143,6 @@ const AccountForm: React.FC<AccountFormProps> = (props: AccountFormProps) => {
             <FormField label={t('account:add.regionLocation')}>
               <Select
                 onChange={(e) => {
-                  console.log('e is:', e);
                   setCurrentRegion(e.detail.selectedOption);
                   changeRegion(e.detail.selectedOption);
                 }}

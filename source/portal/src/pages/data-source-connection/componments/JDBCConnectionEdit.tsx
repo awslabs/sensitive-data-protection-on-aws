@@ -10,6 +10,7 @@ import {
   SpaceBetween,
   Spinner,
   Tiles,
+  Textarea,
 } from '@cloudscape-design/components';
 import S3ResourceSelector from '@cloudscape-design/components/s3-resource-selector';
 import {
@@ -41,6 +42,7 @@ type connectionType = {
   region: string;
   description: string;
   jdbc_connection_url: string;
+  jdbc_connection_schema: string;
   jdbc_enforce_ssl: string;
   master_username: string;
   password: string;
@@ -74,6 +76,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
     region: props.region,
     description: '',
     jdbc_connection_url: '',
+    jdbc_connection_schema: '',
     jdbc_enforce_ssl: 'false',
     master_username: '',
     password: '',
@@ -125,7 +128,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
   }, []);
 
   useEffect(() => {
-    console.log('');
+    // console.log('');
   }, []);
 
   useEffect(() => {
@@ -177,7 +180,6 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
 
   const updateJdbcConnection = async () => {
     try {
-      console.log('jdbcConnectionData is:', jdbcConnectionData);
       await updateConnection(jdbcConnectionData);
       alertMsg(t('successUpdate'), 'success');
       props.setShowModal(false);
@@ -201,6 +203,14 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
     setJdbcConnectionData({
       ...jdbcConnectionData,
       jdbc_connection_url: detail,
+    });
+  };
+
+  const changeDatabase = (detail: any) => {
+    // console.log(detail)
+    setJdbcConnectionData({
+        ...jdbcConnectionData,
+        jdbc_connection_schema: detail,
     });
   };
 
@@ -262,7 +272,6 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
 
   const changeSecret = (detail: any) => {
     setSecretItem(detail);
-    console.log('secret is :', detail);
     setJdbcConnectionData({ ...jdbcConnectionData, secret: detail.value });
   };
   const getConnectionDetails = async () => {
@@ -286,6 +295,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
         instance_id: props.instanceId,
         description: res['Description'],
         jdbc_connection_url: res['ConnectionProperties']['JDBC_CONNECTION_URL'],
+        jdbc_connection_schema: res['ConnectionProperties']['JDBC_CONNECTION_SCHEMA'],
         jdbc_enforce_ssl: res['ConnectionProperties']['JDBC_ENFORCE_SSL'],
         master_username: res['ConnectionProperties']['USERNAME'],
         password: res['ConnectionProperties']['PASSWORD'],
@@ -309,7 +319,6 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
         (res['ConnectionProperties']['USERNAME'] == null || res['ConnectionProperties']['PASSWORD'] === '')
       ) {
         setCredential('secret');
-        console.log('secretOption is:', secretOption);
         const secrets = tempOptList.filter(
           (option: any) =>
             option.value === res['ConnectionProperties']['SECRET_ID']
@@ -318,13 +327,11 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
       } else {
         setCredential('password');
       }
-      console.log('secretOption is :', secretOption);
       try {
         const vpcOptions: any[] = [];
         const network_res: any = await queryNetworkInfo(requestParam_network);
         const vpcs = network_res?.vpcs;
         let currentVPCId = '';
-        console.log('vpcs is:', vpcs);
         vpcs.forEach((item: any) => {
           const subnetId: string[] = [];
           const sgId: string[] = [];
@@ -590,10 +597,22 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                 >
                   <Input
                     onChange={(e) => changeJDBCUrl(e.detail.value)}
-                    placeholder="jdbc:xxx.xxx"
+                    placeholder="jdbc:protocol://host:port/db_name"
                     value={jdbcConnectionData.jdbc_connection_url}
                   />
                 </FormField>
+                <FormField
+                    stretch
+                    label={t('datasource:jdbc.jdbcDatabase')}
+                    description={t('datasource:jdbc.jdbcDatabaseDesc')}
+                    constraintText={t('datasource:jdbc.jdbcDatabaseConstraint')}
+                  >
+                    <Textarea
+                      onChange={(e) => changeDatabase(e.detail.value)}
+                      placeholder={`crm_database\nuser_management\ninventory_management`}
+                      value={jdbcConnectionData.jdbc_connection_schema}
+                    />
+                  </FormField>
                 <FormField
                   stretch
                   label={t('datasource:jdbc.jdbcClassName')}

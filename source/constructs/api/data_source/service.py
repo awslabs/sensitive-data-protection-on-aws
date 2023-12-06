@@ -397,7 +397,7 @@ def sync_jdbc_connection(jdbc: JDBCInstanceSourceBase):
     logger.debug(f"conn_response type is:{type(conn_response)}")
     logger.debug(f"conn_response is:{conn_response}")
     # condition_check(ec2_client, credentials, source.glue_state, conn_response['PhysicalConnectionRequirements'])
-    sync(glue_client, lakeformation_client, credentials, crawler_role_arn, jdbc, conn_response['ConnectionProperties']['JDBC_CONNECTION_URL'])
+    sync(glue_client, lakeformation_client, credentials, crawler_role_arn, jdbc, conn_response['ConnectionProperties']['JDBC_CONNECTION_URL'], source.jdbc_connection_schema)
 
 
 def condition_check(ec2_client, credentials, state, connection: dict):
@@ -479,7 +479,7 @@ def condition_check(ec2_client, credentials, state, connection: dict):
                            MessageEnum.SOURCE_AVAILABILITY_ZONE_NOT_EXISTS.get_msg())
 
 
-def sync(glue, lakeformation, credentials, crawler_role_arn, jdbc: JDBCInstanceSourceBase, url: str):
+def sync(glue, lakeformation, credentials, crawler_role_arn, jdbc: JDBCInstanceSourceBase, url: str, schemas: str):
     jdbc_targets = []
     database_type = convert_provider_id_2_database_type(jdbc.account_provider_id)
     glue_database_name = f"{const.SOLUTION_NAME}-{database_type}-{jdbc.instance_id}"
@@ -492,11 +492,17 @@ def sync(glue, lakeformation, credentials, crawler_role_arn, jdbc: JDBCInstanceS
         raise BizException(MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_code(),
                            MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_msg())
     try:
+        # list schemas
         schema = get_schema_from_url(url)
-        jdbc_targets.append({
-            'ConnectionName': glue_connection_name,
-            'Path': f"{schema}/%"
-        })
+        db_names = set(schemas.splitlines())
+        db_names.add(schema)
+        for db_name in db_names:
+            trimmed_db_name = db_name.strip()
+            jdbc_targets.append({
+                'ConnectionName': glue_connection_name,
+                'Path': f"{trimmed_db_name}/%"
+            })
+
         if schema:
             """ :type : pyboto3.glue """
             try:
@@ -1729,6 +1735,7 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
         jdbc_conn_insert.detection_history_id = 0
         jdbc_conn_insert.description = jdbcConn.description
         jdbc_conn_insert.jdbc_connection_url = jdbcConn.jdbc_connection_url
+        jdbc_conn_insert.jdbc_connection_schema = jdbcConn.jdbc_connection_schema
         jdbc_conn_insert.jdbc_enforce_ssl = jdbcConn.jdbc_enforce_ssl
         jdbc_conn_insert.kafka_ssl_enabled = jdbcConn.kafka_ssl_enabled
         jdbc_conn_insert.master_username = jdbcConn.master_username
@@ -2599,7 +2606,10 @@ def query_connection_detail(account: JDBCInstanceSourceBase):
     if not source or not source.glue_connection:
         raise BizException(MessageEnum.SOURCE_JDBC_CONNECTION_NOT_EXIST.get_code(),
                            MessageEnum.SOURCE_JDBC_CONNECTION_NOT_EXIST.get_msg())
-    return __glue(account_id, region).get_connection(Name=source.glue_connection)['Connection']
+
+    conn = __glue(account_id, region).get_connection(Name=source.glue_connection)['Connection']
+    conn['ConnectionProperties']['JDBC_CONNECTION_SCHEMA'] = source.jdbc_connection_schema
+    return conn
 
 
 def __get_excludes_file_exts():

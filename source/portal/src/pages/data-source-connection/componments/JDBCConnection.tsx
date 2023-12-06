@@ -10,6 +10,7 @@ import {
   SelectProps,
   SpaceBetween,
   Tiles,
+  Textarea
 } from '@cloudscape-design/components';
 import S3ResourceSelector from '@cloudscape-design/components/s3-resource-selector';
 import {
@@ -75,6 +76,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
     last_updated_time: '',
     jdbc_driver_class_name: '',
     jdbc_driver_jar_uri: '',
+    jdbc_connection_schema: '',
   };
   const [jdbcConnectionData, setJdbcConnectionData] = useState({
     createType: 'import',
@@ -343,6 +345,13 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
     // console.log(detail)
     let temp = jdbcConnectionData.new;
     temp = { ...temp, jdbc_connection_url: detail };
+    setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
+  };
+
+  const changeDatabase = (detail: any) => {
+    // console.log(detail)
+    let temp = jdbcConnectionData.new;
+    temp = { ...temp, jdbc_connection_schema: detail };
     setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
   };
 
@@ -658,8 +667,20 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                   >
                     <Input
                       onChange={(e) => changeJDBCUrl(e.detail.value)}
-                      placeholder="jdbc:xxx.xxx"
+                      placeholder="jdbc:protocol://host:port/db_name"
                       value={jdbcConnectionData.new.jdbc_connection_url}
+                    />
+                  </FormField>
+                  <FormField
+                    stretch
+                    label={t('datasource:jdbc.jdbcDatabase')}
+                    description={t('datasource:jdbc.jdbcDatabaseDesc')}
+                    constraintText={t('datasource:jdbc.jdbcDatabaseConstraint')}
+                  >
+                    <Textarea
+                      onChange={(e) => changeDatabase(e.detail.value)}
+                      placeholder={`crm_database\nuser_management\ninventory_management`}
+                      value={jdbcConnectionData.new.jdbc_connection_schema}
                     />
                   </FormField>
                   <FormField

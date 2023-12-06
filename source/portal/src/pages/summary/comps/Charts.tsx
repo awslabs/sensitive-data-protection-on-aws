@@ -7,6 +7,7 @@ import { ProviderType } from 'common/ProviderTab';
 import { AmazonGlue } from './charts/AmazonGlue';
 import { JDBC } from './charts/JDBC';
 import RegionSelector from './charts/items/RegionSelector';
+import { getJDBCTypeByProviderId } from 'enum/common_types';
 
 interface ChartsProps {
   currentProvider?: ProviderType;
@@ -49,12 +50,20 @@ const Charts: React.FC<ChartsProps> = (props: ChartsProps) => {
               {
                 label: t('summary:jdbc'),
                 id: 'jdbc',
-                content: <JDBC curProvider={currentProvider} />,
+                content: (
+                  <JDBC
+                    curProvider={currentProvider}
+                    jdbcType={getJDBCTypeByProviderId(currentProvider?.id ?? 0)}
+                  />
+                ),
               },
             ]}
           />
         ) : (
-          <JDBC curProvider={currentProvider} />
+          <JDBC
+            curProvider={currentProvider}
+            jdbcType={getJDBCTypeByProviderId(currentProvider?.id ?? 0)}
+          />
         )}
       </div>
     </Container>

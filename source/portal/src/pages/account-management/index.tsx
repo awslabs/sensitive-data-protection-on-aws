@@ -159,7 +159,7 @@ const AccountManagementContent: React.FC = () => {
                     ]
                   : [
                       {
-                        label: t('account:totalJDBCConn'),
+                        label: t('account:customDB'),
                         value: coverageData?.jdbc_connected,
                         total: coverageData?.jdbc_total,
                       },

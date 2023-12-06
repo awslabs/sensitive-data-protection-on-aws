@@ -634,6 +634,7 @@ def update_jdbc_connection_full(jdbc_instance: schemas.JDBCInstanceSourceUpdate)
     jdbc_instance_source.detection_history_id = 0
     jdbc_instance_source.description = jdbc_instance.description
     jdbc_instance_source.jdbc_connection_url = jdbc_instance.jdbc_connection_url
+    jdbc_instance_source.jdbc_connection_schema = jdbc_instance.jdbc_connection_schema
     jdbc_instance_source.jdbc_enforce_ssl = jdbc_instance.jdbc_enforce_ssl
     jdbc_instance_source.kafka_ssl_enabled = jdbc_instance.kafka_ssl_enabled
     jdbc_instance_source.master_username = jdbc_instance.master_username
@@ -844,6 +845,7 @@ def copy_properties(jdbc_instance_target: JDBCInstanceSource, jdbc_instance_orig
     jdbc_instance_target.instance_id = jdbc_instance_origin.instance_id
     jdbc_instance_target.description = jdbc_instance_origin.description
     jdbc_instance_target.jdbc_connection_url = jdbc_instance_origin.jdbc_connection_url
+    jdbc_instance_target.jdbc_connection_schema = jdbc_instance_origin.jdbc_connection_schema
     jdbc_instance_target.jdbc_enforce_ssl = jdbc_instance_origin.jdbc_enforce_ssl
     jdbc_instance_target.kafka_ssl_enabled = jdbc_instance_origin.kafka_ssl_enabled
     jdbc_instance_target.master_username = jdbc_instance_origin.master_username

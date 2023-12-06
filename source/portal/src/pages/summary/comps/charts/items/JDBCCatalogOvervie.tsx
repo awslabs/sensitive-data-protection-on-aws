@@ -7,7 +7,14 @@ import { ICatalogSummary, ColumnChartData } from 'ts/dashboard/types';
 import { formatNumber } from 'tools/tools';
 import { useTranslation } from 'react-i18next';
 
-const JDBCCatalogOverview = () => {
+interface JDBCCatalogOverviewProps {
+  jdbcType: string;
+}
+
+const JDBCCatalogOverview: React.FC<JDBCCatalogOverviewProps> = (
+  props: JDBCCatalogOverviewProps
+) => {
+  const { jdbcType } = props;
   const [loadingData, setLoadingData] = useState(true);
   const { t } = useTranslation();
   const [catalogSummaryData, setCatalogSummaryData] =
@@ -16,7 +23,7 @@ const JDBCCatalogOverview = () => {
 
   const getS3DatacatalogSummary = async () => {
     const res = await getDatacatalogSummary({
-      database_type: 'jdbc',
+      database_type: jdbcType,
     });
     setCatalogSummaryData(res as ICatalogSummary);
     const tmpData = res as ICatalogSummary;

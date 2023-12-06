@@ -430,6 +430,34 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
                   percentIcon = 'status-info';
                 }
                 if (
+                  item.id === TYPE_COLUMN.RDS_CONNECTION &&
+                  e[TYPE_COLUMN.TOTAL_RDS_INSTANCE] === 0
+                ) {
+                  percentCls = 'progress-percent';
+                  percentIcon = 'status-stopped';
+                }
+                if (
+                  item.id === TYPE_COLUMN.S3_CONNECTION &&
+                  e[TYPE_COLUMN.TOTAL_S3_BUCKET] === 0
+                ) {
+                  percentCls = 'progress-percent';
+                  percentIcon = 'status-stopped';
+                }
+                if (
+                  item.id === TYPE_COLUMN.GLUE_CONNECTION &&
+                  e[TYPE_COLUMN.TOTAL_GLUE_DATABASE] === 0
+                ) {
+                  percentCls = 'progress-percent';
+                  percentIcon = 'status-stopped';
+                }
+                if (
+                  item.id === TYPE_COLUMN.JDBC_CONNECTION &&
+                  e[TYPE_COLUMN.TOTAL_JDBC_CONNECTION] === 0
+                ) {
+                  percentCls = 'progress-percent';
+                  percentIcon = 'status-stopped';
+                }
+                if (
                   selectedAccount !== '' &&
                   e['account_id'] === selectedAccount
                 ) {

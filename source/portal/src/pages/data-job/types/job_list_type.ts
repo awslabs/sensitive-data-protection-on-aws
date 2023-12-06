@@ -1,4 +1,5 @@
 import { SelectProps } from '@cloudscape-design/components';
+import { GLUE_VIEW, JDBC_VIEW, RDS_VIEW } from 'enum/common_types';
 import {
   DETECTION_THRESHOLD_OPTIONS,
   FREQUENCY_TYPE,
@@ -144,12 +145,9 @@ export interface IJobType {
   frequencyType: string;
   frequencyStart: SelectProps.Option | null;
   frequencyTimeStart: SelectProps.Option | null;
-  rdsSelectedView: 'rds-instance-view' | 'rds-table-view';
-  jdbcSelectedView: 'jdbc-instance-view' | 'jdbc-table-view';
-  glueSelectedView:
-    | 'glue-instance-view'
-    | 'glue-table-view'
-    | 'glue-account-view';
+  rdsSelectedView: RDS_VIEW;
+  jdbcSelectedView: JDBC_VIEW;
+  glueSelectedView: GLUE_VIEW;
 }
 
 export const INIT_JOB_DATA: IJobType = {
@@ -190,7 +188,7 @@ export const INIT_JOB_DATA: IJobType = {
   frequencyType: 'on_demand_run',
   frequencyStart: null,
   frequencyTimeStart: { label: '00:00', value: '0' },
-  rdsSelectedView: 'rds-instance-view',
-  jdbcSelectedView: 'jdbc-instance-view',
-  glueSelectedView: 'glue-instance-view',
+  rdsSelectedView: RDS_VIEW.RDS_INSTANCE_VIEW,
+  jdbcSelectedView: JDBC_VIEW.JDBC_INSTANCE_VIEW,
+  glueSelectedView: GLUE_VIEW.GLUE_INSTANCE_VIEW,
 };

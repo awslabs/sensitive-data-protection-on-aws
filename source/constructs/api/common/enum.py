@@ -182,6 +182,7 @@ class DatabaseType(Enum):
     JDBC_TENCENT = "jdbc_tencent"
     JDBC_ALIYUN = "jdbc_aliyun"
     JDBC_GOOGLE = "jdbc_google"
+    JDBC_PROXY = "jdbc_proxy"
 
 
 @unique
@@ -300,14 +301,14 @@ class Provider(Enum):
     AWS_CLOUD = 1
     TENCENT_CLOUD = 2
     GOOGLE_CLOUD = 3
-    ALI_CLOUD = 4
+    JDBC_PROXY = 4
 
 @unique
 class ProviderName(Enum):
     AWS_CLOUD = 'AWS'
     TENCENT_CLOUD = 'TENCENT CLOUD'
     GOOGLE_CLOUD = 'GOOGLE CLOUD'
-    ALI_CLOUD = 'ALI CLOUD'
+    JDBC_PROXY = 'JDBC PROXY'
 
 @unique
 class SourceCreateType(Enum):

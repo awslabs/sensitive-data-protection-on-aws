@@ -49,7 +49,6 @@ const CatalogListHeader: React.FC = () => {
     } catch {
       alertMsg(t('noReportFile'), 'error');
     }
-    console.log('finish time:' + new Date());
     setIsExporting(false);
   };
 
@@ -213,6 +212,12 @@ const DataCatalogList: React.FC = () => {
                     <CatalogList
                       label={t(TAB_LIST.JDBC.id)}
                       catalogType={getJDBCTypeByProviderId(3)}
+                    />
+                  )}
+                  {curProvider?.id === 4 && (
+                    <CatalogList
+                      label={t(TAB_LIST.JDBC.id)}
+                      catalogType={getJDBCTypeByProviderId(4)}
                     />
                   )}
                 </Container>
