@@ -76,21 +76,32 @@ const buildTimeFormat = (dateString: string) => {
 };
 
 const buildTimeFormatWithLocalTimeZone = (dateString: string) => {
-  dateString= buildTimeFormat(dateString);
-  const date =new Date(dateString);
-  date.setMinutes(date.getMinutes()-date.getTimezoneOffset());
+  dateString = buildTimeFormat(dateString);
+  const date = new Date(dateString);
+  date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
   const month = formatDigit(date.getMonth() + 1);
   const day = formatDigit(date.getDate());
   const hour = formatDigit(date.getHours());
   const min = formatDigit(date.getMinutes());
   const sec = formatDigit(date.getSeconds());
-  return date.getFullYear()+"-"+month+"-"+day+" "+hour+":"+min+":"+sec;
+  return (
+    date.getFullYear() +
+    '-' +
+    month +
+    '-' +
+    day +
+    ' ' +
+    hour +
+    ':' +
+    min +
+    ':' +
+    sec
+  );
 };
 
 const formatDigit = (value: number) => {
-   return value < 10 ? ('0'+value): value.toString()
-}
-
+  return value < 10 ? '0' + value : value.toString();
+};
 
 const DataTemplateContent: React.FC<any> = (props: any) => {
   const columnList = TEMPLATE_COLUMN_LIST;
@@ -205,7 +216,9 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
 
   const confirmDelete = async () => {
     const requestParam = {
-      ids: selectedItems.map(obj=>{return obj.id})
+      ids: selectedItems.map((obj) => {
+        return obj.id;
+      }),
     };
     showHideSpinner(true);
     try {
@@ -223,7 +236,9 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
     isShowDelete,
     setIsShowDelete,
     confirmDelete,
-    selectedNames: selectedItems.map(obj=>{return obj.name}),
+    selectedNames: selectedItems.map((obj) => {
+      return obj.name;
+    }),
     title: t('template:removeDataIdentifier'),
     confirmText: t('button.remove'),
   };
@@ -324,11 +339,9 @@ const DataTemplateContent: React.FC<any> = (props: any) => {
                 }
               }
               if (item.id === 'identifier-type') {
-                if ((e as any)['type'] === 0 || (e as any)['type'] === 2) {
-                  return 'Text based';
-                } else {
-                  return 'Image based';
-                }
+                return e.type === 3
+                  ? t('identifier:imageBased')
+                  : t('identifier:textBased');
               }
               if (item.id === 'enabled') {
                 return (

@@ -8,7 +8,7 @@
   "detail": {
     "filterCatalogs": "Filter catalogs",
     "identifier": "Identifiers: ",
-    "selectIdentifier": "Select identifier",
+    "selectIdentifier": "Select identifier from template",
     "noDataIdentifier": "No data identfiers",
     "noDataIdentifierDesc": "No data in this catalog was identfied as sensitive data."
   },

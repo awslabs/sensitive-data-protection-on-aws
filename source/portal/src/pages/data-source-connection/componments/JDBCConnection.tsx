@@ -10,7 +10,7 @@ import {
   SelectProps,
   SpaceBetween,
   Tiles,
-  Textarea
+  Textarea,
 } from '@cloudscape-design/components';
 import S3ResourceSelector from '@cloudscape-design/components/s3-resource-selector';
 import {
@@ -41,11 +41,13 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
 ) => {
   const { t } = useTranslation();
   const { showModal, setShowModal } = props;
-  const [jdbcType, setJdbcType] = useState('import');
+  const [jdbcType, setJdbcType] = useState('new');
   const [expanded, setExpanded] = useState(true);
   const [connections, setConnections] = useState([] as any[]);
   const [credential, setCredential] = useState('secret');
-  const [loading, setLoading] = useState('loading' as DropdownStatusProps.StatusType);
+  const [loading, setLoading] = useState(
+    'loading' as DropdownStatusProps.StatusType
+  );
   // const [vpc, setVpc] = useState(null);
   const importOriginalData = {
     instance_id: '',
@@ -146,12 +148,12 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
     //   // load network info
     //   loadNetworkInfo();
     // } else {
-      try {
-        glueConnection();
-        setLoading('finished')
-      } catch (error) {
-        setConnections([]);
-      }
+    try {
+      glueConnection();
+      setLoading('finished');
+    } catch (error) {
+      setConnections([]);
+    }
     // }
   }, []);
 
@@ -190,21 +192,25 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
       const res: any = await queryNetworkInfo(requestParam);
       const vpcs = res?.vpcs;
       vpcs.forEach((item: any) => {
-        vpcOptions.push({ label: item.vpcId, value: item.vpcId, description: item.vpcName });
+        vpcOptions.push({
+          label: item.vpcId,
+          value: item.vpcId,
+          description: item.vpcName,
+        });
       });
       setNetwork(vpcs);
       setVpcOption(vpcOptions);
-      if(props.providerId !== 1){
-         setVpc(vpcOptions[0])
-         const subnet = vpcs[0].subnets[0];
-         setSubnet({
+      if (props.providerId !== 1) {
+        setVpc(vpcOptions[0]);
+        const subnet = vpcs[0].subnets[0];
+        setSubnet({
           label: subnet.subnetId,
           value: subnet.subnetId,
           description: subnet.subnetName,
-         })
-      // let tempSubnet = jdbcConnectionData.new;
-      // tempSubnet = { ...tempSubnet, network_subnet_id: subnet.subnetId };
-      // setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
+        });
+        // let tempSubnet = jdbcConnectionData.new;
+        // tempSubnet = { ...tempSubnet, network_subnet_id: subnet.subnetId };
+        // setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
         // subnets.forEach((item: any) => {
         //   subnetOptions.push({
         //     label: item.subnetId,
@@ -212,15 +218,19 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
         //     description: item.arn,
         //   });
         // });
-    
+
         const securityGroup = vpcs[0].securityGroups[0];
         setSg({
           label: securityGroup.securityGroupId,
           value: securityGroup.securityGroupId,
           description: securityGroup.securityGroupName,
-        })
+        });
         let temp = jdbcConnectionData.new;
-        temp = { ...temp, network_subnet_id: subnet.subnetId, network_sg_id: securityGroup.securityGroupId };
+        temp = {
+          ...temp,
+          network_subnet_id: subnet.subnetId,
+          network_sg_id: securityGroup.securityGroupId,
+        };
         setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
         // securityGroups.forEach((item: any) => {
         //   sgOptions.push({
@@ -269,8 +279,8 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
     const res = await listGlueConnection(requestParam);
     (res as any[]).forEach((item) => {
       const times = item.CreationTime.split('.')[0].split('T');
-      if(item.usedBy){
-        const str = t('datasource:jdbc.importComment')
+      if (item.usedBy) {
+        const str = t('datasource:jdbc.importComment');
         // const tag = item.usedBy.split('-')
         disableConnectionList.push({
           label: item.Name,
@@ -278,7 +288,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
           iconName: 'share',
           // description: item.Description || '-',
           labelTag: times[0] + ' ' + times[1],
-          tags:[item.Description, str + item.usedBy]
+          tags: [item.Description, str + item.usedBy],
         });
       } else {
         connectionList.push({
@@ -290,14 +300,29 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
         });
       }
     });
-    if(disableConnectionList.length >0 && connectionList.length >0 ){
-      setConnections([{label: t('datasource:jdbc.importEnabled') ?? '',options: connectionList},{disabled: true, label: t('datasource:jdbc.importDisabled') ?? '',options: disableConnectionList}]);
-    } else if(disableConnectionList.length >0){
-      setConnections([{disabled: true, label: t('datasource:jdbc.importDisabled') ?? '',options: disableConnectionList}]);
+    if (disableConnectionList.length > 0 && connectionList.length > 0) {
+      setConnections([
+        {
+          label: t('datasource:jdbc.importEnabled') ?? '',
+          options: connectionList,
+        },
+        {
+          disabled: true,
+          label: t('datasource:jdbc.importDisabled') ?? '',
+          options: disableConnectionList,
+        },
+      ]);
+    } else if (disableConnectionList.length > 0) {
+      setConnections([
+        {
+          disabled: true,
+          label: t('datasource:jdbc.importDisabled') ?? '',
+          options: disableConnectionList,
+        },
+      ]);
     } else {
-      setConnections(connectionList)
+      setConnections(connectionList);
     }
-    
   };
 
   const addJdbcConnection = async () => {
@@ -367,7 +392,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
       subnetOptions.push({
         label: item.subnetId,
         value: item.subnetId,
-        description: item.subnetName
+        description: item.subnetName,
       });
     });
 
@@ -388,7 +413,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
   };
 
   const changeSubnet = (detail: any) => {
-    console.log("detail is "+detail)
+    console.log('detail is ' + detail);
     setSubnet(detail);
     let temp = jdbcConnectionData.new;
     temp = { ...temp, network_subnet_id: detail.value };
@@ -508,7 +533,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
           }
         >
           <SpaceBetween direction="vertical" size="s">
-            <FormField stretch label={t('datasource:jdbc.selectGlue')}>
+            {/* <FormField stretch label={t('datasource:jdbc.selectGlue')}>
               <Tiles
                 onChange={({ detail }) => {
                   const data = jdbcConnectionData;
@@ -533,7 +558,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                   { label: t('datasource:jdbc.createNew'), value: 'new' },
                 ]}
               />
-            </FormField>
+            </FormField> */}
 
             {jdbcType === 'import' && (
               <>
@@ -588,6 +613,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                     {t('datasource:jdbc.requireSSL')}
                   </Checkbox>
                 </FormField>
+                {/* <>
                 {jdbcConnectionData.new.jdbc_enforce_ssl !== 'false' && (
                   <>
                     <FormField
@@ -647,6 +673,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                     </FormField>
                   </>
                 )}
+                </> */}
 
                 <FormField
                   stretch
@@ -720,7 +747,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                     onChange={({ detail }) => {
                       resetCredentials();
                       setCredential(detail.value);
-                      setDisabled(true)
+                      setDisabled(true);
                     }}
                     value={credential}
                     items={[

@@ -39,6 +39,7 @@
     "timeline": "时间线"
   },
   "button": {
+    "authorize": "授权",
     "signin": "登录",
     "cancel": "取消",
     "delete": "删除",
@@ -246,8 +247,11 @@
       "identifierType": "标识符类型",
       "accountId": "账户",
       "region": "区域",
-      "accountStatus": "认证状态",
-      "download": "下载"
+      "accountStatus": "授权状态",
+      "download": "下载",
+      "jdbcURL": "JDBC URL",
+      "dbCount": "数据库个数",
+      "link": "目录链接"
     }
   },
   "tab": {
