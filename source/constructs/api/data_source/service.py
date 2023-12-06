@@ -497,9 +497,10 @@ def sync(glue, lakeformation, credentials, crawler_role_arn, jdbc: JDBCInstanceS
         db_names = set(schemas.splitlines())
         db_names.add(schema)
         for db_name in db_names:
+            trimmed_db_name = db_name.strip()
             jdbc_targets.append({
                 'ConnectionName': glue_connection_name,
-                'Path': f"{db_name}/%"
+                'Path': f"{trimmed_db_name}/%"
             })
 
         if schema:

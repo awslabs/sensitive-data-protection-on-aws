@@ -602,7 +602,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                 >
                   <Input
                     onChange={(e) => changeJDBCUrl(e.detail.value)}
-                    placeholder="jdbc:xxx.xxx"
+                    placeholder="jdbc:protocol://host:port/db_name"
                     value={jdbcConnectionData.jdbc_connection_url}
                   />
                 </FormField>
