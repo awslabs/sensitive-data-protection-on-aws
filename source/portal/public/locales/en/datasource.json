@@ -63,6 +63,7 @@
     "jdbcURLConstraint": "JDBC syntax for most database engines is jdbc:protocol://host:port/databasename.",
     "jdbcDatabase": "JDBC Database - optional",
     "jdbcDatabaseDesc": "If you have multiple databases in your instance, please provide the list of database names in this area.",
+    "jdbcDatabaseConstraint": "You can enter MyDatabase/MySchema for the databases that support schemas. Oracle Database and MySQL don’t support schema in the path; instead, enter MyDatabase. For Oracle database without SSL, MyDatabase can be either the system identifier (SID) or the service name (SERVICE_NAME). For Oracle database with SSL, MyDatabase must be the service name (SERVICE_NAME).",
     "jdbcClassName": "JDBC Driver Class name - optional",
     "jdbcClassNameDesc": "Type a custom JDBC driver class name for the crawler to connect to the data source.",
     "jdbcS3Path": "JDBC Driver S3 path - optional",
