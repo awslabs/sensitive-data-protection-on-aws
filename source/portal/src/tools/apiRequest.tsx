@@ -69,13 +69,10 @@ axios.interceptors.request.use(
  */
 axios.interceptors.response.use(
   (response) => {
-    if (response.data.errCode === 2) {
-      console.log('过期', response);
-    }
     return response;
   },
   (error) => {
-    console.log('请求出错：', error);
+    console.log(error);
   }
 );
 

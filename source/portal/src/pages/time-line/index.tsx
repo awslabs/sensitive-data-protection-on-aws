@@ -33,7 +33,6 @@ const TimelineContent: React.FC = () => {
     )
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
         setGitData(data);
       })
       .catch((err) => {
@@ -91,7 +90,7 @@ const TimelineContent: React.FC = () => {
                       <Button
                         variant="link"
                         onClick={() => {
-                          console.log('hahah');
+                          console.log('');
                         }}
                       >
                         {t('timeline:exportTemplates')}

@@ -143,7 +143,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
   }, [currentPage, preferences.pageSize, query, selectedCrawler, sortDetail]);
 
   useEffect(() => {
-    console.log('accountData is :', accountData);
+    // console.log('accountData is :', accountData);
   }, []);
 
   useEffect(() => {
@@ -638,8 +638,6 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       setShowAddConnection(true);
     } else if (type === 'editJdbc') {
       setShowEditConnection(true);
-    } else {
-      console.log('type not found');
     }
   };
 

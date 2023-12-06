@@ -49,9 +49,6 @@ const IdentifierTableData: React.FC<IdentifierTableProps> = (
     useState<ITableListKeyValue[]>(dataList);
 
   const clkCount = (typeValue: any) => {
-    console.log(valueLable);
-    console.log(typeValue);
-    // return;
     if (valueLable === t('summary:s3Bucket')) {
       navigate(
         `${RouterEnum.Catalog.path}?tagType=s3&accountId=${typeValue}&privacy=1&provider=${curProvider?.id}`

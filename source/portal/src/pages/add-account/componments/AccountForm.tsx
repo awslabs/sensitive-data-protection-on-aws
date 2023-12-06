@@ -143,7 +143,6 @@ const AccountForm: React.FC<AccountFormProps> = (props: AccountFormProps) => {
             <FormField label={t('account:add.regionLocation')}>
               <Select
                 onChange={(e) => {
-                  console.log('e is:', e);
                   setCurrentRegion(e.detail.selectedOption);
                   changeRegion(e.detail.selectedOption);
                 }}

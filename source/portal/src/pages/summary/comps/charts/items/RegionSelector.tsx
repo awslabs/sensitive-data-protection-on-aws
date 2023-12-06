@@ -49,7 +49,6 @@ const RegionSelector: React.FC<RegionSelectorProps> = (
   return (
     <Select
       onChange={(e) => {
-        console.log('e is:', e);
         setCurrentRegion(e.detail.selectedOption);
       }}
       placeholder="Select a region"
