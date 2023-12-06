@@ -31,8 +31,6 @@ const CommonPieChart: React.FC<CommonPieChartProps> = (
   const { size, sourceType, dataType, sourceTotal, circleType, chartData } =
     props;
   const { t } = useTranslation();
-  console.info('sourceType:', sourceType);
-  console.info('dataType:', dataType);
 
   const formattedValue =
     sourceType === 's3' && dataType === 'size'
