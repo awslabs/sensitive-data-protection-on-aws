@@ -439,9 +439,9 @@ const SchemaModal: React.FC<any> = (props: any) => {
           saveLabelsToTable(labelIds, callback);
         }}
         addButtonText={
-          (catalogType === DATA_TYPE_ENUM.rds
-            ? t('label.addToTable')
-            : t('label.addToFolder')) || ''
+          (catalogType === DATA_TYPE_ENUM.s3
+            ? t('label.addToFolder')
+            : t('label.addToTable')) || ''
         }
         cleanData={cleanData}
       />
