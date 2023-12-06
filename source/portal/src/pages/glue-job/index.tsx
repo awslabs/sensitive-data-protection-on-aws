@@ -353,6 +353,14 @@ const GlueJobContent = () => {
     return days + t('Days') + remainingHours + t('Hours');
   };
 
+  const checkNegativeValue = (value: number) => {
+    if (value === -1) {
+      return 0;
+    } else {
+      return value;
+    }
+  };
+
   const displayJobProgress = (databaseId: number) => {
     const curProgress = jobProgressList.find(
       (element) => element.run_database_id === databaseId
@@ -364,17 +372,22 @@ const GlueJobContent = () => {
       return '-';
     }
     const curTableCountSum =
-      curProgress.current_table_count +
-      curProgress.current_table_count_unstructured;
+      checkNegativeValue(curProgress.current_table_count) +
+      checkNegativeValue(curProgress.current_table_count_unstructured);
     const tableCountSum =
-      curProgress.table_count + curProgress.table_count_unstructured;
-
-    if (curProgress.current_table_count === -1) {
+      checkNegativeValue(curProgress.table_count) +
+      checkNegativeValue(curProgress.table_count_unstructured);
+    if (
+      curProgress.current_table_count === -1 &&
+      curProgress.current_table_count_unstructured === -1 &&
+      curProgress.table_count === -1 &&
+      curProgress.table_count_unstructured === -1
+    ) {
       return t('pending');
     } else if (tableCountSum === 0) {
       return '-';
     } else {
-      return `${Math.floor(curTableCountSum / tableCountSum) * 100}%`;
+      return `${Math.floor((curTableCountSum / tableCountSum) * 100)}%`;
     }
   };
 

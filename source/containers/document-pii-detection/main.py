@@ -224,26 +224,29 @@ def main(param_dict):
         files = bucket_info[file_category]
         for file_path, file_info in files.items():
             print(f"Processing {file_path}...")
-            file_contents = batch_process_files(s3_client, original_file_bucket_name, file_info, file_category)
+            try:
+                file_contents = batch_process_files(s3_client, original_file_bucket_name, file_info, file_category)
 
-            # convert file_contents to dataframe
-            df = pd.DataFrame.from_dict(file_contents, orient='index')
-            df = df.transpose()
-            columns = df.columns.tolist()
+                # convert file_contents to dataframe
+                df = pd.DataFrame.from_dict(file_contents, orient='index')
+                df = df.transpose()
+                columns = df.columns.tolist()
 
-            # dump file_info into string and encode in base64 as filename
-            table_name = file_path.replace('/', '_')
-            table_name = table_name.replace('.', '_')
-            table_name = original_file_bucket_name + '_' + table_name
+                # dump file_info into string and encode in base64 as filename
+                table_name = file_path.replace('/', '_')
+                table_name = table_name.replace('.', '_')
+                table_name = original_file_bucket_name + '_' + table_name
 
-            # save to csv and upload to s3
-            with tempfile.NamedTemporaryFile(mode='w') as temp:
-                csv_file_path = temp.name
-                df.to_csv(csv_file_path, header=False)
-                s3_client.upload_file(csv_file_path, crawler_result_bucket_name, f"parser_results/{table_name}/result.csv")
+                # save to csv and upload to s3
+                with tempfile.NamedTemporaryFile(mode='w') as temp:
+                    csv_file_path = temp.name
+                    df.to_csv(csv_file_path, header=False)
+                    s3_client.upload_file(csv_file_path, crawler_result_bucket_name, f"parser_results/{table_name}/result.csv")
 
-            glue_table_info = organize_table_info(table_name, crawler_result_bucket_name, original_file_bucket_name, file_info, columns, file_category)
-            create_glue_table(glue_client, destination_database, table_name, glue_table_info)
+                glue_table_info = organize_table_info(table_name, crawler_result_bucket_name, original_file_bucket_name, file_info, columns, file_category)
+                create_glue_table(glue_client, destination_database, table_name, glue_table_info)
+            except:
+                print(f"Error occured processing {file_path}...")
 
     
 if __name__ == '__main__':

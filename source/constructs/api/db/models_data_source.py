@@ -226,6 +226,7 @@ class JDBCInstanceSource(Base):
     instance_id = sa.Column(sa.String(255), info={'searchable': True})
     description = sa.Column(sa.String(2056), info={'searchable': True})
     jdbc_connection_url = sa.Column(sa.String(1024), info={'searchable': True})
+    jdbc_connection_schema = sa.Column(sa.String(1024), info={'searchable': True})
     jdbc_enforce_ssl = sa.Column(sa.String(16))
     kafka_ssl_enabled = sa.Column(sa.String(16))
     master_username = sa.Column(sa.String(255))

@@ -297,6 +297,7 @@ const CatalogList: React.FC<any> = memo((props: any) => {
       const result = await searchCatalogTables(requestParam);
       // account_id region database_type database_name table_name
       setPageData((result as any)?.items);
+      setTotalCount((result as any).total ?? 0);
       setIsLoading(false);
     } catch (e) {
       console.error(e);
@@ -559,69 +560,78 @@ const CatalogList: React.FC<any> = memo((props: any) => {
           </>
         }
         header={
-          <Header
-            counter={`(${totalCount})`}
-            className="continer-header"
-            actions={
-              <>
-                {catalogType === DATA_TYPE_ENUM.rds && (
-                  <div style={{ paddingLeft: 20 }}>
-                    <SegmentedControl
-                      selectedId={rdsSelectedView}
-                      options={[
-                        {
-                          text: 'Instance view',
-                          id: RDS_VIEW.RDS_INSTANCE_VIEW,
-                        },
-                        { text: 'Table view', id: RDS_VIEW.RDS_TABLE_VIEW },
-                      ]}
-                      onChange={({ detail }) =>
-                        setRdsSelectedView(detail.selectedId)
-                      }
-                    />
-                  </div>
-                )}
-                {catalogType === DATA_TYPE_ENUM.glue && (
-                  <div style={{ paddingLeft: 20 }}>
-                    <SegmentedControl
-                      selectedId={glueSelectedView}
-                      options={[
-                        {
-                          text: 'Instance view',
-                          id: GLUE_VIEW.GLUE_INSTANCE_VIEW,
-                        },
-                        { text: 'Table view', id: GLUE_VIEW.GLUE_TABLE_VIEW },
-                      ]}
-                      onChange={({ detail }) =>
-                        setGlueSelectedView(detail.selectedId)
-                      }
-                    />
-                  </div>
-                )}
-                {catalogType.startsWith('jdbc') && (
-                  <div style={{ paddingLeft: 20 }}>
-                    <SegmentedControl
-                      selectedId={jdbcSelectedView}
-                      options={[
-                        {
-                          text: 'Instance view',
-                          id: JDBC_VIEW.JDBC_INSTANCE_VIEW,
-                        },
-                        { text: 'Table view', id: JDBC_VIEW.JDBC_TABLE_VIEW },
-                      ]}
-                      onChange={({ detail }) =>
-                        setJdbcSelectedView(detail.selectedId)
-                      }
-                    />
-                  </div>
-                )}
-              </>
-            }
+          <div
+            style={{
+              paddingTop:
+                catalogType.startsWith('jdbc') && catalogType !== 'jdbc_aws'
+                  ? 20
+                  : 0,
+            }}
           >
-            {/* {JSON.stringify(props.label)} */}
-            {tableTitle}
-            {/* {props.label ?? tableTitle} */}
-          </Header>
+            <Header
+              counter={`(${totalCount})`}
+              className="continer-header"
+              actions={
+                <>
+                  {catalogType === DATA_TYPE_ENUM.rds && (
+                    <div style={{ paddingLeft: 20 }}>
+                      <SegmentedControl
+                        selectedId={rdsSelectedView}
+                        options={[
+                          {
+                            text: 'Instance view',
+                            id: RDS_VIEW.RDS_INSTANCE_VIEW,
+                          },
+                          { text: 'Table view', id: RDS_VIEW.RDS_TABLE_VIEW },
+                        ]}
+                        onChange={({ detail }) =>
+                          setRdsSelectedView(detail.selectedId)
+                        }
+                      />
+                    </div>
+                  )}
+                  {catalogType === DATA_TYPE_ENUM.glue && (
+                    <div style={{ paddingLeft: 20 }}>
+                      <SegmentedControl
+                        selectedId={glueSelectedView}
+                        options={[
+                          {
+                            text: 'Instance view',
+                            id: GLUE_VIEW.GLUE_INSTANCE_VIEW,
+                          },
+                          { text: 'Table view', id: GLUE_VIEW.GLUE_TABLE_VIEW },
+                        ]}
+                        onChange={({ detail }) =>
+                          setGlueSelectedView(detail.selectedId)
+                        }
+                      />
+                    </div>
+                  )}
+                  {catalogType.startsWith('jdbc') && (
+                    <div style={{ paddingLeft: 20 }}>
+                      <SegmentedControl
+                        selectedId={jdbcSelectedView}
+                        options={[
+                          {
+                            text: 'Instance view',
+                            id: JDBC_VIEW.JDBC_INSTANCE_VIEW,
+                          },
+                          { text: 'Table view', id: JDBC_VIEW.JDBC_TABLE_VIEW },
+                        ]}
+                        onChange={({ detail }) =>
+                          setJdbcSelectedView(detail.selectedId)
+                        }
+                      />
+                    </div>
+                  )}
+                </>
+              }
+            >
+              {/* {JSON.stringify(props.label)} */}
+              {tableTitle}
+              {/* {props.label ?? tableTitle} */}
+            </Header>
+          </div>
         }
         pagination={
           <Pagination

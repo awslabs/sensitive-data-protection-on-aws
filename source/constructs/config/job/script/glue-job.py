@@ -30,7 +30,7 @@ from awsglue.job import Job
 from data_source.get_tables import get_tables
 from data_source.construct_dataframe import construct_dataframe
 from template.template_utils import get_template
-from structured_detection.detection_utils import add_metadata
+from structured_detection.detection_utils import add_metadata, get_table_info
 from structured_detection.main_detection import detect_df
 
 
@@ -72,36 +72,35 @@ if __name__ == "__main__":
     error = []
     save_freq = 10
     for table_index, table in enumerate(crawler_tables):
-        # try:
-        # call detect_table to perform PII detection 
-        print(f"Detecting table {table['Name']}")
-        print(table)
-        raw_df = construct_dataframe(glueContext, glue, table, args)
-        detection_result = detect_df(raw_df, glueContext, broadcast_template, args)
-        summarized_result = add_metadata(detection_result, table, args)
-        summarized_result.show()
-        output.append(summarized_result)
+        try:
+            # call detect_table to perform PII detection 
+            print(f"Detecting table {table['Name']}")
+            raw_df = construct_dataframe(glueContext, glue, table, args)
+            detection_result = detect_df(raw_df, glueContext, broadcast_template, args)
+            summarized_result = add_metadata(detection_result, table, args)
+            summarized_result.show()
+            output.append(summarized_result)
             
-        # except Exception as e:
-        #     # Report error if failed
-        #     basic_table_info = get_table_info(table, args)
-        #     data = {
-        #         'account_id': args["AccountId"],
-        #         'region': region,
-        #         'job_id': args['JobId'],
-        #         'run_id': args['RunId'],
-        #         'run_database_id': args['RunDatabaseId'],
-        #         'database_name': args['DatabaseName'],
-        #         'database_type': args['DatabaseType'],
-        #         'table_name': table['Name'],
-        #         's3_location': basic_table_info['s3_location'],
-        #         's3_bucket': basic_table_info['s3_bucket'],
-        #         'rds_instance_id': basic_table_info['rds_instance_id'],
-        #         'error_message': str(e)
-        #     }
-        #     error.append(data)
-        #     print(f'Error occured detecting table {table}')
-        #     print(e)
+        except Exception as e:
+            # Report error if failed
+            basic_table_info = get_table_info(table, args)
+            data = {
+                'account_id': args["AccountId"],
+                'region': args["Region"], 
+                'job_id': args['JobId'],
+                'run_id': args['RunId'],
+                'run_database_id': args['RunDatabaseId'],
+                'database_name': args['DatabaseName'],
+                'database_type': args['DatabaseType'],
+                'table_name': table['Name'],
+                's3_location': basic_table_info['s3_location'],
+                's3_bucket': basic_table_info['s3_bucket'],
+                'rds_instance_id': basic_table_info['rds_instance_id'],
+                'error_message': str(e)
+            }
+            error.append(data)
+            print(f'Error occured detecting table {table}')
+            print(e)
         
         if (table_index + 1) % save_freq == 0 or (table_index + 1) == num_crawler_tables:
             # Save detection result to s3.

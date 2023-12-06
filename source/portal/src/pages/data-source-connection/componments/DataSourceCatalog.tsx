@@ -1,12 +1,13 @@
 import { Spinner } from '@cloudscape-design/components';
 import { getDataBaseByType } from 'apis/data-catalog/api';
+import { getJDBCTypeByProviderId } from 'enum/common_types';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
 
 interface GlueJobCatalogProps {
   glueState: string;
-  providerId: string | number;
+  providerId: number;
   catalogName: string;
   catalogType: string;
 }
@@ -35,7 +36,7 @@ const DataSourceCatalog: React.FC<GlueJobCatalogProps> = (
       conditions: [
         {
           column: 'database_type',
-          values: [catalogType],
+          values: [getJDBCTypeByProviderId(providerId)],
           condition: 'and',
         },
         {

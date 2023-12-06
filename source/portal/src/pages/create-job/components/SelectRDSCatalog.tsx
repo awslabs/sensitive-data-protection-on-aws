@@ -24,13 +24,17 @@ import {
   PRIVARY_TYPE_INT_DATA,
 } from 'pages/common-badge/types/badge_type';
 import ResourcesFilter from 'pages/resources-filter';
-import { TABLE_NAME } from 'enum/common_types';
+import { RDS_VIEW, TABLE_NAME } from 'enum/common_types';
 import { useTranslation } from 'react-i18next';
 import { IDataSourceType, IJobType } from 'pages/data-job/types/job_list_type';
 import {
   convertDataSourceListToJobDatabases,
   convertTableSourceToJobDatabases,
 } from '../index';
+import {
+  CATALOG_TABLE_FILTER_COLUMN,
+  RDS_FILTER_COLUMN,
+} from 'pages/data-catalog/types/data_config';
 
 interface SelectRDSCatalogProps {
   jobData: IJobType;
@@ -71,7 +75,10 @@ const SelectRDSCatalog: React.FC<SelectRDSCatalogProps> = (
     totalCount: rdsTotal,
     query: rdsQuery,
     setQuery: setRdsQuery,
-    columnList: RDS_CATALOG_COLUMS.filter((i) => i.filter),
+    columnList: (jobData.rdsSelectedView === RDS_VIEW.RDS_INSTANCE_VIEW
+      ? RDS_FILTER_COLUMN
+      : CATALOG_TABLE_FILTER_COLUMN
+    ).filter((i) => i.filter),
     tableName: TABLE_NAME.CATALOG_DATABASE_LEVEL_CLASSIFICATION,
     filteringPlaceholder: t('job:filterInstances'),
   };
@@ -121,6 +128,7 @@ const SelectRDSCatalog: React.FC<SelectRDSCatalogProps> = (
       };
       const result = await searchCatalogTables(requestParam);
       setRdsFolderData((result as any)?.items);
+      setRdsTotal((result as any)?.total);
       setIsLoading(false);
     } catch (e) {
       console.error(e);
@@ -130,7 +138,7 @@ const SelectRDSCatalog: React.FC<SelectRDSCatalogProps> = (
 
   useEffect(() => {
     if (jobData.all_rds === '0') {
-      if (jobData.rdsSelectedView === 'rds-instance-view') {
+      if (jobData.rdsSelectedView === RDS_VIEW.RDS_INSTANCE_VIEW) {
         getRdsCatalogData();
       } else {
         getRdsFolderData();
@@ -145,7 +153,7 @@ const SelectRDSCatalog: React.FC<SelectRDSCatalogProps> = (
   ]);
 
   useEffect(() => {
-    if (jobData.rdsSelectedView === 'rds-instance-view') {
+    if (jobData.rdsSelectedView === RDS_VIEW.RDS_INSTANCE_VIEW) {
       changeSelectDatabases(
         convertDataSourceListToJobDatabases(
           selectedRdsItems,
@@ -192,13 +200,13 @@ const SelectRDSCatalog: React.FC<SelectRDSCatalogProps> = (
               options={[
                 {
                   text: 'Instance view',
-                  id: 'rds-instance-view',
+                  id: RDS_VIEW.RDS_INSTANCE_VIEW,
                 },
                 { text: 'Table view', id: 'rds-table-view' },
               ]}
               onChange={({ detail }) => changeRDSSelectView(detail.selectedId)}
             />
-            {jobData.rdsSelectedView === 'rds-instance-view' && (
+            {jobData.rdsSelectedView === RDS_VIEW.RDS_INSTANCE_VIEW && (
               <Table
                 className="job-table-width"
                 resizableColumns

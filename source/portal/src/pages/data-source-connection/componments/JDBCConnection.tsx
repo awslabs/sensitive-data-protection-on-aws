@@ -675,12 +675,12 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                     stretch
                     label={t('datasource:jdbc.jdbcDatabase')}
                     description={t('datasource:jdbc.jdbcDatabaseDesc')}
+                    constraintText={t('datasource:jdbc.jdbcDatabaseConstraint')}
                   >
                     <Textarea
                       onChange={(e) => changeDatabase(e.detail.value)}
                       placeholder={`crm_database\nuser_management\ninventory_management`}
                       value={jdbcConnectionData.new.jdbc_connection_schema}
-                      disabled={true}
                     />
                   </FormField>
                   <FormField
