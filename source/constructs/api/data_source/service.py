@@ -1965,19 +1965,26 @@ def import_jdbc_conn(jdbc_conn: JDBCInstanceSourceBase):
     # jdbc_conn_insert.connection_status = 'UNCONNECTED'
     jdbc_conn_insert.glue_connection = jdbc_conn.instance_id
     jdbc_conn_insert.create_type = JDBCCreateType.IMPORT.value
-    jdbc_conn_insert.description = res_connection['Description']
-    jdbc_conn_insert.jdbc_connection_url = res_connection['ConnectionProperties']['JDBC_CONNECTION_URL']
-    jdbc_conn_insert.jdbc_enforce_ssl = res_connection['ConnectionProperties']['JDBC_ENFORCE_SSL']
-    # jdbc_conn_insert.kafka_ssl_enabled = res_connection['ConnectionProperties']['KAFKA_SSL_ENABLED']
-    if 'USERNAME' in res_connection['ConnectionProperties']:
-        jdbc_conn_insert.master_username = res_connection['ConnectionProperties']['USERNAME']
+    if 'Description' in res_connection:
+        jdbc_conn_insert.description = res_connection['Description']
+    if 'ConnectionProperties' in res_connection:
+        if 'JDBC_CONNECTION_URL' in res_connection['ConnectionProperties']:
+            jdbc_conn_insert.jdbc_connection_url = res_connection['ConnectionProperties']['JDBC_CONNECTION_URL']
+        if 'JDBC_ENFORCE_SSL' in res_connection['ConnectionProperties']:
+            jdbc_conn_insert.jdbc_enforce_ssl = res_connection['ConnectionProperties']['JDBC_ENFORCE_SSL']
+        # jdbc_conn_insert.kafka_ssl_enabled = res_connection['ConnectionProperties']['KAFKA_SSL_ENABLED']
+        if 'USERNAME' in res_connection['ConnectionProperties']:
+            jdbc_conn_insert.master_username = res_connection['ConnectionProperties']['USERNAME']
     # jdbc_conn_insert.skip_custom_jdbc_cert_validation = res_connection['Description']
     # jdbc_conn_insert.custom_jdbc_cert = res_connection['Description']
     # jdbc_conn_insert.custom_jdbc_cert_string = res_connection['Description']
     if 'PhysicalConnectionRequirements' in res_connection:
-        jdbc_conn_insert.network_availability_zone = res_connection['PhysicalConnectionRequirements']['AvailabilityZone']
-        jdbc_conn_insert.network_subnet_id = res_connection['PhysicalConnectionRequirements']['SubnetId']
-        jdbc_conn_insert.network_sg_id = "|".join(res_connection['PhysicalConnectionRequirements']['SecurityGroupIdList'])
+        if 'AvailabilityZone' in res_connection['PhysicalConnectionRequirements']:
+            jdbc_conn_insert.network_availability_zone = res_connection['PhysicalConnectionRequirements']['AvailabilityZone']
+        if 'SubnetId' in res_connection['PhysicalConnectionRequirements']:
+            jdbc_conn_insert.network_subnet_id = res_connection['PhysicalConnectionRequirements']['SubnetId']
+        if 'SecurityGroupIdList' in res_connection['PhysicalConnectionRequirements']:
+            jdbc_conn_insert.network_sg_id = "|".join(res_connection['PhysicalConnectionRequirements']['SecurityGroupIdList'])
     jdbc_conn_insert.creation_time = res_connection['CreationTime']
     jdbc_conn_insert.last_updated_time = res_connection['LastUpdatedTime']
     # jdbc_conn_insert.jdbc_driver_class_name = res_connection['Description']
