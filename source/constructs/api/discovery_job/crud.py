@@ -167,8 +167,6 @@ def init_run(job_id: int) -> int:
     if job.all_jdbc == 1:
         __add_job_databases(run, DatabaseType.JDBC, base_time_dict)
     for job_database in job_databases:
-        print(f"job_database.database_name:{job_database.database_name}")
-        print(f"job_database.table_name:{job_database.table_name}")
         if is_empty(job_database.database_name) and is_empty(job_database.table_name):
             catalog_databases = get_catalog_database_level_classification_by_params(job_database.account_id,job_database.region,job_database.database_type,ConnectionState.ACTIVE.value).all()
             for catalog_database in catalog_databases:
