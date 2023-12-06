@@ -8,7 +8,7 @@ import {
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
 import { IJobType } from 'pages/data-job/types/job_list_type';
-import { SOURCE_TYPE } from 'enum/common_types';
+import { RDS_VIEW, SOURCE_TYPE } from 'enum/common_types';
 
 const SELECT_S3 = 'selectS3';
 const SELECT_RDS = 'selectRds';
@@ -65,7 +65,7 @@ const JobPreview: React.FC<JobPreviewProps> = (props: JobPreviewProps) => {
           )}
           <br></br>
           {jobData.database_type === SOURCE_TYPE.RDS &&
-            jobData.rdsSelectedView === 'rds-instance-view' && (
+            jobData.rdsSelectedView === RDS_VIEW.RDS_INSTANCE_VIEW && (
               <>
                 <span className="sources-title">
                   {t('job:create.rdsInstance')} (

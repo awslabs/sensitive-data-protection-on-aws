@@ -85,11 +85,11 @@ const AmazonS3: React.FC<any> = () => {
       <Grid
         gridDefinition={[
           { colspan: 12 },
+          { colspan: 12 },
           { colspan: 6 },
           { colspan: 6 },
           // { colspan: 12 },
           // { colspan: 6 },
-          { colspan: 12 },
         ]}
       >
         {/* <div className="mt-20 pd-10">
@@ -129,6 +129,21 @@ const AmazonS3: React.FC<any> = () => {
         </div>
 
         <div className="mt-20 pd-10">
+          {loadingTableData ? (
+            <Spinner />
+          ) : (
+            <>
+              <IdentifierTableData
+                dataList={allIdentifierData}
+                keyLable={t('summary:dataIdentifier')}
+                valueLable={t('summary:totalBuckets')}
+                title={t('summary:topDataIdentifier')}
+              />
+            </>
+          )}
+        </div>
+
+        <div className="mt-20 pd-10">
           <CircleChart
             title={t('summary:lastUpdatedStatus')}
             circleType="pie"
@@ -155,21 +170,6 @@ const AmazonS3: React.FC<any> = () => {
                   onPageChange={handlePageChangePII}
                 />
               )}
-            </>
-          )}
-        </div>
-
-        <div className="mt-20 pd-10">
-          {loadingTableData ? (
-            <Spinner />
-          ) : (
-            <>
-              <IdentifierTableData
-                dataList={allIdentifierData}
-                keyLable={t('summary:dataIdentifier')}
-                valueLable={t('summary:totalBuckets')}
-                title={t('summary:topDataIdentifier')}
-              />
             </>
           )}
         </div>

@@ -45,7 +45,7 @@ import {
   NON_PII_OPTION,
 } from 'pages/common-badge/componments/Options';
 import { DATA_TYPE_ENUM, TABLE_NAME } from 'enum/common_types';
-import { getIdentifiersList } from 'apis/data-template/api';
+import { getTemplateMappingList } from 'apis/data-template/api';
 import { nFormatter } from 'ts/common';
 import { useTranslation } from 'react-i18next';
 import { Props } from 'common/PropsModal';
@@ -242,9 +242,15 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
         size: 100,
         sort_column: '',
         asc: false,
-        conditions: [] as any,
+        conditions: [
+          {
+            column: 'template_id',
+            values: ['1'],
+            condition: 'and',
+          },
+        ] as any,
       };
-      const optList: any = await getIdentifiersList(requestParam);
+      const optList: any = await getTemplateMappingList(requestParam);
       if (!optList || !optList.items) {
         return;
       }
@@ -776,6 +782,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                           <div className="detail-edit-icon-max-width">
                             <Multiselect
                               hideTokens
+                              expandToViewport
                               placeholder={
                                 t('catalog:detail.selectIdentifier') || ''
                               }

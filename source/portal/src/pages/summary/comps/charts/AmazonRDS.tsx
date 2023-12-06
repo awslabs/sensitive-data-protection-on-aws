@@ -79,11 +79,11 @@ export const AmazonRDS: React.FC<any> = () => {
       <Grid
         gridDefinition={[
           { colspan: 12 },
+          { colspan: 12 },
           { colspan: 6 },
           { colspan: 6 },
           // { colspan: 12 },
           // { colspan: 6 },
-          { colspan: 12 },
         ]}
       >
         {/* <div className="mt-20 pd-10">
@@ -137,11 +137,11 @@ export const AmazonRDS: React.FC<any> = () => {
           {loadingTableData ? (
             <Spinner />
           ) : (
-            <TableData
-              dataList={conatainsPIIData}
-              keyLable={t('summary:awsAccount')}
+            <IdentifierTableData
+              dataList={identifierData}
+              keyLable={t('summary:dataIdentifier')}
               valueLable={t('summary:rdsIntacnes')}
-              title={t('summary:topAccountsContainPII')}
+              title={t('summary:topDataIdentifier')}
             />
           )}
         </div>
@@ -150,11 +150,11 @@ export const AmazonRDS: React.FC<any> = () => {
           {loadingTableData ? (
             <Spinner />
           ) : (
-            <IdentifierTableData
-              dataList={identifierData}
-              keyLable={t('summary:dataIdentifier')}
+            <TableData
+              dataList={conatainsPIIData}
+              keyLable={t('summary:awsAccount')}
               valueLable={t('summary:rdsIntacnes')}
-              title={t('summary:topDataIdentifier')}
+              title={t('summary:topAccountsContainPII')}
             />
           )}
         </div>

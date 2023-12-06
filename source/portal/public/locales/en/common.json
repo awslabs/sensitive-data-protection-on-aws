@@ -39,6 +39,7 @@
     "timeline": "Timeline"
   },
   "button": {
+    "authorize": "Authorize",
     "signin": "Sign In",
     "cancel": "Cancel",
     "delete": "Delete",
@@ -247,7 +248,10 @@
       "accountId": "Account",
       "region": "Region",
       "accountStatus": "Authorization Status",
-      "download": "Download"
+      "download": "Download",
+      "jdbcURL": "JDBC URL",
+      "dbCount": "Database count",
+      "link": "Catalog Link"
     }
   },
   "tab": {

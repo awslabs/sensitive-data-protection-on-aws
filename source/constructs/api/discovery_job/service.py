@@ -246,7 +246,7 @@ def __start_run(job_id: int, run_id: int):
                 account_first_wait[account_id] = 0
             # job_bookmark_option = "job-bookmark-enable" if job.range == 1 else "job-bookmark-disable"
             base_time = str(datetime.datetime.min)
-            if job.range == 1 and run_database.base_time is not None:
+            if job.range == 1 and run_database.base_time:
                 base_time = mytime.format_time(run_database.base_time)
             need_run_crawler = True
             if run_database.database_type == DatabaseType.GLUE.value or not is_empty(run_database.table_name):
@@ -586,42 +586,24 @@ def get_run_status(job_id: int, run_id: int) -> schemas.DiscoveryJobRunDatabaseS
     return status
 
 
-def get_run_database_progress(job_id: int, run_id: int, run_database_id: int) -> schemas.DiscoveryJobRunDatabaseProgress:
-    run_database = crud.get_run_database(run_database_id)
-    if run_database.table_count is None:
-        try:
-            run_database.table_count = __get_table_count_from_agent(run_database)
-            crud.save_run_database(run_database)
-        except Exception:
-            message = traceback.format_exc()
-            logger.exception(f"get table count from agent exception:{message}")
-            return schemas.DiscoveryJobRunDatabaseProgress(current_table_count=-1,
-                                                           table_count=-1)
-    current_table_count = -1
-    if run_database.state == RunDatabaseState.READY.value:
-        current_table_count = 0
-    # elif run_database.state == RunDatabaseState.SUCCEEDED.value:
-    #     current_table_count = run_database.table_count
-    elif run_database.state == RunDatabaseState.NOT_EXIST.value:
-        current_table_count = -1
-    else:
-        current_table_count = __get_current_table_count(run_database.id)
-    progress = schemas.DiscoveryJobRunDatabaseProgress(run_database_id=run_database_id,
-                                                       current_table_count=current_table_count,
-                                                       table_count=run_database.table_count)
-    return progress
-
-
 def get_run_progress(job_id: int, run_id: int) -> list[schemas.DiscoveryJobRunDatabaseProgress]:
+    job = crud.get_job(job_id)
     run = crud.get_run(run_id)
     run_current_table_count = __get_run_current_table_count(run_id)
     run_progress = []
     for run_database in run.databases:
         if run_database.table_count is None:
             try:
-                run_database.table_count = __get_table_count_from_agent(run_database)
-                if run_database.database_type == DatabaseType.S3.value:
-                    run_database.table_count_unstructured = __get_table_count_from_agent(run_database, False)
+                base_time = datetime.datetime.min
+                if job.range == 1 and run_database.base_time:
+                    base_time = run_database.base_time
+                base_time = pytz.timezone('UTC').localize(base_time)
+                if run_database.table_name:
+                    run_database.table_count = len(run_database.table_name.split(","))
+                else:
+                    run_database.table_count = __get_table_count_from_agent(run_database, base_time)
+                if run_database.database_type == DatabaseType.S3.value and run.depth_unstructured > 0:
+                    run_database.table_count_unstructured = __get_table_count_from_agent(run_database, base_time, False)
                 crud.save_run_database(run_database)
             except Exception:
                 message = traceback.format_exc()
@@ -672,7 +654,7 @@ def __get_current_table_count(run_database_id: int):
     return int(current_table_count[1][0]["VarCharValue"])
 
 
-def __get_table_count_from_agent(run_database: models.DiscoveryJobRunDatabase, is_structured=True):
+def __get_table_count_from_agent(run_database: models.DiscoveryJobRunDatabase, base_time: datetime.datetime, is_structured=True):
     client_sts = boto3.client('sts')
     account_id = run_database.account_id
     region = run_database.region
@@ -698,6 +680,7 @@ def __get_table_count_from_agent(run_database: models.DiscoveryJobRunDatabase, i
         glue_database_name = run_database.database_name
     next_token = ""
     count = 0
+    logger.info(base_time)
     while True:
         try:
             response = glue.get_tables(
@@ -707,7 +690,7 @@ def __get_table_count_from_agent(run_database: models.DiscoveryJobRunDatabase, i
             logger.exception(e)
             return -1
         for table in response['TableList']:
-            if table.get('Parameters', {}).get('classification', '') != 'UNKNOWN':
+            if table.get('Parameters', {}).get('classification', '') != 'UNKNOWN' and table['UpdateTime'] > base_time:
                 count += 1
         next_token = response.get('NextToken')
         if next_token is None:
@@ -760,7 +743,8 @@ def complete_run_database(input_event):
             message = traceback.format_exc()
             logger.exception("sync job detection result exception:%s" % message)
     run_database = crud.complete_run_database(input_event["RunDatabaseId"], state, message)
-    if run_database is not None and state == RunDatabaseState.SUCCEEDED.value:
+    job = crud.get_job(input_event["JobId"])
+    if run_database and state == RunDatabaseState.SUCCEEDED.value and job.range == 1:
         crud.update_job_database_base_time(input_event["JobId"],
                                            input_event["AccountId"],
                                            input_event["Region"],
@@ -768,6 +752,7 @@ def complete_run_database(input_event):
                                            input_event["DatabaseName"],
                                            run_database.start_time
                                             )
+    logger.info(f'complete_run_database,JobId:{input_event["JobId"]},RunId:{input_event["RunId"]},DatabaseName:{input_event["DatabaseName"]}')
 
 
 def check_running_run():

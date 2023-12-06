@@ -53,7 +53,7 @@ const CommonPieChart: React.FC<CommonPieChartProps> = (
           return t('summary:size');
       }
     }
-    if (sourceType === 'rds') {
+    if (sourceType !== 's3') {
       switch (dataType) {
         case 'instance':
           return t('summary:databases');

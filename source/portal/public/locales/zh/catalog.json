@@ -8,7 +8,7 @@
   "detail": {
     "filterCatalogs": "筛选目录",
     "identifier": "标识符： ",
-    "selectIdentifier": "请选择标识符",
+    "selectIdentifier": "从模版中请选择标识符",
     "noDataIdentifier": "没有数据标识符",
     "noDataIdentifierDesc": "此目录中没有数据被识别为敏感数据。"
   },
