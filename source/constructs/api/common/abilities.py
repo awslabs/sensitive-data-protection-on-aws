@@ -4,10 +4,12 @@ from common.enum import (Provider,
 
 
 def convert_database_type_2_provider(database_type: str) -> int:
-    if database_type == DatabaseType.JDBC_ALIYUN.value:
-        return Provider.ALI_CLOUD.value
+    if database_type == DatabaseType.JDBC_GOOGLE.value:
+        return Provider.GOOGLE_CLOUD.value
     elif database_type == DatabaseType.JDBC_TENCENT.value:
         return Provider.TENCENT_CLOUD.value
+    elif database_type == DatabaseType.JDBC_PROXY.value:
+        return Provider.JDBC_PROXY.value
     else:
         return Provider.AWS_CLOUD.value
 
@@ -15,8 +17,10 @@ def convert_database_type_2_provider(database_type: str) -> int:
 def convert_provider_id_2_database_type(provider: int) -> str:
     if provider == Provider.TENCENT_CLOUD.value:
         return DatabaseType.JDBC_TENCENT.value
-    elif provider == Provider.ALI_CLOUD.value:
-        return DatabaseType.JDBC_ALIYUN.value
+    elif provider == Provider.GOOGLE_CLOUD.value:
+        return DatabaseType.JDBC_GOOGLE.value
+    elif provider == Provider.JDBC_PROXY.value:
+        return DatabaseType.JDBC_PROXY.value
     else:
         return DatabaseType.JDBC_AWS.value
 
@@ -24,10 +28,10 @@ def convert_provider_id_2_database_type(provider: int) -> str:
 def convert_provider_id_2_name(provider: int) -> str:
     if provider == Provider.TENCENT_CLOUD.value:
         return ProviderName.TENCENT_CLOUD.value
-    elif provider == Provider.ALI_CLOUD.value:
-        return ProviderName.ALI_CLOUD.value
     elif provider == Provider.GOOGLE_CLOUD.value:
         return ProviderName.GOOGLE_CLOUD.value
+    elif provider == Provider.JDBC_PROXY.value:
+        return ProviderName.JDBC_PROXY.value
     else:
         return ProviderName.AWS_CLOUD.value
 

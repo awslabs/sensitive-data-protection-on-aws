@@ -8,7 +8,7 @@ import {
   Pagination,
   SpaceBetween,
   Table,
-  StatusIndicator
+  StatusIndicator,
 } from '@cloudscape-design/components';
 import CommonBadge from 'pages/common-badge';
 import {
@@ -17,7 +17,7 @@ import {
 } from 'pages/common-badge/types/badge_type';
 import ResourcesFilter from 'pages/resources-filter';
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
 import { getAccountList, deleteAccount } from 'apis/account-manager/api';
 import {
@@ -31,6 +31,7 @@ import { refreshDataSource } from 'apis/data-source/api';
 import { alertMsg, useDidUpdateEffect } from 'tools/tools';
 import { useTranslation } from 'react-i18next';
 import { ProviderType } from 'common/ProviderTab';
+import { COLUMN_OBJECT_STR } from 'pages/data-catalog/types/data_config';
 
 interface AccountListProps {
   setTotalAccount: (account: number) => void;
@@ -42,6 +43,7 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
   const columnList =
     provider?.id === 1 ? ACCOUNT_COLUMN_LIST : THIRD_PROVIDER_COLUMN_LIST;
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { t } = useTranslation();
 
   const [totalCount, setTotalCount] = useState(0);
@@ -50,6 +52,8 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
     wrapLines: true,
     visibleContent: columnList.map((o) => o.id),
   } as any);
+  const urlRegion = searchParams.get('region');
+
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [accountsLoaded, setAccountsLoaded] = useState(false);
@@ -59,7 +63,16 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
   const [selectedItems, setSelectedItems] = useState([] as any);
   const [selectedAccount, setSelectedAccount] = useState('');
   const [query, setQuery] = useState({
-    tokens: [],
+    tokens: urlRegion
+      ? [
+          {
+            propertyKey: COLUMN_OBJECT_STR.Region,
+            value: urlRegion,
+            operator: '=',
+            condition: 'Region',
+          },
+        ]
+      : [],
     operation: 'and',
   } as any);
   const resFilterProps = {
@@ -142,6 +155,13 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
         operation: '=',
         condition: 'and',
       });
+      // if (urlRegion) {
+      //   requestParam.conditions.push({
+      //     column: COLUMN_OBJECT_STR.Region,
+      //     values: [urlRegion],
+      //     condition: 'and',
+      //   });
+      // }
       const result: any = await getAccountList(requestParam);
       setSelectedItems([]);
       setPageData(result.items);
@@ -312,6 +332,7 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
               }
 
               if (item.id === 'account_id') {
+                console.info('e:', e);
                 return (
                   <span
                     className="account-id"
@@ -349,19 +370,19 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
                   )} ${e[TYPE_COLUMN.TOTAL_S3_BUCKET]})`;
                 }
                 if (item.id === TYPE_COLUMN.RDS_CONNECTION) {
-                  showText = `${
-                    e[TYPE_COLUMN.CONNECTED_RDS_INSTANCE]
-                  } (of total ${e[TYPE_COLUMN.TOTAL_RDS_INSTANCE]})`;
+                  showText = `${e[TYPE_COLUMN.CONNECTED_RDS_INSTANCE]} (${t(
+                    'table.ofTotal'
+                  )} ${e[TYPE_COLUMN.TOTAL_RDS_INSTANCE]})`;
                 }
                 if (item.id === TYPE_COLUMN.GLUE_CONNECTION) {
-                  showText = `${
-                    e[TYPE_COLUMN.CONNECTED_GLUE_DATABASE]
-                  } (of total ${e[TYPE_COLUMN.TOTAL_GLUE_DATABASE]})`;
+                  showText = `${e[TYPE_COLUMN.CONNECTED_GLUE_DATABASE]} (${t(
+                    'table.ofTotal'
+                  )} ${e[TYPE_COLUMN.TOTAL_GLUE_DATABASE]})`;
                 }
                 if (item.id === TYPE_COLUMN.JDBC_CONNECTION) {
-                  showText = `${
-                    e[TYPE_COLUMN.CONNECTED_JDBC_CONNECTION]
-                  } (of total ${e[TYPE_COLUMN.TOTAL_JDBC_CONNECTION]})`;
+                  showText = `${e[TYPE_COLUMN.CONNECTED_JDBC_CONNECTION]} (${t(
+                    'table.ofTotal'
+                  )} ${e[TYPE_COLUMN.TOTAL_JDBC_CONNECTION]})`;
                 }
 
                 if (
@@ -382,6 +403,24 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
                 ) {
                   percentCls = 'success-percent';
                   percentIcon = 'status-positive';
+                } else if (
+                  // glue count
+                  (e[TYPE_COLUMN.STACK_STATUS] === 'SUCCEEDED' ||
+                    e[TYPE_COLUMN.CONNECTED_GLUE_DATABASE] ===
+                      e[TYPE_COLUMN.TOTAL_GLUE_DATABASE]) &&
+                  item.id === TYPE_COLUMN.GLUE_CONNECTION
+                ) {
+                  percentCls = 'success-percent';
+                  percentIcon = 'status-positive';
+                } else if (
+                  // glue count
+                  (e[TYPE_COLUMN.STACK_STATUS] === 'SUCCEEDED' ||
+                    e[TYPE_COLUMN.CONNECTED_JDBC_CONNECTION] ===
+                      e[TYPE_COLUMN.TOTAL_JDBC_CONNECTION]) &&
+                  item.id === TYPE_COLUMN.JDBC_CONNECTION
+                ) {
+                  percentCls = 'success-percent';
+                  percentIcon = 'status-positive';
                 } else if (e[TYPE_COLUMN.STACK_STATUS] === 'FAILED') {
                   // FAILED
                   percentCls = 'failed-percent';
@@ -390,7 +429,38 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
                   percentCls = 'info-percent';
                   percentIcon = 'status-info';
                 }
-                if (selectedAccount !== '' && e['account_id'] === selectedAccount) {
+                if (
+                  item.id === TYPE_COLUMN.RDS_CONNECTION &&
+                  e[TYPE_COLUMN.TOTAL_RDS_INSTANCE] === 0
+                ) {
+                  percentCls = 'progress-percent';
+                  percentIcon = 'status-stopped';
+                }
+                if (
+                  item.id === TYPE_COLUMN.S3_CONNECTION &&
+                  e[TYPE_COLUMN.TOTAL_S3_BUCKET] === 0
+                ) {
+                  percentCls = 'progress-percent';
+                  percentIcon = 'status-stopped';
+                }
+                if (
+                  item.id === TYPE_COLUMN.GLUE_CONNECTION &&
+                  e[TYPE_COLUMN.TOTAL_GLUE_DATABASE] === 0
+                ) {
+                  percentCls = 'progress-percent';
+                  percentIcon = 'status-stopped';
+                }
+                if (
+                  item.id === TYPE_COLUMN.JDBC_CONNECTION &&
+                  e[TYPE_COLUMN.TOTAL_JDBC_CONNECTION] === 0
+                ) {
+                  percentCls = 'progress-percent';
+                  percentIcon = 'status-stopped';
+                }
+                if (
+                  selectedAccount !== '' &&
+                  e['account_id'] === selectedAccount
+                ) {
                   return (
                     <div className={percentCls}>
                       <StatusIndicator type="loading" />
@@ -410,7 +480,7 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
                       &nbsp;&nbsp;
                       <span>{showText}</span>
                     </div>
-                  )
+                  );
                 }
               }
 
@@ -459,7 +529,11 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
                 <Button
                   onClick={clkDeleteAccount}
                   loading={deleteLoading}
-                  disabled={selectedItems.length === 0 || isLoading || selectedAccount !== ''}
+                  disabled={
+                    selectedItems.length === 0 ||
+                    isLoading ||
+                    selectedAccount !== ''
+                  }
                 >
                   {t('button.delete')}
                 </Button>

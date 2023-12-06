@@ -1729,6 +1729,7 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
         jdbc_conn_insert.detection_history_id = 0
         jdbc_conn_insert.description = jdbcConn.description
         jdbc_conn_insert.jdbc_connection_url = jdbcConn.jdbc_connection_url
+        jdbc_conn_insert.jdbc_connection_schema = jdbcConn.jdbc_connection_schema
         jdbc_conn_insert.jdbc_enforce_ssl = jdbcConn.jdbc_enforce_ssl
         jdbc_conn_insert.kafka_ssl_enabled = jdbcConn.kafka_ssl_enabled
         jdbc_conn_insert.master_username = jdbcConn.master_username

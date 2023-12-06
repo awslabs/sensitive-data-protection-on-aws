@@ -15,7 +15,7 @@ import {
   Tiles,
   ButtonDropdown,
   ButtonDropdownProps,
-  StatusIndicator
+  StatusIndicator,
 } from '@cloudscape-design/components';
 import { DATA_TYPE_ENUM, TABLE_NAME } from 'enum/common_types';
 import {
@@ -69,6 +69,7 @@ import { useTranslation } from 'react-i18next';
 // import { RouterEnum } from 'routers/routerEnum';
 import JDBCConnection from './JDBCConnection';
 import JDBCConnectionEdit from './JDBCConnectionEdit';
+import DataSourceCatalog from './DataSourceCatalog';
 
 const DataSourceList: React.FC<any> = memo((props: any) => {
   const { tagType, accountData } = props;
@@ -736,9 +737,9 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                   }
                   if (tempIsLoading) {
                     return (
-                      <StatusIndicator
-                        type="loading"
-                      >{tempLabel}</StatusIndicator>
+                      <StatusIndicator type="loading">
+                        {tempLabel}
+                      </StatusIndicator>
                     );
                   } else {
                     return (
@@ -751,26 +752,39 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                   }
                 }
                 if (item.id === COLUMN_OBJECT_STR.DataCatalog) {
-                  if (e.glue_state !== 'ACTIVE') {
-                    return '-';
-                  }
                   return (
-                    <a
-                      href={`/catalog?provider=${
-                        accountData.account_provider_id
-                      }&catalogId=${
+                    <DataSourceCatalog
+                      glueState={e.glue_state}
+                      providerId={accountData.account_provider_id}
+                      catalogName={
                         (e as any)[COLUMN_OBJECT_STR.Buckets] ||
                         (e as any)[COLUMN_OBJECT_STR.RDSInstances] ||
                         (e as any)[COLUMN_OBJECT_STR.JDBCInstanceName] ||
                         (e as any)[COLUMN_OBJECT_STR.GlueConnectionName]
-                      }&tagType=${tagType}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{ marginLeft: 5 }}
-                    >
-                      {t('button.dataCatalogs')}
-                    </a>
+                      }
+                      catalogType={tagType}
+                    />
                   );
+                  // if (e.glue_state !== 'ACTIVE') {
+                  //   return '-';
+                  // }
+                  // return (
+                  //   <a
+                  //     href={`/catalog?provider=${
+                  //       accountData.account_provider_id
+                  // }&catalogId=${
+                  //   (e as any)[COLUMN_OBJECT_STR.Buckets] ||
+                  //   (e as any)[COLUMN_OBJECT_STR.RDSInstances] ||
+                  //   (e as any)[COLUMN_OBJECT_STR.JDBCInstanceName] ||
+                  //   (e as any)[COLUMN_OBJECT_STR.GlueConnectionName]
+                  // }&tagType=${tagType}`}
+                  //     target="_blank"
+                  //     rel="noreferrer"
+                  //     style={{ marginLeft: 5 }}
+                  //   >
+                  //     {t('button.dataCatalogs')}
+                  //   </a>
+                  // );
                 }
                 if (item.id === COLUMN_OBJECT_STR.JDBCInstanceName) {
                   return e.instance_id;
@@ -785,13 +799,13 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                   return e.glue_database_name || '-';
                 }
                 if (item.id === COLUMN_OBJECT_STR.LastConnectionTime) {
-                  if (e.glue_crawler_last_updated == null){
-                    return '-'
+                  if (e.glue_crawler_last_updated == null) {
+                    return '-';
                   }
-                  return e.glue_crawler_last_updated.replace("T"," ");
+                  return e.glue_crawler_last_updated.replace('T', ' ');
                 }
                 if (item.id === COLUMN_OBJECT_STR.JDBCConnectionName) {
-                  return e.glue_connection|| '-';
+                  return e.glue_connection || '-';
                 }
                 if (item.id === COLUMN_OBJECT_STR.glueDatabaseDescription) {
                   return e.glue_database_description || '-';

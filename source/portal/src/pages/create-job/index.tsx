@@ -105,7 +105,7 @@ export const convertTableSourceToJobDatabases = (
       return {
         account_id: table_items[0].account_id,
         region: table_items[0].region,
-        database_type: 'rds',
+        database_type: table_items[0].database_type,
         database_name: database_name,
         table_name: table_names,
       };
@@ -140,6 +140,9 @@ const CreateJobContent = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const checkMustData = (requestedStepIndex: number) => {
+    if (requestedStepIndex < activeStepIndex) {
+      return true;
+    }
     if (
       jobData.database_type === SOURCE_TYPE.S3 &&
       jobData.all_s3 === '0' &&

@@ -63,6 +63,7 @@ const.EMPTY_STR = ''
 const.MANUAL = 'manual'
 const.SYSTEM = 'system'
 const.SAMPLE_LIMIT = 1000
+const.LAMBDA_MAX_RUNTIME = 900
 const.EXPORT_FILE_S3_COLUMNS = ["account_id", "region", "type", "s3_bucket", "folder_name", "column_name", "column_path", "identifiers", "sample_data",
                                 "bucket_catalog_label", "folder_catalog_label", "comment"]
 const.EXPORT_FILE_RDS_COLUMNS = ["account_id", "region", "type", "rds_instance_id", "table_name", "column_name", "identifiers", "sample_data",
@@ -84,6 +85,7 @@ const.YES = 'Yes'
 const.NO = 'No'
 const.PUBLIC = 'Public'
 const.PRIVATE = 'Private'
+const.ZERO = 0
 
 const.UNSTRUCTURED_FILES = {
     "document": ["doc", "docx", "pdf", "ppt", "pptx", "xls", "xlsx", "odp"],

@@ -3,6 +3,22 @@ export const REGION_TYPE = {
   CN_NORTHWEST1: 'cn-northwest-1',
 };
 
+export enum RDS_VIEW {
+  RDS_INSTANCE_VIEW = 'rds-instance-view',
+  RDS_TABLE_VIEW = 'rds-table-view',
+}
+
+export enum GLUE_VIEW {
+  GLUE_INSTANCE_VIEW = 'glue-instance-view',
+  GLUE_TABLE_VIEW = 'glue-table-view',
+  GLUE_ACCOUNT_VIEW = 'glue-account-view',
+}
+
+export enum JDBC_VIEW {
+  JDBC_INSTANCE_VIEW = 'jdbc-instance-view',
+  JDBC_TABLE_VIEW = 'jdbc-table-view',
+}
+
 export const TAB_LIST = {
   S3: { label: '', id: 's3' },
   RDS: { label: '', id: 'rds' },
@@ -47,6 +63,7 @@ export const SOURCE_TYPE = {
   JDBC_TENCENT: 'jdbc_tencent',
   JDBC_ALIYUN: 'jdbc_aliyun',
   JDBC_GOOGLE: 'jdbc_google',
+  JDBC_PROXY: 'jdbc_proxy',
 };
 
 export const getProviderByProviderId = (providerId: number | string) => {
@@ -60,6 +77,8 @@ export const getProviderByProviderId = (providerId: number | string) => {
       return { name: 'Tencent Cloud' };
     case 3:
       return { name: 'Google Cloud' };
+    case 4:
+      return { name: 'JDBC Proxy' };
     default:
       return { name: '-' };
   }
@@ -83,6 +102,8 @@ export const getJDBCTypeByProviderId = (providerId: number) => {
       return SOURCE_TYPE.JDBC_TENCENT;
     case 3:
       return SOURCE_TYPE.JDBC_GOOGLE;
+    case 4:
+      return SOURCE_TYPE.JDBC_PROXY;
     default:
       return SOURCE_TYPE.JDBC;
   }
@@ -120,6 +141,13 @@ export const getSourceTypeByProvider = (providerId: string) => {
           value: SOURCE_TYPE.JDBC_GOOGLE,
         },
       ];
+      case '4':
+        return [
+          {
+            label: 'Custom databases',
+            value: SOURCE_TYPE.JDBC_PROXY,
+          },
+        ];
     default:
       return [];
   }

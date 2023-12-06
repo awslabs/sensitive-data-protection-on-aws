@@ -121,6 +121,7 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
 
       const result = await searchCatalogTables(requestParam);
       setJdbcFolderData((result as any)?.items);
+      setJdbcTotal((result as any)?.total);
       setIsLoading(false);
     } catch (e) {
       console.error(e);

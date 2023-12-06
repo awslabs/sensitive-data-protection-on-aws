@@ -69,7 +69,7 @@ const AdvancedSettings: React.FC<AdvancedSettingsProps> = (
           />
           <RuleKeywords
             title={t('job:create.includeKeywords')}
-            placeholder={`.xml\n.abc\n.ddl`}
+            placeholder={`keyword1\nkeyword2\nkeyword3`}
             enabled={jobData.includeKeyWordsEnable}
             changeEnable={(enable) => {
               changeIncludeKeywordEnable(enable);

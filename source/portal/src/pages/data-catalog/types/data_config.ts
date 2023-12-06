@@ -34,6 +34,7 @@ export const COLUMN_OBJECT_STR = {
   FolderDetail: 'folderDetail',
   TableDetail: 'tableDetail',
   Download: 'file_download',
+  Classification: 'classification',
 };
 
 // S3 catalog column
@@ -57,11 +58,6 @@ export const S3_COLUMN_LIST: ColumnList[] = [
     id: COLUMN_OBJECT_STR.Privacy,
     label: 'table.label.privacy',
     sortingField: COLUMN_OBJECT_STR.Privacy,
-  },
-  {
-    id: COLUMN_OBJECT_STR.Identifier,
-    label: 'table.label.identifier',
-    sortingField: COLUMN_OBJECT_STR.Identifier,
   },
   {
     id: COLUMN_OBJECT_STR.AccountId,
@@ -93,6 +89,7 @@ export const S3_COLUMN_LIST: ColumnList[] = [
 export const DATA_TYPE = {
   s3: 's3Bucket',
   rds: 'rdsInstance',
+  glue: 'glue',
   jdbc: 'JDBC',
 };
 
@@ -247,7 +244,7 @@ export const TABLE_COLUMN: ColumnList[] = [
   },
   {
     id: COLUMN_OBJECT_STR.Labels,
-    label: 'table.label.label',
+    label: 'table.label.catalogLabels',
     filter: false,
   },
   {
@@ -282,6 +279,61 @@ export const FOLDERS_COLUMN = [
     label: 'table.label.items',
     filter: true,
     sortingField: COLUMN_OBJECT_STR.RowCount,
+  },
+  {
+    id: COLUMN_OBJECT_STR.ColumnCount,
+    label: 'table.label.columns',
+    sortingField: COLUMN_OBJECT_STR.ColumnCount,
+  },
+  {
+    id: COLUMN_OBJECT_STR.Size,
+    label: 'table.label.size',
+    filter: true,
+    sortingField: COLUMN_OBJECT_STR.Size,
+  },
+  {
+    id: COLUMN_OBJECT_STR.Privacy,
+    label: 'table.label.privacy',
+    filter: true,
+    sortingField: COLUMN_OBJECT_STR.Privacy,
+  },
+  {
+    id: COLUMN_OBJECT_STR.Labels,
+    label: 'table.label.label',
+    filter: false,
+  },
+  {
+    id: 'modify_by',
+    label: 'table.label.lastUpdateBy',
+    filter: true,
+    sortingField: COLUMN_OBJECT_STR.LastModifyBy,
+  },
+  {
+    id: COLUMN_OBJECT_STR.LastModifyAt,
+    label: 'table.label.lastUpdateAt',
+    filter: false,
+    sortingField: COLUMN_OBJECT_STR.LastModifyAt,
+  },
+];
+
+export const S3_UNSTRUCTURED_FOLDERS_COLUMN = [
+  {
+    id: COLUMN_OBJECT_STR.FolderName,
+    label: 'table.label.folderName',
+    filter: true,
+    sortingField: COLUMN_OBJECT_STR.FolderName,
+  },
+  {
+    id: COLUMN_OBJECT_STR.Classification,
+    label: 'table.label.type',
+    filter: true,
+    sortingField: COLUMN_OBJECT_STR.Classification,
+  },
+  {
+    id: COLUMN_OBJECT_STR.ObjectCount,
+    label: 'table.label.objects',
+    filter: true,
+    sortingField: COLUMN_OBJECT_STR.ObjectCount,
   },
   {
     id: COLUMN_OBJECT_STR.Size,
@@ -343,11 +395,11 @@ export const SAMPLE_OBJECT_COLUMN = [
     label: 'table.label.fileSize',
     filter: false,
   },
-  {
-    id: COLUMN_OBJECT_STR.Download,
-    label: 'table.label.download',
-    filter: false,
-  },
+  // {
+  //   id: COLUMN_OBJECT_STR.Download,
+  //   label: 'table.label.download',
+  //   filter: false,
+  // },
   {
     id: 's3_full_path',
     label: 'table.label.s3FullPath',
@@ -381,11 +433,11 @@ export const UNSTRUCTURED_SAMPLE_OBJECT_COLUMN = [
     label: 'table.label.identifier',
     filter: true,
   },
-  {
-    id: COLUMN_OBJECT_STR.Download,
-    label: 'table.label.download',
-    filter: false,
-  },
+  // {
+  //   id: COLUMN_OBJECT_STR.Download,
+  //   label: 'table.label.download',
+  //   filter: false,
+  // },
   {
     id: 's3_full_path',
     label: 'table.label.s3FullPath',

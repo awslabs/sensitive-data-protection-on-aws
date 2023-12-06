@@ -1,4 +1,4 @@
-
+import logging
 import csv
 import json
 import os
@@ -28,12 +28,12 @@ from common.enum import (
 )
 from common.exception_handler import BizException
 from common.query_condition import QueryCondition
-from common.reference_parameter import logger, admin_bucket_name, partition
 from data_source import crud as data_source_crud
+from discovery_job import crud as job_crud
 from label.crud import (get_labels_by_id_list, get_all_labels)
 from template.service import get_identifiers
 from . import crud, schemas
-from common.reference_parameter import logger, admin_account_id, admin_region
+from common.reference_parameter import logger, admin_account_id, admin_region, admin_bucket_name, partition
 from common.abilities import need_change_account_id
 
 sql_result = "SELECT database_type,account_id,region,s3_bucket,s3_location,rds_instance_id,table_name,column_name,identifiers,sample_data,'','','' FROM job_detection_output_table"
@@ -204,6 +204,18 @@ def sync_s3_result(
     return database_size, database_object_count
 
 
+def delete_catalog_column_level_classification_by_table_name(
+        account_id: str, region: str, database_type: str, database_name: str, table_name: str, column_names: list):
+    column_list = crud.get_catalog_column_level_classification_by_table(account_id, region, database_type, database_name, table_name).all()
+    column_ids = []
+    if column_list:
+        for column in column_list:
+            if column.column_name not in column_names:
+                column_ids.append(column.id)
+    if len(column_ids) > 0:
+        crud.delete_catalog_table_level_classification_by_ids(column_ids)
+
+
 def sync_crawler_result(
         account_id: str,
         region: str,
@@ -211,6 +223,7 @@ def sync_crawler_result(
         database_name: str,
 ):
     logger.info(f"start params {account_id} {region} {database_type} {database_name}")
+    start_time = time.time()
     rds_engine_type = const.NA
     # custom glue type will not use crawler, just syncing the catalog from existing glue tables
     is_custom_glue = database_type == DatabaseType.GLUE.value
@@ -273,6 +286,7 @@ def sync_crawler_result(
             tables_response = glue_client.get_tables(
                 DatabaseName=glue_database_name, NextToken=next_token
             )
+            logger.info(f"The number of tables is {len(tables_response['TableList'])}")
             # logger.info("get glue tables" + str(tables_response))
             delete_glue_table_names = []
             column_create_list = []
@@ -293,10 +307,10 @@ def sync_crawler_result(
                 serde_info = const.NA
                 table_properties = const.NA
                 if "SerdeInfo" in table["StorageDescriptor"]:
-                    logger.info(table["StorageDescriptor"]["SerdeInfo"])
+                    logger.debug(table["StorageDescriptor"]["SerdeInfo"])
                     serde_info = table["StorageDescriptor"]["SerdeInfo"]
                 if "TableProperties" in table:
-                    logger.info(table["TableProperties"])
+                    logger.debug(table["TableProperties"])
                     table_properties = table["TableProperties"]
                 # Delete empty table when Glue crawler not supported the S3 file type
                 # s3 can return directly ,but rds cannot
@@ -362,7 +376,7 @@ def sync_crawler_result(
                     #                                                                        database_type, database_name,
                     #                                                                        table_name, column_name)
                     original_column = original_column_dict[column_name] if column_name in original_column_dict else None
-                    if original_column == None:
+                    if original_column is None:
                         column_create_list.append(catalog_column_dict)
                         # crud.create_catalog_column_level_classification(catalog_column_dict)
                     else:
@@ -395,7 +409,7 @@ def sync_crawler_result(
                 }
                 original_table = crud.get_catalog_table_level_classification_by_name(account_id, region, database_type,
                                                                                      database_name, table_name)
-                if original_table == None:
+                if original_table is None:
                     table_create_list.append(catalog_table_dict)
                     # crud.create_catalog_table_level_classification(catalog_table_dict)
                 else:
@@ -409,17 +423,19 @@ def sync_crawler_result(
                 database_column_count += column_order_num
             try:
                 logger.info("batch delete glue tables" + json.dumps(delete_glue_table_names))
-                glue_client.batch_delete_table(DatabaseName=glue_database_name,
-                                          TablesToDelete=delete_glue_table_names)
+                if delete_glue_table_names:
+                    glue_client.batch_delete_table(DatabaseName=glue_database_name,
+                                                    TablesToDelete=delete_glue_table_names)
             except Exception as err:
-                logger.info("batch delete glue tables error" + str(err))
-            logger.debug("batch create columns" + str(column_create_list))
+                logger.exception("batch delete glue tables error" + str(err))
+            if logger.isEnabledFor(logging.DEBUG):
+                logger.debug("batch create columns" + str(column_create_list))
+                logger.debug("batch update columns" + str(column_update_list))
+                logger.debug("batch create tables" + str(table_create_list))
+                logger.debug("batch update tables" + str(table_update_list))
             crud.batch_create_catalog_column_level_classification(column_create_list)
-            logger.debug("batch update columns" + str(column_update_list))
             crud.batch_update_catalog_column_level_classification_by_id(column_update_list)
-            logger.debug("batch create tables" + str(table_create_list))
             crud.batch_create_catalog_table_level_classification(table_create_list)
-            logger.debug("batch update tables" + str(table_update_list))
             crud.batch_update_catalog_table_level_classification_by_id(table_update_list)
             next_token = tables_response.get("NextToken")
             if next_token is None:
@@ -428,15 +444,17 @@ def sync_crawler_result(
                                                                                      database_type, database_name)
         for catalog in catalog_table_list:
             if catalog.table_name not in table_name_list:
-                logger.info("sync_crawler_result DELETE TABLE AND COLUMN WHEN NOT IN GLUE TABLES！！！" + catalog.table_name)
+                if logger.isEnabledFor(logging.DEBUG):
+                    logger.debug("sync_crawler_result DELETE TABLE AND COLUMN WHEN NOT IN GLUE TABLES！！！" + catalog.table_name)
                 crud.delete_catalog_table_level_classification(catalog.id)
                 crud.delete_catalog_column_level_classification_by_table_name(account_id, region, database_type, database_name, catalog.table_name, None)
             if catalog.table_name in table_column_dict:
                 column_list = table_column_dict[catalog.table_name]
-                logger.info(
-                    "sync_crawler_result DELETE COLUMN WHEN NOT IN GLUE TABLES" + catalog.table_name + json.dumps(
-                        table_column_dict[catalog.table_name]))
-                crud.delete_catalog_column_level_classification_by_table_name(account_id, region, database_type,
+                if logger.isEnabledFor(logging.DEBUG):
+                    logger.debug(
+                        "sync_crawler_result DELETE COLUMN WHEN NOT IN GLUE TABLES" + catalog.table_name + json.dumps(
+                            table_column_dict[catalog.table_name]))
+                delete_catalog_column_level_classification_by_table_name(account_id, region, database_type,
                                                                               database_name, catalog.table_name,
                                                                               column_list)
     if table_count == 0:
@@ -513,6 +531,8 @@ def sync_crawler_result(
         + str(table_count)
         + " tables affected."
     )
+    execution_time = time.time() - start_time
+    logger.info(f"Update catalog execution time：{execution_time:.1f}s")
     return table_count == 0
 
 
@@ -736,6 +756,20 @@ def sync_job_detection_result(
         overwrite=True
 ):
     logger.info("start time")
+    deel_s3_all = True
+    if database_type == DatabaseType.S3.value:
+        job_run = job_crud.get_run(job_run_id)
+        if not job_run:
+            raise Exception("Query job error")
+        if job_run.depth_unstructured != const.ZERO:
+            if job_run.depth_structured == const.ZERO:
+                deel_s3_all = False
+                database_type = DatabaseType.S3_UNSTRUCTURED.value
+        if job_run.depth_structured != const.ZERO:
+            if job_run.depth_structured == const.ZERO:
+                deel_s3_all = False
+                database_type = DatabaseType.S3.value
+
     job_result_list = __query_job_result_by_athena(
         account_id,
         region,
@@ -743,7 +777,7 @@ def sync_job_detection_result(
         database_name,
         job_run_id,
     )
-    if database_type == DatabaseType.S3.value:
+    if database_type == DatabaseType.S3.value and deel_s3_all:
         job_result_list += __query_job_result_by_athena(
             account_id,
             region,
@@ -763,7 +797,7 @@ def sync_job_detection_result(
     database_catalog_columns_dict = crud.get_catalog_column_level_classification_by_database(account_id, region,
                                                                                              database_type,
                                                                                              database_name)
-    if database_type == DatabaseType.S3.value:
+    if database_type == DatabaseType.S3.value and deel_s3_all:
         database_catalog_columns_dict_unstructured = crud.get_catalog_column_level_classification_by_database(account_id, region,
                                                                  DatabaseType.S3_UNSTRUCTURED.value,
                                                                  database_name)
@@ -838,7 +872,7 @@ def sync_job_detection_result(
     database_catalog_table_dict = crud.get_catalog_table_level_classification_by_database_all(account_id, region,
                                                                                               database_type,
                                                                                               database_name)
-    if database_type == DatabaseType.S3.value:
+    if database_type == DatabaseType.S3.value and deel_s3_all:
         database_catalog_table_dict_unstructured = crud.get_catalog_table_level_classification_by_database_all(
             account_id, region,
             DatabaseType.S3_UNSTRUCTURED.value,
@@ -859,10 +893,20 @@ def sync_job_detection_result(
         logger.debug(
             "sync_job_detection_result - RESET ADDITIONAL COLUMNS : " + json.dumps(table_column_dict[table_name]))
         if table_name not in table_privacy_dict:
-            if catalog_table is not None:
+            # if catalog_table is not None:
+            #     table_dict = {
+            #         "id": catalog_table.id,
+            #         "row_count": table_size,
+            #     }
+            #     table_dict_list.append(table_dict)
+            if catalog_table is not None and (overwrite or (
+                        not overwrite and catalog_table.manual_tag != const.MANUAL)):
                 table_dict = {
                     "id": catalog_table.id,
+                    "privacy": Privacy.PII.value,
+                    "state": CatalogState.DETECTED.value,
                     "row_count": table_size,
+                    "manual_tag": const.SYSTEM,
                 }
                 table_dict_list.append(table_dict)
             continue
@@ -905,7 +949,7 @@ def sync_job_detection_result(
         crud.update_catalog_database_level_classification_by_id(
             catalog_database.id, database_dict
         )
-    if database_type == DatabaseType.S3.value:
+    if database_type == DatabaseType.S3.value and deel_s3_all:
         catalog_database_unstructured = crud.get_catalog_database_level_classification_by_name(account_id, region,
                                                                                                DatabaseType.S3_UNSTRUCTURED.value,
                                                                                                database_name)

@@ -5,9 +5,8 @@ import time
 from common.enum import AutoSyncDataAction, Provider
 from data_source.service import delete_account
 from db.database import close_session, gen_session
-from common.constant import const
+from common.reference_parameter import logger
 
-logger = logging.getLogger(const.LOGGER_API)
 logger.setLevel(logging.INFO)
 
 

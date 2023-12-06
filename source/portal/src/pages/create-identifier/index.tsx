@@ -86,7 +86,7 @@ const CreateIdentifierContent = (props: any) => {
   const [excludeKeywordsToggle, setExcludeKeywordsToggle] = useState(
     location.state
       ? !!oldData.exclude_keywords || oldData.exclude_keywords === ''
-      : true
+      : false
   );
   const [keywordToggle, setKeywordToggle] = useState(
     location.state
@@ -113,9 +113,9 @@ const CreateIdentifierContent = (props: any) => {
   const [selectedLabel, setSelectedLabel] = useState<SelectProps.Option>(
     findCategoryLabelAndConvertOption('2', oldData.props)
   );
-  const [maxDistance, setMaxDistance] = useState(oldData.max_distance || '');
+  const [maxDistance, setMaxDistance] = useState(oldData.max_distance || '50');
   const [minOccurrence, setMinOccurrence] = useState(
-    oldData.min_occurrence || ''
+    oldData.min_occurrence || '1'
   );
 
   const [showModal, setShowModal] = useState(false);
@@ -501,6 +501,20 @@ const CreateIdentifierContent = (props: any) => {
         >
           <SpaceBetween direction="vertical" size="l">
             <FormField
+              label={t('identifier:minDis')}
+              description={t('identifier:minDisDesc')}
+            >
+              <Input
+                type="number"
+                value={minOccurrence}
+                onChange={({ detail }) => {
+                  setMinOccurrence(detail.value);
+                }}
+                placeholder="2"
+              />
+            </FormField>
+
+            <FormField
               label={t('identifier:maxDis')}
               description={t('identifier:maxDisDesc')}
             >
@@ -511,16 +525,6 @@ const CreateIdentifierContent = (props: any) => {
                   setMaxDistance(detail.value);
                 }}
                 placeholder="50"
-              />
-            </FormField>
-            <FormField label={t('identifier:minDis')}>
-              <Input
-                type="number"
-                value={minOccurrence}
-                onChange={({ detail }) => {
-                  setMinOccurrence(detail.value);
-                }}
-                placeholder="2"
               />
             </FormField>
           </SpaceBetween>
