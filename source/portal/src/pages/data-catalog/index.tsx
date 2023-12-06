@@ -49,7 +49,6 @@ const CatalogListHeader: React.FC = () => {
     } catch {
       alertMsg(t('noReportFile'), 'error');
     }
-    console.log('finish time:' + new Date());
     setIsExporting(false);
   };
 

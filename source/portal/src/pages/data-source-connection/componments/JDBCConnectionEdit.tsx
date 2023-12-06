@@ -128,7 +128,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
   }, []);
 
   useEffect(() => {
-    console.log('');
+    // console.log('');
   }, []);
 
   useEffect(() => {
@@ -180,7 +180,6 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
 
   const updateJdbcConnection = async () => {
     try {
-      console.log('jdbcConnectionData is:', jdbcConnectionData);
       await updateConnection(jdbcConnectionData);
       alertMsg(t('successUpdate'), 'success');
       props.setShowModal(false);
@@ -273,7 +272,6 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
 
   const changeSecret = (detail: any) => {
     setSecretItem(detail);
-    console.log('secret is :', detail);
     setJdbcConnectionData({ ...jdbcConnectionData, secret: detail.value });
   };
   const getConnectionDetails = async () => {
@@ -321,7 +319,6 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
         (res['ConnectionProperties']['USERNAME'] == null || res['ConnectionProperties']['PASSWORD'] === '')
       ) {
         setCredential('secret');
-        console.log('secretOption is:', secretOption);
         const secrets = tempOptList.filter(
           (option: any) =>
             option.value === res['ConnectionProperties']['SECRET_ID']
@@ -330,13 +327,11 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
       } else {
         setCredential('password');
       }
-      console.log('secretOption is :', secretOption);
       try {
         const vpcOptions: any[] = [];
         const network_res: any = await queryNetworkInfo(requestParam_network);
         const vpcs = network_res?.vpcs;
         let currentVPCId = '';
-        console.log('vpcs is:', vpcs);
         vpcs.forEach((item: any) => {
           const subnetId: string[] = [];
           const sgId: string[] = [];
