@@ -63,6 +63,7 @@
     "jdbcURLConstraint": "大多数数据库引擎的JDBC语法是 jdbc:protocol://host:port/databasename。",
     "jdbcDatabase": "JDBC 数据库 - 可选",
     "jdbcDatabaseDesc": "如果您的实例中有多个数据库，请在此处添加数据库名称列表。",
+    "jdbcDatabaseConstraint": "您可以在支持模式（Schema）的数据库中输入 MyDatabase/MySchema。Oracle Database 和 MySQL 不支持在路径中使用模式（Schema），而是输入 MyDatabase。对于不使用 SSL 的 Oracle 数据库，MyDatabase 可以是系统标识符（SID）或服务名称（SERVICE_NAME）。对于使用 SSL 的 Oracle 数据库，MyDatabase 必须是服务名称（SERVICE_NAME）。",
     "jdbcClassName": "JDBC驱动类名称 - 可选",
     "jdbcClassNameDesc": "输入自定义的 JDBC 驱动类名称，供爬虫连接到数据源。",
     "jdbcS3Path": "JDBC 驱动 S3 路径 - 可选",
