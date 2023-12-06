@@ -69,7 +69,7 @@ const CircleChart: React.FC<CircleChartType> = (props: CircleChartType) => {
           return data.size_total;
       }
     }
-    if (sourceType === 'rds') {
+    if (sourceType !== 's3') {
       switch (dataType) {
         case 'instance':
           return data.instance_total;
@@ -108,7 +108,7 @@ const CircleChart: React.FC<CircleChartType> = (props: CircleChartType) => {
           }, 0);
       }
     }
-    if (sourceType === 'rds') {
+    if (sourceType !== 's3') {
       switch (dataType) {
         case 'instance':
           return data.reduce((accumulator: number, item) => {
