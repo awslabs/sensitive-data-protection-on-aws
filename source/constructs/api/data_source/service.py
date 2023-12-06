@@ -2605,7 +2605,10 @@ def query_connection_detail(account: JDBCInstanceSourceBase):
     if not source or not source.glue_connection:
         raise BizException(MessageEnum.SOURCE_JDBC_CONNECTION_NOT_EXIST.get_code(),
                            MessageEnum.SOURCE_JDBC_CONNECTION_NOT_EXIST.get_msg())
-    return __glue(account_id, region).get_connection(Name=source.glue_connection)['Connection']
+
+    conn = __glue(account_id, region).get_connection(Name=source.glue_connection)['Connection']
+    conn['ConnectionProperties']['JDBC_CONNECTION_SCHEMA'] = source.jdbc_connection_schema
+    return conn
 
 
 def __get_excludes_file_exts():
