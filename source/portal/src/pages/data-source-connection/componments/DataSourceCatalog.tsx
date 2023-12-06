@@ -2,6 +2,7 @@ import { Spinner } from '@cloudscape-design/components';
 import { getDataBaseByType } from 'apis/data-catalog/api';
 import { getJDBCTypeByProviderId } from 'enum/common_types';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
 
@@ -17,6 +18,7 @@ const DataSourceCatalog: React.FC<GlueJobCatalogProps> = (
 ) => {
   const { glueState, catalogName, catalogType, providerId } = props;
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loadingData, setLoadingData] = useState(false);
   const [catalogList, setCatalogList] = useState([]);
 
@@ -70,7 +72,7 @@ const DataSourceCatalog: React.FC<GlueJobCatalogProps> = (
   }
   return (
     <span className="job-name" onClick={() => clkCatalog()}>
-      {catalogName}
+      {t('table.label.dataCatalog')}
     </span>
   );
 };

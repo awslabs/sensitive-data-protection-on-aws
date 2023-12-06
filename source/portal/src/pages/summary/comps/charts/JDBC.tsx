@@ -103,9 +103,9 @@ export const JDBC: React.FC<JDBCProps> = (props: JDBCProps) => {
       <Grid
         gridDefinition={[
           { colspan: 12 },
-          { colspan: 6 },
-          { colspan: 6 },
           { colspan: 12 },
+          { colspan: 6 },
+          { colspan: 6 },
         ]}
       >
         <div className="mt-20 pd-10">
@@ -139,6 +139,21 @@ export const JDBC: React.FC<JDBCProps> = (props: JDBCProps) => {
             </div>
           </Grid>
         </div>
+
+        <div className="mt-20 pd-10">
+          {loadingTableData ? (
+            <Spinner />
+          ) : (
+            <IdentifierTableData
+              curProvider={curProvider}
+              dataList={identifierData}
+              keyLable={t('summary:dataIdentifier')}
+              valueLable={t('summary:jdbcDatabase')}
+              title={t('summary:topDataIdentifier')}
+            />
+          )}
+        </div>
+
         <div className="mt-20 pd-10">
           <CircleChart
             title={t('summary:lastUpdatedStatus')}
@@ -156,20 +171,6 @@ export const JDBC: React.FC<JDBCProps> = (props: JDBCProps) => {
               keyLable={t('summary:awsAccount')}
               valueLable={t('summary:jdbcDatabase')}
               title={t('summary:topAccountsContainPII')}
-            />
-          )}
-        </div>
-
-        <div className="mt-20 pd-10">
-          {loadingTableData ? (
-            <Spinner />
-          ) : (
-            <IdentifierTableData
-              curProvider={curProvider}
-              dataList={identifierData}
-              keyLable={t('summary:dataIdentifier')}
-              valueLable={t('summary:jdbcDatabase')}
-              title={t('summary:topDataIdentifier')}
             />
           )}
         </div>

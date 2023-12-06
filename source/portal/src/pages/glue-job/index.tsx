@@ -74,6 +74,11 @@ const GULE_JOB_COLUMN = [
     filter: true,
   },
   {
+    id: 'database_link',
+    label: 'table.label.link',
+    filter: true,
+  },
+  {
     id: 'progress',
     label: 'table.label.jobProgress',
     filter: false,
@@ -500,7 +505,7 @@ const GlueJobContent = () => {
                       <div>{displayJobProgress(parseInt((e as any).id))}</div>
                     );
                   }
-                  if (item.id === 'database_name') {
+                  if (item.id === 'database_link') {
                     return (
                       <GlueJobCatalog
                         glueJob={e as any}

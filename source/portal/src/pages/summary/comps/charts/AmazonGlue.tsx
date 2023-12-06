@@ -81,9 +81,9 @@ export const AmazonGlue: React.FC<any> = () => {
       <Grid
         gridDefinition={[
           { colspan: 12 },
-          { colspan: 6 },
-          { colspan: 6 },
           { colspan: 12 },
+          { colspan: 6 },
+          { colspan: 6 },
         ]}
       >
         <div className="mt-20 pd-10">
@@ -119,6 +119,19 @@ export const AmazonGlue: React.FC<any> = () => {
         </div>
 
         <div className="mt-20 pd-10">
+          {loadingTableData ? (
+            <Spinner />
+          ) : (
+            <IdentifierTableData
+              dataList={identifierData}
+              keyLable={t('summary:dataIdentifier')}
+              valueLable={t('summary:glueDatabase')}
+              title={t('summary:topDataIdentifier')}
+            />
+          )}
+        </div>
+
+        <div className="mt-20 pd-10">
           <CircleChart
             title={t('summary:lastUpdatedStatus')}
             circleType="pie"
@@ -135,19 +148,6 @@ export const AmazonGlue: React.FC<any> = () => {
               keyLable={t('summary:awsAccount')}
               valueLable={t('summary:glueDatabase')}
               title={t('summary:topAccountsContainPII')}
-            />
-          )}
-        </div>
-
-        <div className="mt-20 pd-10">
-          {loadingTableData ? (
-            <Spinner />
-          ) : (
-            <IdentifierTableData
-              dataList={identifierData}
-              keyLable={t('summary:dataIdentifier')}
-              valueLable={t('summary:glueDatabase')}
-              title={t('summary:topDataIdentifier')}
             />
           )}
         </div>

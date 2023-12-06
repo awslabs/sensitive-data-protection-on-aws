@@ -177,7 +177,7 @@ export const INIT_JOB_DATA: IJobType = {
   scanFrequencyObj: SCAN_FREQUENCY[0],
   scanDepthObj: SCAN_DEPTH_OPTIONS[0],
   scanUnstructuredDepthObj: SCAN_UNSTRUCTURED_DEPTH_OPTIONS[0],
-  scanRangeObj: SCAN_RANGE_OPTIONS[1],
+  scanRangeObj: SCAN_RANGE_OPTIONS[0],
   detectionThresholdObj: DETECTION_THRESHOLD_OPTIONS[1],
   overrideObj: OVERRIDE_OPTIONS[0],
   excludeKeyWordsEnable: false,

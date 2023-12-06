@@ -178,7 +178,7 @@ const CircleChart: React.FC<CircleChartType> = (props: CircleChartType) => {
     if (circleType === 'pie') {
       getLastUpdateDataCatalog();
     }
-  }, [circleType]);
+  }, [circleType, sourceType, dataType]);
 
   return (
     <div>
