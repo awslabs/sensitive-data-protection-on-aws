@@ -66,7 +66,6 @@ async def detect_glue_database_connection(session: Session, aws_account_id: str)
     for item in db_database_name_list:
         if item not in glue_database_name_list:
             refresh_list.append(item)
-    print(f"refresh_list is: {refresh_list}")
     crud.delete_not_exist_glue_database(refresh_list)
     crud.update_glue_database_count(account=aws_account_id, region=admin_account_region)
 

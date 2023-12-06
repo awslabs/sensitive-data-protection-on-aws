@@ -497,9 +497,10 @@ def sync(glue, lakeformation, credentials, crawler_role_arn, jdbc: JDBCInstanceS
         db_names = set(schemas.splitlines())
         db_names.add(schema)
         for db_name in db_names:
+            trimmed_db_name = db_name.strip()
             jdbc_targets.append({
                 'ConnectionName': glue_connection_name,
-                'Path': f"{db_name}/%"
+                'Path': f"{trimmed_db_name}/%"
             })
 
         if schema:
@@ -2605,7 +2606,10 @@ def query_connection_detail(account: JDBCInstanceSourceBase):
     if not source or not source.glue_connection:
         raise BizException(MessageEnum.SOURCE_JDBC_CONNECTION_NOT_EXIST.get_code(),
                            MessageEnum.SOURCE_JDBC_CONNECTION_NOT_EXIST.get_msg())
-    return __glue(account_id, region).get_connection(Name=source.glue_connection)['Connection']
+
+    conn = __glue(account_id, region).get_connection(Name=source.glue_connection)['Connection']
+    conn['ConnectionProperties']['JDBC_CONNECTION_SCHEMA'] = source.jdbc_connection_schema
+    return conn
 
 
 def __get_excludes_file_exts():
