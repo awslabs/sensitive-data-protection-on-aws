@@ -2385,13 +2385,30 @@ def __delete_account(account_id: str, region: str):
 
 def query_glue_connections(account: AccountInfo):
     res = []
+    list = []
     account_id = account.account_id if account.account_provider_id == Provider.AWS_CLOUD.value else admin_account_id
     region = account.region if account.account_provider_id == Provider.AWS_CLOUD.value else admin_region
-    list =  __glue(account=account_id, region=region).get_connections(CatalogId=account_id,
-                                                                      Filter={'ConnectionType': 'JDBC'},
-                                                                      MaxResults=100,
-                                                                      HidePassword=True)['ConnectionList']
-    
+
+    # list = __glue(account=account_id, region=region).get_connections(CatalogId=account_id,
+    #                                                                   Filter={'ConnectionType': 'JDBC'},
+    #                                                                   MaxResults=100,
+    #                                                                   HidePassword=True)['ConnectionList']
+
+    next_token = ""
+
+    while True:
+        response = __glue(account=account_id, region=region).get_connections(
+            CatalogId=account_id,
+            Filter={'ConnectionType': 'JDBC'},
+            HidePassword=True,
+            NextToken=next_token,
+        )
+        current_connections = response['ConnectionList']
+        list.extend(current_connections)
+        next_token = response.get('NextToken')
+
+        if not next_token:
+            break
     jdbc_list = query_jdbc_connections_sub_info()
     jdbc_dict = {item[0]:f"{convert_provider_id_2_name(item[1])}-{item[2]}" for item in jdbc_list}
     for item in list:
@@ -2400,7 +2417,7 @@ def query_glue_connections(account: AccountInfo):
                 item['usedBy'] = jdbc_dict[item['Name']]
             res.append(item)
     return res
-    
+
 def query_jdbc_connections_sub_info():
     return crud.query_jdbc_connections_sub_info()
 
