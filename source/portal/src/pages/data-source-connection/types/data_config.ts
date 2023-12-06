@@ -37,7 +37,7 @@ export const S3_COLUMN_LIST = [
   },
   {
     id: COLUMN_OBJECT_STR.GlueState,
-    label: 'table.label.catalogStatus',
+    label: 'table.label.accountStatus',
     filter: true,
   },
   {

@@ -121,6 +121,7 @@ const SelectRDSCatalog: React.FC<SelectRDSCatalogProps> = (
       };
       const result = await searchCatalogTables(requestParam);
       setRdsFolderData((result as any)?.items);
+      setRdsTotal((result as any)?.total);
       setIsLoading(false);
     } catch (e) {
       console.error(e);

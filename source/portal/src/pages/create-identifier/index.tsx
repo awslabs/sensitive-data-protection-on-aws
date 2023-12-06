@@ -86,7 +86,7 @@ const CreateIdentifierContent = (props: any) => {
   const [excludeKeywordsToggle, setExcludeKeywordsToggle] = useState(
     location.state
       ? !!oldData.exclude_keywords || oldData.exclude_keywords === ''
-      : true
+      : false
   );
   const [keywordToggle, setKeywordToggle] = useState(
     location.state

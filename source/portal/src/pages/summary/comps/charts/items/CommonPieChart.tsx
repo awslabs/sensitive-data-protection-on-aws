@@ -2,9 +2,9 @@ import React from 'react';
 import { PieChart } from '@cloudscape-design/components';
 import { IPieChartDataType } from 'ts/dashboard/types';
 import { useTranslation } from 'react-i18next';
-import { formatNumber } from 'tools/tools';
+import { formatNumber, formatSize } from 'tools/tools';
 
-export type ChartSourceType = 's3' | 'rds' | 'glue' | 'jdbc';
+export type ChartSourceType = 's3' | 'rds' | 'glue' | 'jdbc' | string;
 export type ChartDataType =
   | 'bucket'
   | 'folder'
@@ -31,6 +31,13 @@ const CommonPieChart: React.FC<CommonPieChartProps> = (
   const { size, sourceType, dataType, sourceTotal, circleType, chartData } =
     props;
   const { t } = useTranslation();
+  console.info('sourceType:', sourceType);
+  console.info('dataType:', dataType);
+
+  const formattedValue =
+    sourceType === 's3' && dataType === 'size'
+      ? formatSize(sourceTotal ?? 0)
+      : formatNumber(sourceTotal ?? 0).toString();
 
   const buildLabelBySourceTypeAndDataType = (
     sourceType: ChartSourceType,
@@ -69,7 +76,7 @@ const CommonPieChart: React.FC<CommonPieChartProps> = (
         sourceType,
         dataType
       )}
-      innerMetricValue={formatNumber(sourceTotal ?? 0).toString()}
+      innerMetricValue={formattedValue}
       data={chartData}
       hideFilter={true}
       segmentDescription={(datum, sum) =>
