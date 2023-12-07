@@ -642,6 +642,16 @@ def delete_catalog_table_level_classification_by_database_region(database: str, 
     session.commit()
 
 
+def delete_catalog_table_level_classification_by_database(database: str, region: str, type: str):
+    session = get_session()
+    session.query(models.CatalogTableLevelClassification).filter(
+        models.CatalogTableLevelClassification.database_name == database,
+        models.CatalogTableLevelClassification.database_type == type,
+        models.CatalogTableLevelClassification.region == region
+    ).delete()
+    session.commit()
+
+
 def delete_catalog_table_level_classification_by_ids(ids: list):
     session = get_session()
     session.query(models.CatalogTableLevelClassification).filter(
@@ -671,6 +681,15 @@ def delete_catalog_column_level_classification_by_database_region(database: str,
     ).delete()
     session.commit()
 
+
+def delete_catalog_column_level_classification_by_database(database: str, region: str, type: str):
+    session = get_session()
+    session.query(models.CatalogColumnLevelClassification).filter(
+        models.CatalogColumnLevelClassification.database_name == database,
+        models.CatalogColumnLevelClassification.database_type == type,
+        models.CatalogColumnLevelClassification.region == region
+    ).delete()
+    session.commit()
 
 def get_s3_database_summary():
     return (get_session()
@@ -753,8 +772,9 @@ def get_rds_database_summary_with_attr(database_type, attribute: str, need_merge
                          )
         table_list = get_rds_table_summary_with_attr(attribute, database_type)
         table_dict = {table["privacy"]: table["table_total"] for table in table_list}
-        row_dict = {table["privacy"]: table["row_total"] for table in table_list}
+        # row_dict = {table["privacy"]: table["row_total"] for table in table_list}
         column_list = get_rds_column_summary_with_attr(attribute, database_type)
+        row_dict = {table["privacy"]: table["row_total"] for table in column_list}
         updated_database_list = []
         for database in database_list:
             privacy = database[attribute]
@@ -764,7 +784,7 @@ def get_rds_database_summary_with_attr(database_type, attribute: str, need_merge
                 attribute: privacy,
                 "database_total": database["database_total"],
                 "instance_total": database["database_total"],
-                "row_total": database["row_total"],
+                "row_total": row_total,
                 "size_total": database["size_total"],
                 "table_total": table_total
             })
