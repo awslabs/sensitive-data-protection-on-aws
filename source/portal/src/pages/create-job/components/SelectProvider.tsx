@@ -83,7 +83,14 @@ const SelectProvider: React.FC<SelectProviderProps> = (
     if (sourceOptionList.length > 0) {
       // has data source
       if (jobData.database_type) {
-        changeDataSource(jobData.database_type);
+        const exists = sourceOptionList.some(
+          (item) => item.value === jobData.database_type
+        );
+        if (exists) {
+          changeDataSource(jobData.database_type);
+        } else {
+          changeDataSource(sourceOptionList[0].value);
+        }
       } else {
         changeDataSource(sourceOptionList[0].value);
       }

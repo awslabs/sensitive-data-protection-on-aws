@@ -45,11 +45,6 @@ export const S3_COLUMN_LIST = [
     filter: true,
   },
   {
-    id: 'data_catalog',
-    label: 'table.label.dataCatalog',
-    filter: false,
-  },
-  {
     id: COLUMN_OBJECT_STR.DataCatalogLink,
     label: 'table.label.link',
     filter: false,
@@ -92,11 +87,6 @@ export const JDBC_COLUMN_LIST = [
     filter: true,
   },
   {
-    id: COLUMN_OBJECT_STR.DataCatalog,
-    label: 'table.label.dataCatalog',
-    filter: false,
-  },
-  {
     id: COLUMN_OBJECT_STR.DataCatalogLink,
     label: 'table.label.link',
     filter: false,
@@ -135,11 +125,6 @@ export const GLUE_COLUMN_LIST = [
     filter: true,
   },
   {
-    id: 'data_catalog',
-    label: 'table.label.dataCatalog',
-    filter: false,
-  },
-  {
     id: COLUMN_OBJECT_STR.DataCatalogLink,
     label: 'table.label.link',
     filter: false,
@@ -176,11 +161,6 @@ export const RDS_COLUMN_LIST = [
     id: 'glue_state',
     label: 'table.label.catalogStatus',
     filter: true,
-  },
-  {
-    id: 'data_catalog',
-    label: 'table.label.dataCatalog',
-    filter: false,
   },
   {
     id: COLUMN_OBJECT_STR.DataCatalogLink,

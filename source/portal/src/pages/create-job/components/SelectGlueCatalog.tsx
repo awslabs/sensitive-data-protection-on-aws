@@ -244,6 +244,7 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
   }, [selectedGlueItems]);
 
   useEffect(() => {
+    setCurrentPage(1);
     setSelectedGlueItems([]);
   }, [jobData.glueSelectedView]);
 
