@@ -48,7 +48,7 @@ const JDBCCatalogOverview: React.FC<JDBCCatalogOverviewProps> = (
 
   useEffect(() => {
     getS3DatacatalogSummary();
-  }, []);
+  }, [jdbcType]);
 
   return (
     <>
