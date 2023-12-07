@@ -597,21 +597,32 @@ def delete_glue_database(account: str, region: str, instance: str):
     session.commit()
 
 
+# def delete_jdbc_connection(provider: str, account: str, region: str, instance: str):
+#     session = get_session()
+#     jdbc_instance_source: JDBCInstanceSource = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.instance_id == instance,
+#                                                                                         JDBCInstanceSource.region == region,
+#                                                                                         JDBCInstanceSource.account_id == account,
+#                                                                                         JDBCInstanceSource.account_provider_id == provider).order_by(
+#         desc(JDBCInstanceSource.detection_history_id)).first()
+#     jdbc_instance_source.glue_database = None
+#     jdbc_instance_source.glue_crawler = None
+#     jdbc_instance_source.glue_connection = None
+#     jdbc_instance_source.glue_vpc_endpoint = None
+#     jdbc_instance_source.glue_crawler_last_updated = datetime.datetime.utcnow()
+#     jdbc_instance_source.glue_state = None
+#     session.merge(jdbc_instance_source)
+#     session.commit()
+
+
 def delete_jdbc_connection(provider: str, account: str, region: str, instance: str):
     session = get_session()
-    jdbc_instance_source: JDBCInstanceSource = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.instance_id == instance,
-                                                                                        JDBCInstanceSource.region == region,
-                                                                                        JDBCInstanceSource.account_id == account,
-                                                                                        JDBCInstanceSource.account_provider_id == provider).order_by(
-        desc(JDBCInstanceSource.detection_history_id)).first()
-    jdbc_instance_source.glue_database = None
-    jdbc_instance_source.glue_crawler = None
-    jdbc_instance_source.glue_connection = None
-    jdbc_instance_source.glue_vpc_endpoint = None
-    jdbc_instance_source.glue_crawler_last_updated = datetime.datetime.utcnow()
-    jdbc_instance_source.glue_state = None
-    session.merge(jdbc_instance_source)
+    jdbc_instance_source: JDBCInstanceSource = session.query(JDBCInstanceSource).filter(
+        JDBCInstanceSource.instance_id == instance,
+        JDBCInstanceSource.region == region,
+        JDBCInstanceSource.account_id == account,
+        JDBCInstanceSource.account_provider_id == provider).delete()
     session.commit()
+
 
 def hide_jdbc_connection(provider: str, account: str, region: str, instance: str):
     session = get_session()
