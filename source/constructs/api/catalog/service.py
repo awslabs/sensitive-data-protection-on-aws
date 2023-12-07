@@ -480,6 +480,9 @@ def sync_crawler_result(
             crud.delete_catalog_table_level_classification_by_database_region(original_database.database_name,
                                                                               original_database.region,
                                                                               original_database.database_type)
+            crud.delete_catalog_column_level_classification_by_database_region(original_database.database_name,
+                                                                               original_database.region,
+                                                                               original_database.database_type)
 
     # create database
     origin_size_key = 0
