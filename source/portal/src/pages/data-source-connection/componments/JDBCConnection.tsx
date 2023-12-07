@@ -85,7 +85,8 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
     import: importOriginalData,
     new: newOriginalData,
   });
-  const [disabled, setDisabled] = useState(true);
+  const [loadingImport, setLoadingImport] = useState(false);
+  const [disabled, setDisabled] = useState(false);
   const [credentialType, setCredentialType] = useState('secret_manager');
   const [secretOption, setSecretOption] = useState([] as any);
   const [vpcOption, setVpcOption] = useState([] as any);
@@ -326,6 +327,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
   };
 
   const addJdbcConnection = async () => {
+    setLoadingImport(true);
     if (jdbcConnectionData.createType === 'import') {
       try {
         await importGlueConnection(jdbcConnectionData.import);
@@ -343,6 +345,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
         alertMsg(error + '', 'error');
       }
     }
+    setLoadingImport(false);
   };
 
   const changeConnectionName = (detail: any) => {
@@ -525,6 +528,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                 {t('button.cancel')}
               </Button>
               <Button
+                loading={loadingImport}
                 variant="primary"
                 disabled={disabled}
                 onClick={() => {

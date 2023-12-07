@@ -175,7 +175,7 @@ export const INIT_JOB_DATA: IJobType = {
   databases: [],
   templateObj: DEFAULT_TEMPLATE,
   scanFrequencyObj: SCAN_FREQUENCY[0],
-  scanDepthObj: SCAN_DEPTH_OPTIONS[0],
+  scanDepthObj: SCAN_DEPTH_OPTIONS[3],
   scanUnstructuredDepthObj: SCAN_UNSTRUCTURED_DEPTH_OPTIONS[0],
   scanRangeObj: SCAN_RANGE_OPTIONS[0],
   detectionThresholdObj: DETECTION_THRESHOLD_OPTIONS[1],

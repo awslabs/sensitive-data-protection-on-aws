@@ -348,8 +348,13 @@ export interface CombinedRDSDatabase {
 }
 
 export const SCAN_DEPTH_OPTIONS = [
+  { label: 'Sample 10 rows (test scan, fast)', value: '10' },
+  { label: 'Sample 30 rows', value: '30' },
+  { label: 'Sample 60 rows', value: '60' },
   { label: 'Sample 100 rows (regular scan, recommended)', value: '100' },
-  { label: '100', value: '100' },
+  { label: 'Sample 300 rows', value: '300' },
+  { label: 'Sample 600 rows', value: '600' },
+  { label: 'Sample 1000 rows (deep scan, slow)', value: '1000' },
 ];
 
 export const SCAN_STRUCTURED_DEPTH_OPTIONS = [
