@@ -642,6 +642,16 @@ def delete_catalog_table_level_classification_by_database_region(database: str, 
     session.commit()
 
 
+def delete_catalog_table_level_classification_by_database(database: str, region: str, type: str):
+    session = get_session()
+    session.query(models.CatalogTableLevelClassification).filter(
+        models.CatalogTableLevelClassification.database_name == database,
+        models.CatalogTableLevelClassification.database_type == type,
+        models.CatalogTableLevelClassification.region == region
+    ).delete()
+    session.commit()
+
+
 def delete_catalog_table_level_classification_by_ids(ids: list):
     session = get_session()
     session.query(models.CatalogTableLevelClassification).filter(
@@ -671,6 +681,15 @@ def delete_catalog_column_level_classification_by_database_region(database: str,
     ).delete()
     session.commit()
 
+
+def delete_catalog_column_level_classification_by_database(database: str, region: str, type: str):
+    session = get_session()
+    session.query(models.CatalogColumnLevelClassification).filter(
+        models.CatalogColumnLevelClassification.database_name == database,
+        models.CatalogColumnLevelClassification.database_type == type,
+        models.CatalogColumnLevelClassification.region == region
+    ).delete()
+    session.commit()
 
 def get_s3_database_summary():
     return (get_session()

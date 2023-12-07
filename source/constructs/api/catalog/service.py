@@ -477,10 +477,10 @@ def sync_crawler_result(
             logger.info("sync_crawler_result table_count is 0 and delete exist catalog")
             crud.delete_catalog_database_level_classification(original_database.id)
             # table need be deleted by table view ,column has no view tab can not be deleted
-            crud.delete_catalog_table_level_classification_by_database_region(original_database.database_name,
+            crud.delete_catalog_table_level_classification_by_database(original_database.database_name,
                                                                               original_database.region,
                                                                               original_database.database_type)
-            crud.delete_catalog_column_level_classification_by_database_region(original_database.database_name,
+            crud.delete_catalog_column_level_classification_by_database(original_database.database_name,
                                                                                original_database.region,
                                                                                original_database.database_type)
 
