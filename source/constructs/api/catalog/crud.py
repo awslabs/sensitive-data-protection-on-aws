@@ -772,8 +772,9 @@ def get_rds_database_summary_with_attr(database_type, attribute: str, need_merge
                          )
         table_list = get_rds_table_summary_with_attr(attribute, database_type)
         table_dict = {table["privacy"]: table["table_total"] for table in table_list}
-        row_dict = {table["privacy"]: table["row_total"] for table in table_list}
+        # row_dict = {table["privacy"]: table["row_total"] for table in table_list}
         column_list = get_rds_column_summary_with_attr(attribute, database_type)
+        row_dict = {table["privacy"]: table["row_total"] for table in column_list}
         updated_database_list = []
         for database in database_list:
             privacy = database[attribute]
@@ -783,7 +784,7 @@ def get_rds_database_summary_with_attr(database_type, attribute: str, need_merge
                 attribute: privacy,
                 "database_total": database["database_total"],
                 "instance_total": database["database_total"],
-                "row_total": database["row_total"],
+                "row_total": row_total,
                 "size_total": database["size_total"],
                 "table_total": table_total
             })
