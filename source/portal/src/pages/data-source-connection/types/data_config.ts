@@ -4,6 +4,7 @@ export const COLUMN_OBJECT_STR = {
   LastModifyAt: 'creation_date',
   Status: 'status',
   DataCatalog: 'data_catalog',
+  DataCatalogLink: 'data_catalog_link',
   RunStatus: 'run_status',
   RdsCreatedTime: 'created_time',
   AWSAccount: 'account_id',
@@ -17,6 +18,9 @@ export const COLUMN_OBJECT_STR = {
   glueDatabaseCreatedTime: 'create_time',
   glueDatabaseDescription: 'glue_database_description',
   glueDatabaseLocationUri: 'locationUri',
+  Description: 'description',
+  JDBCConnectionURL: 'jdbc_connection_url',
+  JDBCConnectionSchema: 'jdbc_connection_schema',
 };
 
 export const S3_COLUMN_LIST = [
@@ -46,6 +50,11 @@ export const S3_COLUMN_LIST = [
     filter: false,
   },
   {
+    id: COLUMN_OBJECT_STR.DataCatalogLink,
+    label: 'table.label.link',
+    filter: false,
+  },
+  {
     id: COLUMN_OBJECT_STR.LastModifyAt,
     label: 'table.label.lastUpdateAt',
     filter: false,
@@ -57,6 +66,20 @@ export const JDBC_COLUMN_LIST = [
     id: COLUMN_OBJECT_STR.JDBCInstanceName,
     label: 'table.label.jdbcInstanceName',
     filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.Description,
+    label: 'table.label.description',
+    filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.JDBCConnectionURL,
+    label: 'table.label.jdbcURL',
+    filter: true,
+  },
+  {
+    id: COLUMN_OBJECT_STR.JDBCConnectionSchema,
+    label: 'table.label.dbCount',
   },
   // {
   //   id: COLUMN_OBJECT_STR.ConnectionStatus,
@@ -71,6 +94,11 @@ export const JDBC_COLUMN_LIST = [
   {
     id: COLUMN_OBJECT_STR.DataCatalog,
     label: 'table.label.dataCatalog',
+    filter: false,
+  },
+  {
+    id: COLUMN_OBJECT_STR.DataCatalogLink,
+    label: 'table.label.link',
     filter: false,
   },
   {
@@ -112,6 +140,11 @@ export const GLUE_COLUMN_LIST = [
     filter: false,
   },
   {
+    id: COLUMN_OBJECT_STR.DataCatalogLink,
+    label: 'table.label.link',
+    filter: false,
+  },
+  {
     id: 'glue_database_create_time',
     label: 'table.label.glueDatabaseCreateTime',
     filter: true,
@@ -147,6 +180,11 @@ export const RDS_COLUMN_LIST = [
   {
     id: 'data_catalog',
     label: 'table.label.dataCatalog',
+    filter: false,
+  },
+  {
+    id: COLUMN_OBJECT_STR.DataCatalogLink,
+    label: 'table.label.link',
     filter: false,
   },
   {

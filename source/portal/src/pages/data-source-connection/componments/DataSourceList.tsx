@@ -212,21 +212,21 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         },
         {
           text: t('button.deleteDataSource'),
-          id: 'delete_ds',
+          id: 'disconnect_dc',
           disabled:
             tagType === DATA_TYPE_ENUM.rds || selectedItems.length === 0,
         },
-        {
-          text: t('button.deleteDataSourceOnly'),
-          id: 'delete_dc',
-          disabled:
-            tagType !== DATA_TYPE_ENUM.jdbc && tagType !== DATA_TYPE_ENUM.glue,
-        },
-        {
-          text: t('button.disconnectDeleteCatalog'),
-          id: 'disconnect_dc',
-          disabled: selectedItems.length === 0,
-        },
+        // {
+        //   text: t('button.deleteDataSourceOnly'),
+        //   id: 'delete_dc',
+        //   disabled:
+        //     tagType !== DATA_TYPE_ENUM.jdbc && tagType !== DATA_TYPE_ENUM.glue,
+        // },
+        // {
+        //   text: t('button.disconnectDeleteCatalog'),
+        //   id: 'disconnect_dc',
+        //   disabled: selectedItems.length === 0,
+        // },
       ];
     }
 
@@ -749,7 +749,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                     );
                   }
                 }
-                if (item.id === COLUMN_OBJECT_STR.DataCatalog) {
+                if (item.id === COLUMN_OBJECT_STR.DataCatalogLink) {
                   return (
                     <DataSourceCatalog
                       glueState={e.glue_state}
@@ -762,6 +762,16 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                       }
                       catalogType={tagType}
                     />
+                  );
+                }
+                if (item.id === COLUMN_OBJECT_STR.DataCatalog) {
+                  return (
+                    <div className="wrap-line">
+                      {(e as any)[COLUMN_OBJECT_STR.Buckets] ||
+                        (e as any)[COLUMN_OBJECT_STR.RDSInstances] ||
+                        (e as any)[COLUMN_OBJECT_STR.JDBCInstanceName] ||
+                        (e as any)[COLUMN_OBJECT_STR.GlueConnectionName]}
+                    </div>
                   );
                   // if (e.glue_state !== 'ACTIVE') {
                   //   return '-';
@@ -785,16 +795,22 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                   // );
                 }
                 if (item.id === COLUMN_OBJECT_STR.JDBCInstanceName) {
-                  return e.instance_id;
+                  return <div className="wrap-line">{e.instance_id}</div>;
                 }
                 if (item.id === COLUMN_OBJECT_STR.ConnectionStatus) {
                   // if(e.connection_status === 'Connected') return 'Connected'
-                  return e.connection_status == null
-                    ? '-'
-                    : e.connection_status;
+                  return (
+                    <div className="wrap-line">
+                      {e.connection_status == null ? '-' : e.connection_status}
+                    </div>
+                  );
                 }
                 if (item.id === COLUMN_OBJECT_STR.GlueConnectionName) {
-                  return e.glue_database_name || '-';
+                  return (
+                    <div className="wrap-line">
+                      {e.glue_database_name || '-'}
+                    </div>
+                  );
                 }
                 if (item.id === COLUMN_OBJECT_STR.LastConnectionTime) {
                   if (e.glue_crawler_last_updated == null) {
@@ -803,15 +819,30 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                   return e.glue_crawler_last_updated.replace('T', ' ');
                 }
                 if (item.id === COLUMN_OBJECT_STR.JDBCConnectionName) {
-                  return e.glue_connection || '-';
+                  return (
+                    <div className="wrap-line">{e.glue_connection || '-'}</div>
+                  );
                 }
                 if (item.id === COLUMN_OBJECT_STR.glueDatabaseDescription) {
-                  return e.glue_database_description || '-';
+                  return (
+                    <div className="wrap-line">
+                      {e.glue_database_description || '-'}
+                    </div>
+                  );
                 }
                 if (item.id === COLUMN_OBJECT_STR.glueDatabaseLocationUri) {
-                  return e.glue_database_location_uri || '-';
+                  return (
+                    <div className="wrap-line">
+                      {e.glue_database_location_uri || '-'}
+                    </div>
+                  );
                 }
-                return (e as any)[item.id];
+                if (item.id === COLUMN_OBJECT_STR.JDBCConnectionSchema) {
+                  return (e as any)[item.id]?.trim()?.split('\n')?.length ?? 0;
+                }
+                return (
+                  <div className="wrap-line">{(e as any)[item.id] || '-'}</div>
+                );
               },
               minWidth:
                 item.id === COLUMN_OBJECT_STR.Status ||
@@ -872,7 +903,9 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                     disabled={isLoading || selectedItems.length === 0}
                     onClick={clkConnected}
                   >
-                    {t('button.connect')}
+                    {tagType === DATA_TYPE_ENUM.s3
+                      ? t('button.authorize')
+                      : t('button.connect')}
                   </Button>
                   <ButtonDropdown
                     onItemClick={({ detail }) => {

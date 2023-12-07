@@ -57,7 +57,7 @@ type connectionType = {
   jdbc_driver_jar_uri: string;
 };
 
-let tempOptList:any[]=[]
+let tempOptList: any[] = [];
 
 const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
   props: JDBCConnectionProps
@@ -209,8 +209,8 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
   const changeDatabase = (detail: any) => {
     // console.log(detail)
     setJdbcConnectionData({
-        ...jdbcConnectionData,
-        jdbc_connection_schema: detail,
+      ...jdbcConnectionData,
+      jdbc_connection_schema: detail,
     });
   };
 
@@ -295,7 +295,8 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
         instance_id: props.instanceId,
         description: res['Description'],
         jdbc_connection_url: res['ConnectionProperties']['JDBC_CONNECTION_URL'],
-        jdbc_connection_schema: res['ConnectionProperties']['JDBC_CONNECTION_SCHEMA'],
+        jdbc_connection_schema:
+          res['ConnectionProperties']['JDBC_CONNECTION_SCHEMA'],
         jdbc_enforce_ssl: res['ConnectionProperties']['JDBC_ENFORCE_SSL'],
         master_username: res['ConnectionProperties']['USERNAME'],
         password: res['ConnectionProperties']['PASSWORD'],
@@ -315,8 +316,10 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
         jdbc_driver_jar_uri: res['ConnectionProperties']['JDBC_DRIVER_JAR_URI'],
       });
       if (
-        (res['ConnectionProperties']['USERNAME'] == null || res['ConnectionProperties']['USERNAME'] === '') &&
-        (res['ConnectionProperties']['USERNAME'] == null || res['ConnectionProperties']['PASSWORD'] === '')
+        (res['ConnectionProperties']['USERNAME'] == null ||
+          res['ConnectionProperties']['USERNAME'] === '') &&
+        (res['ConnectionProperties']['USERNAME'] == null ||
+          res['ConnectionProperties']['PASSWORD'] === '')
       ) {
         setCredential('secret');
         const secrets = tempOptList.filter(
@@ -522,6 +525,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                   {t('datasource:jdbc.requireSSL')}
                 </Checkbox>
               </FormField>
+              {/* <>
               {jdbcConnectionData.jdbc_enforce_ssl !== 'false' && (
                 <>
                   <FormField
@@ -577,6 +581,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                   </FormField>
                 </>
               )}
+              </> */}
 
               <FormField
                 stretch
@@ -602,17 +607,17 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                   />
                 </FormField>
                 <FormField
-                    stretch
-                    label={t('datasource:jdbc.jdbcDatabase')}
-                    description={t('datasource:jdbc.jdbcDatabaseDesc')}
-                    constraintText={t('datasource:jdbc.jdbcDatabaseConstraint')}
-                  >
-                    <Textarea
-                      onChange={(e) => changeDatabase(e.detail.value)}
-                      placeholder={`crm_database\nuser_management\ninventory_management`}
-                      value={jdbcConnectionData.jdbc_connection_schema}
-                    />
-                  </FormField>
+                  stretch
+                  label={t('datasource:jdbc.jdbcDatabase')}
+                  description={t('datasource:jdbc.jdbcDatabaseDesc')}
+                  constraintText={t('datasource:jdbc.jdbcDatabaseConstraint')}
+                >
+                  <Textarea
+                    onChange={(e) => changeDatabase(e.detail.value)}
+                    placeholder={`crm_database\nuser_management\ninventory_management`}
+                    value={jdbcConnectionData.jdbc_connection_schema}
+                  />
+                </FormField>
                 <FormField
                   stretch
                   label={t('datasource:jdbc.jdbcClassName')}
@@ -648,7 +653,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                   onChange={({ detail }) => {
                     resetCredentials();
                     setCredential(detail.value);
-                    setDisabled(true)
+                    setDisabled(true);
                   }}
                   value={credential}
                   items={[

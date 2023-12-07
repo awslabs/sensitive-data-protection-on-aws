@@ -24,7 +24,7 @@ const Charts: React.FC<ChartsProps> = (props: ChartsProps) => {
           {t('summary:toSeeJobDetail')}
         </div>
         <div style={{ width: 350 }}>
-          <RegionSelector currentProvider={currentProvider} />
+          {/* <RegionSelector currentProvider={currentProvider} /> */}
         </div>
       </div>
 

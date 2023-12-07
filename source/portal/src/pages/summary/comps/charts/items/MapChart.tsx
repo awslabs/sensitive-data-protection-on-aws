@@ -133,9 +133,9 @@ const MapChart: React.FC<MapChartProps> = (props: MapChartProps) => {
                     setShowPopover(show);
                   }}
                   markerMouseover={(e) => {
-                    const { x, y } = relativeCoords(e);
-                    setPopoverTop(y);
-                    setPopoverLeft(x);
+                    // const { x, y } = relativeCoords(e);
+                    // setPopoverTop(y);
+                    // setPopoverLeft(x);
                   }}
                 />
               )

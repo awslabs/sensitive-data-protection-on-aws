@@ -57,7 +57,7 @@ const AdvancedSettings: React.FC<AdvancedSettingsProps> = (
         <Grid gridDefinition={[{ colspan: 6 }, { colspan: 6 }]}>
           <RuleKeywords
             title={t('job:create.excludeKeywords')}
-            placeholder={`.xml\n.abc\n.ddl`}
+            placeholder={`keyword1\nkeyword2\nkeyword3`}
             enabled={jobData.excludeKeyWordsEnable}
             changeEnable={(enable) => {
               changeExcludeKeywordEnable(enable);
