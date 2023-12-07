@@ -488,7 +488,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                 </Button>
                 <Button
                   variant="primary"
-                  disabled={disabled}
+                  // disabled={disabled}
                   onClick={() => {
                     updateJdbcConnection();
                   }}
