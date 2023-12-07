@@ -478,11 +478,11 @@ def sync_crawler_result(
             crud.delete_catalog_database_level_classification(original_database.id)
             # table need be deleted by table view ,column has no view tab can not be deleted
             crud.delete_catalog_table_level_classification_by_database(original_database.database_name,
-                                                                              original_database.region,
-                                                                              original_database.database_type)
+                                                                       original_database.region,
+                                                                       original_database.database_type)
             crud.delete_catalog_column_level_classification_by_database(original_database.database_name,
-                                                                               original_database.region,
-                                                                               original_database.database_type)
+                                                                        original_database.region,
+                                                                        original_database.database_type)
 
     # create database
     origin_size_key = 0
