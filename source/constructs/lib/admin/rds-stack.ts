@@ -149,7 +149,7 @@ export class RdsStack extends Construct {
       handler: 'init_db.lambda_handler',
       code: Code.fromAsset(path.join(__dirname, './database')),
       memorySize: 1024,
-      timeout: Duration.minutes(1),
+      timeout: Duration.minutes(2),
       vpcSubnets: props.vpc.selectSubnets({
         subnetType: SubnetType.PRIVATE_WITH_EGRESS,
       }),
