@@ -530,7 +530,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
               <Button
                 loading={loadingImport}
                 variant="primary"
-                disabled={disabled}
+                // disabled={disabled}
                 onClick={() => {
                   addJdbcConnection();
                 }}
