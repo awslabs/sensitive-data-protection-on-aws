@@ -179,7 +179,7 @@
       "awsAccount": "账户",
       "awsRegion": "区域",
       "instanceName": "实例名称",
-      "connectionName": "连接名",
+      "connectionName": "实例名称",
       "jdbcTableName": "表名",
       "tables": "数据表",
       "operate": "操作",

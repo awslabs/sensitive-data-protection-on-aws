@@ -179,7 +179,7 @@
       "awsAccount": "Account",
       "awsRegion": "Region",
       "instanceName": "Instance name",
-      "connectionName": "Connection name",
+      "connectionName": "Instance name",
       "jdbcTableName": "Table name",
       "tables": "Tables",
       "operate": "Operate",

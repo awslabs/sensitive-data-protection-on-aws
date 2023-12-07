@@ -566,6 +566,48 @@ export const RDS_COLUMN_LIST: ColumnList[] = [
   },
 ];
 
+export const JDBC_COLUMN_LIST: ColumnList[] = [
+  {
+    id: COLUMN_OBJECT_STR.DatabaseName,
+    label: 'table.label.instanceName',
+    sortingField: COLUMN_OBJECT_STR.DatabaseName,
+  },
+  {
+    id: COLUMN_OBJECT_STR.TableCount,
+    label: 'table.label.table',
+    sortingField: COLUMN_OBJECT_STR.TableCount,
+  },
+  {
+    id: COLUMN_OBJECT_STR.Privacy,
+    label: 'table.label.privacy',
+    sortingField: COLUMN_OBJECT_STR.Privacy,
+  },
+  {
+    id: COLUMN_OBJECT_STR.AccountId,
+    label: 'table.label.awsAccount',
+    sortingField: COLUMN_OBJECT_STR.AccountId,
+  },
+  {
+    id: COLUMN_OBJECT_STR.Region,
+    label: 'table.label.awsRegion',
+    sortingField: COLUMN_OBJECT_STR.Region,
+  },
+  {
+    id: 'labels',
+    label: 'table.label.catalogLabels',
+  },
+  {
+    id: COLUMN_OBJECT_STR.LastModifyAt,
+    label: 'table.label.lastUpdateAt',
+    sortingField: COLUMN_OBJECT_STR.LastModifyAt,
+  },
+  {
+    id: COLUMN_OBJECT_STR.LastModifyBy,
+    label: 'table.label.lastUpdateBy',
+    sortingField: COLUMN_OBJECT_STR.LastModifyBy,
+  },
+];
+
 export const TABLES_COLUMN = [
   {
     id: COLUMN_OBJECT_STR.FolderName,

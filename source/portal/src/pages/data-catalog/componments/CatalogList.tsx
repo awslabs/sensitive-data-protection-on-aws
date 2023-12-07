@@ -27,6 +27,7 @@ import {
   COLUMN_WIDTH,
   TABLE_COLUMN,
   CATALOG_TABLE_FILTER_COLUMN,
+  JDBC_COLUMN_LIST,
 } from '../types/data_config';
 import {
   DATA_TYPE_ENUM,
@@ -342,6 +343,7 @@ const CatalogList: React.FC<any> = memo((props: any) => {
   };
 
   useEffect(() => {
+    setCurrentPage(1);
     if (catalogType === DATA_TYPE_ENUM.s3) {
       setColumnList(S3_COLUMN_LIST);
       setFilterColumns(S3_FILTER_COLUMN);
@@ -360,13 +362,13 @@ const CatalogList: React.FC<any> = memo((props: any) => {
         setColumnList(RDS_FOLDER_COLUMS);
         setFilterColumns(CATALOG_TABLE_FILTER_COLUMN);
       } else {
-        setColumnList(RDS_COLUMN_LIST);
+        setColumnList(JDBC_COLUMN_LIST);
         setFilterColumns(RDS_FILTER_COLUMN);
       }
     }
     if (catalogType.startsWith('jdbc')) {
       if (jdbcSelectedView === JDBC_VIEW.JDBC_INSTANCE_VIEW) {
-        setColumnList(RDS_COLUMN_LIST);
+        setColumnList(JDBC_COLUMN_LIST);
         setFilterColumns(RDS_FILTER_COLUMN);
       } else {
         setColumnList(TABLE_COLUMN);

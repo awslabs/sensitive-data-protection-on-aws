@@ -109,8 +109,9 @@ export const getJDBCTypeByProviderId = (providerId: number) => {
   }
 };
 
-export const getSourceTypeByProvider = (providerId: string) => {
-  switch (providerId) {
+export const getSourceTypeByProvider = (providerId: string | number) => {
+  const providerIdStr = providerId.toString();
+  switch (providerIdStr) {
     case '1':
       return [
         {
@@ -141,13 +142,13 @@ export const getSourceTypeByProvider = (providerId: string) => {
           value: SOURCE_TYPE.JDBC_GOOGLE,
         },
       ];
-      case '4':
-        return [
-          {
-            label: 'Custom databases',
-            value: SOURCE_TYPE.JDBC_PROXY,
-          },
-        ];
+    case '4':
+      return [
+        {
+          label: 'Custom databases',
+          value: SOURCE_TYPE.JDBC_PROXY,
+        },
+      ];
     default:
       return [];
   }

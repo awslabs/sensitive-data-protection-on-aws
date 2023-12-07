@@ -171,6 +171,7 @@ const SelectRDSCatalog: React.FC<SelectRDSCatalogProps> = (
   }, [selectedRdsItems]);
 
   useEffect(() => {
+    setCurrentPage(1);
     setSelectedRdsItems([]);
   }, [jobData.rdsSelectedView]);
 

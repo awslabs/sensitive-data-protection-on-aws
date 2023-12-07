@@ -178,6 +178,7 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
   }, [selectedJdbcItems]);
 
   useEffect(() => {
+    setCurrentPage(1);
     setSelectedJdbcItems([]);
   }, [jobData.jdbcSelectedView]);
 
@@ -191,6 +192,7 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
           value={jobData.all_jdbc}
           items={[
             {
+              disabled: true,
               label: t('job:cataLogOption.all'),
               value: '1',
             },
