@@ -266,7 +266,7 @@ def update_prop(id: int, prop: schemas.TemplateIdentifierProp):
     return snapshot_no, get_identifier(id)
 
 
-def get_refs_by_prop(ids: str):
+def get_refs_by_prop(id:int):
 
     return get_session().query(models.TemplateIdentifierPropRef).filter(
-        models.TemplateIdentifierPropRef.prop_id in ids.split(",")).all()
+        models.TemplateIdentifierPropRef.prop_id == id).all()

@@ -630,7 +630,9 @@ def get_rds_table_sample_records(
     i = 0
     for col in column_list:
         sample_values = col.column_value_example
-        value_list = sample_values.split("|")
+        value_list = []
+        if sample_values:
+            value_list = sample_values.split("|")
         # To avoid sample value not enough to CATALOG_SAMPLE_ITEM_COUNT
         if len(value_list) < const.CATALOG_SAMPLE_ITEM_COUNT:
             for n in range(len(value_list), const.CATALOG_SAMPLE_ITEM_COUNT):
