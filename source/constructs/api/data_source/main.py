@@ -352,10 +352,6 @@ def test_jdbc_conn(jdbc_conn_param: schemas.JDBCInstanceSourceBase):
 def get_data_location_list():
     return service.list_data_location()
 
-# @router.get("/dashboard/test_insert", response_model=BaseResponse)
-# @inject_session
-# def test_insert():
-#     return crud.test_insert()
 
 @router.get("/query-regions-by-provider", response_model=BaseResponse)
 @inject_session
