@@ -397,3 +397,10 @@ class DataLocationInfo(BaseModel):
     coordinate: Optional[str]
     region_alias: Optional[str]
     provider_id: Optional[int]
+
+
+class JdbcSource(BaseModel):
+    connection_url: str
+    username: Optional[str]
+    password: Optional[str]
+    secret_id: Optional[str]

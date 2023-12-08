@@ -382,3 +382,9 @@ def list_buckets(account: schemas.AccountInfo):
 @inject_session
 def query_connection_detail(account: schemas.JDBCInstanceSourceBase):
     return service.query_connection_detail(account)
+
+
+@router.post("/jdbc-databases", response_model=BaseResponse[list[str]])
+@inject_session
+def list_jdbc_databases(source: schemas.JdbcSource):
+    return service.list_jdbc_databases(source)
