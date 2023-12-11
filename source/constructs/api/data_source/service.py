@@ -1,5 +1,4 @@
 import json
-import logging
 import os
 import re
 import time
@@ -28,7 +27,7 @@ from db.models_data_source import (Account,
 from discovery_job.service import can_delete_database as can_delete_job_database
 from discovery_job.service import delete_account as delete_job_by_account
 from discovery_job.service import delete_database as delete_job_database
-from . import s3_detector, rds_detector, glue_database_detector, jdbc_detector, crud
+from . import s3_detector, rds_detector, glue_database_detector, jdbc_detector, crud, jdbc_database
 from .schemas import (AccountInfo, AdminAccountInfo,
                       JDBCInstanceSource, JDBCInstanceSourceUpdate,
                       ProviderResourceFullInfo, SourceNewAccount, SourceRegion,
@@ -38,7 +37,8 @@ from .schemas import (AccountInfo, AdminAccountInfo,
                       JDBCInstanceSourceUpdateBase,
                       DataLocationInfo,
                       JDBCInstanceSourceBase,
-                      JDBCInstanceSourceFullInfo)
+                      JDBCInstanceSourceFullInfo,
+                      JdbcSource)
 from common.reference_parameter import logger, admin_account_id, admin_region, partition
 
 SLEEP_TIME = 5
@@ -2626,3 +2626,24 @@ def __get_excludes_file_exts():
     extensions = list(set([ext for extensions_list in const.UNSTRUCTURED_FILES.values() for ext in extensions_list]))
     return ["*.{" + ",".join(extensions) + "}"]
 
+
+def list_jdbc_databases(source: JdbcSource) -> list[str]:
+    url_arr = source.connection_url.split(":")
+    if len(url_arr) != 4:
+        raise BizException(MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_code(), MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_msg())
+    if url_arr[1] != "mysql":
+        raise BizException(MessageEnum.SOURCE_JDBC_LIST_DATABASES_NOT_SUPPORTED.get_code(), MessageEnum.SOURCE_JDBC_LIST_DATABASES_NOT_SUPPORTED.get_msg())
+    host = url_arr[2][2:]
+    port = int(url_arr[3].split("/")[0])
+    user = source.username
+    password = source.password
+    if source.secret_id:
+        secrets_client = boto3.client('secretsmanager')
+        secret_response = secrets_client.get_secret_value(SecretId=source.secret_id)
+        secrets = json.loads(secret_response['SecretString'])
+        user = secrets['username']
+        password = secrets['password']
+    mysql_database = jdbc_database.MySQLDatabase(host, port, user, password)
+    databases = mysql_database.list_databases()
+    logger.info(databases)
+    return databases

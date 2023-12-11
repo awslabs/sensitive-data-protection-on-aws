@@ -104,14 +104,14 @@ def get_running_run(job_id: int) -> models.DiscoveryJobRun:
     return db_run
 
 
-def __add_job_databases(run: models.DiscoveryJobRun, database_type: DatabaseType, base_time_dict: dict):
-    databases = get_catalog_database_level_classification_by_type_all(database_type.value).all()
+def __add_job_databases(run: models.DiscoveryJobRun, database_type: str, base_time_dict: dict):
+    databases = get_catalog_database_level_classification_by_type_all(database_type).all()
     for database in databases:
-        base_time = base_time_dict.get(f'{database.account_id}-{database.region}-{database_type.value}-{database.database_name}')
+        base_time = base_time_dict.get(f'{database.account_id}-{database.region}-{database_type}-{database.database_name}')
         run_database = models.DiscoveryJobRunDatabase(run_id=run.id,
                                                       account_id=database.account_id,
                                                       region=database.region,
-                                                      database_type=database_type.value,
+                                                      database_type=database_type,
                                                       database_name=database.database_name,
                                                       base_time=base_time,
                                                       state=RunDatabaseState.READY.value,
@@ -155,17 +155,17 @@ def init_run(job_id: int) -> int:
                                  state=RunState.RUNNING.value)
     run.databases = []
     if job.all_rds == 1:
-        __add_job_databases(run, DatabaseType.RDS, base_time_dict)
+        __add_job_databases(run, DatabaseType.RDS.value, base_time_dict)
     if job.all_s3 == 1:
-        __add_job_databases(run, DatabaseType.S3, base_time_dict)
+        __add_job_databases(run, DatabaseType.S3.value, base_time_dict)
     if job.all_ddb == 1:
-        __add_job_databases(run, DatabaseType.DDB, base_time_dict)
+        __add_job_databases(run, DatabaseType.DDB.value, base_time_dict)
     if job.all_emr == 1:
-        __add_job_databases(run, DatabaseType.EMR, base_time_dict)
+        __add_job_databases(run, DatabaseType.EMR.value, base_time_dict)
     if job.all_glue == 1:
-        __add_job_databases(run, DatabaseType.GLUE, base_time_dict)
+        __add_job_databases(run, DatabaseType.GLUE.value, base_time_dict)
     if job.all_jdbc == 1:
-        __add_job_databases(run, DatabaseType.JDBC, base_time_dict)
+        __add_job_databases(run, job.database_type, base_time_dict)
     for job_database in job_databases:
         if is_empty(job_database.database_name) and is_empty(job_database.table_name):
             catalog_databases = get_catalog_database_level_classification_by_params(job_database.account_id,job_database.region,job_database.database_type,ConnectionState.ACTIVE.value).all()

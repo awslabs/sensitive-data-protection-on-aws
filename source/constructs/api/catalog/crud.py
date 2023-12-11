@@ -67,6 +67,18 @@ def get_catalog_column_level_classification_by_table(
     return result
 
 
+def get_catalog_column_level_classification_by_type(
+        database_type: str
+):
+    result = (
+        get_session()
+        .query(models.CatalogColumnLevelClassification)
+        .filter(models.CatalogColumnLevelClassification.database_type == database_type)
+        .order_by(models.CatalogColumnLevelClassification.column_order_num)
+    )
+    return result
+
+
 def get_catalog_column_level_classification_by_name(
         account_id: str,
         region: str,
@@ -642,6 +654,16 @@ def delete_catalog_table_level_classification_by_database_region(database: str, 
     session.commit()
 
 
+def delete_catalog_table_level_classification_by_database(database: str, region: str, type: str):
+    session = get_session()
+    session.query(models.CatalogTableLevelClassification).filter(
+        models.CatalogTableLevelClassification.database_name == database,
+        models.CatalogTableLevelClassification.database_type == type,
+        models.CatalogTableLevelClassification.region == region
+    ).delete()
+    session.commit()
+
+
 def delete_catalog_table_level_classification_by_ids(ids: list):
     session = get_session()
     session.query(models.CatalogTableLevelClassification).filter(
@@ -672,6 +694,15 @@ def delete_catalog_column_level_classification_by_database_region(database: str,
     session.commit()
 
 
+def delete_catalog_column_level_classification_by_database(database: str, region: str, type: str):
+    session = get_session()
+    session.query(models.CatalogColumnLevelClassification).filter(
+        models.CatalogColumnLevelClassification.database_name == database,
+        models.CatalogColumnLevelClassification.database_type == type,
+        models.CatalogColumnLevelClassification.region == region
+    ).delete()
+    session.commit()
+
 def get_s3_database_summary():
     return (get_session()
             .query(
@@ -685,9 +716,9 @@ def get_s3_database_summary():
 
 def get_rds_column_summary(database_type: str):
     return (get_session()
-            .query(func.count(distinct(models.CatalogColumnLevelClassification.database_name)).label("instance_total"),
-                   func.count(models.CatalogColumnLevelClassification.column_name).label("column_total"))
-            .filter(models.CatalogColumnLevelClassification.database_type == database_type)
+            .query(func.count(distinct(models.CatalogDatabaseLevelClassification.database_name)).label("instance_total"),
+                   func.sum(models.CatalogDatabaseLevelClassification.column_count).label("column_total"))
+            .filter(models.CatalogDatabaseLevelClassification.database_type == database_type)
             .all()
             )
 
@@ -745,20 +776,22 @@ def get_rds_database_summary_with_attr(database_type, attribute: str, need_merge
                                     "database_total"),
                                 func.sum(models.CatalogDatabaseLevelClassification.object_count).label("object_total"),
                                 func.sum(models.CatalogDatabaseLevelClassification.size_key).label("size_total"),
-                                func.sum(models.CatalogDatabaseLevelClassification.table_count).label("table_total"))
+                                func.sum(models.CatalogDatabaseLevelClassification.table_count).label("table_total"),
+                                func.sum(models.CatalogDatabaseLevelClassification.column_count).label("row_total"))
                          .filter(models.CatalogDatabaseLevelClassification.database_type == database_type)
                          .group_by(getattr(models.CatalogDatabaseLevelClassification, attribute))
                          .all()
                          )
-        table_list = get_rds_table_summary_with_attr(attribute)
+        table_list = get_rds_table_summary_with_attr(attribute, database_type)
         table_dict = {table["privacy"]: table["table_total"] for table in table_list}
-        column_list = get_rds_column_summary_with_attr(attribute)
-        column_dict = {column["privacy"]: column["row_total"] for column in column_list}
+        # row_dict = {table["privacy"]: table["row_total"] for table in table_list}
+        column_list = get_rds_column_summary_with_attr(attribute, database_type)
+        row_dict = {table["privacy"]: table["row_total"] for table in column_list}
         updated_database_list = []
         for database in database_list:
             privacy = database[attribute]
             table_total = table_dict.get(privacy, 0)
-            row_total = column_dict.get(privacy, 0)
+            row_total = row_dict.get(privacy, 0)
             updated_database_list.append({
                 attribute: privacy,
                 "database_total": database["database_total"],
@@ -770,14 +803,15 @@ def get_rds_database_summary_with_attr(database_type, attribute: str, need_merge
         for entry in table_list:
             privacy = entry["privacy"]
             if privacy not in [item[attribute] for item in updated_database_list]:
-                row_total = column_dict.get(privacy, 0)
+                row_total = row_dict.get(privacy, 0)
+                table_total = table_dict.get(privacy, 0)
                 updated_database_list.append({
                     attribute: privacy,
                     "database_total": 0,
                     "instance_total": 0,
                     "row_total": row_total,
                     "size_total": 0,
-                    "table_total": entry["table_total"]
+                    "table_total": table_total
                 })
 
         for entry in column_list:
@@ -827,7 +861,6 @@ def get_s3_database_summary_with_attr(database_type, attribute: str, need_merge:
         obj_dict = {table["privacy"]: table["object_count"] for table in table_list}
         size_dict = {table["privacy"]: table["size_key"] for table in table_list}
         column_list = get_s3_object_summary_with_attr(attribute)
-        column_dict = {column["privacy"]: column["object_total"] for column in column_list}
         updated_database_list = []
         for database in database_list:
             privacy = database[attribute]
@@ -884,11 +917,14 @@ def get_s3_database_summary_with_attr(database_type, attribute: str, need_merge:
                 )
 
 
-def get_rds_table_summary_with_attr(attribute: str):
+def get_rds_table_summary_with_attr(attribute: str, database_type: str):
     return (get_session()
             .query(getattr(models.CatalogTableLevelClassification, attribute),
-                   func.count(models.CatalogTableLevelClassification.table_name).label("table_total"))
-            .filter(models.CatalogTableLevelClassification.database_type == DatabaseType.RDS.value)
+                   func.count(models.CatalogTableLevelClassification.table_name).label("table_total"),
+                   # func.sum(models.CatalogTableLevelClassification.object_count).label("object_count"),
+                   func.sum(models.CatalogTableLevelClassification.column_count).label("row_total"),
+                   func.sum(models.CatalogTableLevelClassification.size_key).label("size_key"))
+            .filter(models.CatalogTableLevelClassification.database_type == database_type)
             .group_by(getattr(models.CatalogTableLevelClassification, attribute))
             .all()
             )
@@ -907,12 +943,12 @@ def get_s3_folder_summary_with_attr(attribute: str):
             )
 
 
-def get_rds_column_summary_with_attr(attribute: str):
+def get_rds_column_summary_with_attr(attribute: str, database_type: str):
     # row_total -> column_total
     return (get_session()
             .query(getattr(models.CatalogColumnLevelClassification, attribute),
                    func.count(models.CatalogColumnLevelClassification.column_name).label("row_total"))
-            .filter(models.CatalogColumnLevelClassification.database_type == DatabaseType.RDS.value)
+            .filter(models.CatalogColumnLevelClassification.database_type == database_type)
             .group_by(getattr(models.CatalogColumnLevelClassification, attribute))
             .all()
             )
