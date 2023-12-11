@@ -1,5 +1,4 @@
 import json
-import logging
 import os
 import re
 import time
@@ -28,7 +27,7 @@ from db.models_data_source import (Account,
 from discovery_job.service import can_delete_database as can_delete_job_database
 from discovery_job.service import delete_account as delete_job_by_account
 from discovery_job.service import delete_database as delete_job_database
-from . import s3_detector, rds_detector, glue_database_detector, jdbc_detector, crud
+from . import s3_detector, rds_detector, glue_database_detector, jdbc_detector, crud, jdbc_database
 from .schemas import (AccountInfo, AdminAccountInfo,
                       JDBCInstanceSource, JDBCInstanceSourceUpdate,
                       ProviderResourceFullInfo, SourceNewAccount, SourceRegion,
@@ -38,7 +37,8 @@ from .schemas import (AccountInfo, AdminAccountInfo,
                       JDBCInstanceSourceUpdateBase,
                       DataLocationInfo,
                       JDBCInstanceSourceBase,
-                      JDBCInstanceSourceFullInfo)
+                      JDBCInstanceSourceFullInfo,
+                      JdbcSource)
 from common.reference_parameter import logger, admin_account_id, admin_region, partition
 
 SLEEP_TIME = 5
@@ -1972,19 +1972,26 @@ def import_jdbc_conn(jdbc_conn: JDBCInstanceSourceBase):
     # jdbc_conn_insert.connection_status = 'UNCONNECTED'
     jdbc_conn_insert.glue_connection = jdbc_conn.instance_id
     jdbc_conn_insert.create_type = JDBCCreateType.IMPORT.value
-    jdbc_conn_insert.description = res_connection['Description']
-    jdbc_conn_insert.jdbc_connection_url = res_connection['ConnectionProperties']['JDBC_CONNECTION_URL']
-    jdbc_conn_insert.jdbc_enforce_ssl = res_connection['ConnectionProperties']['JDBC_ENFORCE_SSL']
-    # jdbc_conn_insert.kafka_ssl_enabled = res_connection['ConnectionProperties']['KAFKA_SSL_ENABLED']
-    if 'USERNAME' in res_connection['ConnectionProperties']:
-        jdbc_conn_insert.master_username = res_connection['ConnectionProperties']['USERNAME']
+    if 'Description' in res_connection:
+        jdbc_conn_insert.description = res_connection['Description']
+    if 'ConnectionProperties' in res_connection:
+        if 'JDBC_CONNECTION_URL' in res_connection['ConnectionProperties']:
+            jdbc_conn_insert.jdbc_connection_url = res_connection['ConnectionProperties']['JDBC_CONNECTION_URL']
+        if 'JDBC_ENFORCE_SSL' in res_connection['ConnectionProperties']:
+            jdbc_conn_insert.jdbc_enforce_ssl = res_connection['ConnectionProperties']['JDBC_ENFORCE_SSL']
+        # jdbc_conn_insert.kafka_ssl_enabled = res_connection['ConnectionProperties']['KAFKA_SSL_ENABLED']
+        if 'USERNAME' in res_connection['ConnectionProperties']:
+            jdbc_conn_insert.master_username = res_connection['ConnectionProperties']['USERNAME']
     # jdbc_conn_insert.skip_custom_jdbc_cert_validation = res_connection['Description']
     # jdbc_conn_insert.custom_jdbc_cert = res_connection['Description']
     # jdbc_conn_insert.custom_jdbc_cert_string = res_connection['Description']
     if 'PhysicalConnectionRequirements' in res_connection:
-        jdbc_conn_insert.network_availability_zone = res_connection['PhysicalConnectionRequirements']['AvailabilityZone']
-        jdbc_conn_insert.network_subnet_id = res_connection['PhysicalConnectionRequirements']['SubnetId']
-        jdbc_conn_insert.network_sg_id = "|".join(res_connection['PhysicalConnectionRequirements']['SecurityGroupIdList'])
+        if 'AvailabilityZone' in res_connection['PhysicalConnectionRequirements']:
+            jdbc_conn_insert.network_availability_zone = res_connection['PhysicalConnectionRequirements']['AvailabilityZone']
+        if 'SubnetId' in res_connection['PhysicalConnectionRequirements']:
+            jdbc_conn_insert.network_subnet_id = res_connection['PhysicalConnectionRequirements']['SubnetId']
+        if 'SecurityGroupIdList' in res_connection['PhysicalConnectionRequirements']:
+            jdbc_conn_insert.network_sg_id = "|".join(res_connection['PhysicalConnectionRequirements']['SecurityGroupIdList'])
     jdbc_conn_insert.creation_time = res_connection['CreationTime']
     jdbc_conn_insert.last_updated_time = res_connection['LastUpdatedTime']
     # jdbc_conn_insert.jdbc_driver_class_name = res_connection['Description']
@@ -2384,13 +2391,30 @@ def __delete_account(account_id: str, region: str):
 
 def query_glue_connections(account: AccountInfo):
     res = []
+    list = []
     account_id = account.account_id if account.account_provider_id == Provider.AWS_CLOUD.value else admin_account_id
     region = account.region if account.account_provider_id == Provider.AWS_CLOUD.value else admin_region
-    list =  __glue(account=account_id, region=region).get_connections(CatalogId=account_id,
-                                                                      Filter={'ConnectionType': 'JDBC'},
-                                                                      MaxResults=100,
-                                                                      HidePassword=True)['ConnectionList']
-    
+
+    # list = __glue(account=account_id, region=region).get_connections(CatalogId=account_id,
+    #                                                                   Filter={'ConnectionType': 'JDBC'},
+    #                                                                   MaxResults=100,
+    #                                                                   HidePassword=True)['ConnectionList']
+
+    next_token = ""
+
+    while True:
+        response = __glue(account=account_id, region=region).get_connections(
+            CatalogId=account_id,
+            Filter={'ConnectionType': 'JDBC'},
+            HidePassword=True,
+            NextToken=next_token,
+        )
+        current_connections = response['ConnectionList']
+        list.extend(current_connections)
+        next_token = response.get('NextToken')
+
+        if not next_token:
+            break
     jdbc_list = query_jdbc_connections_sub_info()
     jdbc_dict = {item[0]:f"{convert_provider_id_2_name(item[1])}-{item[2]}" for item in jdbc_list}
     for item in list:
@@ -2399,7 +2423,7 @@ def query_glue_connections(account: AccountInfo):
                 item['usedBy'] = jdbc_dict[item['Name']]
             res.append(item)
     return res
-    
+
 def query_jdbc_connections_sub_info():
     return crud.query_jdbc_connections_sub_info()
 
@@ -2616,3 +2640,24 @@ def __get_excludes_file_exts():
     extensions = list(set([ext for extensions_list in const.UNSTRUCTURED_FILES.values() for ext in extensions_list]))
     return ["*.{" + ",".join(extensions) + "}"]
 
+
+def list_jdbc_databases(source: JdbcSource) -> list[str]:
+    url_arr = source.connection_url.split(":")
+    if len(url_arr) != 4:
+        raise BizException(MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_code(), MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_msg())
+    if url_arr[1] != "mysql":
+        raise BizException(MessageEnum.SOURCE_JDBC_LIST_DATABASES_NOT_SUPPORTED.get_code(), MessageEnum.SOURCE_JDBC_LIST_DATABASES_NOT_SUPPORTED.get_msg())
+    host = url_arr[2][2:]
+    port = int(url_arr[3].split("/")[0])
+    user = source.username
+    password = source.password
+    if source.secret_id:
+        secrets_client = boto3.client('secretsmanager')
+        secret_response = secrets_client.get_secret_value(SecretId=source.secret_id)
+        secrets = json.loads(secret_response['SecretString'])
+        user = secrets['username']
+        password = secrets['password']
+    mysql_database = jdbc_database.MySQLDatabase(host, port, user, password)
+    databases = mysql_database.list_databases()
+    logger.info(databases)
+    return databases

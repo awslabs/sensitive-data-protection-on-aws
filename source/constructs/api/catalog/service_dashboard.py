@@ -101,7 +101,7 @@ def agg_catalog_summary_by_attr(database_type: str,  agg_attribute: str, need_me
 
 def get_catalog_summay_by_provider_region(provider_id: int, region: str):
     summy = crud.get_catalog_summay_by_provider_region(region)
-    logger.info(summy)
+    logger.debug(summy)
     from common.abilities import convert_database_type_2_provider
     database_type_list = []
     for member in DatabaseType.__members__.values():
@@ -139,7 +139,7 @@ def __get_identifier_top_n_count(data_dict: dict, template_dict: dict, n: int):
         data_list.append({'name': k, "data_source_count": len(data_dict[k]), "props": template_dict[k] if template_dict.get(k) is not None else None})
 
     top_n_list = heapq.nlargest(n, data_list, key=lambda x: x['data_source_count'])
-    logger.info(top_n_list)
+    logger.debug(top_n_list)
     return top_n_list
 
 
@@ -179,15 +179,15 @@ def agg_catalog_data_source_top_n(database_type: str, top_n: int):
     
     result_dict['account_top_n'] = __get_top_n_count(account_dict, top_n)
 
-    logger.info(identifier_dict.keys())
+    logger.debug(identifier_dict.keys())
     from template.service import get_identifiers
     template_identifier_resp = get_identifiers(QueryCondition(size=500, conditions=[
         {"values": list(identifier_dict.keys()), "column": "name", "condition": "and", "operation": "in"}])).all()
-    logger.info(template_identifier_resp)
+    logger.debug(template_identifier_resp)
     template_identifier_dict = {}
     for template_identifier in template_identifier_resp:
         template_identifier_dict[template_identifier.name] = template_identifier.props
-    logger.info(template_identifier_dict)
+    logger.debug(template_identifier_dict)
     result_dict['identifier_top_n'] = __get_identifier_top_n_count(identifier_dict, template_identifier_dict, top_n)
     return result_dict
 

@@ -121,6 +121,8 @@ class MessageEnum(Enum):
     SOURCE_JDBC_URL_FORMAT_ERROR = {1253: "JDBC URL is incorrect, please refer to https://docs.aws.amazon.com/glue/latest/dg/connection-properties.html#connection-properties-jdbc"}
     SOURCE_JDBC_JDBC_NO_DATABASE = {1254: "Database name is missing, please refer to https://docs.aws.amazon.com/glue/latest/dg/connection-properties.html#connection-properties-jdbc"}
     SOURCE_JDBC_ALREADY_IMPORTED = {1255: "JDBC connection with the same instance already be imported"}
+    SOURCE_JDBC_LIST_DATABASES_NOT_SUPPORTED = {1256: "JDBC list databases not supported."}
+    SOURCE_JDBC_LIST_DATABASES_FAILED = {1257: "JDBC list databases failed."}
     # label
     LABEL_EXIST_FAILED = {1611: "Cannot create duplicated label"}
 
