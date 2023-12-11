@@ -81,7 +81,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
     jdbc_connection_schema: '',
   };
   const [jdbcConnectionData, setJdbcConnectionData] = useState({
-    createType: 'import',
+    createType: 'new',
     import: importOriginalData,
     new: newOriginalData,
   });
