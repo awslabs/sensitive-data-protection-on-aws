@@ -214,7 +214,7 @@ export class ApiStack extends Construct {
         'ec2:DescribeSubnets',
         'ec2:DescribeNatGateways',
         'ec2:DescribeAvailabilityZones',
-
+        'secretsmanager:GetSecretValue',
       ],
       resources: ['*'],
     });
