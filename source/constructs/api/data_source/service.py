@@ -2286,9 +2286,10 @@ def __assume_role(account_id: str, role_arn: str):
             DurationSeconds=900,
         )
         return True
-    except Exception as error:
-        logger.info(traceback.format_exc())
-    return False
+    except ClientError as e:
+        if e.response['Error']['Code'] != 'AccessDenied':
+            logger.info(e)
+        return False
 
 
 def __list_rds_schema(account, region, credentials, instance_name, payload, rds_security_groups, rds_subnet_id):

@@ -35,14 +35,13 @@ class MySQLDatabase(JdbcDatabase):
 
         try:
             cursor = db.cursor()
-            sql = "show databases;"
+            sql = "show databases"
             cursor.execute(sql)
             results = cursor.fetchall()
             for row in results:
                 database = row[0]
                 if database not in self.ignored_databases:
                     databases.append(row[0])
-
             return databases
         except Exception as e:
             logger.exception(e)
