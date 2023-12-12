@@ -66,18 +66,6 @@ def on_update(event):
     logger.info("Got Update")
 
 
-def delete_role():
-    # Delete admin assumed role
-    iam = boto3.client("iam")
-    role_name = os.getenv("RoleName")
-    logger.info(f"Deleting role {role_name}")
-    try:
-        iam.delete_role(RoleName=role_name)
-    except Exception as e:
-        logger.info(f"""Error occurred while deleting role {role_name}, 
-                    this may be due to the agent stack has been deleted: {e}""")
-
-
 def notify_admin_to_delete_resources():
     sqs = boto3.client("sqs")
     caller_identity = boto3.client("sts").get_caller_identity()
@@ -102,7 +90,6 @@ def notify_admin_to_delete_resources():
 def on_delete(event):
     logger.info("Got Delete")
     notify_admin_to_delete_resources()
-    delete_role()
     crawlers = cleanup_crawlers()
     for crawler in crawlers:
         remove_crawler(crawler)
@@ -121,6 +108,9 @@ def cleanup_crawlers():
             logger.info(response_crawler)
             database_name = response_crawler['Crawler']['DatabaseName']
             remove_database(database_name)
+            if database_name.startswith(f"{solution_name}-s3-"):
+                unstructured_database_name = database_name.replace(f"{solution_name}-s3-",f"{solution_name}-unstructured-",1)
+                remove_database(unstructured_database_name)
             if len(response_crawler['Crawler']['Targets']['JdbcTargets']) == 1:
                 connection_name = response_crawler['Crawler']['Targets']['JdbcTargets'][0]['ConnectionName']
                 remove_jdbc_connection(connection_name)
@@ -133,9 +123,10 @@ def cleanup_crawlers():
     return crawlers
 
 
-def remove_database(database: str):
+def remove_database(database_name: str):
     try:
-        glue.delete_database(Name=database)
+        logger.info(f"delete glue database:{database_name}")
+        glue.delete_database(Name=database_name)
     except Exception as e:
         logger.error(e)
 

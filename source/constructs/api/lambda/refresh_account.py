@@ -1,9 +1,8 @@
 import data_source.service as service
 from db.database import gen_session, close_session
-from common.constant import const
 import logging
+from common.reference_parameter import logger
 
-logger = logging.getLogger(const.LOGGER_API)
 logger.setLevel(logging.INFO)
 
 
