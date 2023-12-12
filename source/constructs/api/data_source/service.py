@@ -1568,6 +1568,11 @@ def delete_aws_account(account_id):
 
 def delete_third_account(account_provider, account_id, region):
     crud.delete_third_account(account_provider, account_id, region)
+    try:
+        delete_catalog_by_account(account_id=account_id, region=region)
+    except Exception:
+        del_error = True
+        logger.error(traceback.format_exc())
 
 
 def refresh_account():
