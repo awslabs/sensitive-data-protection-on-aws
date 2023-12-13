@@ -86,7 +86,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
     new: newOriginalData,
   });
   const [loadingImport, setLoadingImport] = useState(false);
-  const [disabled, setDisabled] = useState(false);
+  const [disabled, setDisabled] = useState(true);
   const [credentialType, setCredentialType] = useState('secret_manager');
   const [secretOption, setSecretOption] = useState([] as any);
   const [vpcOption, setVpcOption] = useState([] as any);
@@ -173,6 +173,8 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
         vpc !== null
       ) {
         setDisabled(false);
+      } else {
+        setDisabled(true);
       }
     }
   }, [
@@ -190,6 +192,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
     };
     try {
       const vpcOptions: any[] = [];
+      const subnetOptions: any[] = [];
       const res: any = await queryNetworkInfo(requestParam);
       const vpcs = res?.vpcs;
       vpcs.forEach((item: any) => {
@@ -209,6 +212,16 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
           value: subnet.subnetId,
           description: subnet.subnetName,
         });
+
+        vpcs[0].subnets.forEach((item: any) => {
+          subnetOptions.push({
+            label: item.subnetId,
+            value: item.subnetId,
+            description: item.subnetName,
+          });
+        });
+        setSubnetOption(subnetOptions)
+
         // let tempSubnet = jdbcConnectionData.new;
         // tempSubnet = { ...tempSubnet, network_subnet_id: subnet.subnetId };
         // setJdbcConnectionData({ ...jdbcConnectionData, new: temp });
@@ -530,7 +543,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
               <Button
                 loading={loadingImport}
                 variant="primary"
-                // disabled={disabled}
+                disabled={disabled}
                 onClick={() => {
                   addJdbcConnection();
                 }}
@@ -840,7 +853,6 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                         changeSubnet(detail.selectedOption)
                       }
                       options={subnetOption}
-                      disabled={props.providerId !== 1}
                     />
                   </FormField>
                   <FormField
