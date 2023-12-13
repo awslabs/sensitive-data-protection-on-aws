@@ -53,6 +53,7 @@
     "certValidation": "certificate validation",
     "certValidationDesc": "By default your custom certificate is validated before use. Turn on this option to skip validation of the certificate algorithm and key length during connection.",
     "skipValidation": "Skip certificate validation",
+    "findDatabase": "Find Database",
     "customJDBCCertString": "Custom JDBC certificate string",
     "customJDBCCertStringDesc": "Enter your database specific custom certificate info.",
     "customJDBCCertConstraint": "For Oracle Database this maps to SSL_SERVER_CERT_DN, and for SQL Server it maps to hostNameInCertificate.",

@@ -53,6 +53,7 @@
     "certValidation": "证书验证",
     "certValidationDesc": "默认情况下，将在使用前验证你的自定义证书。开启这个选项将在连接时跳过证书算法和密钥长度的验证。",
     "skipValidation": "跳过证书验证",
+    "findDatabase": "查找数据库",
     "customJDBCCertString": "自定义 JDBC 证书字符串",
     "customJDBCCertStringDesc": "输入您的特定数据库的自定义证书信息。",
     "customJDBCCertConstraint": "对于 Oracle 数据库，这对应于 SSL_SERVER_CERT_DN ，对于 SQL Server，它对应于 hostNameInCertificate。",
