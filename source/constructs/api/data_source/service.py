@@ -498,10 +498,11 @@ def sync(glue, lakeformation, credentials, crawler_role_arn, jdbc: JDBCInstanceS
         db_names.add(schema)
         for db_name in db_names:
             trimmed_db_name = db_name.strip()
-            jdbc_targets.append({
-                'ConnectionName': glue_connection_name,
-                'Path': f"{trimmed_db_name}/%"
-            })
+            if trimmed_db_name:
+                jdbc_targets.append({
+                    'ConnectionName': glue_connection_name,
+                    'Path': f"{trimmed_db_name}/%"
+                })
 
         if schema:
             """ :type : pyboto3.glue """
@@ -1316,10 +1317,15 @@ def delete_glue_connection(account: str, region: str, glue_crawler: str,
 
 def refresh_data_source(provider_id: int, accounts: list[str], type: str):
     # tmp_provider = int(provider)
-    if provider_id == Provider.AWS_CLOUD.value:
-        refresh_aws_data_source(accounts, type)
-    else:
-        refresh_third_data_source(provider_id, accounts, type)
+    # identify the real provider id for the jdbc proxy type
+    for account_id in accounts:
+        account = crud.get_account_by_id(account_id=account_id)
+        if account:
+            provider_id = account.account_provider_id
+            if provider_id == Provider.AWS_CLOUD.value:
+                refresh_aws_data_source([account_id], type)
+            else:
+                refresh_third_data_source(provider_id, [account_id], type)
 
 
 def refresh_aws_data_source(accounts: list[str], type: str):
@@ -1456,7 +1462,10 @@ def reload_organization_account(it_account: str):
 
 
 def add_account(account: SourceNewAccount):
-    # 同名测试
+    if crud.get_account_by_id(account_id=account.account_id):
+        raise BizException(MessageEnum.SOURCE_ACCOUNT_ID_ALREADY_EXISTS.get_code(),
+                           MessageEnum.SOURCE_ACCOUNT_ID_ALREADY_EXISTS.get_msg())
+
     if account.account_provider == Provider.AWS_CLOUD.value:
         add_aws_account(account.account_id)
     else:
