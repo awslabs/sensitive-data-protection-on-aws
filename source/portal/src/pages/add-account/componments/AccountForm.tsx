@@ -72,16 +72,16 @@ const AccountForm: React.FC<AccountFormProps> = (props: AccountFormProps) => {
     setIsLoading(true);
     try {
       await addAccount({
-        account_provider: provider.id,
+        account_provider: provider.id === 1 ? 4 : provider.id,
         account_id: accountId,
         region: currentRegion?.label,
       });
       setIsLoading(false);
+      navigate(`${RouterEnum.AccountManagement.path}?provider=${provider.id}`);
     } catch {
       setIsLoading(false);
     }
 
-    navigate(`${RouterEnum.AccountManagement.path}?provider=${provider.id}`);
   };
 
   useEffect(() => {

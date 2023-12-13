@@ -47,6 +47,12 @@ def list_all_accounts_by_region(region: str):
     return query
 
 
+def get_account_by_id(account_id: str):
+    account = get_session().query(Account).filter(
+        Account.account_id == account_id
+    ).first()
+    return account
+
 def get_account_agent_regions(account_id: str):
     regions = []
     account_with_regions = get_session().query(Account).filter(

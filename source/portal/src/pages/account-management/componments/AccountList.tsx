@@ -25,10 +25,10 @@ import {
   THIRD_PROVIDER_COLUMN_LIST,
   TYPE_COLUMN,
 } from '../types/account_type';
-import { TABLE_NAME } from 'enum/common_types';
+import { TABLE_NAME, SOURCE_TYPE, getJDBCTypeByProviderId } from 'enum/common_types';
 import '../style.scss';
 import { refreshDataSource } from 'apis/data-source/api';
-import { alertMsg, useDidUpdateEffect } from 'tools/tools';
+import { alertMsg, useDidUpdateEffect, combinedProviders } from 'tools/tools';
 import { useTranslation } from 'react-i18next';
 import { ProviderType } from 'common/ProviderTab';
 import { COLUMN_OBJECT_STR } from 'pages/data-catalog/types/data_config';
@@ -149,12 +149,15 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
             condition: query.operation,
           });
         });
-      requestParam.conditions.push({
-        column: 'account_provider_id',
-        values: [Number(provider?.id)],
-        operation: '=',
-        condition: 'and',
-      });
+      // fetch provider id
+      if (provider) {
+        requestParam.conditions.push({
+          column: 'account_provider_id',
+          values: combinedProviders(provider.id),
+          operation: 'in',
+          condition: 'and',
+        });
+      }
       // if (urlRegion) {
       //   requestParam.conditions.push({
       //     column: COLUMN_OBJECT_STR.Region,
@@ -195,12 +198,15 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
           condition: query.operation,
         });
       });
-    requestParam.conditions.push({
-      column: 'account_provider_id',
-      values: [Number(provider?.id)],
-      operation: '=',
-      condition: 'and',
-    });
+    // fetch provider id
+    if (provider) {
+      requestParam.conditions.push({
+        column: 'account_provider_id',
+        values: combinedProviders(provider.id),
+        operation: 'in',
+        condition: 'and',
+      });
+    }
     const result: any = await getAccountList(requestParam);
     await refreshAllAccountData(result.items);
     setAccountsLoaded(true);
@@ -294,6 +300,7 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
             header: t(item.label),
             // different column tag
             cell: (e: any) => {
+              const isJdbcProxy = getJDBCTypeByProviderId(e.account_provider_id) === SOURCE_TYPE.JDBC_PROXY;
               if (item.id === TYPE_COLUMN.STATUS) {
                 let labelType = CLSAAIFIED_TYPE.Unconnected;
                 let badgeLabelData = (e as any)[TYPE_COLUMN.STATUS];
@@ -332,7 +339,6 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
               }
 
               if (item.id === 'account_id') {
-                console.info('e:', e);
                 return (
                   <span
                     className="account-id"
@@ -342,7 +348,6 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
                   </span>
                 );
               }
-
               if (
                 item.id === TYPE_COLUMN.S3_CONNECTION ||
                 item.id === TYPE_COLUMN.RDS_CONNECTION ||
@@ -352,6 +357,15 @@ const AccountList: React.FC<AccountListProps> = (props: AccountListProps) => {
                 let showText = '';
                 let percentCls = 'progress-percent';
                 let percentIcon: IconProps.Name = 'status-in-progress';
+                if (isJdbcProxy && item.id !== TYPE_COLUMN.JDBC_CONNECTION) {
+                  return (
+                    <div className={percentCls}>
+                      <Icon name={percentIcon} />
+                      &nbsp;&nbsp;
+                      <span>{showText}</span>
+                    </div>
+                  );
+                }
                 if (item.id === TYPE_COLUMN.S3_CONNECTION) {
                   // if (
                   //   !e[TYPE_COLUMN.TOTAL_S3_BUCKET] ||
