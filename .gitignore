@@ -364,4 +364,3 @@ source/constructs/package-lock.json
 /bin/
 *_test.py
 source/constructs/lib/test*
-test/

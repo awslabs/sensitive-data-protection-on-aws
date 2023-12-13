@@ -39,6 +39,22 @@ def get_catalog_column_by_params(
 
 
 @router.get(
+    "/get-columns-by-type",
+    response_model=BaseResponse[Page[schemas.CatalogColumnLevelClassification]],
+)
+@inject_session
+def get_catalog_column_by_type(
+    database_type: str,
+    params: Params = Depends(),
+):
+    catalog = paginate(
+        crud.get_catalog_column_level_classification_by_type(database_type),
+        params,
+    )
+    return catalog
+
+
+@router.get(
     "/get-tables-by-database",
     # response_model=BaseResponse[Page[schemas.CatalogTableLevelClassification]],
 )

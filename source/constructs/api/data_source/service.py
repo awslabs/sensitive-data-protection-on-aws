@@ -1,5 +1,4 @@
 import json
-import logging
 import os
 import re
 import time
@@ -28,7 +27,7 @@ from db.models_data_source import (Account,
 from discovery_job.service import can_delete_database as can_delete_job_database
 from discovery_job.service import delete_account as delete_job_by_account
 from discovery_job.service import delete_database as delete_job_database
-from . import s3_detector, rds_detector, glue_database_detector, jdbc_detector, crud
+from . import s3_detector, rds_detector, glue_database_detector, jdbc_detector, crud, jdbc_database
 from .schemas import (AccountInfo, AdminAccountInfo,
                       JDBCInstanceSource, JDBCInstanceSourceUpdate,
                       ProviderResourceFullInfo, SourceNewAccount, SourceRegion,
@@ -38,7 +37,8 @@ from .schemas import (AccountInfo, AdminAccountInfo,
                       JDBCInstanceSourceUpdateBase,
                       DataLocationInfo,
                       JDBCInstanceSourceBase,
-                      JDBCInstanceSourceFullInfo)
+                      JDBCInstanceSourceFullInfo,
+                      JdbcSource)
 from common.reference_parameter import logger, admin_account_id, admin_region, partition
 
 SLEEP_TIME = 5
@@ -494,8 +494,9 @@ def sync(glue, lakeformation, credentials, crawler_role_arn, jdbc: JDBCInstanceS
     try:
         # list schemas
         schema = get_schema_from_url(url)
-        db_names = set(schemas.splitlines())
-        db_names.add(schema)
+        db_names = set([schema])
+        if schemas:
+            db_names.update(set(schemas.splitlines()))
         for db_name in db_names:
             trimmed_db_name = db_name.strip()
             if trimmed_db_name:
@@ -1576,6 +1577,11 @@ def delete_aws_account(account_id):
 
 def delete_third_account(account_provider, account_id, region):
     crud.delete_third_account(account_provider, account_id, region)
+    try:
+        delete_catalog_by_account(account_id=account_id, region=region)
+    except Exception:
+        del_error = True
+        logger.error(traceback.format_exc())
 
 
 def refresh_account():
@@ -1978,26 +1984,19 @@ def import_jdbc_conn(jdbc_conn: JDBCInstanceSourceBase):
     jdbc_conn_insert.account_provider_id = jdbc_conn.account_provider_id
     jdbc_conn_insert.detection_history_id = 0
     jdbc_conn_insert.instance_id = jdbc_conn.instance_id
-    # jdbc_conn_insert.connection_status = 'UNCONNECTED'
     jdbc_conn_insert.glue_connection = jdbc_conn.instance_id
     jdbc_conn_insert.create_type = JDBCCreateType.IMPORT.value
-    jdbc_conn_insert.description = res_connection['Description']
-    jdbc_conn_insert.jdbc_connection_url = res_connection['ConnectionProperties']['JDBC_CONNECTION_URL']
-    jdbc_conn_insert.jdbc_enforce_ssl = res_connection['ConnectionProperties']['JDBC_ENFORCE_SSL']
-    # jdbc_conn_insert.kafka_ssl_enabled = res_connection['ConnectionProperties']['KAFKA_SSL_ENABLED']
-    if 'USERNAME' in res_connection['ConnectionProperties']:
-        jdbc_conn_insert.master_username = res_connection['ConnectionProperties']['USERNAME']
-    # jdbc_conn_insert.skip_custom_jdbc_cert_validation = res_connection['Description']
-    # jdbc_conn_insert.custom_jdbc_cert = res_connection['Description']
-    # jdbc_conn_insert.custom_jdbc_cert_string = res_connection['Description']
-    if 'PhysicalConnectionRequirements' in res_connection:
-        jdbc_conn_insert.network_availability_zone = res_connection['PhysicalConnectionRequirements']['AvailabilityZone']
-        jdbc_conn_insert.network_subnet_id = res_connection['PhysicalConnectionRequirements']['SubnetId']
-        jdbc_conn_insert.network_sg_id = "|".join(res_connection['PhysicalConnectionRequirements']['SecurityGroupIdList'])
-    jdbc_conn_insert.creation_time = res_connection['CreationTime']
-    jdbc_conn_insert.last_updated_time = res_connection['LastUpdatedTime']
-    # jdbc_conn_insert.jdbc_driver_class_name = res_connection['Description']
-    # jdbc_conn_insert.jdbc_driver_jar_uri = res_connection['Description']
+    jdbc_conn_insert.description = res_connection.get('Description')
+    if res_connection.get('ConnectionProperties'):
+        jdbc_conn_insert.jdbc_connection_url = res_connection.get('ConnectionProperties').get('JDBC_CONNECTION_URL')
+        jdbc_conn_insert.jdbc_enforce_ssl = res_connection.get('ConnectionProperties').get('JDBC_ENFORCE_SSL')
+        jdbc_conn_insert.master_username = res_connection.get('ConnectionProperties').get('USERNAME')
+    if res_connection.get('PhysicalConnectionRequirements'):
+        jdbc_conn_insert.network_availability_zone = res_connection.get('PhysicalConnectionRequirements').get('AvailabilityZone')
+        jdbc_conn_insert.network_subnet_id = res_connection.get('PhysicalConnectionRequirements').get('SubnetId')
+        jdbc_conn_insert.network_sg_id = "|".join(res_connection.get('PhysicalConnectionRequirements').get('SecurityGroupIdList'))
+    jdbc_conn_insert.creation_time = res_connection.get('CreationTime')
+    jdbc_conn_insert.last_updated_time = res_connection.get('LastUpdatedTime')
     res = crud.list_aws_jdbc_instance_source_by_account(jdbc_conn)
     if res:
         crud.update_jdbc_conn(jdbc_conn_insert)
@@ -2288,9 +2287,10 @@ def __assume_role(account_id: str, role_arn: str):
             DurationSeconds=900,
         )
         return True
-    except Exception as error:
-        logger.info(traceback.format_exc())
-    return False
+    except ClientError as e:
+        if e.response['Error']['Code'] != 'AccessDenied':
+            logger.info(e)
+        return False
 
 
 def __list_rds_schema(account, region, credentials, instance_name, payload, rds_security_groups, rds_subnet_id):
@@ -2393,13 +2393,30 @@ def __delete_account(account_id: str, region: str):
 
 def query_glue_connections(account: AccountInfo):
     res = []
+    list = []
     account_id = account.account_id if account.account_provider_id == Provider.AWS_CLOUD.value else admin_account_id
     region = account.region if account.account_provider_id == Provider.AWS_CLOUD.value else admin_region
-    list =  __glue(account=account_id, region=region).get_connections(CatalogId=account_id,
-                                                                      Filter={'ConnectionType': 'JDBC'},
-                                                                      MaxResults=100,
-                                                                      HidePassword=True)['ConnectionList']
-    
+
+    # list = __glue(account=account_id, region=region).get_connections(CatalogId=account_id,
+    #                                                                   Filter={'ConnectionType': 'JDBC'},
+    #                                                                   MaxResults=100,
+    #                                                                   HidePassword=True)['ConnectionList']
+
+    next_token = ""
+
+    while True:
+        response = __glue(account=account_id, region=region).get_connections(
+            CatalogId=account_id,
+            Filter={'ConnectionType': 'JDBC'},
+            HidePassword=True,
+            NextToken=next_token,
+        )
+        current_connections = response['ConnectionList']
+        list.extend(current_connections)
+        next_token = response.get('NextToken')
+
+        if not next_token:
+            break
     jdbc_list = query_jdbc_connections_sub_info()
     jdbc_dict = {item[0]:f"{convert_provider_id_2_name(item[1])}-{item[2]}" for item in jdbc_list}
     for item in list:
@@ -2408,7 +2425,7 @@ def query_glue_connections(account: AccountInfo):
                 item['usedBy'] = jdbc_dict[item['Name']]
             res.append(item)
     return res
-    
+
 def query_jdbc_connections_sub_info():
     return crud.query_jdbc_connections_sub_info()
 
@@ -2438,13 +2455,13 @@ def query_account_network(account: AccountInfo):
     vpc_list = [{"vpcId":vpc['VpcId'], "name":gen_resource_name(vpc)} for vpc in ec2_client.describe_vpcs()['Vpcs']]
     # accont_id, region = gen_assume_info(account)
     if account.account_provider_id != Provider.AWS_CLOUD.value:
-        res =  query_account_network_not_agent(vpc_list, ec2_client)
-        logger.info(f"query_account_network_not_agent res is {res}")
+        res = __query_third_account_network(vpc_list, ec2_client)
+        logger.info(f"query_third_account_network res is {res}")
         return res
     else:
-        return query_account_network_agent(vpc_list, ec2_client)
+        return __query_aws_account_network(vpc_list, ec2_client)
 
-def query_account_network_not_agent(vpc_list, ec2_client: any):
+def __query_third_account_network(vpc_list, ec2_client: any):
     try:
 
         response = ec2_client.describe_security_groups(Filters=[
@@ -2454,17 +2471,24 @@ def query_account_network_not_agent(vpc_list, ec2_client: any):
         vpc_ids = [item['VpcId'] for item in response['SecurityGroups']]
         subnets = ec2_client.describe_subnets(Filters=[{'Name': 'vpc-id', 'Values': [vpc_ids[0]]}])['Subnets']
         private_subnet = list(filter(lambda x: not x["MapPublicIpOnLaunch"], subnets))
-        target_subnet = private_subnet[0] if private_subnet else subnets[0]
+        # target_subnet = private_subnet[0] if private_subnet else subnets[0]
+        target_subnets = [{'subnetId': subnet["SubnetId"], 'arn': subnet["SubnetArn"], "subnetName": gen_resource_name(subnet)} for subnet in private_subnet]
         vpc_info = ec2_client.describe_vpcs(VpcIds=[vpc_ids[0]])['Vpcs'][0]
         return {"vpcs": [{'vpcId': vpc_info['VpcId'],
                           'vpcName': [obj for obj in vpc_info['Tags'] if obj["Key"] == "Name"][0]["Value"],
-                          'subnets': [{'subnetId': target_subnet['SubnetId'],
-                                       'arn':  target_subnet['SubnetArn'],
-                                       "subnetName": gen_resource_name(target_subnet)
-                                       }],
+                          'subnets': target_subnets,
                           'securityGroups': [{'securityGroupId': response['SecurityGroups'][0]['GroupId'],
                                               'securityGroupName': response['SecurityGroups'][0]['GroupName']}]}]
                 }
+        # return {"vpcs": [{'vpcId': vpc_info['VpcId'],
+        #                   'vpcName': [obj for obj in vpc_info['Tags'] if obj["Key"] == "Name"][0]["Value"],
+        #                   'subnets': [{'subnetId': target_subnet['SubnetId'],
+        #                                'arn': target_subnet['SubnetArn'],
+        #                                "subnetName": gen_resource_name(target_subnet)
+        #                                }],
+        #                   'securityGroups': [{'securityGroupId': response['SecurityGroups'][0]['GroupId'],
+        #                                       'securityGroupName': response['SecurityGroups'][0]['GroupName']}]}]
+        #         }
     except ClientError as ce:
         logger.error(traceback.format_exc())
         if ce.response['Error']['Code'] == 'InvalidGroup.NotFound':
@@ -2477,12 +2501,12 @@ def query_account_network_not_agent(vpc_list, ec2_client: any):
         raise BizException(MessageEnum.BIZ_UNKNOWN_ERR.get_code(),
                            MessageEnum.BIZ_UNKNOWN_ERR.get_msg())
 
-def query_account_network_agent(vpc_list, ec2_client: any):
+def __query_aws_account_network(vpc_list, ec2_client: any):
     res = []
     subnets = ec2_client.describe_subnets()['Subnets']
     securityGroups = ec2_client.describe_security_groups()['SecurityGroups']
     for vpc_info in vpc_list:
-        vpc = { 'vpcId': vpc_info["vpcId"], 'vpcName': vpc_info["name"] }
+        vpc = {'vpcId': vpc_info["vpcId"], 'vpcName': vpc_info["name"]}
         vpc['subnets'] = [{"subnetId": subnet['SubnetId'],
                            "arn": subnet['SubnetArn'],
                            "subnetName": gen_resource_name(subnet)
@@ -2514,7 +2538,7 @@ def list_data_location():
     res = []
     provider_list = crud.list_distinct_provider()
     for item in provider_list:
-        regions:list[SourceRegion] = crud.list_distinct_region_by_provider(item.id)
+        regions: list[SourceRegion] = crud.list_distinct_region_by_provider(item.id)
         accounts_db = crud.get_account_list_by_provider(item.id)
         if not regions:
             continue
@@ -2535,7 +2559,6 @@ def list_data_location():
             location.region_alias = subItem.region_alias
             location.provider_id = item.id
             res.append(location)
-     # 根据 location.account_count 对 res 进行排序（从高到低）
     res = sorted(res, key=lambda x: x.account_count, reverse=True)
     return res
 
@@ -2625,3 +2648,24 @@ def __get_excludes_file_exts():
     extensions = list(set([ext for extensions_list in const.UNSTRUCTURED_FILES.values() for ext in extensions_list]))
     return ["*.{" + ",".join(extensions) + "}"]
 
+
+def list_jdbc_databases(source: JdbcSource) -> list[str]:
+    url_arr = source.connection_url.split(":")
+    if len(url_arr) != 4:
+        raise BizException(MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_code(), MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_msg())
+    if url_arr[1] != "mysql":
+        raise BizException(MessageEnum.SOURCE_JDBC_LIST_DATABASES_NOT_SUPPORTED.get_code(), MessageEnum.SOURCE_JDBC_LIST_DATABASES_NOT_SUPPORTED.get_msg())
+    host = url_arr[2][2:]
+    port = int(url_arr[3].split("/")[0])
+    user = source.username
+    password = source.password
+    if source.secret_id:
+        secrets_client = boto3.client('secretsmanager')
+        secret_response = secrets_client.get_secret_value(SecretId=source.secret_id)
+        secrets = json.loads(secret_response['SecretString'])
+        user = secrets['username']
+        password = secrets['password']
+    mysql_database = jdbc_database.MySQLDatabase(host, port, user, password)
+    databases = mysql_database.list_databases()
+    logger.info(databases)
+    return databases

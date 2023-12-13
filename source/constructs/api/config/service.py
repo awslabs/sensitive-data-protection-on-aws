@@ -1,8 +1,4 @@
-import logging
 from . import crud
-from common.constant import const
-
-logger = logging.getLogger(const.LOGGER_API)
 
 
 def set_config(key: str, value: str):
