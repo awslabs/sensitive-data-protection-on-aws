@@ -20,6 +20,7 @@ import {
   queryNetworkInfo,
   queryBuckets,
   createConnection,
+  queryJdbcDatabases,
 } from 'apis/data-source/api';
 import RightModal from 'pages/right-modal';
 import { useEffect, useState } from 'react';
@@ -100,6 +101,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
 
   const [importGlue, setImportGlue] = useState<SelectProps.Option | null>(null);
   const [secretItem, setSecretItem] = useState<SelectProps.Option | null>(null);
+  const [loadingJdbcDatabase, setLoadingJdbcDatabase] = useState(false);
 
   useEffect(() => {
     if (credentialType === 'secret_manager') {
@@ -513,6 +515,25 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
     setSecretItem(null);
   };
 
+  const findDatabase = async () => {
+    setLoadingImport(true);
+    setLoadingJdbcDatabase(true);
+    const requestParam = {
+      connection_url: jdbcConnectionData.new.jdbc_connection_url,
+      username: jdbcConnectionData.new.master_username,
+      password: jdbcConnectionData.new.password,
+      secret_id: jdbcConnectionData.new.secret,
+    };
+    try {
+      const res: any = await queryJdbcDatabases(requestParam);
+      jdbcConnectionData.new.jdbc_connection_schema = res.join('\n');
+    } catch (error) {
+      alertMsg(error + '', 'error');
+    }
+    setLoadingImport(false);
+    setLoadingJdbcDatabase(false);
+  };
+
   useEffect(() => {
     loadNetworkInfo();
   }, []);
@@ -708,10 +729,21 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                 </FormField>
                 <>
                   <FormField
-                    stretch
                     label={t('datasource:jdbc.jdbcURL')}
                     description={t('datasource:jdbc.jdbcURLDesc')}
                     constraintText={t('datasource:jdbc.jdbcURLConstraint')}
+                    secondaryControl={props.providerId !== 1 && (
+                      <Button
+                        onClick={() => {
+                          findDatabase();
+                        }}
+                        iconName="search"
+                        disabled={props.providerId === 1 || loadingJdbcDatabase}
+                      >
+                        {t('datasource:jdbc.findDatabase')}
+                      </Button>
+                    )  
+                  }
                   >
                     <Input
                       onChange={(e) => changeJDBCUrl(e.detail.value)}
