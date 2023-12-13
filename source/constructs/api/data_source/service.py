@@ -494,8 +494,9 @@ def sync(glue, lakeformation, credentials, crawler_role_arn, jdbc: JDBCInstanceS
     try:
         # list schemas
         schema = get_schema_from_url(url)
-        db_names = set(schemas.splitlines())
-        db_names.add(schema)
+        db_names = set([schema])
+        if schemas:
+            db_names.update(set(schemas.splitlines()))
         for db_name in db_names:
             trimmed_db_name = db_name.strip()
             jdbc_targets.append({
@@ -1567,6 +1568,11 @@ def delete_aws_account(account_id):
 
 def delete_third_account(account_provider, account_id, region):
     crud.delete_third_account(account_provider, account_id, region)
+    try:
+        delete_catalog_by_account(account_id=account_id, region=region)
+    except Exception:
+        del_error = True
+        logger.error(traceback.format_exc())
 
 
 def refresh_account():
@@ -2461,7 +2467,7 @@ def query_account_network_not_agent(vpc_list, ec2_client: any):
         return {"vpcs": [{'vpcId': vpc_info['VpcId'],
                           'vpcName': [obj for obj in vpc_info['Tags'] if obj["Key"] == "Name"][0]["Value"],
                           'subnets': [{'subnetId': target_subnet['SubnetId'],
-                                       'arn':  target_subnet['SubnetArn'],
+                                       'arn': target_subnet['SubnetArn'],
                                        "subnetName": gen_resource_name(target_subnet)
                                        }],
                           'securityGroups': [{'securityGroupId': response['SecurityGroups'][0]['GroupId'],
@@ -2484,7 +2490,7 @@ def query_account_network_agent(vpc_list, ec2_client: any):
     subnets = ec2_client.describe_subnets()['Subnets']
     securityGroups = ec2_client.describe_security_groups()['SecurityGroups']
     for vpc_info in vpc_list:
-        vpc = { 'vpcId': vpc_info["vpcId"], 'vpcName': vpc_info["name"] }
+        vpc = {'vpcId': vpc_info["vpcId"], 'vpcName': vpc_info["name"]}
         vpc['subnets'] = [{"subnetId": subnet['SubnetId'],
                            "arn": subnet['SubnetArn'],
                            "subnetName": gen_resource_name(subnet)
@@ -2516,7 +2522,7 @@ def list_data_location():
     res = []
     provider_list = crud.list_distinct_provider()
     for item in provider_list:
-        regions:list[SourceRegion] = crud.list_distinct_region_by_provider(item.id)
+        regions: list[SourceRegion] = crud.list_distinct_region_by_provider(item.id)
         accounts_db = crud.get_account_list_by_provider(item.id)
         if not regions:
             continue
@@ -2537,7 +2543,6 @@ def list_data_location():
             location.region_alias = subItem.region_alias
             location.provider_id = item.id
             res.append(location)
-     # 根据 location.account_count 对 res 进行排序（从高到低）
     res = sorted(res, key=lambda x: x.account_count, reverse=True)
     return res
 
