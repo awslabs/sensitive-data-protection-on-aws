@@ -612,6 +612,7 @@ def delete_jdbc_connection(provider: str, account: str, region: str, instance: s
         JDBCInstanceSource.account_provider_id == provider).delete()
     session.commit()
 
+
 def hide_jdbc_connection(provider: str, account: str, region: str, instance: str):
     session = get_session()
     jdbc_instance_source: JDBCInstanceSource = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.instance_id == instance,

@@ -477,9 +477,12 @@ def sync_crawler_result(
             logger.info("sync_crawler_result table_count is 0 and delete exist catalog")
             crud.delete_catalog_database_level_classification(original_database.id)
             # table need be deleted by table view ,column has no view tab can not be deleted
-            crud.delete_catalog_table_level_classification_by_database_region(original_database.database_name,
-                                                                              original_database.region,
-                                                                              original_database.database_type)
+            crud.delete_catalog_table_level_classification_by_database(original_database.database_name,
+                                                                       original_database.region,
+                                                                       original_database.database_type)
+            crud.delete_catalog_column_level_classification_by_database(original_database.database_name,
+                                                                        original_database.region,
+                                                                        original_database.database_type)
 
     # create database
     origin_size_key = 0
@@ -627,7 +630,9 @@ def get_rds_table_sample_records(
     i = 0
     for col in column_list:
         sample_values = col.column_value_example
-        value_list = sample_values.split("|")
+        value_list = []
+        if sample_values:
+            value_list = sample_values.split("|")
         # To avoid sample value not enough to CATALOG_SAMPLE_ITEM_COUNT
         if len(value_list) < const.CATALOG_SAMPLE_ITEM_COUNT:
             for n in range(len(value_list), const.CATALOG_SAMPLE_ITEM_COUNT):
