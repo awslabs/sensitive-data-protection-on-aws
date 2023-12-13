@@ -2446,13 +2446,13 @@ def query_account_network(account: AccountInfo):
     vpc_list = [{"vpcId":vpc['VpcId'], "name":gen_resource_name(vpc)} for vpc in ec2_client.describe_vpcs()['Vpcs']]
     # accont_id, region = gen_assume_info(account)
     if account.account_provider_id != Provider.AWS_CLOUD.value:
-        res =  query_account_network_not_agent(vpc_list, ec2_client)
-        logger.info(f"query_account_network_not_agent res is {res}")
+        res = __query_third_account_network(vpc_list, ec2_client)
+        logger.info(f"query_third_account_network res is {res}")
         return res
     else:
-        return query_account_network_agent(vpc_list, ec2_client)
+        return __query_aws_account_network(vpc_list, ec2_client)
 
-def query_account_network_not_agent(vpc_list, ec2_client: any):
+def __query_third_account_network(vpc_list, ec2_client: any):
     try:
 
         response = ec2_client.describe_security_groups(Filters=[
@@ -2462,17 +2462,24 @@ def query_account_network_not_agent(vpc_list, ec2_client: any):
         vpc_ids = [item['VpcId'] for item in response['SecurityGroups']]
         subnets = ec2_client.describe_subnets(Filters=[{'Name': 'vpc-id', 'Values': [vpc_ids[0]]}])['Subnets']
         private_subnet = list(filter(lambda x: not x["MapPublicIpOnLaunch"], subnets))
-        target_subnet = private_subnet[0] if private_subnet else subnets[0]
+        # target_subnet = private_subnet[0] if private_subnet else subnets[0]
+        target_subnets = [{'subnetId': subnet["SubnetId"], 'arn': subnet["SubnetArn"], "subnetName": gen_resource_name(subnet)} for subnet in private_subnet]
         vpc_info = ec2_client.describe_vpcs(VpcIds=[vpc_ids[0]])['Vpcs'][0]
         return {"vpcs": [{'vpcId': vpc_info['VpcId'],
                           'vpcName': [obj for obj in vpc_info['Tags'] if obj["Key"] == "Name"][0]["Value"],
-                          'subnets': [{'subnetId': target_subnet['SubnetId'],
-                                       'arn': target_subnet['SubnetArn'],
-                                       "subnetName": gen_resource_name(target_subnet)
-                                       }],
+                          'subnets': target_subnets,
                           'securityGroups': [{'securityGroupId': response['SecurityGroups'][0]['GroupId'],
                                               'securityGroupName': response['SecurityGroups'][0]['GroupName']}]}]
                 }
+        # return {"vpcs": [{'vpcId': vpc_info['VpcId'],
+        #                   'vpcName': [obj for obj in vpc_info['Tags'] if obj["Key"] == "Name"][0]["Value"],
+        #                   'subnets': [{'subnetId': target_subnet['SubnetId'],
+        #                                'arn': target_subnet['SubnetArn'],
+        #                                "subnetName": gen_resource_name(target_subnet)
+        #                                }],
+        #                   'securityGroups': [{'securityGroupId': response['SecurityGroups'][0]['GroupId'],
+        #                                       'securityGroupName': response['SecurityGroups'][0]['GroupName']}]}]
+        #         }
     except ClientError as ce:
         logger.error(traceback.format_exc())
         if ce.response['Error']['Code'] == 'InvalidGroup.NotFound':
@@ -2485,7 +2492,7 @@ def query_account_network_not_agent(vpc_list, ec2_client: any):
         raise BizException(MessageEnum.BIZ_UNKNOWN_ERR.get_code(),
                            MessageEnum.BIZ_UNKNOWN_ERR.get_msg())
 
-def query_account_network_agent(vpc_list, ec2_client: any):
+def __query_aws_account_network(vpc_list, ec2_client: any):
     res = []
     subnets = ec2_client.describe_subnets()['Subnets']
     securityGroups = ec2_client.describe_security_groups()['SecurityGroups']

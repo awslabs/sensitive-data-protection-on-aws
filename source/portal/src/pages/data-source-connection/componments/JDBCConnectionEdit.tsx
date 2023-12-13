@@ -132,6 +132,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
   }, []);
 
   useEffect(() => {
+    console.log("jdbcConnectionData.jdbc_connection_url is :"+jdbcConnectionData.jdbc_connection_url)
     if (
       jdbcConnectionData.instance_id !== '' &&
       jdbcConnectionData.jdbc_connection_url !== '' &&
@@ -143,8 +144,10 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
       vpc !== null
     ) {
       setDisabled(false);
+    } else {
+      setDisabled(true);
     }
-  }, [jdbcConnectionData, jdbcConnectionData, vpc]);
+  }, [jdbcConnectionData, vpc]);
 
   const getPageData = async () => {
     getConnectionDetails();
@@ -488,7 +491,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                 </Button>
                 <Button
                   variant="primary"
-                  // disabled={disabled}
+                  disabled={disabled}
                   onClick={() => {
                     updateJdbcConnection();
                   }}
@@ -734,7 +737,6 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                       changeSubnet(detail.selectedOption)
                     }
                     options={subnetOption}
-                    disabled={props.providerId !== 1}
                   />
                 </FormField>
                 <FormField
