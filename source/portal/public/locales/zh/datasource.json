@@ -61,7 +61,7 @@
     "descriptionDesc": "描述可以长达2048个字符。",
     "jdbcURL": "JDBC URL",
     "jdbcURLDesc": "使用JDBC协议访问 Amazon Redshift，Amazon RDS 和公开访问的数据库。",
-    "jdbcURLConstraint": "大多数数据库引擎的JDBC语法是 jdbc:protocol://host:port/databasename。",
+    "jdbcURLConstraint": "大多数数据库引擎的JDBC语法是 jdbc:protocol://host:port。",
     "jdbcDatabase": "JDBC 数据库 - 可选",
     "jdbcDatabaseDesc": "如果您的实例中有多个数据库，请在此处添加数据库名称列表。",
     "jdbcDatabaseConstraint": "您可以在支持模式（Schema）的数据库中输入 MyDatabase/MySchema。Oracle Database 和 MySQL 不支持在路径中使用模式（Schema），而是输入 MyDatabase。对于不使用 SSL 的 Oracle 数据库，MyDatabase 可以是系统标识符（SID）或服务名称（SERVICE_NAME）。对于使用 SSL 的 Oracle 数据库，MyDatabase 必须是服务名称（SERVICE_NAME）。",

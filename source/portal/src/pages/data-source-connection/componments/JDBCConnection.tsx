@@ -45,7 +45,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
   const [jdbcType, setJdbcType] = useState('new');
   const [expanded, setExpanded] = useState(true);
   const [connections, setConnections] = useState([] as any[]);
-  const [credential, setCredential] = useState('secret');
+  const [credential, setCredential] = useState('password');
   const [loading, setLoading] = useState(
     'loading' as DropdownStatusProps.StatusType
   );
@@ -546,6 +546,8 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
       }}
       showModal={showModal}
       header={t('datasource:jdbc.addConnection')}
+      needMask={true}
+      clickMaskToClose={false}
     >
       <div className="add-jdbc-container">
         <Form
@@ -732,38 +734,14 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                     label={t('datasource:jdbc.jdbcURL')}
                     description={t('datasource:jdbc.jdbcURLDesc')}
                     constraintText={t('datasource:jdbc.jdbcURLConstraint')}
-                    secondaryControl={props.providerId !== 1 && (
-                      <Button
-                        onClick={() => {
-                          findDatabase();
-                        }}
-                        iconName="search"
-                        disabled={props.providerId === 1 || loadingJdbcDatabase}
-                      >
-                        {t('datasource:jdbc.findDatabase')}
-                      </Button>
-                    )  
-                  }
                   >
                     <Input
                       onChange={(e) => changeJDBCUrl(e.detail.value)}
-                      placeholder="jdbc:protocol://host:port/db_name"
+                      placeholder="jdbc:protocol://host:port"
                       value={jdbcConnectionData.new.jdbc_connection_url}
                     />
                   </FormField>
-                  <FormField
-                    stretch
-                    label={t('datasource:jdbc.jdbcDatabase')}
-                    description={t('datasource:jdbc.jdbcDatabaseDesc')}
-                    constraintText={t('datasource:jdbc.jdbcDatabaseConstraint')}
-                  >
-                    <Textarea
-                      onChange={(e) => changeDatabase(e.detail.value)}
-                      placeholder={`crm_database\nuser_management\ninventory_management`}
-                      value={jdbcConnectionData.new.jdbc_connection_schema}
-                    />
-                  </FormField>
-                  <FormField
+                  {/* <FormField
                     stretch
                     label={t('datasource:jdbc.jdbcClassName')}
                     constraintText={t('datasource:jdbc.jdbcClassNameDesc')}
@@ -792,7 +770,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                       i18nStrings={i18ns}
                       selectableItemsTypes={['buckets', 'objects']}
                     />
-                  </FormField>
+                  </FormField> */}
                 </>
 
                 <FormField stretch label={t('datasource:jdbc.credential')}>
@@ -851,6 +829,29 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                     </FormField>
                   </>
                 )}
+                  <FormField
+                    label={t('datasource:jdbc.jdbcDatabase')}
+                    description={t('datasource:jdbc.jdbcDatabaseDesc')}
+                    constraintText={t('datasource:jdbc.jdbcDatabaseConstraint')}
+                    secondaryControl={props.providerId !== 1 && (
+                      <Button
+                        onClick={() => {
+                          findDatabase();
+                        }}
+                        iconName="search"
+                        loading={props.providerId === 1 || loadingJdbcDatabase}
+                      >
+                        {t('datasource:jdbc.findDatabase')}
+                      </Button>
+                    )  
+                  }
+                  >
+                    <Textarea
+                      onChange={(e) => changeDatabase(e.detail.value)}
+                      placeholder={`crm_database\nuser_management\ninventory_management`}
+                      value={jdbcConnectionData.new.jdbc_connection_schema}
+                    />
+                  </FormField>
                 <ExpandableSection
                   headerText={t('datasource:jdbc.networkOption')}
                   onChange={() => setExpanded(!expanded)}
