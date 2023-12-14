@@ -89,6 +89,7 @@ export class AgentRoleStack extends Construct {
             'states:DeleteStateMachine',
             'states:CreateStateMachine',
             'states:TagResource',
+            'states:ListTagsForResource',
           ],
           resources: [
             `arn:${Aws.PARTITION}:glue:${Aws.REGION}:${Aws.ACCOUNT_ID}:catalog`,

@@ -18,7 +18,7 @@ const = _Const()
 const.SOLUTION_FULL_NAME = "Sensitive Data Protect Solution"
 const.SOLUTION_NAME = "SDPS"
 const.ADMIN_BUCKET_NAME_PREFIX = "sdps-admin"
-const.AGENT_BUCKET_NAME_PREFIX = "sdps-agent"
+# const.AGENT_BUCKET_NAME_PREFIX = "sdps-agent"
 
 const.LOGGER_API = "api"
 
@@ -37,7 +37,7 @@ const.JWT_TOKEN_EXPIRE_TIME = 60 * 60 * 2
 const.JWT_ALGORITHM = "HS256"
 const.JWT_SECRET = ""
 const.NA = "N/A"
-const.PROJECT_BUCKET_NAME = "ProjectBucketName"
+const.ADMIN_BUCKET_NAME = "AdminBucketName"
 const.USER = "user"
 const.USER_DEFAULT_NAME = "SDPS"
 const.JOB_RESULT_DATABASE_NAME = "sdps_database"

@@ -12,6 +12,7 @@
  */
 
 import { Stack, StackProps, CfnParameter, Tags } from 'aws-cdk-lib';
+import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
 import { AgentRoleStack } from './agent/AgentRole-stack';
 import { CrawlerEventbridgeStack } from './agent/CrawlerEventbridge-stack';
@@ -25,9 +26,19 @@ import { SolutionInfo } from './common/solution-info';
 // Operator agent stack
 export class AgentStack extends Stack {
   public static createStack(scope: Construct, adminAccountId: string) {
+    const bucketStack = new BucketStack(scope, 'AgentS3', {
+      prefix: SolutionInfo.SOLUTION_AGENT_S3_BUCKET,
+    });
+
+    new StringParameter(scope, 'AgentParameter', {
+      parameterName: `${SolutionInfo.SOLUTION_NAME}-AgentBucketName`,
+      stringValue: bucketStack.bucket.bucketName,
+      description: 'Agent bucket name',
+    });
 
     new DiscoveryJobStack(scope, 'DiscoveryJobStateMachine', {
       adminAccountId: adminAccountId,
+      agentBucketName: bucketStack.bucket.bucketName,
     });
 
     new CrawlerEventbridgeStack(scope, 'CrawlerEventbridge', {
@@ -36,10 +47,6 @@ export class AgentStack extends Stack {
 
     new AgentRoleStack(scope, 'AgentRole', {
       adminAccountId: adminAccountId,
-    });
-
-    new BucketStack(scope, 'AgentS3', {
-      prefix: SolutionInfo.SOLUTION_AGENT_S3_BUCKET,
     });
 
     new DeleteAgentResourcesStack(scope, 'DeleteAgentResources', {
