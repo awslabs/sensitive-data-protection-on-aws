@@ -1,19 +1,16 @@
 import json
 import boto3
-import os
 from common.constant import const
 from common.response_wrapper import S3WrapEncoder
 from common.exception_handler import BizException
 from common.enum import MessageEnum, DatabaseType, IdentifierDependency, IdentifierType, OperationType
 from common.query_condition import QueryCondition
+from common.reference_parameter import admin_bucket_name
 from catalog.service_dashboard import get_database_by_identifier
 from template import schemas, crud
 
 
 caller_identity = boto3.client('sts').get_caller_identity()
-admin_account_id = caller_identity.get('Account')
-admin_region = boto3.session.Session().region_name
-admin_bucket_name = os.getenv(const.PROJECT_BUCKET_NAME, f"{const.ADMIN_BUCKET_NAME_PREFIX}-{admin_account_id}-{admin_region}")
 
 
 def get_identifiers(condition: QueryCondition):

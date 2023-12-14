@@ -78,7 +78,7 @@ export class AcmStack extends Construct {
         'acm:ListTagsForCertificate',
         's3:PutObject'],
       resources: [`arn:${Aws.PARTITION}:acm:*:${Aws.ACCOUNT_ID}:certificate/*`,
-        `arn:${Aws.PARTITION}:s3:::${SolutionInfo.SOLUTION_ADMIN_S3_BUCKET}-${Aws.ACCOUNT_ID}-${Aws.REGION}/*`],
+        `arn:${Aws.PARTITION}:s3:::${props.bucketName}/*`],
     });
     acmRole.addToPolicy(noramlStatement);
     const listCertificatesStatement = new PolicyStatement({

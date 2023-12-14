@@ -113,10 +113,11 @@ export class ApiStack extends Construct {
       }),
       securityGroups: [props.rdsClientSecurityGroup],
       environment: {
-        ProjectBucketName: props.bucketName,
+        AdminBucketName: props.bucketName,
         Version: SolutionInfo.SOLUTION_VERSION,
         OidcIssuer: props.oidcIssuer,
         OidcClientId: props.oidcClientId,
+        SubnetIds: props.vpc.selectSubnets({ subnetType: SubnetType.PRIVATE_WITH_EGRESS }).subnetIds.join(','),
       },
       role: this.apiRole,
       layers: [this.apiLayer],

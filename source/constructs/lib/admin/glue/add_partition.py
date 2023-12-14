@@ -77,7 +77,7 @@ def on_delete(event):
 def __pre_add_partition(day_delta: int):
     database_name = "sdps_database"
     table_name = "job_detection_output_table"
-    bucket_name = os.getenv("ProjectBucketName")
+    bucket_name = os.getenv("AdminBucketName")
     __do_add_partition(database_name, table_name, bucket_name, day_delta)
 
 

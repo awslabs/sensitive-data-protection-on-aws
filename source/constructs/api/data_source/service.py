@@ -39,7 +39,7 @@ from .schemas import (AccountInfo, AdminAccountInfo,
                       JDBCInstanceSourceBase,
                       JDBCInstanceSourceFullInfo,
                       JdbcSource)
-from common.reference_parameter import logger, admin_account_id, admin_region, partition
+from common.reference_parameter import logger, admin_account_id, admin_region, partition, admin_bucket_name
 
 SLEEP_TIME = 5
 SLEEP_MIN_TIME = 2
@@ -2058,7 +2058,7 @@ def __update_access_policy_for_account():
     s3_resource = boto3.session.Session().resource('s3')
     # for cn_region in const.CN_REGIONS:
     # check if s3 bucket, sqs exists
-    bucket_name = f"{const.SOLUTION_NAME}-admin-{admin_account_id}-{admin_region}".lower()
+    bucket_name = admin_bucket_name
     try:
         missing_resource = bucket_name
         s3_resource.meta.client.head_bucket(
