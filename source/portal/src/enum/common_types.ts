@@ -78,7 +78,7 @@ export const getProviderByProviderId = (providerId: number | string) => {
     case 3:
       return { name: 'Google Cloud' };
     case 4:
-      return { name: 'JDBC Proxy' };
+      return { name: 'AWS' };
     default:
       return { name: '-' };
   }

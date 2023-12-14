@@ -35,6 +35,7 @@ import { SolutionInfo } from '../common/solution-info';
 
 export interface DiscoveryJobProps {
   adminAccountId: string;
+  agentBucketName: string;
 }
 
 /**
@@ -48,7 +49,7 @@ export class DiscoveryJobStack extends Construct {
     super(scope, id);
 
     this.createSplitJobFunction();
-    this.createUnstructuredCrawlerFunction();
+    this.createUnstructuredCrawlerFunction(props);
     this.createUnstructuredParserRole();
 
     const discoveryJobRole = new Role(this, 'DiscoveryJobRole', {
@@ -143,7 +144,7 @@ export class DiscoveryJobStack extends Construct {
       ],
     }));
 
-    discoveryJobRole.attachInlinePolicy(new Policy(this, 'DiscoveryJobPolicy', {
+    const discoveryJobPolicy = new Policy(this, 'DiscoveryJobPolicy', {
       policyName: `${SolutionInfo.SOLUTION_NAME}DiscoveryJobPolicy`,
       statements: [
         new PolicyStatement({
@@ -166,27 +167,26 @@ export class DiscoveryJobStack extends Construct {
             'sagemaker:DescribeProcessingJob',
             'sagemaker:AddTags',
             'lambda:InvokeFunction',
-            'states:StartExecution',
-            'states:DescribeExecution',
-            'states:StopExecution',
+            'ssm:GetParameter',
             'sqs:SendMessage',
           ],
           resources: [
             `arn:${Aws.PARTITION}:sagemaker:${Aws.REGION}:${Aws.ACCOUNT_ID}:processing-job/${SolutionInfo.SOLUTION_NAME}-*`,
             `arn:${Aws.PARTITION}:lambda:${Aws.REGION}:${Aws.ACCOUNT_ID}:function:${SolutionInfo.SOLUTION_NAME}-*`,
-            `arn:${Aws.PARTITION}:states:${Aws.REGION}:${Aws.ACCOUNT_ID}:stateMachine:${SolutionInfo.SOLUTION_NAME}-DiscoveryJob-*`,
+            `arn:${Aws.PARTITION}:ssm:${Aws.REGION}:${Aws.ACCOUNT_ID}:parameter/${SolutionInfo.SOLUTION_NAME}-AgentBucketName`,
             `arn:${Aws.PARTITION}:sqs:${Aws.REGION}:${props.adminAccountId}:${SolutionInfo.SOLUTION_NAME}-DiscoveryJob`,
           ],
         }),
       ],
-    }));
+    });
+    discoveryJobRole.attachInlinePolicy(discoveryJobPolicy);
 
     // State machine log group
-    // const logGroup = new logs.LogGroup(this, 'LogGroup', {
-    //   retention: logs.RetentionDays.ONE_MONTH,
-    //   logGroupName: `/aws/vendedlogs/states/${SolutionInfo.SOLUTION_NAME}LogGroup`,
-    //   removalPolicy: RemovalPolicy.DESTROY,
-    // });
+    const logGroup = new logs.LogGroup(this, 'LogGroup', {
+      retention: logs.RetentionDays.ONE_MONTH,
+      logGroupName: `/aws/vendedlogs/states/${SolutionInfo.SOLUTION_NAME}LogGroup`,
+      removalPolicy: RemovalPolicy.DESTROY,
+    });
 
     let jsonDiscoveryJob = fs.readFileSync('lib/agent/DiscoveryJob.json').toString();
     jsonDiscoveryJob = Fn.sub(jsonDiscoveryJob);
@@ -197,19 +197,20 @@ export class DiscoveryJobStack extends Construct {
         roleArn: discoveryJobRole.roleArn,
         definitionString: jsonDiscoveryJob,
         stateMachineName: `${SolutionInfo.SOLUTION_NAME}-DiscoveryJob`, //Name must be specified
-        // loggingConfiguration: {
-        //   destinations: [{
-        //     cloudWatchLogsLogGroup: {
-        //       logGroupArn: logGroup.logGroupArn,
-        //     },
-        //   }],
-        //   includeExecutionData: true,
-        //   level: 'ALL',
-        // },
+        loggingConfiguration: {
+          destinations: [{
+            cloudWatchLogsLogGroup: {
+              logGroupArn: logGroup.logGroupArn,
+            },
+          }],
+          includeExecutionData: true,
+          level: 'ALL',
+        },
         tags: [{ key: 'Version', value: SolutionInfo.SOLUTION_VERSION }],
       },
     );
-    stepFunction.node.addDependency(discoveryJobRole);
+    // Must add DependsOn discoveryJobPolicy
+    stepFunction.node.addDependency(discoveryJobPolicy, discoveryJobRole);
   }
 
   private createSplitJobFunction() {
@@ -272,7 +273,7 @@ export class DiscoveryJobStack extends Construct {
     });
   }
 
-  private createUnstructuredCrawlerFunction() {
+  private createUnstructuredCrawlerFunction(props: DiscoveryJobProps) {
     const unstructuredCrawlerRole = new Role(this, 'UnstructuredCrawlerRole', {
       roleName: `${SolutionInfo.SOLUTION_NAME}UnstructuredCrawlerRole-${Aws.REGION}`,
       assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
@@ -292,7 +293,7 @@ export class DiscoveryJobStack extends Construct {
           actions: [
             's3:PutObject',
           ],
-          resources: [`arn:${Aws.PARTITION}:s3:::${SolutionInfo.SOLUTION_AGENT_S3_BUCKET}-${Aws.ACCOUNT_ID}-${Aws.REGION}/*`],
+          resources: [`arn:${Aws.PARTITION}:s3:::${props.agentBucketName}/*`],
         }),
       ],
     }));

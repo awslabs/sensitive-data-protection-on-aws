@@ -19,6 +19,7 @@ import {
   queryBuckets,
   updateConnection,
   queryConnectionDetails,
+  queryJdbcDatabases,
 } from 'apis/data-source/api';
 import RightModal from 'pages/right-modal';
 import { useEffect, useState } from 'react';
@@ -65,7 +66,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
   const { t } = useTranslation();
   const { showModal, setShowModal } = props;
   // const [jdbcType, setJdbcType] = useState('import');
-  const [credential, setCredential] = useState('secret');
+  const [credential, setCredential] = useState('password');
   const [isLoading, setIsLoading] = useState(true);
   // const [vpc, setVpc] = useState(null);
 
@@ -103,6 +104,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
   const [subnet, setSubnet] = useState<SelectProps.Option | null>(null);
   const [sg, setSg] = useState<SelectProps.Option | null>(null);
   const [secretItem, setSecretItem] = useState<SelectProps.Option | null>(null);
+  const [loadingJdbcDatabase, setLoadingJdbcDatabase] = useState(false);
 
   // useEffect(() => {
   //   if (credentialType === 'secret_manager') {
@@ -132,6 +134,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
   }, []);
 
   useEffect(() => {
+    console.log("jdbcConnectionData.jdbc_connection_url is :"+jdbcConnectionData.jdbc_connection_url)
     if (
       jdbcConnectionData.instance_id !== '' &&
       jdbcConnectionData.jdbc_connection_url !== '' &&
@@ -143,8 +146,10 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
       vpc !== null
     ) {
       setDisabled(false);
+    } else {
+      setDisabled(true);
     }
-  }, [jdbcConnectionData, jdbcConnectionData, vpc]);
+  }, [jdbcConnectionData, vpc]);
 
   const getPageData = async () => {
     getConnectionDetails();
@@ -458,6 +463,25 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
     setSecretItem(null);
   };
 
+  const findDatabase = async () => {
+    setIsLoading(true);
+    setLoadingJdbcDatabase(true);
+    const requestParam = {
+      connection_url: jdbcConnectionData.jdbc_connection_url,
+      username: jdbcConnectionData.master_username,
+      password: jdbcConnectionData.password,
+      secret_id: jdbcConnectionData.secret,
+    };
+    try {
+      const res: any = await queryJdbcDatabases(requestParam);
+      jdbcConnectionData.jdbc_connection_schema = res.join('\n');
+    } catch (error) {
+      alertMsg(error + '', 'error');
+    }
+    setIsLoading(false);
+    setLoadingJdbcDatabase(false);
+  };
+
   return (
     <RightModal
       className="detail-modal"
@@ -466,6 +490,8 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
       }}
       showModal={showModal}
       header={t('datasource:jdbc.editConnection')}
+      needMask={true}
+      clickMaskToClose={false}
     >
       <div className="add-jdbc-container">
         {isLoading ? (
@@ -488,7 +514,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                 </Button>
                 <Button
                   variant="primary"
-                  // disabled={disabled}
+                  disabled={disabled}
                   onClick={() => {
                     updateJdbcConnection();
                   }}
@@ -599,10 +625,22 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                   label={t('datasource:jdbc.jdbcURL')}
                   description={t('datasource:jdbc.jdbcURLDesc')}
                   constraintText={t('datasource:jdbc.jdbcURLConstraint')}
+                  secondaryControl={props.providerId !== 1 && (
+                    <Button
+                      onClick={() => {
+                        findDatabase();
+                      }}
+                      iconName="search"
+                      disabled={props.providerId === 1 || loadingJdbcDatabase}
+                    >
+                      {t('datasource:jdbc.findDatabase')}
+                    </Button>
+                  )
+                }
                 >
                   <Input
                     onChange={(e) => changeJDBCUrl(e.detail.value)}
-                    placeholder="jdbc:protocol://host:port/db_name"
+                    placeholder="jdbc:protocol://host:port"
                     value={jdbcConnectionData.jdbc_connection_url}
                   />
                 </FormField>
@@ -734,7 +772,6 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                       changeSubnet(detail.selectedOption)
                     }
                     options={subnetOption}
-                    disabled={props.providerId !== 1}
                   />
                 </FormField>
                 <FormField

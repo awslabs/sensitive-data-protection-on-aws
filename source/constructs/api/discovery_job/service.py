@@ -23,7 +23,7 @@ sqs_resource = boto3.resource('sqs')
 
 sql_result = "SELECT database_type,account_id,region,s3_bucket,s3_location,rds_instance_id,database_name,table_name,column_name,identifiers,sample_data FROM job_detection_output_table where run_id='%d' and privacy = 1"
 sql_error = "SELECT account_id,region,database_type,database_name,table_name,error_message FROM job_detection_error_table where run_id='%d'"
-extra_py_files = f"s3://{const.ADMIN_BUCKET_NAME_PREFIX}-{admin_account_id}-{admin_region}/job/script/job_extra_files.zip"
+extra_py_files = f"s3://{admin_bucket_name}/job/script/job_extra_files.zip"
 
 
 def list_jobs(condition: QueryCondition):
@@ -258,7 +258,7 @@ def __start_run(job_id: int, run_id: int):
             job_name_structured = f"{const.SOLUTION_NAME}-{run_database.database_type}-{run_database.database_name}"
             job_name_unstructured = f"{const.SOLUTION_NAME}-{DatabaseType.S3_UNSTRUCTURED.value}-{run_database.database_name}"
             run_name = f'{const.SOLUTION_NAME}-{run_id}-{run_database.id}-{run_database.uuid}'
-            agent_bucket_name = f"{const.AGENT_BUCKET_NAME_PREFIX}-{run_database.account_id}-{run_database.region}"
+            # agent_bucket_name = f"{const.AGENT_BUCKET_NAME_PREFIX}-{run_database.account_id}-{run_database.region}"
             unstructured_parser_job_image_uri = f"{public_account_id}.dkr.ecr.{run_database.region}.amazonaws.com{url_suffix}/aws-sensitive-data-protection-models:v1.1.0"
             unstructured_parser_job_role = f"arn:{partition}:iam::{run_database.account_id}:role/{const.SOLUTION_NAME}UnstructuredParserRole-{run_database.region}"
             execution_input = {
@@ -289,7 +289,7 @@ def __start_run(job_id: int, run_id: int):
                 # "JobBookmarkOption": job_bookmark_option,
                 "DetectionThreshold": str(job.detection_threshold),
                 "OverWrite": str(job.overwrite),
-                "AgentBucketName": agent_bucket_name,
+                # "AgentBucketName": agent_bucket_name,
                 "AdminAccountId": admin_account_id,
                 "AdminBucketName": admin_bucket_name,
                 "AdditionalPythonModules": ','.join([module_path + w for w in wheels]),
@@ -416,15 +416,17 @@ def __create_job(database_type: str, account_id, region, database_name, job_name
 
 
 def __check_sfn_version(client_sfn, arn, account_id):
-    response = client_sfn.describe_state_machine(stateMachineArn=arn)
-    sfn_comment = json.loads(response['definition']).get('Comment', '')
-    version_index = sfn_comment.find('Version:')
-    if version_index == -1:
-        raise BizException(MessageEnum.DISCOVERY_JOB_AGENT_MISMATCHING_VERSION.get_code(),
-                           MessageEnum.DISCOVERY_JOB_AGENT_MISMATCHING_VERSION.get_msg())
-    agent_version = sfn_comment[version_index + len('Version:'):-1]
+    response = client_sfn.list_tags_for_resource(resourceArn=arn)
+    agent_version = 'Version Placeholder'
+    for tag in response['tags']:
+        if tag.get('key') == const.VERSION:
+            agent_version = tag.get('value')
+            break
     logger.info(f"{account_id} version is:{agent_version}")
-    if not version.startswith(agent_version):
+    # Only check if the solution version is consistent.
+    # Do not determine if the build version is consistent
+    agent_solution_version = agent_version.split('-')[0]
+    if not version.startswith(agent_solution_version):
         raise BizException(MessageEnum.DISCOVERY_JOB_AGENT_MISMATCHING_VERSION.get_code(),
                            MessageEnum.DISCOVERY_JOB_AGENT_MISMATCHING_VERSION.get_msg())
 

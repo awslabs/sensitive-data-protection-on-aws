@@ -37,11 +37,13 @@ const ProviderTab: React.FC<ProviderTabProps> = (props: ProviderTabProps) => {
     const providers: any = await getSourceProviders();
     const tmpTabList: any = [];
     providers.forEach((element: ProviderType) => {
-      tmpTabList.push({
-        label: element.provider_name,
-        id: element.id.toString(),
-        jdbc_type: getJDBCTypeByProviderId(element.id),
-      });
+      if (element.id !== 4) {
+        tmpTabList.push({
+          label: element.provider_name,
+          id: element.id.toString(),
+          jdbc_type: getJDBCTypeByProviderId(element.id),
+        });
+      }
     });
     if (providers.length > 0) {
       // has default provider

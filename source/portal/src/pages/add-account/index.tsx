@@ -42,6 +42,11 @@ const AddAccountContent = () => {
               content: <AddAccountInfo tagType={TAB_LIST.individual.id} />,
             },
             {
+              label: t(TAB_LIST.proxy.label),
+              id: TAB_LIST.proxy.id,
+              content: <AccountForm provider={provider} />,
+            },
+            {
               label: t(TAB_LIST.via.label),
               id: TAB_LIST.via.id,
               content: <AddAccountInfo tagType={TAB_LIST.via.id} />,

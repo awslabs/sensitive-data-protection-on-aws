@@ -326,10 +326,19 @@
                       }
                     }
                   ],
-                  "Next": "UnstructuredCrawler"
+                  "Next": "GetAgentBucketName"
                 }
               ],
               "Default": "Unstructured Job Succeeded"
+            },
+            "GetAgentBucketName": {
+              "Type": "Task",
+              "Next": "UnstructuredCrawler",
+              "Parameters": {
+                "Name": "SDPS-AgentBucketName"
+              },
+              "Resource": "arn:${AWS::Partition}:states:::aws-sdk:ssm:getParameter",
+              "ResultPath": "$.AgentBucketName"
             },
             "UnstructuredCrawler": {
               "Type": "Task",
@@ -338,7 +347,7 @@
                 "FunctionName": "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:SDPS-UnstructuredCrawler",
                 "Payload": {
                   "SourceBucketName.$": "$.DatabaseName",
-                  "ResultBucketName.$": "$.AgentBucketName",
+                  "ResultBucketName.$": "$.AgentBucketName.Parameter.Value",
                   "ScanDepth.$": "$.DepthUnstructured",
                   "IncludeFileExtensions.$": "$.IncludeFileExtensions",
                   "ExcludeFileExtensions.$": "$.ExcludeFileExtensions",
@@ -401,7 +410,7 @@
                     "ResultBucketNameValue": {
                       "Type": "Pass",
                       "End": true,
-                      "InputPath": "$.AgentBucketName"
+                      "InputPath": "$.AgentBucketName.Parameter.Value"
                     }
                   }
                 },
@@ -672,5 +681,5 @@
       "Next": "SQS SendMessage"
     }
   },
-  "Comment": "Sensitive Data Protection on AWS (Version:@TEMPLATE_SOLUTION_VERSION@)"
+  "Comment": "Sensitive Data Protection on AWS"
 }
