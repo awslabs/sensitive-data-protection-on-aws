@@ -58,9 +58,9 @@ sts = boto3.client('sts')
 """ :type : pyboto3.sts """
 
 _jdbc_url_patterns = [
-        r'jdbc:redshift://[\w.-]+:\d+/([\w-]+)',
-        r'jdbc:mysql://[\w.-]+:\d+/([\w-]+)',
-        r'jdbc:postgresql://[\w.-]+:\d+/([\w-]+)',
+        r'jdbc:redshift://[\w.-]+:\d+',
+        r'jdbc:mysql://[\w.-]+:\d+',
+        r'jdbc:postgresql://[\w.-]+:\d+',
         r'jdbc:oracle:thin://@[\w.-]+:\d+/([\w-]+)',
         r'jdbc:oracle:thin://@[\w.-]+:\d+:\w+',
         r'jdbc:sqlserver://[\w.-]+:\d+;databaseName=([\w-]+)',
@@ -505,7 +505,7 @@ def sync(glue, lakeformation, credentials, crawler_role_arn, jdbc: JDBCInstanceS
                     'Path': f"{trimmed_db_name}/%"
                 })
 
-        if schema:
+        if len(db_names) > 0:
             """ :type : pyboto3.glue """
             try:
                 conn = glue.get_connection(Name=glue_connection_name)
@@ -1849,112 +1849,6 @@ def test_jdbc_conn(jdbc_conn_param: JDBCInstanceSourceBase):
                                                  )
         crud.set_jdbc_instance_connection_status(jdbc_conn)
 
-
-def test_jdbc_conn2(jdbc_conn_param: JDBCInstanceSourceBase):
-    WAIT_INTERVAL_SECONDS = 10
-    jdbc_targets = []
-    created = 0
-    account_id = jdbc_conn_param.account_id if jdbc_conn_param.account_provider_id == Provider.AWS_CLOUD.value else admin_account_id
-    region = jdbc_conn_param.region if jdbc_conn_param.region == Provider.AWS_CLOUD.value else admin_region
-    lakeformation_client = __lakeformation(account=account_id, region=region)
-    crawler_role_arn = __gen_role_arn(account_id=account_id,
-                                      region=region,
-                                      role_name='GlueDetectionJobRole')
-    # get connection name from sdp db
-    source: JDBCInstanceSourceFullInfo = crud.get_jdbc_instance_source_glue(provider_id=jdbc_conn_param.account_provider_id,
-                                                                            account=jdbc_conn_param.account_id,
-                                                                            region=jdbc_conn_param.region,
-                                                                            instance_id=jdbc_conn_param.instance_id)
-    if not source or not source.glue_connection:
-        raise BizException(MessageEnum.SOURCE_JDBC_CONNECTION_NOT_EXIST.get_code(),
-                           MessageEnum.SOURCE_JDBC_CONNECTION_NOT_EXIST.get_msg())
-    t = time.time()
-    glue_database_name = f"TEMP-{t}-{jdbc_conn_param.instance_id}"
-    crawler_name = f"TEMP-{t}-{jdbc_conn_param.instance_id}"
-    try:
-        response = __glue(account_id, region).create_database(DatabaseInput={'Name': glue_database_name})
-        grant_lakeformation_permission(lakeformation_client, crawler_role_arn, glue_database_name, GRANT_PERMISSIONS_RETRIES)
-        schema = get_schema_from_url(source.jdbc_connection_url)
-        jdbc_targets.append({'ConnectionName': source.glue_connection,
-                             'Path': f"{schema}/%"})
-    except Exception as e:
-        logger.error(traceback.format_exc())
-    # 根据connection 创建临时crawler
-    try:
-        logger.info(f"glue_database_name is:>>>>>>>>>>>{glue_database_name}")
-        logger.info(f"glue_database_name is:>>>>>>>>>>>{jdbc_targets}")
-        response = __glue(account_id, region).create_crawler(
-            Name=crawler_name,
-            Role=crawler_role_arn,
-            DatabaseName=glue_database_name,
-            Targets={'JdbcTargets': jdbc_targets},
-            TablePrefix=f'Temp_{t}_',
-            Tags={
-                const.TAG_KEY: const.TAG_VALUE,
-                const.TAG_ADMIN_ACCOUNT_ID: admin_account_id
-            },
-        )
-        logger.info(response)
-        try:
-            start_response = __glue(account_id, region).start_crawler(
-                Name=crawler_name
-            )
-        except Exception as e:
-            logger.error(traceback.format_exc())
-
-        response = __glue(account_id, region).get_crawler(Name=crawler_name)
-        while response['Crawler']['State'] == 'RUNNING':
-            time.sleep(WAIT_INTERVAL_SECONDS)
-            response = __glue(account_id, region).get_crawler(Name=crawler_name)
-        
-        # 创建成功更新字段
-        logger.info("create_crawler success! update connection status started...")
-        jdbc_conn = JDBCInstanceSourceUpdateBase(account_provider_id=jdbc_conn_param.account_provider_id,
-                                                 account_id=jdbc_conn_param.account_id,
-                                                 region=jdbc_conn_param.region,
-                                                 instance_id=jdbc_conn_param.instance_id,
-                                                 connection_status="SUCCESS"
-                                                 )
-
-        crud.set_jdbc_instance_connection_status(jdbc_conn)
-        created = 1
-    except Exception as e:
-        logger.error(traceback.format_exc())
-        jdbc_conn = JDBCInstanceSourceUpdateBase(account_provider_id=jdbc_conn_param.account_provider_id,
-                                                 account_id=jdbc_conn_param.account_id,
-                                                 region=jdbc_conn_param.region,
-                                                 instance_id=jdbc_conn_param.instance_id,
-                                                 connection_status="FAIL"
-                                                 )
-        crud.set_jdbc_instance_connection_status(jdbc_conn)
-
-    # 删除临时crawler
-    if created == 1:
-        try:
-            response = __glue(account_id, region).get_crawler(Name=crawler_name)
-            if response['Crawler']['State'] == 'RUNNING':
-                __glue(account_id, region).stop_crawler(Name=crawler_name)
-                response = __glue(account_id, region).get_crawler(Name=crawler_name)
-                while response['Crawler']['State'] == 'STOPPING':
-                    logger.info("crawler status is stopping, waiting for stop finished...")
-                    time.sleep(WAIT_INTERVAL_SECONDS)
-                    response = __glue(account_id, region).get_crawler(Name=crawler_name)
-            logger.info("crawler is stopped!")
-            __glue(account_id, region).delete_crawler(Name=crawler_name)
-            logger.info("delete crawler status end!")
-        except Exception:
-            logger.error(traceback.format_exc())
-            pass
-        try:
-            logger.info("delete database status start!")
-            __glue(account_id, region).delete_database(Name=glue_database_name)
-            logger.info("delete database status end!")
-        except Exception:
-            logger.error(traceback.format_exc())
-            pass
-
-    # 返回结果
-    return "success" if created == 1 else "fail"
 
 def import_jdbc_conn(jdbc_conn: JDBCInstanceSourceBase):
     res_connection = None

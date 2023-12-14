@@ -9,4 +9,5 @@ export interface RightModalProps {
   header?: React.ReactNode;
   footer?: React.ReactNode;
   showFolderIcon?: boolean;
+  clickMaskToClose?: boolean;
 }
