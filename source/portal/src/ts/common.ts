@@ -9,6 +9,8 @@ export const CN_DOC_LINK =
   'https://awslabs.github.io/sensitive-data-protection-on-aws/zh';
 export const EN_DOC_LINK =
   'https://awslabs.github.io/sensitive-data-protection-on-aws/en';
+
+export const SDPS_DEBUG_MODE = 'SDPS_DEBUG_MODE';
 export interface ColumnList {
   id: string;
   label: string;
