@@ -505,7 +505,7 @@ def sync(glue, lakeformation, credentials, crawler_role_arn, jdbc: JDBCInstanceS
                     'Path': f"{trimmed_db_name}/%"
                 })
 
-        if len(db_names) > 0:
+        if db_names:
             """ :type : pyboto3.glue """
             try:
                 conn = glue.get_connection(Name=glue_connection_name)
