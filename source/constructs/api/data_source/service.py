@@ -58,8 +58,11 @@ sts = boto3.client('sts')
 """ :type : pyboto3.sts """
 
 _jdbc_url_patterns = [
+        r'jdbc:redshift://[\w.-]+:\d+/([\w-]+)',
         r'jdbc:redshift://[\w.-]+:\d+',
+        r'jdbc:mysql://[\w.-]+:\d+/([\w-]+)',
         r'jdbc:mysql://[\w.-]+:\d+',
+        r'jdbc:postgresql://[\w.-]+:\d+/([\w-]+)',
         r'jdbc:postgresql://[\w.-]+:\d+',
         r'jdbc:oracle:thin://@[\w.-]+:\d+/([\w-]+)',
         r'jdbc:oracle:thin://@[\w.-]+:\d+:\w+',
@@ -493,8 +496,10 @@ def sync(glue, lakeformation, credentials, crawler_role_arn, jdbc: JDBCInstanceS
                            MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_msg())
     try:
         # list schemas
+        db_names = set()
         schema = get_schema_from_url(url)
-        db_names = set([schema])
+        if schema:
+            db_names.add(schema)
         if schemas:
             db_names.update(set(schemas.splitlines()))
         for db_name in db_names:
@@ -2489,7 +2494,10 @@ def get_schema_from_url(url):
     for pattern in _jdbc_url_patterns:
         match = re.match(pattern, url)
         if match:
-            return match.group(1)
+            if match.groups():
+                return match.groups()[0]
+            return None
+
 
 def grant_lake_formation_permission(credentials, crawler_role_arn, glue_database_name):
     lakeformation = boto3.client('lakeformation',
