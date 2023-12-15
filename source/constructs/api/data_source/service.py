@@ -493,8 +493,7 @@ def sync(glue, lakeformation, credentials, crawler_role_arn, jdbc: JDBCInstanceS
                            MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_msg())
     try:
         # list schemas
-        schema = get_schema_from_url(url)
-        db_names = set([schema])
+        db_names = set()
         if schemas:
             db_names.update(set(schemas.splitlines()))
         for db_name in db_names:
