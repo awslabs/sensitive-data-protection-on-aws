@@ -866,14 +866,13 @@ def sync_job_detection_result(
     logger.info("column opt time")
     crud.batch_update_catalog_column_level_classification_by_id(column_dict_list)
     logger.info("column update time")
-    logger.info(len(column_dict_list))
+    logger.info(f"column_dict_list:{len(column_dict_list)}")
     if m <= 1:
-        logger.info("sync_job_detection_result none data update because of m <= 1 and m is:" + str(m) + database_name)
+        logger.info(f"{database_name} sync_job_detection_result none data update because of m <= 1 and m is:{m}")
         return True
-    logger.info("sync_job_detection_result affected row count is :" + str(m) + database_name)
+    logger.info(f"{database_name} sync_job_detection_result affected row count is :{m}")
     if not table_size_dict:
-        logger.info(
-            "sync_job_detection_result - RESET NA TABLE AND COLUMNS WHEN TABLE_SIZE IS ZERO ")
+        logger.info(f"{database_name} sync_job_detection_result - RESET NA TABLE AND COLUMNS WHEN TABLE_SIZE IS ZERO ")
     # Initialize database privacy with NON-PII
     database_privacy = Privacy.NON_PII.value
     # The two dict has all tables as key.
@@ -887,7 +886,7 @@ def sync_job_detection_result(
             DatabaseType.S3_UNSTRUCTURED.value,
             database_name)
         database_catalog_table_dict.update(database_catalog_table_dict_unstructured)
-    logger.info("table db time")
+    logger.debug("table db time")
     logger.debug(database_catalog_table_dict)
     for table_name in table_size_dict:
         table_size = table_size_dict[table_name]

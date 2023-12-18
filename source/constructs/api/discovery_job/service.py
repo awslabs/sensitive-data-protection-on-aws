@@ -279,8 +279,8 @@ def __start_run(job_id: int, run_id: int):
                 "TableName": job_placeholder if is_empty(run_database.table_name) else run_database.table_name,
                 "TemplateId": str(run.template_id),
                 "TemplateSnapshotNo": str(run.template_snapshot_no),
-                "DepthStructured": "100" if run.depth_structured is None else str(run.depth_structured),
-                "DepthUnstructured": "10" if run.depth_unstructured is None else str(run.depth_unstructured),
+                "DepthStructured": "0" if run.depth_structured is None else str(run.depth_structured),
+                "DepthUnstructured": "0" if run.depth_unstructured is None else str(run.depth_unstructured),
                 "ExcludeKeywords": job_placeholder if is_empty(run.exclude_keywords) else run.exclude_keywords,
                 "IncludeKeywords": job_placeholder if is_empty(run.include_keywords) else run.include_keywords,
                 "ExcludeFileExtensions": job_placeholder if is_empty(run.exclude_file_extensions) else run.exclude_file_extensions,
@@ -604,7 +604,7 @@ def get_run_progress(job_id: int, run_id: int) -> list[schemas.DiscoveryJobRunDa
                     run_database.table_count = len(run_database.table_name.split(","))
                 else:
                     run_database.table_count = __get_table_count_from_agent(run_database, base_time)
-                if run_database.database_type == DatabaseType.S3.value and run.depth_unstructured > 0:
+                if run_database.database_type == DatabaseType.S3.value and run.depth_unstructured != 0:
                     run_database.table_count_unstructured = __get_table_count_from_agent(run_database, base_time, False)
                 crud.save_run_database(run_database)
             except Exception:
