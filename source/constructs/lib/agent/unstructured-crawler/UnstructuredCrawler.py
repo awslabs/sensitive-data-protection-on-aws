@@ -124,9 +124,11 @@ def postprocess_crawler_result(crawler_result, scan_depth):
     Postprocesses the crawler result and returns the crawler result.
     """
     for key, value in crawler_result.items():
-        sample_size = scan_depth if scan_depth < len(value["sample_files"]) else len(value["sample_files"])
-        if len(value["sample_files"]) > sample_size:
-            value["sample_files"] = random.sample(value["sample_files"], sample_size)
+        # Perform sampling only when scan_depth > 0, because scan_depth = -1 means no sampling
+        if scan_depth > 0:
+            sample_size = scan_depth if scan_depth < len(value["sample_files"]) else len(value["sample_files"])
+            if len(value["sample_files"]) > sample_size:
+                value["sample_files"] = random.sample(value["sample_files"], sample_size)
     return crawler_result
 
 def list_s3_objects(bucket_name, scan_depth, include_file_extensions, 

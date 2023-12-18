@@ -15,5 +15,14 @@ class DocParser(BaseParser):
         file_content = ""
         for para in doc.paragraphs:
             file_content += para.text + "\n"
+        
+        prev_paragraph = ""
+        for table in doc.tables:
+            for row in table.rows:
+                for cell in row.cells:
+                    for paragraph in cell.paragraphs:
+                        if paragraph.text != prev_paragraph:
+                            file_content += paragraph.text + "\n"
+                            prev_paragraph = paragraph.text
 
         return [file_content]
