@@ -35,6 +35,21 @@ def group_files_by_extension(sample_files):
         sample_file_extension_dict[sample_file_extension].append(sample_file)
     return sample_file_extension_dict
 
+def split_dictionary(raw_dictionary, chunk_size=100):
+    keys = list(raw_dictionary.keys())
+    total_items = len(keys)
+    num_chunks = (total_items + chunk_size - 1) // chunk_size
+
+    split_dictionaries = []
+    for i in range(num_chunks):
+        start_index = i * chunk_size
+        end_index = (i + 1) * chunk_size
+        chunk_keys = keys[start_index:end_index]
+        chunk_dict = {key: raw_dictionary[key] for key in chunk_keys}
+        split_dictionaries.append(chunk_dict)
+
+    return split_dictionaries
+
 def get_previous_tables(glue_client, database_name):
 
     tables = []
@@ -55,9 +70,11 @@ def get_previous_tables(glue_client, database_name):
     return tables
 
 
-def organize_table_info(table_name, result_bucket_name, original_bucket_name, file_info, columns, file_category):
+def organize_table_info(table_name, result_bucket_name, original_bucket_name, file_info, columns, file_category, split_file_content_id):
 
-    description = json.dumps(file_info, ensure_ascii=False)
+    simplified_file_info = copy.deepcopy(file_info)
+    simplified_file_info['sample_files'] = simplified_file_info['sample_files'][:10]
+    description = json.dumps(simplified_file_info, ensure_ascii=False)
     s3_location = f"s3://{result_bucket_name}/parser_results/{table_name}/"
     input_format = 'org.apache.hadoop.mapred.TextInputFormat'
     output_format = 'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
@@ -72,7 +89,8 @@ def organize_table_info(table_name, result_bucket_name, original_bucket_name, fi
                   'sizeKey': str(file_info['total_file_size']),
                   'objectCount': str(file_info['total_file_count']),
                   'Unstructured': 'true',
-                  'classification': 'csv'}
+                  'classification': 'csv',
+                  'splitFileContentId': str(split_file_content_id)}
     glue_table_columns = [{'Name': 'index', 'Type': 'string'}]
     for column in columns:
         glue_table_columns.append({'Name': column, 'Type': 'string'})
@@ -227,26 +245,31 @@ def main(param_dict):
             try:
                 file_contents = batch_process_files(s3_client, original_file_bucket_name, file_info, file_category)
 
-                # convert file_contents to dataframe
-                df = pd.DataFrame.from_dict(file_contents, orient='index')
-                df = df.transpose()
-                columns = df.columns.tolist()
+                # split file_contents into several dictionaries, with which contain 100 files at most
+                split_file_contents_list = split_dictionary(file_contents, chunk_size=100)
+                len_split_file_contents_list = len(split_file_contents_list)
+                for split_file_content_id, split_file_contents in enumerate(split_file_contents_list):
+                    # convert file_contents to dataframe
+                    df = pd.DataFrame.from_dict(split_file_contents, orient='index')
+                    df = df.transpose()
+                    columns = df.columns.tolist()
 
-                # dump file_info into string and encode in base64 as filename
-                table_name = file_path.replace('/', '_')
-                table_name = table_name.replace('.', '_')
-                table_name = original_file_bucket_name + '_' + table_name
+                    # dump file_info into string and encode in base64 as filename
+                    table_name = file_path.replace('/', '_') if len_split_file_contents_list == 1 else file_path.replace('/', '_') + '_part' + str(split_file_content_id)
+                    table_name = table_name.replace('.', '_')
+                    table_name = original_file_bucket_name + '_' + table_name
 
-                # save to csv and upload to s3
-                with tempfile.NamedTemporaryFile(mode='w') as temp:
-                    csv_file_path = temp.name
-                    df.to_csv(csv_file_path, header=False)
-                    s3_client.upload_file(csv_file_path, crawler_result_bucket_name, f"parser_results/{table_name}/result.csv")
+                    # save to csv and upload to s3
+                    with tempfile.NamedTemporaryFile(mode='w') as temp:
+                        csv_file_path = temp.name
+                        df.to_csv(csv_file_path, header=False)
+                        s3_client.upload_file(csv_file_path, crawler_result_bucket_name, f"parser_results/{table_name}/result.csv")
 
-                glue_table_info = organize_table_info(table_name, crawler_result_bucket_name, original_file_bucket_name, file_info, columns, file_category)
-                create_glue_table(glue_client, destination_database, table_name, glue_table_info)
-            except:
-                print(f"Error occured processing {file_path}...")
+                    glue_table_info = organize_table_info(table_name, crawler_result_bucket_name, original_file_bucket_name, file_info, columns, file_category, split_file_content_id)
+                    create_glue_table(glue_client, destination_database, table_name, glue_table_info)
+
+            except Exception as e:
+                print(f"Error occured processing {file_path}. Error message: {e}")
 
     
 if __name__ == '__main__':

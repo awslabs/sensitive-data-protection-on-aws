@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import TopNavigation from '@cloudscape-design/components/top-navigation';
 import './style.scss';
 import { AmplifyConfigType } from 'ts/types';
-import { AMPLIFY_CONFIG_JSON, buildDocLink, buildCommitLink } from 'ts/common';
+import { AMPLIFY_CONFIG_JSON, buildDocLink, buildCommitLink, SDPS_DEBUG_MODE } from 'ts/common';
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
 
@@ -30,6 +30,7 @@ const LayoutHeader: React.FC<LayoutHeaderProps> = ({
   const originConfig = localStorage.getItem(AMPLIFY_CONFIG_JSON);
   const configData: AmplifyConfigType = JSON.parse(originConfig || '{}');
   const [displayName, setDisplayName] = useState('');
+  const [debugMode, setDebugMode] = useState(false);
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
@@ -122,6 +123,10 @@ const LayoutHeader: React.FC<LayoutHeaderProps> = ({
                   // disabled: true,
                   // href: RouterEnum.TimeLine.path,
                 },
+                {
+                  id: 'debug',
+                  text: debugMode ? 'Mode : Debug' : 'Mode : Prod',
+                },
               ],
             },
             { id: 'signout', text: t('header.signout') || '' },
@@ -136,6 +141,10 @@ const LayoutHeader: React.FC<LayoutHeaderProps> = ({
               } else {
                 signOut?.();
               }
+            }
+            if (item.detail.id === 'debug') {
+              setDebugMode(!debugMode);
+              localStorage.setItem(SDPS_DEBUG_MODE, debugMode.toString());
             }
           },
         },
