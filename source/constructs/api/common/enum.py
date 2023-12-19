@@ -123,6 +123,8 @@ class MessageEnum(Enum):
     SOURCE_JDBC_ALREADY_IMPORTED = {1255: "JDBC connection with the same instance already be imported"}
     SOURCE_JDBC_LIST_DATABASES_NOT_SUPPORTED = {1256: "JDBC list databases not supported."}
     SOURCE_JDBC_LIST_DATABASES_FAILED = {1257: "JDBC list databases failed."}
+    SOURCE_ACCOUNT_ID_ALREADY_EXISTS = {1256: "A duplicate account with the same name already exists. Please note that account names must be unique."}
+    
     # label
     LABEL_EXIST_FAILED = {1611: "Cannot create duplicated label"}
 

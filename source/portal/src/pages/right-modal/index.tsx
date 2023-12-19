@@ -14,6 +14,7 @@ const RightModal: React.FC<RightModalProps> = (props: RightModalProps) => {
     header,
     footer,
     showFolderIcon,
+    clickMaskToClose = false,
   } = props;
 
   const [showCss, setShowCss] = useState(false);
@@ -23,9 +24,11 @@ const RightModal: React.FC<RightModalProps> = (props: RightModalProps) => {
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
     needClose: boolean
   ) => {
-    e.stopPropagation();
-    e.preventDefault();
-    !needClose && setShowModal(needClose);
+    if (clickMaskToClose) {
+      e.stopPropagation();
+      e.preventDefault();
+      !needClose && setShowModal(needClose);
+    }
   };
 
   useEffect(() => {

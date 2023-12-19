@@ -411,7 +411,18 @@ def agg_catagg_catalog_summary_by_modifieralog_top_n(database_type: str):
 @inject_session
 def get_database_property(
     condition: QueryCondition
-):  
+):
+    s3_type = False
+    for condition_value in condition.conditions:
+        if condition_value.column == 'database_type' and 's3' in condition_value.values:
+            s3_type = True
+    if s3_type:
+        result_list = service_dashboard.get_database_by_identifier_paginate_s3(condition)
+        response = {"items": result_list,
+                    "total": len(result_list),
+                    "page": condition.page,
+                    "size": condition.size}
+        return response
     result_list = service_dashboard.get_database_by_identifier_paginate(condition)
     response = {"items": result_list, 
                 "total": len(result_list), 

@@ -220,3 +220,10 @@ export const numberFormat = (value: { toString: () => string }) => {
     return intPartFormat;
   }
 };
+
+export const combinedProviders = (id?: { toString: () => string }) => {
+  if (!id) {
+    return null;
+  }
+  return Number(id) !== 1 ? [Number(id)] : [1, 4]
+};

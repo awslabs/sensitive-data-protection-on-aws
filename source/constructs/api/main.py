@@ -25,7 +25,7 @@ logger = logging.getLogger(const.LOGGER_API)
 # use global list to cache token, we will use DDB in the future.
 token_list = []
 
-version = os.getenv("Version", "1.0.0")
+version = os.getenv(const.VERSION, "1.0.0")
 app = FastAPI(
     title=const.SOLUTION_FULL_NAME,
     description='',

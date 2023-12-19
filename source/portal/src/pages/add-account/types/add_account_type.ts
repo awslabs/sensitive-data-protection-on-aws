@@ -1,5 +1,6 @@
 export const TAB_LIST = {
   via: { id: 'via', label: 'account:add.org.via' },
+  proxy: { id: 'proxy', label: 'account:add.proxy.via' },
   individual: { id: 'individual', label: 'account:add.account.via' },
 };
 

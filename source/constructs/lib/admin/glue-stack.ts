@@ -225,7 +225,7 @@ export class GlueStack extends Construct {
       layers: [addPartitionLayer],
       role: addPartitionRole,
       environment: {
-        ProjectBucketName: props.bucket.bucketName,
+        AdminBucketName: props.bucket.bucketName,
       },
     });
     addPartitionFunction.node.addDependency(addPartitionRole);

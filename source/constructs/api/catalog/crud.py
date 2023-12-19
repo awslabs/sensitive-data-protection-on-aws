@@ -327,6 +327,22 @@ def get_catalog_table_level_classification_by_identifier_and_database_type(
     return result
 
 
+def get_s3_catalog_table_level_classification_by_identifier(
+        identifier: str
+):
+    result = (
+        get_session()
+        .query(models.CatalogTableLevelClassification)
+        .filter(models.CatalogTableLevelClassification.database_type.in_([DatabaseType.S3.value, DatabaseType.S3_UNSTRUCTURED.value]))
+        .filter(
+            models.CatalogTableLevelClassification.identifiers.ilike(
+                "%" + identifier + "%"
+            )
+        )
+    )
+    return result
+
+
 def create_catalog_column_level_classification(catalog_column: dict):
     parsed_schema = parse_pydantic_schema(catalog_column)
     db_catalog = models.CatalogColumnLevelClassification(

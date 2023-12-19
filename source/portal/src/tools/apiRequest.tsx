@@ -4,7 +4,7 @@ import { AlertType } from 'ts/common-alert/types';
 import { ApiRequest } from 'ts/tools/types';
 import { alertMsg } from './tools';
 import { User } from 'oidc-client-ts';
-import { AMPLIFY_CONFIG_JSON, BACKEND_URL_KEY } from 'ts/common';
+import { AMPLIFY_CONFIG_JSON, BACKEND_URL_KEY, SDPS_DEBUG_MODE } from 'ts/common';
 import { AmplifyConfigType } from 'ts/types';
 
 // Back-end Request Url
@@ -234,10 +234,7 @@ export const apiRequest = (
             if (result && result.status === SUCCESS_STATUS) {
               resolve(result.data);
             } else {
-              alertMsg(
-                result?.message || 'error',
-                COMMON_ALERT_TYPE.Error as AlertType
-              );
+              modeAlert(result);
               reject(result?.message);
             }
           })
@@ -256,10 +253,7 @@ export const apiRequest = (
             if (result && result.status === SUCCESS_STATUS) {
               resolve(result.data);
             } else {
-              alertMsg(
-                result?.message || 'error',
-                COMMON_ALERT_TYPE.Error as AlertType
-              );
+              modeAlert(result);
               reject(result?.message);
             }
           })
@@ -422,4 +416,15 @@ function errMsg(err: {
     'Network error please try again later',
     COMMON_ALERT_TYPE.Error as AlertType
   );
+}
+
+function modeAlert(result: ApiRequest) {
+  if(localStorage.getItem(SDPS_DEBUG_MODE) === 'true' && result?.code === 1000) {
+    console.error(result?.message);
+  } else {
+    alertMsg(
+      result?.message || 'error',
+      COMMON_ALERT_TYPE.Error as AlertType
+    );
+  }
 }

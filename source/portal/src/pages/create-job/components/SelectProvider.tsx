@@ -38,18 +38,20 @@ const SelectProvider: React.FC<SelectProviderProps> = (
     const providers: any = await getSourceProviders();
     const tmpProviderList: TilesProps.TilesDefinition[] = [];
     providers.forEach((element: ProviderType) => {
-      tmpProviderList.push({
-        label: element.provider_name,
-        description: element.description,
-        image: (
-          <img
-            width="70%"
-            src={`/logos/${element.id}.svg`}
-            alt={element.provider_name}
-          />
-        ),
-        value: element.id.toString(),
-      });
+      if (element.id !== 4) {
+        tmpProviderList.push({
+          label: element.provider_name,
+          description: element.description,
+          image: (
+            <img
+              width="70%"
+              src={`/logos/${element.id}.svg`}
+              alt={element.provider_name}
+            />
+          ),
+          value: element.id.toString(),
+        });
+      }
     });
     if (providers.length > 0) {
       if (jobData.provider_id) {

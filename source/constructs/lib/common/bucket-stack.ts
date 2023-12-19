@@ -35,7 +35,7 @@ export class BucketStack extends Construct {
     const bucketPrefix = props?.prefix ?? SolutionInfo.SOLUTION_ADMIN_S3_BUCKET;
 
     this.bucket = new Bucket(this, 'Bucket', {
-      bucketName: `${bucketPrefix}-${Aws.ACCOUNT_ID}-${Aws.REGION}`,
+      // bucketName: `${bucketPrefix}-${Aws.ACCOUNT_ID}-${Aws.REGION}`,
       objectOwnership: ObjectOwnership.BUCKET_OWNER_ENFORCED,
       encryption: props?.encryption ?? BucketEncryption.S3_MANAGED,
       enforceSSL: props?.enforceSSL ?? true,

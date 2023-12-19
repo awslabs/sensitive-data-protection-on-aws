@@ -196,6 +196,11 @@ const deleteGlueDatabase =  async (params: any) => {
   return result;
 };
 
+const queryJdbcDatabases =  async (params: any) => {
+  const result = await apiRequest('post', 'data-source/jdbc-databases', params);
+  return result;
+};
+
 export {
   getDataSourceS3ByPage,
   getDataSourceRdsByPage,
@@ -231,5 +236,6 @@ export {
   queryConnectionDetails,
   connectDataSourceGlue,
   deleteGlueDatabase,
-  updateConnection
+  updateConnection,
+  queryJdbcDatabases
 };
