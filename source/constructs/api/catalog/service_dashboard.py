@@ -279,3 +279,32 @@ def get_database_by_identifier_paginate(condition: QueryCondition):
         if page_end > len(result_list):
             page_end = len(result_list)
         return result_list[(condition.page - 1) * condition.size: page_end]
+
+
+def get_database_by_identifier_paginate_s3(condition: QueryCondition):
+    result_list = []
+    database_set = set()
+    identifier = ""
+    for con in condition.conditions:
+        if con.column == "identifiers":
+            identifier = con.values[0]
+    table_list = crud.get_s3_catalog_table_level_classification_by_identifier(identifier)
+    for table in table_list:
+        database_full_name = table.account_id + "|" + table.region + "|" + table.database_type + "|" + table.database_name
+        database_set.add(database_full_name)
+    database_list = sorted(list(database_set))
+    for database_full_name in database_list:
+        database_info = database_full_name.split("|")
+        result_db = crud.get_catalog_database_level_classification_by_name(database_info[0],
+                                                                          database_info[1],
+                                                                          database_info[2],
+                                                                          database_info[3])
+        if result_db:
+            result_list.append(result_db)
+    if condition.size >= len(result_list):
+        return result_list
+    else:
+        page_end = condition.page * condition.size
+        if page_end > len(result_list):
+            page_end = len(result_list)
+        return result_list[(condition.page - 1) * condition.size: page_end]
