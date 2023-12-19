@@ -42,7 +42,10 @@ def __deduplicate_list_of_objects(lst):
 
 def create_job(job: schemas.DiscoveryJobCreate):
     job.databases = __deduplicate_list_of_objects(job.databases)
-
+    if job.depth_structured is None:
+        job.depth_structured = 0
+    if job.depth_unstructured is None:
+        job.depth_unstructured = -1  # -1 represents all
     db_job = crud.create_job(job)
     if db_job.schedule != const.ON_DEMAND:
         create_event(db_job.id, db_job.schedule)
