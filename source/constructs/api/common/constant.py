@@ -65,19 +65,29 @@ const.SYSTEM = 'system'
 const.SAMPLE_LIMIT = 1000
 const.LAMBDA_MAX_RUNTIME = 900
 const.EXPORT_FILE_S3_COLUMNS = ["account_id", "region", "type", "s3_bucket", "folder_name", "column_name", "column_path", "identifiers", "sample_data",
-                                "bucket_catalog_label", "folder_catalog_label", "comment"]
+                                "bucket_catalog_label", "folder_catalog_label", "comment", "last_updated_at", "last_updated_by"]
+const.EXPORT_FILE_S3_UNSTRUCTURED_COLUMNS = ["account_id", "region", "type", "s3_bucket", "folder_name", "sample_object_name", "s3_location",
+                                             "identifiers", "sample_data", "bucket_catalog_label", "folder_catalog_label", "comment", "last_updated_at", "last_updated_by"]
 const.EXPORT_FILE_RDS_COLUMNS = ["account_id", "region", "type", "rds_instance_id", "table_name", "column_name", "identifiers", "sample_data",
-                                 "instance_catalog_label", "table_catalog_label", "comment"]
-const.EXPORT_FILE_GLUE_COLUMNS = ["account_id", "region", "type", "glue_database", "table_name",  "column_name", "identifiers", "sample_data",
-                                 "instance_catalog_label", "table_catalog_label", "comment"]
+                                 "instance_catalog_label", "table_catalog_label", "comment", "last_updated_at", "last_updated_by"]
+const.EXPORT_FILE_GLUE_COLUMNS = ["account_id", "region", "type", "glue_database", "table_name", "column_name", "identifiers", "sample_data",
+                                  "instance_catalog_label", "table_catalog_label", "comment", "last_updated_at", "last_updated_by"]
 const.EXPORT_FILE_JDBC_COLUMNS = ["account_id", "region", "type", "jdbc_connection", "table_name", "column_name", "identifiers", "sample_data",
-                                 "instance_catalog_label", "table_catalog_label", "comment"]
+                                  "instance_catalog_label", "table_catalog_label", "comment", "last_updated_at", "last_updated_by"]
 const.EXPORT_XLSX_MAX_LINES = 30000
 const.EXPORT_CSV_MAX_LINES = 60000
-const.EXPORT_S3_MARK_STR = "Amazon_S3"
-const.EXPORT_RDS_MARK_STR = "Amazon_RDS"
-const.EXPORT_GLUE_MARK_STR = "Amazon_GLUE"
+const.EXPORT_S3_MARK_STR = "AWS_S3(StructuredData)"
+const.EXPORT_S3_UNSTRUCTURED_MARK_STR = "AWS_S3(unstructuredData)"
+const.EXPORT_RDS_MARK_STR = "AWS_RDS"
+const.EXPORT_GLUE_MARK_STR = "AWS_GLUE"
 const.EXPORT_JDBC_MARK_STR = "JDBC"
+const.EXPORT_SHEET_TITLE = "CATALOG_DATA"
+const.EXPORT_S3_SHEET_TITLE = "S3_STRUCTURED"
+const.EXPORT_S3_UNSTRUCTURED_SHEET_TITLE = "S3_UNSTRUCTURED"
+const.EXPORT_RDS_SHEET_TITLE = "RDS"
+const.EXPORT_GLUE_SHEET_TITLE = "GLUE"
+const.EXPORT_JDBC_SHEET_TITLE = "JDBC"
+const.ACTIVE_SHEET_LIST = ["S3_STRUCTURED", "RDS", "GLUE", "JDBC"]
 const.SECURITY_GROUP_JDBC = "SDPS-CustomDB"
 const.NUMBER_OF_OBJECTS = 'NumberOfObjects'
 const.BUCKET_SIZE_BYTES = 'BucketSizeBytes'

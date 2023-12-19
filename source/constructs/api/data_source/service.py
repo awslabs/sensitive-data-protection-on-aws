@@ -2443,7 +2443,7 @@ def query_account_network(account: AccountInfo):
     logger.info(f'accont_id is:{accont_id},region is {region}')
     ec2_client, __ = __ec2(account=accont_id, region=region)
 
-    vpc_list = [{"vpcId":vpc['VpcId'], "name":gen_resource_name(vpc)} for vpc in ec2_client.describe_vpcs()['Vpcs']]
+    vpc_list = [{"vpcId": vpc['VpcId'], "name": gen_resource_name(vpc)} for vpc in ec2_client.describe_vpcs()['Vpcs']]
     # accont_id, region = gen_assume_info(account)
     if account.account_provider_id != Provider.AWS_CLOUD.value:
         res = __query_third_account_network(vpc_list, ec2_client)
@@ -2461,9 +2461,14 @@ def __query_third_account_network(vpc_list, ec2_client: any):
         ])
         vpc_ids = [item['VpcId'] for item in response['SecurityGroups']]
         subnets = ec2_client.describe_subnets(Filters=[{'Name': 'vpc-id', 'Values': [vpc_ids[0]]}])['Subnets']
-        private_subnet = list(filter(lambda x: not x["MapPublicIpOnLaunch"], subnets))
+        # private_subnet = list(filter(lambda x: not x["MapPublicIpOnLaunch"], subnets))
+        selected_subnet = subnets
+        subnets_str_from_env = os.getenv('SubnetIds', '')
+        if subnets_str_from_env:
+            subnets_from_env = subnets_str_from_env.split(',')
+            selected_subnet = [item for item in subnets if item.get('SubnetId') in subnets_from_env]
         # target_subnet = private_subnet[0] if private_subnet else subnets[0]
-        target_subnets = [{'subnetId': subnet["SubnetId"], 'arn': subnet["SubnetArn"], "subnetName": gen_resource_name(subnet)} for subnet in private_subnet]
+        target_subnets = [{'subnetId': subnet["SubnetId"], 'arn': subnet["SubnetArn"], "subnetName": gen_resource_name(subnet)} for subnet in selected_subnet]
         vpc_info = ec2_client.describe_vpcs(VpcIds=[vpc_ids[0]])['Vpcs'][0]
         return {"vpcs": [{'vpcId': vpc_info['VpcId'],
                           'vpcName': [obj for obj in vpc_info['Tags'] if obj["Key"] == "Name"][0]["Value"],
