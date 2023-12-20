@@ -1068,6 +1068,8 @@ def get_export_catalog_data():
                                models.CatalogDatabaseLevelClassification.label_ids,
                                models.CatalogTableLevelClassification.label_ids,
                                models.CatalogColumnLevelClassification.comments,
+                               models.CatalogColumnLevelClassification.modify_time,
+                               models.CatalogColumnLevelClassification.modify_by
                                ).join(models.CatalogTableLevelClassification,
                                       models.CatalogColumnLevelClassification.account_id == models.CatalogTableLevelClassification.account_id
                                       ).join(models.CatalogDatabaseLevelClassification,
