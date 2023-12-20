@@ -45,7 +45,10 @@ def create_job(job: schemas.DiscoveryJobCreate):
     if job.depth_structured is None:
         job.depth_structured = 0
     if job.depth_unstructured is None:
-        job.depth_unstructured = -1  # -1 represents all
+        if job.database_type == DatabaseType.S3.value:
+            job.depth_unstructured = -1  # -1 represents all
+        else:
+            job.depth_unstructured = 0
     db_job = crud.create_job(job)
     if db_job.schedule != const.ON_DEMAND:
         create_event(db_job.id, db_job.schedule)
