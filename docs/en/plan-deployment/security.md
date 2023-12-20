@@ -29,3 +29,19 @@ For example, if you want to create alarms to monitor ActiveConnectionCount in NA
 6. In the **Notification**, configure CloudWatch to send you an email when the alarm state is triggered.
 7. Choose **Next**.
 8. Enter a name and description for the alarm and **Create alarm**.
+
+
+##  Enabling access logging for the Admin account S3 bucket
+
+After deploying the solution, you can enable access logs for the Admin account's S3 bucket to detect and prevent security issues. Enabling logging allows Amazon S3 to deliver access logs to a destination bucket of your choice. The destination bucket must be within the same AWS Region and AWS account as the Admin account's S3 bucket.
+
+If you want to enable access logging for the Admin account S3 bucket using the S3 console, follow the steps below.
+
+1. Sign in to the [AWS Management Console](https://console.aws.amazon.com/).
+2. Access the S3 console.
+3. Find the S3 bucket after the CloudFormation stack deployment, the bucket name is start with the CloudFormation stack name.
+4. Click on the "Properties" tab.
+5. Scroll down to the "Server access logging" section and click on "Edit".
+6. Choose the option "Enable" to enable access logging for the S3 bucket.
+7. In the "Target bucket" field, select the bucket where you want to store the access logs.
+8. Click on "Save" to enable access logging for the S3 bucket.
