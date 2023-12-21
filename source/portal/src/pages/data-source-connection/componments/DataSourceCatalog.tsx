@@ -38,7 +38,11 @@ const DataSourceCatalog: React.FC<GlueJobCatalogProps> = (
       conditions: [
         {
           column: 'database_type',
-          values: [getJDBCTypeByProviderId(providerId)],
+          values: [
+            catalogType.startsWith('jdbc')
+              ? getJDBCTypeByProviderId(providerId)
+              : catalogType,
+          ],
           condition: 'and',
         },
         {
