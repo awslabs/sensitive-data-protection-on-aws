@@ -1378,19 +1378,23 @@ def refresh_third_data_source(provider_id: int, accounts: list[str], type: str):
 def get_data_source_coverage(provider_id):
     provider_id = int(provider_id)
     if provider_id == Provider.AWS_CLOUD.value:
-        res = SourceCoverage(s3_total=crud.get_total_s3_buckets_count(),
-                             s3_connected=crud.get_connected_s3_buckets_size(),
-                             rds_total=crud.get_total_rds_instances_count(),
-                             rds_connected=crud.get_connected_rds_instances_count(),
-                             glue_total=crud.get_total_glue_database_count(),
-                             glue_connected=crud.get_connected_glue_database_count(),
-                             jdbc_total=crud.get_total_jdbc_instances_count(provider_id),
-                             jdbc_connected=crud.get_connected_jdbc_instances_count(provider_id)
-                             )
+        res = SourceCoverage(
+            s3_total=crud.get_total_s3_buckets_count(),
+            s3_connected=crud.get_connected_s3_buckets_size(),
+            rds_total=crud.get_total_rds_instances_count(),
+            rds_connected=crud.get_connected_rds_instances_count(),
+            glue_total=crud.get_total_glue_database_count(),
+            glue_connected=crud.get_connected_glue_database_count(),
+            jdbc_total=crud.get_total_jdbc_instances_count(provider_id) + crud.get_total_jdbc_instances_count(
+                Provider.JDBC_PROXY),
+            jdbc_connected=crud.get_connected_jdbc_instances_count(
+                provider_id) + crud.get_connected_jdbc_instances_count(Provider.JDBC_PROXY)
+        )
     else:
-        res = SourceCoverage(jdbc_total=crud.get_total_jdbc_instances_count(provider_id),
-                             jdbc_connected=crud.get_connected_jdbc_instances_count(provider_id)
-                             )
+        res = SourceCoverage(
+            jdbc_total=crud.get_total_jdbc_instances_count(provider_id),
+            jdbc_connected=crud.get_connected_jdbc_instances_count(provider_id)
+        )
     return res
 
 
