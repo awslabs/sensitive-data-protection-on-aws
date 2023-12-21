@@ -261,7 +261,8 @@
                         "--TableBegin.$": "$.TableBegin",
                         "--TableEnd.$": "$.TableEnd",
                         "--additional-python-modules.$": "$.AdditionalPythonModules",
-                        "--extra-py-files.$": "$.ExtraPyFiles"
+                        "--extra-py-files.$": "$.ExtraPyFiles",
+                        "--enable-glue-datacatalog": "true"
                       }
                     },
                     "End": true,

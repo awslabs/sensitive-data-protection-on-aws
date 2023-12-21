@@ -491,17 +491,8 @@ def sync(glue, lakeformation, credentials, crawler_role_arn, jdbc: JDBCInstanceS
     if state == ConnectionState.CRAWLING.value:
         raise BizException(MessageEnum.SOURCE_CONNECTION_CRAWLING.get_code(),
                            MessageEnum.SOURCE_CONNECTION_CRAWLING.get_msg())
-    if not __validate_jdbc_url(url):
-        raise BizException(MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_code(),
-                           MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_msg())
+    db_names = get_db_names(url, schemas)
     try:
-        # list schemas
-        db_names = set()
-        schema = get_schema_from_url(url)
-        if schema:
-            db_names.add(schema)
-        if schemas:
-            db_names.update(set(schemas.splitlines()))
         for db_name in db_names:
             trimmed_db_name = db_name.strip()
             if trimmed_db_name:
@@ -1636,6 +1627,7 @@ def import_glue_database(glueDataBase: SourceGlueDatabaseBase):
     crud.import_glue_database(glueDataBase, response)
 
 def update_jdbc_conn(jdbc_conn: JDBCInstanceSource):
+    get_db_names(jdbc_conn.jdbc_connection_url, jdbc_conn.jdbc_connection_schema)
     account_id = jdbc_conn.account_id if jdbc_conn.account_provider_id == Provider.AWS_CLOUD.value else admin_account_id
     region = jdbc_conn.region if jdbc_conn.account_provider_id == Provider.AWS_CLOUD.value else admin_region
     res: JDBCInstanceSourceFullInfo = crud.get_jdbc_instance_source_glue(jdbc_conn.account_provider_id, jdbc_conn.account_id, jdbc_conn.region, jdbc_conn.instance_id)
@@ -1695,9 +1687,7 @@ def __validate_jdbc_url(url: str):
 
 
 def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
-    if not __validate_jdbc_url(jdbcConn.jdbc_connection_url):
-        raise BizException(MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_code(),
-                           MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_msg())
+    get_db_names(jdbcConn.jdbc_connection_url, jdbcConn.jdbc_connection_schema)
 
     account_id = jdbcConn.account_id if jdbcConn.account_provider_id == Provider.AWS_CLOUD.value else admin_account_id
     region = jdbcConn.region if jdbcConn.account_provider_id == Provider.AWS_CLOUD.value else admin_region
@@ -2493,6 +2483,23 @@ def query_full_provider_resource_infos():
 
 def list_providers():
     return crud.query_provider_list()
+
+
+def get_db_names(url: str, schemas: str):
+    if not __validate_jdbc_url(url):
+        raise BizException(MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_code(),
+                           MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_msg())
+    # list schemas
+    db_names = set()
+    schema = get_schema_from_url(url)
+    if schema:
+        db_names.add(schema)
+    if schemas:
+        db_names.update(schemas.splitlines())
+    if not db_names:
+        raise BizException(MessageEnum.SOURCE_JDBC_JDBC_NO_DATABASE.get_code(),
+                           MessageEnum.SOURCE_JDBC_JDBC_NO_DATABASE.get_msg())
+    return db_names
 
 
 def get_schema_from_url(url):
