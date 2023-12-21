@@ -94,14 +94,10 @@ def __do_add_partition(database_name: str, table_name: str, bucket_name: str, da
     month = str(do_datetime.month)
     day = str(do_datetime.day)
 
-    try:
-        response2 = client.get_table(
-            DatabaseName=database_name,
-            Name=table_name
-        )
-    except Exception as error:
-        logger.error("Cannot fetch table as " + str(error))
-        exit(1)
+    response2 = client.get_table(
+        DatabaseName=database_name,
+        Name=table_name
+    )
 
     # Parsing table info required to create partitions from table
     input_format = response2['Table']['StorageDescriptor']['InputFormat']
