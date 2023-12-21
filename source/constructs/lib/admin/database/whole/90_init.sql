@@ -826,6 +826,7 @@ INSERT INTO template_identifier_prop_ref (identifier_id, prop_id) VALUES (273,3)
 -- Data_source
 INSERT INTO source_provider (id, provider_name) VALUES (1, 'AWS Cloud');
 INSERT INTO source_provider (id, provider_name) VALUES (2, 'Tencent Cloud');
+INSERT INTO source_provider (id, provider_name) VALUES (3, 'Google Cloud');
 INSERT INTO source_provider (id, provider_name) VALUES (4, 'JDBC Proxy');
 INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('us-east-1','Northern Virginia (US East)','-77.0469,38.8048',1);
 INSERT INTO source_region (region_name, region_alias, region_cord, provider_id) VALUES ('us-east-2','Ohio (US East)','-83.0007,39.9623',1);
