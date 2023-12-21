@@ -37,7 +37,7 @@ def get_file_type_from_extension(file_extension):
     for file_type, file_extensions in supported_file_types.items():
         if file_extension.lower() in file_extensions:
             return file_type
-    return file_type.lstrip(".")
+    return file_extension.lstrip(".")
 
 def split_s3_path(s3_path, max_folder_depth=5):
     """
