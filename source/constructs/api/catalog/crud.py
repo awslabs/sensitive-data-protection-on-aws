@@ -682,8 +682,8 @@ def delete_catalog_table_level_classification_by_database(database: str, region:
 
 def delete_catalog_table_level_classification_by_ids(ids: list):
     session = get_session()
-    session.query(models.CatalogTableLevelClassification).filter(
-        models.CatalogTableLevelClassification.id.in_(ids)
+    session.query(models.CatalogColumnLevelClassification).filter(
+        models.CatalogColumnLevelClassification.id.in_(ids)
     ).delete()
     session.commit()
 

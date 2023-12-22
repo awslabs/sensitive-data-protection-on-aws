@@ -455,8 +455,8 @@ def sync_crawler_result(
                         "sync_crawler_result DELETE COLUMN WHEN NOT IN GLUE TABLES" + catalog.table_name + json.dumps(
                             table_column_dict[catalog.table_name]))
                 delete_catalog_column_level_classification_by_table_name(account_id, region, database_type,
-                                                                              database_name, catalog.table_name,
-                                                                              column_list)
+                                                                         database_name, catalog.table_name,
+                                                                         column_list)
     if table_count == 0:
         if database_type == DatabaseType.RDS.value:
             data_source_crud.set_rds_instance_source_glue_state(account_id, region, database_name,
