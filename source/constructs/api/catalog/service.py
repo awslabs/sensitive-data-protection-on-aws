@@ -213,7 +213,7 @@ def delete_catalog_column_level_classification_by_table_name(
             if column.column_name not in column_names:
                 column_ids.append(column.id)
     if len(column_ids) > 0:
-        crud.delete_catalog_table_level_classification_by_ids(column_ids)
+        crud.delete_catalog_column_level_classification_by_ids(column_ids)
 
 
 def sync_crawler_result(
