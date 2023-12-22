@@ -50,4 +50,4 @@ def query_all_vpc(ec2_client):
     while 'NextToken' in response:
         response = ec2_client.describe_vpcs(NextToken=response['NextToken'])
         vpcs.append(response['Vpcs'])
-    return vpcs
+    return vpcs[0]

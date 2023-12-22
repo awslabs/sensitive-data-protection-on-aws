@@ -2354,8 +2354,10 @@ def query_account_network(account: AccountInfo):
     region = account.region if account.region == Provider.AWS_CLOUD.value else admin_region
     logger.info(f'accont_id is:{accont_id},region is {region}')
     ec2_client, __ = __ec2(account=accont_id, region=region)
-    vpcs = [vpc['VpcId'] for vpc in query_all_vpc(ec2_client)]
-    vpc_list = [{"vpcId": vpc['VpcId'], "name": gen_resource_name(vpc)} for vpc in vpcs]
+    vpcs = query_all_vpc(ec2_client)
+    # vpcs = [vpc['VpcId'] for vpc in query_all_vpc(ec2_client)]
+    vpc_list = [{"vpcId": vpc.get('VpcId'), "name": gen_resource_name(vpc)} for vpc in vpcs]
+    # vpc_list = [{"vpcId": vpc['VpcId'], "name": gen_resource_name(vpc)} for vpc in vpcs]
     if account.account_provider_id != Provider.AWS_CLOUD.value:
         res = __query_third_account_network(vpc_list, ec2_client)
         logger.info(f"query_third_account_network res is {res}")
