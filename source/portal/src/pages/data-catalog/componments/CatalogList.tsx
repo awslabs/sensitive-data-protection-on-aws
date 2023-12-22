@@ -229,9 +229,9 @@ const CatalogList: React.FC<any> = memo((props: any) => {
       conditions: [
         {
           column: 'database_type',
-          values: [catalogType],
+          values: catalogType === 'jdbc_aws' ? ['jdbc_aws', 'jdbc_proxy'] : [catalogType],
+          operation: 'in',
           condition: 'and',
-          operation: ':',
         },
       ] as any,
     };
@@ -276,9 +276,9 @@ const CatalogList: React.FC<any> = memo((props: any) => {
         conditions: [
           {
             column: 'database_type',
-            values: [catalogType],
+            values: catalogType === 'jdbc_aws' ? ['jdbc_aws', 'jdbc_proxy'] : [catalogType],
+            operation: 'in',
             condition: 'and',
-            operation: ':',
           },
         ] as any,
       };
