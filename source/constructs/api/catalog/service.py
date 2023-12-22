@@ -1339,6 +1339,9 @@ def get_database_sample_data(account_id: str, region: str, database_name: str, t
     response = init_rds_sample_job(account_id, region, database_name, table_name, refresh)
     return response
 
+def clear_s3_object(time_str: str):
+    s3 = boto3.client('s3')
+    s3.delete_object(Bucket=admin_bucket_name, Key=f"report/catalog_{time_str}.zip")
 
 def get_catalog_export_url(file_type: str, sensitive_flag: str, time_str: str) -> str:
     run_result = crud.get_export_catalog_data()
@@ -1349,7 +1352,13 @@ def get_catalog_export_url(file_type: str, sensitive_flag: str, time_str: str) -
     for item in all_labels:
         all_labels_dict[item.id] = item.label_name
     filtered_records = filter_records(run_result, all_labels_dict, sensitive_flag)
+    # column_header = {const.EXPORT_S3_MARK_STR: {const.EXPORT_S3_SHEET_TITLE: const.EXPORT_FILE_S3_COLUMNS, const.EXPORT_S3_UNSTRUCTURED_SHEET_TITLE: const.EXPORT_FILE_S3_UNSTRUCTURED_COLUMNS},
+    #                 #  const.EXPORT_S3_UNSTRUCTURED_MARK_STR: const.EXPORT_FILE_S3_UNSTRUCTURED_COLUMNS,
+    #                  const.EXPORT_RDS_MARK_STR: {const.EXPORT_RDS_SHEET_TITLE: const.EXPORT_FILE_RDS_COLUMNS},
+    #                  const.EXPORT_GLUE_MARK_STR: {const.EXPORT_GLUE_SHEET_TITLE: const.EXPORT_FILE_GLUE_COLUMNS},
+    #                  const.EXPORT_JDBC_MARK_STR: {const.EXPORT_JDBC_SHEET_TITLE: const.EXPORT_FILE_JDBC_COLUMNS}}
     column_header = {const.EXPORT_S3_MARK_STR: const.EXPORT_FILE_S3_COLUMNS,
+                     const.EXPORT_S3_UNSTRUCTURED_MARK_STR: const.EXPORT_FILE_S3_UNSTRUCTURED_COLUMNS,
                      const.EXPORT_RDS_MARK_STR: const.EXPORT_FILE_RDS_COLUMNS,
                      const.EXPORT_GLUE_MARK_STR: const.EXPORT_FILE_GLUE_COLUMNS,
                      const.EXPORT_JDBC_MARK_STR: const.EXPORT_FILE_JDBC_COLUMNS}
@@ -1371,21 +1380,23 @@ def get_catalog_export_url(file_type: str, sensitive_flag: str, time_str: str) -
 
 def filter_records(all_items: list, all_labels_dict: dict, sensitive_flag: str):
     s3_records = []
+    s3_unstructured_records = []
     rds_records = []
     glue_records = []
     jdbc_records = []
     for row in all_items:
         row_result = [cell for cell in row]
         if sensitive_flag != 'all' and "N/A" in row_result[7]:
-            continue        
+            continue
         if row_result[9]:
             row_result[9] = ",".join(gen_labels(all_labels_dict, row_result[9]))
         if row_result[10]:
             row_result[10] = ",".join(gen_labels(all_labels_dict, row_result[10]))
         catalog_type = row_result[2]
-        # del row_result[0]
-        if catalog_type == DatabaseType.S3.value or catalog_type == DatabaseType.S3_UNSTRUCTURED.value:
+        if catalog_type == DatabaseType.S3.value:
             s3_records.append([row_result])
+        elif catalog_type == DatabaseType.S3_UNSTRUCTURED.value:
+            s3_unstructured_records.append([row_result])
         elif catalog_type == DatabaseType.RDS.value:
             del row_result[6]
             rds_records.append([row_result])
@@ -1397,10 +1408,16 @@ def filter_records(all_items: list, all_labels_dict: dict, sensitive_flag: str):
             jdbc_records.append([row_result])
         else:
             pass
-    return {const.EXPORT_S3_MARK_STR: s3_records,
-            const.EXPORT_RDS_MARK_STR: rds_records,
-            const.EXPORT_GLUE_MARK_STR: glue_records,
-            const.EXPORT_JDBC_MARK_STR: jdbc_records}
+    # return {const.EXPORT_S3_MARK_STR: {const.EXPORT_S3_SHEET_TITLE: s3_records,
+    #                                    const.EXPORT_S3_UNSTRUCTURED_SHEET_TITLE: s3_unstructured_records},
+    #         const.EXPORT_RDS_MARK_STR: {const.EXPORT_RDS_SHEET_TITLE: rds_records},
+    #         const.EXPORT_GLUE_MARK_STR: {const.EXPORT_RDS_SHEET_TITLE: glue_records},
+    #         const.EXPORT_JDBC_MARK_STR: {const.EXPORT_RDS_SHEET_TITLE: jdbc_records}}
+        return {const.EXPORT_S3_MARK_STR: s3_records,
+                const.EXPORT_S3_UNSTRUCTURED_MARK_STR: s3_unstructured_records,
+                const.EXPORT_RDS_MARK_STR: rds_records,
+                const.EXPORT_GLUE_MARK_STR: glue_records,
+                const.EXPORT_JDBC_MARK_STR: jdbc_records}
 
 def gen_labels(all_labels_dict, row_result_item):
     tmp = [all_labels_dict.get(int(result)) for result in row_result_item.split(",")]
@@ -1409,61 +1426,117 @@ def gen_labels(all_labels_dict, row_result_item):
 def gen_zip_file(header, record, tmp_filename, type):
     with ZipFile(tmp_filename, 'w') as zipf:
         for k, v in record.items():
+            # if not any(bool(array) for array in v):
             if not v:
                 continue
+            # max_length = max(len(array) for array in v)
             if type == ExportFileType.XLSX.value:
                 batches = int(len(v) / const.EXPORT_XLSX_MAX_LINES)
                 if batches < 1:
-                    wb = Workbook()
-                    ws1 = wb.active
-                    ws1.title = k
-                    ws1.append(header.get(k))
-                    for row_index in range(0, len(v)):
-                        ws1.append([__get_cell_value(cell) for cell in v[row_index][0]])
-                    file_name = f"{tmp_folder}/{k}.xlsx"
-                    wb.save(file_name)
-                    zipf.write(file_name, os.path.abspath(file_name))
-                    os.remove(file_name)
+                    __gen_xlsx_file(k, header.get(k), v, 0, zipf)
+                    # wb = Workbook()
+                    # ws1 = wb.active
+                    # ws1.title = k
+                    # ws1.append(header.get(k))
+                    # for row_index in range(0, len(v)):
+                    #     ws1.append([__get_cell_value(cell) for cell in v[row_index][0]])
+                    # file_name = f"{tmp_folder}/{k}.xlsx"
+                    # wb.save(file_name)
+                    # zipf.write(file_name, os.path.abspath(file_name))
+                    # os.remove(file_name)
                 else:
                     for i in range(0, batches + 1):
-                        wb = Workbook()
-                        ws1 = wb.active
-                        ws1.title = k
-                        ws1.append(header.get(k))
-                        for row_index in range(const.EXPORT_XLSX_MAX_LINES * i, min(const.EXPORT_XLSX_MAX_LINES * (i + 1), len(v))):
-                            ws1.append([__get_cell_value(cell) for cell in v[row_index][0]])
-                        file_name = f"{tmp_folder}/{k}_{i+1}.xlsx"
-                        wb.save(file_name)
-                        zipf.write(file_name, os.path.basename(file_name))
-                        os.remove(file_name)
+                        __gen_xlsx_file(f"{k}_{i+1}", header.get(k), v, const.EXPORT_XLSX_MAX_LINES * i, zipf)
+                        # wb = Workbook()
+                        # ws1 = wb.active
+                        # ws1.title = k
+                        # ws1.append(header.get(k))
+                        # for row_index in range(const.EXPORT_XLSX_MAX_LINES * i, min(const.EXPORT_XLSX_MAX_LINES * (i + 1), len(v))):
+                        #     ws1.append([__get_cell_value(cell) for cell in v[row_index][0]])
+                        # file_name = f"{tmp_folder}/{k}_{i+1}.xlsx"
+                        # wb.save(file_name)
+                        # zipf.write(file_name, os.path.basename(file_name))
+                        # os.remove(file_name)
             else:
                 batches = int(len(v) / const.EXPORT_CSV_MAX_LINES)
                 if batches < 1:
-                    file_name = f"{tmp_folder}/{k}.csv"
-                    with open(file_name, 'w', encoding="utf-8-sig", newline='') as csv_file:
-                        csv_writer = csv.writer(csv_file)
-                        csv_writer.writerow(header.get(k))
-                        for record in v:
-                            csv_writer.writerow([__get_cell_value(cell) for cell in record[0]])
-                    zipf.write(file_name, os.path.abspath(file_name))
-                    os.remove(file_name)
+                    __gen_csv_file(k, header.get(k), v, 0, zipf)
+                    # file_name = f"{tmp_folder}/{k}.csv"
+                    # with open(file_name, 'w', encoding="utf-8-sig", newline='') as csv_file:
+                    #     csv_writer = csv.writer(csv_file)
+                    #     csv_writer.writerow(header.get(k))
+                    #     for record in v:
+                    #         csv_writer.writerow([__get_cell_value(cell) for cell in record[0]])
+                    # zipf.write(file_name, os.path.abspath(file_name))
+                    # os.remove(file_name)
                 else:
                     for i in range(0, batches + 1):
-                        file_name = f"{tmp_folder}/{k}_{i+1}.csv"
-                        with open(file_name, 'w', encoding="utf-8-sig", newline='') as csv_file:
-                            csv_writer = csv.writer(csv_file)
-                            csv_writer.writerow(header.get(k))
-                            for record in v[const.EXPORT_CSV_MAX_LINES * i: min(const.EXPORT_CSV_MAX_LINES * (i + 1), len(v))]:
-                                csv_writer.writerow([__get_cell_value(cell) for cell in record[0]])
-                        zipf.write(file_name, os.path.abspath(file_name))
-                        os.remove(file_name)
+                        __gen_csv_file(f"{k}_{i+1}", header.get(k), v, const.EXPORT_CSV_MAX_LINES * i, zipf)
+                    #     file_name = f"{tmp_folder}/{k}_{i+1}.csv"
+                    #     with open(file_name, 'w', encoding="utf-8-sig", newline='') as csv_file:
+                    #         csv_writer = csv.writer(csv_file)
+                    #         csv_writer.writerow(header.get(k))
+                    #         for record in v[const.EXPORT_CSV_MAX_LINES * i: min(const.EXPORT_CSV_MAX_LINES * (i + 1), len(v))]:
+                    #             csv_writer.writerow([__get_cell_value(cell) for cell in record[0]])
+                    #     zipf.write(file_name, os.path.abspath(file_name))
+                    #     os.remove(file_name)
 
 def __get_cell_value(cell: dict):
-    if cell and "VarCharValue" in cell:
+    if isinstance(cell, datetime):
+        return cell
+    elif cell and "VarCharValue" in cell:
         return cell["VarCharValue"].replace('\x00', ' ').replace('\xa0', '  ') if cell["VarCharValue"] else cell["VarCharValue"]
     else:
         return cell.replace('\x00', ' ').replace('\xa0', '  ') if cell else cell
 
-def clear_s3_object(time_str: str):
-    s3 = boto3.client('s3')
-    s3.delete_object(Bucket=admin_bucket_name, Key=f"report/catalog_{time_str}.zip")
+def __gen_xlsx_file_by_sheet(title, header, sheets, start_index, zipf):
+    wb = Workbook()
+    active_sheet = None
+    filtered_sheets = {}
+    for key, value in sheets.items():
+        if not value or len(value) <= start_index:
+            continue
+        else:
+            if key in const.ACTIVE_SHEET_LIST:
+                active_sheet = key
+            filtered_sheets[key] = value
+    active_sheet = active_sheet if active_sheet else next(iter(filtered_sheets))
+    for key, value in filtered_sheets.items():
+        end_index = min(start_index + const.EXPORT_XLSX_MAX_LINES, len(value))
+        # end_index = len(value) if len(value) < start_index + const.EXPORT_XLSX_MAX_LINES else start_index + const.EXPORT_XLSX_MAX_LINES
+        if key == active_sheet:
+            ws = wb.active
+            ws.title = key
+            ws.append(header.get(key))
+        else:
+            ws = wb.create_sheet(title=key)
+            ws.append(header.get(key))
+        for row_index in range(start_index, end_index):
+            ws.append([__get_cell_value(cell) for cell in value[row_index][0]])
+    file_name = f"{tmp_folder}/{title}.xlsx"
+    wb.save(file_name)
+    zipf.write(file_name, os.path.abspath(file_name))
+    os.remove(file_name)
+
+def __gen_xlsx_file(title, header, data_list, start_index, zipf):
+    wb = Workbook()
+    ws = wb.active
+    ws.title = const.EXPORT_SHEET_TITLE
+    ws.append(header)
+    end_index = min(start_index + const.EXPORT_XLSX_MAX_LINES, len(data_list))
+    for row_index in range(start_index, end_index):
+        ws.append([__get_cell_value(cell) for cell in data_list[row_index][0]])
+    file_name = f"{tmp_folder}/{title}.xlsx"
+    wb.save(file_name)
+    zipf.write(file_name, os.path.abspath(file_name))
+    os.remove(file_name)
+
+def __gen_csv_file(title, header, data_list, start_index, zipf):
+    file_name = f"{tmp_folder}/{title}.csv"
+    with open(file_name, 'w', encoding="utf-8-sig", newline='') as csv_file:
+        csv_writer = csv.writer(csv_file)
+        csv_writer.writerow(header)
+        for record in data_list:
+            csv_writer.writerow([__get_cell_value(cell) for cell in record[0]])
+    zipf.write(file_name, os.path.abspath(file_name))
+    os.remove(file_name)

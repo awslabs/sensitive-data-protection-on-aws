@@ -223,8 +223,8 @@ export class AlbStack extends NestedStack {
       // securityGroupName: `ALB-${this.identifier}`,
       vpc: this.vpc,
     });
-    albSecurityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(port), 'rule of allow inbound traffic from servier port');
-    albSecurityGroup.addIngressRule(Peer.anyIpv6(), Port.tcp(port), 'rule of allow inbound traffic from servier port');
+    albSecurityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(port), 'rule of allow inbound traffic from server port');
+    albSecurityGroup.addIngressRule(Peer.anyIpv6(), Port.tcp(port), 'rule of allow inbound traffic from server port');
     return albSecurityGroup;
   }
 

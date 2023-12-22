@@ -42,7 +42,13 @@ def __deduplicate_list_of_objects(lst):
 
 def create_job(job: schemas.DiscoveryJobCreate):
     job.databases = __deduplicate_list_of_objects(job.databases)
-
+    if job.depth_structured is None:
+        job.depth_structured = 0
+    if job.depth_unstructured is None:
+        if job.database_type == DatabaseType.S3.value:
+            job.depth_unstructured = -1  # -1 represents all
+        else:
+            job.depth_unstructured = 0
     db_job = crud.create_job(job)
     if db_job.schedule != const.ON_DEMAND:
         create_event(db_job.id, db_job.schedule)
@@ -594,45 +600,47 @@ def get_run_progress(job_id: int, run_id: int) -> list[schemas.DiscoveryJobRunDa
     run_current_table_count = __get_run_current_table_count(run_id)
     run_progress = []
     for run_database in run.databases:
-        if run_database.table_count is None:
-            try:
-                base_time = datetime.datetime.min
-                if job.range == 1 and run_database.base_time:
-                    base_time = run_database.base_time
-                base_time = pytz.timezone('UTC').localize(base_time)
-                if run_database.table_name:
-                    run_database.table_count = len(run_database.table_name.split(","))
-                else:
-                    run_database.table_count = __get_table_count_from_agent(run_database, base_time)
-                if run_database.database_type == DatabaseType.S3.value and run.depth_unstructured != 0:
-                    run_database.table_count_unstructured = __get_table_count_from_agent(run_database, base_time, False)
-                crud.save_run_database(run_database)
-            except Exception:
-                message = traceback.format_exc()
-                logger.exception(f"get table count from agent exception:{message}")
-                progress = schemas.DiscoveryJobRunDatabaseProgress(run_database_id=run_database.id,
-                                                                   current_table_count=-1,
-                                                                   table_count=-1,
-                                                                   current_table_count_unstructured=-1,
-                                                                   table_count_unstructured=-1)
-                run_progress.append(progress)
-                continue
-        current_table_count = run_current_table_count.get(run_database.id)
-        if current_table_count is None:
-            current_table_count = 0
-        table_count_unstructured = -1
-        current_table_count_unstructured = -1
-        if run_database.database_type == DatabaseType.S3.value:
-            table_count_unstructured = run_database.table_count_unstructured
-            current_table_count_unstructured = run_current_table_count.get(f"{run_database.id}-{DatabaseType.S3_UNSTRUCTURED.value}")
-            if current_table_count_unstructured is None:
-                current_table_count_unstructured = 0
-        progress = schemas.DiscoveryJobRunDatabaseProgress(run_database_id=run_database.id,
-                                                           current_table_count=current_table_count,
-                                                           table_count=run_database.table_count,
-                                                           current_table_count_unstructured=current_table_count_unstructured,
-                                                           table_count_unstructured=table_count_unstructured)
-        run_progress.append(progress)
+        try:
+            base_time = datetime.datetime.min
+            if job.range == 1 and run_database.base_time:
+                base_time = run_database.base_time
+            base_time = pytz.timezone('UTC').localize(base_time)
+
+            current_table_count = run_current_table_count.get(run_database.id)
+            if current_table_count is None:
+                current_table_count = 0
+            if run_database.table_name:
+                table_count = len(run_database.table_name.split(","))
+            else:
+                table_count = __get_table_count_from_agent(run_database, base_time)
+            if current_table_count > table_count:
+                table_count = current_table_count
+
+            table_count_unstructured = -1
+            current_table_count_unstructured = -1
+            if run_database.database_type == DatabaseType.S3.value and run.depth_unstructured != 0:
+                current_table_count_unstructured = run_current_table_count.get(f"{run_database.id}-{DatabaseType.S3_UNSTRUCTURED.value}")
+                if current_table_count_unstructured is None:
+                    current_table_count_unstructured = 0
+                table_count_unstructured = __get_table_count_from_agent(run_database, base_time, False)
+            if current_table_count_unstructured > table_count_unstructured:
+                table_count_unstructured = current_table_count_unstructured
+
+            progress = schemas.DiscoveryJobRunDatabaseProgress(run_database_id=run_database.id,
+                                                               current_table_count=current_table_count,
+                                                               table_count=table_count,
+                                                               current_table_count_unstructured=current_table_count_unstructured,
+                                                               table_count_unstructured=table_count_unstructured)
+            run_progress.append(progress)
+        except Exception:
+            message = traceback.format_exc()
+            logger.exception(f"get table count from agent exception:{message}")
+            progress = schemas.DiscoveryJobRunDatabaseProgress(run_database_id=run_database.id,
+                                                               current_table_count=-1,
+                                                               table_count=-1,
+                                                               current_table_count_unstructured=-1,
+                                                               table_count_unstructured=-1)
+            run_progress.append(progress)
     return run_progress
 
 

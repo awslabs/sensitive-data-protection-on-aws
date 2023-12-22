@@ -12,7 +12,10 @@ import {
   Table,
 } from '@cloudscape-design/components';
 import React, { useEffect, useRef, useState } from 'react';
-import { JOB_LIST_COLUMN_LIST } from './types/job_list_type';
+import {
+  JOB_FILTER_LIST_COLUMN_LIST,
+  JOB_LIST_COLUMN_LIST,
+} from './types/job_list_type';
 import ResourcesFilter from 'pages/resources-filter';
 import moment from 'moment';
 import { alertMsg, getCronData } from 'tools/tools';
@@ -74,7 +77,7 @@ const DataJobContent: React.FC<any> = (props: any) => {
   } as any);
   const resourcesFilterProps = {
     totalCount,
-    columnList: columnList.filter((i) => i.filter),
+    columnList: JOB_FILTER_LIST_COLUMN_LIST.filter((i) => i.filter),
     query,
     setQuery,
     tableName: TABLE_NAME.DISCOVERY_JOB,
