@@ -183,8 +183,7 @@ const CreateJobContent = () => {
         alertMsg(t('job:freqTypeError'), 'error');
         return false;
       }
-
-      if (!jobData.depth_structured) {
+      if ('' === jobData.depth_structured && '0' === jobData.depth_unstructured) {
         alertMsg(t('job:selectScanDepth'), 'error');
         return false;
       }
@@ -290,7 +289,7 @@ const CreateJobContent = () => {
   };
 
   useEffect(() => {
-    console.info('jobData:', jobData);
+    console.log('');
   }, [jobData]);
 
   return (
