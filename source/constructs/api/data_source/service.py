@@ -1369,19 +1369,23 @@ def refresh_third_data_source(provider_id: int, accounts: list[str], type: str):
 def get_data_source_coverage(provider_id):
     provider_id = int(provider_id)
     if provider_id == Provider.AWS_CLOUD.value:
-        res = SourceCoverage(s3_total=crud.get_total_s3_buckets_count(),
-                             s3_connected=crud.get_connected_s3_buckets_size(),
-                             rds_total=crud.get_total_rds_instances_count(),
-                             rds_connected=crud.get_connected_rds_instances_count(),
-                             glue_total=crud.get_total_glue_database_count(),
-                             glue_connected=crud.get_connected_glue_database_count(),
-                             jdbc_total=crud.get_total_jdbc_instances_count(provider_id),
-                             jdbc_connected=crud.get_connected_jdbc_instances_count(provider_id)
-                             )
+        res = SourceCoverage(
+            s3_total=crud.get_total_s3_buckets_count(),
+            s3_connected=crud.get_connected_s3_buckets_size(),
+            rds_total=crud.get_total_rds_instances_count(),
+            rds_connected=crud.get_connected_rds_instances_count(),
+            glue_total=crud.get_total_glue_database_count(),
+            glue_connected=crud.get_connected_glue_database_count(),
+            jdbc_total=crud.get_total_jdbc_instances_count(provider_id) + crud.get_total_jdbc_instances_count(
+                Provider.JDBC_PROXY),
+            jdbc_connected=crud.get_connected_jdbc_instances_count(
+                provider_id) + crud.get_connected_jdbc_instances_count(Provider.JDBC_PROXY)
+        )
     else:
-        res = SourceCoverage(jdbc_total=crud.get_total_jdbc_instances_count(provider_id),
-                             jdbc_connected=crud.get_connected_jdbc_instances_count(provider_id)
-                             )
+        res = SourceCoverage(
+            jdbc_total=crud.get_total_jdbc_instances_count(provider_id),
+            jdbc_connected=crud.get_connected_jdbc_instances_count(provider_id)
+        )
     return res
 
 
@@ -1509,10 +1513,13 @@ def add_third_account(account, admin_account, admin_region):
     crud.add_third_account(account, role_arn)
 
 def delete_account(account_provider: int, account_id: str, region: str):
-    if account_provider == Provider.AWS_CLOUD.value:
-        delete_aws_account(account_id)
-    else:
-        delete_third_account(account_provider, account_id, region)
+    account = crud.get_account_by_id(account_id=account_id)
+    if account:
+        account_provider = account.account_provider_id
+        if account_provider == Provider.AWS_CLOUD.value:
+            delete_aws_account(account_id)
+        else:
+            delete_third_account(account_provider, account_id, region)
 
 def delete_aws_account(account_id):
     accounts_by_region = crud.list_all_accounts_by_region(region=admin_region)

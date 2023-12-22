@@ -122,10 +122,16 @@ export const getSourceTypeByProvider = (providerId: string | number) => {
           label: 'Amazon RDS',
           value: SOURCE_TYPE.RDS,
         },
-        { label: 'Glue data catalogs', value: SOURCE_TYPE.GLUE },
+        { label: 'Glue data catalogs',
+          value: SOURCE_TYPE.GLUE 
+        },
         {
           label: 'Custom databases',
           value: SOURCE_TYPE.JDBC_AWS,
+        },
+        {
+          label: 'Proxy databases',
+          value: SOURCE_TYPE.JDBC_PROXY,
         },
       ];
     case '2':
