@@ -15,6 +15,25 @@ export const COLUMN_OBJECT_STR = {
   LastModifyAt: 'modify_time',
 };
 
+export const S3_CATALOG_FILTER_COLUMNS = [
+  {
+    id: COLUMN_OBJECT_STR.DatabaseName,
+    label: 'table.label.bucketName',
+    filter: true,
+  },
+  {
+    id: 'account_id',
+    label: 'table.label.awsAccount',
+    filter: true,
+  },
+
+  {
+    id: 'region',
+    label: 'table.label.awsRegion',
+    filter: true,
+  },
+];
+
 export const S3_CATALOG_COLUMS = [
   {
     id: COLUMN_OBJECT_STR.BucketName,
@@ -373,7 +392,7 @@ export const SCAN_UNSTRUCTURED_DEPTH_OPTIONS = [
   { label: '10 files (recommended)', value: '10' },
   { label: '50 files', value: '50' },
   { label: '100 files', value: '100' },
-  { label: 'All files (may take long time)', value: 'all' },
+  { label: 'All files (may take long time)', value: '-1' },
 ];
 
 export const SCAN_RANGE_OPTIONS = [

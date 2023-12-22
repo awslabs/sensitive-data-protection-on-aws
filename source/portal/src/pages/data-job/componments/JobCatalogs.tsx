@@ -1,5 +1,6 @@
 import { Box, Table } from '@cloudscape-design/components';
 import { getJobDetail } from 'apis/data-job/api';
+import GlueJobCatalog from 'pages/glue-job/componments/GlueJobCatalog';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +11,7 @@ const JobCatalogs = (props: any) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [isLoading, setIsloading] = useState(false);
+  const [providerId, setProviderId] = useState('0');
   const [dataList, setDataList] = useState([]);
   const DATABASE_COLUMN_LIST = [
     { id: 'job_id', label: t('table.label.jobId') },
@@ -33,11 +35,7 @@ const JobCatalogs = (props: any) => {
       return;
     }
     setDataList(result['databases']);
-  };
-  const clkCatalog = (rowData: any) => {
-    navigate(
-      `${RouterEnum.Catalog.path}?tagType=${rowData.database_type}&catalogId=${rowData.database_name}`
-    );
+    setProviderId(result['provider_id']);
   };
 
   return (
@@ -53,9 +51,11 @@ const JobCatalogs = (props: any) => {
             cell: (e: any) => {
               if (item.id === 'database_name') {
                 return (
-                  <span className="job-name" onClick={() => clkCatalog(e)}>
-                    {(e as any)[item.id]}
-                  </span>
+                  <GlueJobCatalog
+                    providerId={providerId}
+                    databaseName={e.database_name}
+                    databaseType={e.database_type}
+                  />
                 );
               }
               return <>{(e as any)[item.id]}</>;

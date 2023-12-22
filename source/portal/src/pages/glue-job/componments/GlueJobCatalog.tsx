@@ -22,25 +22,27 @@ export interface GlueJobType {
 
 interface GlueJobCatalogProps {
   providerId: string | number;
-  glueJob: GlueJobType;
+  // glueJob: GlueJobType;
+  databaseName: string;
+  databaseType: string;
 }
 
 const GlueJobCatalog: React.FC<GlueJobCatalogProps> = (
   props: GlueJobCatalogProps
 ) => {
-  const { glueJob, providerId } = props;
+  const { databaseName, databaseType, providerId } = props;
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [loadingData, setLoadingData] = useState(false);
   const [catalogList, setCatalogList] = useState([]);
 
-  const clkCatalog = (rowData: GlueJobType) => {
-    let databaseType = rowData.database_type;
-    if (databaseType.startsWith('jdbc')) {
-      databaseType = 'jdbc';
+  const clkCatalog = () => {
+    let tmpDatabaseType = databaseType;
+    if (tmpDatabaseType.startsWith('jdbc')) {
+      tmpDatabaseType = 'jdbc';
     }
     navigate(
-      `${RouterEnum.Catalog.path}?provider=${providerId}&tagType=${databaseType}&catalogId=${rowData.database_name}`
+      `${RouterEnum.Catalog.path}?provider=${providerId}&tagType=${tmpDatabaseType}&catalogId=${databaseName}`
     );
   };
 
@@ -54,12 +56,12 @@ const GlueJobCatalog: React.FC<GlueJobCatalogProps> = (
       conditions: [
         {
           column: 'database_type',
-          values: [glueJob.database_type],
+          values: [databaseType],
           condition: 'and',
         },
         {
           column: 'database_name',
-          values: [glueJob.database_name],
+          values: [databaseName],
           condition: 'and',
         },
       ] as any,
@@ -80,7 +82,7 @@ const GlueJobCatalog: React.FC<GlueJobCatalogProps> = (
     return <span>N/A</span>;
   }
   return (
-    <span className="job-name" onClick={() => clkCatalog(glueJob)}>
+    <span className="job-name" onClick={() => clkCatalog()}>
       {t('table.label.dataCatalog')}
     </span>
   );

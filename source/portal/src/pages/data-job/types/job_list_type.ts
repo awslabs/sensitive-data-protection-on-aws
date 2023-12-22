@@ -10,6 +10,34 @@ import {
 } from 'pages/create-job/types/create_data_type';
 import { DEFAULT_TEMPLATE } from 'pages/data-template/types/template_type';
 
+export const JOB_FILTER_LIST_COLUMN_LIST = [
+  {
+    id: 'name',
+    label: 'table.label.jobName',
+    filter: true,
+  },
+  {
+    id: 'provider',
+    label: 'table.label.provider',
+    filter: true,
+  },
+  {
+    id: 'state',
+    label: 'table.label.jobStatus',
+    filter: true,
+  },
+  {
+    id: 'last_start_time',
+    label: 'table.label.lastJobStartedAt',
+    filter: false,
+  },
+  {
+    id: 'last_end_time',
+    label: 'table.label.lastJobFinishedAt',
+    filter: false,
+  },
+];
+
 export const JOB_LIST_COLUMN_LIST = [
   {
     id: 'id',
