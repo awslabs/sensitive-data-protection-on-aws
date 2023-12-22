@@ -184,7 +184,10 @@ const CreateJobContent = () => {
         return false;
       }
 
-      if (!jobData.depth_structured) {
+      if (
+        jobData.depth_structured.toString() === '0' &&
+        jobData.depth_unstructured.toString() === '0'
+      ) {
         alertMsg(t('job:selectScanDepth'), 'error');
         return false;
       }
@@ -487,7 +490,7 @@ const CreateJobContent = () => {
                       return {
                         ...prev,
                         scanDepthObj: option,
-                        depth_structured: option?.value ?? '',
+                        depth_structured: option?.value ?? '0',
                       };
                     });
                   }}
@@ -496,7 +499,7 @@ const CreateJobContent = () => {
                       return {
                         ...prev,
                         scanUnstructuredDepthObj: option,
-                        depth_unstructured: option?.value ?? '',
+                        depth_unstructured: option?.value ?? '0',
                       };
                     });
                   }}

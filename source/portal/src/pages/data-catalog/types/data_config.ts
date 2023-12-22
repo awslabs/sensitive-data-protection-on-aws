@@ -443,6 +443,11 @@ export const UNSTRUCTURED_SAMPLE_OBJECT_COLUMN = [
     label: 'table.label.s3FullPath',
     filter: false,
   },
+  {
+    id: COLUMN_OBJECT_STR.LastModifyAt,
+    label: 'table.label.lastUpdateAt',
+    filter: false,
+  },
 ];
 
 export const SCHEMA_COLUMN = [
