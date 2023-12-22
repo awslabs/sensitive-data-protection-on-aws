@@ -914,6 +914,7 @@ def sync_job_detection_result(
                     "id": catalog_table.id,
                     "privacy": Privacy.PII.value,
                     "state": CatalogState.DETECTED.value,
+                    "identifiers": "",
                     "row_count": table_size,
                     "manual_tag": const.SYSTEM,
                 }
