@@ -377,7 +377,7 @@ export const SCAN_DEPTH_OPTIONS = [
 ];
 
 export const SCAN_STRUCTURED_DEPTH_OPTIONS = [
-  { label: 'Skip structured data', value: '' },
+  { label: 'Skip structured data', value: '0' },
   { label: 'Sample 10 rows (test scan, fast)', value: '10' },
   { label: 'Sample 30 rows', value: '30' },
   { label: 'Sample 60 rows', value: '60' },
