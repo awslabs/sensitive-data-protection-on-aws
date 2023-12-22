@@ -392,7 +392,7 @@ export const SCAN_UNSTRUCTURED_DEPTH_OPTIONS = [
   { label: '10 files (recommended)', value: '10' },
   { label: '50 files', value: '50' },
   { label: '100 files', value: '100' },
-  { label: 'All files (may take long time)', value: 'all' },
+  { label: 'All files (may take long time)', value: '-1' },
 ];
 
 export const SCAN_RANGE_OPTIONS = [
