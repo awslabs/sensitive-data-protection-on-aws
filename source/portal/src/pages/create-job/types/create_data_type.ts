@@ -15,6 +15,25 @@ export const COLUMN_OBJECT_STR = {
   LastModifyAt: 'modify_time',
 };
 
+export const S3_CATALOG_FILTER_COLUMNS = [
+  {
+    id: COLUMN_OBJECT_STR.DatabaseName,
+    label: 'table.label.bucketName',
+    filter: true,
+  },
+  {
+    id: 'account_id',
+    label: 'table.label.awsAccount',
+    filter: true,
+  },
+
+  {
+    id: 'region',
+    label: 'table.label.awsRegion',
+    filter: true,
+  },
+];
+
 export const S3_CATALOG_COLUMS = [
   {
     id: COLUMN_OBJECT_STR.BucketName,
