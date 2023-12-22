@@ -11,7 +11,7 @@ from botocore.exceptions import ClientError
 
 from catalog.service import delete_catalog_by_account_region as delete_catalog_by_account
 from catalog.service import delete_catalog_by_database_region as delete_catalog_by_database_region
-from common.abilities import (convert_provider_id_2_database_type, convert_provider_id_2_name)
+from common.abilities import (convert_provider_id_2_database_type, convert_provider_id_2_name, query_all_vpc)
 from common.constant import const
 from common.enum import (MessageEnum,
                          ConnectionState,
@@ -440,7 +440,14 @@ def condition_check(ec2_client, credentials, state, connection: dict):
     if credentials is None:
         raise BizException(MessageEnum.SOURCE_ASSUME_ROLE_FAILED.get_code(),
                            MessageEnum.SOURCE_ASSUME_ROLE_FAILED.get_msg())
-    vpc_list = [vpc['VpcId'] for vpc in ec2_client.describe_vpcs()['Vpcs']]
+    vpc_list = [vpc['VpcId'] for vpc in query_all_vpc(ec2_client)]
+    # vpc_list = [vpc['VpcId'] for vpc in ec2_client.describe_vpcs()['Vpcs']]
+    # vpcs = []
+    # response = ec2_client.describe_vpcs()
+    # vpcs.append(response['Vpcs'])
+    # while 'NextToken' in response:
+    #     response = ec2_client.describe_vpcs(NextToken=response['NextToken'])
+    #     vpcs.append(response['Vpcs'])
     try:
         security_groups = ec2_client.describe_security_groups(Filters=[
             {'Name': 'vpc-id', 'Values': vpc_list},
@@ -2350,9 +2357,8 @@ def query_account_network(account: AccountInfo):
     region = account.region if account.region == Provider.AWS_CLOUD.value else admin_region
     logger.info(f'accont_id is:{accont_id},region is {region}')
     ec2_client, __ = __ec2(account=accont_id, region=region)
-
-    vpc_list = [{"vpcId": vpc['VpcId'], "name": gen_resource_name(vpc)} for vpc in ec2_client.describe_vpcs()['Vpcs']]
-    # accont_id, region = gen_assume_info(account)
+    vpcs = [vpc['VpcId'] for vpc in query_all_vpc(ec2_client)]
+    vpc_list = [{"vpcId": vpc['VpcId'], "name": gen_resource_name(vpc)} for vpc in vpcs]
     if account.account_provider_id != Provider.AWS_CLOUD.value:
         res = __query_third_account_network(vpc_list, ec2_client)
         logger.info(f"query_third_account_network res is {res}")

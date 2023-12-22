@@ -796,6 +796,8 @@ def add_third_account(account, role_arn):
     target_account.account_provider_id = account.account_provider
     target_account.account_id = account.account_id
     target_account.region = account.region
+    target_account.connected_jdbc_instance = 0
+    target_account.total_jdbc_instance = 0
     target_account.status = SourceAccountStatus.ENABLE.value
     target_account.detection_role_name = role_arn
     target_account.detection_role_status = 'SUCCESS'
