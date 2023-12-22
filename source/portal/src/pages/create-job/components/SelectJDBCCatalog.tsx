@@ -92,7 +92,7 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
       conditions: [
         {
           column: 'database_type',
-          values: jobData.database_type === 'jdbc_aws' ? ['jdbc_aws', 'jdbc_proxy'] : [jobData.database_type],
+          values: jobData.database_type === 'jdbc_aws' ? ['jdbc_aws'] : [jobData.database_type],
           operation: 'in',
           condition: 'and',
         },
@@ -120,7 +120,7 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
         conditions: [
           {
             column: 'database_type',
-            values: jobData.database_type === 'jdbc_aws' ? ['jdbc_aws', 'jdbc_proxy'] : [jobData.database_type],
+            values: jobData.database_type === 'jdbc_aws' ? ['jdbc_aws'] : [jobData.database_type],
             operation: 'in',
             condition: 'and',
           },

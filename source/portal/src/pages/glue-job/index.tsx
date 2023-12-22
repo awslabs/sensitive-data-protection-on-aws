@@ -508,7 +508,8 @@ const GlueJobContent = () => {
                   if (item.id === 'database_link') {
                     return (
                       <GlueJobCatalog
-                        glueJob={e as any}
+                        databaseName={(e as any).database_name}
+                        databaseType={(e as any).database_type}
                         providerId={jobData.provider_id}
                       />
                     );
