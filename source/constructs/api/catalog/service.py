@@ -213,7 +213,7 @@ def delete_catalog_column_level_classification_by_table_name(
             if column.column_name not in column_names:
                 column_ids.append(column.id)
     if len(column_ids) > 0:
-        crud.delete_catalog_table_level_classification_by_ids(column_ids)
+        crud.delete_catalog_column_level_classification_by_ids(column_ids)
 
 
 def sync_crawler_result(
@@ -455,8 +455,8 @@ def sync_crawler_result(
                         "sync_crawler_result DELETE COLUMN WHEN NOT IN GLUE TABLES" + catalog.table_name + json.dumps(
                             table_column_dict[catalog.table_name]))
                 delete_catalog_column_level_classification_by_table_name(account_id, region, database_type,
-                                                                              database_name, catalog.table_name,
-                                                                              column_list)
+                                                                         database_name, catalog.table_name,
+                                                                         column_list)
     if table_count == 0:
         if database_type == DatabaseType.RDS.value:
             data_source_crud.set_rds_instance_source_glue_state(account_id, region, database_name,
@@ -902,18 +902,13 @@ def sync_job_detection_result(
         logger.debug(
             "sync_job_detection_result - RESET ADDITIONAL COLUMNS : " + json.dumps(table_column_dict[table_name]))
         if table_name not in table_privacy_dict:
-            # if catalog_table is not None:
-            #     table_dict = {
-            #         "id": catalog_table.id,
-            #         "row_count": table_size,
-            #     }
-            #     table_dict_list.append(table_dict)
             if catalog_table is not None and (overwrite or (
                         not overwrite and catalog_table.manual_tag != const.MANUAL)):
                 table_dict = {
                     "id": catalog_table.id,
-                    "privacy": Privacy.PII.value,
+                    "privacy": Privacy.NON_PII.value,
                     "state": CatalogState.DETECTED.value,
+                    "identifiers": "",
                     "row_count": table_size,
                     "manual_tag": const.SYSTEM,
                 }
