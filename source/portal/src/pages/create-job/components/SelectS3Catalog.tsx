@@ -6,6 +6,7 @@ import {
   Table,
   Pagination,
   CollectionPreferences,
+  Tiles,
 } from '@cloudscape-design/components';
 import {
   COLUMN_OBJECT_STR,
@@ -140,6 +141,20 @@ const SelectS3Catalog: React.FC<SelectS3CatalogProps> = (
       header={<Header variant="h2">{t('job:create.selectScanS3')}</Header>}
     >
       <SpaceBetween direction="vertical" size="l">
+        <Tiles
+          onChange={({ detail }) => changeSelectType(detail.value)}
+          value={jobData.all_s3}
+          items={[
+            {
+              label: t('job:cataLogOption.all'),
+              value: '1',
+            },
+            {
+              label: t('job:cataLogOption.specify'),
+              value: '0',
+            },
+          ]}
+        />
         {jobData.all_s3 === '0' && (
           <Table
             className="job-table-width"
