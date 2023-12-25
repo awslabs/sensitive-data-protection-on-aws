@@ -144,23 +144,32 @@ const CreateJobContent = () => {
       return true;
     }
     if (
-      jobData.database_type === SOURCE_TYPE.S3 &&
-      jobData.all_s3 === '0' &&
-      jobData.databases.length === 0 &&
-      requestedStepIndex !== 1
+      requestedStepIndex !== 1 &&
+      ((jobData.database_type === SOURCE_TYPE.S3 &&
+        jobData.all_s3 === '0' &&
+        jobData.databases.length === 0) ||
+        (jobData.database_type === SOURCE_TYPE.RDS &&
+          jobData.all_rds === '0' &&
+          jobData.databases.length === 0) ||
+        (jobData.database_type === SOURCE_TYPE.GLUE &&
+          jobData.all_glue === '0' &&
+          jobData.databases.length === 0) ||
+        (jobData.database_type.startsWith('jdbc') &&
+          jobData.all_jdbc === '0' &&
+          jobData.databases.length === 0))
     ) {
       alertMsg(t('job:selectOnCatalog'), 'error');
       return false;
     }
-    if (
-      jobData.database_type === SOURCE_TYPE.RDS &&
-      jobData.all_rds === '0' &&
-      jobData.databases.length === 0 &&
-      requestedStepIndex !== 1
-    ) {
-      alertMsg(t('job:selectOnCatalog'), 'error');
-      return false;
-    }
+    // if (
+    //   jobData.database_type === SOURCE_TYPE.RDS &&
+    //   jobData.all_rds === '0' &&
+    //   jobData.databases.length === 0 &&
+    //   requestedStepIndex !== 1
+    // ) {
+    //   alertMsg(t('job:selectOnCatalog'), 'error');
+    //   return false;
+    // }
     if (
       jobData.database_type === SOURCE_TYPE.RDS &&
       jobData.all_rds === '0' &&

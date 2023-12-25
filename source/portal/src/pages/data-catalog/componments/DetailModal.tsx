@@ -170,33 +170,31 @@ const DetailModal: React.FC<any> = (props: any) => {
       tagId: item.id,
       selectRowData,
     };
-    if (item.id === 'dataIdentifiers' && catalogType === DATA_TYPE_ENUM.s3) {
-      tempProps = {
-        columnList: DATA_IDENT_COLUMN,
-        catalogType,
-        tagId: item.id,
-        detailDesInfo: item.detailDesInfo,
-        detailDesHeader: item.detailDesHeader,
-        selectRowData,
-        clickTableCountProp,
-        needByPage: true,
-        dataType: dataType,
-      };
-    }
-    if (
-      item.id === 'dataIdentifiers' &&
-      [DATA_TYPE_ENUM.rds, DATA_TYPE_ENUM.glue].indexOf(catalogType)
-    ) {
-      tempProps = {
-        columnList: RDS_DATA_IDENT_COLUMN,
-        catalogType,
-        tagId: item.id,
-        detailDesInfo: item.detailDesInfo,
-        detailDesHeader: item.detailDesHeader,
-        selectRowData,
-        clickTableCountProp,
-        needByPage: true,
-      };
+    if (item.id === 'dataIdentifiers') {
+      if (catalogType === DATA_TYPE_ENUM.s3) {
+        tempProps = {
+          columnList: DATA_IDENT_COLUMN,
+          catalogType,
+          tagId: item.id,
+          detailDesInfo: item.detailDesInfo,
+          detailDesHeader: item.detailDesHeader,
+          selectRowData,
+          clickTableCountProp,
+          needByPage: true,
+          dataType: dataType,
+        };
+      } else {
+        tempProps = {
+          columnList: RDS_DATA_IDENT_COLUMN,
+          catalogType,
+          tagId: item.id,
+          detailDesInfo: item.detailDesInfo,
+          detailDesHeader: item.detailDesHeader,
+          selectRowData,
+          clickTableCountProp,
+          needByPage: true,
+        };
+      }
     }
     if (item.id === COLUMN_OBJECT_STR.Folders) {
       tempProps = {
@@ -270,7 +268,6 @@ const DetailModal: React.FC<any> = (props: any) => {
         selectRowData,
       };
     }
-
     return {
       id: item.id,
       label: buildLabel(item),
