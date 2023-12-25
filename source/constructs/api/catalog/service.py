@@ -1408,11 +1408,11 @@ def filter_records(all_items: list, all_labels_dict: dict, sensitive_flag: str):
     #         const.EXPORT_RDS_MARK_STR: {const.EXPORT_RDS_SHEET_TITLE: rds_records},
     #         const.EXPORT_GLUE_MARK_STR: {const.EXPORT_RDS_SHEET_TITLE: glue_records},
     #         const.EXPORT_JDBC_MARK_STR: {const.EXPORT_RDS_SHEET_TITLE: jdbc_records}}
-        return {const.EXPORT_S3_MARK_STR: s3_records,
-                const.EXPORT_S3_UNSTRUCTURED_MARK_STR: s3_unstructured_records,
-                const.EXPORT_RDS_MARK_STR: rds_records,
-                const.EXPORT_GLUE_MARK_STR: glue_records,
-                const.EXPORT_JDBC_MARK_STR: jdbc_records}
+    return {const.EXPORT_S3_MARK_STR: s3_records,
+            const.EXPORT_S3_UNSTRUCTURED_MARK_STR: s3_unstructured_records,
+            const.EXPORT_RDS_MARK_STR: rds_records,
+            const.EXPORT_GLUE_MARK_STR: glue_records,
+            const.EXPORT_JDBC_MARK_STR: jdbc_records}
 
 def gen_labels(all_labels_dict, row_result_item):
     tmp = [all_labels_dict.get(int(result)) for result in row_result_item.split(",")]
