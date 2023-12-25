@@ -8,7 +8,7 @@
   "basicInfo": "基本信息",
   "name": "名称",
   "identName": "标识符名称",
-  "identNameConstraint": "名称最多可为 25 个字符。有效字符为 a-z、A-Z、0-9、。（句点）、_（下划线）和-（连字符）。",
+  "identNameConstraint": "名称最多可为 25 个字符。有效字符为 a-z、A-Z、0-9、.(句点)、_(下划线)和-(连字符)。",
   "identDesc": "描述-可选",
   "identDescDesc": "描述",
   "identRules": "识别规则",
