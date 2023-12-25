@@ -37,7 +37,13 @@ import {
   getPreSignedUrlById,
   getTablePropertyById,
 } from 'apis/data-catalog/api';
-import { alertMsg, formatSize, toJSON, deepClone } from 'tools/tools';
+import {
+  alertMsg,
+  formatSize,
+  toJSON,
+  deepClone,
+  formatTime,
+} from 'tools/tools';
 import moment from 'moment';
 import {
   CONTAINS_PII_OPTION,
@@ -283,9 +289,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
           if (item[0] === 'CreationDate') {
             tempPropertiesData.push({
               property: item[0],
-              value: item[1]
-                ? moment(item[1]).add(8, 'h').format('YYYY-MM-DD HH:mm')
-                : item[1],
+              value: item[1] ? formatTime(item[1]) : item[1],
             });
           } else if (item[0] === 'Tags') {
             tempPropertiesData.push({
@@ -319,9 +323,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
           if (item[0] === 'CreationDate') {
             tempPropertiesData.push({
               property: item[0],
-              value: item[1]
-                ? moment(item[1]).add(8, 'h').format('YYYY-MM-DD HH:mm')
-                : item[1],
+              value: item[1] ? formatTime(item[1]) : item[1],
             });
           } else if (item[0] === 'Tags') {
             tempPropertiesData.push({
@@ -1029,9 +1031,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                       return 'System';
                     }
                     if (item.id === COLUMN_OBJECT_STR.LastModifyAt) {
-                      return moment((e as any)[item.id])
-                        .add(8, 'h')
-                        .format('YYYY-MM-DD HH:mm');
+                      return formatTime((e as any)[item.id]);
                     }
                     if (
                       item.id === 'column_value_example' ||
