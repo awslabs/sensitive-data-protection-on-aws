@@ -1520,7 +1520,11 @@ def __gen_xlsx_file(title, header, data_list, start_index, zipf):
     ws.append(header)
     end_index = min(start_index + const.EXPORT_XLSX_MAX_LINES, len(data_list))
     for row_index in range(start_index, end_index):
-        ws.append([__get_cell_value(cell) for cell in data_list[row_index][0]])
+        try:
+            ws.append([__get_cell_value(cell) for cell in data_list[row_index][0]])
+        except Exception as e:
+            logging.error(e)
+            continue
     file_name = f"{tmp_folder}/{title}.xlsx"
     wb.save(file_name)
     zipf.write(file_name, os.path.abspath(file_name))
@@ -1532,6 +1536,10 @@ def __gen_csv_file(title, header, data_list, start_index, zipf):
         csv_writer = csv.writer(csv_file)
         csv_writer.writerow(header)
         for record in data_list:
-            csv_writer.writerow([__get_cell_value(cell) for cell in record[0]])
+            try:
+                csv_writer.writerow([__get_cell_value(cell) for cell in record[0]])
+            except Exception as e:
+                logging.error(e)
+                continue
     zipf.write(file_name, os.path.abspath(file_name))
     os.remove(file_name)

@@ -1,4 +1,4 @@
-part_bytes = 100000
+part_bytes = 5 * 1024 * 1024 + 10
 
 
 def concurrent_upload(bucket_name, object_name, file_path, client):

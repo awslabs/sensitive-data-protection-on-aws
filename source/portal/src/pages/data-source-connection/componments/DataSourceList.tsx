@@ -108,7 +108,10 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
   const filterTableName =
     tagType === DATA_TYPE_ENUM.s3
       ? TABLE_NAME.SOURCE_S3_BUCKET
-      : TABLE_NAME.SOURCE_RDS_INSTANCE;
+      : (tagType === DATA_TYPE_ENUM.rds ? (TABLE_NAME.SOURCE_RDS_INSTANCE)
+      : (tagType === DATA_TYPE_ENUM.glue ? TABLE_NAME.SOURCE_GLUE_DATABASE 
+      : TABLE_NAME.SOURCE_JDBC_CONNECTION))
+      // : TABLE_NAME.SOURCE_RDS_INSTANCE;
   const resFilterProps = {
     totalCount,
     columnList: columnList.filter((i) => i.filter),
