@@ -255,7 +255,11 @@ def main(param_dict):
                     columns = df.columns.tolist()
 
                     # dump file_info into string and encode in base64 as filename
-                    table_name = file_path.replace('/', '_') if len_split_file_contents_list == 1 else file_path.replace('/', '_') + '_part' + str(split_file_content_id)
+                    file_path_process_list = file_path.split('/')
+                    if len_split_file_contents_list > 1:
+                        file_path_process_list = file_path_process_list[:-1] + [f"part{str(split_file_content_id)}"] + file_path_process_list[-1:]
+                    file_path = '_'.join(file_path_process_list)
+
                     table_name = table_name.replace('.', '_')
                     table_name = original_file_bucket_name + '_' + table_name
 
