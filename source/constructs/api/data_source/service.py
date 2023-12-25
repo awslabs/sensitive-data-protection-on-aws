@@ -771,6 +771,15 @@ def delete_jdbc_connection(provider_id: int, account: str, region: str, instance
             except Exception as e:
                 logger.error(traceback.format_exc())
                 err.append(str(e))
+        if jdbc_conn.glue_connection:
+            try:
+                glue.delete_connection(
+                    CatalogId=assume_account,
+                    ConnectionName=jdbc_conn.glue_connection
+                )
+            except Exception as e:
+                logger.error(traceback.format_exc())
+                err.append(str(e))
         crud.delete_jdbc_connection(provider_id, account, region, instance_id)
         try:
             crud.update_jdbc_instance_count(provider_id, account, region)
