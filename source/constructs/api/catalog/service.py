@@ -299,6 +299,10 @@ def sync_crawler_result(
                 # glue can't crawl them correctly
                 # So there is no sizeKey in Parameters, we set the default value is 0
                 table_size_key = 0
+                if "Deprecated" in table["StorageDescriptor"] and table["StorageDescriptor"]["Deprecated"]:
+                    logger.info(f'{table_name} is Deprecated {table["StorageDescriptor"]["Deprecated"]}')
+                    # to be deleted
+                    continue
                 if "Parameters" in table["StorageDescriptor"] and "sizeKey" in table["StorageDescriptor"]["Parameters"]:
                     table_size_key = int(
                         table["StorageDescriptor"]["Parameters"]["sizeKey"]
