@@ -44,7 +44,12 @@ import {
   getS3TableCount,
 } from 'apis/data-catalog/api';
 import '../style.scss';
-import { formatSize, formatNumber, useDidUpdateEffect } from 'tools/tools';
+import {
+  formatSize,
+  formatNumber,
+  useDidUpdateEffect,
+  formatTime,
+} from 'tools/tools';
 import { useSearchParams } from 'react-router-dom';
 import IdentifierFilterTag from './IdentifierFilterTag';
 import { ColumnList, nFormatter } from 'ts/common';
@@ -229,7 +234,10 @@ const CatalogList: React.FC<any> = memo((props: any) => {
       conditions: [
         {
           column: 'database_type',
-          values: catalogType === 'jdbc_aws' ? ['jdbc_aws', 'jdbc_proxy'] : [catalogType],
+          values:
+            catalogType === 'jdbc_aws'
+              ? ['jdbc_aws', 'jdbc_proxy']
+              : [catalogType],
           operation: 'in',
           condition: 'and',
         },
@@ -276,7 +284,10 @@ const CatalogList: React.FC<any> = memo((props: any) => {
         conditions: [
           {
             column: 'database_type',
-            values: catalogType === 'jdbc_aws' ? ['jdbc_aws', 'jdbc_proxy'] : [catalogType],
+            values:
+              catalogType === 'jdbc_aws'
+                ? ['jdbc_aws', 'jdbc_proxy']
+                : [catalogType],
             operation: 'in',
             condition: 'and',
           },
@@ -510,9 +521,7 @@ const CatalogList: React.FC<any> = memo((props: any) => {
                   );
                 }
                 if (item.id === COLUMN_OBJECT_STR.LastModifyAt) {
-                  return moment((e as any)[item.id])
-                    .add(8, 'h')
-                    .format('YYYY-MM-DD HH:mm');
+                  return formatTime((e as any)[item.id]);
                 }
                 if (item.id === COLUMN_OBJECT_STR.Size) {
                   return formatSize((e as any)[item.id]);

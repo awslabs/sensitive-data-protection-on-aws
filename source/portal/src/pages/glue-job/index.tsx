@@ -32,7 +32,7 @@ import Navigation from 'pages/left-menu/Navigation';
 import { ColumnChartData } from 'ts/dashboard/types';
 import HorizontalBarChart from 'pages/summary/comps/charts/items/HorizontalBarChart';
 import ResourcesFilter from 'pages/resources-filter';
-import { alertMsg, useDidUpdateEffect } from 'tools/tools';
+import { alertMsg, formatTime, useDidUpdateEffect } from 'tools/tools';
 import { useTranslation } from 'react-i18next';
 import HelpInfo from 'common/HelpInfo';
 import { buildDocLink } from 'ts/common';
@@ -422,18 +422,11 @@ const GlueJobContent = () => {
             </div>
             <div className="job-header-status">
               <p className="p-title">{t('job:detail.jobStartedAt')}</p>
-              <p>
-                {moment(jobDetailData.start_time)
-                  .add(8, 'h')
-                  .format('YYYY-MM-DD HH:mm:ss')}
-              </p>
+              <p>{formatTime(jobDetailData.start_time, true)}</p>
               <p className="p-title">{t('job:detail.jobFinishedAt')}</p>
               <p>
-                {moment(jobDetailData.end_time)
-                  .add(8, 'h')
-                  .format('YYYY-MM-DD HH:mm:ss')}{' '}
-                ({getTimeDiff(jobDetailData.start_time, jobDetailData.end_time)}
-                )
+                {formatTime(jobDetailData.end_time, true)} (
+                {getTimeDiff(jobDetailData.start_time, jobDetailData.end_time)})
               </p>
             </div>
             <div className="job-header-run">
@@ -479,9 +472,7 @@ const GlueJobContent = () => {
                     (item.id === 'start_time' || item.id === 'end_time') &&
                     (e as any)[item.id]
                   ) {
-                    return moment((e as any)[item.id])
-                      .add(8, 'h')
-                      .format('YYYY-MM-DD HH:mm');
+                    return formatTime((e as any)[item.id]);
                   }
 
                   if (item.id === 'state') {

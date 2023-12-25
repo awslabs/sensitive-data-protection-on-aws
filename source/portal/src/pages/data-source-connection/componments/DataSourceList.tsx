@@ -62,7 +62,7 @@ import {
   // queryRegions,
   // queryProviders,
 } from 'apis/data-source/api';
-import { alertMsg, showHideSpinner } from 'tools/tools';
+import { alertMsg, formatTime, showHideSpinner } from 'tools/tools';
 import SourceBadge from './SourceBadge';
 import ErrorBadge from 'pages/error-badge';
 import { useTranslation } from 'react-i18next';
@@ -683,9 +683,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                   item.id === COLUMN_OBJECT_STR.LastModifyAt ||
                   item.id === COLUMN_OBJECT_STR.RdsCreatedTime
                 ) {
-                  return moment((e as any)[item.id])
-                    .add(8, 'h')
-                    .format('YYYY-MM-DD HH:mm');
+                  return formatTime((e as any)[item.id]);
                 }
                 if (item.id === 'glue_state') {
                   let tempLabel = CLSAAIFIED_TYPE.Unconnected.toUpperCase();
@@ -816,7 +814,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                   if (e.glue_crawler_last_updated == null) {
                     return '-';
                   }
-                  return e.glue_crawler_last_updated.replace('T', ' ');
+                  return formatTime(e.glue_crawler_last_updated);
                 }
                 if (item.id === COLUMN_OBJECT_STR.JDBCConnectionName) {
                   return (
@@ -1107,9 +1105,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
               <p className="p-title">{t('table.label.lastUpdateAt')}</p>
               <span>
                 {accountData.last_updated
-                  ? moment(accountData.last_updated)
-                      .add(8, 'h')
-                      .format('YYYY-MM-DD HH:mm')
+                  ? formatTime(accountData.last_updated)
                   : '-'}
               </span>
             </div>
