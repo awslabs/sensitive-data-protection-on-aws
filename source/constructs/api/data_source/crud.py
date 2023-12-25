@@ -186,8 +186,7 @@ def list_jdbc_instance_source_without_condition(provider_id: int):
     for account in accounts:
         account_ids.append(account.account_id)
     res = get_session().query(JDBCInstanceSource).filter(
-        JDBCInstanceSource.account_id.in_(account_ids),
-        JDBCInstanceSource.account_provider_id == provider_id
+        JDBCInstanceSource.account_id.in_(account_ids)
     )
     return res
 
@@ -796,6 +795,8 @@ def add_third_account(account, role_arn):
     target_account.account_provider_id = account.account_provider
     target_account.account_id = account.account_id
     target_account.region = account.region
+    target_account.connected_jdbc_instance = 0
+    target_account.total_jdbc_instance = 0
     target_account.status = SourceAccountStatus.ENABLE.value
     target_account.detection_role_name = role_arn
     target_account.detection_role_status = 'SUCCESS'
