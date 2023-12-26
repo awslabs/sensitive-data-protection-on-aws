@@ -1540,7 +1540,8 @@ def __gen_csv_file(title, header, data_list, start_index, zipf):
     with open(file_name, 'w', encoding="utf-8-sig", newline='') as csv_file:
         csv_writer = csv.writer(csv_file)
         csv_writer.writerow(header)
-        for record in data_list:
+        output_list = data_list[start_index: min(start_index + const.EXPORT_CSV_MAX_LINES, len(data_list))]
+        for record in output_list:
             try:
                 csv_writer.writerow([__get_cell_value(cell) for cell in record[0]])
             except Exception as e:
