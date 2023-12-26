@@ -8,7 +8,7 @@ import {
 } from 'pages/common-badge/types/badge_type';
 import { memo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getCronData } from 'tools/tools';
+import { formatTime, getCronData } from 'tools/tools';
 
 const PROPERTY_COLUMN_LIST = [
   { id: 'property', label: 'table.label.property' },
@@ -43,7 +43,7 @@ const JobProperties: React.FC<any> = memo((props: any) => {
       let value = result[item];
 
       if ((item === 'last_start_time' || item === 'last_end_time') && value) {
-        value = moment(value).add(8, 'h').format('YYYY-MM-DD HH:mm');
+        value = formatTime(value);
       }
 
       if (item === 'databases') {

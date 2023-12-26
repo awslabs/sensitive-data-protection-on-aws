@@ -185,7 +185,7 @@ export const INIT_JOB_DATA: IJobType = {
   template_id: '1',
   schedule: '',
   description: '',
-  range: '1',
+  range: '0',
   depth_structured: '1000',
   depth_unstructured: '0',
   detection_threshold: '0.2',

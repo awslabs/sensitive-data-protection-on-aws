@@ -10,7 +10,7 @@ import React, { memo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
-import { alertMsg } from 'tools/tools';
+import { alertMsg, formatTime } from 'tools/tools';
 
 const JobHistory: React.FC<any> = memo((props: any) => {
   const { detailRow } = props;
@@ -100,9 +100,7 @@ const JobHistory: React.FC<any> = memo((props: any) => {
                 (item.id === 'start_time' || item.id === 'end_time') &&
                 (e as any)[item.id]
               ) {
-                return moment((e as any)[item.id])
-                  .add(8, 'h')
-                  .format('YYYY-MM-DD HH:mm');
+                return formatTime((e as any)[item.id]);
               }
               if (item.id === 'id' && (e as any)[item.id]) {
                 return (
