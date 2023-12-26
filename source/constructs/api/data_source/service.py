@@ -527,7 +527,7 @@ def sync(glue, lakeformation, credentials, crawler_role_arn, jdbc: JDBCInstanceS
             try:
                 response = glue.get_crawler(Name=crawler_name)
                 try:
-                    if state == ConnectionState.ACTIVE.value or state == ConnectionState.UNSUPPORTED.value \
+                    if not state or state == ConnectionState.ACTIVE.value or state == ConnectionState.UNSUPPORTED.value \
                             or state == ConnectionState.ERROR.value or state == ConnectionState.STOPPING.value:
                         up_cr_response = glue.update_crawler(
                             Name=crawler_name,
@@ -1072,7 +1072,7 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                 logger.info("sync_rds_connection get_crawler:")
                 logger.info(response)
                 try:
-                    if state == ConnectionState.ACTIVE.value or state == ConnectionState.UNSUPPORTED.value \
+                    if not state or state == ConnectionState.ACTIVE.value or state == ConnectionState.UNSUPPORTED.value \
                             or state == ConnectionState.ERROR.value or state == ConnectionState.STOPPING.value:
                         up_cr_response = glue.update_crawler(
                             Name=crawler_name,
