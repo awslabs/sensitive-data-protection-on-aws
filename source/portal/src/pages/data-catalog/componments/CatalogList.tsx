@@ -590,10 +590,13 @@ const CatalogList: React.FC<any> = memo((props: any) => {
                         selectedId={rdsSelectedView}
                         options={[
                           {
-                            text: 'Instance view',
+                            text: t('view.instanceView') ?? '',
                             id: RDS_VIEW.RDS_INSTANCE_VIEW,
                           },
-                          { text: 'Table view', id: RDS_VIEW.RDS_TABLE_VIEW },
+                          {
+                            text: t('view.tableView') ?? '',
+                            id: RDS_VIEW.RDS_TABLE_VIEW,
+                          },
                         ]}
                         onChange={({ detail }) =>
                           setRdsSelectedView(detail.selectedId)
@@ -607,10 +610,13 @@ const CatalogList: React.FC<any> = memo((props: any) => {
                         selectedId={glueSelectedView}
                         options={[
                           {
-                            text: 'Instance view',
+                            text: t('view.instanceView') ?? '',
                             id: GLUE_VIEW.GLUE_INSTANCE_VIEW,
                           },
-                          { text: 'Table view', id: GLUE_VIEW.GLUE_TABLE_VIEW },
+                          {
+                            text: t('view.tableView') ?? '',
+                            id: GLUE_VIEW.GLUE_TABLE_VIEW,
+                          },
                         ]}
                         onChange={({ detail }) =>
                           setGlueSelectedView(detail.selectedId)
@@ -624,10 +630,13 @@ const CatalogList: React.FC<any> = memo((props: any) => {
                         selectedId={jdbcSelectedView}
                         options={[
                           {
-                            text: 'Instance view',
+                            text: t('view.instanceView') ?? '',
                             id: JDBC_VIEW.JDBC_INSTANCE_VIEW,
                           },
-                          { text: 'Table view', id: JDBC_VIEW.JDBC_TABLE_VIEW },
+                          {
+                            text: t('view.tableView') ?? '',
+                            id: JDBC_VIEW.JDBC_TABLE_VIEW,
+                          },
                         ]}
                         onChange={({ detail }) =>
                           setJdbcSelectedView(detail.selectedId)

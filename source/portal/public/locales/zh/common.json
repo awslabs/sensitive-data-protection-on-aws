@@ -116,6 +116,7 @@
     "updateLabel": "更新标签",
     "deleteLabel": "删除标签",
     "deleteTips": "您确定要删除标签吗 ",
+    "deleteTips2": " 这个操作将不会影响已经打过此标签的数据目录。如需更新数据目录，您可以对数据目录标签进行重新保存。",
     "noLabelFound": "未找到标签。",
     "addToTable": "添加到表",
     "addToFolder": "添加到文件夹"
@@ -317,6 +318,11 @@
     "all": "全部",
     "back": "返回",
     "closeMenu": "关闭菜单"
+  },
+  "view": {
+    "instanceView": "实例视图",
+    "tableView": "表视图",
+    "accountView": "账户视图"
   },
   "info": "信息",
   "optional": "可选的",

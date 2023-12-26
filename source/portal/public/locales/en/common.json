@@ -116,6 +116,7 @@
     "updateLabel": "Update label",
     "deleteLabel": "Delete label",
     "deleteTips": "Are you sure you want to delete label(s) ",
+    "deleteTips2": " This operation will not affect data catalog that have been tagged with this label. If you need to update the data catalog, you can re-save the data catalog label.",
     "noLabelFound": "No custom label found.",
     "addToTable": "Add to table",
     "addToFolder": "Add to folder"
@@ -317,6 +318,11 @@
     "all": "All",
     "back": "Back",
     "closeMenu": "Close menu"
+  },
+  "view": {
+    "instanceView": "Instance view",
+    "tableView": "Table view",
+    "accountView": "Account view"
   },
   "info": "Info",
   "optional": "optional",
