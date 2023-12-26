@@ -252,6 +252,10 @@ export class AlbStack extends NestedStack {
       code: Code.fromAsset(path.join(__dirname, '../../api/lambda')),
       memorySize: 1024,
       timeout: Duration.seconds(10),
+      vpc: this.vpc,
+      vpcSubnets: this.vpc.selectSubnets({
+        subnetType: SubnetType.PRIVATE_WITH_EGRESS,
+      }),
       environment: {
         aws_oidc_issuer: props.oidcIssuer,
         aws_oidc_client_id: props.oidcClientId,
@@ -280,6 +284,10 @@ export class AlbStack extends NestedStack {
         code: DockerImageCode.fromEcr(Repository.fromRepositoryArn(this, 'PortalRepository', BuildConfig.PortalRepository),
           { tagOrDigest: BuildConfig.PortalTag }),
         architecture: Architecture.X86_64,
+        vpc: this.vpc,
+        vpcSubnets: this.vpc.selectSubnets({
+          subnetType: SubnetType.PRIVATE_WITH_EGRESS,
+        }),
       });
     } else {
       portalFunction = new DockerImageFunction(this, 'PortalFunction', {
@@ -291,6 +299,10 @@ export class AlbStack extends NestedStack {
           platform: Platform.LINUX_AMD64,
         }),
         architecture: Architecture.X86_64,
+        vpc: this.vpc,
+        vpcSubnets: this.vpc.selectSubnets({
+          subnetType: SubnetType.PRIVATE_WITH_EGRESS,
+        }),
       });
     }
     const portalTarget = [new LambdaTarget(portalFunction)];
