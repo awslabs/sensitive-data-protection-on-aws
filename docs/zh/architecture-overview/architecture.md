@@ -8,7 +8,7 @@
 3. AWS Lambda函数打包为Docker镜像，并存储在[Amazon ECR（弹性容器注册表）](https://aws.amazon.com/ecr/)中。
 4. 后端Lambda函数是应用负载均衡器的目标。
 5. 后端Lambda函数调用监控账户中的[AWS Step Functions](https://aws.amazon.com/step-functions/)来进行敏感数据检测。
-6. 在[AWS Step Functions](https://aws.amazon.com/step-functions/)工作流中，[AWS Glue](https://aws.amazon.com/glue/) Crawler运行以列出数据源，并将其作为元数据表存储在Glue数据库中。
+6. 在[AWS Step Functions](https://aws.amazon.com/step-functions/)工作流中，[AWS Glue](https://aws.amazon.com/glue/) Crawler运行以列出结构化数据源，并将其作为元数据表存储在Glue数据库中。[Amazon SageMaker](https://aws.amazon.com/sagemaker/) processing job用于预处理S3桶中的非结构化文件，并将元数据存储在Glue数据库中。AWS Glue Job用于检测敏感数据。
 7. Glue作业运行后，Step Functions会将消息发送到[Amazon SQS（简单队列服务）](https://aws.amazon.com/sqs/)中的检测作业队列。
 8. Lambda函数从Amazon SQS中处理消息。
 9. [Amazon Athena](https://aws.amazon.com/athena/)查询检测结果，并将其保存到[Amazon RDS（关系型数据库服务）](https://aws.amazon.com/rds/)中的MySQL实例中。

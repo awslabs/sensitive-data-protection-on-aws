@@ -93,8 +93,8 @@ Issuer URL可以在您的个人资料中找到。完整的Issuer URL为“https:
 
    |                                       | 从 AWS 控制台中启动                                                                                                                                                                                                                                                            |
     |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| ------------------------- |
-    | 在新VPC （AWS全球区域）中启动解决方案       | [![Launch Stack](../images/launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/template?stackName=SDPS-Admin&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/Admin.template.json){target=_blank}                               |
-    | 在现有VPC （AWS全球区域）中启动解决方案 | [![Launch Stack](../images/launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/template?stackName=SDPS-Admin&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/AdminExistVpc.template.json){target=_blank}                |
+    | 在新VPC （AWS全球区域）中启动解决方案       | [![Launch Stack](../images/launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/template?stackName=SDPS-Admin&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/AdminWithIdP.template.json){target=_blank}                               |
+    | 在现有VPC （AWS全球区域）中启动解决方案 | [![Launch Stack](../images/launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/template?stackName=SDPS-Admin&templateURL=https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/AdminExistVpcWithIdP.template.json){target=_blank}                |
     | 在新VPC（AWS 中国区域）中启动解决方案                 | [![Launch Stack](../images/launch-stack.png)](https://cn-north-1.console.amazonaws.cn/cloudformation/home#/stacks/create/template?stackName=SDPS-Admin&templateURL=https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/Admin.template.json){target=_blank}                                 |
     | 在现有VPC（AWS 中国区域）中启动解决方案           | [![Launch Stack](../images/launch-stack.png)](https://cn-north-1.console.amazonaws.cn/cloudformation/home#/stacks/create/template?stackName=SDPS-Admin&templateURL=https://aws-gcr-solutions.s3.cn-north-1.amazonaws.com.cn/aws-sensitive-data-protection/latest/cn/AdminExistVpc.template.json){target=_blank} |
 
@@ -113,9 +113,9 @@ Issuer URL可以在您的个人资料中找到。完整的Issuer URL为“https:
 
     |      参数       |    默认值    |                                                      描述                                                      |
     |:---------------:|:-----------:|:------------------------------------------------------------------------------------------------------------|
-    |Issuer URL||指定安全的OpenID Connect URL。最大长度为255个字符。URL必须以"https://"开头|
-    |Client ID||指定身份提供商颁发的客户端ID。最大长度为255个字符。使用字母数字或?:_.-/?字符 |
-    |Public Access | Yes |如果选择No，则只能在VPC中访问门户网站。如果要通过Internet访问门户网站，需要选择Yes |
+    |Issuer URL||指定安全的OpenID Connect URL。最大长度为255个字符。URL必须以"https://"开头。使用带身份提供商的模板无此参数|
+    |Client ID||指定身份提供商颁发的客户端ID。最大长度为255个字符。使用字母数字或?:_.-/?字符。使用带身份提供商的模板无此参数 |
+    |Public Access | Yes |如果选择No，则只能在VPC中访问门户网站。如果要通过Internet访问门户网站，需要选择Yes。使用纯私有子网的模板无此参数 |
     |Port|80|如果已添加ACM证书ARN，建议使用默认端口443作为HTTPS协议的端口。否则，可以将端口设置为80作为备用选项|
     |ACM Certificate ARN||(可选)为了通过加密实现安全通信并增强解决方案的安全性，可以添加来自ACM的公共证书ARN，以基于HTTPS协议创建门户网站URL|
     |Custom Domain Name||(可选)通过添加您自己的域名（例如sdps.example.com），您可以在部署堆栈后通过将CNAME记录添加到该域名来直接访问门户网站。只填写域名，不要填写http(s) |

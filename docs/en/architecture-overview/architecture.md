@@ -8,7 +8,7 @@ Deploying this solution with the default parameters builds the following environ
 3. The AWS Lambda function is packaged as Docker images and stored in the [Amazon ECR (Elastic Container Registry)](https://aws.amazon.com/ecr/). 
 4. The backend Lambda function is a target for the Application Load Balancer. 
 5. The backend Lambda function invokes [AWS Step Functions](https://aws.amazon.com/step-functions/) in monitored accounts for sensitive data detection. 
-6. In [AWS Step Functions](https://aws.amazon.com/step-functions/) workflow, the [AWS Glue](https://aws.amazon.com/glue/) Crawler runs to take inventory of the data sources and is stored in the Glue Database as metadata tables.
+6. In [AWS Step Functions](https://aws.amazon.com/step-functions/) workflow, the [AWS Glue](https://aws.amazon.com/glue/) Crawler runs to take inventory of the structured data sources and is stored in the Glue Database as metadata tables.[Amazon SageMaker](https://aws.amazon.com/sagemaker/) processing job is used to preprocess unstructured file in S3 buckets, and store metadata in the Glue database.AWS Glue Job is used to detect sensitive data.
 7. The Step Functions send [Amazon SQS](https://aws.amazon.com/sqs/) messages to the detection job queue after the Glue job has run. 
 8. Lambda function processes messages from Amazon SQS.
 9. The [Amazon Athena](https://aws.amazon.com/athena/) query detection results and save to MySQL instance in [Amazon RDS](https://aws.amazon.com/rds/).
