@@ -8,7 +8,7 @@ from common.request_wrapper import inject_session
 from common.response_wrapper import BaseResponse
 from db.models_catalog import CatalogColumnLevelClassification, CatalogTableLevelClassification, \
     CatalogDatabaseLevelClassification
-from db.models_data_source import S3BucketSource, Account, DetectionHistory, RdsInstanceSource
+from db.models_data_source import S3BucketSource, Account, DetectionHistory, RdsInstanceSource, JDBCInstanceSource, SourceGlueDatabase
 from db.models_discovery_job import DiscoveryJob, DiscoveryJobDatabase, DiscoveryJobRun, DiscoveryJobRunDatabase
 from db.models_template import TemplateIdentifier, TemplateMapping
 from . import crud
@@ -19,6 +19,8 @@ searchable = [S3BucketSource,
               Account,
               DetectionHistory,
               RdsInstanceSource,
+              JDBCInstanceSource,
+              SourceGlueDatabase,
               DiscoveryJob,
               DiscoveryJobDatabase,
               DiscoveryJobRun,
