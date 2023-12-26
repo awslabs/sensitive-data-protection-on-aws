@@ -25,7 +25,7 @@ class EmailParser(BaseParser):
             if part.get_content_type().startswith('text/plain'):
                 part_payload = part.get_payload()
                 if file_encoding == 'us-ascii':
-                    decoded_string = quopri.decodestring(part_payload).decode('utf-8')
+                    decoded_string = quopri.decodestring(part_payload).decode('utf-8', errors='ignore')
                 else:
                     decoded_string = part_payload
                 file_content.append(decoded_string)
