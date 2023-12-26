@@ -18,6 +18,8 @@
   "jobs": "Jobs",
   "jobsDesc": "Sensitive data discovery jobs.",
   "selectLessItems": "Please do not select more than 50 items.",
+  "keywordDuplicated": "Excluded and included keywords cannot contain the same keyword.",
+  "extensionDuplicated": "Exclude and include extensions cannot have the same extension.",
   "create": {
     "title": "Create sensitive data discovery job",
     "seelctS3DataCatalog": "Select data catalogs (S3)",
