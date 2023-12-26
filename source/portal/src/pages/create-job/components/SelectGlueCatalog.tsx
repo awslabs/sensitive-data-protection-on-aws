@@ -250,7 +250,7 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
 
   return (
     <Container
-      header={<Header variant="h2">Select scan target for AWS Glue</Header>}
+      header={<Header variant="h2">{t('job:create.selectScanGlue')}</Header>}
     >
       <SpaceBetween direction="vertical" size="l">
         <Tiles
@@ -273,11 +273,17 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
               selectedId={jobData.glueSelectedView}
               options={[
                 {
-                  text: 'Instance view',
+                  text: t('view.instanceView') ?? '',
                   id: GLUE_VIEW.GLUE_INSTANCE_VIEW,
                 },
-                { text: 'Table view', id: GLUE_VIEW.GLUE_TABLE_VIEW },
-                { text: 'Account view', id: GLUE_VIEW.GLUE_ACCOUNT_VIEW },
+                {
+                  text: t('view.tableView') ?? '',
+                  id: GLUE_VIEW.GLUE_TABLE_VIEW,
+                },
+                {
+                  text: t('view.accountView') ?? '',
+                  id: GLUE_VIEW.GLUE_ACCOUNT_VIEW,
+                },
               ]}
               onChange={({ detail }) => changeGlueSelectView(detail.selectedId)}
             />

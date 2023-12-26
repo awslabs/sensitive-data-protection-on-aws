@@ -191,7 +191,7 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
 
   return (
     <Container
-      header={<Header variant="h2">Select scan target for JDBC</Header>}
+      header={<Header variant="h2">{t('job:create.selectScanJDBC')}</Header>}
     >
       <SpaceBetween direction="vertical" size="l">
         <Tiles
@@ -214,10 +214,13 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
               selectedId={jobData.jdbcSelectedView}
               options={[
                 {
-                  text: 'Instance view',
+                  text: t('view.instanceView') ?? '',
                   id: JDBC_VIEW.JDBC_INSTANCE_VIEW,
                 },
-                { text: 'Table view', id: JDBC_VIEW.JDBC_TABLE_VIEW },
+                {
+                  text: t('view.tableView') ?? '',
+                  id: JDBC_VIEW.JDBC_TABLE_VIEW,
+                },
               ]}
               onChange={({ detail }) => changeJDBCSelectView(detail.selectedId)}
             />
