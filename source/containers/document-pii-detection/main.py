@@ -147,7 +147,7 @@ def batch_process_files(s3_client, bucket_name, file_info, file_category):
             parser = ParserFactory.create_parser(file_type=sample_file_extension, s3_client=s3_client)
 
             for sample_file in sample_file_extension_files:
-                object_key = f"{file_path}/{sample_file}"
+                object_key = f"{file_path}/{sample_file}" if file_path != '.' else sample_file
                 file_content = parser.load_content(bucket_name, object_key)
                 sample_file_name_no_symbol = remove_symbols(sample_file)
                 file_contents[f"{sample_file_name_no_symbol}"] = file_content
@@ -255,10 +255,12 @@ def main(param_dict):
                     columns = df.columns.tolist()
 
                     # dump file_info into string and encode in base64 as filename
+                    file_path = file_path.lstrip('./')
                     file_path_process_list = file_path.split('/')
                     if len_split_file_contents_list > 1:
                         file_path_process_list = file_path_process_list[:-1] + [f"part{str(split_file_content_id)}"] + file_path_process_list[-1:]
-                    file_path = '_'.join(file_path_process_list)
+                    
+                    table_name = '_'.join(file_path_process_list)
 
                     table_name = table_name.replace('.', '_')
                     table_name = original_file_bucket_name + '_' + table_name
