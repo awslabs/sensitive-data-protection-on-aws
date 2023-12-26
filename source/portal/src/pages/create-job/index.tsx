@@ -132,6 +132,14 @@ const CreateJobHeader: React.FC = () => {
   );
 };
 
+const checkSameItem = (text1: string, text2: string) => {
+  const linesOne = text1.split('\n');
+  const linesTwo = text2.split('\n');
+
+  const commonLines = linesOne.filter((line) => linesTwo.includes(line));
+  return commonLines.length > 0;
+};
+
 const CreateJobContent = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -161,15 +169,7 @@ const CreateJobContent = () => {
       alertMsg(t('job:selectOnCatalog'), 'error');
       return false;
     }
-    // if (
-    //   jobData.database_type === SOURCE_TYPE.RDS &&
-    //   jobData.all_rds === '0' &&
-    //   jobData.databases.length === 0 &&
-    //   requestedStepIndex !== 1
-    // ) {
-    //   alertMsg(t('job:selectOnCatalog'), 'error');
-    //   return false;
-    // }
+
     if (
       jobData.database_type === SOURCE_TYPE.RDS &&
       jobData.all_rds === '0' &&
@@ -206,6 +206,33 @@ const CreateJobContent = () => {
       }
       if (!jobData.detection_threshold) {
         alertMsg(t('job:selectDetection'), 'error');
+        return false;
+      }
+    }
+
+    // check keywords duplicated in exclude an include
+    if (jobData.includeKeyWordsEnable && jobData.excludeKeyWordsEnable) {
+      if (
+        jobData.include_keywords &&
+        jobData.exclude_keywords &&
+        checkSameItem(jobData.include_keywords, jobData.exclude_keywords)
+      ) {
+        alertMsg(t('job:keywordDuplicated'), 'error');
+        return false;
+      }
+    }
+
+    // check extensions duplicated in exclude an include
+    if (jobData.includeExtensionsEnable && jobData.excludeExtensionsEnable) {
+      if (
+        jobData.include_file_extensions &&
+        jobData.exclude_file_extensions &&
+        checkSameItem(
+          jobData.include_file_extensions,
+          jobData.exclude_file_extensions
+        )
+      ) {
+        alertMsg(t('job:extensionDuplicated'), 'error');
         return false;
       }
     }
