@@ -2,7 +2,7 @@
 
     The cost estimation described in this section is provided as a reference example. Actual expenses may vary significantly depending on your specific usage scenario.
 
-When implementing this solution, you will be responsible for the usage fees of various services provided by Amazon Web Services (AWS). The following examples are based on the latest published version and are estimated for the AWS US East (N. Virginia) region (us-east-1) and the AWS China (Ningxia) region operated by Ningxia Western Cloud Data Technology Co.Ltd. (cn-northwest-1). The total cost includes the fees for [**sensitive data detection**](#_1) and [**web interface console**](#web).
+When implementing this solution, you will be responsible for the usage fees of various services provided by Amazon Web Services (AWS). The following examples are based on the latest published version and are estimated for the AWS US East (N. Virginia) region (us-east-1) and the AWS China (Ningxia) region operated by Ningxia Western Cloud Data Technology Co.Ltd. (cn-northwest-1). The total cost includes the fees for [**sensitive data detection**](#sensitive-data-detections) and [**web interface console**](#cost-of-the-web-based-console).
 
 ## Sensitive data detection
 
