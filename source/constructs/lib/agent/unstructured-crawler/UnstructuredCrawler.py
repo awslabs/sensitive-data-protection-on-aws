@@ -68,22 +68,32 @@ def extract_file_details(file_path: str):
     file_extension, file_basename, file_parent = pathlib_path.suffix, pathlib_path.stem, pathlib_path.parent
     return file_extension, file_basename, str(file_parent)
 
-def add_file_to_dict(files_dict, file_parent, file_extension, file_basename, file_size, mode = "detect"):
+def add_file_to_dict(files_dict, file_parent, file_extension, file_basename, file_size, mode = "detect", scan_depth = 10):
 
     parent_directories, remaining_path = split_s3_path(file_parent)
     file_type = get_file_type_from_extension(file_extension)
     file_key = f"{parent_directories}/{file_type}_{mode}"
+
     if file_key not in files_dict:
-        files_dict[file_key] = {
+        files_dict[file_key] = [{
             "file_type": file_type,
             "file_path": parent_directories,
             "total_file_size": 0,
             "total_file_count": 0,
             "sample_files": []
-        }
-    files_dict[file_key]["sample_files"].append(f"{remaining_path}{file_basename}{file_extension}")
-    files_dict[file_key]["total_file_size"] += file_size
-    files_dict[file_key]["total_file_count"] += 1
+        }]
+    elif scan_depth < 0 and files_dict[file_key][-1]['total_file_count'] >= 100:
+        files_dict[file_key].append({
+            "file_type": file_type,
+            "file_path": parent_directories,
+            "total_file_size": 0,
+            "total_file_count": 0,
+            "sample_files": []
+        })
+
+    files_dict[file_key][-1]["sample_files"].append(f"{remaining_path}{file_basename}{file_extension}")
+    files_dict[file_key][-1]["total_file_size"] += file_size
+    files_dict[file_key][-1]["total_file_count"] += 1
 
     return files_dict
 
@@ -91,14 +101,14 @@ def update_dict_files(files_dict, page_files_dict):
     for current_path, current_path_info in page_files_dict.items():
         # If key exists, check if the file is already detected
         if files_dict.get(current_path):
-            files_dict[current_path]["sample_files"].extend(current_path_info["sample_files"])
+            files_dict[current_path].extend(current_path_info)
         # If path&file does not exist, add files and sample files
         else:
             files_dict[current_path] = current_path_info
 
     return files_dict
 
-def summarize_page(page, supported_types, include_file_extensions, exclude_file_extensions, base_time):
+def summarize_page(page, supported_types, include_file_extensions, exclude_file_extensions, base_time, scan_depth):
     """
     Summarizes the page and adds the files to the respective dict.
     """
@@ -112,24 +122,35 @@ def summarize_page(page, supported_types, include_file_extensions, exclude_file_
         if not file_extension or last_modified_date < base_time:
             continue
         elif file_extension.lower() in include_file_extensions:
-            add_file_to_dict(page_include_files, file_parent, file_extension, file_basename, file_size, mode = "include")
+            add_file_to_dict(page_include_files, file_parent, file_extension, file_basename, file_size, mode = "include", scan_depth = scan_depth)
         elif file_extension.lower() in exclude_file_extensions:
-            add_file_to_dict(page_exclude_files, file_parent, file_extension, file_basename, file_size, mode = "exclude")
+            add_file_to_dict(page_exclude_files, file_parent, file_extension, file_basename, file_size, mode = "exclude", scan_depth = scan_depth)
         elif file_extension.lower() in supported_types:
-            add_file_to_dict(page_detection_files, file_parent, file_extension, file_basename, file_size, mode = "detect")
+            add_file_to_dict(page_detection_files, file_parent, file_extension, file_basename, file_size, mode = "detect", scan_depth = scan_depth)
     return page_detection_files, page_include_files, page_exclude_files
 
-def postprocess_crawler_result(crawler_result, scan_depth):
+def postprocess_crawler_result(crawler_result, scan_depth, mode):
     """
     Postprocesses the crawler result and returns the crawler result.
     """
-    for key, value in crawler_result.items():
-        # Perform sampling only when scan_depth > 0, because scan_depth = -1 means no sampling
-        if scan_depth > 0:
-            sample_size = scan_depth if scan_depth < len(value["sample_files"]) else len(value["sample_files"])
-            if len(value["sample_files"]) > sample_size:
-                value["sample_files"] = random.sample(value["sample_files"], sample_size)
-    return crawler_result
+
+    processed_crawler_result = {}
+    
+    for file_key, file_info in crawler_result.items():
+        # Perform sampling only when length of file_info is 1, since it should be sampled/no that much files
+
+        for part_id, part_info in enumerate(file_info):
+            parent_directories = part_info["file_path"]
+            file_type = part_info["file_type"]
+            if scan_depth > 0:
+                sample_size = scan_depth if scan_depth < len(part_info["sample_files"]) else len(part_info["sample_files"])
+                if len(part_info["sample_files"]) > sample_size:
+                    part_info["sample_files"] = random.sample(part_info["sample_files"], sample_size)
+                processed_crawler_result[f"{parent_directories}/{file_type}_{mode}"] = part_info
+            else:
+                processed_crawler_result[f"{parent_directories}/part{part_id}_{file_type}_{mode}"] = part_info
+        
+    return processed_crawler_result
 
 def list_s3_objects(bucket_name, scan_depth, include_file_extensions, 
                     exclude_file_extensions, base_time, prefix=''):
@@ -160,14 +181,14 @@ def list_s3_objects(bucket_name, scan_depth, include_file_extensions,
         # loop through objects in page
         if 'Contents' in page:
             page_detection_files, page_include_files, page_exclude_files = summarize_page(page, 
-                supported_types, include_file_extensions, exclude_file_extensions, base_time)
+                supported_types, include_file_extensions, exclude_file_extensions, base_time, scan_depth)
             detection_files = update_dict_files(detection_files, page_detection_files)
             include_files = update_dict_files(include_files, page_include_files)
             exclude_files = update_dict_files(exclude_files, page_exclude_files)
 
-    detection_files = postprocess_crawler_result(detection_files, scan_depth)
-    include_files = postprocess_crawler_result(include_files, scan_depth)
-    exclude_files = postprocess_crawler_result(exclude_files, scan_depth)
+    detection_files = postprocess_crawler_result(detection_files, scan_depth, mode = "detect")
+    include_files = postprocess_crawler_result(include_files, scan_depth, mode = "include")
+    exclude_files = postprocess_crawler_result(exclude_files, scan_depth, mode = "exclude")
 
     # Get the current UTC time
     now_utc = datetime.datetime.now(datetime.timezone.utc)
