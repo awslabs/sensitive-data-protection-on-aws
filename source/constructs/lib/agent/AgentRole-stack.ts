@@ -74,6 +74,7 @@ export class AgentRoleStack extends Construct {
             'glue:DeleteConnection',
             'glue:BatchDeleteTable',
             'glue:CreateCrawler',
+            'glue:UpdateCrawler',
             'glue:StopCrawler',
             'glue:DeleteCrawler',
             'lambda:CreateFunction',
