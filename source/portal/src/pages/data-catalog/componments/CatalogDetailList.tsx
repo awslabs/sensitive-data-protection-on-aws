@@ -1030,7 +1030,10 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                     ) {
                       return 'System';
                     }
-                    if (item.id === COLUMN_OBJECT_STR.LastModifyAt) {
+                    if (
+                      item.id === COLUMN_OBJECT_STR.LastModifyAt ||
+                      item.id === COLUMN_OBJECT_STR.UpdateTime
+                    ) {
                       return formatTime((e as any)[item.id]);
                     }
                     if (
