@@ -66,7 +66,7 @@
 ![Authing Endpoint Information](images/AuthingEndpointInformation.jpg)
 
 6. 在**Protocol Configuration**选项卡中设置**Authorization Configuration**。
-![Authing Authentication Cofiguration](images/AuthingAuthenticationCofiguration.jpg)
+![Authing Authentication Configuration](images/AuthingAuthenticationCofiguration.jpg)
 
 7. 在访问授权选项卡中，选择可访问的用户。
 
@@ -132,7 +132,8 @@ Issuer URL可以在您的个人资料中找到。完整的Issuer URL为“https:
 ### 步骤三：配置OIDC应用程序（Configure OIDC application）
 
 !!! Info "提醒"
-    使用带身份提供商的模板可跳过此步
+    使用带身份提供商的模板可跳过此步。
+    
 将SigninRedirectUriHTTP(S)和PortalUrlHTTP(S)的值分别填入您的OIDC应用程序中的登录回调地址和退出回调地址中。
 #### 选项 1：Cognito
 

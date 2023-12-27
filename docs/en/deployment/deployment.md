@@ -69,7 +69,7 @@ Note: The **Allowed callback URLs** and **Allowed sign-out URLs** will be config
 ![Authing Endpoint Information](images/AuthingEndpointInformation.jpg)
 
 6. Set the Authorization Configuration in **Protocol Configuration** tab.
-![Authing Authentication Cofiguration](images/AuthingAuthenticationCofiguration.jpg)
+![Authing Authentication Configuration](images/AuthingAuthenticationCofiguration.jpg)
 7. On the Access Authorization tab, select the accessible users.
 
 
@@ -119,8 +119,8 @@ Deploy the AWS CloudFormation **Admin** template into your AWS admin account.
     |      Parameter      |    Default   |                                                      Description                                                      |
     |:-------------------:|:------------:|:--------------------------------------------------------------------------------------------------------------|
     |Issuer URL||Specify the secure OpenID Connect URL. Maximum 255 characters. URL must begin with `https://`.The template with identity provider does not have this parameter.|
-    |Client ID||Specify the client ID issued by the identity provider. Maximum 255 characters. Use alphanumeric or ?:_.-/? characters.The template with identity provider does not have this parameter |
-    |Public Access | Yes |If you choose No, the portal website can be accessed ONLY in the VPC. If you want to access the portal website over Internet, you need to choose Yes.The template that uses only private subnets does not have this parameter |
+    |Client ID||Specify the client ID issued by the identity provider. Maximum 255 characters. Use alphanumeric or ?:_.-/? characters. The template with identity provider does not have this parameter. |
+    |Public Access | Yes |If you choose No, the portal website can be accessed ONLY in the VPC. If you want to access the portal website over Internet, you need to choose Yes. The template that uses only private subnets does not have this parameter. |
     |Port|80|If an ACM certificate ARN has been added, we recommend using port 443 as the default port for HTTPS protocol. Otherwise, port 80 can be set as an alternative option|
     |ACM Certificate ARN||(Optional) To enable secure communication through encryption and enhancing the security of the solution, you can add a public certificate ARN from ACM to create the portal website URL based on the HTTPS protocol|
     |Custom Domain Name||(Optional) By adding your own domain name, such as sdps.example.com, you can directly access the portal website by adding a CNAME record to that domain name after deploying the stack. You only need to enter the domain name, excluding `http(s)://`|
@@ -130,13 +130,14 @@ Deploy the AWS CloudFormation **Admin** template into your AWS admin account.
 7. On the **Configure stack options** page, choose **Next**.
 8. On the **Review** page, review and confirm the settings. Select 3 checkboxes that I acknowledge.
 9. Choose **Create stack** to deploy the stack. Wait for about 20 minutes to ensure that all related resource are created. You can choose the **Resource** and **Event** tab to see the status of the stack.
-10. Select the **Outputs** tab to check the `POrtalUrlHTTP(S)` and `SigninRedirectUriHTTP(S)`, which will be used to configure the OIDC aplication in **Step 3. Configure the OIDC application**.
+10. Select the **Outputs** tab to check the `POrtalUrlHTTP(S)` and `SigninRedirectUriHTTP(S)`, which will be used to configure the OIDC application in **Step 3. Configure the OIDC application**.
 ![Cloudformation Output](images/CloudformationOutput.png)
 
 ### Step 3. Configure the OIDC application
-!!! Info "Remind"
-    Skip this step by using the template with an identity provider
-Fill the values of SigninRedirectUriHTTP(S) and PortalUrlHTTP(S) into the login callback url and logout callback url in your OIDC application, respectively.
+!!! Info "Note"
+    Skip this step by using the template with an identity provider.
+
+Enter the values of SigninRedirectUriHTTP(S) and PortalUrlHTTP(S) into the login callback url and logout callback url in your OIDC application, respectively.
 
 #### Option 1: Cognito
 

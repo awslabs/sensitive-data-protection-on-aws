@@ -24,7 +24,6 @@ nav:
     - 部署解决方案:
         - 模板信息: deployment/template.md
         - 部署步骤: deployment/deployment.md
-    - 升级解决方案: update/update.md
     - 用户指南: 
         - 概述: user-guide/get-started.md
         - 连接数据源:

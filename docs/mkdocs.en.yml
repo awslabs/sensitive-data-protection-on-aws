@@ -7,11 +7,11 @@ theme:
   language: en
 nav:
   - Implementation Guide:
-    - Solution Overview:
+    - Solution overview:
         - Overview: index.md
         - Features and benefits: solution-overview/features-and-benefits.md
         - Concepts and definitions: solution-overview/concepts-and-definitions.md
-    - Architecture Overview:
+    - Architecture overview:
         - Architecture diagram: architecture-overview/architecture.md
         - AWS Well-Architected pillars: architecture-overview/well-architected-pillars.md            
     - Architecture details:
@@ -24,7 +24,6 @@ nav:
     - Deploy the solution:
         - AWS CloudFormation template: deployment/template.md
         - Deployment: deployment/deployment.md
-    - Update the solution: update/update.md
     - Use the solution: 
         - Overview: user-guide/get-started.md
         - Connect to data source:
