@@ -201,7 +201,7 @@ def sync_s3_connection(account: str, region: str, bucket: str):
             gt_cr_response = glue.get_crawler(Name=crawler_name)
             logger.info(gt_cr_response)
             try:
-                if state == ConnectionState.ACTIVE.value or state == ConnectionState.UNSUPPORTED.value \
+                if not state or state == ConnectionState.ACTIVE.value or state == ConnectionState.UNSUPPORTED.value \
                         or state == ConnectionState.ERROR.value or state == ConnectionState.STOPPING.value:
                     up_cr_response = glue.update_crawler(
                         Name=crawler_name,
