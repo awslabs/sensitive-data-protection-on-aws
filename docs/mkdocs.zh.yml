@@ -50,8 +50,7 @@ nav:
         - 附录：内置的数据标识符: user-guide/appendix-built-in-identifiers.md
         - 附录：CloudFormation堆栈的权限: user-guide/appendix-permissions.md
         - 附录：通过AWS Organization添加帐户: user-guide/appendix-organization.md
-        - 附录：EU个人信息标识符（GDPR参考）
-        - 
+        - 附录：EU个人信息标识符(GDPR参考): appendix-build-in-identifiers-eu-gdpr.md
     - 常见问题: faq.md
     - 故障排查: troubleshooting.md
     - 卸载解决方案: uninstall.md

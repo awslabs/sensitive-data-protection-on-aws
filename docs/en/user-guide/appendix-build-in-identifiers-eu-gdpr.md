@@ -1,7 +1,3 @@
-Here's the translation of the provided Markdown content from Chinese to English:
-
----
-
 Having a continuous data categorization process is essential for adjusting secure data processing according to the nature of the data. If your organization manages sensitive data, please monitor where the data is stored, protect it appropriately, and provide evidence that you are implementing mandatory requirements for data security and privacy to meet regulatory compliance needs.
 
 !!! Info "About GDPR"
@@ -14,9 +10,6 @@ Having a continuous data categorization process is essential for adjusting secur
 | EMAIL           | Email Address                                 |
 | CREDIT_CARD     | Credit Card Number                            |
 
-Here is the full translation of the provided Markdown content, keeping the format intact:
-
----
 
 ## Data Identifiers Categorized by European Countries and/or Regions
 (The following are listed in alphabetical order of countries and/or regions)
