@@ -139,6 +139,8 @@ def postprocess_crawler_result(crawler_result, scan_depth, mode):
     for file_key, file_info in crawler_result.items():
         # Perform sampling only when length of file_info is 1, since it should be sampled/no that much files
 
+        num_parts = len(file_info)
+
         for part_id, part_info in enumerate(file_info):
             parent_directories = part_info["file_path"]
             file_type = part_info["file_type"]
@@ -148,7 +150,10 @@ def postprocess_crawler_result(crawler_result, scan_depth, mode):
                     part_info["sample_files"] = random.sample(part_info["sample_files"], sample_size)
                 processed_crawler_result[f"{parent_directories}/{file_type}_{mode}"] = part_info
             else:
-                processed_crawler_result[f"{parent_directories}/part{part_id}_{file_type}_{mode}"] = part_info
+                if num_parts == 1:
+                    processed_crawler_result[f"{parent_directories}/{file_type}_{mode}"] = part_info
+                else:
+                    processed_crawler_result[f"{parent_directories}/part{part_id}_{file_type}_{mode}"] = part_info
         
     return processed_crawler_result
 
