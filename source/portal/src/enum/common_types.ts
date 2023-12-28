@@ -42,6 +42,8 @@ export const TABLE_NAME = {
   SOURCE_S3_BUCKET: 'source_s3_bucket',
   SOURCE_ACCOUNT: 'source_account',
   SOURCE_RDS_INSTANCE: 'source_rds_instance',
+  SOURCE_GLUE_DATABASE: 'source_glue_database',
+  SOURCE_JDBC_CONNECTION: 'source_jdbc_instance',
   DISCOVERY_JOB: 'discovery_job',
   DISCOVERY_JOB_DATABASE: 'discovery_job_database',
   CATALOG_TABLE_LEVEL_CLASSIFICATION: 'catalog_table_level_classification',
@@ -122,10 +124,16 @@ export const getSourceTypeByProvider = (providerId: string | number) => {
           label: 'Amazon RDS',
           value: SOURCE_TYPE.RDS,
         },
-        { label: 'Glue data catalogs', value: SOURCE_TYPE.GLUE },
+        { label: 'Glue data catalogs',
+          value: SOURCE_TYPE.GLUE 
+        },
         {
           label: 'Custom databases',
           value: SOURCE_TYPE.JDBC_AWS,
+        },
+        {
+          label: 'Proxy databases',
+          value: SOURCE_TYPE.JDBC_PROXY,
         },
       ];
     case '2':

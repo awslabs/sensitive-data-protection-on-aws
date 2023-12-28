@@ -261,7 +261,8 @@
                         "--TableBegin.$": "$.TableBegin",
                         "--TableEnd.$": "$.TableEnd",
                         "--additional-python-modules.$": "$.AdditionalPythonModules",
-                        "--extra-py-files.$": "$.ExtraPyFiles"
+                        "--extra-py-files.$": "$.ExtraPyFiles",
+                        "--enable-glue-datacatalog": "true"
                       }
                     },
                     "End": true,
@@ -285,12 +286,12 @@
             },
             "Structured Job Failed": {
               "Type": "Pass",
-              "Result": {
-                "State": "Failed",
-                "Message": "The state of the crawler is not ready."
-              },
               "ResultPath": "$.Result",
-              "End": true
+              "End": true,
+              "Parameters": {
+                "State": "Failed",
+                "Message.$": "$.GetCrawler.Crawler.LastCrawl.ErrorMessage"
+              }
             },
             "Structured Job Succeeded": {
               "Type": "Pass",

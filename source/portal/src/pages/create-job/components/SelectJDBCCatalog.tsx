@@ -92,7 +92,10 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
       conditions: [
         {
           column: 'database_type',
-          values: jobData.database_type === 'jdbc_aws' ? ['jdbc_aws', 'jdbc_proxy'] : [jobData.database_type],
+          values:
+            jobData.database_type === 'jdbc_aws'
+              ? ['jdbc_aws']
+              : [jobData.database_type],
           operation: 'in',
           condition: 'and',
         },
@@ -120,7 +123,10 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
         conditions: [
           {
             column: 'database_type',
-            values: jobData.database_type === 'jdbc_aws' ? ['jdbc_aws', 'jdbc_proxy'] : [jobData.database_type],
+            values:
+              jobData.database_type === 'jdbc_aws'
+                ? ['jdbc_aws']
+                : [jobData.database_type],
             operation: 'in',
             condition: 'and',
           },
@@ -185,7 +191,7 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
 
   return (
     <Container
-      header={<Header variant="h2">Select scan target for JDBC</Header>}
+      header={<Header variant="h2">{t('job:create.selectScanJDBC')}</Header>}
     >
       <SpaceBetween direction="vertical" size="l">
         <Tiles
@@ -193,7 +199,6 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
           value={jobData.all_jdbc}
           items={[
             {
-              disabled: true,
               label: t('job:cataLogOption.all'),
               value: '1',
             },
@@ -209,10 +214,13 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
               selectedId={jobData.jdbcSelectedView}
               options={[
                 {
-                  text: 'Instance view',
+                  text: t('view.instanceView') ?? '',
                   id: JDBC_VIEW.JDBC_INSTANCE_VIEW,
                 },
-                { text: 'Table view', id: JDBC_VIEW.JDBC_TABLE_VIEW },
+                {
+                  text: t('view.tableView') ?? '',
+                  id: JDBC_VIEW.JDBC_TABLE_VIEW,
+                },
               ]}
               onChange={({ detail }) => changeJDBCSelectView(detail.selectedId)}
             />

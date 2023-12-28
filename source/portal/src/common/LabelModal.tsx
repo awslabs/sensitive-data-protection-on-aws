@@ -422,7 +422,7 @@ const LabelModal: React.FC<LabelModalProps> = (props: LabelModalProps) => {
         <FormField>
           {t('label.deleteTips')}
           <b>{selectedItems.map((element) => element.label_name).join(', ')}</b>
-          .
+          {t('label.deleteTips2')}.
         </FormField>
       </Modal>
     </div>

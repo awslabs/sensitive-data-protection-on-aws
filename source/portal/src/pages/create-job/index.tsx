@@ -132,6 +132,14 @@ const CreateJobHeader: React.FC = () => {
   );
 };
 
+const checkSameItem = (text1: string, text2: string) => {
+  const linesOne = text1.split('\n');
+  const linesTwo = text2.split('\n');
+
+  const commonLines = linesOne.filter((line) => linesTwo.includes(line));
+  return commonLines.length > 0;
+};
+
 const CreateJobContent = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -144,23 +152,24 @@ const CreateJobContent = () => {
       return true;
     }
     if (
-      jobData.database_type === SOURCE_TYPE.S3 &&
-      jobData.all_s3 === '0' &&
-      jobData.databases.length === 0 &&
-      requestedStepIndex !== 1
+      requestedStepIndex !== 1 &&
+      ((jobData.database_type === SOURCE_TYPE.S3 &&
+        jobData.all_s3 === '0' &&
+        jobData.databases.length === 0) ||
+        (jobData.database_type === SOURCE_TYPE.RDS &&
+          jobData.all_rds === '0' &&
+          jobData.databases.length === 0) ||
+        (jobData.database_type === SOURCE_TYPE.GLUE &&
+          jobData.all_glue === '0' &&
+          jobData.databases.length === 0) ||
+        (jobData.database_type.startsWith('jdbc') &&
+          jobData.all_jdbc === '0' &&
+          jobData.databases.length === 0))
     ) {
       alertMsg(t('job:selectOnCatalog'), 'error');
       return false;
     }
-    if (
-      jobData.database_type === SOURCE_TYPE.RDS &&
-      jobData.all_rds === '0' &&
-      jobData.databases.length === 0 &&
-      requestedStepIndex !== 1
-    ) {
-      alertMsg(t('job:selectOnCatalog'), 'error');
-      return false;
-    }
+
     if (
       jobData.database_type === SOURCE_TYPE.RDS &&
       jobData.all_rds === '0' &&
@@ -184,7 +193,10 @@ const CreateJobContent = () => {
         return false;
       }
 
-      if (!jobData.depth_structured) {
+      if (
+        jobData.depth_structured.toString() === '0' &&
+        jobData.depth_unstructured.toString() === '0'
+      ) {
         alertMsg(t('job:selectScanDepth'), 'error');
         return false;
       }
@@ -194,6 +206,33 @@ const CreateJobContent = () => {
       }
       if (!jobData.detection_threshold) {
         alertMsg(t('job:selectDetection'), 'error');
+        return false;
+      }
+    }
+
+    // check keywords duplicated in exclude an include
+    if (jobData.includeKeyWordsEnable && jobData.excludeKeyWordsEnable) {
+      if (
+        jobData.include_keywords &&
+        jobData.exclude_keywords &&
+        checkSameItem(jobData.include_keywords, jobData.exclude_keywords)
+      ) {
+        alertMsg(t('job:keywordDuplicated'), 'error');
+        return false;
+      }
+    }
+
+    // check extensions duplicated in exclude an include
+    if (jobData.includeExtensionsEnable && jobData.excludeExtensionsEnable) {
+      if (
+        jobData.include_file_extensions &&
+        jobData.exclude_file_extensions &&
+        checkSameItem(
+          jobData.include_file_extensions,
+          jobData.exclude_file_extensions
+        )
+      ) {
+        alertMsg(t('job:extensionDuplicated'), 'error');
         return false;
       }
     }
@@ -487,7 +526,7 @@ const CreateJobContent = () => {
                       return {
                         ...prev,
                         scanDepthObj: option,
-                        depth_structured: option?.value ?? '',
+                        depth_structured: option?.value ?? '0',
                       };
                     });
                   }}
@@ -496,7 +535,7 @@ const CreateJobContent = () => {
                       return {
                         ...prev,
                         scanUnstructuredDepthObj: option,
-                        depth_unstructured: option?.value ?? '',
+                        depth_unstructured: option?.value ?? '0',
                       };
                     });
                   }}

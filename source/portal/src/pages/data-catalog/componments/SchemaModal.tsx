@@ -239,7 +239,7 @@ const SchemaModal: React.FC<any> = (props: any) => {
       account_id: selectRowData.account_id,
       region: selectRowData.region,
       database_name: selectRowData.database_name,
-      database_type: catalogType,
+      database_type: selectRowData.database_type,
       table_name: selectRowData.name,
       limit: 10,
     };

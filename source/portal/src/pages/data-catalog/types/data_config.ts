@@ -35,6 +35,7 @@ export const COLUMN_OBJECT_STR = {
   TableDetail: 'tableDetail',
   Download: 'file_download',
   Classification: 'classification',
+  UpdateTime: 'update_time',
 };
 
 // S3 catalog column
@@ -441,6 +442,11 @@ export const UNSTRUCTURED_SAMPLE_OBJECT_COLUMN = [
   {
     id: 's3_full_path',
     label: 'table.label.s3FullPath',
+    filter: false,
+  },
+  {
+    id: COLUMN_OBJECT_STR.UpdateTime,
+    label: 'table.label.lastUpdateAt',
     filter: false,
   },
 ];

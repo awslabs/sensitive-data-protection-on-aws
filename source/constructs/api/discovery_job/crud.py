@@ -168,7 +168,7 @@ def init_run(job_id: int) -> int:
         __add_job_databases(run, job.database_type, base_time_dict)
     for job_database in job_databases:
         if is_empty(job_database.database_name) and is_empty(job_database.table_name):
-            catalog_databases = get_catalog_database_level_classification_by_params(job_database.account_id,job_database.region,job_database.database_type,ConnectionState.ACTIVE.value).all()
+            catalog_databases = get_catalog_database_level_classification_by_params(job_database.account_id,job_database.region,job_database.database_type).all()
             for catalog_database in catalog_databases:
                 base_time = base_time_dict.get(
                     f'{job_database.account_id}-{job_database.region}-{job_database.database_type}-{catalog_database.database_name}', datetime.datetime.min)

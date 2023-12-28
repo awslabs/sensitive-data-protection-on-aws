@@ -43,3 +43,11 @@ def need_change_account_id(database_type: str) -> bool:
         return True
     return False
 
+def query_all_vpc(ec2_client):
+    vpcs = []
+    response = ec2_client.describe_vpcs()
+    vpcs.append(response['Vpcs'])
+    while 'NextToken' in response:
+        response = ec2_client.describe_vpcs(NextToken=response['NextToken'])
+        vpcs.append(response['Vpcs'])
+    return vpcs[0]

@@ -66,6 +66,13 @@ const CommonPieChart: React.FC<CommonPieChartProps> = (
     return '';
   };
 
+  const getDatumValue = (datum: IPieChartDataType) => {
+    if (sourceType === 's3' && dataType === 'size') {
+      return formatSize(datum.value);
+    }
+    return formatNumber(datum.value);
+  };
+
   return (
     <PieChart
       variant={circleType}
@@ -74,11 +81,12 @@ const CommonPieChart: React.FC<CommonPieChartProps> = (
         sourceType,
         dataType
       )}
+      detailPopoverSize="large"
       innerMetricValue={formattedValue}
       data={chartData}
       hideFilter={true}
       segmentDescription={(datum, sum) =>
-        `${datum.value} ${buildLabelBySourceTypeAndDataType(
+        `${getDatumValue(datum)} ${buildLabelBySourceTypeAndDataType(
           sourceType,
           dataType
         )}, ${percentageFormatter(datum.value / sum)}`
@@ -86,7 +94,7 @@ const CommonPieChart: React.FC<CommonPieChartProps> = (
       detailPopoverContent={(datum, sum) => [
         {
           key: buildLabelBySourceTypeAndDataType(sourceType, dataType),
-          value: datum.value,
+          value: getDatumValue(datum),
         },
         {
           key: 'Percentage',

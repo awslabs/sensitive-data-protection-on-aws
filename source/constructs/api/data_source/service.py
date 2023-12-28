@@ -11,7 +11,7 @@ from botocore.exceptions import ClientError
 
 from catalog.service import delete_catalog_by_account_region as delete_catalog_by_account
 from catalog.service import delete_catalog_by_database_region as delete_catalog_by_database_region
-from common.abilities import (convert_provider_id_2_database_type, convert_provider_id_2_name)
+from common.abilities import (convert_provider_id_2_database_type, convert_provider_id_2_name, query_all_vpc)
 from common.constant import const
 from common.enum import (MessageEnum,
                          ConnectionState,
@@ -201,7 +201,7 @@ def sync_s3_connection(account: str, region: str, bucket: str):
             gt_cr_response = glue.get_crawler(Name=crawler_name)
             logger.info(gt_cr_response)
             try:
-                if state == ConnectionState.ACTIVE.value or state == ConnectionState.UNSUPPORTED.value \
+                if not state or state == ConnectionState.ACTIVE.value or state == ConnectionState.UNSUPPORTED.value \
                         or state == ConnectionState.ERROR.value or state == ConnectionState.STOPPING.value:
                     up_cr_response = glue.update_crawler(
                         Name=crawler_name,
@@ -440,7 +440,14 @@ def condition_check(ec2_client, credentials, state, connection: dict):
     if credentials is None:
         raise BizException(MessageEnum.SOURCE_ASSUME_ROLE_FAILED.get_code(),
                            MessageEnum.SOURCE_ASSUME_ROLE_FAILED.get_msg())
-    vpc_list = [vpc['VpcId'] for vpc in ec2_client.describe_vpcs()['Vpcs']]
+    vpc_list = [vpc['VpcId'] for vpc in query_all_vpc(ec2_client)]
+    # vpc_list = [vpc['VpcId'] for vpc in ec2_client.describe_vpcs()['Vpcs']]
+    # vpcs = []
+    # response = ec2_client.describe_vpcs()
+    # vpcs.append(response['Vpcs'])
+    # while 'NextToken' in response:
+    #     response = ec2_client.describe_vpcs(NextToken=response['NextToken'])
+    #     vpcs.append(response['Vpcs'])
     try:
         security_groups = ec2_client.describe_security_groups(Filters=[
             {'Name': 'vpc-id', 'Values': vpc_list},
@@ -491,17 +498,8 @@ def sync(glue, lakeformation, credentials, crawler_role_arn, jdbc: JDBCInstanceS
     if state == ConnectionState.CRAWLING.value:
         raise BizException(MessageEnum.SOURCE_CONNECTION_CRAWLING.get_code(),
                            MessageEnum.SOURCE_CONNECTION_CRAWLING.get_msg())
-    if not __validate_jdbc_url(url):
-        raise BizException(MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_code(),
-                           MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_msg())
+    db_names = get_db_names(url, schemas)
     try:
-        # list schemas
-        db_names = set()
-        schema = get_schema_from_url(url)
-        if schema:
-            db_names.add(schema)
-        if schemas:
-            db_names.update(set(schemas.splitlines()))
         for db_name in db_names:
             trimmed_db_name = db_name.strip()
             if trimmed_db_name:
@@ -529,7 +527,7 @@ def sync(glue, lakeformation, credentials, crawler_role_arn, jdbc: JDBCInstanceS
             try:
                 response = glue.get_crawler(Name=crawler_name)
                 try:
-                    if state == ConnectionState.ACTIVE.value or state == ConnectionState.UNSUPPORTED.value \
+                    if not state or state == ConnectionState.ACTIVE.value or state == ConnectionState.UNSUPPORTED.value \
                             or state == ConnectionState.ERROR.value or state == ConnectionState.STOPPING.value:
                         up_cr_response = glue.update_crawler(
                             Name=crawler_name,
@@ -770,6 +768,15 @@ def delete_jdbc_connection(provider_id: int, account: str, region: str, instance
         if jdbc_conn.glue_database:
             try:
                 glue.delete_database(Name=jdbc_conn.glue_database)
+            except Exception as e:
+                logger.error(traceback.format_exc())
+                err.append(str(e))
+        if jdbc_conn.glue_connection:
+            try:
+                glue.delete_connection(
+                    CatalogId=assume_account,
+                    ConnectionName=jdbc_conn.glue_connection
+                )
             except Exception as e:
                 logger.error(traceback.format_exc())
                 err.append(str(e))
@@ -1065,7 +1072,7 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                 logger.info("sync_rds_connection get_crawler:")
                 logger.info(response)
                 try:
-                    if state == ConnectionState.ACTIVE.value or state == ConnectionState.UNSUPPORTED.value \
+                    if not state or state == ConnectionState.ACTIVE.value or state == ConnectionState.UNSUPPORTED.value \
                             or state == ConnectionState.ERROR.value or state == ConnectionState.STOPPING.value:
                         up_cr_response = glue.update_crawler(
                             Name=crawler_name,
@@ -1378,19 +1385,23 @@ def refresh_third_data_source(provider_id: int, accounts: list[str], type: str):
 def get_data_source_coverage(provider_id):
     provider_id = int(provider_id)
     if provider_id == Provider.AWS_CLOUD.value:
-        res = SourceCoverage(s3_total=crud.get_total_s3_buckets_count(),
-                             s3_connected=crud.get_connected_s3_buckets_size(),
-                             rds_total=crud.get_total_rds_instances_count(),
-                             rds_connected=crud.get_connected_rds_instances_count(),
-                             glue_total=crud.get_total_glue_database_count(),
-                             glue_connected=crud.get_connected_glue_database_count(),
-                             jdbc_total=crud.get_total_jdbc_instances_count(provider_id),
-                             jdbc_connected=crud.get_connected_jdbc_instances_count(provider_id)
-                             )
+        res = SourceCoverage(
+            s3_total=crud.get_total_s3_buckets_count(),
+            s3_connected=crud.get_connected_s3_buckets_size(),
+            rds_total=crud.get_total_rds_instances_count(),
+            rds_connected=crud.get_connected_rds_instances_count(),
+            glue_total=crud.get_total_glue_database_count(),
+            glue_connected=crud.get_connected_glue_database_count(),
+            jdbc_total=crud.get_total_jdbc_instances_count(provider_id) + crud.get_total_jdbc_instances_count(
+                Provider.JDBC_PROXY),
+            jdbc_connected=crud.get_connected_jdbc_instances_count(
+                provider_id) + crud.get_connected_jdbc_instances_count(Provider.JDBC_PROXY)
+        )
     else:
-        res = SourceCoverage(jdbc_total=crud.get_total_jdbc_instances_count(provider_id),
-                             jdbc_connected=crud.get_connected_jdbc_instances_count(provider_id)
-                             )
+        res = SourceCoverage(
+            jdbc_total=crud.get_total_jdbc_instances_count(provider_id),
+            jdbc_connected=crud.get_connected_jdbc_instances_count(provider_id)
+        )
     return res
 
 
@@ -1518,10 +1529,13 @@ def add_third_account(account, admin_account, admin_region):
     crud.add_third_account(account, role_arn)
 
 def delete_account(account_provider: int, account_id: str, region: str):
-    if account_provider == Provider.AWS_CLOUD.value:
-        delete_aws_account(account_id)
-    else:
-        delete_third_account(account_provider, account_id, region)
+    account = crud.get_account_by_id(account_id=account_id)
+    if account:
+        account_provider = account.account_provider_id
+        if account_provider == Provider.AWS_CLOUD.value:
+            delete_aws_account(account_id)
+        else:
+            delete_third_account(account_provider, account_id, region)
 
 def delete_aws_account(account_id):
     accounts_by_region = crud.list_all_accounts_by_region(region=admin_region)
@@ -1636,6 +1650,7 @@ def import_glue_database(glueDataBase: SourceGlueDatabaseBase):
     crud.import_glue_database(glueDataBase, response)
 
 def update_jdbc_conn(jdbc_conn: JDBCInstanceSource):
+    get_db_names(jdbc_conn.jdbc_connection_url, jdbc_conn.jdbc_connection_schema)
     account_id = jdbc_conn.account_id if jdbc_conn.account_provider_id == Provider.AWS_CLOUD.value else admin_account_id
     region = jdbc_conn.region if jdbc_conn.account_provider_id == Provider.AWS_CLOUD.value else admin_region
     res: JDBCInstanceSourceFullInfo = crud.get_jdbc_instance_source_glue(jdbc_conn.account_provider_id, jdbc_conn.account_id, jdbc_conn.region, jdbc_conn.instance_id)
@@ -1695,9 +1710,7 @@ def __validate_jdbc_url(url: str):
 
 
 def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
-    if not __validate_jdbc_url(jdbcConn.jdbc_connection_url):
-        raise BizException(MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_code(),
-                           MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_msg())
+    get_db_names(jdbcConn.jdbc_connection_url, jdbcConn.jdbc_connection_schema)
 
     account_id = jdbcConn.account_id if jdbcConn.account_provider_id == Provider.AWS_CLOUD.value else admin_account_id
     region = jdbcConn.region if jdbcConn.account_provider_id == Provider.AWS_CLOUD.value else admin_region
@@ -2350,9 +2363,10 @@ def query_account_network(account: AccountInfo):
     region = account.region if account.region == Provider.AWS_CLOUD.value else admin_region
     logger.info(f'accont_id is:{accont_id},region is {region}')
     ec2_client, __ = __ec2(account=accont_id, region=region)
-
-    vpc_list = [{"vpcId": vpc['VpcId'], "name": gen_resource_name(vpc)} for vpc in ec2_client.describe_vpcs()['Vpcs']]
-    # accont_id, region = gen_assume_info(account)
+    vpcs = query_all_vpc(ec2_client)
+    # vpcs = [vpc['VpcId'] for vpc in query_all_vpc(ec2_client)]
+    vpc_list = [{"vpcId": vpc.get('VpcId'), "name": gen_resource_name(vpc)} for vpc in vpcs]
+    # vpc_list = [{"vpcId": vpc['VpcId'], "name": gen_resource_name(vpc)} for vpc in vpcs]
     if account.account_provider_id != Provider.AWS_CLOUD.value:
         res = __query_third_account_network(vpc_list, ec2_client)
         logger.info(f"query_third_account_network res is {res}")
@@ -2493,6 +2507,23 @@ def query_full_provider_resource_infos():
 
 def list_providers():
     return crud.query_provider_list()
+
+
+def get_db_names(url: str, schemas: str):
+    if not __validate_jdbc_url(url):
+        raise BizException(MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_code(),
+                           MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_msg())
+    # list schemas
+    db_names = set()
+    schema = get_schema_from_url(url)
+    if schema:
+        db_names.add(schema)
+    if schemas:
+        db_names.update(schemas.splitlines())
+    if not db_names:
+        raise BizException(MessageEnum.SOURCE_JDBC_JDBC_NO_DATABASE.get_code(),
+                           MessageEnum.SOURCE_JDBC_JDBC_NO_DATABASE.get_msg())
+    return db_names
 
 
 def get_schema_from_url(url):

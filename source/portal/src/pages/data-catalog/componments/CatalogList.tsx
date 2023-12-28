@@ -44,7 +44,12 @@ import {
   getS3TableCount,
 } from 'apis/data-catalog/api';
 import '../style.scss';
-import { formatSize, formatNumber, useDidUpdateEffect } from 'tools/tools';
+import {
+  formatSize,
+  formatNumber,
+  useDidUpdateEffect,
+  formatTime,
+} from 'tools/tools';
 import { useSearchParams } from 'react-router-dom';
 import IdentifierFilterTag from './IdentifierFilterTag';
 import { ColumnList, nFormatter } from 'ts/common';
@@ -229,9 +234,12 @@ const CatalogList: React.FC<any> = memo((props: any) => {
       conditions: [
         {
           column: 'database_type',
-          values: [catalogType],
+          values:
+            catalogType === 'jdbc_aws'
+              ? ['jdbc_aws', 'jdbc_proxy']
+              : [catalogType],
+          operation: 'in',
           condition: 'and',
-          operation: ':',
         },
       ] as any,
     };
@@ -276,9 +284,12 @@ const CatalogList: React.FC<any> = memo((props: any) => {
         conditions: [
           {
             column: 'database_type',
-            values: [catalogType],
+            values:
+              catalogType === 'jdbc_aws'
+                ? ['jdbc_aws', 'jdbc_proxy']
+                : [catalogType],
+            operation: 'in',
             condition: 'and',
-            operation: ':',
           },
         ] as any,
       };
@@ -510,9 +521,7 @@ const CatalogList: React.FC<any> = memo((props: any) => {
                   );
                 }
                 if (item.id === COLUMN_OBJECT_STR.LastModifyAt) {
-                  return moment((e as any)[item.id])
-                    .add(8, 'h')
-                    .format('YYYY-MM-DD HH:mm');
+                  return formatTime((e as any)[item.id]);
                 }
                 if (item.id === COLUMN_OBJECT_STR.Size) {
                   return formatSize((e as any)[item.id]);
@@ -581,10 +590,13 @@ const CatalogList: React.FC<any> = memo((props: any) => {
                         selectedId={rdsSelectedView}
                         options={[
                           {
-                            text: 'Instance view',
+                            text: t('view.instanceView') ?? '',
                             id: RDS_VIEW.RDS_INSTANCE_VIEW,
                           },
-                          { text: 'Table view', id: RDS_VIEW.RDS_TABLE_VIEW },
+                          {
+                            text: t('view.tableView') ?? '',
+                            id: RDS_VIEW.RDS_TABLE_VIEW,
+                          },
                         ]}
                         onChange={({ detail }) =>
                           setRdsSelectedView(detail.selectedId)
@@ -598,10 +610,13 @@ const CatalogList: React.FC<any> = memo((props: any) => {
                         selectedId={glueSelectedView}
                         options={[
                           {
-                            text: 'Instance view',
+                            text: t('view.instanceView') ?? '',
                             id: GLUE_VIEW.GLUE_INSTANCE_VIEW,
                           },
-                          { text: 'Table view', id: GLUE_VIEW.GLUE_TABLE_VIEW },
+                          {
+                            text: t('view.tableView') ?? '',
+                            id: GLUE_VIEW.GLUE_TABLE_VIEW,
+                          },
                         ]}
                         onChange={({ detail }) =>
                           setGlueSelectedView(detail.selectedId)
@@ -615,10 +630,13 @@ const CatalogList: React.FC<any> = memo((props: any) => {
                         selectedId={jdbcSelectedView}
                         options={[
                           {
-                            text: 'Instance view',
+                            text: t('view.instanceView') ?? '',
                             id: JDBC_VIEW.JDBC_INSTANCE_VIEW,
                           },
-                          { text: 'Table view', id: JDBC_VIEW.JDBC_TABLE_VIEW },
+                          {
+                            text: t('view.tableView') ?? '',
+                            id: JDBC_VIEW.JDBC_TABLE_VIEW,
+                          },
                         ]}
                         onChange={({ detail }) =>
                           setJdbcSelectedView(detail.selectedId)

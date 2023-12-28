@@ -200,10 +200,13 @@ const SelectRDSCatalog: React.FC<SelectRDSCatalogProps> = (
               selectedId={jobData.rdsSelectedView}
               options={[
                 {
-                  text: 'Instance view',
+                  text: t('view.instanceView') ?? '',
                   id: RDS_VIEW.RDS_INSTANCE_VIEW,
                 },
-                { text: 'Table view', id: 'rds-table-view' },
+                {
+                  text: t('view.tableView') ?? '',
+                  id: RDS_VIEW.RDS_TABLE_VIEW,
+                },
               ]}
               onChange={({ detail }) => changeRDSSelectView(detail.selectedId)}
             />

@@ -213,7 +213,7 @@ def delete_catalog_column_level_classification_by_table_name(
             if column.column_name not in column_names:
                 column_ids.append(column.id)
     if len(column_ids) > 0:
-        crud.delete_catalog_table_level_classification_by_ids(column_ids)
+        crud.delete_catalog_column_level_classification_by_ids(column_ids)
 
 
 def sync_crawler_result(
@@ -299,6 +299,11 @@ def sync_crawler_result(
                 # glue can't crawl them correctly
                 # So there is no sizeKey in Parameters, we set the default value is 0
                 table_size_key = 0
+                if "Parameters" in table and "DEPRECATED_BY_CRAWLER" in table["Parameters"] \
+                        and table["Parameters"]["DEPRECATED_BY_CRAWLER"]:
+                    logger.info(f'{table_name} is Deprecated {table["Parameters"]["DEPRECATED_BY_CRAWLER"]}')
+                    # to be deleted
+                    continue
                 if "Parameters" in table["StorageDescriptor"] and "sizeKey" in table["StorageDescriptor"]["Parameters"]:
                     table_size_key = int(
                         table["StorageDescriptor"]["Parameters"]["sizeKey"]
@@ -455,8 +460,8 @@ def sync_crawler_result(
                         "sync_crawler_result DELETE COLUMN WHEN NOT IN GLUE TABLES" + catalog.table_name + json.dumps(
                             table_column_dict[catalog.table_name]))
                 delete_catalog_column_level_classification_by_table_name(account_id, region, database_type,
-                                                                              database_name, catalog.table_name,
-                                                                              column_list)
+                                                                         database_name, catalog.table_name,
+                                                                         column_list)
     if table_count == 0:
         if database_type == DatabaseType.RDS.value:
             data_source_crud.set_rds_instance_source_glue_state(account_id, region, database_name,
@@ -603,6 +608,7 @@ def list_unstructured_sample_objects(table_id: str):
                 "identifier": column_catalog.identifier,
                 "s3_full_path": column_catalog.column_path,
                 "file_size": file_size,
+                "update_time": column_catalog.modify_time,
                 "file_type": column_catalog.column_path.split(".")[-1].upper() if column_catalog.column_path else '',
             }
             result_list.append(obj_dict)
@@ -901,18 +907,13 @@ def sync_job_detection_result(
         logger.debug(
             "sync_job_detection_result - RESET ADDITIONAL COLUMNS : " + json.dumps(table_column_dict[table_name]))
         if table_name not in table_privacy_dict:
-            # if catalog_table is not None:
-            #     table_dict = {
-            #         "id": catalog_table.id,
-            #         "row_count": table_size,
-            #     }
-            #     table_dict_list.append(table_dict)
             if catalog_table is not None and (overwrite or (
                         not overwrite and catalog_table.manual_tag != const.MANUAL)):
                 table_dict = {
                     "id": catalog_table.id,
-                    "privacy": Privacy.PII.value,
+                    "privacy": Privacy.NON_PII.value,
                     "state": CatalogState.DETECTED.value,
+                    "identifiers": "",
                     "row_count": table_size,
                     "manual_tag": const.SYSTEM,
                 }
@@ -1412,11 +1413,11 @@ def filter_records(all_items: list, all_labels_dict: dict, sensitive_flag: str):
     #         const.EXPORT_RDS_MARK_STR: {const.EXPORT_RDS_SHEET_TITLE: rds_records},
     #         const.EXPORT_GLUE_MARK_STR: {const.EXPORT_RDS_SHEET_TITLE: glue_records},
     #         const.EXPORT_JDBC_MARK_STR: {const.EXPORT_RDS_SHEET_TITLE: jdbc_records}}
-        return {const.EXPORT_S3_MARK_STR: s3_records,
-                const.EXPORT_S3_UNSTRUCTURED_MARK_STR: s3_unstructured_records,
-                const.EXPORT_RDS_MARK_STR: rds_records,
-                const.EXPORT_GLUE_MARK_STR: glue_records,
-                const.EXPORT_JDBC_MARK_STR: jdbc_records}
+    return {const.EXPORT_S3_MARK_STR: s3_records,
+            const.EXPORT_S3_UNSTRUCTURED_MARK_STR: s3_unstructured_records,
+            const.EXPORT_RDS_MARK_STR: rds_records,
+            const.EXPORT_GLUE_MARK_STR: glue_records,
+            const.EXPORT_JDBC_MARK_STR: jdbc_records}
 
 def gen_labels(all_labels_dict, row_result_item):
     tmp = [all_labels_dict.get(int(result)) for result in row_result_item.split(",")]
@@ -1524,7 +1525,11 @@ def __gen_xlsx_file(title, header, data_list, start_index, zipf):
     ws.append(header)
     end_index = min(start_index + const.EXPORT_XLSX_MAX_LINES, len(data_list))
     for row_index in range(start_index, end_index):
-        ws.append([__get_cell_value(cell) for cell in data_list[row_index][0]])
+        try:
+            ws.append([__get_cell_value(cell) for cell in data_list[row_index][0]])
+        except Exception as e:
+            logging.error(e)
+            continue
     file_name = f"{tmp_folder}/{title}.xlsx"
     wb.save(file_name)
     zipf.write(file_name, os.path.abspath(file_name))
@@ -1535,7 +1540,12 @@ def __gen_csv_file(title, header, data_list, start_index, zipf):
     with open(file_name, 'w', encoding="utf-8-sig", newline='') as csv_file:
         csv_writer = csv.writer(csv_file)
         csv_writer.writerow(header)
-        for record in data_list:
-            csv_writer.writerow([__get_cell_value(cell) for cell in record[0]])
+        output_list = data_list[start_index: min(start_index + const.EXPORT_CSV_MAX_LINES, len(data_list))]
+        for record in output_list:
+            try:
+                csv_writer.writerow([__get_cell_value(cell) for cell in record[0]])
+            except Exception as e:
+                logging.error(e)
+                continue
     zipf.write(file_name, os.path.abspath(file_name))
     os.remove(file_name)

@@ -37,7 +37,13 @@ import {
   getPreSignedUrlById,
   getTablePropertyById,
 } from 'apis/data-catalog/api';
-import { alertMsg, formatSize, toJSON, deepClone } from 'tools/tools';
+import {
+  alertMsg,
+  formatSize,
+  toJSON,
+  deepClone,
+  formatTime,
+} from 'tools/tools';
 import moment from 'moment';
 import {
   CONTAINS_PII_OPTION,
@@ -283,9 +289,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
           if (item[0] === 'CreationDate') {
             tempPropertiesData.push({
               property: item[0],
-              value: item[1]
-                ? moment(item[1]).add(8, 'h').format('YYYY-MM-DD HH:mm')
-                : item[1],
+              value: item[1] ? formatTime(item[1]) : item[1],
             });
           } else if (item[0] === 'Tags') {
             tempPropertiesData.push({
@@ -319,9 +323,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
           if (item[0] === 'CreationDate') {
             tempPropertiesData.push({
               property: item[0],
-              value: item[1]
-                ? moment(item[1]).add(8, 'h').format('YYYY-MM-DD HH:mm')
-                : item[1],
+              value: item[1] ? formatTime(item[1]) : item[1],
             });
           } else if (item[0] === 'Tags') {
             tempPropertiesData.push({
@@ -371,7 +373,36 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
           alertMsg(result as any, 'error');
           return;
         }
-        setDataList(result);
+
+        if (!result || !Array.isArray(result)) {
+          alertMsg(result as any, 'error');
+          return;
+        }
+
+        const sampleTypes = [
+          'avro',
+          'orc',
+          'parquet',
+          'json',
+          'jsonl',
+          'bson',
+          'xml',
+          'ion',
+          'csv',
+          'tsv',
+          'zip',
+          'bz',
+          'bz2',
+          'gz',
+          'lz4',
+          'snappy',
+          'deflate',
+          'zlib',
+        ];
+        const filteredResult = result.filter((item: any) =>
+          sampleTypes.includes(item.file_type.toLowerCase())
+        );
+        setDataList(filteredResult);
       }
     };
 
@@ -517,7 +548,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       const requestParam = {
         account_id: selectPageRowData.account_id,
         region: selectPageRowData.region,
-        database_type: catalogType,
+        database_type: selectPageRowData.database_type,
         database_name: selectPageRowData.database_name,
         table_name: selectRowData.table_name,
         page: currentPage,
@@ -1028,10 +1059,11 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
                     ) {
                       return 'System';
                     }
-                    if (item.id === COLUMN_OBJECT_STR.LastModifyAt) {
-                      return moment((e as any)[item.id])
-                        .add(8, 'h')
-                        .format('YYYY-MM-DD HH:mm');
+                    if (
+                      item.id === COLUMN_OBJECT_STR.LastModifyAt ||
+                      item.id === COLUMN_OBJECT_STR.UpdateTime
+                    ) {
+                      return formatTime((e as any)[item.id]);
                     }
                     if (
                       item.id === 'column_value_example' ||

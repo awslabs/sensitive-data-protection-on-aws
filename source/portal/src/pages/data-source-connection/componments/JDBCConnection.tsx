@@ -11,8 +11,8 @@ import {
   SpaceBetween,
   Tiles,
   Textarea,
+  Modal,
 } from '@cloudscape-design/components';
-import S3ResourceSelector from '@cloudscape-design/components/s3-resource-selector';
 import {
   listGlueConnection,
   importGlueConnection,
@@ -22,7 +22,6 @@ import {
   createConnection,
   queryJdbcDatabases,
 } from 'apis/data-source/api';
-import RightModal from 'pages/right-modal';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { alertMsg } from 'tools/tools';
@@ -222,7 +221,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
             description: item.subnetName,
           });
         });
-        setSubnetOption(subnetOptions)
+        setSubnetOption(subnetOptions);
 
         // let tempSubnet = jdbcConnectionData.new;
         // tempSubnet = { ...tempSubnet, network_subnet_id: subnet.subnetId };
@@ -539,15 +538,21 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
   }, []);
 
   return (
-    <RightModal
-      className="detail-modal"
-      setShowModal={(show) => {
-        setShowModal(show);
-      }}
-      showModal={showModal}
+    <Modal
+      size="large"
+      // className="detail-modal"
+      // setShowModal={(show) => {
+      //   setShowModal(show);
+      // }}
+      // showModal={showModal}
       header={t('datasource:jdbc.addConnection')}
-      needMask={true}
-      clickMaskToClose={false}
+      visible={showModal} // needMask={true}
+      // clickMaskToClose={false}
+      onDismiss={(e) => {
+        if (e.detail.reason === 'closeButton') {
+          setShowModal(false);
+        }
+      }}
     >
       <div className="add-jdbc-container">
         <Form
@@ -731,6 +736,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                 </FormField>
                 <>
                   <FormField
+                    stretch
                     label={t('datasource:jdbc.jdbcURL')}
                     description={t('datasource:jdbc.jdbcURLDesc')}
                     constraintText={t('datasource:jdbc.jdbcURLConstraint')}
@@ -829,11 +835,13 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                     </FormField>
                   </>
                 )}
-                  <FormField
-                    label={t('datasource:jdbc.jdbcDatabase')}
-                    description={t('datasource:jdbc.jdbcDatabaseDesc')}
-                    constraintText={t('datasource:jdbc.jdbcDatabaseConstraint')}
-                    secondaryControl={props.providerId !== 1 && (
+                <FormField
+                  stretch
+                  label={t('datasource:jdbc.jdbcDatabase')}
+                  description={t('datasource:jdbc.jdbcDatabaseDesc')}
+                  constraintText={t('datasource:jdbc.jdbcDatabaseConstraint')}
+                  secondaryControl={
+                    props.providerId !== 1 && (
                       <Button
                         onClick={() => {
                           findDatabase();
@@ -843,15 +851,15 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                       >
                         {t('datasource:jdbc.findDatabase')}
                       </Button>
-                    )  
+                    )
                   }
-                  >
-                    <Textarea
-                      onChange={(e) => changeDatabase(e.detail.value)}
-                      placeholder={`crm_database\nuser_management\ninventory_management`}
-                      value={jdbcConnectionData.new.jdbc_connection_schema}
-                    />
-                  </FormField>
+                >
+                  <Textarea
+                    onChange={(e) => changeDatabase(e.detail.value)}
+                    placeholder={`crm_database\nuser_management\ninventory_management`}
+                    value={jdbcConnectionData.new.jdbc_connection_schema}
+                  />
+                </FormField>
                 <ExpandableSection
                   headerText={t('datasource:jdbc.networkOption')}
                   onChange={() => setExpanded(!expanded)}
@@ -907,7 +915,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
           </SpaceBetween>
         </Form>
       </div>
-    </RightModal>
+    </Modal>
   );
 };
 

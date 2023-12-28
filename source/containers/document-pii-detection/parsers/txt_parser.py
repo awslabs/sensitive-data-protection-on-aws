@@ -15,10 +15,12 @@ class TxtParser(BaseParser):
         file_encoding = self.get_encoding(txt_path)
 
         # Read the file
-        with open(txt_path, 'r') as file:
-            file_content = file.read()
+        with open(txt_path, 'rb') as file:
+            file_content_byte = file.read()
         
-        if file_encoding == 'us-ascii':
-            file_content = quopri.decodestring(file_content).decode('utf-8')
+        file_content = file_content_byte.decode(file_encoding).encode('utf-8').decode('utf-8', errors='ignore')
+
+        # if file_encoding == 'us-ascii':
+        #     file_content = quopri.decodestring(file_content).decode('utf-8', errors='ignore')
 
         return [file_content]

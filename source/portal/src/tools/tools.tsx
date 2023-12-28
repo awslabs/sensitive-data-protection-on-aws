@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import moment from 'moment';
 import { DependencyList, useEffect, useRef } from 'react';
 import { AlertType } from 'ts/common-alert/types';
 
@@ -225,5 +226,12 @@ export const combinedProviders = (id?: { toString: () => string }) => {
   if (!id) {
     return null;
   }
-  return Number(id) !== 1 ? [Number(id)] : [1, 4]
+  return Number(id) !== 1 ? [Number(id)] : [1, 4];
+};
+
+export const formatTime = (timeStr: string, hasSeconds = false) => {
+  if (hasSeconds) {
+    return moment.utc(timeStr).local().format('YYYY-MM-DD HH:mm:ss');
+  }
+  return moment.utc(timeStr).local().format('YYYY-MM-DD HH:mm');
 };

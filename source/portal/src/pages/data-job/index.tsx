@@ -12,10 +12,13 @@ import {
   Table,
 } from '@cloudscape-design/components';
 import React, { useEffect, useRef, useState } from 'react';
-import { JOB_LIST_COLUMN_LIST } from './types/job_list_type';
+import {
+  JOB_FILTER_LIST_COLUMN_LIST,
+  JOB_LIST_COLUMN_LIST,
+} from './types/job_list_type';
 import ResourcesFilter from 'pages/resources-filter';
 import moment from 'moment';
-import { alertMsg, getCronData } from 'tools/tools';
+import { alertMsg, formatTime, getCronData } from 'tools/tools';
 import { useNavigate } from 'react-router-dom';
 import CommonBadge from 'pages/common-badge';
 import {
@@ -74,7 +77,7 @@ const DataJobContent: React.FC<any> = (props: any) => {
   } as any);
   const resourcesFilterProps = {
     totalCount,
-    columnList: columnList.filter((i) => i.filter),
+    columnList: JOB_FILTER_LIST_COLUMN_LIST.filter((i) => i.filter),
     query,
     setQuery,
     tableName: TABLE_NAME.DISCOVERY_JOB,
@@ -250,9 +253,7 @@ const DataJobContent: React.FC<any> = (props: any) => {
             cell: (e: any) => {
               if (item.id === 'last_start_time') {
                 return (e as any)[item.id]
-                  ? moment((e as any)[item.id])
-                      .add(8, 'h')
-                      .format('YYYY-MM-DD HH:mm')
+                  ? formatTime((e as any)[item.id])
                   : '-';
               }
               if (item.id === 'dataSource') {
@@ -264,19 +265,19 @@ const DataJobContent: React.FC<any> = (props: any) => {
               if (item.id === 'last_end_time') {
                 let runTime = '';
                 if ((e as any)['last_start_time'] && (e as any)[item.id]) {
-                  const startTimeStr = moment((e as any)['last_start_time'])
-                    .add(8, 'h')
-                    .format('YYYY-MM-DD HH:mm:ss');
-                  const endTimeStr = moment((e as any)['last_end_time'])
-                    .add(8, 'h')
-                    .format('YYYY-MM-DD HH:mm:ss');
+                  const startTimeStr = formatTime(
+                    (e as any)['last_start_time'],
+                    true
+                  );
+                  const endTimeStr = formatTime(
+                    (e as any)['last_end_time'],
+                    true
+                  );
                   runTime = getTimeDiff(startTimeStr, endTimeStr) || '';
                 }
 
                 return (e as any)[item.id]
-                  ? `${moment((e as any)[item.id])
-                      .add(8, 'h')
-                      .format('YYYY-MM-DD HH:mm')} (${runTime})`
+                  ? `${formatTime((e as any)[item.id])} (${runTime})`
                   : '-';
               }
               if (item.id === 'name') {
