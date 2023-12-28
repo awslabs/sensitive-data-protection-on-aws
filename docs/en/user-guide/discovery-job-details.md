@@ -1,24 +1,20 @@
-A sensitive data discovery job consists of Glue jobs that run in monitored AWS accounts (the same account as the data source). 
+Sensitive data discovery jobs consist of Glue jobs running in monitored AWS accounts (the same accounts as the data sources).
 
-For instance, if you run a discovery job for a RDS instance (the data source) in Account A, and the solution is installed in Account B, the Glue job runs in Account A and returns results and masked sample data to Account B.
+* Return to the list of sensitive data tasks, you can see the job status as `Running`.
+* To view task progress: Click on the task, in the sidebar, click **Task Run Details**.
+![edit-icon](docs/../../images/cn-job-status.png) 
 
-## View job details
+* Initially, the progress may remain at 0%. Do not worry, as the system is checking for any changes in the data structure. The progress will update once the actual data scan begins.
+    ![edit-icon](docs/../../images/cn-job-status-progress.png) 
+!!! Info "Run Duration"
+    The duration depends on the sampling rate, the tables to be scanned, and the number of identifiers in the template. 
+    For example: For one instance with 400 tables, a scan depth of 30, and 21 rules in the template, it might take approximately 25 minutes.
+    Different S3 buckets/database instances are scanned in parallel by the backend.
 
-1. Sign in to the solution's web portal.
-2. Choose **Run sensitive data discovery jobs** in the **Summary** area. Alternatively, from the left navigation pane, choose **Run sensitive data discovery jobs** to open its page. 
-3. Click the job that you want to view details. A window pops up. 
-4. In the **Job history** tab, choose a specific job. If needed, you can choose **Download report** to download a report. For details, refer to [discovery job report](discovery-job-report.md).
-5. Click **Job run details**. You will be redirected to **job details** page, where you can see the job information and a list of Glue jobs. 
+* Wait for the Glue job status to change to `SUCCEEDED`. This indicates that the scanning task is complete.
+* If the Glue job fails, you can click on the `FAILED` status to view its error logs.
 
-    !!! Note "Note"
-        In case a Glue job failed, you can click the FAILED status to view its error log.
+## Download Classification Template Snapshot
+You can download a snapshot of the template as it was at the start of the job. The snapshot shows which data identifiers the job was using.
 
-### Download snapshot of classification template used in job 
-You can download the template snapshot for the moment when the job starts to run. The snapshot shows what the job is using as data identifiers. 
-
-On the **job details** page, choose **Download snapshot** to download the template snapshot in JSON format(.json). 
-
-
-
-
-
+On the **Job Details** page, select **Download Snapshot** to download the template snapshot in JSON format (.json).

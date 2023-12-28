@@ -8,8 +8,10 @@
 
 - [在新 VPC 中启动带身份提供商的管理员帐户模板 (Admin template)](https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/AdminWithIdP.template.json)
 - [在现有 VPC 中启动带身份提供商的管理员帐户模板 (Admin template)](https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/AdminExistVpcWithIdP.template.json)
+- [在现有仅私有子网VPC中启动带身份提供商的管理员帐户模板 (Admin template)](https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/AdminOnlyPrivateSubnetsWithIdP.template.json)
 - [在新 VPC 中启动管理员帐户模板 (Admin template)](https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/Admin.template.json)
 - [在现有 VPC 中启动管理员帐户模板 (Admin template)](https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/AdminExistVpc.template.json)
+- [在现有仅私有子网VPC中启动管理员帐户模板 (Admin template)](https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/AdminOnlyPrivateSubnets.template.json)
 - [被监控帐户的模板 (Agent template)](https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/Agent.template.json)
 - [IT 帐户的模板 (IT template)](https://aws-gcr-solutions.s3.amazonaws.com/aws-sensitive-data-protection/latest/default/IT.template.json)
 

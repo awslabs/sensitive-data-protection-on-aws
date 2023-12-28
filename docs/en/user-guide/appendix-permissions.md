@@ -1,7 +1,6 @@
 # Appendix: Permissions for agent CloudFormation stack
 
-The solution follows the least privilege principle to grant permissions to monitored account(s) when deploying Agent CloudFormation template.
-The Agent CloudFormation Stack basically set AWS roles and policies setup necessary permissions in target accounts to authorize the SDP solution. 
+The solution follows the least privilege principle to grant permissions to monitored account(s) when deploying the CloudFormation template.
 
 The permissions can be described at a high-level:
 

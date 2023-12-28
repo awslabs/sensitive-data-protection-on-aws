@@ -12,6 +12,7 @@
 - Qin, Dehua
 - Su, Fan
 - Wang, Yu
+- Wang, Xudong
 - Yi, Ke 
 - Yi, Yan
 - Zhang, Junzhong

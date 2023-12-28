@@ -3,6 +3,9 @@
 
 ## Update overview
 !!! Important "Important"
+    Currently, upgrading from 1.0 to 1.1 is not supported. Please remove 1.0 and redeploy 1.1.
+    If there is indeed a need, please contact us.
+!!! Important "Important"
     Please confirm that no jobs are running before updating.
 This page is used to guide how to update to the latest version after deploying an old version.
 Use the following steps to update this solution on AWS. 

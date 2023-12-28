@@ -7,11 +7,11 @@ theme:
   language: en
 nav:
   - Implementation Guide:
-    - Solution Overview:
+    - Solution overview:
         - Overview: index.md
         - Features and benefits: solution-overview/features-and-benefits.md
         - Concepts and definitions: solution-overview/concepts-and-definitions.md
-    - Architecture Overview:
+    - Architecture overview:
         - Architecture diagram: architecture-overview/architecture.md
         - AWS Well-Architected pillars: architecture-overview/well-architected-pillars.md            
     - Architecture details:
@@ -24,31 +24,32 @@ nav:
     - Deploy the solution:
         - AWS CloudFormation template: deployment/template.md
         - Deployment: deployment/deployment.md
-    - Update the solution: update/update.md
     - Use the solution: 
         - Overview: user-guide/get-started.md
-        - Connect to data source:
-            - Add AWS accounts: user-guide/data-source.md
-            - Create data catalogs: user-guide/data-catalog-create.md
-            - Delete data catalogs: user-guide/data-catalog-delete.md
-        - Browse data catalogs: 
-            - Synchronize data catalogs: user-guide/data-catalog-sync.md
-            - Export data catalogs: user-guide/data-catalog-export.md
-            - Label data catalogs: user-guide/data-catalog-labels.md
-        - Define classification template: 
-            - Define classification template: user-guide/data-classification-template.md
-            - Manage data identifiers: user-guide/data-identifiers.md
-        - Run sensitive data discovery jobs: 
+        - Step1：Connect to data source:
+            - Add Cloud accounts: user-guide/data-source.md
+            - Connect to S3: user-guide/data-catalog-create-s3.md
+            - Connect to RDS: user-guide/data-catalog-create-rds.md
+            - Connect to Glue: user-guide/data-catalog-create-glue.md
+            - Connect to JDBC: user-guide/data-catalog-create-jdbc.md
+            - Connect to JDBC(Redshift): user-guide/data-catalog-create-jdbc-redshift.md
+            - Connect to JDBC(RDS Proxy): user-guide/data-catalog-create-jdbc-rds-proxy.md
+        - Step2：Define classification template: user-guide/data-identifiers.md
+        - Step3：Run sensitive data discovery jobs: 
             - Create job: user-guide/discovery-job-create.md
             - View job details: user-guide/discovery-job-details.md
             - Download job report: user-guide/discovery-job-report.md
             - Re-run/Duplicate job: user-guide/discovery-job-rerun-and-duplicate.md
             - Pause/Continue job: user-guide/discovery-job-pause-and-cancel.md
-
-    - Appendix: 
-        - Built-in data identifiers: user-guide/appendix-built-in-identifiers.md
-        - Permissions of CloudFormation Stacks: user-guide/appendix-permissions.md
-        - Add accounts via AWS Organization: user-guide/appendix-organization.md
+        - Step4：Check Result:
+            - Dashboard: user-guide/check-result-dashboard.md
+            - Data catalog: user-guide/check-result-data-catalog.md
+            - Catalog labeling: user-guide/data-catalog-labels.md
+        - Appx.Supported data types: user-guide/appendix-built-in-supported-datatypes.md
+        - Appx.Built-in data identifiers: user-guide/appendix-built-in-identifiers.md
+        - Appx.Permissions of CloudFormation Stacks: user-guide/appendix-permissions.md
+        - Appx.Add accounts via AWS Organization: user-guide/appendix-organization.md
+        - Appx.EU PII identifiers(GDPR reference): user-guide/appendix-build-in-identifiers-eu-gdpr.md
     - FAQ: faq.md
     - Troubleshooting: troubleshooting.md
     - Uninstall the solution: uninstall.md
