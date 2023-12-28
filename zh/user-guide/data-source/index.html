@@ -16,15 +16,15 @@
         <link rel="prev" href="../get-started/">
       
       
-        <link rel="next" href="../data-catalog-create/">
+        <link rel="next" href="../data-catalog-create-s3/">
       
       
       <link rel="icon" href="https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.2">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
     
     
       
-        <title>添加AWS帐户 - 敏感数据保护解决方案</title>
+        <title>添加云帐户 - 敏感数据保护解决方案</title>
       
     
     
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              添加AWS帐户
+              添加云帐户
             
           </span>
         </div>
@@ -898,7 +898,7 @@
             
   
   <span class="md-ellipsis">
-    连接数据源
+    第1步：连接数据源
   </span>
   
 
@@ -908,7 +908,7 @@
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_1_7_2">
             <span class="md-nav__icon md-icon"></span>
-            连接数据源
+            第1步：连接数据源
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -932,7 +932,7 @@
           
   
   <span class="md-ellipsis">
-    添加AWS帐户
+    添加云帐户
   </span>
   
 
@@ -943,7 +943,7 @@
         
   
   <span class="md-ellipsis">
-    添加AWS帐户
+    添加云帐户
   </span>
   
 
@@ -967,18 +967,66 @@
         <li class="md-nav__item">
   <a href="#aws" class="md-nav__link">
     <span class="md-ellipsis">
-      添加 AWS 账户（单个）
+      添加AWS账号
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="添加AWS账号">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cloudformation-aws-regions3rdsaws-glue" class="md-nav__link">
+    <span class="md-ellipsis">
+      方式一： 通过CloudFormation授权 （适用于同AWS region，自动发现S3，RDS，AWS Glue）
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#aws_1" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#jdbc-aws-regionredshiftec2" class="md-nav__link">
     <span class="md-ellipsis">
-      添加 AWS 账户（通过组织）
+      方式二：通过JDBC方式连接数据库 （适用于多AWS region，手动添加数据库，如Redshift，EC2自建数据库，多云数据库）
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cloudformationaws-regions3rdsaws-glueaws-organization" class="md-nav__link">
+    <span class="md-ellipsis">
+      方式三：批量添加CloudFormation授权。（适用于同AWS region，自动发现S3，RDS，AWS Glue。通过AWS Organization批量管理账号）
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      添加其他云账号
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="添加其他云账号">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#jdbc-idc" class="md-nav__link">
+    <span class="md-ellipsis">
+      通过JDBC方式连接数据库 （适用于多云或者IDC，手动添加数据库）
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -998,11 +1046,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../data-catalog-create/" class="md-nav__link">
+      <a href="../data-catalog-create-s3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    创建数据目录
+    连接S3
   </span>
   
 
@@ -1019,11 +1067,95 @@
   
   
     <li class="md-nav__item">
-      <a href="../data-catalog-delete/" class="md-nav__link">
+      <a href="../data-catalog-create-rds/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    删除数据目录
+    连接RDS
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-catalog-create-glue/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    连接Glue
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-catalog-create-jdbc/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    连接JDBC
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-catalog-create-jdbc-redshift/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    连接JDBC(Redshift)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-catalog-create-jdbc-rds-proxy.md" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    连接JDBC(RDS Proxy)
   </span>
   
 
@@ -1047,103 +1179,16 @@
   
   
   
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_1_7_3" id="__nav_1_7_3_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    浏览数据目录
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_7_3">
-            <span class="md-nav__icon md-icon"></span>
-            浏览数据目录
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
     <li class="md-nav__item">
-      <a href="../data-catalog-sync/" class="md-nav__link">
+      <a href="../data-identifiers/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    同步数据目录
+    第2步：定义数据分类模板
   </span>
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../data-catalog-export/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    导出数据目录
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../data-catalog-labels/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    标记数据目录
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -1172,7 +1217,7 @@
             
   
   <span class="md-ellipsis">
-    定义数据分类模板
+    第3步：运行敏感数据发现任务
   </span>
   
 
@@ -1182,94 +1227,7 @@
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_1_7_4">
             <span class="md-nav__icon md-icon"></span>
-            定义数据分类模板
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../data-classification-template/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    数据分类模版
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../data-identifiers/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    数据标识符
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_1_7_5" id="__nav_1_7_5_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    运行敏感数据发现作业
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_7_5">
-            <span class="md-nav__icon md-icon"></span>
-            运行敏感数据发现作业
+            第3步：运行敏感数据发现任务
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1386,14 +1344,6 @@
 
               
             
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
               
                 
   
@@ -1410,26 +1360,118 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_8" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7_5" >
         
           
-          <label class="md-nav__link" for="__nav_1_8" id="__nav_1_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_1_7_5" id="__nav_1_7_5_label" tabindex="0">
             
   
   <span class="md-ellipsis">
-    附录
+    第4步：查看结果
   </span>
   
 
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_8">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_7_5">
             <span class="md-nav__icon md-icon"></span>
-            附录
+            第4步：查看结果
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../check-result-dashboard/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    总览统计
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../check-result-data-catalog/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    数据目录
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-catalog-labels/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    数据目录打标
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../appendix-built-in-supported-datatypes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    附录：支持扫描的数据类型
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -1442,7 +1484,7 @@
         
   
   <span class="md-ellipsis">
-    内置的数据标识符
+    附录：内置的数据标识符
   </span>
   
 
@@ -1463,7 +1505,7 @@
         
   
   <span class="md-ellipsis">
-    CloudFormation堆栈的权限
+    附录：CloudFormation堆栈的权限
   </span>
   
 
@@ -1484,7 +1526,28 @@
         
   
   <span class="md-ellipsis">
-    通过AWS Organization添加帐户
+    附录：通过AWS Organization添加帐户
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../appendix-build-in-identifiers-eu-gdpr.md" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    附录：EU个人信息标识符(GDPR参考)
   </span>
   
 
@@ -1581,10 +1644,10 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_12" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_11" >
         
           
-          <label class="md-nav__link" for="__nav_1_12" id="__nav_1_12_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_1_11" id="__nav_1_11_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -1595,8 +1658,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_12_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_12">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_11">
             <span class="md-nav__icon md-icon"></span>
             开发者指南
           </label>
@@ -1730,18 +1793,66 @@
         <li class="md-nav__item">
   <a href="#aws" class="md-nav__link">
     <span class="md-ellipsis">
-      添加 AWS 账户（单个）
+      添加AWS账号
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="添加AWS账号">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cloudformation-aws-regions3rdsaws-glue" class="md-nav__link">
+    <span class="md-ellipsis">
+      方式一： 通过CloudFormation授权 （适用于同AWS region，自动发现S3，RDS，AWS Glue）
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#aws_1" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#jdbc-aws-regionredshiftec2" class="md-nav__link">
     <span class="md-ellipsis">
-      添加 AWS 账户（通过组织）
+      方式二：通过JDBC方式连接数据库 （适用于多AWS region，手动添加数据库，如Redshift，EC2自建数据库，多云数据库）
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cloudformationaws-regions3rdsaws-glueaws-organization" class="md-nav__link">
+    <span class="md-ellipsis">
+      方式三：批量添加CloudFormation授权。（适用于同AWS region，自动发现S3，RDS，AWS Glue。通过AWS Organization批量管理账号）
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      添加其他云账号
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="添加其他云账号">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#jdbc-idc" class="md-nav__link">
+    <span class="md-ellipsis">
+      通过JDBC方式连接数据库 （适用于多云或者IDC，手动添加数据库）
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1764,23 +1875,51 @@
 
 
 <h1 id="_1">连接到数据源</h1>
-<p>使用敏感数据保护的第一步是上线 AWS 账户。为此，您需要在 AWS 账户中部署“Agent CloudFormation 堆栈”。</p>
-<p>有关Agent堆栈所需的权限，请参阅<a href="../appendix-permissions/">附录：Agent CloudFormation 堆栈的权限</a>。</p>
-<h2 id="aws">添加 AWS 账户（单个）</h2>
+<h2 id="aws">添加AWS账号</h2>
 <ol>
-<li>登录解决方案的控制台。</li>
-<li>在<strong>摘要</strong>区域中选择<strong>连接到数据源</strong>。或者，从左侧导航窗格中选择<strong>连接到数据源</strong>。</li>
-<li>选择<strong>添加新账户</strong>以打开<strong>单个账户</strong>标签页。</li>
-<li>按照 <strong>步骤1</strong> 和 <strong>步骤2</strong> 中的说明安装 Agent CloudFormation 堆栈。</li>
-<li>成功部署堆栈后，填写 AWS 账户的账户 ID。</li>
-<li>选择 <strong>添加此账户</strong>。</li>
-<li>返回 <strong>连接到数据源</strong> 页面。您将看到已添加 AWS 账户。</li>
+<li>左侧菜单中，选择<strong>连接数据源</strong>。</li>
+<li>选择AWS Cloud页签。</li>
+<li>点击按钮 <strong>添加新账户</strong>。
+  <img alt="edit-icon" src="../../images/account-list-cn.png" /></li>
+<li>
+<p>选择以下一种账号添加方式：</p>
+<h4 id="cloudformation-aws-regions3rdsaws-glue">方式一： 通过CloudFormation授权 （适用于同AWS region，自动发现S3，RDS，AWS Glue）</h4>
+<ol>
+<li>打开<strong>独立AWS账户</strong>标签页</li>
+<li>按照此页面 <strong>步骤1</strong> 和 <strong>步骤2</strong> 中的说明安装 Agent CloudFormation 堆栈（约3mins）,用于授权待检测账号。详细权限信息请参阅<a href="../appendix-permissions/">附录：Agent CloudFormation 堆栈的权限</a></li>
+<li>在页面填写待检测的AWS账户ID，选择需要数据源所在的区域。</li>
+<li>点击按钮 <strong>添加此账户</strong>。</li>
 </ol>
-<p>您也可以点击特定的 AWS 账户 ID 来查看账户详细信息。</p>
-<h2 id="aws_1">添加 AWS 账户（通过组织）</h2>
-<p>对于多个 AWS 账户，您可以使用 AWS 组织自动安装和卸载Agent CloudFormation 堆栈。有关详细信息，请参阅<a href="../appendix-organization/">附录：通过组织添加 AWS 账户</a>。</p>
-<p>成功部署堆栈后，填写组织委托账户的账户 ID。</p>
-<p>返回 <strong>连接到数据源</strong> 页面，您将看到已添加的 AWS 账户列表。您可以点击特定的 AWS 账户 ID 来查看账户详细信息。</p>
+<h4 id="jdbc-aws-regionredshiftec2">方式二：通过JDBC方式连接数据库 （适用于多AWS region，手动添加数据库，如Redshift，EC2自建数据库，多云数据库）</h4>
+<ol>
+<li>打开<strong>JDBC Only</strong>标签页。</li>
+<li>选择regions</li>
+<li>填写AWS账户ID</li>
+<li>点击按钮 <strong>添加此账户</strong></li>
+</ol>
+<h4 id="cloudformationaws-regions3rdsaws-glueaws-organization">方式三：批量添加CloudFormation授权。（适用于同AWS region，自动发现S3，RDS，AWS Glue。通过AWS Organization批量管理账号）</h4>
+<ol>
+<li>打开<strong>JDBC Only</strong>标签页</li>
+<li>按照此页面 <strong>步骤1</strong> , <strong>步骤2</strong> 和<strong>步骤三</strong>中的说明安装 Agent CloudFormation 堆栈。有关详细信息，请参阅<a href="../appendix-organization/">附录：通过组织添加 AWS 账户</a>。</li>
+<li>填写AWS Organizaion代理账户ID</li>
+<li>点击按钮 <strong>添加此账户</strong></li>
+</ol>
+</li>
+</ol>
+<h2 id="_2">添加其他云账号</h2>
+<ol>
+<li>左侧菜单中，选择<strong>连接数据源</strong>。</li>
+<li>选择你需要添加的Cloud Provider的页签（如Tencent，Google）。</li>
+<li>
+<p>点击按钮 <strong>添加新账户</strong>。</p>
+<h4 id="jdbc-idc">通过JDBC方式连接数据库 （适用于多云或者IDC，手动添加数据库）</h4>
+<ol>
+<li>填写账户ID</li>
+<li>选择regions</li>
+<li>点击按钮 <strong>添加此账户</strong></li>
+</ol>
+</li>
+</ol>
 
 
 

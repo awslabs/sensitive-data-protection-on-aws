@@ -14,15 +14,15 @@
         <link rel="prev" href="../get-started/">
       
       
-        <link rel="next" href="../data-catalog-create/">
+        <link rel="next" href="../data-catalog-create-s3/">
       
       
       <link rel="icon" href="https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.2">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
     
     
       
-        <title>Add AWS accounts - Sensitive Data Protection on AWS</title>
+        <title>Add Cloud accounts - Sensitive Data Protection on AWS</title>
       
     
     
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#connect-to-data-source" class="md-skip">
+        <a href="#connect-to-data-sources" class="md-skip">
           Skip to content
         </a>
       
@@ -113,7 +113,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Add AWS accounts
+              Add Cloud accounts
             
           </span>
         </div>
@@ -336,7 +336,7 @@
             
   
   <span class="md-ellipsis">
-    Solution Overview
+    Solution overview
   </span>
   
 
@@ -346,7 +346,7 @@
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_1_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_1_1">
             <span class="md-nav__icon md-icon"></span>
-            Solution Overview
+            Solution overview
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -444,7 +444,7 @@
             
   
   <span class="md-ellipsis">
-    Architecture Overview
+    Architecture overview
   </span>
   
 
@@ -454,7 +454,7 @@
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_1_2">
             <span class="md-nav__icon md-icon"></span>
-            Architecture Overview
+            Architecture overview
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -794,27 +794,6 @@
                 
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../../update/update/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Update the solution
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
     
   
   
@@ -829,10 +808,10 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_6" checked>
         
           
-          <label class="md-nav__link" for="__nav_1_7" id="__nav_1_7_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_1_6" id="__nav_1_6_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -843,8 +822,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_7_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_1_7">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1_6">
             <span class="md-nav__icon md-icon"></span>
             Use the solution
           </label>
@@ -889,24 +868,24 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_6_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_1_7_2" id="__nav_1_7_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_1_6_2" id="__nav_1_6_2_label" tabindex="0">
             
   
   <span class="md-ellipsis">
-    Connect to data source
+    Step1：Connect to data source
   </span>
   
 
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_2_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_1_7_2">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_6_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1_6_2">
             <span class="md-nav__icon md-icon"></span>
-            Connect to data source
+            Step1：Connect to data source
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -930,7 +909,7 @@
           
   
   <span class="md-ellipsis">
-    Add AWS accounts
+    Add Cloud accounts
   </span>
   
 
@@ -941,7 +920,7 @@
         
   
   <span class="md-ellipsis">
-    Add AWS accounts
+    Add Cloud accounts
   </span>
   
 
@@ -963,20 +942,68 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#add-aws-accounts-individually" class="md-nav__link">
+  <a href="#add-aws-account" class="md-nav__link">
     <span class="md-ellipsis">
-      Add AWS accounts (individually)
+      Add AWS Account
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Add AWS Account">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#method-1-authorization-via-cloudformation-applicable-for-the-same-aws-region-automatically-discovers-s3-rds-aws-glue" class="md-nav__link">
+    <span class="md-ellipsis">
+      Method 1: Authorization via CloudFormation (Applicable for the same AWS region, automatically discovers S3, RDS, AWS Glue)
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#add-aws-accounts-via-organization" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#method-2-connect-to-databases-via-jdbc-applicable-for-multiple-aws-regions-manually-add-databases-such-as-redshift-ec2-self-built-databases-multi-cloud-databases" class="md-nav__link">
     <span class="md-ellipsis">
-      Add AWS accounts (via Organization)
+      Method 2: Connect to Databases via JDBC (Applicable for multiple AWS regions, manually add databases, such as Redshift, EC2 self-built databases, multi-cloud databases)
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#method-3-batch-add-via-cloudformation-authorization-applicable-for-the-same-aws-region-automatically-discovers-s3-rds-aws-glue-manage-accounts-in-bulk-through-aws-organization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Method 3: Batch Add via CloudFormation Authorization (Applicable for the same AWS region, automatically discovers S3, RDS, AWS Glue. Manage accounts in bulk through AWS Organization)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-other-cloud-accounts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Add Other Cloud Accounts
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Add Other Cloud Accounts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#connect-to-databases-via-jdbc-applicable-for-multi-cloud-or-idc-manually-add-databases" class="md-nav__link">
+    <span class="md-ellipsis">
+      Connect to Databases via JDBC (Applicable for multi-cloud or IDC, manually add databases)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -996,11 +1023,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../data-catalog-create/" class="md-nav__link">
+      <a href="../data-catalog-create-s3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Create data catalogs
+    Connect to S3
   </span>
   
 
@@ -1017,11 +1044,95 @@
   
   
     <li class="md-nav__item">
-      <a href="../data-catalog-delete/" class="md-nav__link">
+      <a href="../data-catalog-create-rds/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Delete data catalogs
+    Connect to RDS
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-catalog-create-glue/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Connect to Glue
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-catalog-create-jdbc/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Connect to JDBC
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-catalog-create-jdbc-redshift/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Connect to JDBC(Redshift)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-catalog-create-jdbc-rds-proxy.md" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Connect to JDBC(RDS Proxy)
   </span>
   
 
@@ -1034,172 +1145,6 @@
           </ul>
         </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_1_7_3" id="__nav_1_7_3_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    Browse data catalogs
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_7_3">
-            <span class="md-nav__icon md-icon"></span>
-            Browse data catalogs
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../data-catalog-sync/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Synchronize data catalogs
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../data-catalog-export/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Export data catalogs
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../data-catalog-labels/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Label data catalogs
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_1_7_4" id="__nav_1_7_4_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    Define classification template
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_7_4">
-            <span class="md-nav__icon md-icon"></span>
-            Define classification template
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../data-classification-template/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Define classification template
-  </span>
-  
-
-      </a>
     </li>
   
 
@@ -1216,19 +1161,11 @@
         
   
   <span class="md-ellipsis">
-    Manage data identifiers
+    Step2：Define classification template
   </span>
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -1250,24 +1187,24 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_6_4" >
         
           
-          <label class="md-nav__link" for="__nav_1_7_5" id="__nav_1_7_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_1_6_4" id="__nav_1_6_4_label" tabindex="0">
             
   
   <span class="md-ellipsis">
-    Run sensitive data discovery jobs
+    Step3：Run sensitive data discovery jobs
   </span>
   
 
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_7_5">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_6_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_6_4">
             <span class="md-nav__icon md-icon"></span>
-            Run sensitive data discovery jobs
+            Step3：Run sensitive data discovery jobs
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1384,14 +1321,6 @@
 
               
             
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
               
                 
   
@@ -1408,26 +1337,118 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_8" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_6_5" >
         
           
-          <label class="md-nav__link" for="__nav_1_8" id="__nav_1_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_1_6_5" id="__nav_1_6_5_label" tabindex="0">
             
   
   <span class="md-ellipsis">
-    Appendix
+    Step4：Check Result
   </span>
   
 
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_8">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_6_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_6_5">
             <span class="md-nav__icon md-icon"></span>
-            Appendix
+            Step4：Check Result
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../check-result-dashboard/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Dashboard
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../check-result-data-catalog.md" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Data catalog
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-catalog-labels/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Catalog labeling
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../appendix-built-in-supported-datatypes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Appx.Supported data types
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -1440,7 +1461,7 @@
         
   
   <span class="md-ellipsis">
-    Built-in data identifiers
+    Appx.Built-in data identifiers
   </span>
   
 
@@ -1461,7 +1482,7 @@
         
   
   <span class="md-ellipsis">
-    Permissions of CloudFormation Stacks
+    Appx.Permissions of CloudFormation Stacks
   </span>
   
 
@@ -1482,7 +1503,28 @@
         
   
   <span class="md-ellipsis">
-    Add accounts via AWS Organization
+    Appx.Add accounts via AWS Organization
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../appendix-build-in-identifiers-eu-gdpr/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Appx.EU PII identifiers(GDPR reference)
   </span>
   
 
@@ -1579,10 +1621,10 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_12" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_10" >
         
           
-          <label class="md-nav__link" for="__nav_1_12" id="__nav_1_12_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_1_10" id="__nav_1_10_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -1593,8 +1635,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_12_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_12">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_10">
             <span class="md-nav__icon md-icon"></span>
             Developer guide
           </label>
@@ -1747,20 +1789,68 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#add-aws-accounts-individually" class="md-nav__link">
+  <a href="#add-aws-account" class="md-nav__link">
     <span class="md-ellipsis">
-      Add AWS accounts (individually)
+      Add AWS Account
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Add AWS Account">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#method-1-authorization-via-cloudformation-applicable-for-the-same-aws-region-automatically-discovers-s3-rds-aws-glue" class="md-nav__link">
+    <span class="md-ellipsis">
+      Method 1: Authorization via CloudFormation (Applicable for the same AWS region, automatically discovers S3, RDS, AWS Glue)
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#add-aws-accounts-via-organization" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#method-2-connect-to-databases-via-jdbc-applicable-for-multiple-aws-regions-manually-add-databases-such-as-redshift-ec2-self-built-databases-multi-cloud-databases" class="md-nav__link">
     <span class="md-ellipsis">
-      Add AWS accounts (via Organization)
+      Method 2: Connect to Databases via JDBC (Applicable for multiple AWS regions, manually add databases, such as Redshift, EC2 self-built databases, multi-cloud databases)
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#method-3-batch-add-via-cloudformation-authorization-applicable-for-the-same-aws-region-automatically-discovers-s3-rds-aws-glue-manage-accounts-in-bulk-through-aws-organization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Method 3: Batch Add via CloudFormation Authorization (Applicable for the same AWS region, automatically discovers S3, RDS, AWS Glue. Manage accounts in bulk through AWS Organization)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-other-cloud-accounts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Add Other Cloud Accounts
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Add Other Cloud Accounts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#connect-to-databases-via-jdbc-applicable-for-multi-cloud-or-idc-manually-add-databases" class="md-nav__link">
+    <span class="md-ellipsis">
+      Connect to Databases via JDBC (Applicable for multi-cloud or IDC, manually add databases)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1779,24 +1869,52 @@
                   
 
 
-<h1 id="connect-to-data-source">Connect to data source</h1>
-<p>The first step for using Sensitive Data Protection is to onboard AWS accounts. To do so, you need to deploy an "Agent CloudFormation Stack" in the AWS account.</p>
-<p>For the permissions required by the agent stack, refer to <a href="../appendix-permissions/">Appendix: Permissions for agent Cloudformation stack</a>.</p>
-<h2 id="add-aws-accounts-individually">Add AWS accounts (individually)</h2>
+<h1 id="connect-to-data-sources">Connect to Data Sources</h1>
+<h2 id="add-aws-account">Add AWS Account</h2>
 <ol>
-<li>Sign in to the solution's web portal.</li>
-<li>Choose <strong>Connect to data source</strong> in the <strong>Summary</strong> area. Alternatively, choose <strong>Connect to data source</strong> from the left navigation pane. </li>
-<li>Choose <strong>Add new account(s)</strong> to open the <strong>Individual account</strong> tab.</li>
-<li>Follow the instructions in <strong>Step1</strong> and <strong>Step2</strong> to install the Agent CloudFormation Stack.</li>
-<li>After successfully deploying the stack, fill in the account ID of the AWS account.</li>
-<li>Choose <strong>Add this account</strong>.</li>
-<li>Go back to the <strong>Connect to data source</strong> page. You will see that the AWS account has been added. </li>
+<li>In the left menu, select <strong>Connect Data Source</strong>.</li>
+<li>Choose the AWS Cloud tab.</li>
+<li>Click the button <strong>Add New Account</strong>.
+  <img alt="edit-icon" src="docs/../../images/account-list-cn.png" /></li>
+<li>
+<p>Choose one of the following methods to add an account:</p>
+<h4 id="method-1-authorization-via-cloudformation-applicable-for-the-same-aws-region-automatically-discovers-s3-rds-aws-glue">Method 1: Authorization via CloudFormation (Applicable for the same AWS region, automatically discovers S3, RDS, AWS Glue)</h4>
+<ol>
+<li>Open the <strong>Standalone AWS Account</strong> tab</li>
+<li>Follow the instructions in <strong>Step 1</strong> and <strong>Step 2</strong> on this page to install the Agent CloudFormation stack (about 3 mins), which is used for authorizing the account to be scanned. For detailed permission information, please refer to <a href="../appendix-permissions/">Appendix: Permissions of the Agent CloudFormation Stack</a></li>
+<li>Fill in the AWS account ID to be scanned and select the region where the data source is located.</li>
+<li>Click the button <strong>Add This Account</strong>.</li>
 </ol>
-<p>You can also click one specific AWS account ID to check account details.</p>
-<h2 id="add-aws-accounts-via-organization">Add AWS accounts (via Organization)</h2>
-<p>For multiple AWS accounts, you can use AWS Organization to automatically install and uninstall the agent CloudFormation stacks. For more details, refer to <a href="../appendix-organization/">Appendix: Add AWS accounts via Organization</a>.</p>
-<p>After successfully deploying the stack, fill in the account ID of the Organization delegator account.</p>
-<p>Go back to the <strong>Connect to data source</strong> page, and you will see a list of AWS accounts added. You can click one specific AWS account ID to check account details.</p>
+<h4 id="method-2-connect-to-databases-via-jdbc-applicable-for-multiple-aws-regions-manually-add-databases-such-as-redshift-ec2-self-built-databases-multi-cloud-databases">Method 2: Connect to Databases via JDBC (Applicable for multiple AWS regions, manually add databases, such as Redshift, EC2 self-built databases, multi-cloud databases)</h4>
+<ol>
+<li>Open the <strong>JDBC Only</strong> tab.</li>
+<li>Select regions</li>
+<li>Fill in the AWS account ID</li>
+<li>Click the button <strong>Add This Account</strong></li>
+</ol>
+<h4 id="method-3-batch-add-via-cloudformation-authorization-applicable-for-the-same-aws-region-automatically-discovers-s3-rds-aws-glue-manage-accounts-in-bulk-through-aws-organization">Method 3: Batch Add via CloudFormation Authorization (Applicable for the same AWS region, automatically discovers S3, RDS, AWS Glue. Manage accounts in bulk through AWS Organization)</h4>
+<ol>
+<li>Open the <strong>JDBC Only</strong> tab</li>
+<li>Follow the instructions in <strong>Step 1</strong>, <strong>Step 2</strong>, and <strong>Step 3</strong> on this page to install the Agent CloudFormation stack. For more information, see <a href="../appendix-organization/">Appendix: Adding AWS Accounts via Organization</a>.</li>
+<li>Fill in the AWS Organization's agent account ID</li>
+<li>Click the button <strong>Add This Account</strong></li>
+</ol>
+</li>
+</ol>
+<h2 id="add-other-cloud-accounts">Add Other Cloud Accounts</h2>
+<ol>
+<li>In the left menu, select <strong>Connect Data Source</strong>.</li>
+<li>Choose the tab for the Cloud Provider you need to add (such as Tencent, Google).</li>
+<li>
+<p>Click the button <strong>Add New Account</strong>.</p>
+<h4 id="connect-to-databases-via-jdbc-applicable-for-multi-cloud-or-idc-manually-add-databases">Connect to Databases via JDBC (Applicable for multi-cloud or IDC, manually add databases)</h4>
+<ol>
+<li>Fill in the account ID</li>
+<li>Select regions</li>
+<li>Click the button <strong>Add This Account</strong></li>
+</ol>
+</li>
+</ol>
 
 
 

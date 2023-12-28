@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.2">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
     
     
       
@@ -687,26 +687,35 @@
         <li class="md-nav__item">
   <a href="#_1" class="md-nav__link">
     <span class="md-ellipsis">
-      成本估算
+      敏感数据检测的费用
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="成本估算">
+    <nav class="md-nav" aria-label="敏感数据检测的费用">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1cn-northwest-1" class="md-nav__link">
+  <a href="#amazon-rds" class="md-nav__link">
     <span class="md-ellipsis">
-      示例1(cn-northwest-1)
+      对数据库（Amazon RDS）中的敏感信息进行检测
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2us-east-1" class="md-nav__link">
+  <a href="#s3" class="md-nav__link">
     <span class="md-ellipsis">
-      示例2(us-east-1)
+      对 S3 存储桶中的敏感信息进行检测
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aws" class="md-nav__link">
+    <span class="md-ellipsis">
+      AWS 服务价格参考
     </span>
   </a>
   
@@ -714,6 +723,24 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#web" class="md-nav__link">
+    <span class="md-ellipsis">
+      WEB 界面控制台的费用
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      成本优化的建议
+    </span>
+  </a>
   
 </li>
       
@@ -965,7 +992,7 @@
             
   
   <span class="md-ellipsis">
-    连接数据源
+    第1步：连接数据源
   </span>
   
 
@@ -975,7 +1002,7 @@
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_1_7_2">
             <span class="md-nav__icon md-icon"></span>
-            连接数据源
+            第1步：连接数据源
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -990,7 +1017,7 @@
         
   
   <span class="md-ellipsis">
-    添加AWS帐户
+    添加云帐户
   </span>
   
 
@@ -1007,11 +1034,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/data-catalog-create/" class="md-nav__link">
+      <a href="../../user-guide/data-catalog-create-s3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    创建数据目录
+    连接S3
   </span>
   
 
@@ -1028,11 +1055,95 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/data-catalog-delete/" class="md-nav__link">
+      <a href="../../user-guide/data-catalog-create-rds/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    删除数据目录
+    连接RDS
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/data-catalog-create-glue/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    连接Glue
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/data-catalog-create-jdbc/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    连接JDBC
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/data-catalog-create-jdbc-redshift/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    连接JDBC(Redshift)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/data-catalog-create-jdbc-rds-proxy.md" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    连接JDBC(RDS Proxy)
   </span>
   
 
@@ -1056,103 +1167,16 @@
   
   
   
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_1_7_3" id="__nav_1_7_3_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    浏览数据目录
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_7_3">
-            <span class="md-nav__icon md-icon"></span>
-            浏览数据目录
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
     <li class="md-nav__item">
-      <a href="../../user-guide/data-catalog-sync/" class="md-nav__link">
+      <a href="../../user-guide/data-identifiers/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    同步数据目录
+    第2步：定义数据分类模板
   </span>
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../user-guide/data-catalog-export/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    导出数据目录
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../user-guide/data-catalog-labels/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    标记数据目录
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -1181,7 +1205,7 @@
             
   
   <span class="md-ellipsis">
-    定义数据分类模板
+    第3步：运行敏感数据发现任务
   </span>
   
 
@@ -1191,94 +1215,7 @@
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_1_7_4">
             <span class="md-nav__icon md-icon"></span>
-            定义数据分类模板
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../user-guide/data-classification-template/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    数据分类模版
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../user-guide/data-identifiers/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    数据标识符
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_1_7_5" id="__nav_1_7_5_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    运行敏感数据发现作业
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_7_5">
-            <span class="md-nav__icon md-icon"></span>
-            运行敏感数据发现作业
+            第3步：运行敏感数据发现任务
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1395,14 +1332,6 @@
 
               
             
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
               
                 
   
@@ -1419,26 +1348,118 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_8" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7_5" >
         
           
-          <label class="md-nav__link" for="__nav_1_8" id="__nav_1_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_1_7_5" id="__nav_1_7_5_label" tabindex="0">
             
   
   <span class="md-ellipsis">
-    附录
+    第4步：查看结果
   </span>
   
 
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_8">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_7_5">
             <span class="md-nav__icon md-icon"></span>
-            附录
+            第4步：查看结果
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/check-result-dashboard/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    总览统计
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/check-result-data-catalog/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    数据目录
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/data-catalog-labels/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    数据目录打标
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/appendix-built-in-supported-datatypes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    附录：支持扫描的数据类型
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -1451,7 +1472,7 @@
         
   
   <span class="md-ellipsis">
-    内置的数据标识符
+    附录：内置的数据标识符
   </span>
   
 
@@ -1472,7 +1493,7 @@
         
   
   <span class="md-ellipsis">
-    CloudFormation堆栈的权限
+    附录：CloudFormation堆栈的权限
   </span>
   
 
@@ -1493,7 +1514,28 @@
         
   
   <span class="md-ellipsis">
-    通过AWS Organization添加帐户
+    附录：通过AWS Organization添加帐户
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../appendix-build-in-identifiers-eu-gdpr.md" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    附录：EU个人信息标识符(GDPR参考)
   </span>
   
 
@@ -1590,10 +1632,10 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_12" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_11" >
         
           
-          <label class="md-nav__link" for="__nav_1_12" id="__nav_1_12_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_1_11" id="__nav_1_11_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -1604,8 +1646,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_12_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_12">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_11">
             <span class="md-nav__icon md-icon"></span>
             开发者指南
           </label>
@@ -1737,26 +1779,35 @@
         <li class="md-nav__item">
   <a href="#_1" class="md-nav__link">
     <span class="md-ellipsis">
-      成本估算
+      敏感数据检测的费用
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="成本估算">
+    <nav class="md-nav" aria-label="敏感数据检测的费用">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1cn-northwest-1" class="md-nav__link">
+  <a href="#amazon-rds" class="md-nav__link">
     <span class="md-ellipsis">
-      示例1(cn-northwest-1)
+      对数据库（Amazon RDS）中的敏感信息进行检测
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2us-east-1" class="md-nav__link">
+  <a href="#s3" class="md-nav__link">
     <span class="md-ellipsis">
-      示例2(us-east-1)
+      对 S3 存储桶中的敏感信息进行检测
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aws" class="md-nav__link">
+    <span class="md-ellipsis">
+      AWS 服务价格参考
     </span>
   </a>
   
@@ -1764,6 +1815,24 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#web" class="md-nav__link">
+    <span class="md-ellipsis">
+      WEB 界面控制台的费用
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      成本优化的建议
+    </span>
+  </a>
   
 </li>
       
@@ -1787,398 +1856,401 @@
 
   <h1>成本预估</h1>
 
-<p>在运行此解决方案时，您将负责支付所使用的AWS服务的费用。影响解决方案费用的主要因素包括：</p>
+<div class="admonition important">
+<p class="admonition-title">重要</p>
+<p>本节中描述的成本估算只是用于参考的示例，实际产生费用会因您的使用场景不同而有较大差异。</p>
+</div>
+<p>在运行此解决方案时，您需要承担亚马逊云科技各项服务的使用费用，以下示例为截至最新发布的版本，基于亚马逊云科技美国东部（弗吉尼亚北部）区域 (us-east-1)和由西云数据运营的亚马逊云科技中国（宁夏）区域(cn-northwest-1)的成本估算。 总成本包括<a href="#_1"><strong>敏感数据检测的费用</strong></a>和<a href="#web"><strong>Web 界面控制台费用</strong></a>。</p>
+<h2 id="_1">敏感数据检测的费用</h2>
+<p>此方案主要的费用来源于敏感数据检测任务，实际产生的费用是由检测任务运行的时长决定的，不同的检测任务运行的时间长短也不尽相同，运行时间较长的检测任务通常会比运行时间短的检测任务产生更多的费用。影响到检测任务运行时长的三个主要因素包括：</p>
 <ul>
-<li>数据集的数量和大小</li>
-<li>数据结构的数量和复杂程度</li>
-<li>发现作业更新的频率</li>
+<li>用于检测敏感信息的标识符的多少</li>
 </ul>
-<p>例如，对大型数据集进行完全扫描范围的发现作业将比在按需运行、扫描范围增加和扫描深度有限的较小数据集上运行的发现作业产生更高的成本。</p>
-<h2 id="_1">成本估算</h2>
-<p>根据典型的使用模式，以下列出了几个场景，以提供每月成本的估算。列出的AWS服务按月计费，两个示例分别包含中国宁夏区域与美国东部（弗吉尼亚北部）区域成本估算示例。</p>
-<h3 id="1cn-northwest-1">示例1(cn-northwest-1)</h3>
-<p>截至2023年6月，使用默认设置在由西云数据运营的亚马逊云科技中国（宁夏）区域(cn-northwest-1)运行此解决方案的AWS账户每月的费用约为<strong>901.82人民币</strong>。</p>
+<p>方案是通过预定义的检测标识符来检测敏感信息的，在检测数据之前需要选择好所需的检测标识符，加载的标识符越多，进行敏感信息检测的时间就会越久，检测任务运行的总时间也会变长，支出的费用也就越多。</p>
 <ul>
-<li>基础设施的基本费用（在管理帐户中）</li>
+<li>连接的数据源类型</li>
+</ul>
+<p>受不同数据源吞吐量或网络带宽影响，敏感信息检测任务在检测不同的数据源时的效率是不同的。比如敏感信息检测任务会受 RDS 数据库网络带宽的影响，更高性能的 RDS 数据源往往会使敏感信息检测任务结束的更快。</p>
+<ul>
+<li>数据量和数据的内容</li>
+</ul>
+<p>显而易见，检测任务在数据量大的时候往往需要更长的时间。除了数据源中的数据量之外，数据的格式，还有检测任务中的取样量和检测深度也会影响到检测任务的时长。</p>
+<p>以下列出的两个场景，以 AWS 服务按月计费的方式展示了成本估算，示例分别包含美国东部弗吉尼亚北部区域(us-east-1)和由西云数据运营的亚马逊云科技中国（宁夏）区域(cn-northwest-1)的成本估算。以下示例均为默认配置下，单次检测任务产生的成本，如果指定了定期自动执行检测任务，在数据量基本不改变的情况下，生产的成本会按每个月实际执行次数叠加。</p>
+<h3 id="amazon-rds">对数据库（Amazon RDS）中的敏感信息进行检测</h3>
+<ul>
+<li>美国东部弗吉尼亚北部区域(us-east-1)</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>数据库类型</th>
+<th>数据量</th>
+<th><strong>标识符个数</strong></th>
+<th><strong>检测时长</strong></th>
+<th><strong>检测数据目录成本（美元）</strong></th>
+<th><strong>扫描数据成本（美元）</strong></th>
+<th><strong>费用（美元）</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Amazon RDS Aurora db.r5.large</strong></td>
+<td>10 张表, 每张表包含 10 列 5000 行的文本数据</td>
+<td>10</td>
+<td>约 6 分钟</td>
+<td>0.07</td>
+<td>0.05</td>
+<td>0.12</td>
+</tr>
+<tr>
+<td><strong>Amazon RDS MySQL db.m5.xlarge</strong></td>
+<td>1000 张表，每张表包含 100 列 1000 行的文本类数据</td>
+<td>10</td>
+<td>约 11 小时</td>
+<td>0.07</td>
+<td>4.84</td>
+<td>4.91</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>由西云数据运营的亚马逊云科技中国（宁夏）区域(cn-northwest-1)</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>数据库类型</th>
+<th>数据量</th>
+<th><strong>标识符个数</strong></th>
+<th><strong>检测时长</strong></th>
+<th><strong>检测数据目录成本（元）</strong></th>
+<th><strong>扫描数据成本（元）</strong></th>
+<th><strong>费用（元）</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Amazon RDS Aurora db.r5.large</strong></td>
+<td>10 张表, 每张表包含 10 列 5000 行的文本数据</td>
+<td>10</td>
+<td>约 6 分钟</td>
+<td>0.5</td>
+<td>0.3</td>
+<td>0.8</td>
+</tr>
+<tr>
+<td><strong>Amazon RDS MySQL db.m5.xlarge</strong></td>
+<td>1000 张表，每张表包含 100 列 1000 行的文本类数据</td>
+<td>10</td>
+<td>约 11 小时</td>
+<td>0.5</td>
+<td>33.23</td>
+<td>33.73</td>
+</tr>
+</tbody>
+</table>
+<h3 id="s3">对 S3 存储桶中的敏感信息进行检测</h3>
+<ul>
+<li>美国东部弗吉尼亚北部区域(us-east-1)</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><strong>文件</strong></th>
+<th><strong>总大小</strong></th>
+<th><strong>标识符个数</strong></th>
+<th><strong>检测时长</strong></th>
+<th><strong>检测数据目录成本（美元）</strong></th>
+<th><strong>扫描数据成本（美元）</strong></th>
+<th><strong>费用（美元）</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>包含 5,000</strong> <strong>个文件，文件类型包括 PDF**</strong>，WORD*<strong>*，JPG**</strong>，TXT*<strong>*等</strong></td>
+<td>4Gb</td>
+<td>10</td>
+<td>约 8 小时</td>
+<td>0.1</td>
+<td>1.29</td>
+<td>1.39</td>
+</tr>
+<tr>
+<td><strong>包含 1,000</strong> <strong>个文件，文件类型为 LOG**</strong>日志**</td>
+<td>24Gb</td>
+<td>13</td>
+<td>约 22 小时</td>
+<td>0.1</td>
+<td>9.97</td>
+<td>9.98</td>
+</tr>
+<tr>
+<td><strong>包含 20,000</strong> <strong>个文件，文件类型为 CSV**</strong>，JSON*<strong>*等结构化数据</strong></td>
+<td>5Gb</td>
+<td>20</td>
+<td>约 1 小时</td>
+<td>0.15</td>
+<td>0.34</td>
+<td>0.39</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>由西云数据运营的亚马逊云科技中国（宁夏）区域(cn-northwest-1)</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><strong>文件</strong></th>
+<th><strong>总大小</strong></th>
+<th><strong>标识符个数</strong></th>
+<th><strong>检测时长</strong></th>
+<th><strong>检测数据目录成本（元）</strong></th>
+<th><strong>扫描数据成本（元）</strong></th>
+<th><strong>费用（元）</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>包含 5,000</strong> <strong>个文件，文件类型包括 PDF**</strong>，WORD*<strong>*，JPG**</strong>，TXT*<strong>*等</strong></td>
+<td>4Gb</td>
+<td>10</td>
+<td>约 8 小时</td>
+<td>0.61</td>
+<td>23.8</td>
+<td>24.41</td>
+</tr>
+<tr>
+<td><strong>包含 1,000</strong> <strong>个文件，文件类型为 LOG**</strong>日志**</td>
+<td>24Gb</td>
+<td>13</td>
+<td>约 22 小时</td>
+<td>0.42</td>
+<td>68.43</td>
+<td>68.85</td>
+</tr>
+<tr>
+<td><strong>包含 20,000</strong> <strong>个文件，文件类型为 CSV**</strong>，JSON*<strong>*等结构化数据</strong></td>
+<td>5Gb</td>
+<td>20</td>
+<td>约 1 小时</td>
+<td>1</td>
+<td>2.32</td>
+<td>3.32</td>
+</tr>
+</tbody>
+</table>
+<h3 id="aws">AWS 服务价格参考</h3>
+<p>敏感数据检测任务在运行时会调用 <a href="https://aws.amazon.com/cn/glue/">AWS Glue</a> 和 <a href="https://www.amazonaws.cn/sagemaker/">Amazon SageMaker</a> 两项服务配合完成敏感信息检测，所以敏感数据检测任务中主要的费用也来源于该两项服务的运行时长费用，您可以参考如下链接查看这两项服务在所在区域的具体价格。</p>
+<ul>
+<li>
+<p><a href="https://www.amazonaws.cn/sagemaker/pricing/?nc1=h_ls">Amazon SageMaker 价格</a></p>
+</li>
+<li>
+<p><a href="https://www.amazonaws.cn/glue/pricing/?nc1=h_ls">Amazon Glue 价格</a></p>
+</li>
+</ul>
+<h2 id="web">WEB 界面控制台的费用</h2>
+<p>部署解决方案时会自动创建一个通过浏览器访问的 Web 界面控制台。截至最新发布的版本，使用默认设置并且假设访问次数为 1000 次，则将产生以下费用</p>
+<ul>
+<li>美国东部（弗吉尼亚北部）区域(us-east-1)运行一个月（按 30 天计算）</li>
 </ul>
 <table>
 <thead>
 <tr>
 <th><strong>服务</strong></th>
-<th><strong>使用类型</strong></th>
-<th><strong>使用数量</strong></th>
-<th><strong>每月费用（人民币）</strong></th>
-<th><strong>类型</strong></th>
+<th><strong>使用量</strong></th>
+<th><strong>月费用（美元）</strong></th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Amazon Relational Database Service for MySQL Community Edition</td>
-<td>运行MySQL的CNY 0.8每个db.t3.medium Multi-AZ实例小时（或部分小时）</td>
-<td>720小时</td>
-<td>576</td>
-<td>预留</td>
+<td>720 小时</td>
+<td>97.92</td>
 </tr>
 <tr>
 <td>Amazon Relational Database Service Provisioned Storage</td>
-<td>用于运行MySQL的Multi-AZ部署的CNY 1.5308每GB-month的预 provisioned gp2存储</td>
-<td>20 GB-Mo</td>
-<td>30.616</td>
-<td>按需</td>
+<td>20 GB-月</td>
+<td>4.6</td>
 </tr>
 <tr>
 <td>Amazon Elastic Compute Cloud NatGateway</td>
-<td>NAT网关处理的CNY 0.37每GB数据</td>
-<td>30 GB-Mo</td>
-<td>11.1</td>
-<td>按需</td>
+<td>30 GB-月</td>
+<td>1.35</td>
 </tr>
 <tr>
 <td></td>
-<td>0.37 CNY每个NAT网关小时</td>
-<td>720小时</td>
-<td>266.4</td>
-<td>预留</td>
+<td>720 小时</td>
+<td>32.4</td>
 </tr>
 <tr>
 <td>Athena</td>
-<td>在中国（宁夏）每TB的DataScannedInTB为CNY 34.34</td>
 <td>0.010 TB</td>
-<td>0.34</td>
-<td>按需</td>
+<td>0.05</td>
 </tr>
 <tr>
 <td>CloudWatch</td>
-<td>每月前5GB日志存储免费。每月归档的CNY 0.244每GB</td>
+<td>0.100 GB-月</td>
+<td>0.05</td>
+</tr>
+<tr>
+<td>Elastic Load Balancing - Application</td>
+<td>10 小时</td>
+<td>0</td>
+</tr>
+<tr>
+<td></td>
+<td>0.105 LCU 小时</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Lambda</td>
+<td>5,0000 Lambda-GB-秒</td>
+<td>0.08333</td>
+</tr>
+<tr>
+<td></td>
+<td>10,000 次请求</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Simple Queue Service (SQS)</td>
+<td>100,000 次请求</td>
+<td>0.04</td>
+</tr>
+<tr>
+<td>Simple Storage Service (S3)</td>
+<td>2,000 次请求</td>
+<td>0.01</td>
+</tr>
+<tr>
+<td></td>
+<td>4,000 次请求</td>
+<td>0.0002</td>
+</tr>
+<tr>
+<td></td>
+<td>1 GB</td>
+<td>0.023</td>
+</tr>
+<tr>
+<td><strong>总计</strong></td>
+<td></td>
+<td>136.53</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>由西云数据运营的亚马逊云科技中国（宁夏）区域(cn-northwest-1)运行一个月（按 30 天计算）</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><strong>服务</strong></th>
+<th><strong>使用量</strong></th>
+<th><strong>每月费用（元）</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Amazon Relational Database Service for MySQL Community Edition</td>
+<td>720 小时</td>
+<td>576</td>
+</tr>
+<tr>
+<td>Amazon Relational Database Service Provisioned Storage</td>
+<td>20 GB-Mo</td>
+<td>30.62</td>
+</tr>
+<tr>
+<td>Amazon Elastic Compute Cloud NatGateway</td>
+<td>30 GB-Mo</td>
+<td>11.1</td>
+</tr>
+<tr>
+<td></td>
+<td>720 小时</td>
+<td>266.4</td>
+</tr>
+<tr>
+<td>Athena</td>
+<td>0.010 TB</td>
+<td>0.34</td>
+</tr>
+<tr>
+<td>CloudWatch</td>
 <td>0.100 GB-Mo</td>
-<td>0.244</td>
-<td>按需</td>
+<td>0.24</td>
 </tr>
 <tr>
 <td>EC2 Container Registry (ECR)</td>
-<td>500MB每月免费，CNY 0.69每GB-month</td>
 <td>0.003 GB-Mo</td>
 <td>0.69</td>
-<td>预留</td>
 </tr>
 <tr>
 <td>Elastic Load Balancing - Application</td>
-<td>每月免费套餐下的每个Application LoadBalancer-hour（或部分小时）为0.0 CNY。每个Application load balancer-hour（或部分小时）为CNY 0.156</td>
-<td>10小时</td>
+<td>10 小时</td>
 <td>1.56</td>
-<td>按需</td>
 </tr>
 <tr>
 <td></td>
-<td>每月免费套餐下的每个使用的Application load balancer容量单位-hour（或部分小时）为0.0 CNY。每个LCU-hour（或部分小时）为CNY 0.072</td>
 <td>0.105 LCU-Hrs</td>
 <td>0</td>
-<td>按需</td>
 </tr>
 <tr>
 <td>Lambda</td>
-<td>AWS Lambda - Total Compute - China (Ningxia)的前400K GB-second使用免费，Ningxia的每1ms价格为CNY 0.0000001135</td>
 <td>100,000.000 Lambda-GB-Second</td>
 <td>11.35</td>
-<td>按需</td>
 </tr>
 <tr>
 <td></td>
-<td>AWS Lambda - Total Requests - China (Ningxia)的前1M使用免费，CNY 1.36每百万请求</td>
-<td>10,000请求</td>
+<td>10,000 请求</td>
 <td>0</td>
-<td>按需</td>
 </tr>
 <tr>
 <td>Simple Queue Service</td>
-<td>每月前1,000,000个Amazon SQS请求免费，CNY 3.33（每百万请求）</td>
-<td>100,000请求</td>
+<td>100,000 请求</td>
 <td>3.33</td>
-<td>按需</td>
 </tr>
 <tr>
 <td>Simple Storage Service</td>
-<td>免费套餐下的前2,000个PUTs，CNY 0.00405 PUT，COPY，POST，LIST请求（每1,000个请求）</td>
-<td>2,000请求</td>
-<td>0.0081</td>
-<td>按需</td>
-</tr>
-<tr>
-<td></td>
-<td>免费套餐下的前20,000个GETs，CNY 0.0135每10,000个请求</td>
-<td>4,000请求</td>
-<td>0.0054</td>
-<td>按需</td>
-</tr>
-<tr>
-<td></td>
-<td>免费套餐下的前5GB，CNY 0.1755每GB</td>
-<td>0.032 GB-Mo</td>
-<td>0.1755</td>
-<td>按需</td>
-</tr>
-<tr>
-<td><strong>总计</strong></td>
-<td></td>
-<td></td>
-<td>901.819</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li>基础设施的基本费用（在受监控的帐户中）</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th><strong>服务</strong></th>
-<th><strong>使用类型</strong></th>
-<th><strong>费用类型</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Glue</td>
-<td>每秒3.021元的DPU-Hour，每个爬网程序运行的最低时间为10分钟</td>
-<td>按需</td>
-</tr>
-<tr>
-<td></td>
-<td>用于Amazon Glue ETL作业的每个数据处理单位小时的3.021元</td>
-<td>按需</td>
-</tr>
-<tr>
-<td></td>
-<td>用于Amazon Glue数据目录请求的每1,000,000个请求数的6.866元</td>
-<td>按需</td>
-</tr>
-<tr>
-<td>Step Functions</td>
-<td>前4,000次状态转换为0元，此后每个状态转换为0.0002102元</td>
-<td>按需</td>
-</tr>
-<tr>
-<td>CloudWatch</td>
-<td>每月前5GB日志存储免费。每月归档的CNY 0.244每GB</td>
-<td>按需</td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li>场景成本估算示例</li>
-</ul>
-<p>以下示例成本表中列出的AWS服务按月在受监控的帐户中计费。Glue爬网程序的最低费用为0.5035元人民币，爬网程序将在数据源连接创建和PII检测作业执行时启动，下面的成本表包括连接创建和作业执行的费用以及示例数据源。</p>
-<table>
-<thead>
-<tr>
-<th><strong>场景</strong></th>
-<th><strong>服务运行成本（CNY）</strong></th>
-<th><strong>每月费用（CNY）</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>帐户1，扫描频率每月，扫描深度1000</strong></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><li>S3 Bucket A: 10000 CSV文件，1000行，10列，总大小1.7GiB</li></li>S3 Bucket B: 10000 JSON文件，1000行，10个字段，总大小2.5GiB</li><li></li>S3 Bucket C: 1000 PARQUET文件，1000行，10个字段，总大小212Mb</li></td>
-<td><li>Glue爬网程序：1.007</li><li>Glue作业：2.3161</li></td>
-<td>3.3231</td>
-</tr>
-<tr>
-<td><strong>帐户2，扫描频率每周，扫描深度1000</strong></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><li>RDS Aurora MySQL A: 10个表，10000行，10列，实例类型：db.r5.large（8vCPUs，64GiB RAM，网络：4,750 Mbps）</li><li>RDS MySQL B: 10个表，1000000行，10列，实例类型：db.m5.12xlarge（48 vCPU，192 GiB RAM，网络：9500 Mbps）</li></td>
-<td><li>Glue爬网程序：2.5175</li><li>Glue作业：2.8196</li></td>
-<td>5.3371</td>
-</tr>
-<tr>
-<td><strong>帐户3，扫描频率每天，扫描深度1000</strong></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><li>S3 Bucket A: 10000 CSV文件，1000行，10列，总大小1.7GiB</li><li>S3 Bucket B: 10000 JSON文件，1000行，10个字段，总大小2.5GiB</li><li> S3 Bucket C: 1000 PARQUET文件，1000行，10个字段，总大小212Mb</li><li>RDS Aurora MySQL A: 10个表，10000行，10列，实例类型：db.r5.large（8vCPUs，64GiB RAM，网络：4,750 Mbps）</li></td>
-<td><li>Glue爬网程序：15.6085</li><li>Glue作业：70.9935</li></td>
-<td>86.602</td>
-</tr>
-<tr>
-<td><strong>上述三个帐户不同频率的每月总费用（CNY）</strong></td>
-<td></td>
-<td>95.2622</td>
-</tr>
-</tbody>
-</table>
-<h3 id="2us-east-1">示例2(us-east-1)</h3>
-<p>截至2023年6月，使用默认设置在美国东部（弗吉尼亚北部）区域(us-east-1)运行此解决方案的AWS账户每月的费用约为<strong>136.53美元</strong>。</p>
-<ul>
-<li>基础设施的基本费用（在管理帐户中）</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th><strong>服务</strong></th>
-<th>使用类型</th>
-<th><strong>使用量</strong></th>
-<th>月费用（美元）</th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Amazon Relational Database Service for MySQL Community Edition</td>
-<td>每个运行MySQL的db.t3.medium Multi-AZ实例小时（或部分小时）的费用为0.136美元</td>
-<td>720小时</td>
-<td>97.92</td>
-<td>预留</td>
-</tr>
-<tr>
-<td>Amazon Relational Database Service Provisioned Storage</td>
-<td>多AZ部署运行MySQL的每GB每月提供的gp2存储费用为0.23美元</td>
-<td>20 GB-月</td>
-<td>4.6</td>
-<td>按需</td>
-</tr>
-<tr>
-<td>Amazon Elastic Compute Cloud NatGateway</td>
-<td>NAT网关处理的每GB数据费用为0.045美元</td>
-<td>30 GB-月</td>
-<td>1.35</td>
-<td>按需。平均每天80个URL请求</td>
-</tr>
-<tr>
-<td></td>
-<td>每个NAT网关小时的费用为0.045美元</td>
-<td>720小时</td>
-<td>32.4</td>
-<td>预留</td>
-</tr>
-<tr>
-<td>Athena</td>
-<td>在美国东部（北弗吉尼亚州）每TB扫描的数据费用为5.00美元</td>
-<td>0.010 TB</td>
-<td>0.05</td>
-<td>按需</td>
-</tr>
-<tr>
-<td>CloudWatch</td>
-<td>每月前5GB吞吐的日志数据免费。归档每月的每GB费用为0.5美元</td>
-<td>0.100 GB-月</td>
-<td>0.05</td>
-<td>按需</td>
-</tr>
-<tr>
-<td>Elastic Load Balancing - Application</td>
-<td>每个使用的应用程序负载均衡器容量单位小时（或部分小时）在每月免费配额下为0.0美元</td>
-<td>10小时</td>
-<td>0</td>
-<td>按需</td>
-</tr>
-<tr>
-<td></td>
-<td>在每月免费配额下，每个应用程序负载平衡器小时（或部分小时）的费用为0.00美元</td>
-<td>0.105 LCU小时</td>
-<td>0</td>
-<td>按需</td>
-</tr>
-<tr>
-<td>Lambda</td>
-<td>AWS Lambda-计算免费配额-400,000 GB-秒-美国东部（北弗吉尼亚州），免费配额后每GB-秒的费用为0.0000166667美元</td>
-<td>5,0000 Lambda-GB-秒</td>
-<td>0.08333</td>
-<td>按需</td>
-</tr>
-<tr>
-<td></td>
-<td>AWS Lambda-临时存储-美国东部（北弗吉尼亚州），免费配额后每GB-秒的费用为0.0000000309美元</td>
-<td>10,000次请求</td>
-<td>0</td>
-<td>按需</td>
-</tr>
-<tr>
-<td>Simple Queue Service</td>
-<td>每月前1,000,000个Amazon SQS请求免费，免费配额后每百万请求费用为0.40美元</td>
-<td>100,000次请求</td>
-<td>0.04</td>
-<td>按需</td>
-</tr>
-<tr>
-<td>Simple Storage Service</td>
-<td>免费配额下前2,000次PUT免费，每1,000次PUT、COPY、POST或LIST请求的费用为0.005人民币</td>
-<td>2,000次请求</td>
+<td>2,000 请求</td>
 <td>0.01</td>
-<td>按需</td>
 </tr>
 <tr>
 <td></td>
-<td>免费配额下前20,000次GET免费，每10,000次请求的费用为0.0004美元</td>
-<td>4,000次请求</td>
-<td>0.0002</td>
-<td>按需</td>
+<td>4,000 请求</td>
+<td>0.01</td>
 </tr>
 <tr>
 <td></td>
-<td>免费配额下前5GB免费，每GB的费用为0.023美元</td>
-<td>1 GB</td>
-<td>0.023</td>
-<td>按需</td>
+<td>0.032 GB-Mo</td>
+<td>0.176</td>
 </tr>
 <tr>
 <td><strong>总计</strong></td>
 <td></td>
-<td></td>
-<td>136.53</td>
-<td></td>
+<td>901.82</td>
 </tr>
 </tbody>
 </table>
+<h2 id="_2">成本优化的建议</h2>
+<p>检测任务执行的基本费用为按需计费，这意味着您只需为实际使用的资源付费，而不必提前购买或预留任何容量，此外，AWS 还提供了一些免费的使用额度，以帮助您了解和评估服务的使用情况。因此，我们建议使用解决方案中的<a href="http://aws.amazon.com/aws-cost-management/aws-cost-explorer/">AWS Cost Explorer</a>功能来帮助管理成本，此方案中所有资源均包含<strong>标签</strong>名称为<em>Owner</em>，值为<em>SDPS</em>的标签，您可以通过应用<a href="https://docs.aws.amazon.com/zh_cn/awsaccountbilling/latest/aboutv2/custom-tags.html#allocation-how">用户定义的成本分配标签</a>来查询方案产生的费用。价格可能会有所变化。有关详细信息，请参阅本解决方案中使用的每个 AWS 服务的定价网页。下面有几点成本优化方面的建议，您可以在创建敏感数据检测任务时进行相应的设置以降低成本。</p>
 <ul>
-<li>基础设施的基本费用（在受监控的帐户中）</li>
+<li>
+<p>在执行敏感信息检测任务前，认真检测选择合适的敏感信息的标识符而不是全选
+  通常，检测标识符过多意味着需要更多的时间完成敏感信息检测，请在执行检测任务前通过检测模版的添加/删除敏感信息的标识符功能，调整相应的标识符，从而降低检测任务的执行时间。</p>
+</li>
+<li>
+<p>根据实际数据量，设置适度的检测深度与样本量，即可准确检测敏感信息
+  在数据量较大，并以结构化信息为主的检测场景下，如 RDS 数据库，可以选择较小的样本量即可检测到敏感信息，从而达到优化成本的目的。</p>
+</li>
+<li>
+<p>根据实际情况调整定时检测任务的执行频率
+  检测任务执行频次会对成本产生较大影响，如果数据变化不大，可以在创建敏感信息检测任务是选择按需扫描而不是设置定时扫描，从而减少任务执行频次。</p>
+</li>
 </ul>
-<table>
-<thead>
-<tr>
-<th><strong>服务</strong></th>
-<th>使用类型</th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Glue</td>
-<td>每DPU小时收费0.44美元，按秒计费，每个爬虫运行至少10分钟</td>
-<td>按需</td>
-</tr>
-<tr>
-<td></td>
-<td>Amazon Glue ETL作业每数据处理单元小时收费0.44美元</td>
-<td>按需</td>
-</tr>
-<tr>
-<td></td>
-<td>Amazon Glue数据目录请求每1,000,000次收费1美元</td>
-<td>按需</td>
-</tr>
-<tr>
-<td>Step Functions</td>
-<td>前4,000个状态转换免费，之后每1,000个状态转换收费0.025美元</td>
-<td>按需</td>
-</tr>
-<tr>
-<td>CloudWatch</td>
-<td>每月前5GB吞吐的日志数据免费。归档每月的每GB费用为0.5美元</td>
-<td>按需</td>
-</tr>
-</tbody>
-</table>
-<p>在受监控的帐户中基础设施的基本费用为按需计费，这意味着您只需为实际使用的资源付费，而不必提前购买或预留任何容量，此外，AWS还提供了一些免费的使用额度，以帮助您了解和评估服务的使用情况。</p>
-<p>我们建议使用解决方案中的<a href="http://aws.amazon.com/aws-cost-management/aws-cost-explorer/">AWS Cost Explorer</a>功能来帮助管理成本。价格可能会有所变化。有关详细信息，请参阅本解决方案中使用的每个AWS服务的定价网页。</p>
 
 
 

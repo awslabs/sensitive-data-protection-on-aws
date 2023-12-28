@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.2">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
     
     
       
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#cost-estimation" class="md-skip">
+        <a href="#sensitive-data-detection" class="md-skip">
           Skip to content
         </a>
       
@@ -336,7 +336,7 @@
             
   
   <span class="md-ellipsis">
-    Solution Overview
+    Solution overview
   </span>
   
 
@@ -346,7 +346,7 @@
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_1_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_1_1">
             <span class="md-nav__icon md-icon"></span>
-            Solution Overview
+            Solution overview
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -444,7 +444,7 @@
             
   
   <span class="md-ellipsis">
-    Architecture Overview
+    Architecture overview
   </span>
   
 
@@ -454,7 +454,7 @@
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_1_2">
             <span class="md-nav__icon md-icon"></span>
-            Architecture Overview
+            Architecture overview
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -683,28 +683,37 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#cost-estimation" class="md-nav__link">
+  <a href="#sensitive-data-detection" class="md-nav__link">
     <span class="md-ellipsis">
-      Cost estimation
+      Sensitive data detection
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Cost estimation">
+    <nav class="md-nav" aria-label="Sensitive data detection">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#example-1" class="md-nav__link">
+  <a href="#detecting-sensitive-data-in-the-database-amazon-rds" class="md-nav__link">
     <span class="md-ellipsis">
-      Example 1
+      Detecting sensitive data in the database (Amazon RDS)
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#example-2" class="md-nav__link">
+  <a href="#detecting-sensitive-data-in-the-s3-bucket" class="md-nav__link">
     <span class="md-ellipsis">
-      Example 2
+      Detecting sensitive data in the S3 bucket
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aws-service-pricing" class="md-nav__link">
+    <span class="md-ellipsis">
+      AWS service pricing
     </span>
   </a>
   
@@ -712,6 +721,24 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#solution-console" class="md-nav__link">
+    <span class="md-ellipsis">
+      Solution console
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cost-optimization-recommendations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cost Optimization Recommendations
+    </span>
+  </a>
   
 </li>
       
@@ -867,27 +894,6 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../../update/update/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Update the solution
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
     
     
     
@@ -898,10 +904,10 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_6" >
         
           
-          <label class="md-nav__link" for="__nav_1_7" id="__nav_1_7_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_1_6" id="__nav_1_6_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -912,8 +918,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_7_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_7">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_6">
             <span class="md-nav__icon md-icon"></span>
             Use the solution
           </label>
@@ -956,24 +962,24 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_6_2" >
         
           
-          <label class="md-nav__link" for="__nav_1_7_2" id="__nav_1_7_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_1_6_2" id="__nav_1_6_2_label" tabindex="0">
             
   
   <span class="md-ellipsis">
-    Connect to data source
+    Step1：Connect to data source
   </span>
   
 
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_7_2">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_6_2">
             <span class="md-nav__icon md-icon"></span>
-            Connect to data source
+            Step1：Connect to data source
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -988,7 +994,7 @@
         
   
   <span class="md-ellipsis">
-    Add AWS accounts
+    Add Cloud accounts
   </span>
   
 
@@ -1005,11 +1011,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/data-catalog-create/" class="md-nav__link">
+      <a href="../../user-guide/data-catalog-create-s3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Create data catalogs
+    Connect to S3
   </span>
   
 
@@ -1026,11 +1032,95 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/data-catalog-delete/" class="md-nav__link">
+      <a href="../../user-guide/data-catalog-create-rds/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Delete data catalogs
+    Connect to RDS
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/data-catalog-create-glue/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Connect to Glue
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/data-catalog-create-jdbc/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Connect to JDBC
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/data-catalog-create-jdbc-redshift/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Connect to JDBC(Redshift)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/data-catalog-create-jdbc-rds-proxy.md" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Connect to JDBC(RDS Proxy)
   </span>
   
 
@@ -1043,172 +1133,6 @@
           </ul>
         </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_1_7_3" id="__nav_1_7_3_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    Browse data catalogs
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_7_3">
-            <span class="md-nav__icon md-icon"></span>
-            Browse data catalogs
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../user-guide/data-catalog-sync/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Synchronize data catalogs
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../user-guide/data-catalog-export/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Export data catalogs
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../user-guide/data-catalog-labels/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Label data catalogs
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_1_7_4" id="__nav_1_7_4_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    Define classification template
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_7_4">
-            <span class="md-nav__icon md-icon"></span>
-            Define classification template
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../user-guide/data-classification-template/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Define classification template
-  </span>
-  
-
-      </a>
     </li>
   
 
@@ -1225,19 +1149,11 @@
         
   
   <span class="md-ellipsis">
-    Manage data identifiers
+    Step2：Define classification template
   </span>
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -1259,24 +1175,24 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_6_4" >
         
           
-          <label class="md-nav__link" for="__nav_1_7_5" id="__nav_1_7_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_1_6_4" id="__nav_1_6_4_label" tabindex="0">
             
   
   <span class="md-ellipsis">
-    Run sensitive data discovery jobs
+    Step3：Run sensitive data discovery jobs
   </span>
   
 
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_7_5">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_6_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_6_4">
             <span class="md-nav__icon md-icon"></span>
-            Run sensitive data discovery jobs
+            Step3：Run sensitive data discovery jobs
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1393,14 +1309,6 @@
 
               
             
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
               
                 
   
@@ -1417,26 +1325,118 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_8" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_6_5" >
         
           
-          <label class="md-nav__link" for="__nav_1_8" id="__nav_1_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_1_6_5" id="__nav_1_6_5_label" tabindex="0">
             
   
   <span class="md-ellipsis">
-    Appendix
+    Step4：Check Result
   </span>
   
 
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_8">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_6_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_6_5">
             <span class="md-nav__icon md-icon"></span>
-            Appendix
+            Step4：Check Result
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/check-result-dashboard/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Dashboard
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/check-result-data-catalog.md" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Data catalog
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/data-catalog-labels/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Catalog labeling
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/appendix-built-in-supported-datatypes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Appx.Supported data types
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -1449,7 +1449,7 @@
         
   
   <span class="md-ellipsis">
-    Built-in data identifiers
+    Appx.Built-in data identifiers
   </span>
   
 
@@ -1470,7 +1470,7 @@
         
   
   <span class="md-ellipsis">
-    Permissions of CloudFormation Stacks
+    Appx.Permissions of CloudFormation Stacks
   </span>
   
 
@@ -1491,7 +1491,28 @@
         
   
   <span class="md-ellipsis">
-    Add accounts via AWS Organization
+    Appx.Add accounts via AWS Organization
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/appendix-build-in-identifiers-eu-gdpr/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Appx.EU PII identifiers(GDPR reference)
   </span>
   
 
@@ -1588,10 +1609,10 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_12" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_10" >
         
           
-          <label class="md-nav__link" for="__nav_1_12" id="__nav_1_12_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_1_10" id="__nav_1_10_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -1602,8 +1623,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_12_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_12">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_10">
             <span class="md-nav__icon md-icon"></span>
             Developer guide
           </label>
@@ -1754,28 +1775,37 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#cost-estimation" class="md-nav__link">
+  <a href="#sensitive-data-detection" class="md-nav__link">
     <span class="md-ellipsis">
-      Cost estimation
+      Sensitive data detection
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Cost estimation">
+    <nav class="md-nav" aria-label="Sensitive data detection">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#example-1" class="md-nav__link">
+  <a href="#detecting-sensitive-data-in-the-database-amazon-rds" class="md-nav__link">
     <span class="md-ellipsis">
-      Example 1
+      Detecting sensitive data in the database (Amazon RDS)
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#example-2" class="md-nav__link">
+  <a href="#detecting-sensitive-data-in-the-s3-bucket" class="md-nav__link">
     <span class="md-ellipsis">
-      Example 2
+      Detecting sensitive data in the S3 bucket
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aws-service-pricing" class="md-nav__link">
+    <span class="md-ellipsis">
+      AWS service pricing
     </span>
   </a>
   
@@ -1783,6 +1813,24 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#solution-console" class="md-nav__link">
+    <span class="md-ellipsis">
+      Solution console
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cost-optimization-recommendations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cost Optimization Recommendations
+    </span>
+  </a>
   
 </li>
       
@@ -1803,398 +1851,400 @@
 
   <h1>Cost</h1>
 
-<p>You will be responsible for the cost of the AWS services used when running the solution. The main factors affecting the solution cost include:</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The following cost estimations are examples and may vary depending on your environment.</p>
+</div>
+<p>You will be responsible for the cost of the AWS services used when running the solution. As of this revision, the following examples are cost estimations for running this solution with default configurations in the US East (N. Virginia) Region and and the China (Ningxia) Region Operated by NWCD. The total cost includes the fees for <a href="#sensitive-data-detections"><strong>sensitive data detection</strong></a> and <a href="#cost-of-the-web-based-console"><strong>solution console</strong></a>.</p>
+<h2 id="sensitive-data-detection">Sensitive data detection</h2>
+<p>The solution cost is mainly composed of the sensitive data detection jobs, which may vary depending on the duration of the detection jobs and each specific task. The longer a detection job runs, the higher the costs are. There are three primary factors that influence the duration of the detection jobs:</p>
 <ul>
-<li>the number and size of datasets</li>
-<li>the number and complexity of data structure</li>
-<li>the frequency of discovery job updates</li>
+<li>
+<p><strong>Number of identifiers for sensitive information detection</strong>: The solution detects sensitive information using predefined detection identifiers. Before performing the detection, you need to select the required detection identifiers. The more identifiers you load, the longer the sensitive information detection process will take, resulting in an increased overall runtime and higher costs.</p>
+</li>
+<li>
+<p><strong>Connected data source types</strong>: The efficiency of sensitive information detection jobs is influenced by the throughput or network bandwidth of different data sources. For example, the detection task may be affected by the network bandwidth of an RDS database. Data sources with higher performance typically lead to faster completion of sensitive information detection jobs.</p>
+</li>
+<li>
+<p><strong>Data volume and content</strong>: Larger data volumes generally require more time for processing. In addition to the data volume in the data source, factors such as data format, sampling size, and detection depth within the detection task also impact the task duration.</p>
+</li>
 </ul>
-<p>For example, running a discovery job on a large dataset with a fully scanned range will result in higher costs than running the job on smaller datasets with increased scan range and limited scan depth that are run on demand.</p>
-<h2 id="cost-estimation">Cost estimation</h2>
-<p>Based on typical usage patterns, the following list a few scenarios to provide an estimation of monthly costs. The AWS services listed are billed on a monthly basis.</p>
-<h3 id="example-1">Example 1</h3>
-<p>As of June 2023, the cost for main AWS account running this solution with the default settings in the AWS China Ningxia Region operated by NWCD (cn-northwest-1) is approximately <strong>901.82 CNY a month.</strong></p>
+<p>The following examples illustrate cost estimations in two scenarios for a single detection task, with monthly billing for AWS services. In case of a periodic automatic execution of detection jobs without significant changes in data volume, the resulting costs will accumulate based on the actual number of executions per month.</p>
+<h3 id="detecting-sensitive-data-in-the-database-amazon-rds">Detecting sensitive data in the database (Amazon RDS)</h3>
 <ul>
-<li>Base cost for Infra (in Admin account)</li>
+<li>US East (N. Virginia) Region (us-east-1)</li>
 </ul>
 <table>
 <thead>
 <tr>
-<th><strong>Service</strong></th>
-<th>Usage type</th>
-<th><strong>Usage quantity</strong></th>
-<th>Monthly cost (CNY)</th>
-<th>Type</th>
+<th>Database Type</th>
+<th>Data Volume</th>
+<th>Identifier Count</th>
+<th>Detection Time</th>
+<th>Detection Data Cost (USD)</th>
+<th>Scan Data Cost (USD)</th>
+<th>Total Cost (USD)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Amazon RDS Aurora db.r5.large</td>
+<td>10 tables, each with 10 columns, 5000 rows of text data</td>
+<td>10</td>
+<td>Approximately 6 minutes</td>
+<td>$0.07</td>
+<td>$0.05</td>
+<td>$0.12</td>
+</tr>
+<tr>
+<td>Amazon RDS MySQL db.m5.xlarge</td>
+<td>1000 tables, each with 100 columns, 1000 rows of text data</td>
+<td>10</td>
+<td>Approximately 11 hours</td>
+<td>$0.07</td>
+<td>$4.84</td>
+<td>$4.91</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>China (Ningxia) Region Operated by NWCD (cn-northwest-1)</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Database Type</th>
+<th>Data Volume</th>
+<th>Identifier Count</th>
+<th>Detection Time</th>
+<th>Detection Data Cost (CNY)</th>
+<th>Scan Data Cost (CNY)</th>
+<th>Total Cost (CNY)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Amazon RDS Aurora db.r5.large</td>
+<td>10 tables, each with 10 columns, 5000 rows of text data</td>
+<td>10</td>
+<td>Approximately 6 minutes</td>
+<td>$0.5</td>
+<td>$0.3</td>
+<td>$0.8</td>
+</tr>
+<tr>
+<td>Amazon RDS MySQL db.m5.xlarge</td>
+<td>1000 tables, each with 100 columns, 1000 rows of text data</td>
+<td>10</td>
+<td>Approximately 11 hours</td>
+<td>$0.5</td>
+<td>$33.23</td>
+<td>$33.73</td>
+</tr>
+</tbody>
+</table>
+<h3 id="detecting-sensitive-data-in-the-s3-bucket">Detecting sensitive data in the S3 bucket</h3>
+<ul>
+<li>US East (N. Virginia) Region (us-east-1)</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Total Size</th>
+<th>Identifier Count</th>
+<th>Detection Time</th>
+<th>Detection Data Cost (USD)</th>
+<th>Scan Data Cost (USD)</th>
+<th>Total Cost (USD)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Total 5,000 files, including PDF, WORD, JPG, TXT, etc.</td>
+<td>4GB</td>
+<td>10</td>
+<td>Approximately 8 hours</td>
+<td>$0.10</td>
+<td>$1.29</td>
+<td>$1.39</td>
+</tr>
+<tr>
+<td>Total 1,000 files, log files</td>
+<td>24GB</td>
+<td>13</td>
+<td>Approximately 22 hours</td>
+<td>$0.1</td>
+<td>9.97</td>
+<td>9.98</td>
+</tr>
+<tr>
+<td>Total 20,000 files, structured data such as CSV, JSON, etc.</td>
+<td>5GB</td>
+<td>20</td>
+<td>Approximately 1 hour</td>
+<td>$0.15</td>
+<td>$0.34</td>
+<td>$0.39</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>China (Ningxia) Region Operated by NWCD (cn-northwest-1)</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Total Size</th>
+<th>Identifier Count</th>
+<th>Detection Time</th>
+<th>Detection Data Cost (CNY)</th>
+<th>Scan Data Cost (CNY)</th>
+<th>Total Cost (CNY)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Total 5,000 files, including PDF, WORD, JPG, TXT, etc.</td>
+<td>4GB</td>
+<td>10</td>
+<td>Approximately 8 hours</td>
+<td>$0.61</td>
+<td>$23.80</td>
+<td>$24.41</td>
+</tr>
+<tr>
+<td>Total 1,000 files, log files</td>
+<td>24GB</td>
+<td>13</td>
+<td>Approximately 22 hours</td>
+<td>$0.42</td>
+<td>$68.43</td>
+<td>$68.85</td>
+</tr>
+<tr>
+<td>Total 20,000 files, structured data such as CSV, JSON, etc.</td>
+<td>5GB</td>
+<td>20</td>
+<td>Approximately 1 hour</td>
+<td>$1</td>
+<td>$2.32</td>
+<td>$3.32</td>
+</tr>
+</tbody>
+</table>
+<h3 id="aws-service-pricing">AWS service pricing</h3>
+<p>Sensitive data detection jobs utilize <a href="https://aws.amazon.com/cn/glue/">AWS Glue</a> and <a href="https://www.amazonaws.cn/sagemaker/">Amazon SageMaker</a> services together to perform sensitive information detection. Therefore, the primary cost of sensitive data detection jobs comes from the runtime costs of these two services. You can refer to the following links to view the specific pricing of these two services in your Region.</p>
+<ul>
+<li>
+<p><a href="https://www.amazonaws.cn/sagemaker/pricing/?nc1=h_ls">Amazon SageMaker Pricing</a></p>
+</li>
+<li>
+<p><a href="https://www.amazonaws.cn/glue/pricing/?nc1=h_ls">Amazon Glue Pricing</a></p>
+</li>
+</ul>
+<h2 id="solution-console">Solution console</h2>
+<p>The deployment of the solution automatically creates a web-based console accessible through a browser. As of this revision, with default settings and an estimated access count of 1000, the following costs will be incurred:</p>
+<ul>
+<li>US East (N. Virginia) Region (us-east-1) for one month (calculated as 30 days):</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Usage</th>
+<th>Monthly Cost (USD)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Amazon Relational Database Service for MySQL Community Edition</td>
-<td>CNY 0.8 per db.t3.medium Multi-AZ instance hour (or partial hour) running MySQL</td>
-<td>720 Hrs</td>
-<td>576</td>
-<td>Reserved</td>
+<td>720 hours</td>
+<td>$97.92</td>
 </tr>
 <tr>
 <td>Amazon Relational Database Service Provisioned Storage</td>
-<td>CNY 1.5308 per GB-month of provisioned gp2 storage for Multi-AZ deployments running MySQL</td>
-<td>20 GB-Mo</td>
-<td>30.616</td>
-<td>On Demand</td>
+<td>20 GB-month</td>
+<td>$4.6</td>
 </tr>
 <tr>
 <td>Amazon Elastic Compute Cloud NatGateway</td>
-<td>CNY 0.37 per GB Data Processed by NAT Gateways</td>
-<td>30 GB-Mo</td>
-<td>11.1</td>
-<td>On Demand. Avg 80 url requests per day</td>
+<td>30 GB-month</td>
+<td>$1.35</td>
 </tr>
 <tr>
 <td></td>
-<td>0.37 CNY per NAT Gateway Hour</td>
-<td>720 Hrs</td>
-<td>266.4</td>
-<td>Reserved</td>
+<td>720 hours</td>
+<td>$32.4</td>
 </tr>
 <tr>
 <td>Athena</td>
-<td>CNY 34.34 per Terabytes for DataScannedInTB in China (Ningxia)</td>
-<td>0.010 Terabytes</td>
-<td>0.34</td>
-<td>On Demand</td>
+<td>0.010 TB</td>
+<td>$0.05</td>
 </tr>
 <tr>
 <td>CloudWatch</td>
-<td>First 5GB-mo per month of logs storage is free. CNY 0.244 per GB archived per month</td>
-<td>0.100 GB-Mo</td>
-<td>0.244</td>
-<td>On Demand</td>
+<td>0.100 GB-month</td>
+<td>$0.05</td>
+</tr>
+<tr>
+<td>Elastic Load Balancing - Application</td>
+<td>10 hours</td>
+<td>0</td>
+</tr>
+<tr>
+<td></td>
+<td>0.105 LCU-hours</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Lambda</td>
+<td>50000 Lambda-GB-sec</td>
+<td>$0.08333</td>
+</tr>
+<tr>
+<td></td>
+<td>10000 requests</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Simple Queue Service (SQS)</td>
+<td>100000 requests</td>
+<td>$0.04</td>
+</tr>
+<tr>
+<td>Simple Storage Service (S3)</td>
+<td>2000 requests</td>
+<td>$0.01</td>
+</tr>
+<tr>
+<td></td>
+<td>4000 requests</td>
+<td>$0.0002</td>
+</tr>
+<tr>
+<td></td>
+<td>1 GB</td>
+<td>$0.023</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td></td>
+<td>$136.53</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>China (Ningxia) Region Operated by NWCD (cn-northwest-1) for one month (calculated as 30 days):</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Usage</th>
+<th>Monthly Cost (CNY)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Amazon Relational Database Service for MySQL Community Edition</td>
+<td>720 hours</td>
+<td>$576</td>
+</tr>
+<tr>
+<td>Amazon Relational Database Service Provisioned Storage</td>
+<td>20 GB-Month</td>
+<td>$30.62</td>
+</tr>
+<tr>
+<td>Amazon Elastic Compute Cloud NatGateway</td>
+<td>30 GB-Month</td>
+<td>$11.1</td>
+</tr>
+<tr>
+<td></td>
+<td>720 hours</td>
+<td>$266.4</td>
+</tr>
+<tr>
+<td>Athena</td>
+<td>0.010 TB</td>
+<td>$0.34</td>
+</tr>
+<tr>
+<td>CloudWatch</td>
+<td>0.100 GB-Month</td>
+<td>$0.24</td>
 </tr>
 <tr>
 <td>EC2 Container Registry (ECR)</td>
-<td>500MB-month Free Tier, CNY 0.69 per GB-month</td>
-<td>0.003 GB-Mo</td>
-<td>0.69</td>
-<td>Reserved</td>
+<td>0.003 GB-Month</td>
+<td>$0.69</td>
 </tr>
 <tr>
 <td>Elastic Load Balancing - Application</td>
-<td>0.0 CNY per Application LoadBalancer-hour (or partial hour) under monthly free tier. CNY 0.156 per Application load balancer-hour (or partial hour)</td>
-<td>10 Hrs</td>
-<td>1.56</td>
-<td>On Demand</td>
+<td>10 hours</td>
+<td>$1.56</td>
 </tr>
 <tr>
 <td></td>
-<td>0.0 CNY per used Application load balancer capacity unit-hour (or partial hour) under monthly free tier. CNY 0.072 per LCU-hour (or partial hour)</td>
-<td>0.105 LCU-Hrs</td>
+<td>0.105 LCU-Hours</td>
 <td>0</td>
-<td>On Demand</td>
 </tr>
 <tr>
 <td>Lambda</td>
-<td>CNY 0 for first 400K GB-second usage of AWS Lambda - Total Compute - China (Ningxia), CNY 0.0000001135 Price per 1ms  (Ningxia)</td>
 <td>100,000.000 Lambda-GB-Second</td>
-<td>11.35</td>
-<td>On Demand</td>
+<td>$11.35</td>
 </tr>
 <tr>
 <td></td>
-<td>CNY 0 for first 1M usage of AWS Lambda - Total Requests - China (Ningxia), CNY 1.36 per million requests</td>
-<td>10,000 Request</td>
+<td>10,000 requests</td>
 <td>0</td>
-<td>On Demand</td>
 </tr>
 <tr>
 <td>Simple Queue Service</td>
-<td>First 1,000,000 Amazon SQS Requests per month are free, CNY 3.33 (per Million requests)</td>
-<td>100,000 Requests</td>
-<td>3.33</td>
-<td>On Demand</td>
+<td>100,000 requests</td>
+<td>$3.33</td>
 </tr>
 <tr>
 <td>Simple Storage Service</td>
-<td>First 2,000 PUTs free under free tier, CNY 0.00405 PUT, COPY, POST, LIST requests (per 1,000 requests)</td>
-<td>2,000 Requests</td>
-<td>0.0081</td>
-<td>On Demand</td>
+<td>2,000 requests</td>
+<td>$0.01</td>
 </tr>
 <tr>
 <td></td>
-<td>First 20,000 GETs free under free tier, CNY 0.0135 per 10,000 requests</td>
-<td>4,000 Requests</td>
-<td>0.0054</td>
-<td>On Demand</td>
+<td>4,000 requests</td>
+<td>$0.01</td>
 </tr>
 <tr>
 <td></td>
-<td>First 5 GB free under free tier, CNY 0.1755 per GB</td>
-<td>0.032 GB-Mo CNY 0.00</td>
-<td>0.1755</td>
-<td>On Demand</td>
+<td>0.032 GB-Month</td>
+<td>$0.176</td>
 </tr>
 <tr>
 <td><strong>Total</strong></td>
 <td></td>
-<td></td>
-<td>901.819</td>
-<td></td>
+<td>$901.82</td>
 </tr>
 </tbody>
 </table>
+<h2 id="cost-optimization-recommendations">Cost Optimization Recommendations</h2>
+<p>The basic cost of performing detection jobs is billed on-demand, which means you only pay for the resources you actually use without needing to purchase or reserve any capacity in advance. Additionally, AWS provides some free usage credits to help you understand and evaluate your service usage. Therefore, we recommend using the <a href="http://aws.amazon.com/aws-cost-management/aws-cost-explorer/">AWS Cost Explorer</a> feature in the solution to help manage costs. All resources in this solution include a <strong>tag</strong> with the name <em>Owner</em> and the value <em>SDPS</em>. You can query the costs generated by the solution by applying <a href="https://docs.aws.amazon.com/zh_cn/awsaccountbilling/latest/aboutv2/custom-tags.html#allocation-how">user-defined cost allocation tags</a>. Prices may vary. For more information, please refer to the pricing pages for each AWS service used in this solution. Here are some cost optimization recommendations that you can implement when creating sensitive data detection jobs to reduce costs:</p>
 <ul>
-<li>Base cost for Infra (in monitored account)</li>
+<li>
+<p>Before performing sensitive information detection jobs, carefully select appropriate identifiers for sensitive information instead of selecting all.
+  Having too many detection identifiers typically requires more time to complete the sensitive information detection. Before executing the detection task, adjust the identifiers using the add/remove sensitive information identifiers feature in the detection template to reduce the execution time of the detection task.</p>
+</li>
+<li>
+<p>Set an appropriate detection depth and sample size based on the actual data volume to accurately detect sensitive information.
+  In detection scenarios with large data volumes and primarily structured information, such as RDS databases, selecting a smaller sample size can detect sensitive information and achieve cost optimization.</p>
+</li>
+<li>
+<p>Adjust the execution frequency of scheduled detection jobs based on the actual situation.
+  The frequency of detection task execution has a significant impact on costs. If the data changes are not significant, you can choose on-demand scanning instead of scheduled scanning when creating sensitive information detection jobs to reduce the frequency of task execution.</p>
+</li>
 </ul>
-<table>
-<thead>
-<tr>
-<th><strong>Service</strong></th>
-<th>Usage Type</th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Glue</td>
-<td>3.021 CNY per DPU-Hour, billed per second, with a 10-minute minimum per crawler run</td>
-<td>On Demand</td>
-</tr>
-<tr>
-<td></td>
-<td>3.021 CNY per Data Processing Unit-Hour for Amazon Glue ETL job</td>
-<td>On Demand</td>
-</tr>
-<tr>
-<td></td>
-<td>6.866 CNY per 1,000,000 requests for Amazon Glue Data Catalog request</td>
-<td>On Demand</td>
-</tr>
-<tr>
-<td>Step Functions</td>
-<td>CNY 0.00 for first 4,000 state transitions, CNY 0.0002102 per state transition thereafter</td>
-<td>On Demand</td>
-</tr>
-<tr>
-<td>CloudWatch</td>
-<td>First 5GB-mo per month of logs storage is free. CNY 0.244 per GB archived per month</td>
-<td>On Demand</td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li>Cost Example</li>
-</ul>
-<p>The AWS services listed in the example cost tables below are billed on a monthly basis in a monitored account. Glue Crawler minimum cost is 0.5035 (CNY), the crawler will be launched in data source connection creation and PII detection job execution, below cost table includes both of the connection creation and job execution cost with the example data sources.</p>
-<table>
-<thead>
-<tr>
-<th><strong>Scenarios</strong></th>
-<th>Service Running Cost (CNY)</th>
-<th>Monthly Cost <strong>(CNY)</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Account 1, scan frequency monthly, scan depth 1000</strong></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><li>S3 Bucket A: 10000 CSV files, 1000 rows, 10 columns, total size 1.7GiB</li><li>S3 Bucket B: 10000 JSON files, 1000 rows, 10 fields, total size 2.5GiB</li><li>S3 Bucket C: 1000 PARQUET files, 1000 rows, 10 fields, total size 212Mb</li></td>
-<td><li>Glue Crawler: 1.007</li><li>Glue Job: 2.3161</li></td>
-<td>3.3231</td>
-</tr>
-<tr>
-<td><strong>Account 2, scan frequency weekly, scan depth 1000</strong></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><li>RDS Aurora MySQL A: 10 tables, 10000 rows, 10 columns, instance type: db.r5.large(8vCPUs, 64GiB RAM Network: 4,750 Mbps)</li><li>RDS MySQL B: 10 tables, 1,000,000 rows, 10 columns, instance type: db.m5.12xlarge(48 vCPU 192 GiB RAM Network:9500 Mbps)</li></td>
-<td><li>Glue Crawler: 2.5175</li><li>Glue Job: 2.8196</li></td>
-<td>5.3371</td>
-</tr>
-<tr>
-<td><strong>Account 3, scan frequency daily, scan depth 1000</strong></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><li>S3 Bucket A: 10000 CSV files, 1000 rows, 10 columns, total size 1.7GiB</li><li>S3 Bucket B: 10000 JSON files, 1000 rows, 10 fields, total size 2.5GiB</li><li>S3 Bucket C: 1000 PARQUET files, 1000 rows, 10 fields, total size 212Mb</li><li>RDS Aurora MySQL A: 10 tables, 10000 rows, 10 columns, instance type: db.r5.large(8vCPUs, 64GiB RAM Network: 4,750 Mbps)</li></td>
-<td><li>Glue Crawler: 15.6085</li><li>Glue Job: 70.9935</li></td>
-<td>86.602</td>
-</tr>
-<tr>
-<td>Total monthly cost in the above three accounts with different frequency (CNY)</td>
-<td></td>
-<td>95.2622</td>
-</tr>
-</tbody>
-</table>
-<h3 id="example-2">Example 2</h3>
-<p>As of June 2023, the cost for main AWS account running this solution with the default settings in the AWS US East (N. Virginia) Region (us-east-1) is approximately <strong>136.53 USD a month.</strong></p>
-<ul>
-<li>Base cost for Infra (in Admin account)</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th><strong>Service</strong></th>
-<th>Usage Type</th>
-<th><strong>Usage Quantity</strong></th>
-<th>Monthly cost (USD)</th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Amazon Relational Database Service for MySQL Community Edition</td>
-<td>USD 0.136 per db.t3.medium Multi-AZ instance hour (or partial hour) running MySQL</td>
-<td>720 Hrs</td>
-<td>97.92</td>
-<td>Reserved</td>
-</tr>
-<tr>
-<td>Amazon Relational Database Service Provisioned Storage</td>
-<td>USD 0.23 per GB-month of provisioned gp2 storage for Multi-AZ deployments running MySQL</td>
-<td>20 GB-Mo</td>
-<td>4.6</td>
-<td>On Demand</td>
-</tr>
-<tr>
-<td>Amazon Elastic Compute Cloud NatGateway</td>
-<td>USD 0.045 per GB Data Processed by NAT Gateways</td>
-<td>30 GB-Mo</td>
-<td>1.35</td>
-<td>On Demand. Avg 80 url requests per day</td>
-</tr>
-<tr>
-<td></td>
-<td>USD 0.045 per NAT Gateway Hour</td>
-<td>720 Hrs</td>
-<td>32.4</td>
-<td>Reserved</td>
-</tr>
-<tr>
-<td>Athena</td>
-<td>5.00 USD per Terabytes for DataScannedInTB in US East (N. Virginia)</td>
-<td>0.010 Terabytes</td>
-<td>0.05</td>
-<td>On Demand</td>
-</tr>
-<tr>
-<td>CloudWatch</td>
-<td>First 5GB per month of log data ingested is free. USD 0.5 per GB archived per month</td>
-<td>0.100 GB-Mo</td>
-<td>0.05</td>
-<td>On Demand</td>
-</tr>
-<tr>
-<td>Elastic Load Balancing - Application</td>
-<td>$0.0 per used Application load balancer capacity unit-hour (or partial hour) under monthly free tier</td>
-<td>10 Hrs</td>
-<td>0</td>
-<td>On Demand</td>
-</tr>
-<tr>
-<td></td>
-<td>$0.00 per Application LoadBalancer-hour (or partial hour) under monthly free tier</td>
-<td>0.105 LCU-Hrs</td>
-<td>0</td>
-<td>On Demand</td>
-</tr>
-<tr>
-<td>Lambda</td>
-<td>AWS Lambda - Compute Free Tier - 400,000 GB-Seconds - US East (Northern Virginia), after free tier $0.0000166667 for every GB-second</td>
-<td>5,0000 Lambda-GB-Second</td>
-<td>0.08333</td>
-<td>On Demand</td>
-</tr>
-<tr>
-<td></td>
-<td>AWS Lambda - Ephemeral Storage - US East (N. Virginia), after free tier $0.0000000309 for every GB-second</td>
-<td>10,000 Request</td>
-<td>0</td>
-<td>On Demand</td>
-</tr>
-<tr>
-<td>Simple Queue Service</td>
-<td>First 1,000,000 Amazon SQS Requests per month are free, after free tier $0.40 (per Million requests)</td>
-<td>100,000 Requests</td>
-<td>0.04</td>
-<td>On Demand</td>
-</tr>
-<tr>
-<td>Simple Storage Service</td>
-<td>First 2,000 PUTs free under free tier, CNY $0.005 per 1,000 PUT, COPY, POST, or LIST requests</td>
-<td>2,000 Requests</td>
-<td>0.01</td>
-<td>On Demand</td>
-</tr>
-<tr>
-<td></td>
-<td>First 20,000 GETs free under free tier, $0.0004 per 10,000 requests</td>
-<td>4,000 Requests</td>
-<td>0.0002</td>
-<td>On Demand</td>
-</tr>
-<tr>
-<td></td>
-<td>First 5 GB free under free tier, $0.023 per GB</td>
-<td>1 GB</td>
-<td>0.023</td>
-<td>On Demand</td>
-</tr>
-<tr>
-<td><strong>Total</strong></td>
-<td></td>
-<td></td>
-<td>136.53</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li>Base cost for Infra (in monitored account)</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th><strong>Service</strong></th>
-<th>Usage Type</th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Glue</td>
-<td>$0.44 per DPU-Hour, billed per second, with a 10-minute minimum per crawler run</td>
-<td>On Demand</td>
-</tr>
-<tr>
-<td></td>
-<td>$0.44 per Data Processing Unit-Hour for Amazon Glue ETL job</td>
-<td>On Demand</td>
-</tr>
-<tr>
-<td></td>
-<td>$1 per 1,000,000 requests for Amazon Glue Data Catalog request</td>
-<td>On Demand</td>
-</tr>
-<tr>
-<td>Step Functions</td>
-<td>US 0.00 for first 4,000 state transitions, $0.025 per 1,000 state transitions</td>
-<td>On Demand</td>
-</tr>
-<tr>
-<td>CloudWatch</td>
-<td>First 5GB per month of log data ingested is free. USD 0.5 per GB archived per month</td>
-<td>On Demand</td>
-</tr>
-</tbody>
-</table>
-<p>The basic cost of infrastructure in a monitored account is charged on a pay-as-you-go basis. This means that you only pay for the actual resources that you use, without having to purchase or reserve any capacity in advance. Additionally, AWS provides some free usage tiers to help you understand and evaluate the usage of the service.</p>
-<p>We recommend using the <a href="http://aws.amazon.com/aws-cost-management/aws-cost-explorer/">AWS Cost Explorer</a> feature in the solution to help manage costs. Prices are subject to change. For full details, refer to the pricing webpage for each AWS service used in this solution. </p>
 
 
 

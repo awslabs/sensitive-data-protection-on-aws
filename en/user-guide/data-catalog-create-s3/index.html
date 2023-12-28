@@ -8,21 +8,21 @@
       
       
       
-        <link rel="canonical" href="https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/data-catalog-create/">
+        <link rel="canonical" href="https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/data-catalog-create-s3/">
       
       
         <link rel="prev" href="../data-source/">
       
       
-        <link rel="next" href="../data-catalog-delete/">
+        <link rel="next" href="../data-catalog-create-rds/">
       
       
       <link rel="icon" href="https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.2">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
     
     
       
-        <title>Create data catalogs - Sensitive Data Protection on AWS</title>
+        <title>Connect to S3 - Sensitive Data Protection on AWS</title>
       
     
     
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#connect-to-data-source" class="md-skip">
+        <a href="#connect-to-data-sources-s3" class="md-skip">
           Skip to content
         </a>
       
@@ -113,7 +113,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Create data catalogs
+              Connect to S3
             
           </span>
         </div>
@@ -336,7 +336,7 @@
             
   
   <span class="md-ellipsis">
-    Solution Overview
+    Solution overview
   </span>
   
 
@@ -346,7 +346,7 @@
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_1_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_1_1">
             <span class="md-nav__icon md-icon"></span>
-            Solution Overview
+            Solution overview
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -444,7 +444,7 @@
             
   
   <span class="md-ellipsis">
-    Architecture Overview
+    Architecture overview
   </span>
   
 
@@ -454,7 +454,7 @@
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_1_2">
             <span class="md-nav__icon md-icon"></span>
-            Architecture Overview
+            Architecture overview
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -794,27 +794,6 @@
                 
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../../update/update/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Update the solution
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
     
   
   
@@ -829,10 +808,10 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_6" checked>
         
           
-          <label class="md-nav__link" for="__nav_1_7" id="__nav_1_7_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_1_6" id="__nav_1_6_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -843,8 +822,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_7_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_1_7">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1_6">
             <span class="md-nav__icon md-icon"></span>
             Use the solution
           </label>
@@ -889,24 +868,24 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_6_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_1_7_2" id="__nav_1_7_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_1_6_2" id="__nav_1_6_2_label" tabindex="0">
             
   
   <span class="md-ellipsis">
-    Connect to data source
+    Step1：Connect to data source
   </span>
   
 
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_2_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_1_7_2">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_6_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1_6_2">
             <span class="md-nav__icon md-icon"></span>
-            Connect to data source
+            Step1：Connect to data source
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -921,7 +900,7 @@
         
   
   <span class="md-ellipsis">
-    Add AWS accounts
+    Add Cloud accounts
   </span>
   
 
@@ -951,7 +930,7 @@
           
   
   <span class="md-ellipsis">
-    Create data catalogs
+    Connect to S3
   </span>
   
 
@@ -962,7 +941,7 @@
         
   
   <span class="md-ellipsis">
-    Create data catalogs
+    Connect to S3
   </span>
   
 
@@ -984,18 +963,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#create-data-catalogs-for-s3-manual" class="md-nav__link">
+  <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
-      Create data catalogs for S3 (manual)
+      Prerequisites
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#create-data-catalogs-for-rds-manual" class="md-nav__link">
+  <a href="#connect-to-s3-data-source" class="md-nav__link">
     <span class="md-ellipsis">
-      Create data catalogs for RDS (manual)
+      Connect to S3 Data Source
     </span>
   </a>
   
@@ -1017,11 +996,95 @@
   
   
     <li class="md-nav__item">
-      <a href="../data-catalog-delete/" class="md-nav__link">
+      <a href="../data-catalog-create-rds/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Delete data catalogs
+    Connect to RDS
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-catalog-create-glue/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Connect to Glue
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-catalog-create-jdbc/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Connect to JDBC
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-catalog-create-jdbc-redshift/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Connect to JDBC(Redshift)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-catalog-create-jdbc-rds-proxy.md" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Connect to JDBC(RDS Proxy)
   </span>
   
 
@@ -1034,172 +1097,6 @@
           </ul>
         </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_1_7_3" id="__nav_1_7_3_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    Browse data catalogs
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_7_3">
-            <span class="md-nav__icon md-icon"></span>
-            Browse data catalogs
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../data-catalog-sync/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Synchronize data catalogs
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../data-catalog-export/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Export data catalogs
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../data-catalog-labels/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Label data catalogs
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_1_7_4" id="__nav_1_7_4_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    Define classification template
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_7_4">
-            <span class="md-nav__icon md-icon"></span>
-            Define classification template
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../data-classification-template/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Define classification template
-  </span>
-  
-
-      </a>
     </li>
   
 
@@ -1216,19 +1113,11 @@
         
   
   <span class="md-ellipsis">
-    Manage data identifiers
+    Step2：Define classification template
   </span>
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -1250,24 +1139,24 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_6_4" >
         
           
-          <label class="md-nav__link" for="__nav_1_7_5" id="__nav_1_7_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_1_6_4" id="__nav_1_6_4_label" tabindex="0">
             
   
   <span class="md-ellipsis">
-    Run sensitive data discovery jobs
+    Step3：Run sensitive data discovery jobs
   </span>
   
 
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_7_5">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_6_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_6_4">
             <span class="md-nav__icon md-icon"></span>
-            Run sensitive data discovery jobs
+            Step3：Run sensitive data discovery jobs
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1384,14 +1273,6 @@
 
               
             
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
               
                 
   
@@ -1408,26 +1289,118 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_8" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_6_5" >
         
           
-          <label class="md-nav__link" for="__nav_1_8" id="__nav_1_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_1_6_5" id="__nav_1_6_5_label" tabindex="0">
             
   
   <span class="md-ellipsis">
-    Appendix
+    Step4：Check Result
   </span>
   
 
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_8">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_6_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_6_5">
             <span class="md-nav__icon md-icon"></span>
-            Appendix
+            Step4：Check Result
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../check-result-dashboard/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Dashboard
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../check-result-data-catalog.md" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Data catalog
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-catalog-labels/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Catalog labeling
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../appendix-built-in-supported-datatypes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Appx.Supported data types
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -1440,7 +1413,7 @@
         
   
   <span class="md-ellipsis">
-    Built-in data identifiers
+    Appx.Built-in data identifiers
   </span>
   
 
@@ -1461,7 +1434,7 @@
         
   
   <span class="md-ellipsis">
-    Permissions of CloudFormation Stacks
+    Appx.Permissions of CloudFormation Stacks
   </span>
   
 
@@ -1482,7 +1455,28 @@
         
   
   <span class="md-ellipsis">
-    Add accounts via AWS Organization
+    Appx.Add accounts via AWS Organization
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../appendix-build-in-identifiers-eu-gdpr/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Appx.EU PII identifiers(GDPR reference)
   </span>
   
 
@@ -1579,10 +1573,10 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_12" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_10" >
         
           
-          <label class="md-nav__link" for="__nav_1_12" id="__nav_1_12_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_1_10" id="__nav_1_10_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -1593,8 +1587,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_12_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_12">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_10">
             <span class="md-nav__icon md-icon"></span>
             Developer guide
           </label>
@@ -1747,18 +1741,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#create-data-catalogs-for-s3-manual" class="md-nav__link">
+  <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
-      Create data catalogs for S3 (manual)
+      Prerequisites
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#create-data-catalogs-for-rds-manual" class="md-nav__link">
+  <a href="#connect-to-s3-data-source" class="md-nav__link">
     <span class="md-ellipsis">
-      Create data catalogs for RDS (manual)
+      Connect to S3 Data Source
     </span>
   </a>
   
@@ -1779,47 +1773,29 @@
                   
 
 
-<h1 id="connect-to-data-source">Connect to data source</h1>
-<p>After onboarding AWS accounts, you can create data catalogs for the data source.</p>
+<h1 id="connect-to-data-sources-s3">Connect to Data Sources - S3</h1>
+<p>After adding a cloud account, you can connect to S3 data sources for sensitive data scanning, which also involves an authorization process.</p>
 <div class="admonition info">
-<p class="admonition-title">Supported data types</p>
-<ul>
-<li><strong>Structured data and Semi-structured data are supported.</strong>The solution uses AWS Glue to crawl these data into data catalogs. For specific data format supported by AWS Glue, please refer to <a href="https://docs.aws.amazon.com/glue/latest/dg/add-classifier.html">Built-in classifiers in AWS Glue</a>.</li>
-<li><strong>Unstructured data (such as Image and PDF) is not supported.</strong></li>
-</ul>
+<p class="admonition-title">Supported Data/File Types for Scanning</p>
+<p>Please refer to <a href="../appendix-built-in-supported-datatypes/">Appendix: Supported Data Types for Scanning</a>.</p>
 </div>
-<h2 id="create-data-catalogs-for-s3-manual">Create data catalogs for S3 (manual)</h2>
-<ol>
-<li>On the <strong>Connect to data source</strong> page, click one account to open its details page.</li>
-<li>In the <strong>Amazon S3</strong> tab, view a list of S3 buckets in the region where the solution is deployed. </li>
-<li>Select a S3 bucket, and choose <strong>Sync to data catalog</strong> to create or update data catalog. </li>
-</ol>
-<p>After several minutes, you can see <strong>Catalog status</strong> is <code>ACTIVE</code>, which indicates data catalogs are created for the S3 bucket. </p>
-<p>You can also choose <strong>Sync ALL to data catalog</strong> from the <strong>Actions</strong> list to quickly create data catalogs for all S3 buckets of this AWS account.</p>
-<h2 id="create-data-catalogs-for-rds-manual">Create data catalogs for RDS (manual)</h2>
-<div class="admonition note">
-<p class="admonition-title">Prerequisite</p>
-<pre><code>A RDS instance must at least 1 private subnet and also meet one of the conditions to be successfully connected:
-
-- It has [VPC NAT Gateway](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html).
-- It has both [VPC Endpoints for S3](https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints-s3.html) and Glue Endpoint.
-</code></pre>
-</div>
-<ol>
-<li>On the <strong>Connect to data source</strong> page, click one account to open its details page.</li>
-<li>Choose the <strong>Amazon RDS</strong> tab. You can see a list of RDS instances in the region where the solution is deployed. </li>
-<li>
-<p>Select a RDS instance, and choose <strong>Sync to data catalog</strong> to open a pop-up window asking for credentials. There are two options to enter the credentials:</p>
+<h3 id="prerequisites">Prerequisites</h3>
+<p>If you need to scan unstructured data (such as documents, code, emails, images, etc.), please increase the Service quota.</p>
 <ul>
-<li>Choose <strong>Username/Password</strong> and enter the username and password of the RDS instance. Note: this user need to have SELETC permission. It is recommended to create a read-only DB user to use this solution.</li>
-<li>Choose <strong>Secret Manager</strong> and select the Secret of the RDS. It will list all the Secrets in Secret Manager of the same account of the RDS.</li>
+<li><strong>Global regions</strong>: Increase the SageMaker Processing Job instance quota for the region to be scanned through the <a href="https://console.aws.amazon.com/servicequotas/home">Service Quota service</a>.</li>
+<li><strong>China regions</strong>: Please contact AWS sales to open a "Quota Increase Ticket" with the following content: 'Hello, please increase the parallel running number of SageMaker Processing Job ml.m5.2xlarge instances in this account's certain region (e.g., cn-northwest-1) to 100'.</li>
 </ul>
-</li>
-<li>
-<p>Choose <strong>Connect</strong>. The solution will start testing connection, and it could take several minutes.</p>
-</li>
+<h2 id="connect-to-s3-data-source">Connect to S3 Data Source</h2>
+<ol>
+<li>From the left menu, select <strong>Connect Data Source</strong></li>
+<li>Choose the <strong>AWS Cloud</strong> tab</li>
+<li>Click to enter an AWS account and open its detail page.</li>
+<li>In the <strong>Amazon S3</strong> tab, view the list of S3 buckets in the solution deployment region.</li>
+<li>Choose an S3 bucket and click <strong>Authorize</strong>. Alternatively, you can also select <strong>Bulk Authorize</strong> from the <strong>Action</strong> list to quickly authorize all S3 buckets.
+<img alt="edit-icon" src="docs/../../images/cn-s3-authorize.png" /> </li>
+<li>About half a minute later, you will see the <strong>Authorization Status</strong> turn green <code>ACTIVE</code>.</li>
 </ol>
-<p>Once you see catalog status is <code>Active</code>, it indicates that data catalog is created for the RDS instance. </p>
+<p>At this point, you have successfully connected to the S3 data source and can proceed to the next step 👉 <a href="../data-identifiers/">Define Classification and Grading Templates</a>.</p>
 
 
 
