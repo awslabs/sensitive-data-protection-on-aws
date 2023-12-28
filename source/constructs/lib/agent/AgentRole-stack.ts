@@ -226,6 +226,7 @@ export class AgentRoleStack extends Construct {
           'glue:DeleteTableVersion',
           'glue:DeleteDatabase',
           'glue:GetConnection',
+          'glue:GetPartition',
           'glue:GetPartitions',
           'glue:UpdatePartition',
           'glue:BatchCreatePartition',
