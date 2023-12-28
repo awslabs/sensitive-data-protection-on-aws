@@ -548,7 +548,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       const requestParam = {
         account_id: selectPageRowData.account_id,
         region: selectPageRowData.region,
-        database_type: catalogType,
+        database_type: selectPageRowData.database_type,
         database_name: selectPageRowData.database_name,
         table_name: selectRowData.table_name,
         page: currentPage,
