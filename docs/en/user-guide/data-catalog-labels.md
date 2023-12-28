@@ -1,26 +1,23 @@
-# Label data catalog
+# Tagging Data Catalog
 
-Data catalog provides metadata for your data source. You can add/update labels for it to give more information of the metadata.
+The data catalog provides metadata for your data sources. You can add/update tags to provide more metadata information.
 
-## Sensitive data labeling (automatic or manual)
-After sensitive data job is completed, the "Privacy field" will be automatically tagged based on job result. Column-level data in data catalogs will be labeled with data identifiers.
+## Sensitive Data Tagging (Automatic or Manual)
+After the completion of a sensitive data job, "Privacy Fields" will be automatically tagged based on the job results. Column-level data in the data catalog will be tagged using data identifiers.
 
-You can always manually update the Privacy field in data catalog. 
+You can always manually update the privacy fields in the data catalog.
 
-In the **Browse data catalogs** page: 
+On the **Browse Data Catalog** page:
 
-- In the **S3** tab, either on Bucket or Folder level, you can click the ![edit-icon](docs/../../images/edit-icon.png) to select Privacy label.
-- In the **RDS** tab, either on Instance or Table level, you can click the ![edit-icon](docs/../../images/edit-icon.png) to select Privacy label.
+- In the S3 tab, at either the bucket or folder level, you can click ![edit-icon](docs/../../images/edit-icon.png) to select privacy tags from a dropdown list.
+- In the RDS/Glue/JDBC tabs, at either the instance or table level, you can click ![edit-icon](docs/../../images/edit-icon.png) to select privacy tags from a dropdown list.
 
-## Custom labeling (manual)
-You can use "Custom label" field in data catalog to add business related label (for example, line of business, department, team, etc). 
+## Custom Tagging (Manual)
+You can add business-related tags (such as business line, department, team, etc.) using the "Custom Tags" field in the data catalog.
 
-In the **Browse data catalogs** page: 
+On the **Browse Data Catalog** page:
 
-- In S3 tab, either on Bucket or Folder level, you can click the ![edit-icon](docs/../../images/edit-icon.png) to select Custom label from dropdown list.
-- In RDS tab, either on Instance or Table level, you can click the ![edit-icon](docs/../../images/edit-icon.png) to select Custom label from dropdown list. 
+- In the S3 tab, at either the bucket or folder level, you can click ![edit-icon](docs/../../images/edit-icon.png) to select custom tags from a dropdown list.
+- In the RDS/Glue/JDBC tabs, at either the instance or table level, you can click ![edit-icon](docs/../../images/edit-icon.png) to select custom tags from a dropdown list.
 
-At the bottom of dropdown list, click **Manage custom label** link, and there will be a pop-up window, in which you can **Add/Edit/Delete** a custom label. 
-
-
-
+At the bottom of the dropdown list, click the **Manage Custom Tags** link, which will open a window where you can **Add/Edit/Delete** custom tags.

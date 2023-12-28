@@ -1,23 +1,38 @@
-# Connect to data source
-The first step for using Sensitive Data Protection is to onboard AWS accounts. To do so, you need to deploy an "Agent CloudFormation Stack" in the AWS account.
+# Connect to Data Sources
 
-For the permissions required by the agent stack, refer to [Appendix: Permissions for agent Cloudformation stack](appendix-permissions.md).
+## Add AWS Account
 
-## Add AWS accounts (individually)
+1. In the left menu, select **Connect Data Source**.
+2. Choose the AWS Cloud tab.
+3. Click the button **Add New Account**.
+  ![edit-icon](docs/../../images/account-list-cn.png)
+4. Choose one of the following methods to add an account:
 
-1. Sign in to the solution's web portal.
-2. Choose **Connect to data source** in the **Summary** area. Alternatively, choose **Connect to data source** from the left navigation pane. 
-3. Choose **Add new account(s)** to open the **Individual account** tab.
-4. Follow the instructions in **Step1** and **Step2** to install the Agent CloudFormation Stack.
-5. After successfully deploying the stack, fill in the account ID of the AWS account.
-6. Choose **Add this account**.
-7. Go back to the **Connect to data source** page. You will see that the AWS account has been added. 
+    #### Method 1: Authorization via CloudFormation (Applicable for the same AWS region, automatically discovers S3, RDS, AWS Glue)
+    1. Open the **Standalone AWS Account** tab
+    2. Follow the instructions in **Step 1** and **Step 2** on this page to install the Agent CloudFormation stack (about 3 mins), which is used for authorizing the account to be scanned. For detailed permission information, please refer to [Appendix: Permissions of the Agent CloudFormation Stack](./appendix-permissions.md)
+    3. Fill in the AWS account ID to be scanned and select the region where the data source is located.
+    4. Click the button **Add This Account**.
 
-You can also click one specific AWS account ID to check account details.
+    #### Method 2: Connect to Databases via JDBC (Applicable for multiple AWS regions, manually add databases, such as Redshift, EC2 self-built databases, multi-cloud databases)
+    5. Open the **JDBC Only** tab.
+    6. Select regions
+    7. Fill in the AWS account ID
+    8. Click the button **Add This Account**
 
-## Add AWS accounts (via Organization)
-For multiple AWS accounts, you can use AWS Organization to automatically install and uninstall the agent CloudFormation stacks. For more details, refer to [Appendix: Add AWS accounts via Organization](appendix-organization.md).
+    #### Method 3: Batch Add via CloudFormation Authorization (Applicable for the same AWS region, automatically discovers S3, RDS, AWS Glue. Manage accounts in bulk through AWS Organization)
+    9. Open the **JDBC Only** tab
+    10. Follow the instructions in **Step 1**, **Step 2**, and **Step 3** on this page to install the Agent CloudFormation stack. For more information, see [Appendix: Adding AWS Accounts via Organization](appendix-organization.md).
+    11. Fill in the AWS Organization's agent account ID
+    12. Click the button **Add This Account**
 
-After successfully deploying the stack, fill in the account ID of the Organization delegator account.
+## Add Other Cloud Accounts
 
-Go back to the **Connect to data source** page, and you will see a list of AWS accounts added. You can click one specific AWS account ID to check account details.
+1. In the left menu, select **Connect Data Source**.
+2. Choose the tab for the Cloud Provider you need to add (such as Tencent, Google).
+3. Click the button **Add New Account**.
+  
+    #### Connect to Databases via JDBC (Applicable for multi-cloud or IDC, manually add databases)
+    1. Fill in the account ID
+    2. Select regions
+    3. Click the button **Add This Account**
