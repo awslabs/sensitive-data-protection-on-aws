@@ -35,7 +35,7 @@ import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import Navigation from 'pages/left-menu/Navigation';
 import RightModal from 'pages/right-modal';
 import AddCustomIdentfier from './componments/AddCustomIdentfier';
-import { TABLE_NAME } from 'enum/common_types';
+import { CACHE_CONDITION_KEY, TABLE_NAME } from 'enum/common_types';
 import { useNavigate } from 'react-router-dom';
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
@@ -471,6 +471,10 @@ const DataTemplate: React.FC = () => {
       href: RouterEnum.Datatemplate.path,
     },
   ];
+  useEffect(() => {
+    sessionStorage[CACHE_CONDITION_KEY] = ''
+  }, []);
+
 
   return (
     <AppLayout

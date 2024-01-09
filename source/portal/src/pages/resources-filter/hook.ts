@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { getPropertyValues } from 'apis/query/api';
 import { PRIVARY_TYPE_INT_DATA } from 'pages/common-badge/types/badge_type';
-import { TABLE_NAME } from 'enum/common_types';
+import { CACHE_CONDITION_KEY, TABLE_NAME } from 'enum/common_types';
 import { COLUMN_OBJECT_STR } from 'pages/data-catalog/types/data_config';
 
 const asyncFetchFilteringOptions = async (params: {
@@ -17,6 +17,7 @@ const asyncFetchFilteringOptions = async (params: {
   const responseRes: any = await getPropertyValues({
     table: params.table,
     column: params.filteringPropertyKey,
+    condition: sessionStorage.getItem(CACHE_CONDITION_KEY)
   });
   if (!responseRes || responseRes.length === 0) {
     return {

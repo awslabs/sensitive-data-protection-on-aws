@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Tabs from '@cloudscape-design/components/tabs';
 import ButtonDropdown from '@cloudscape-design/components/button-dropdown';
 import CatalogList from './componments/CatalogList';
-import { TAB_LIST, getJDBCTypeByProviderId } from 'enum/common_types';
+import { CACHE_CONDITION_KEY, TAB_LIST, getJDBCTypeByProviderId } from 'enum/common_types';
 import { useSearchParams } from 'react-router-dom';
 import format from 'date-fns/format';
 import { getExportS3Url, clearS3Object } from 'apis/data-catalog/api';
@@ -122,6 +122,36 @@ const DataCatalogList: React.FC = () => {
     { text: t('breadcrumb.home'), href: RouterEnum.Home.path },
     { text: t('breadcrumb.browserCatalog'), href: RouterEnum.Catalog.path },
   ];
+
+  useEffect(()=>{
+    let condition = null;
+    console.log("activeTabId is ....."+activeTabId)
+    if(curProvider != null && curProvider.id !== 1){
+      condition ={
+        column: 'database_type',
+        condition: 'and',
+        operation: 'in',
+        values: [getJDBCTypeByProviderId(curProvider.id)]
+     }
+    } else {
+      if(activeTabId === 's3' || activeTabId === 'rds' || activeTabId === 'glue'){
+        condition ={
+           column: 'database_type',
+           condition: 'and',
+           operation: 'in',
+           values: [activeTabId]
+        }
+      } else {
+        condition ={
+          column: 'database_type',
+          condition: 'and',
+          operation: 'in',
+          values: ["jdbc_aws", "jdbc_proxy"]
+       }
+      }
+    }
+    sessionStorage[CACHE_CONDITION_KEY] = JSON.stringify(condition)
+  },[curProvider,activeTabId])
 
   return (
     <AppLayout

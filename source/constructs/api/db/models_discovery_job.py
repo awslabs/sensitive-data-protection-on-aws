@@ -8,7 +8,7 @@ class DiscoveryJob(Base):
     __tablename__ = 'discovery_job'
 
     id = sa.Column(sa.Integer(), autoincrement=True, primary_key=True)
-    name = sa.Column(sa.String(100), nullable=False)
+    name = sa.Column(sa.String(100), nullable=False, info={'searchable': True})
     state = sa.Column(sa.String(20), nullable=False)
     template_id = sa.Column(sa.Integer(), nullable=False)
     schedule = sa.Column(sa.String(100), nullable=False)

@@ -161,3 +161,5 @@ export const getSourceTypeByProvider = (providerId: string | number) => {
       return [];
   }
 };
+
+export const CACHE_CONDITION_KEY = 'search_condition';

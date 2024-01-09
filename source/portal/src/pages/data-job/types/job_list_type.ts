@@ -19,7 +19,7 @@ export const JOB_FILTER_LIST_COLUMN_LIST = [
   {
     id: 'provider',
     label: 'table.label.provider',
-    filter: true,
+    filter: false,
   },
   {
     id: 'state',

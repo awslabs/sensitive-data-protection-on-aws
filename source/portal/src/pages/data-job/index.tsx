@@ -38,6 +38,7 @@ import JobDetailModal from './componments/JobDetailModal';
 import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import Navigation from 'pages/left-menu/Navigation';
 import {
+  CACHE_CONDITION_KEY,
   TABLE_NAME,
   getProviderByProviderId,
   getSourceByJob,
@@ -464,6 +465,10 @@ const DataJob: React.FC = () => {
       href: RouterEnum.Datajob.path,
     },
   ];
+
+  useEffect(() => {
+    sessionStorage[CACHE_CONDITION_KEY] = ''
+  }, []);
 
   return (
     <AppLayout

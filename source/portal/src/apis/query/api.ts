@@ -6,7 +6,7 @@ import { apiRequest } from 'tools/apiRequest';
  * @returns
  */
 const getPropertyValues = async (
-  params: string | { table: string; column: string }
+  params: string | { table: string; column: string; condition: any }
 ) => {
   const result = await apiRequest(
     'get',
