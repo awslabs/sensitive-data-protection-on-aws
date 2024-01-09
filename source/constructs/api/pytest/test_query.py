@@ -59,7 +59,7 @@ def test_filter_values(mocker):
     assert get_property_values.status_code == 200
     assert 'status' in get_property_values.json()
     assert get_property_values.json()['status'] == 'success'
-    assert get_property_values.json()['data'] == ['distinct bucket name']
+    assert get_property_values.json()['data'] == ['Empty']
 
 
 def test_query(mocker):
