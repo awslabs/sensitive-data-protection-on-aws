@@ -27,27 +27,30 @@ nav:
     - 升级解决方案: update/update.md
     - 用户指南: 
         - 概述: user-guide/get-started.md
-        - 连接数据源:
-            - 添加AWS帐户: user-guide/data-source.md
-            - 创建数据目录: user-guide/data-catalog-create.md
-            - 删除数据目录: user-guide/data-catalog-delete.md
-        - 浏览数据目录: 
-            - 同步数据目录: user-guide/data-catalog-sync.md
-            - 导出数据目录: user-guide/data-catalog-export.md
-            - 标记数据目录: user-guide/data-catalog-labels.md
-        - 定义数据分类模板: 
-            - 数据分类模版: user-guide/data-classification-template.md
-            - 数据标识符: user-guide/data-identifiers.md
-        - 运行敏感数据发现作业: 
+        - 第1步：连接数据源:
+            - 添加云帐户: user-guide/data-source.md
+            - 连接S3: user-guide/data-catalog-create-s3.md
+            - 连接RDS: user-guide/data-catalog-create-rds.md
+            - 连接Glue: user-guide/data-catalog-create-glue.md
+            - 连接JDBC: user-guide/data-catalog-create-jdbc.md
+            - 连接JDBC(Redshift): user-guide/data-catalog-create-jdbc-redshift.md
+            - 连接JDBC(RDS Proxy): user-guide/data-catalog-create-jdbc-rds-proxy.md
+        - 第2步：定义数据分类模板: user-guide/data-identifiers.md
+        - 第3步：运行敏感数据发现任务: 
             - 创建作业: user-guide/discovery-job-create.md
             - 查看作业: user-guide/discovery-job-details.md
             - 下载作业报告: user-guide/discovery-job-report.md
             - 重新运行/复制作业: user-guide/discovery-job-rerun-and-duplicate.md
             - 暂停/重启作业: user-guide/discovery-job-pause-and-cancel.md
-    - 附录: 
-        - 内置的数据标识符: user-guide/appendix-built-in-identifiers.md
-        - CloudFormation堆栈的权限: user-guide/appendix-permissions.md
-        - 通过AWS Organization添加帐户: user-guide/appendix-organization.md
+        - 第4步：查看结果: 
+            - 总览统计: user-guide/check-result-dashboard.md
+            - 数据目录: user-guide/check-result-data-catalog.md
+            - 数据目录打标: user-guide/data-catalog-labels.md
+        - 附录：支持扫描的数据类型: user-guide/appendix-built-in-supported-datatypes.md
+        - 附录：内置的数据标识符: user-guide/appendix-built-in-identifiers.md
+        - 附录：CloudFormation堆栈的权限: user-guide/appendix-permissions.md
+        - 附录：通过AWS Organization添加帐户: user-guide/appendix-organization.md
+        - 附录：EU个人信息标识符(GDPR参考): user-guide/appendix-build-in-identifiers-eu-gdpr.md
     - 常见问题: faq.md
     - 故障排查: troubleshooting.md
     - 卸载解决方案: uninstall.md

@@ -373,7 +373,36 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
           alertMsg(result as any, 'error');
           return;
         }
-        setDataList(result);
+
+        if (!result || !Array.isArray(result)) {
+          alertMsg(result as any, 'error');
+          return;
+        }
+
+        const sampleTypes = [
+          'avro',
+          'orc',
+          'parquet',
+          'json',
+          'jsonl',
+          'bson',
+          'xml',
+          'ion',
+          'csv',
+          'tsv',
+          'zip',
+          'bz',
+          'bz2',
+          'gz',
+          'lz4',
+          'snappy',
+          'deflate',
+          'zlib',
+        ];
+        const filteredResult = result.filter((item: any) =>
+          sampleTypes.includes(item.file_type.toLowerCase())
+        );
+        setDataList(filteredResult);
       }
     };
 
@@ -519,7 +548,7 @@ const CatalogDetailList: React.FC<CatalogDetailListProps> = memo(
       const requestParam = {
         account_id: selectPageRowData.account_id,
         region: selectPageRowData.region,
-        database_type: catalogType,
+        database_type: selectPageRowData.database_type,
         database_name: selectPageRowData.database_name,
         table_name: selectRowData.table_name,
         page: currentPage,

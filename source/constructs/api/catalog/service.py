@@ -427,8 +427,8 @@ def sync_crawler_result(
                 table_name_list.append(table_name)
                 database_column_count += column_order_num
             try:
-                logger.info("batch delete glue tables" + json.dumps(delete_glue_table_names))
                 if delete_glue_table_names:
+                    logger.info("batch delete glue tables" + json.dumps(delete_glue_table_names))
                     glue_client.batch_delete_table(DatabaseName=glue_database_name,
                                                     TablesToDelete=delete_glue_table_names)
             except Exception as err:

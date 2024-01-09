@@ -1,24 +1,49 @@
-Data identifiers are rules for detecting sensitive data. First, you need to understand what type of data is defined as sensitive in your company, and the identification rules for this sensitive data. Only sensitive data that can be defined using regular expressions or AI can be identified through technical means (such as through this SDP solution).
+# Step 2: Define Classification and Grading Templates
 
-Once you have defined these data rules (data identifiers), you also need to add them to the [data classification template](data-classification-template.md). The sensitive data scanning task will match the data in the data source with the rules in the template one by one, and then label the data catalogs with data identifiers.
+## Concept
+- Data identifiers are specific rules for detecting certain sensitive data, such as identifiers for ID cards, email addresses, names, etc.
+- A template is a collection of data identifiers. Templates will be used in sensitive data discovery jobs.
 
-## Built-in data identifiers
-The solution provides built-in data identifiers, which are primarily based on privacy data rules classified by country. In the **Manage data identifier** page, in the **Built-in data identifiers** tab, you can see a list of built-in data identifiers. For a full list, please see [Appendix - Built-in data identifiers](appendix-built-in-identifiers.md).
+!!! Info "Best Practices"
+    You need to understand what kind of data is defined as sensitive in your company and the identification rules for these sensitive data. Only those sensitive data that can be defined by regular expressions or AI can be identified by technical means (e.g., using the SDP solution). After defining data identifiers, you need to add them to a template. When running a sensitive data scanning task, it will match the data in the data source against the rules in the template and mark them in the data catalog.
 
-You can you can click the ![edit-icon](docs/../../images/edit-icon.png) to create/edit the properties **Category** and **Identifier label** for these data identifiers. By default, these data identifiers has **Category** property as `PERSONAL` and **Identifier label** property as `S2`/`S3`/`S4`. You can update these properties based on your own definition for sensitive data. 
+## View and Edit Built-in Data Identifiers
 
-## Custom Data Identifiers
+The solution provides built-in data identifiers, which are mainly based on national privacy data rules.
 
-On the **Manage Data Identifier** page, under the **Custom Data Identifiers** tab, you can see a list of custom data identifiers that you have defined. The list is empty by default. You can create or remove a data identifier based on your definition of sensitive business data.
+On the **Manage Data Identification Rules** page, in the **Built-in Data Identifiers** tab, you can see a list of built-in data identifiers. For the complete list, please refer to [Appendix - Built-in Data Identifiers](appendix-built-in-identifiers.md).
 
-You can you can click the ![edit-icon](docs/../../images/edit-icon.png) to edit the properties **Category** and **Identifier label** for these data identifiers based on your own definition for sensitive data. For example, you can define category as `FINANCE`/`AUTO`/`GENERAL` and define data sensitivity level as `Level1`/`Level2`/`Level3`/`Level4`.
+You can click ![edit-icon](docs/../../images/edit-icon.png) to edit and adjust the data grading classification. By default, these data identifiers have a `PERSONAL` category attribute and `S2`/`S3`/`S4` identifier label attributes. You can update these attributes according to your sensitive data.
 
-### Create and edit
+![edit-icon](docs/../../images/cn-identifier-list.png) 
 
-To create a new data identifier, select **Create Data Identifier** or to edit a identifier, click into the identifier name.  You will be redirected to the **Data identifier detail** page. 
+## Create and Edit Custom Data Identifiers
+On the **Manage Data Identification Rules** page, in the **Custom Data Identifiers** tab, you can see your defined list of custom data identifiers. By default, this list is empty. You can create or delete data identifiers based on business-sensitive data.
 
-- When defining identification rules, if you enable both the Regex rule and Keywords rule, a data field must meet both the Regex pattern and match (fully or partially) one of the keywords to be labeled.
-- You can create/edit the properties **Category** and **Identifier label** in this page.
+You can click ![edit-icon](docs/../../images/edit-icon.png) to edit and adjust the data grading classification. For example, you can define the category as `FINANCE`/`AUTO`/`GENERAL`, and set the data sensitivity level to `Level1`/`Level2`/`Level3`/`Level4`.
+
+To create a new data identifier, select **Create Text-based Data Identifier**.
+![edit-icon](docs/../../images/cn-custom-identifier-create.png)
+
+On the data identifier creation page, you can define rules for sensitive data scanning, as detailed in the following table.
+![edit-icon](docs/../../images/cn-custom-identifier.png) 
+
+| Parameter                    | Required | Description                                                                                                   |
+|------------------------------|----------|---------------------------------------------------------------------------------------------------------------|
+| **Name**                     | Yes      | The name of the data identifier, used for automatic marking when sensitive data is scanned.                   |
+| **Description**              | Optional | Additional explanation of the identifier, helpful for understanding its use and context.                      |
+| **Identification Rules**     | Yes      | Defines the rules for identifying data, which can be based on column name keywords, regular expressions, or a combination of both. |
+| **Identifier Attributes**    | Optional | Allows for classification and grading of identifiers, e.g., by industry (Finance, Game, Personal, etc.) or security level (S1, S2, S3, etc.). |
+| **Advanced Rules: Exclude Keywords** | Optional | Defines column name keywords that should not be marked as sensitive data.                                    |
+| **Advanced Rules: Unstructured Data** | Optional | Applicable for specific security levels (like S3), includes settings for the frequency of rule occurrence and the number of characters between keywords and regular expressions. |
+
+## Add Data Identifiers to Template
+
+1. In the left menu, select **Define Classification Template**.
+2. Choose **Add Data Identifier**. You will see a sidebar displaying all data identifiers.
+3. Select one or more data identifiers and choose **Add to Template**.
+![edit-icon](docs/../../images/cn-identifier-to-template.png) 
+
 
 
 ## Example: how data identifiers are labeled in data catalog after sensitive data discovery job.
