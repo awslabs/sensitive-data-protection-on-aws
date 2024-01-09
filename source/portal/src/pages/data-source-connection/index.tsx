@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   AppLayout,
   Button,
@@ -8,7 +8,7 @@ import {
   SpaceBetween,
   Tabs,
 } from '@cloudscape-design/components';
-import { TAB_LIST } from 'enum/common_types';
+import { CACHE_CONDITION_KEY, TAB_LIST } from 'enum/common_types';
 import DataSourceList from './componments/DataSourceList';
 import './style.scss';
 import DataSourceInfo from './componments/DataSourceInfo';
@@ -111,6 +111,15 @@ const DataSourceConnectionContent: React.FC = () => {
     },
   } = location.state || {};
 
+useEffect(() => {
+  sessionStorage[CACHE_CONDITION_KEY] = JSON.stringify({
+    column: "account_id",
+    condition: "and",
+    operation: "in",
+    values: [accountData.account_id]
+  })
+}, []);
+
   return (
     <SpaceBetween direction="vertical" size="xl" className="connect-container">
       <div>
@@ -134,6 +143,8 @@ const DataSourceConnection: React.FC = () => {
       href: RouterEnum.DataSourceConnection.path,
     },
   ];
+
+
   return (
     <AppLayout
       toolsHide

@@ -53,6 +53,7 @@ def test_filter_values(mocker):
                                      params={
                                          'table': 'source_s3_bucket',
                                          'column': 'bucket_name',
+                                         'condition': '{"column":"account_id","condition":"and","operation":"in","values":["640463273335"]}'
                                      }
                                      )
     assert get_property_values.status_code == 200
