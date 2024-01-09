@@ -1,4 +1,5 @@
 from enum import Enum
+import json
 from typing import Optional
 
 from fastapi import APIRouter
@@ -73,24 +74,19 @@ class Query(BaseModel):
 
 @router.get("/property_values", response_model=BaseResponse)
 @inject_session
-def filter_values(table: str, column: str):
+def filter_values(table: str, column: str, condition: str):
+    cond = json.loads(condition) if condition else None
     for searchable_class in searchable:
         if searchable_class.__tablename__ == table:
-            distinct = crud.get_filter_values(searchable_class, column)
+            distinct = crud.get_filter_values(searchable_class, column, cond)
             break
-    # for table_meta in searchable_table['tables']:
-    #     if table_meta['name'] == table_name:
-    #         model_name = table_meta['model']
-    #         break;
     values = []
-    # distinct = crud.get_filter_values(model_name, property)
     for value in distinct:
-        if value[column] is not None:
-            values.append(value[column])
+        if isinstance(value, tuple) and value and value[0]:
+            values.append(value[0])
         else:
             values.append('Empty')
     return values
-
 
 @router.post("/", response_model=BaseResponse)
 @inject_session

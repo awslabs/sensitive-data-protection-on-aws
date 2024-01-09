@@ -1,15 +1,21 @@
+from sqlalchemy import or_
 from db.database import get_session
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
+# from db.database import get_session
 
-from db.database import get_session
-
-
-def get_filter_values(searchable, column_name: str):
+def get_filter_values(searchable, column_name: str, condition):
+    in_conditions = []
     if column_name is not None:
         # module = locate(f"db.{model_name}")
         column = getattr(searchable, column_name)
-        return get_session().query(column).distinct(column).all()
+        if condition:
+            values = condition.get('values')
+            for item in values:
+                in_conditions.append(getattr(searchable, condition.get('column')) == item)
+            return get_session().query(column).filter(or_(*in_conditions)).distinct(column).all()
+        else:
+            return get_session().query(column).distinct(column).all()
     return []
 
 

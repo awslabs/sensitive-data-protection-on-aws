@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import HelpInfo from 'common/HelpInfo';
 import { buildDocLink } from 'ts/common';
 import ProviderTab, { ProviderType } from 'common/ProviderTab';
+import { CACHE_CONDITION_KEY } from 'enum/common_types';
 
 const AccountManagementHeader: React.FC = () => {
   const { t } = useTranslation();
@@ -50,9 +51,16 @@ const AccountManagementContent: React.FC = () => {
   const [loadingAccounts, setLoadingAccounts] = useState(true);
 
   useEffect(() => {
+    
     if (currentProvider) {
       getSourceCoverageData(currentProvider.id);
     }
+    sessionStorage[CACHE_CONDITION_KEY] = JSON.stringify({
+      column: "account_provider_id",
+      condition: "and",
+      operation: "in",
+      values: (currentProvider == null || currentProvider.id === 1)?[1, 4]:[currentProvider.id]
+    })
   }, [currentProvider]);
 
   const getSourceCoverageData = async (providerId: number | string) => {

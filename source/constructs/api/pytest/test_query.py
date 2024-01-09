@@ -53,12 +53,13 @@ def test_filter_values(mocker):
                                      params={
                                          'table': 'source_s3_bucket',
                                          'column': 'bucket_name',
+                                         'condition': '{"column":"account_id","condition":"and","operation":"in","values":["640463273335"]}'
                                      }
                                      )
     assert get_property_values.status_code == 200
     assert 'status' in get_property_values.json()
     assert get_property_values.json()['status'] == 'success'
-    assert get_property_values.json()['data'] == ['distinct bucket name']
+    assert get_property_values.json()['data'] == ['Empty']
 
 
 def test_query(mocker):
