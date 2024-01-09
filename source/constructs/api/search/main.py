@@ -82,12 +82,11 @@ def filter_values(table: str, column: str, condition: str):
             break
     values = []
     for value in distinct:
-        if value[0] is not None:
+        if len(value) > 0 and value[0] is not None:
             values.append(value[0])
         else:
             values.append('Empty')
     return values
-
 
 @router.post("/", response_model=BaseResponse)
 @inject_session
