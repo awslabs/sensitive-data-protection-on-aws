@@ -107,7 +107,6 @@
 | 卢森堡 |       LUXEMBOURG_PASSPORT_NUMBER       |          护照号码（卢森堡特有）          |
 | 卢森堡 |     LUXEMBOURG_TAX_IDENTIFICATION_NUMBER      |         税务识别号码（卢森堡特有）         |
 | 卢森堡 |         LUXEMBOURG_VALUE_ADDED_TAX         |            增值税（卢森堡特有）            |
-| 马其顿 | MONTENEGRO_UNIQUE_MASTER_CITIZEN_NUMBER |        唯一公民号码（马其顿特有）        |
 |  黑山共和国   | MONTENEGRO_UNIQUE_MASTER_CITIZEN_NUMBER | 唯一公民号码（黑山特有） |
 | 荷兰         | NETHERLANDS_BANK_ACCOUNT                 | 荷兰特有的银行账号                                       |
 | 荷兰         | NETHERLANDS_CITIZEN_SERVICE_NUMBER       | 荷兰公民号码（BSN，burgerservicenummer）                  |
@@ -148,12 +147,15 @@
 | 斯洛文尼亚 | SLOVENIA_TAX_IDENTIFICATION_NUMBER      | 税务识别号码（斯洛文尼亚特有）                 |
 | 斯洛文尼亚 | SLOVENIA_UNIQUE_MASTER_CITIZEN_NUMBER   | 斯洛文尼亚公民唯一主身份证号码（JMBG）         |
 | 斯洛文尼亚 | SLOVENIA_VALUE_ADDED_TAX                | 增值税（斯洛文尼亚特有）                      |
+| 西班牙   | SPAIN_VALUE_ADDED_TAX                               | 增值税（西班牙）证                                  |
+| 西班牙   | SPAIN_SSN                               | 社会保障号码（西班牙特有）                      |
 | 西班牙   | SPAIN_DNI                               | 西班牙国民身份证                                  |
+| 西班牙   | SPAIN_NIF                               | 西班牙纳税人识别号                                  |
+| 西班牙   | SPAIN_NIE                               | 西班牙外国人身份好（居留号）                                |
 | 西班牙   | SPAIN_DRIVING_LICENSE                   | 驾驶执照号码（西班牙特有）                      |
 | 西班牙   | SPAIN_PASSPORT_NUMBER                   | 护照号码（西班牙特有）                          |
-| 西班牙   | SPAIN_SSN                               | 社会保障号码（西班牙特有）                      |
-|西班牙   | SPAIN_TAX_IDENTIFICATION_NUMBER         | 税务识别号码（西班牙特有）                      |
 | 西班牙   | SPAIN_VALUE_ADDED_TAX                   | 增值税（西班牙特有）                            |
+| 西班牙   | SPAIN_BANK_ACCOUNT                   | 西班牙银行卡号                            |
 | 瑞典     | SWEDEN_DRIVING_LICENSE                  | 驾驶执照号码（瑞典特有）                        |
 | 瑞典     | SWEDEN_PASSPORT_NUMBER                   | 护照号码（瑞典特有）                            |
 | 瑞典     | SWEDEN_PERSONAL_IDENTIFICATION_NUMBER    | 国民身份证明号码（瑞典特有）                    |

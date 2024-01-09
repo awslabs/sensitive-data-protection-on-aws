@@ -38,9 +38,10 @@
 ## 支持的非结构化数据（仅限S3数据源）
 | 文件种类  | 文件后缀                                                  |
 |-----------|-------------------------------------------------------------|
-| Document  | ".doc", ".docx", ".pdf"                                     |
+| Document  | ".docx", ".pdf"                                     |
 | Webpage   | ".htm", ".html"                                             |
 | Email     | ".eml"                                                      |
 | Code      | ".java", ".py", ".cpp", ".c", ".h", ".html", ".css", ".js", ".php", ".rb", ".swift", ".go", ".sql" |
 | Text      | ".txt", ".md", ".log"                                       |
 | Image     | “.jpg”, “.jpeg”, “.png”, “.gif”, “.bmp”, “.tiff”, “.tif” - (ID cards/Business licenses/Driver's licenses/Faces) |
+| Special file extensions      | 可以检测特殊文件格式。您可以在任务的高级配置中定义您需要检测的文件后缀                                       |

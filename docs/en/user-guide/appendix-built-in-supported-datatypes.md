@@ -38,7 +38,7 @@ Note: The solution uses AWS Glue to crawl these data into data catalogs. For spe
 ## ## Unstructured data scanning (S3 only)
 | File Type | Extensions                                                  |
 |-----------|-------------------------------------------------------------|
-| Document  | ".doc", ".docx", ".pdf"                                     |
+| Document  | ".docx", ".pdf"                                     |
 | Webpage   | ".htm", ".html"                                             |
 | Email     | ".eml"                                                      |
 | Code      | ".java", ".py", ".cpp", ".c", ".h", ".html", ".css", ".js", ".php", ".rb", ".swift", ".go", ".sql" |

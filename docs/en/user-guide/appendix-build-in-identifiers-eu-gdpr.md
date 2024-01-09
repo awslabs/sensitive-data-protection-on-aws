@@ -108,7 +108,6 @@ Having a continuous data categorization process is essential for adjusting secur
 | Luxembourg  | LUXEMBOURG_PASSPORT_NUMBER               | Luxembourgish Passport Number                           |
 | Luxembourg  | LUXEMBOURG_TAX_IDENTIFICATION_NUMBER     | Luxembourgish Tax Identification Number                 |
 | Luxembourg  | LUXEMBOURG_VALUE_ADDED_TAX               | Luxembourgish Value Added Tax                           |
-| Macedonia   | MONTENEGRO_UNIQUE_MASTER_CITIZEN_NUMBER  | Macedonian Unique Master Citizen Number                 |
 | Montenegro  | MONTENEGRO_UNIQUE_MASTER_CITIZEN_NUMBER  | Montenegrin Unique Master Citizen Number                |
 | Netherlands | NETHERLANDS_BANK_ACCOUNT                 | Dutch Bank Account Number                               |
 | Netherlands | NETHERLANDS_CITIZEN_SERVICE_NUMBER       | Dutch Citizen Service Number (BSN)                      |
@@ -153,8 +152,10 @@ Having a continuous data categorization process is essential for adjusting secur
 | Spain       | SPAIN_DRIVING_LICENSE                    | Spanish Driving License Number                          |
 | Spain       | SPAIN_PASSPORT_NUMBER                    | Spanish Passport Number                                 |
 | Spain       | SPAIN_SSN                                | Spanish Social Security Number                          |
-| Spain       | SPAIN_TAX_IDENTIFICATION_NUMBER          | Spanish Tax Identification Number                       |
+| Spain       | SPAIN_BANK_ACCOUNT          | Spanish bank account                       |
 | Spain       | SPAIN_VALUE_ADDED_TAX                    | Spanish Value Added Tax                                 |
+| Spain       | SPAIN_NIE                    | Spanish foreigner ID (Número de Identificación del Extranjero)                                 |
+| Spain       | SPAIN_NIF                    | Spanish local tax number (Número de Identificación Fiscal)                                 |
 | Sweden      | SWEDEN_DRIVING_LICENSE                   | Swedish Driving License Number                          |
 | Sweden      | SWEDEN_PASSPORT_NUMBER                   | Swedish Passport Number                                 |
 | Sweden        | SWEDEN_PERSONAL_IDENTIFICATION_NUMBER    | Swedish Personal Identification Number     |
