@@ -75,20 +75,12 @@ class Query(BaseModel):
 @router.get("/property_values", response_model=BaseResponse)
 @inject_session
 def filter_values(table: str, column: str, condition: str):
-    print("+++++++++++")
-    print(condition)
     cond = json.loads(condition) if condition else None
     for searchable_class in searchable:
         if searchable_class.__tablename__ == table:
             distinct = crud.get_filter_values(searchable_class, column, cond)
             break
-    # for table_meta in searchable_table['tables']:
-    #     if table_meta['name'] == table_name:
-    #         model_name = table_meta['model']
-    #         break;
     values = []
-    print(f"distinct is ........ {distinct}")
-    # distinct = crud.get_filter_values(model_name, property)
     for value in distinct:
         if value[0] is not None:
             values.append(value[0])
