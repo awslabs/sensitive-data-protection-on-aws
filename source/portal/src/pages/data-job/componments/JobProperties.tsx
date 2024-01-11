@@ -116,25 +116,17 @@ const JobProperties: React.FC<any> = memo((props: any) => {
           columnList.map((item) => {
             return {
               id: item.id,
-              // label:"hhhh",
-              // id:'www',
               header: t(item.label),
               cell: (e: any) => {
                 if (e['property'] === 'schedule' && item.id === 'value') {
                   return getCronData(e[item.id]);
                 }
-                // console.log("start -------------:   "+(e as any)[item.id])
                 const property = (e as any)[item.id];
                 const foundItem = PROPERTY_LIST.find(item => item.id === property)
                 if (foundItem!== undefined){
                   console.log("label is:   "+t(foundItem.label))
                 }
                 return foundItem ? t(foundItem.label):(e as any)[item.id]
-                // if((e as any)[item.id]==='name'){
-                //   return '名';
-                // }
-                // return <>{(e as any)[item.id]}</>;
-                // return 'hsdfa'
               },
             };
           }) as any
