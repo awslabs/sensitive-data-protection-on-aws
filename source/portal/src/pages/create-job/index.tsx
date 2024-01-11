@@ -24,7 +24,7 @@ import {
   IJobType,
   INIT_JOB_DATA,
 } from 'pages/data-job/types/job_list_type';
-import { SOURCE_TYPE } from 'enum/common_types';
+import { CACHE_CONDITION_KEY, SOURCE_TYPE } from 'enum/common_types';
 import { createJob, startJob } from 'apis/data-job/api';
 import { SUB_WEEK_CONFIG, alertMsg } from 'tools/tools';
 import {
@@ -371,6 +371,12 @@ const CreateJobContent = () => {
                   });
                 }}
                 changeDataSource={(sId) => {
+                  sessionStorage[CACHE_CONDITION_KEY]=JSON.stringify({
+                    column: 'database_type',
+                    condition: "and",
+                    operation: "in",
+                    values: [sId]
+                  });
                   setJobData((prev) => {
                     return {
                       ...prev,

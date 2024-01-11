@@ -1393,9 +1393,9 @@ def get_data_source_coverage(provider_id):
             glue_total=crud.get_total_glue_database_count(),
             glue_connected=crud.get_connected_glue_database_count(),
             jdbc_total=crud.get_total_jdbc_instances_count(provider_id) + crud.get_total_jdbc_instances_count(
-                Provider.JDBC_PROXY),
+                Provider.JDBC_PROXY.value),
             jdbc_connected=crud.get_connected_jdbc_instances_count(
-                provider_id) + crud.get_connected_jdbc_instances_count(Provider.JDBC_PROXY)
+                provider_id) + crud.get_connected_jdbc_instances_count(Provider.JDBC_PROXY.value)
         )
     else:
         res = SourceCoverage(
