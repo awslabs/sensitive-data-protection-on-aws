@@ -55,6 +55,11 @@ stackSuppressions(
       onlyPrivateSubnets: true,
       useCognito: true,
     }),
+    new AdminStack(app, 'AdminWorkshop', {
+      synthesizer: synthesizer(),
+      useCognito: true,
+      initialUser: true,
+    }),
     new ITStack(app, 'IT', {
       synthesizer: synthesizer(),
     }),

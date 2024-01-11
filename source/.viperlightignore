@@ -17,6 +17,7 @@ constructs/config/job/script/job_extra_files.zip
 constructs/api/pytest/test_data_source.py
 constructs/api/pytest/test_labels.py
 constructs/api/pytest/test_query.py
+constructs/lib/common/solution-info.ts:30
 
 [python-pipoutdated]
 pip=v21.1.2
