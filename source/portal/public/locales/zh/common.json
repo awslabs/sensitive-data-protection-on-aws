@@ -252,7 +252,34 @@
       "download": "下载",
       "jdbcURL": "JDBC URL",
       "dbCount": "数据库个数",
-      "link": "目录链接"
+      "link": "目录链接",
+      "propertyValue": {
+        "jobName" : "任务名",
+        "templateId" : "模版ID",
+        "schedule": "调度方式",
+        "description": "描述",
+        "range": "范围",
+        "depthStructured": "结构化数据扫描深度",
+        "depthUnstructured": "非结构化数据扫描深度",
+        "detectionThreshold": "检测阈值",
+        "allS3": "所有 S3",
+        "allRDS": "所有 RDS",
+        "allDDB": "所有 DDB",
+        "allEMR": "所有 EMR",
+        "allGlue": "所有 Glue",
+        "allJDBC": "所有 JDBC",
+        "overwrite": "覆盖",
+        "excludeKeywords": "排除关键词",
+        "includeKeywords": "包含关键词",
+        "excludeFileExtensions": "排除文件类型",
+        "includeFileExtensions": "包含文件类型",
+        "providerId": "供应商 ID",
+        "databaseType": "数据源类型",
+        "id": "任务ID",
+        "state": "任务状态",
+        "lastStartTime": "最后开始于",
+        "lastEndTime": "最后结束于"
+      }
     }
   },
   "tab": {

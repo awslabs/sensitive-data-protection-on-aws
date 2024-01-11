@@ -15,6 +15,34 @@ const PROPERTY_COLUMN_LIST = [
   { id: 'value', label: 'table.label.value' },
 ];
 
+const PROPERTY_LIST = [
+  { id: 'name', label: 'table.label.propertyValue.jobName' },
+  { id: 'template_id', label: 'table.label.value' },
+  { id: 'schedule', label: 'table.label.propertyValue.schedule' },
+  { id: 'description', label: 'table.label.propertyValue.description' },
+  { id: 'range', label: 'table.label.propertyValue.range' },
+  { id: 'depth_structured', label: 'table.label.propertyValue.depthStructured' },
+  { id: 'depth_unstructured', label: 'table.label.propertyValue.depthUnstructured' },
+  { id: 'detection_threshold', label: 'table.label.propertyValue.detectionThreshold' },
+  { id: 'all_s3', label: 'table.label.propertyValue.allS3' },
+  { id: 'all_rds', label: 'table.label.propertyValue.allRDS' },
+  { id: 'all_ddb', label: 'table.label.propertyValue.allDDB' },
+  { id: 'all_emr', label: 'table.label.propertyValue.allEMR' },
+  { id: 'all_glue', label: 'table.label.propertyValue.allGlue' },
+  { id: 'all_jdbc', label: 'table.label.propertyValue.allJDBC' },
+  { id: 'overwrite', label: 'table.label.propertyValue.overwrite' },
+  { id: 'exclude_keywords', label: 'table.label.propertyValue.excludeKeywords' },
+  { id: 'include_keywords', label: 'table.label.propertyValue.includeKeywords' },
+  { id: 'exclude_file_extensions', label: 'table.label.propertyValue.excludeFileExtensions' },
+  { id: 'include_file_extensions', label: 'table.label.propertyValue.includeFileExtensions' },
+  { id: 'provider_id', label: 'table.label.propertyValue.providerId' },
+  { id: 'database_type', label: 'table.label.propertyValue.databaseType' },
+  { id: 'id', label: 'table.label.propertyValue.id' },
+  { id: 'state', label: 'table.label.propertyValue.state' },
+  { id: 'last_start_time', label: 'table.label.propertyValue.lastStartTime' },
+  { id: 'last_end_time', label: 'table.label.propertyValue.lastEndTime' }
+];
+
 const JobProperties: React.FC<any> = memo((props: any) => {
   const { detailRow } = props;
   const { t } = useTranslation();
@@ -88,12 +116,25 @@ const JobProperties: React.FC<any> = memo((props: any) => {
           columnList.map((item) => {
             return {
               id: item.id,
+              // label:"hhhh",
+              // id:'www',
               header: t(item.label),
               cell: (e: any) => {
                 if (e['property'] === 'schedule' && item.id === 'value') {
                   return getCronData(e[item.id]);
                 }
-                return <>{(e as any)[item.id]}</>;
+                // console.log("start -------------:   "+(e as any)[item.id])
+                const property = (e as any)[item.id];
+                const foundItem = PROPERTY_LIST.find(item => item.id === property)
+                if (foundItem!== undefined){
+                  console.log("label is:   "+t(foundItem.label))
+                }
+                return foundItem ? t(foundItem.label):(e as any)[item.id]
+                // if((e as any)[item.id]==='name'){
+                //   return '名';
+                // }
+                // return <>{(e as any)[item.id]}</>;
+                // return 'hsdfa'
               },
             };
           }) as any
