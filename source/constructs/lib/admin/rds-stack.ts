@@ -32,6 +32,7 @@ import {
   Runtime,
 } from 'aws-cdk-lib/aws-lambda';
 import {
+  CaCertificate,
   Credentials,
   DatabaseInstance,
   DatabaseInstanceEngine,
@@ -85,7 +86,7 @@ export class RdsStack extends Construct {
 
     const databaseInstance = new DatabaseInstance(this, 'DatabaseInstance', {
       engine: DatabaseInstanceEngine.mysql({
-        version: MysqlEngineVersion.VER_5_7,
+        version: MysqlEngineVersion.VER_8_0,
       }),
       instanceType: InstanceType.of(
         InstanceClass.BURSTABLE3,
@@ -104,15 +105,15 @@ export class RdsStack extends Construct {
       port: this.dbPort,
       credentials: Credentials.fromSecret(dbSecret),
       iamAuthentication: true,
-      allowMajorVersionUpgrade: false,
+      allowMajorVersionUpgrade: true,
       autoMinorVersionUpgrade: true,
       backupRetention: Duration.days(7),
       storageEncrypted: true,
       publiclyAccessible: false,
       removalPolicy: RemovalPolicy.DESTROY,
       multiAz: true,
-      // multiAz: false,
       deletionProtection: false,
+      caCertificate: CaCertificate.RDS_CA_RDS4096_G1,
     });
 
     new SecretRotation(this, 'SecretRotation', {
