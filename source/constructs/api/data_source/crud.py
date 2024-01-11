@@ -185,7 +185,7 @@ def list_jdbc_instance_source_without_condition(provider_id: int):
     account_ids = []
     for account in accounts:
         account_ids.append(account.account_id)
-    res = get_session().query(JDBCInstanceSource).filter(
+    res = get_session().query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == provider_id).filter(
         JDBCInstanceSource.account_id.in_(account_ids)
     )
     return res
