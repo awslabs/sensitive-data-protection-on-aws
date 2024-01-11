@@ -78,6 +78,13 @@ export interface AdminProps extends StackProps {
    * @default - false.
    */
   useCognito?: boolean;
+
+  /**
+   * Set initial password for cognito
+   *
+   * @default - false.
+   */
+  initialUser?: boolean;
 }
 
 // Admin stack
@@ -96,7 +103,9 @@ export class AdminStack extends Stack {
     // Oidc Paramter
     let oidcIssuerValue, oidcUserPoolIdValue = '', oidcClientIdValue;
     if (props?.useCognito) {
-      const cognitoStack = new CognitoStack(this, 'Cognito');
+      const cognitoStack = new CognitoStack(this, 'Cognito', {
+        initialUser: props.initialUser,
+      });
       oidcIssuerValue = cognitoStack.issuer;
       oidcUserPoolIdValue = cognitoStack.userPoolId;
       oidcClientIdValue = cognitoStack.userPoolClientId;

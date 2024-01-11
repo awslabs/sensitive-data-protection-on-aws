@@ -15,11 +15,22 @@ import {
   Aws, CfnOutput, CfnParameter, CustomResource, Duration, RemovalPolicy,
 } from 'aws-cdk-lib';
 import { UserPool, VerificationEmailStyle, AdvancedSecurityMode, UserPoolDomain, OAuthScope, CfnUserPoolUser, AccountRecovery } from 'aws-cdk-lib/aws-cognito';
+import {
+  AwsCustomResource,
+  AwsCustomResourcePolicy,
+  PhysicalResourceId,
+} from 'aws-cdk-lib/custom-resources';
 import { Construct } from 'constructs';
 import { Parameter } from '../common/parameter';
 import { SolutionInfo } from '../common/solution-info';
 
 export interface CognitoProps {
+  /**
+   * Indicate whether to use cognito
+   *
+   * @default - false.
+   */
+  initialUser?: boolean;
 }
 
 export class CognitoStack extends Construct {
@@ -27,18 +38,8 @@ export class CognitoStack extends Construct {
   public readonly userPoolId: string;
   public readonly userPoolClientId: string;
 
-  constructor(scope: Construct, id: string) {
+  constructor(scope: Construct, id: string, props: CognitoProps) {
     super(scope, id);
-    const adminEmail = new CfnParameter(scope, 'AdminEmail', {
-      type: 'String',
-      allowedPattern: '^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$',
-      description: 'Please fill in the administrator email, and the temporary password will be sent to this email.',
-    });
-    Parameter.addToParamLabels('AdminEmail', adminEmail.logicalId);
-    Parameter.addToParamGroups(
-      'Administrator',
-      adminEmail.logicalId,
-    );
 
     const userPool = new UserPool(this, 'UserPool', {
       selfSignUpEnabled: false,
@@ -83,23 +84,76 @@ export class CognitoStack extends Construct {
       },
     });
 
-    // Add AdminUser
-    const email = adminEmail.valueAsString;
-    new CfnUserPoolUser(this, 'AdminUser', {
-      userPoolId: userPool.userPoolId,
-      username: email,
-      userAttributes: [
+    if (props.initialUser) {
+      // Create initial user
+      new CfnUserPoolUser(this, 'DefaultUser', {
+        userPoolId: userPool.userPoolId,
+        username: SolutionInfo.INITIAL_USER,
+        desiredDeliveryMediums: ['EMAIL'],
+        userAttributes: [
+          {
+            name: 'email',
+            value: SolutionInfo.INITIAL_USER,
+          },
+          {
+            name: 'email_verified',
+            value: 'true',
+          },
+        ],
+        forceAliasCreation: false,
+        messageAction: 'SUPPRESS',
+      });
+      new AwsCustomResource(
+        this,
+        'AwsCustomResource-ForcePassword',
         {
-          name: 'email',
-          value: email,
+          onCreate: {
+            service: 'CognitoIdentityServiceProvider',
+            action: 'adminSetUserPassword',
+            parameters: {
+              UserPoolId: userPool.userPoolId,
+              Username: SolutionInfo.INITIAL_USER,
+              Password: SolutionInfo.INITIAL_PASSWORD,
+              Permanent: true,
+            },
+            physicalResourceId: PhysicalResourceId.of(
+              `AwsCustomResource-ForcePassword-${SolutionInfo.INITIAL_USER}`,
+            ),
+          },
+          policy: AwsCustomResourcePolicy.fromSdkCalls({
+            resources: AwsCustomResourcePolicy.ANY_RESOURCE,
+          }),
+          installLatestAwsSdk: true,
         },
-        {
-          name: 'email_verified',
-          value: 'true',
-        },
-      ],
-    });
-
+      );
+    } else {
+      const adminEmail = new CfnParameter(scope, 'AdminEmail', {
+        type: 'String',
+        allowedPattern: '^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$',
+        description: 'Please fill in the administrator email, and the temporary password will be sent to this email.',
+      });
+      Parameter.addToParamLabels('AdminEmail', adminEmail.logicalId);
+      Parameter.addToParamGroups(
+        'Administrator',
+        adminEmail.logicalId,
+      );
+      // Add AdminUser
+      const email = adminEmail.valueAsString;
+      new CfnUserPoolUser(this, 'AdminUser', {
+        userPoolId: userPool.userPoolId,
+        username: email,
+        userAttributes: [
+          {
+            name: 'email',
+            value: email,
+          },
+          {
+            name: 'email_verified',
+            value: 'true',
+          },
+        ],
+      });
+    }
     this.issuer = `https://cognito-idp.${Aws.REGION}.amazonaws.com/${userPool.userPoolId}`;
     this.userPoolId = userPool.userPoolId;
     this.userPoolClientId = userPoolClient.userPoolClientId;
