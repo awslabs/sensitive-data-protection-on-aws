@@ -252,7 +252,34 @@
       "download": "Download",
       "jdbcURL": "JDBC URL",
       "dbCount": "Database count",
-      "link": "Catalog Link"
+      "link": "Catalog Link",
+      "propertyValue": {
+        "jobName" : "Job name",
+        "templateId" : "Template ID",
+        "schedule": "Schedule",
+        "description": "Description",
+        "range": "Range",
+        "depthStructured": "Depth of structured data",
+        "depthUnstructured": "Depth of unstructured data",
+        "detectionThreshold": "Detection threshold",
+        "allS3": "All S3",
+        "allRDS": "All RDS",
+        "allDDB": "All DDB",
+        "allEMR": "All EMR",
+        "allGlue": "All Glue",
+        "allJDBC": "All JDBC",
+        "overwrite": "Overwrite",
+        "excludeKeywords": "Excluded keywords",
+        "includeKeywords": "Include keywords",
+        "excludeFileExtensions": "Exclude file extensions",
+        "includeFileExtensions": "Include file extensions",
+        "providerId": "Provider ID",
+        "databaseType": "Source type",
+        "id": "Job ID",
+        "state": "Job status",
+        "lastStartTime": "Last started at",
+        "lastEndTime": "Last ended at"
+      }
     }
   },
   "tab": {
