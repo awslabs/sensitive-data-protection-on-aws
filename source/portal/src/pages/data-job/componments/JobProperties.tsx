@@ -123,9 +123,6 @@ const JobProperties: React.FC<any> = memo((props: any) => {
                 }
                 const property = (e as any)[item.id];
                 const foundItem = PROPERTY_LIST.find(item => item.id === property)
-                if (foundItem!== undefined){
-                  console.log("label is:   "+t(foundItem.label))
-                }
                 return foundItem ? t(foundItem.label):(e as any)[item.id]
               },
             };
