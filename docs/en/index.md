@@ -23,3 +23,5 @@ Use this navigation table to quickly find answers to these questions:
 | View or download the AWS CloudFormation template included in this solution to automatically deploy the infrastructure resources (the “stack”) for this solution | [AWS CloudFormation templates](deployment/template.md) |
 
 The guide is intended for IT architects, developers, DevOps, data engineers with practical experience architecting on the AWS Cloud.
+
+This is a technical solution. You will be solely responsible for your compliance with all applicable laws and regulations on data protection.
