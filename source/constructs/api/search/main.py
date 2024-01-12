@@ -82,11 +82,9 @@ def filter_values(table: str, column: str, condition: str):
             break
     values = []
     for value in distinct:
-        print(f"********** value type is {type(value)}")
-        print(f"********** value is {value}")
-        # if isinstance(value, dict):
-        #     values.append(value[0])
-        if value and value[0]:
+        if isinstance(value, dict):
+            values.append('Empty')
+        elif value and value[0]:
             values.append(value[0])
         else:
             values.append('Empty')
