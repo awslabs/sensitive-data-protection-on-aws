@@ -15,7 +15,7 @@ You can set up alarms to monitor and receive alerts about your AWS resources on 
 
 In AWS China Regions (cn-north-1 and cn-northwest-1), you can create [RDS](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/monitoring-cloudwatch.html) and [NAT Gateway](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway-cloudwatch.html) metrics in alarms. 
 
-In AWS Regions, you can enable more services metrics like [Lambda](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-metrics.html), [SQS](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-monitoring-using-cloudwatch.html), [Application Load Balancer](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-cloudwatch-metrics.html).
+In AWS Global Regions, you can enable more services metrics like [Lambda](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-metrics.html), [SQS](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-monitoring-using-cloudwatch.html), [Application Load Balancer](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-cloudwatch-metrics.html).
 
 For example, if you want to create alarms to monitor ActiveConnectionCount in NATGateway using the CloudWatch console, follow the steps below.
 

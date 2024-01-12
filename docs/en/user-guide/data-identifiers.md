@@ -9,7 +9,7 @@
 
 ## View and Edit Built-in Data Identifiers
 
-The solution provides built-in data identifiers, which are mainly based on national privacy data rules.
+The solution provides built-in data identifiers, which are mainly based on national privacy data rules and provides a reference for you to decide how to classify your data.
 
 On the **Manage Data Identification Rules** page, in the **Built-in Data Identifiers** tab, you can see a list of built-in data identifiers. For the complete list, please refer to [Appendix - Built-in Data Identifiers](appendix-built-in-identifiers.md).
 
