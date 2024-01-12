@@ -82,6 +82,7 @@ def filter_values(table: str, column: str, condition: str):
             break
     values = []
     for value in distinct:
+        print(f"********{type(value)}")
         if value and value[0]:
             values.append(value[0])
         else:
