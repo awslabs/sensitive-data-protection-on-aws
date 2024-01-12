@@ -27,4 +27,6 @@ export class SolutionInfo {
   static TAG_NAME = 'Name';
   static TAG_KEY = 'Owner';
   static TAG_VALUE = SolutionInfo.SOLUTION_NAME;
+  static INITIAL_USER = 'sdps-admin@amazon.com';
+  static INITIAL_PASSWORD = 'Secret123456!';
 }
