@@ -13,9 +13,9 @@ AWS身份和访问管理(IAM)角色允许客户将细粒度的访问策略和权
     
     使用[CloudWatch alarms](https://aws.amazon.com/cloudwatch/pricing/)可能会产生额外费用。
 
-在AWS中国区域（cn-north-1和cn-northwest-1）中，您可以在警报中创建[RDS](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/monitoring-cloudwatch.html)和[NAT网关](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway-cloudwatch.html)的指标。
+在亚马逊云科技中国区域中（cn-north-1和cn-northwest-1），您可以在警报中创建[RDS](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/monitoring-cloudwatch.html)和[NAT网关](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway-cloudwatch.html)的指标。
 
-在AWS区域中，您可以启用更多服务的指标，例如[Lambda](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-metrics.html)、[SQS](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-monitoring-using-cloudwatch.html)和[应用程序负载均衡器](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-cloudwatch-metrics.html)。
+在亚马逊云科技海外区域中，您可以启用更多服务的指标，例如[Lambda](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-metrics.html)、[SQS](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-monitoring-using-cloudwatch.html)和[应用程序负载均衡器](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-cloudwatch-metrics.html)。
 
 例如，如果您想要创建警报以监控NAT网关中的ActiveConnectionCount，可以使用CloudWatch控制台按照以下步骤操作。
 
