@@ -288,4 +288,3 @@ create table source_s3_bucket
 
 create index detection_history_id
     on source_s3_bucket (detection_history_id);
-

@@ -866,7 +866,7 @@ def copy_properties(jdbc_instance_target: JDBCInstanceSource, jdbc_instance_orig
     jdbc_instance_target.region = jdbc_instance_origin.region
     # jdbc_instance_target.data_source_id = jdbc_instance_origin.data_source_id
     # jdbc_instance_target.detection_history_id = jdbc_instance_origin.detection_history_id
-    # jdbc_instance_target.glue_database = jdbc_instance_origin.glue_database
+    jdbc_instance_target.glue_database = jdbc_instance_origin.glue_database
     # jdbc_instance_target.glue_crawler = jdbc_instance_origin.glue_crawler
     jdbc_instance_target.glue_connection = jdbc_instance_origin.glue_connection
     # jdbc_instance_target.glue_vpc_endpoint = jdbc_instance_origin.glue_vpc_endpoint
@@ -959,3 +959,39 @@ def get_total_glue_database_count():
 def get_connected_glue_database_count():
     list = list_glue_database_source_without_condition()
     return 0 if not list else list.filter(SourceGlueDatabase.glue_state == ConnectionState.ACTIVE.value).count()
+
+def get_schema_by_snapshot(provider_id, account_id, instance, region):
+    return get_session().query(JDBCInstanceSource.jdbc_connection_schema, JDBCInstanceSource.network_subnet_id) \
+        .filter(JDBCInstanceSource.account_provider_id == provider_id) \
+        .filter(JDBCInstanceSource.account_id == account_id) \
+        .filter(JDBCInstanceSource.instance_id == instance) \
+        .filter(JDBCInstanceSource.region == region).all()
+
+def get_connection_by_instance(provider_id, account_id, instance, region):
+    return get_session().query(JDBCInstanceSource.glue_connection) \
+        .filter(JDBCInstanceSource.account_provider_id == provider_id) \
+        .filter(JDBCInstanceSource.account_id == account_id) \
+        .filter(JDBCInstanceSource.instance_id == instance) \
+        .filter(JDBCInstanceSource.region == region).all()
+
+def get_crawler_glueDB_by_instance(provider_id, account_id, instance, region):
+    return get_session().query(JDBCInstanceSource.glue_crawler, JDBCInstanceSource.glue_database, JDBCInstanceSource.glue_connection) \
+        .filter(JDBCInstanceSource.account_provider_id == provider_id) \
+        .filter(JDBCInstanceSource.account_id == account_id) \
+        .filter(JDBCInstanceSource.instance_id == instance) \
+        .filter(JDBCInstanceSource.region == region).all()
+
+def get_enable_account_list():
+    return get_session().query(Account.account_provider_id, Account.account_id, Account.region) \
+        .filter(Account.status == SourceAccountStatus.ENABLE.value).all()
+
+def update_schema_by_account(provider_id, account_id, instance, region, schema):
+    session = get_session()
+    jdbc_instance_source = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == provider_id, 
+                                                                    JDBCInstanceSource.region == region, 
+                                                                    JDBCInstanceSource.account_id == account_id,
+                                                                    JDBCInstanceSource.instance_id == instance).first()
+    if not jdbc_instance_source:
+        jdbc_instance_source.jdbc_connection_schema = schema
+    session.merge(jdbc_instance_source)
+    session.commit()

@@ -1,4 +1,6 @@
-from fastapi import APIRouter
+from io import BytesIO
+from typing import List
+from fastapi import APIRouter, File, UploadFile
 from fastapi_pagination import Page, Params
 from fastapi_pagination.ext.sqlalchemy import paginate
 
@@ -189,8 +191,6 @@ def hide_glue_database(glueDatabase: schemas.SourceDeteteGlueDatabase):
         glueDatabase.region,
         glueDatabase.name
     )
-
-
 
 @router.post("/sync-glue-database", response_model=BaseResponse)
 @inject_session
@@ -384,3 +384,13 @@ def query_connection_detail(account: schemas.JDBCInstanceSourceBase):
 @inject_session
 def list_jdbc_databases(source: schemas.JdbcSource):
     return service.list_jdbc_databases(source)
+
+@router.post("/batch-create", response_model=BaseResponse)
+@inject_session
+def batch_create(files: List[UploadFile] = File(...)):
+    return service.batch_create(files[0])
+
+# @router.post("/snapshop", response_model=BaseResponse)
+# @inject_session
+# def get_schema_by_snapshot(provider_id: int, account_id: str, instance: str, region: str):
+#     return service.get_schema_by_snapshot(provider_id, account_id, instance, region)

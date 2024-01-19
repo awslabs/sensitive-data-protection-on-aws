@@ -16,6 +16,7 @@ import {
   ButtonDropdown,
   ButtonDropdownProps,
   StatusIndicator,
+  Multiselect,
 } from '@cloudscape-design/components';
 import { DATA_TYPE_ENUM, TABLE_NAME } from 'enum/common_types';
 import {
@@ -126,6 +127,8 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
 
   const [showAddConnection, setShowAddConnection] = useState(false);
   const [showEditConnection, setShowEditConnection] = useState(false);
+  const [sgs, setSgs] = useState([] as any);
+  const [selectedSgs, setSelectedSgs] = useState([] as any);
 
   useEffect(() => {
     if (tagType === DATA_TYPE_ENUM.jdbc && !showAddConnection) {
@@ -176,6 +179,11 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         id: 'addDataSource',
         disabled: tagType !== DATA_TYPE_ENUM.jdbc,
       },
+      // {
+      //   text: t('button.addDataSourceBatch'),
+      //   id: 'addDataSourceBatch',
+      //   disabled: tagType !== DATA_TYPE_ENUM.jdbc,
+      // },
       {
         text: t('button.deleteDataSource'),
         id: 'deleteDataSource',
@@ -1115,7 +1123,19 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
           </Grid>
           <br></br>
 
-          <FormField label="Credential">
+          {/* <FormField label={t('datasource:security')}>
+            <Multiselect
+              selectedOptions={selectedSgs}
+              onChange={({ detail }) =>
+                setSelectedSgs(detail.selectedOptions)
+              }
+              options={sgs}
+              empty={t('datasource:emptySg')||''}
+              placeholder={t('datasource:chooseSg')||''}
+            /> 
+          </FormField> */}
+
+          <FormField label={t('datasource:credential')}>
             <Tiles
               onChange={({ detail }) => setCedentialType(detail.value)}
               value={cedentialType}

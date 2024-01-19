@@ -123,8 +123,10 @@ class MessageEnum(Enum):
     SOURCE_JDBC_ALREADY_IMPORTED = {1255: "JDBC connection with the same instance already be imported"}
     SOURCE_JDBC_LIST_DATABASES_NOT_SUPPORTED = {1256: "JDBC list databases not supported."}
     SOURCE_JDBC_LIST_DATABASES_FAILED = {1257: "JDBC list databases failed."}
-    SOURCE_ACCOUNT_ID_ALREADY_EXISTS = {1256: "A duplicate account with the same name already exists. Please note that account names must be unique."}
-    
+    SOURCE_ACCOUNT_ID_ALREADY_EXISTS = {1258: "A duplicate account with the same name already exists. Please note that account names must be unique."}
+    SOURCE_BATCH_CREATE_FORMAT_ERR = {1259: "Invalid file type, please provide an Excel file (.xlsx)."}
+    SOURCE_BATCH_CREATE_LIMIT_ERR = {1260: "Batch operation limit exceeded, please ensure that a maximum of 100 data sources are created at a time."}
+    SOURCE_BATCH_SHEET_NOT_FOUND = {1261: "Sheet [OriginTemplate] not found in the Excel file"}
     # label
     LABEL_EXIST_FAILED = {1611: "Cannot create duplicated label"}
 

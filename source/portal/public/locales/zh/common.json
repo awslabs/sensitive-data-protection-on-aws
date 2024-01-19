@@ -98,6 +98,7 @@
     "savexlsxSensitiveOnly": "下载 .xlsx 文件（只包含敏感数据）",
     "savecsvSensitiveOnly": "下载 .csv 文件（只包含敏感数据）",
     "addDataSource": "添加数据源",
+    "addDataSourceBatch": "批量添加数据源",
     "deleteDataSource": "删除数据源",
     "deleteDataSourceOnly": "仅删除数据目录",
     "disconnectDeleteCatalog": "断开连接并删除目录",

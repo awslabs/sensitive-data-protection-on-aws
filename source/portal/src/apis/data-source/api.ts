@@ -201,6 +201,11 @@ const queryJdbcDatabases =  async (params: any) => {
   return result;
 };
 
+const batchCreateDatasource =  async (params: any) => {
+  const result = await apiRequest('post', 'data-source/batch-create', params.files);
+  return result;
+};
+
 export {
   getDataSourceS3ByPage,
   getDataSourceRdsByPage,
@@ -237,5 +242,6 @@ export {
   connectDataSourceGlue,
   deleteGlueDatabase,
   updateConnection,
-  queryJdbcDatabases
+  queryJdbcDatabases,
+  batchCreateDatasource
 };

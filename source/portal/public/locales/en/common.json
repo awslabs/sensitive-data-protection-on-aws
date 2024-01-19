@@ -98,6 +98,7 @@
     "savexlsxSensitiveOnly": "Download .xlsx file (Sensitive data only)",
     "savecsvSensitiveOnly": "Download .csv file (Sensitive data only)",
     "addDataSource": "Add data source",
+    "addDataSourceBatch": "Batch add data source",
     "deleteDataSource": "Delete data source",
     "deleteDataSourceOnly": "Delete data catalog only",
     "disconnectDeleteCatalog": "Disconnect & Delete catalog",

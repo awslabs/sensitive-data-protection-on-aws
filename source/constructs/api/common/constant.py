@@ -96,6 +96,8 @@ const.NO = 'No'
 const.PUBLIC = 'Public'
 const.PRIVATE = 'Private'
 const.ZERO = 0
+const.BATCH_CREATE_LIMIT = 100
+const.BATCH_SHEET = "OriginTemplate"
 
 const.UNSTRUCTURED_FILES = {
     "document": ["doc", "docx", "pdf", "ppt", "pptx", "xls", "xlsx", "odp"],

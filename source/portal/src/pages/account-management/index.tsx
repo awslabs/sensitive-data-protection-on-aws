@@ -5,6 +5,7 @@ import AccountList from './componments/AccountList';
 import { getSourceCoverage } from 'apis/data-source/api';
 import {
   AppLayout,
+  Button,
   ContentLayout,
   Grid,
   Header,
@@ -20,11 +21,17 @@ import HelpInfo from 'common/HelpInfo';
 import { buildDocLink } from 'ts/common';
 import ProviderTab, { ProviderType } from 'common/ProviderTab';
 import { CACHE_CONDITION_KEY } from 'enum/common_types';
+import { useNavigate } from 'react-router-dom';
 
 const AccountManagementHeader: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate()
   return (
-    <Header variant="h1" description={t('account:connectToDataSourceDesc')}>
+    <Header
+      variant="h1"
+      description={t('account:connectToDataSourceDesc')}
+      actions={<Button onClick={()=>navigate(RouterEnum.BatchOperation.path)}>Batch Operation</Button>}
+      >
       {t('account:connectToDataSource')}
     </Header>
   );
