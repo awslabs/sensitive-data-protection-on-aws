@@ -20,7 +20,8 @@
     "manageIdentifier": "管理数据识别规则",
     "doc": "文档",
     "version": "版本",
-    "dataDiscovery": "数据发现"
+    "dataDiscovery": "数据发现",
+    "systemSettings": "系统设置"
   },
   "breadcrumb": {
     "home": "敏感数据保护解决方案",
@@ -104,7 +105,10 @@
     "disconnectDeleteCatalog": "断开连接并删除目录",
     "deleteDB": "删除数据库",
     "editDataSource": "编辑数据源",
-    "download": "下载"
+    "download": "下载",
+    "batchOperation": "批量操作",
+    "estimateIP": "评估 IP 使用情况",
+    "upload": "上传"
   },
   "label": {
     "label": "标签",
@@ -255,8 +259,8 @@
       "dbCount": "数据库个数",
       "link": "目录链接",
       "propertyValue": {
-        "jobName" : "任务名",
-        "templateId" : "模版ID",
+        "jobName": "任务名",
+        "templateId": "模版ID",
         "schedule": "调度方式",
         "description": "描述",
         "range": "范围",
@@ -424,5 +428,20 @@
   "glue": "Glue 数据目录",
   "jdbc": "自定义数据库(JDBC)",
   "structureData": "结构化数据",
-  "unstructuredData": "非结构化数据"
+  "unstructuredData": "非结构化数据",
+  "uploadSuccess": "上传成功",
+  "settings": {
+    "title": "设置",
+    "desc": "敏感数据发现作业的总体设置",
+    "rdsDataSourceDiscovery": "RDS数据源数据发现",
+    "rdsDetectedConcurrency": "敏感发现作业中同时检测到的 RDS 实例数",
+    "rdsDetectedConcurrencyDesc": "将同时扫描多少个 RDS 实例",
+    "rdsSubJobRunNumber": "1 次 RDS 扫描可使用的子作业运行次数",
+    "rdsSubJobRunNumberDesc": "1 次 RDS 扫描可运行多少次 Glue 作业",
+    "subnet": "子网 ",
+    "subnetNameDesc": "子网中剩余IP总数",
+    "currentIPLeft": "当前剩余IP",
+    "subnetDesc": "每个子网的 IP 使用量 = (RDS 实例并发数量 * (3 + 子作业并发运行数量)) / 子网数量",
+    "estimateResult": "根据上述设置，对于每个作业运行，每个子网最多将消耗 {{ipCount}} 个 IP。"
+  }
 }

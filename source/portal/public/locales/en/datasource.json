@@ -9,10 +9,10 @@
   "filterInstances": "Filter instances",
   "connectToRDSDataSource": "Connect to RDS data source",
   "rdsInstances": "RDS instances",
-  "credential":"Credential",
-  "security":"Security group",
-  "chooseSg":"Choose security groups",
-  "emptySg":"No security groups",
+  "credential": "Credential",
+  "security": "Security group",
+  "chooseSg": "Choose security groups",
+  "emptySg": "No security groups",
   "connectionTips": "The connection may takes around 20-30 seconds.",
   "connectToDataSourceForAccount": "Connect to data source for account Id: ",
   "connectToDataSourceForAccountDesc": "You can create data catalogs by connecting data source. ",
@@ -91,5 +91,18 @@
     "sg": "Security groups",
     "sgDesc": "Choose one or more security groups to allow access to the data store in your VPC subnet. Security groups are associated to the ENI attached to your subnet. You must choose at least one security group with a self-referencing inbound rule for all TCP ports.",
     "chooseSG": "Choose one or more security groups"
+  },
+  "batch": {
+    "name": "Batch Operation",
+    "nameDesc": "Operate data source in batch",
+    "tab": "Batch data source creation",
+    "step1Title": "Step 1: Download Template",
+    "step1Desc": "Follow instruction in template to fill in information",
+    "step1Download": "Download template 'BatchCreateDataSourceTemplate.xlsx'",
+    "step2Title": "Step 2: Follow the instruction to fill in the template",
+    "step2Desc": "Fill the information in the template",
+    "step2Tips1": "Making sure no duplicates",
+    "step3Title": "Step 3: Upload the template with filled information",
+    "uploadTitle": "Fill in the template and upload"
   }
 }

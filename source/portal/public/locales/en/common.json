@@ -20,7 +20,8 @@
     "manageIdentifier": "Manage data identifiers",
     "doc": "Documentation",
     "version": "Version",
-    "dataDiscovery": "Data discovery"
+    "dataDiscovery": "Data discovery",
+    "systemSettings": "System settings"
   },
   "breadcrumb": {
     "home": "Sensitive Data Protection Solution",
@@ -104,7 +105,10 @@
     "disconnectDeleteCatalog": "Disconnect & Delete catalog",
     "deleteDB": "Delete Database",
     "editDataSource": "Edit data source",
-    "download": "Download"
+    "download": "Download",
+    "batchOperation": "Batch Operation",
+    "estimateIP": "Estimate IP usage",
+    "upload": "Upload"
   },
   "label": {
     "label": "Custom label",
@@ -255,8 +259,8 @@
       "dbCount": "Database count",
       "link": "Catalog Link",
       "propertyValue": {
-        "jobName" : "Job name",
-        "templateId" : "Template ID",
+        "jobName": "Job name",
+        "templateId": "Template ID",
         "schedule": "Schedule",
         "description": "Description",
         "range": "Range",
@@ -424,5 +428,20 @@
   "glue": "Glue data catalogs",
   "jdbc": "Custom database (JDBC)",
   "structureData": "Structured data",
-  "unstructuredData": "Unstructured data"
+  "unstructuredData": "Unstructured data",
+  "uploadSuccess": "Upload Success",
+  "settings": {
+    "title": "Settings",
+    "desc": "Overall settings for sensitive data discovery jobs",
+    "rdsDataSourceDiscovery": "RDS Data Source Data Discovery",
+    "rdsDetectedConcurrency": "Number of RDS instance detected concurrently in sensitive discovery job",
+    "rdsDetectedConcurrencyDesc": "How many RDS instances will scanned concurrently",
+    "rdsSubJobRunNumber": "Number of sub-job runs can be used for 1 RDS scan",
+    "rdsSubJobRunNumberDesc": "How many Glue job runs can be used for 1 RDS scan",
+    "subnet": "Subnet ",
+    "subnetNameDesc": "Total number of left IPs in subnet",
+    "currentIPLeft": "Current IP left",
+    "subnetDesc": "IP usage per subnet = (Concurrent number of RDS Instance * (3 + Concurrent number of sub-job runs)) / Count of subnets",
+    "estimateResult": "Based on the above settings, for each job run it will consume {{ipCount}} IPs maximum per subnet."
+  }
 }

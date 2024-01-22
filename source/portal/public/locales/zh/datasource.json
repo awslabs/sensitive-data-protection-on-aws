@@ -9,10 +9,10 @@
   "filterInstances": "筛选实例",
   "connectToRDSDataSource": "连接到 RDS 数据源",
   "rdsInstances": "RDS 实例",
-  "credential":"认证方式",
-  "security":"安全组",
-  "chooseSg":"选择安全组",
-  "emptySg":"没有相关信息",
+  "credential": "认证方式",
+  "security": "安全组",
+  "chooseSg": "选择安全组",
+  "emptySg": "没有相关信息",
   "connectionTips": "连接可能需要大约 20-30 秒。",
   "connectToDataSourceForAccount": "连接到账户 ID 的数据源： ",
   "connectToDataSourceForAccountDesc": "您可以通过连接数据源来创建数据目录。 ",
@@ -91,5 +91,18 @@
     "sg": "安全组",
     "sgDesc": "选择一个或多个安全组以允许访问在你的 VPC 子网中的数据存储。安全组与你的子网关联的ENI相关联。你必须选择至少一个对所有 TCP 端口有自我引用入站规则的安全组。",
     "chooseSG": "选择一个或多个安全组"
+  },
+  "batch": {
+    "name": "批量操作",
+    "nameDesc": "批量操作数据源",
+    "tab": "批量创建数据源",
+    "step1Title": "第 1 步：下载模板",
+    "step1Desc": "按照模板中的说明填写信息",
+    "step1Download": "下载模板'BatchCreateDataSourceTemplate.xlsx'",
+    "step2Title": "第 2 步：按照提示填写模板",
+    "step2Desc": "填写模板中的信息",
+    "step2Tips1": "确保没有重复项",
+    "step3Title": "第 3 步：上传填写信息的模板",
+    "uploadTitle": "填写模板并上传"
   }
 }
