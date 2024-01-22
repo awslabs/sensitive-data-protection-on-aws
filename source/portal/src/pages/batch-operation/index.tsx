@@ -238,7 +238,7 @@ const BatchOperation: React.FC = () => {
     const fileName = localStorage.getItem('batchFileId');
     if (fileName) {
       const response = await downloadBatchFiles({
-        filename: fileName,
+        filename: 'batch_1705900337.8425026',
       });
       console.info('response:', response);
       // TODO: download file
