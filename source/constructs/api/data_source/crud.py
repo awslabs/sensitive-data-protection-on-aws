@@ -960,26 +960,29 @@ def get_connected_glue_database_count():
     list = list_glue_database_source_without_condition()
     return 0 if not list else list.filter(SourceGlueDatabase.glue_state == ConnectionState.ACTIVE.value).count()
 
-def get_schema_by_snapshot(provider_id, account_id, instance, region):
+
+def get_schema_by_snapshot(provider_id, account_id, region, instance):
     return get_session().query(JDBCInstanceSource.jdbc_connection_schema, JDBCInstanceSource.network_subnet_id) \
         .filter(JDBCInstanceSource.account_provider_id == provider_id) \
         .filter(JDBCInstanceSource.account_id == account_id) \
         .filter(JDBCInstanceSource.instance_id == instance) \
-        .filter(JDBCInstanceSource.region == region).all()
+        .filter(JDBCInstanceSource.region == region).first()
 
-def get_connection_by_instance(provider_id, account_id, instance, region):
+
+def get_connection_by_instance(provider_id, account_id, region, instance):
     return get_session().query(JDBCInstanceSource.glue_connection) \
         .filter(JDBCInstanceSource.account_provider_id == provider_id) \
         .filter(JDBCInstanceSource.account_id == account_id) \
         .filter(JDBCInstanceSource.instance_id == instance) \
-        .filter(JDBCInstanceSource.region == region).all()
+        .filter(JDBCInstanceSource.region == region).first()
 
-def get_crawler_glueDB_by_instance(provider_id, account_id, instance, region):
+
+def get_crawler_glue_db_by_instance(provider_id, account_id, region, instance):
     return get_session().query(JDBCInstanceSource.glue_crawler, JDBCInstanceSource.glue_database, JDBCInstanceSource.glue_connection) \
         .filter(JDBCInstanceSource.account_provider_id == provider_id) \
         .filter(JDBCInstanceSource.account_id == account_id) \
         .filter(JDBCInstanceSource.instance_id == instance) \
-        .filter(JDBCInstanceSource.region == region).all()
+        .filter(JDBCInstanceSource.region == region).first()
 
 def get_enable_account_list():
     return get_session().query(Account.account_provider_id, Account.account_id, Account.region) \
@@ -991,7 +994,6 @@ def update_schema_by_account(provider_id, account_id, instance, region, schema):
                                                                     JDBCInstanceSource.region == region, 
                                                                     JDBCInstanceSource.account_id == account_id,
                                                                     JDBCInstanceSource.instance_id == instance).first()
-    if not jdbc_instance_source:
+    if jdbc_instance_source:
         jdbc_instance_source.jdbc_connection_schema = schema
-    session.merge(jdbc_instance_source)
     session.commit()

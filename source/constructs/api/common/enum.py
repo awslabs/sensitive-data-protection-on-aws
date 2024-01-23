@@ -166,6 +166,7 @@ class RunState(Enum):
 @unique
 class RunDatabaseState(Enum):
     READY = "Ready"
+    PENDING = "Pending"
     RUNNING = "Running"
     SUCCEEDED = "Succeeded"
     FAILED = "Failed"

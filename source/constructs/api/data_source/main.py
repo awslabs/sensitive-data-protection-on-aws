@@ -7,7 +7,7 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from common.query_condition import QueryCondition
 from common.request_wrapper import inject_session
 from common.response_wrapper import BaseResponse
-from . import crud, schemas, service
+from . import crud, schemas, service, jdbc_schema
 
 router = APIRouter(prefix="/data-source", tags=["data-source"])
 
@@ -383,7 +383,7 @@ def query_connection_detail(account: schemas.JDBCInstanceSourceBase):
 @router.post("/jdbc-databases", response_model=BaseResponse[list[str]])
 @inject_session
 def list_jdbc_databases(source: schemas.JdbcSource):
-    return service.list_jdbc_databases(source)
+    return jdbc_schema.list_jdbc_databases(source)
 
 @router.post("/batch-create", response_model=BaseResponse)
 @inject_session

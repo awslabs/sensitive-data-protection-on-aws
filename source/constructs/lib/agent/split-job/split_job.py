@@ -34,7 +34,7 @@ def divide_and_round_up(a, b):
 def get_job_number(event):
     if "JobNumber" in event:
         return event["JobNumber"]
-    if event['DatabaseType'] == "s3" or event['DatabaseType'] == "glue":
+    if event['DatabaseType'] in ["s3","glue"]:
         return 10
     return 3
 

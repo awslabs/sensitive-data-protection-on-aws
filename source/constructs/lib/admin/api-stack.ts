@@ -36,7 +36,6 @@ import {
   Code,
   AssetCode,
   LayerVersion,
-  FunctionOptions,
 } from 'aws-cdk-lib/aws-lambda';
 import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import { Construct } from 'constructs';
@@ -48,6 +47,7 @@ export interface ApiProps {
   readonly vpc: IVpc;
   readonly bucketName: string;
   readonly rdsClientSecurityGroup: SecurityGroup;
+  readonly customDBSecurityGroup: SecurityGroup;
   readonly oidcIssuer: string;
   readonly oidcClientId: string;
 }
@@ -66,35 +66,38 @@ export class ApiStack extends Construct {
     this.apiLayer = this.createLayer();
     this.code = Code.fromAsset(path.join(__dirname, '../../api'), { exclude: ['venv', 'pytest'] });
 
-    this.createFunction('Controller', 'lambda.controller.lambda_handler', props, 20, `${SolutionInfo.SOLUTION_NAME}-Controller`);
-
     this.apiFunction = this.createFunction('API', 'main.handler', props, 900);
 
-    const checkRunFunction = this.createFunction('CheckRun', 'lambda.check_run.lambda_handler', props, 600);
-    const checkRunRule = new events.Rule(this, 'CheckRunRule', {
+    const controllerFunction = this.createFunction('Controller', 'lambda.controller.lambda_handler', props, 900, `${SolutionInfo.SOLUTION_NAME}-Controller`);
+
+    const checkRunningRule = new events.Rule(this, 'CheckRunningRule', {
       // ruleName: `${SolutionInfo.SOLUTION_NAME}-CheckRun`,
       schedule: events.Schedule.cron({ minute: '0/30' }),
     });
-    checkRunRule.addTarget(new targets.LambdaFunction(checkRunFunction));
-    Tags.of(checkRunRule).add(SolutionInfo.TAG_KEY, SolutionInfo.TAG_VALUE);
+    checkRunningRule.addTarget(new targets.LambdaFunction(controllerFunction, {
+      event: events.RuleTargetInput.fromObject({ Action: 'CheckRunningRunDatabases' }),
+    }));
+    // Tags.of(checkRunningRule).add(SolutionInfo.TAG_KEY, SolutionInfo.TAG_VALUE);
+    const checkPendingRule = new events.Rule(this, 'CheckPendingRule', {
+      // ruleName: `${SolutionInfo.SOLUTION_NAME}-CheckPending`,
+      schedule: events.Schedule.rate(Duration.minutes(1)),
+    });
+    checkPendingRule.addTarget(new targets.LambdaFunction(controllerFunction, {
+      event: events.RuleTargetInput.fromObject({ Action: 'CheckPendingRunDatabases' }),
+    }));
+    // Tags.of(checkPendingRule).add(SolutionInfo.TAG_KEY, SolutionInfo.TAG_VALUE);
 
-    const receiveJobInfoFunction = this.createFunction('ReceiveJobInfo', 'lambda.receive_job_info.lambda_handler', props, 900);
     const discoveryJobSqsStack = new SqsStack(this, 'DiscoveryJobQueue', { name: 'DiscoveryJob', visibilityTimeout: 900 });
     const discoveryJobEventSource = new SqsEventSource(discoveryJobSqsStack.queue);
-    receiveJobInfoFunction.addEventSource(discoveryJobEventSource);
+    controllerFunction.addEventSource(discoveryJobEventSource);
 
-    const updateCatalogFunction = this.createFunction('UpdateCatalog', 'lambda.sync_crawler_results.lambda_handler', props, 900);
     const crawlerSqsStack = new SqsStack(this, 'CrawlerQueue', { name: 'Crawler', visibilityTimeout: 900 });
     const crawlerEventSource = new SqsEventSource(crawlerSqsStack.queue);
-    updateCatalogFunction.addEventSource(crawlerEventSource);
+    controllerFunction.addEventSource(crawlerEventSource);
 
-    const autoSyncDataFunction = this.createFunction('AutoSyncData', 'lambda.auto_sync_data.lambda_handler', props, 900);
-    // Set delivery delay to 10 minutes to wait for agent stack to be deleted
     const autoSyncDataSqsStack = new SqsStack(this, 'AutoSyncDataQueue', { name: 'AutoSyncData', visibilityTimeout: 900 });
     const autoSyncDataEventSource = new SqsEventSource(autoSyncDataSqsStack.queue);
-    autoSyncDataFunction.addEventSource(autoSyncDataEventSource);
-
-    this.createFunction('RefreshAccount', 'lambda.refresh_account.lambda_handler', props, 60, `${SolutionInfo.SOLUTION_NAME}-RefreshAccount`);
+    controllerFunction.addEventSource(autoSyncDataEventSource);
   }
 
   private createFunction(name: string, handler: string, props: ApiProps, timeout?: number, functionName?: string) {
@@ -111,6 +114,7 @@ export class ApiStack extends Construct {
       vpcSubnets: props.vpc.selectSubnets({
         subnetType: SubnetType.PRIVATE_WITH_EGRESS,
       }),
+      // securityGroups: [props.rdsClientSecurityGroup, props.customDBSecurityGroup],
       securityGroups: [props.rdsClientSecurityGroup],
       environment: {
         AdminBucketName: props.bucketName,
