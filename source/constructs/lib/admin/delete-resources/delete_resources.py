@@ -72,9 +72,9 @@ def on_delete(event):
 
 
 def refresh_account(event):
-    response = lambda_client.invoke(FunctionName=f'{solution_name}-RefreshAccount',
-                                    Payload='{"UpdateEvent":"RerefshAccount"}')
-    print(response)
+    response = lambda_client.invoke(FunctionName=f'{solution_name}-Controller',
+                                    Payload='{"Action":"RefreshAccount"}')
+    logger.info(response)
 
 
 def __do_delete_rule(rule_name):

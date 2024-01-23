@@ -11,7 +11,6 @@ from time import sleep
 import boto3
 from fastapi import File, UploadFile
 import openpyxl
-import pandas as pd
 import pymysql
 from botocore.exceptions import ClientError
 
@@ -32,7 +31,7 @@ from db.models_data_source import (Account,
 from discovery_job.service import can_delete_database as can_delete_job_database
 from discovery_job.service import delete_account as delete_job_by_account
 from discovery_job.service import delete_database as delete_job_database
-from . import s3_detector, rds_detector, glue_database_detector, jdbc_detector, crud, jdbc_database
+from . import s3_detector, rds_detector, glue_database_detector, jdbc_detector, crud
 from .schemas import (AccountInfo, AdminAccountInfo,
                       JDBCInstanceSource, JDBCInstanceSourceUpdate,
                       ProviderResourceFullInfo, SourceNewAccount, SourceRegion,
@@ -42,8 +41,7 @@ from .schemas import (AccountInfo, AdminAccountInfo,
                       JDBCInstanceSourceUpdateBase,
                       DataLocationInfo,
                       JDBCInstanceSourceBase,
-                      JDBCInstanceSourceFullInfo,
-                      JdbcSource)
+                      JDBCInstanceSourceFullInfo)
 from common.reference_parameter import logger, admin_account_id, admin_region, partition, admin_bucket_name
 
 SLEEP_TIME = 5
@@ -2610,27 +2608,6 @@ def __get_glue_client(account, region):
                         )
     return glue
 
-def list_jdbc_databases(source: JdbcSource) -> list[str]:
-    url_arr = source.connection_url.split(":")
-    if len(url_arr) != 4:
-        raise BizException(MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_code(), MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_msg())
-    if url_arr[1] != "mysql":
-        raise BizException(MessageEnum.SOURCE_JDBC_LIST_DATABASES_NOT_SUPPORTED.get_code(), MessageEnum.SOURCE_JDBC_LIST_DATABASES_NOT_SUPPORTED.get_msg())
-    host = url_arr[2][2:]
-    port = int(url_arr[3].split("/")[0])
-    user = source.username
-    password = source.password
-    if source.secret_id:
-        secrets_client = boto3.client('secretsmanager')
-        secret_response = secrets_client.get_secret_value(SecretId=source.secret_id)
-        secrets = json.loads(secret_response['SecretString'])
-        user = secrets['username']
-        password = secrets['password']
-    mysql_database = jdbc_database.MySQLDatabase(host, port, user, password)
-    databases = mysql_database.list_databases()
-    logger.info(databases)
-    return databases
-
 
 def batch_create(file: UploadFile = File(...)):
     time_str = time.time()
@@ -2707,67 +2684,6 @@ async def batch_create_jdbc(jdbc_list):
     tasks = [add_jdbc_conn(jdbc) for jdbc in jdbc_list]
     await asyncio.gather(*tasks)
 
-
-def get_schema_by_snapshot(provider_id: int, account_id: str, instance: str, region: str):
-    res = crud.get_schema_by_snapshot(provider_id, account_id, instance, region)
-    return res[0][0].split('\n') if res else None, res[0][1] if res else None
-
-def get_schema_by_real_time(provider_id: int, account_id: str, instance: str, region: str, db_info: bool = False):
-    db, subnet_id = None, None
-    assume_account, assume_region = __get_admin_info(JDBCInstanceSourceBase(account_provider_id=provider_id, account_id=account_id, instance_id=instance, region=region))
-    connection_rds = crud.get_connection_by_instance(provider_id, account_id, instance, region)
-    glue = __get_glue_client(assume_account, assume_region)
-    connection = glue.get_connection(Name=connection_rds[0][0]).get('Connection', {})
-    if connection_rds[0] and connection_rds[0][0]:
-        subnet_id = connection.get('PhysicalConnectionRequirements', {}).get('SubnetId')
-    if db_info:
-        connection_properties = connection.get("ConnectionProperties", {})
-        jdbc_source = JdbcSource(username=connection_properties.get("USERNAME"),
-                                 password=connection_properties.get("PASSWORD"),
-                                 secret_id=connection_properties.get("SECRET_ID"),
-                                 connection_url=connection_properties.get("JDBC_CONNECTION_URL")
-                                 )
-        db = list_jdbc_databases(jdbc_source)
-    return db, subnet_id
-
-def sync_schema_by_job(provider_id: int, account_id: str, instance: str, region: str, schema: str):
-    jdbc_targets = []
-    # Query Info
-    info = crud.get_crawler_glueDB_by_instance(provider_id, account_id, instance, region)
-    if not info:
-        return
-    crawler_role_arn = __gen_role_arn(account_id=account_id,
-                                      region=region,
-                                      role_name='GlueDetectionJobRole')
-    db_names = schema.split("\n")
-    for db_name in db_names:
-        trimmed_db_name = db_name.strip()
-        if trimmed_db_name:
-            jdbc_targets.append({
-                'ConnectionName': info[0][2],
-                'Path': f"{trimmed_db_name}/%"
-            })
-    # Update Crawler
-    assume_account, assume_region = __get_admin_info(JDBCInstanceSourceBase(account_provider_id=provider_id, account_id=account_id, instance_id=instance, region=region))
-    try:
-        __get_glue_client(assume_account, assume_region).update_crawler(
-            Name=info[0],
-            Role=crawler_role_arn,
-            DatabaseName=info[1],
-            Targets={
-                'JdbcTargets': jdbc_targets,
-            },
-            SchemaChangePolicy={
-                'UpdateBehavior': 'UPDATE_IN_DATABASE',
-                'DeleteBehavior': 'DELETE_FROM_DATABASE'
-            }
-        )
-    except Exception as e:
-        logger.error(traceback.format_exc())
-        raise BizException(MessageEnum.BIZ_UNKNOWN_ERR.get_code(),
-                           MessageEnum.BIZ_UNKNOWN_ERR.get_msg())
-    # Update RDS
-    crud.update_schema_by_account(provider_id, account_id, instance, region, schema)
 
 def __get_admin_info(jdbc):
     account_id = jdbc.account_id if jdbc.account_provider_id == Provider.AWS_CLOUD.value else admin_account_id

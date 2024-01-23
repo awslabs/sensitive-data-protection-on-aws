@@ -7,7 +7,7 @@ from common.exception_handler import BizException
 from common.enum import MessageEnum, JobState, RunState, RunDatabaseState, DatabaseType, AthenaQueryState
 from common.constant import const
 from common.query_condition import QueryCondition
-from common.reference_parameter import logger, admin_account_id, admin_region, admin_bucket_name, partition, url_suffix, public_account_id
+from common.reference_parameter import logger, admin_account_id, admin_region, admin_bucket_name, partition, url_suffix, public_account_id, admin_subnet_ids
 import traceback
 import tools.mytime as mytime
 import datetime, time, pytz
@@ -15,7 +15,10 @@ from openpyxl import Workbook
 from tempfile import NamedTemporaryFile
 from catalog.service import sync_job_detection_result
 from tools.str_tool import is_empty
-from common.abilities import need_change_account_id
+from common.abilities import need_change_account_id, convert_database_type_2_provider
+import config.service as config_service
+from data_source import jdbc_schema
+from tools import list_tool
 
 version = os.getenv(const.VERSION, '')
 controller_function_name = os.getenv("ControllerFunctionName", f"{const.SOLUTION_NAME}-Controller")
@@ -75,7 +78,7 @@ def create_event(job_id: int, schedule: str):
         ],
     )
 
-    input = {"JobId": job_id}
+    input = {const.CONTROLLER_ACTION: const.CONTROLLER_ACTION_SCHEDULE_JOB, "JobId": job_id}
     response = client_events.put_targets(
         Rule=rule_name,
         Targets=[
@@ -195,7 +198,16 @@ def disable_job(id: int):
 def start_job(job_id: int):
     run_id = crud.init_run(job_id)
     if run_id >= 0:
-        __start_run(job_id, run_id)
+        run = crud.get_run(run_id)
+        if not run.databases:
+            crud.complete_run(run_id)
+            raise BizException(MessageEnum.DISCOVERY_JOB_DATABASE_IS_EMPTY.get_code(),
+                               MessageEnum.DISCOVERY_JOB_DATABASE_IS_EMPTY.get_msg())
+        failed_run_database_count = __start_run_databases(run.databases)
+        if failed_run_database_count == len(run.databases):
+            crud.complete_run(run_id)
+            raise BizException(MessageEnum.DISCOVERY_JOB_ALL_RUN_FAILED.get_code(),
+                               MessageEnum.DISCOVERY_JOB_ALL_RUN_FAILED.get_msg())
 
 
 def start_sample_job(job_id: int, table_name: str):
@@ -205,14 +217,36 @@ def start_sample_job(job_id: int, table_name: str):
         __start_sample_run(job_id, run_id, table_name)
 
 
-def __start_run(job_id: int, run_id: int):
-    job = crud.get_job(job_id)
-    run = crud.get_run(run_id)
-    run_databases = run.databases
-    if not run_databases:
-        crud.complete_run(run_id)
-        raise BizException(MessageEnum.DISCOVERY_JOB_DATABASE_IS_EMPTY.get_code(),
-                           MessageEnum.DISCOVERY_JOB_DATABASE_IS_EMPTY.get_msg())
+def __get_job_number(database_type: str) -> int:
+    if database_type in [DatabaseType.S3.value, DatabaseType.GLUE.value]:
+        return int(config_service.get_config(const.CONFIG_JOB_NUMBER_S3, const.CONFIG_JOB_NUMBER_S3_DEFAULT_VALUE))
+    return int(config_service.get_config(const.CONFIG_JOB_NUMBER_RDS, const.CONFIG_JOB_NUMBER_RDS_DEFAULT_VALUE))
+
+
+def get_run_database_ip_count(database_type: str) -> int:
+    crawler_ip = 0
+    if database_type.startswith(DatabaseType.JDBC.value):
+        crawler_ip = 3
+    return crawler_ip + __get_job_number(database_type) * 2  # Each GlueJob requires 2 IPs
+
+
+def __count_run_database_by_subnet() -> dict:
+    count_run_database = {}
+    run_databases = crud.get_running_run_databases()
+    for run_database in run_databases:
+        if not need_change_account_id(run_database.database_type):
+            continue
+        provider_id = convert_database_type_2_provider(run_database.database_type)
+        _, subnet_id = jdbc_schema.get_schema_by_real_time(provider_id, run_database.account_id, run_database.region, run_database.database_name)
+        count = count_run_database.get(subnet_id, 0)
+        count_run_database[subnet_id] = count + 1
+    logger.info(f"count_run_database:{count_run_database}")
+    return count_run_database
+
+
+def __start_run_databases(run_databases):
+    job_dic = {}
+    run_dic = {}
     module_path = f's3://{admin_bucket_name}/job/ml-asset/python-module/'
     wheels = ["humanfriendly-10.0-py2.py3-none-any.whl",
               "protobuf-4.22.1-cp37-abi3-manylinux2014_x86_64.whl",
@@ -221,12 +255,14 @@ def __start_run(job_id: int, run_id: int):
               "onnxruntime-1.13.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
               "sdpsner-1.0.0-py3-none-any.whl",
               ]
+    limit_concurrency = False
 
     account_loop_wait = {}
     for run_database in run_databases:
         account_id = run_database.account_id
         if need_change_account_id(run_database.database_type):
             account_id = admin_account_id
+            limit_concurrency = True
         if account_id in account_loop_wait:
             tmp = account_loop_wait[account_id]
             tmp = tmp + const.JOB_INTERVAL_WAIT
@@ -234,11 +270,42 @@ def __start_run(job_id: int, run_id: int):
         else:
             account_loop_wait[account_id] = const.JOB_INTERVAL_WAIT
 
+    if limit_concurrency:
+        concurrent_run_instance_number = config_service.get_config(const.CONFIG_CONCURRENT_RUN_INSTANCE_NUMBER, const.CONFIG_CONCURRENT_RUN_INSTANCE_NUMBER_DEFAULT_VALUE)
+        count_run_database = __count_run_database_by_subnet()
+
     job_placeholder = ","
     account_first_wait = {}
-    failed_run_count = 0
+    failed_run_database_count = 0
     for run_database in run_databases:
         try:
+            if limit_concurrency:
+                provider_id = convert_database_type_2_provider(run_database.database_type)
+                database_schemas_real_time, subnet_id = jdbc_schema.get_schema_by_real_time(provider_id, run_database.account_id, run_database.region, run_database.database_name, True)
+                count = count_run_database.get(subnet_id, 0)
+                if count >= concurrent_run_instance_number:
+                    run_database.state = RunDatabaseState.PENDING.value
+                    continue
+                count_run_database[subnet_id] = count + 1
+                if database_schemas_real_time:
+                    database_schemas_snapshot, _ = jdbc_schema.get_schema_by_snapshot(provider_id, run_database.account_id, run_database.region, run_database.database_name)
+                    logger.info(f'database_schemas_real_time:{database_schemas_real_time}')
+                    logger.info(f'database_schemas_snapshot:{database_schemas_snapshot}')
+                    if not list_tool.compare(database_schemas_real_time, database_schemas_snapshot):
+                        jdbc_schema.sync_schema_by_job(provider_id, run_database.account_id, run_database.region, run_database.database_name, database_schemas_real_time)
+                        logger.info(f'Updated schema:{database_schemas_real_time}')
+                else:
+                    logger.info(f'Unable to obtain the schema for {run_database.database_name}')
+
+            run = run_dic.get(run_database.run_id)
+            if not run:
+                run = crud.get_run(run_database.run_id)
+                run_dic[run_database.run_id] = run
+            job = job_dic.get(run.job_id)
+            if not job:
+                job = crud.get_job(run.job_id)
+                job_dic[run.job_id] = job
+
             account_id = run_database.account_id
             region = run_database.region
             if need_change_account_id(run_database.database_type):
@@ -263,7 +330,7 @@ def __start_run(job_id: int, run_id: int):
                 glue_database_name = run_database.database_name
             job_name_structured = f"{const.SOLUTION_NAME}-{run_database.database_type}-{run_database.database_name}"
             job_name_unstructured = f"{const.SOLUTION_NAME}-{DatabaseType.S3_UNSTRUCTURED.value}-{run_database.database_name}"
-            run_name = f'{const.SOLUTION_NAME}-{run_id}-{run_database.id}-{run_database.uuid}'
+            run_name = f'{const.SOLUTION_NAME}-{run_database.run_id}-{run_database.id}-{run_database.uuid}'
             # agent_bucket_name = f"{const.AGENT_BUCKET_NAME_PREFIX}-{run_database.account_id}-{run_database.region}"
             unstructured_parser_job_image_uri = f"{public_account_id}.dkr.ecr.{run_database.region}.amazonaws.com{url_suffix}/aws-sensitive-data-protection-models:v1.1.0"
             unstructured_parser_job_role = f"arn:{partition}:iam::{run_database.account_id}:role/{const.SOLUTION_NAME}UnstructuredParserRole-{run_database.region}"
@@ -274,7 +341,7 @@ def __start_run(job_id: int, run_id: int):
                 "NeedRunCrawler": need_run_crawler,
                 "CrawlerName": crawler_name,
                 "JobId": str(job.id),  # When calling Glue Job using StepFunction, the parameter must be of string type
-                "RunId": str(run_id),
+                "RunId": str(run_database.run_id),
                 "RunDatabaseId": str(run_database.id),
                 "AccountId": run_database.account_id,  # The original account id is required here
                 "Region": run_database.region,  # The original region is required here
@@ -302,6 +369,7 @@ def __start_run(job_id: int, run_id: int):
                 "ExtraPyFiles": extra_py_files,
                 "FirstWait": str(account_first_wait[account_id]),
                 "LoopWait": str(account_loop_wait[account_id]),
+                "JobNumber": __get_job_number(run_database.database_type),
                 "QueueUrl": f'https://sqs.{region}.amazonaws.com{url_suffix}/{admin_account_id}/{const.SOLUTION_NAME}-DiscoveryJob',
                 "UnstructuredParserJobImageUri": unstructured_parser_job_image_uri,
                 "UnstructuredParserJobRole": unstructured_parser_job_role,
@@ -313,17 +381,14 @@ def __start_run(job_id: int, run_id: int):
             __exec_run(execution_input)
             run_database.state = RunDatabaseState.RUNNING.value
         except Exception:
-            failed_run_count += 1
+            failed_run_database_count += 1
             msg = traceback.format_exc()
             run_database.state = RunDatabaseState.FAILED.value
             run_database.end_time = mytime.get_time()
             run_database.error_log = msg
             logger.exception("Run StepFunction exception:%s" % msg)
     crud.save_run_databases(run_databases)
-    if failed_run_count == len(run_databases):
-        crud.complete_run(run_id)
-        raise BizException(MessageEnum.DISCOVERY_JOB_ALL_RUN_FAILED.get_code(),
-                           MessageEnum.DISCOVERY_JOB_ALL_RUN_FAILED.get_msg())
+    return failed_run_database_count
 
 
 def __start_sample_run(job_id: int, run_id: int, table_name: str):
@@ -431,10 +496,11 @@ def __check_sfn_version(client_sfn, arn, account_id):
     logger.info(f"{account_id} version is:{agent_version}")
     # Only check if the solution version is consistent.
     # Do not determine if the build version is consistent
-    agent_solution_version = agent_version.split('-')[0]
-    if not version.startswith(agent_solution_version):
-        raise BizException(MessageEnum.DISCOVERY_JOB_AGENT_MISMATCHING_VERSION.get_code(),
-                           MessageEnum.DISCOVERY_JOB_AGENT_MISMATCHING_VERSION.get_msg())
+    if os.getenv(const.MODE) != const.MODE_DEV:
+        agent_solution_version = agent_version.split('-')[0]
+        if not version.startswith(agent_solution_version):
+            raise BizException(MessageEnum.DISCOVERY_JOB_AGENT_MISMATCHING_VERSION.get_code(),
+                               MessageEnum.DISCOVERY_JOB_AGENT_MISMATCHING_VERSION.get_msg())
 
 
 def __exec_run(execution_input):
@@ -765,7 +831,13 @@ def complete_run_database(input_event):
     logger.info(f'complete_run_database,JobId:{input_event["JobId"]},RunId:{input_event["RunId"]},DatabaseName:{input_event["DatabaseName"]}')
 
 
-def check_running_run():
+def check_pending_run_databases():
+    run_databases = crud.get_pending_run_databases()
+    if run_databases:
+        __start_run_databases(run_databases)
+
+
+def check_running_run_databases():
     run_databases = crud.get_running_run_databases()
     for run_database in run_databases:
         run_database_state, stop_time = __get_run_database_state_from_agent(run_database)

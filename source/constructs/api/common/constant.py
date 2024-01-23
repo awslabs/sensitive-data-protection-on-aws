@@ -98,6 +98,17 @@ const.PRIVATE = 'Private'
 const.ZERO = 0
 const.BATCH_CREATE_LIMIT = 100
 const.BATCH_SHEET = "OriginTemplate"
+const.CONFIG_CONCURRENT_RUN_INSTANCE_NUMBER = 'ConcurrentRunInstanceNumber'
+const.CONFIG_CONCURRENT_RUN_INSTANCE_NUMBER_DEFAULT_VALUE = 50
+const.CONFIG_JOB_NUMBER_S3 = 'JobNumberS3'
+const.CONFIG_JOB_NUMBER_S3_DEFAULT_VALUE = 10
+const.CONFIG_JOB_NUMBER_RDS = 'JobNumberRds'
+const.CONFIG_JOB_NUMBER_RDS_DEFAULT_VALUE = 3
+const.CONTROLLER_ACTION = 'Action'
+const.CONTROLLER_ACTION_SCHEDULE_JOB = 'ScheduleJob'
+const.CONTROLLER_ACTION_CHECK_RUNNING_RUN_DATABASES = 'CheckRunningRunDatabases'
+const.CONTROLLER_ACTION_CHECK_PENDING_RUN_DATABASES = 'CheckPendingRunDatabases'
+const.CONTROLLER_ACTION_REFRESH_ACCOUNT = 'RefreshAccount'
 
 const.UNSTRUCTURED_FILES = {
     "document": ["doc", "docx", "pdf", "ppt", "pptx", "xls", "xlsx", "odp"],

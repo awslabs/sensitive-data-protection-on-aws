@@ -209,6 +209,7 @@ export class AdminStack extends Stack {
       vpc: vpcStack.vpc,
       bucketName: bucketStack.bucket.bucketName,
       rdsClientSecurityGroup: rdsStack.clientSecurityGroup,
+      customDBSecurityGroup: vpcStack.customDBSecurityGroup,
       oidcIssuer: oidcIssuerValue,
       oidcClientId: oidcClientIdValue,
     });
