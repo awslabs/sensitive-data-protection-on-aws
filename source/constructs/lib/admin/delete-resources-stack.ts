@@ -80,7 +80,7 @@ export class DeleteResourcesStack extends Construct {
       ],
       resources: [
         `arn:${Aws.PARTITION}:events:*:${Aws.ACCOUNT_ID}:rule/*`,
-        `arn:${Aws.PARTITION}:lambda:${Aws.REGION}:${Aws.ACCOUNT_ID}:function:${SolutionInfo.SOLUTION_NAME}-RefreshAccount`,
+        `arn:${Aws.PARTITION}:lambda:${Aws.REGION}:${Aws.ACCOUNT_ID}:function:${SolutionInfo.SOLUTION_NAME}-Controller`,
       ],
     });
     deleteAdminResourcesRole.addToPolicy(noramlStatement);
