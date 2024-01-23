@@ -59,7 +59,7 @@ export class GlueStack extends Construct {
     new S3Deployment.BucketDeployment(this, 'BatchCreateJdbcDatasource', {
       memoryLimit: 512,
       ephemeralStorageSize: Size.mebibytes(512),
-      sources: [S3Deployment.Source.asset('batch-create-jdbc-datasource/template')],
+      sources: [S3Deployment.Source.asset('config/batch-create-jdbc-datasource/template')],
       destinationBucket: props.bucket,
       destinationKeyPrefix: 'batch-create-jdbc-datasource/template',
     });
