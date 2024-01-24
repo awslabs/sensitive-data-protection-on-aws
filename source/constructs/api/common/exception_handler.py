@@ -46,3 +46,6 @@ class BizException(Exception):
         self.code = code
         self.message = message
         self.ref = ref
+
+    def __msg__(self):
+        return self.message

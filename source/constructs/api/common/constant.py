@@ -96,8 +96,11 @@ const.NO = 'No'
 const.PUBLIC = 'Public'
 const.PRIVATE = 'Private'
 const.ZERO = 0
-const.BATCH_CREATE_LIMIT = 100
+const.BATCH_CREATE_LIMIT = 1000
 const.BATCH_SHEET = "OriginTemplate"
+const.CONNECTION_DESC_MAX_LEN = 10
+const.BATCH_CREATE_TEMPLATE_PATH = 'batch-create-jdbc-datasource/template/batch-create-jdbc-datasource.xlsx'
+const.BATCH_CREATE_REPORT_PATH = 'batch-create-jdbc-datasource/report'
 
 const.UNSTRUCTURED_FILES = {
     "document": ["doc", "docx", "pdf", "ppt", "pptx", "xls", "xlsx", "odp"],

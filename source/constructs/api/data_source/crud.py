@@ -988,7 +988,7 @@ def get_enable_account_list():
 def update_schema_by_account(provider_id, account_id, instance, region, schema):
     session = get_session()
     jdbc_instance_source = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == provider_id, 
-                                                                    JDBCInstanceSource.region == region, 
+                                                                    JDBCInstanceSource.region == region,
                                                                     JDBCInstanceSource.account_id == account_id,
                                                                     JDBCInstanceSource.instance_id == instance).first()
     if not jdbc_instance_source:

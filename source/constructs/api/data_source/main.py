@@ -352,7 +352,6 @@ def test_jdbc_conn(jdbc_conn_param: schemas.JDBCInstanceSourceBase):
 def get_data_location_list():
     return service.list_data_location()
 
-
 @router.get("/query-regions-by-provider", response_model=BaseResponse)
 @inject_session
 def query_regions_by_provider(provider_id: str):
@@ -379,7 +378,6 @@ def list_buckets(account: schemas.AccountInfo):
 def query_connection_detail(account: schemas.JDBCInstanceSourceBase):
     return service.query_connection_detail(account)
 
-
 @router.post("/jdbc-databases", response_model=BaseResponse[list[str]])
 @inject_session
 def list_jdbc_databases(source: schemas.JdbcSource):
@@ -390,7 +388,17 @@ def list_jdbc_databases(source: schemas.JdbcSource):
 def batch_create(files: List[UploadFile] = File(...)):
     return service.batch_create(files[0])
 
-# @router.post("/snapshop", response_model=BaseResponse)
+@router.post("/query-batch-status", response_model=BaseResponse)
+@inject_session
+def query_batch_status(batch: str):
+    return service.query_batch_status(batch)
+
+@router.post("/download-batch-file", response_model=BaseResponse)
+@inject_session
+def download_batch_file(filename: str):
+    return service.download_batch_file(filename)
+
+# @router.post("/batch-sync", response_model=BaseResponse)
 # @inject_session
-# def get_schema_by_snapshot(provider_id: int, account_id: str, instance: str, region: str):
-#     return service.get_schema_by_snapshot(provider_id, account_id, instance, region)
+# def batch_sync(connection_list: []):
+#     pass
