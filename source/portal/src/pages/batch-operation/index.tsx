@@ -49,7 +49,7 @@ let statusInterval: any;
 const BatchOperationContent: React.FC<BatchOperationContentProps> = (
   props: BatchOperationContentProps
 ) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { updateStatus } = props;
   const [uploadDisabled, setUploadDisabled] = useState(false);
   const [files, setFiles] = useState([] as any);
@@ -132,6 +132,17 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
     }
   };
 
+  const downloadReport = async () => {
+    console.log('download template');
+    const fileName = `template_${i18n.language}`;
+    if (fileName) {
+      const response: any = await downloadBatchFiles({
+        filename: fileName,
+      });
+      window.open(response.data);
+    }
+  };
+
   useEffect(() => {
     const fileId = localStorage.getItem(BATCH_SOURCE_ID);
     if (fileId) {
@@ -155,10 +166,17 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
         }
       >
         <p className="flex gap-5">
-          <Icon name="download" />
-          <a href="BatchCreateConnections.xlsx" download>
+          {/* <Icon name="download" /> */}
+          <Button
+            iconName="download"
+            onClick={() => {
+              downloadReport();
+            }}
+            variant="link"
+            download
+          >
             {t('datasource:batch.step1Download')}
-          </a>
+          </Button>
         </p>
       </Container>
       <Container
