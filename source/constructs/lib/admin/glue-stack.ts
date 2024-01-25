@@ -56,6 +56,14 @@ export class GlueStack extends Construct {
       destinationKeyPrefix: 'job/script',
     });
 
+    new S3Deployment.BucketDeployment(this, 'BatchCreateJdbcDatasource', {
+      memoryLimit: 512,
+      ephemeralStorageSize: Size.mebibytes(512),
+      sources: [S3Deployment.Source.asset('config/batch-create-jdbc-datasource/template')],
+      destinationBucket: props.bucket,
+      destinationKeyPrefix: 'batch-create-jdbc-datasource/template',
+    });
+
     // When upgrading, files with template as the prefix will be deleted
     // Therefore, the initial template file will no longer be deployed.
     // new S3Deployment.BucketDeployment(this, 'DeploymentTemplate', {

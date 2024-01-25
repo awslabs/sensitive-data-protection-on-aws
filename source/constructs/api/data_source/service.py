@@ -27,14 +27,14 @@ from common.enum import (MessageEnum,
                          JDBCCreateType)
 from common.exception_handler import BizException
 from common.query_condition import QueryCondition
-from db.models_data_source import (Account,
-                                   JDBCInstanceSource)
+from db.models_data_source import (Account)
 from discovery_job.service import can_delete_database as can_delete_job_database
 from discovery_job.service import delete_account as delete_job_by_account
 from discovery_job.service import delete_database as delete_job_database
-from . import s3_detector, rds_detector, glue_database_detector, jdbc_detector, crud, jdbc_database
+from source.constructs.api.data_source.jdbc_schema import list_jdbc_databases
+from . import s3_detector, rds_detector, glue_database_detector, jdbc_detector, crud
 from .schemas import (AccountInfo, AdminAccountInfo,
-                      JDBCInstanceSource, JDBCInstanceSourceUpdate,
+                      JDBCInstanceSource, JDBCInstanceSourceUpdate, JdbcSource,
                       ProviderResourceFullInfo, SourceNewAccount, SourceRegion,
                       SourceResourceBase,
                       SourceCoverage,
@@ -42,8 +42,7 @@ from .schemas import (AccountInfo, AdminAccountInfo,
                       JDBCInstanceSourceUpdateBase,
                       DataLocationInfo,
                       JDBCInstanceSourceBase,
-                      JDBCInstanceSourceFullInfo,
-                      JdbcSource)
+                      JDBCInstanceSourceFullInfo)
 from common.reference_parameter import logger, admin_account_id, admin_region, partition, admin_bucket_name
 
 SLEEP_TIME = 5
@@ -120,7 +119,6 @@ def build_s3_targets(bucket, credentials, region, is_init):
     logger.info("build_s3_targets")
     logger.info(s3_targets)
     return s3_targets
-
 
 def sync_s3_connection(account: str, region: str, bucket: str):
     glue_connection_name = f"{const.SOLUTION_NAME}-{DatabaseType.S3.value}-{bucket}"
@@ -225,11 +223,6 @@ def sync_s3_connection(account: str, region: str, bucket: str):
             except Exception as e:
                 logger.info("update_crawler s3 error")
                 logger.info(str(e))
-
-            # data source create crawler, job to run crawler
-            # response = glue.start_crawler(
-            #     Name=crawler_name
-            # )
             logger.info(response)
         except Exception as e:
             response = glue.create_crawler(
@@ -245,11 +238,6 @@ def sync_s3_connection(account: str, region: str, bucket: str):
                 },
             )
             logger.info(response)
-            # data source create crawler, job to run crawler
-            # response = glue.start_crawler(
-            #     Name=crawler_name
-            # )
-            # logger.info(response)
 
         crud.create_s3_connection(account, region, bucket, glue_connection_name, glue_database_name, crawler_name)
     except Exception as err:
@@ -1656,10 +1644,16 @@ def import_glue_database(glueDataBase: SourceGlueDatabaseBase):
     crud.import_glue_database(glueDataBase, response)
 
 def update_jdbc_conn(jdbc_conn: JDBCInstanceSource):
-    jdbc_source = JdbcSource(connection_url=jdbc_conn.jdbc_connection_url, username=jdbc_conn.master_username, password=jdbc_conn.password, secret_id=jdbc_conn.secret)
+    jdbc_source = JdbcSource(connection_url=jdbc_conn.jdbc_connection_url,
+                             username=jdbc_conn.master_username,
+                             password=jdbc_conn.password,
+                             secret_id=jdbc_conn.secret)
     dbnames = get_db_names_4_jdbc(jdbc_source, jdbc_conn.jdbc_connection_schema)
     account_id, region = __get_admin_info(jdbc_conn)
-    res: JDBCInstanceSourceFullInfo = crud.get_jdbc_instance_source_glue(jdbc_conn.account_provider_id, jdbc_conn.account_id, jdbc_conn.region, jdbc_conn.instance_id)
+    res: JDBCInstanceSourceFullInfo = crud.get_jdbc_instance_source_glue(jdbc_conn.account_provider_id,
+                                                                         jdbc_conn.account_id,
+                                                                         jdbc_conn.region,
+                                                                         jdbc_conn.instance_id)
     check_connection(res, jdbc_conn, account_id, region)
     update_connection(res, jdbc_conn, account_id, region, dbnames)
 
@@ -2640,26 +2634,26 @@ def __get_glue_client(account, region):
                         )
     return glue
 
-def list_jdbc_databases(source: JdbcSource) -> list[str]:
-    url_arr = source.connection_url.split(":")
-    if len(url_arr) != 4:
-        raise BizException(MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_code(), MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_msg())
-    if url_arr[1] != "mysql":
-        raise BizException(MessageEnum.SOURCE_JDBC_LIST_DATABASES_NOT_SUPPORTED.get_code(), MessageEnum.SOURCE_JDBC_LIST_DATABASES_NOT_SUPPORTED.get_msg())
-    host = url_arr[2][2:]
-    port = int(url_arr[3].split("/")[0])
-    user = source.username
-    password = source.password
-    if source.secret_id:
-        secrets_client = boto3.client('secretsmanager')
-        secret_response = secrets_client.get_secret_value(SecretId=source.secret_id)
-        secrets = json.loads(secret_response['SecretString'])
-        user = secrets['username']
-        password = secrets['password']
-    mysql_database = jdbc_database.MySQLDatabase(host, port, user, password)
-    databases = mysql_database.list_databases()
-    logger.info(databases)
-    return databases
+# def list_jdbc_databases(source: JdbcSource) -> list[str]:
+#     url_arr = source.connection_url.split(":")
+#     if len(url_arr) != 4:
+#         raise BizException(MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_code(), MessageEnum.SOURCE_JDBC_URL_FORMAT_ERROR.get_msg())
+#     if url_arr[1] != "mysql":
+#         raise BizException(MessageEnum.SOURCE_JDBC_LIST_DATABASES_NOT_SUPPORTED.get_code(), MessageEnum.SOURCE_JDBC_LIST_DATABASES_NOT_SUPPORTED.get_msg())
+#     host = url_arr[2][2:]
+#     port = int(url_arr[3].split("/")[0])
+#     user = source.username
+#     password = source.password
+#     if source.secret_id:
+#         secrets_client = boto3.client('secretsmanager')
+#         secret_response = secrets_client.get_secret_value(SecretId=source.secret_id)
+#         secrets = json.loads(secret_response['SecretString'])
+#         user = secrets['username']
+#         password = secrets['password']
+#     mysql_database = jdbc_database.MySQLDatabase(host, port, user, password)
+#     databases = mysql_database.list_databases()
+#     logger.info(databases)
+#     return databases
 
 def batch_create(file: UploadFile = File(...)):
     time_str = time.time()
@@ -2809,44 +2803,59 @@ async def batch_add_conn_jdbc(created_jdbc_list):
     tasks = [asyncio.create_task(__add_jdbc_conn_batch(jdbc)) for jdbc in created_jdbc_list]
     return await asyncio.gather(*tasks)
 
-def get_schema_by_snapshot(provider_id: int, account_id: str, instance: str, region: str):
-    res = crud.get_schema_by_snapshot(provider_id, account_id, instance, region)
-    return res[0][0].replace(',', '\n').split('\n') if res else None, res[0][1] if res else None
 
-def get_schema_by_real_time(provider_id: int, account_id: str, instance: str, region: str, db_info: bool = False):
-    db, subnet_id = None, None
-    assume_account, assume_region = __get_admin_info(JDBCInstanceSourceBase(account_provider_id=provider_id, account_id=account_id, instance_id=instance, region=region))
-    connection_rds = crud.get_connection_by_instance(provider_id, account_id, instance, region)
-    glue = __get_glue_client(assume_account, assume_region)
-    connection = glue.get_connection(Name=connection_rds[0][0]).get('Connection', {})
-    if connection_rds[0] and connection_rds[0][0]:
-        subnet_id = connection.get('PhysicalConnectionRequirements', {}).get('SubnetId')
-    if db_info:
-        connection_properties = connection.get("ConnectionProperties", {})
-        jdbc_source = JdbcSource(username=connection_properties.get("USERNAME"),
-                                 password=connection_properties.get("PASSWORD"),
-                                 secret_id=connection_properties.get("SECRET_ID"),
-                                 connection_url=connection_properties.get("JDBC_CONNECTION_URL")
-                                 )
-        db = list_jdbc_databases(jdbc_source)
-    return db, subnet_id
+def batch_sync_jdbc(jdbc_list):
+    return asyncio.run(batch_sync_jdbc_manager(jdbc_list))
 
-def sync_schema_by_job(provider_id: int, account_id: str, instance: str, region: str, schema: str):
-    jdbc = JDBCInstanceSourceBase(instance_id=instance, account_provider_id=provider_id, account_id=account_id, region=region)
-    account_id, region = __get_admin_info(jdbc)
-    # Query Info
-    info = crud.get_crawler_glueDB_by_instance(provider_id, account_id, instance, region)
-    if not info:
-        return
-    crawler_role_arn = __gen_role_arn(account_id=account_id,
-                                      region=region,
-                                      role_name='GlueDetectionJobRole')
-    db_names = schema.split("\n")
-    jdbc_targets = __gen_jdbc_targets_from_db_names(info[0][2], db_names)
-    # Update Crawler
-    __update_crawler(provider_id, account_id, instance, region, jdbc_targets, info[0][0], info[0][1], crawler_role_arn)
-    # Update RDS
-    crud.update_schema_by_account(provider_id, account_id, instance, region, schema)
+async def batch_sync_jdbc_manager(jdbc_list):
+    tasks = [asyncio.create_task(__batch_sync_jdbc_worker(jdbc)) for jdbc in jdbc_list]
+    return await asyncio.gather(*tasks)
+
+async def __batch_sync_jdbc_worker(jdbc):
+    sync_jdbc_connection(jdbc)
+        # return jdbc.account_provider_id, jdbc.account_id, jdbc.region, jdbc.instance_id, "SUCCESSED", None
+    # except BizException as be:
+    #     return jdbc.account_provider_id, jdbc.account_id, jdbc.region, jdbc.instance_id, "FAILED", be.__msg__()
+    # except Exception as e:
+    #     return jdbc.account_provider_id, jdbc.account_id, jdbc.region, jdbc.instance_id, "FAILED", str(e)
+# def get_schema_by_snapshot(provider_id: int, account_id: str, instance: str, region: str):
+#     res = crud.get_schema_by_snapshot(provider_id, account_id, instance, region)
+#     return res[0][0].replace(',', '\n').split('\n') if res else None, res[0][1] if res else None
+
+# def get_schema_by_real_time(provider_id: int, account_id: str, instance: str, region: str, db_info: bool = False):
+#     db, subnet_id = None, None
+#     assume_account, assume_region = __get_admin_info(JDBCInstanceSourceBase(account_provider_id=provider_id, account_id=account_id, instance_id=instance, region=region))
+#     connection_rds = crud.get_connection_by_instance(provider_id, account_id, instance, region)
+#     glue = __get_glue_client(assume_account, assume_region)
+#     connection = glue.get_connection(Name=connection_rds[0][0]).get('Connection', {})
+#     if connection_rds[0] and connection_rds[0][0]:
+#         subnet_id = connection.get('PhysicalConnectionRequirements', {}).get('SubnetId')
+#     if db_info:
+#         connection_properties = connection.get("ConnectionProperties", {})
+#         jdbc_source = JdbcSource(username=connection_properties.get("USERNAME"),
+#                                  password=connection_properties.get("PASSWORD"),
+#                                  secret_id=connection_properties.get("SECRET_ID"),
+#                                  connection_url=connection_properties.get("JDBC_CONNECTION_URL")
+#                                  )
+#         db = list_jdbc_databases(jdbc_source)
+#     return db, subnet_id
+
+# def sync_schema_by_job(provider_id: int, account_id: str, instance: str, region: str, schema: str):
+#     jdbc = JDBCInstanceSourceBase(instance_id=instance, account_provider_id=provider_id, account_id=account_id, region=region)
+#     account_id, region = __get_admin_info(jdbc)
+#     # Query Info
+#     info = crud.get_crawler_glue_db_by_instance(provider_id, account_id, instance, region)
+#     if not info:
+#         return
+#     crawler_role_arn = __gen_role_arn(account_id=account_id,
+#                                       region=region,
+#                                       role_name='GlueDetectionJobRole')
+#     db_names = schema.split("\n")
+#     jdbc_targets = __gen_jdbc_targets_from_db_names(info[0][2], db_names)
+#     # Update Crawler
+#     __update_crawler(provider_id, account_id, instance, region, jdbc_targets, info[0][0], info[0][1], crawler_role_arn)
+#     # Update RDS
+#     crud.update_schema_by_account(provider_id, account_id, instance, region, schema)
 
 def __gen_jdbc_targets_from_db_names(connection_name, db_names):
     jdbc_targets = []

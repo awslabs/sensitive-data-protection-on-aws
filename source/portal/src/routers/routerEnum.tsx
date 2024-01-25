@@ -13,7 +13,8 @@ import CreateJobOld from 'pages/create-job/indexOld';
 import GlueJob from 'pages/glue-job';
 import LoginCallback from 'pages/login-callback';
 import TimeLine from 'pages/time-line';
-import BatchOperation from 'pages/batch-operation'
+import BatchOperation from 'pages/batch-operation';
+import SystemSetting from 'pages/system-settings';
 
 interface RouterEnumType {
   path: string;
@@ -69,5 +70,9 @@ export const RouterEnum: Record<string, RouterEnumType> = {
   BatchOperation: {
     path: '/batch-operation',
     element: <BatchOperation />,
-  }
+  },
+  SystemSettings: {
+    path: '/system-settings',
+    element: <SystemSetting />,
+  },
 };

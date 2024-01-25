@@ -9,7 +9,7 @@ from common.enum import MessageEnum, JobState, RunState, RunDatabaseState, Datab
 from sqlalchemy import func
 from common.constant import const
 import uuid
-import datetime
+from datetime import datetime, timedelta
 from catalog.crud import get_catalog_database_level_classification_by_type_all,get_catalog_database_level_classification_by_params
 from template.service import get_template_snapshot_no
 from tools.str_tool import is_empty
@@ -171,7 +171,7 @@ def init_run(job_id: int) -> int:
             catalog_databases = get_catalog_database_level_classification_by_params(job_database.account_id,job_database.region,job_database.database_type).all()
             for catalog_database in catalog_databases:
                 base_time = base_time_dict.get(
-                    f'{job_database.account_id}-{job_database.region}-{job_database.database_type}-{catalog_database.database_name}', datetime.datetime.min)
+                    f'{job_database.account_id}-{job_database.region}-{job_database.database_type}-{catalog_database.database_name}', datetime.min)
                 run_database = models.DiscoveryJobRunDatabase(run_id=run.id,
                                                               account_id=job_database.account_id,
                                                               region=job_database.region,
@@ -293,7 +293,7 @@ def get_run_database(run_database_id: int) -> models.DiscoveryJobRunDatabase:
     return session.query(models.DiscoveryJobRunDatabase).get(run_database_id)
 
 
-def update_job_database_base_time(job_id: int, account_id: str, region: str, database_type: str, database_name: str, base_time: datetime.datetime):
+def update_job_database_base_time(job_id: int, account_id: str, region: str, database_type: str, database_name: str, base_time: datetime):
     session = get_session()
     job_database = schemas.DiscoveryJobDatabaseBaseTime(base_time=base_time)
     session.query(models.DiscoveryJobDatabase).filter(models.DiscoveryJobDatabase.job_id == job_id,
@@ -304,10 +304,17 @@ def update_job_database_base_time(job_id: int, account_id: str, region: str, dat
     session.commit()
 
 
-def get_running_run_databases() -> list[models.DiscoveryJobRunDatabase]:
+def get_run_databases_by_state(state: RunDatabaseState) -> list[models.DiscoveryJobRunDatabase]:
     session = get_session()
-    db_run_databases = session.query(models.DiscoveryJobRunDatabase).filter(models.DiscoveryJobRunDatabase.state == RunDatabaseState.RUNNING.value).all()
-    return db_run_databases
+    return session.query(models.DiscoveryJobRunDatabase).filter(models.DiscoveryJobRunDatabase.state == state.value).all()
+
+
+def get_running_run_databases() -> list[models.DiscoveryJobRunDatabase]:
+    return get_run_databases_by_state(RunDatabaseState.RUNNING)
+
+
+def get_pending_run_databases() -> list[models.DiscoveryJobRunDatabase]:
+    return get_run_databases_by_state(RunDatabaseState.PENDING)
 
 
 def count_account_run_job(account_id: str, regin: str):

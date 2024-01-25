@@ -25,13 +25,17 @@ import { useNavigate } from 'react-router-dom';
 
 const AccountManagementHeader: React.FC = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   return (
     <Header
       variant="h1"
       description={t('account:connectToDataSourceDesc')}
-      actions={<Button onClick={()=>navigate(RouterEnum.BatchOperation.path)}>Batch Operation</Button>}
-      >
+      actions={
+        <Button onClick={() => navigate(RouterEnum.BatchOperation.path)}>
+          {t('button.batchOperation')}
+        </Button>
+      }
+    >
       {t('account:connectToDataSource')}
     </Header>
   );
@@ -58,16 +62,18 @@ const AccountManagementContent: React.FC = () => {
   const [loadingAccounts, setLoadingAccounts] = useState(true);
 
   useEffect(() => {
-    
     if (currentProvider) {
       getSourceCoverageData(currentProvider.id);
     }
     sessionStorage[CACHE_CONDITION_KEY] = JSON.stringify({
-      column: "account_provider_id",
-      condition: "and",
-      operation: "in",
-      values: (currentProvider == null || currentProvider.id === 1)?[1, 4]:[currentProvider.id]
-    })
+      column: 'account_provider_id',
+      condition: 'and',
+      operation: 'in',
+      values:
+        currentProvider == null || currentProvider.id === 1
+          ? [1, 4]
+          : [currentProvider.id],
+    });
   }, [currentProvider]);
 
   const getSourceCoverageData = async (providerId: number | string) => {

@@ -15,6 +15,7 @@ import * as path from 'path';
 import {
   CustomResource, Duration,
   RemovalPolicy,
+  Tags,
 } from 'aws-cdk-lib';
 import {
   InstanceClass,
@@ -66,6 +67,7 @@ export class RdsStack extends Construct {
       vpc: props.vpc,
       description: 'connet to RDS',
     });
+    Tags.of(this.clientSecurityGroup).add(SolutionInfo.TAG_NAME, `${SolutionInfo.SOLUTION_NAME}-RDS Client`);
     const rdsSecurityGroup = new SecurityGroup(this, 'RDSSecurityGroup', {
       // securityGroupName: 'RDS',
       vpc: props.vpc,
@@ -76,6 +78,7 @@ export class RdsStack extends Construct {
       Port.tcp(this.dbPort),
       'Allow RDS client',
     );
+    Tags.of(rdsSecurityGroup).add(SolutionInfo.TAG_NAME, `${SolutionInfo.SOLUTION_NAME}-RDS`);
 
     const secretName = `${SolutionInfo.SOLUTION_NAME}`;
     const dbSecret = new DatabaseSecret(this, 'Secret', {
@@ -113,7 +116,7 @@ export class RdsStack extends Construct {
       removalPolicy: RemovalPolicy.DESTROY,
       multiAz: true,
       deletionProtection: false,
-      caCertificate: CaCertificate.RDS_CA_RDS4096_G1,
+      caCertificate: CaCertificate.RDS_CA_RDS2048_G1,
     });
 
     new SecretRotation(this, 'SecretRotation', {

@@ -225,6 +225,7 @@ export class AlbStack extends NestedStack {
     });
     albSecurityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(port), 'rule of allow inbound traffic from server port');
     albSecurityGroup.addIngressRule(Peer.anyIpv6(), Port.tcp(port), 'rule of allow inbound traffic from server port');
+    Tags.of(albSecurityGroup).add(SolutionInfo.TAG_NAME, `${SolutionInfo.SOLUTION_NAME}-ALB`);
     return albSecurityGroup;
   }
 
