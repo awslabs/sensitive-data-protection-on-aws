@@ -98,11 +98,11 @@ const.PRIVATE = 'Private'
 const.ZERO = 0
 const.BATCH_CREATE_LIMIT = 1000
 const.BATCH_SHEET = "OriginTemplate"
-<<<<<<< HEAD
+
 const.CONNECTION_DESC_MAX_LEN = 10
 const.BATCH_CREATE_TEMPLATE_PATH = 'batch-create-jdbc-datasource/template/batch-create-jdbc-datasource.xlsx'
 const.BATCH_CREATE_REPORT_PATH = 'batch-create-jdbc-datasource/report'
-=======
+
 const.CONFIG_CONCURRENT_RUN_INSTANCE_NUMBER = 'ConcurrentRunInstanceNumber'
 const.CONFIG_CONCURRENT_RUN_INSTANCE_NUMBER_DEFAULT_VALUE = 50
 const.CONFIG_SUB_JOB_NUMBER_S3 = 'SubJobNumberS3'
@@ -114,7 +114,7 @@ const.CONTROLLER_ACTION_SCHEDULE_JOB = 'ScheduleJob'
 const.CONTROLLER_ACTION_CHECK_RUNNING_RUN_DATABASES = 'CheckRunningRunDatabases'
 const.CONTROLLER_ACTION_CHECK_PENDING_RUN_DATABASES = 'CheckPendingRunDatabases'
 const.CONTROLLER_ACTION_REFRESH_ACCOUNT = 'RefreshAccount'
->>>>>>> 488eedeb27411ab78c59e3d7874eeda183fcf07d
+
 
 const.UNSTRUCTURED_FILES = {
     "document": ["doc", "docx", "pdf", "ppt", "pptx", "xls", "xlsx", "odp"],

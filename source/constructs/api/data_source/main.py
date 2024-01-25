@@ -398,7 +398,7 @@ def query_batch_status(batch: str):
 def download_batch_file(filename: str):
     return service.download_batch_file(filename)
 
-@router.post("/batch-sync-jdbc", response_model=BaseResponse)
-@inject_session
-def batch_sync_jdbc(connection_list: [schemas.JDBCInstanceSourceBase]):
-    return service.batch_sync_jdbc(connection_list)
+# @router.post("/batch-sync-jdbc", response_model=BaseResponse)
+# @inject_session
+# def batch_sync_jdbc(connection_list: [schemas.JDBCInstanceSourceBase]):
+#     return service.batch_sync_jdbc(connection_list)

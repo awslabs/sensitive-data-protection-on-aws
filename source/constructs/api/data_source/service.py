@@ -31,7 +31,7 @@ from db.models_data_source import (Account)
 from discovery_job.service import can_delete_database as can_delete_job_database
 from discovery_job.service import delete_account as delete_job_by_account
 from discovery_job.service import delete_database as delete_job_database
-from source.constructs.api.data_source.jdbc_schema import list_jdbc_databases
+from .jdbc_schema import list_jdbc_databases
 from . import s3_detector, rds_detector, glue_database_detector, jdbc_detector, crud
 from .schemas import (AccountInfo, AdminAccountInfo,
                       JDBCInstanceSource, JDBCInstanceSourceUpdate, JdbcSource,
