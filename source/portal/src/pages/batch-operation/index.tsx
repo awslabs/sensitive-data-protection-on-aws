@@ -20,10 +20,11 @@ import Navigation from 'pages/left-menu/Navigation';
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
 import HelpInfo from 'common/HelpInfo';
-import { buildDocLink } from 'ts/common';
+import { BATCH_SOURCE_ID, buildDocLink } from 'ts/common';
 import axios from 'axios';
 import { BASE_URL } from 'tools/apiRequest';
 import { downloadBatchFiles, queryBatchStatus } from 'apis/data-source/api';
+import { alertMsg } from 'tools/tools';
 
 enum BatchOperationStatus {
   NotStarted = 'NotStarted',
@@ -61,19 +62,19 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
       const response: any = await queryBatchStatus({
         batch: fileId,
       });
-      const status = response.data; // 0: Inprogress, 1: Completed, 2: Error
+      const status = response.data; // 0: Inprogress, 1: Error, 2: Completed
       if (status === 1 || status === 2) {
         clearInterval(statusInterval);
       }
       if (status === 1) {
-        updateStatus(BatchOperationStatus.Completed);
-      } else if (status === 2) {
         updateStatus(BatchOperationStatus.Error);
+      } else if (status === 2) {
+        updateStatus(BatchOperationStatus.Completed);
       } else {
         updateStatus(BatchOperationStatus.Inprogress);
       }
     } catch (error) {
-      console.error('查询状态失败:', error);
+      console.error('error:', error);
       clearInterval(statusInterval);
     }
   };
@@ -112,12 +113,19 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
           },
         }
       );
-      setLoadingUpload(false);
-      const fileId = response.data.data;
-      localStorage.setItem('batchFileId', fileId);
-      updateStatus(BatchOperationStatus.Inprogress);
-      statusInterval = setInterval(() => queryStatus(fileId), 5000);
       console.log(response.data);
+      setLoadingUpload(false);
+      if (response.data.status === 'success') {
+        const fileId = response.data.data;
+        localStorage.setItem(BATCH_SOURCE_ID, fileId);
+        updateStatus(BatchOperationStatus.Inprogress);
+        statusInterval = setInterval(() => {
+          queryStatus(fileId);
+        }, 5000);
+      } else {
+        setUploadProgress(0);
+        alertMsg(response.data.message ?? '', 'error');
+      }
     } catch (error) {
       setLoadingUpload(false);
       console.error(error);
@@ -125,10 +133,12 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
   };
 
   useEffect(() => {
-    const fileId = localStorage.getItem('batchFileId');
+    const fileId = localStorage.getItem(BATCH_SOURCE_ID);
     if (fileId) {
       queryStatus(fileId);
-      statusInterval = setInterval(() => queryStatus(fileId), 5000);
+      statusInterval = setInterval(() => {
+        queryStatus(fileId);
+      }, 5000);
     }
     return () => {
       clearInterval(statusInterval);
@@ -235,13 +245,14 @@ const BatchOperation: React.FC = () => {
 
   const downloadReport = async () => {
     console.log('download report');
-    const fileName = localStorage.getItem('batchFileId');
+    const fileName = localStorage.getItem(BATCH_SOURCE_ID);
     if (fileName) {
-      const response = await downloadBatchFiles({
-        filename: 'batch_1705900337.8425026',
+      const response: any = await downloadBatchFiles({
+        // filename: 'batch_1705900337.8425026',
+        filename: fileName,
       });
       console.info('response:', response);
-      // TODO: download file
+      window.open(response.data);
     }
   };
 
@@ -259,6 +270,9 @@ const BatchOperation: React.FC = () => {
               {t('button.downloadReport')}
             </Button>
           ),
+          onDismiss: () => {
+            setFlashBar([]);
+          },
         },
       ]);
     }
@@ -276,6 +290,9 @@ const BatchOperation: React.FC = () => {
               {t('button.downloadReport')}
             </Button>
           ),
+          onDismiss: () => {
+            setFlashBar([]);
+          },
         },
       ]);
     }
@@ -289,11 +306,6 @@ const BatchOperation: React.FC = () => {
           content:
             'Creating databases, Please do not close this window. It will takes less than 15 minutes.',
           id: 'info',
-          action: (
-            <Button onClick={downloadReport}>
-              {t('button.downloadReport')}
-            </Button>
-          ),
         },
       ]);
     }
