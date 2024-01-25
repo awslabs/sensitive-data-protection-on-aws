@@ -219,8 +219,8 @@ def start_sample_job(job_id: int, table_name: str):
 
 def __get_job_number(database_type: str) -> int:
     if database_type in [DatabaseType.S3.value, DatabaseType.GLUE.value]:
-        return int(config_service.get_config(const.CONFIG_JOB_NUMBER_S3, const.CONFIG_JOB_NUMBER_S3_DEFAULT_VALUE))
-    return int(config_service.get_config(const.CONFIG_JOB_NUMBER_RDS, const.CONFIG_JOB_NUMBER_RDS_DEFAULT_VALUE))
+        return int(config_service.get_config(const.CONFIG_SUB_JOB_NUMBER_S3, const.CONFIG_SUB_JOB_NUMBER_S3_DEFAULT_VALUE))
+    return int(config_service.get_config(const.CONFIG_SUB_JOB_NUMBER_RDS, const.CONFIG_SUB_JOB_NUMBER_RDS_DEFAULT_VALUE))
 
 
 def get_run_database_ip_count(database_type: str) -> int:

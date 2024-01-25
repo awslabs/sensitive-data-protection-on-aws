@@ -23,9 +23,3 @@ def set_config(configs: list[schemas.ConfigBase]):
 @inject_session
 def list_subnets():
     return service.list_subnets()
-
-
-@router.get("/run-database-ip-count", response_model=BaseResponse[int])
-@inject_session
-def get_run_database_ip_count(database_type: str):
-    return discovery_job_service.get_run_database_ip_count(database_type)
