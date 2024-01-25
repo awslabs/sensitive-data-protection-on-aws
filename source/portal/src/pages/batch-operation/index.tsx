@@ -8,7 +8,6 @@ import {
   FlashbarProps,
   FormField,
   Header,
-  Icon,
   ProgressBar,
   SpaceBetween,
   StatusIndicator,
@@ -36,6 +35,14 @@ interface BatchOperationContentProps {
   updateStatus: (status: BatchOperationStatus) => void;
 }
 
+const startDownload = (url: string) => {
+  const link = document.createElement('a');
+  link.href = url;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
 const AddAccountHeader: React.FC = () => {
   const { t } = useTranslation();
   return (
@@ -56,13 +63,14 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
   const [errors, setErrors] = useState([] as any);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [loadingUpload, setLoadingUpload] = useState(false);
+  const [loadingDownload, setLoadingDownload] = useState(false);
 
   const queryStatus = async (fileId: string) => {
     try {
-      const response: any = await queryBatchStatus({
+      const status: any = await queryBatchStatus({
         batch: fileId,
       });
-      const status = response.data; // 0: Inprogress, 1: Error, 2: Completed
+      // 0: Inprogress, 1: Error, 2: Completed
       if (status === 1 || status === 2) {
         clearInterval(statusInterval);
       }
@@ -134,12 +142,14 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
 
   const downloadReport = async () => {
     console.log('download template');
+    setLoadingDownload(true);
     const fileName = `template-${i18n.language}`;
     if (fileName) {
-      const response: any = await downloadBatchFiles({
+      const url: any = await downloadBatchFiles({
         filename: fileName,
       });
-      window.open(response.data);
+      setLoadingDownload(false);
+      startDownload(url);
     }
   };
 
@@ -173,7 +183,7 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
               downloadReport();
             }}
             variant="link"
-            download
+            loading={loadingDownload}
           >
             {t('datasource:batch.step1Download')}
           </Button>
@@ -260,17 +270,18 @@ const BatchOperation: React.FC = () => {
   );
 
   const [status, setStatus] = useState(BatchOperationStatus.NotStarted);
+  const [loadingDownload, setLoadingDownload] = useState(false);
 
   const downloadReport = async () => {
     console.log('download report');
+    setLoadingDownload(true);
     const fileName = localStorage.getItem(BATCH_SOURCE_ID);
     if (fileName) {
-      const response: any = await downloadBatchFiles({
-        // filename: 'batch_1705900337.8425026',
+      const url: any = await downloadBatchFiles({
         filename: fileName,
       });
-      console.info('response:', response);
-      window.open(response.data);
+      setLoadingDownload(false);
+      startDownload(url);
     }
   };
 
@@ -284,11 +295,12 @@ const BatchOperation: React.FC = () => {
           content: 'Please download the report and check the result.',
           id: 'success',
           action: (
-            <Button onClick={downloadReport}>
+            <Button onClick={downloadReport} loading={loadingDownload}>
               {t('button.downloadReport')}
             </Button>
           ),
           onDismiss: () => {
+            localStorage.removeItem(BATCH_SOURCE_ID);
             setFlashBar([]);
           },
         },
@@ -304,11 +316,12 @@ const BatchOperation: React.FC = () => {
             'Please download the report and fix the data to upload again to retry.',
           id: 'error',
           action: (
-            <Button onClick={downloadReport}>
+            <Button onClick={downloadReport} loading={loadingDownload}>
               {t('button.downloadReport')}
             </Button>
           ),
           onDismiss: () => {
+            localStorage.removeItem(BATCH_SOURCE_ID);
             setFlashBar([]);
           },
         },
