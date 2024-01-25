@@ -134,7 +134,7 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
 
   const downloadReport = async () => {
     console.log('download template');
-    const fileName = `template_${i18n.language}`;
+    const fileName = `template-${i18n.language}`;
     if (fileName) {
       const response: any = await downloadBatchFiles({
         filename: fileName,
