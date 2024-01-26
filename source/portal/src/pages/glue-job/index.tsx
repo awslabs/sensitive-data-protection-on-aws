@@ -153,7 +153,7 @@ const GlueJobContent = () => {
     if (jobRowData.state === 'Active (idle)') {
       tempType = CLSAAIFIED_TYPE.SystemMark;
     }
-    if (jobRowData.state === 'Running') {
+    if (jobRowData.state === 'Running' || jobRowData.state === 'Pending') {
       tempType = CLSAAIFIED_TYPE.System;
     }
     if (jobRowData.state === 'Stopped') {
