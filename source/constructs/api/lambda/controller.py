@@ -2,12 +2,13 @@ import json
 import discovery_job.service as discovery_job_service
 import data_source.service as data_source_service
 from db.database import gen_session, close_session
-import logging
-from common.reference_parameter import logger
+import logging.config
 from common.constant import const
 from . import auto_sync_data, sync_crawler_results
+import re
 
-logger.setLevel(logging.INFO)
+logging.config.fileConfig('logging.conf', disable_existing_loggers=False)
+logger = logging.getLogger(const.LOGGER_API)
 
 
 def lambda_handler(event, context):
@@ -45,10 +46,13 @@ def __schedule_job(event):
 
 def __deal_queue(event):
     event_source = event['Records'][0]["eventSourceARN"].split(":")[-1]
+    logger.info(f"event_source:{event_source}")
     for record in event['Records']:
         payload = record["body"]
         logger.info(payload)
-        payload = payload.replace("\'", "\"")
+        updated_string = re.sub(r'("[^"]*?)(\')(.*?)(\')([^"]*?")', r'\1 \3 \5', str(payload))
+        payload = updated_string.replace("\'", "\"")
+        logger.debug(payload)
         current_event = json.loads(payload)
         if event_source == f"{const.SOLUTION_NAME}-DiscoveryJob":
             discovery_job_service.complete_run_database(current_event)
