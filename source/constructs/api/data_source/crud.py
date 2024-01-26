@@ -997,3 +997,17 @@ def update_schema_by_account(provider_id, account_id, instance, region, schema):
     if jdbc_instance_source:
         jdbc_instance_source.jdbc_connection_schema = schema
     session.commit()
+
+def list_s3_resources():
+    return get_session().query(S3BucketSource.account_id, S3BucketSource.region, S3BucketSource.bucket_name).all()
+
+def list_rds_resources():
+    return get_session().query(RdsInstanceSource.account_id, RdsInstanceSource.region, RdsInstanceSource.instance_id).all()
+
+def list_glue_resources():
+    return get_session().query(SourceGlueDatabase.account_id, SourceGlueDatabase.region, SourceGlueDatabase.glue_database_name).all()
+
+def list_jdbc_resources_by_provider(provider_id: int):
+    return get_session() \
+        .query(JDBCInstanceSource.account_provider_id, JDBCInstanceSource.account_id, JDBCInstanceSource.region, JDBCInstanceSource.instance_id) \
+        .filter(JDBCInstanceSource.account_provider_id == provider_id).all()

@@ -1775,7 +1775,7 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
 
         # Create Crawler
         jdbc_source = JdbcSource(connection_url=jdbcConn.jdbc_connection_url, username=jdbcConn.master_username, password=jdbcConn.password, secret_id=jdbcConn.secret)
-        db_names = get_db_names_4_jdbc(jdbcConn.jdbc_connection_url, jdbcConn.jdbc_connection_schema, jdbc_source)
+        db_names = get_db_names_4_jdbc(jdbc_source, jdbcConn.jdbc_connection_schema)
         for db_name in db_names:
             trimmed_db_name = db_name.strip()
             if trimmed_db_name:
@@ -2667,8 +2667,13 @@ def batch_create(file: UploadFile = File(...)):
     # Read the Excel file
     content = file.file.read()
     workbook = openpyxl.load_workbook(BytesIO(content), read_only=False)
+    print(f"******** worksheet is: {workbook}")
+    print(f"******** worksheet type is: {type(workbook)}")
+    sheet_names = workbook.sheetnames
+    print(f"******** sheet_names is: {sheet_names[0]}")
+    print(f"******** BATCH_SHEET is: {const.BATCH_SHEET}")
     try:
-        sheet = workbook[const.BATCH_SHEET]
+        sheet = workbook.get_sheet_by_name(const.BATCH_SHEET)
     except KeyError:
         raise BizException(MessageEnum.SOURCE_BATCH_SHEET_NOT_FOUND.get_code(),
                            MessageEnum.SOURCE_BATCH_SHEET_NOT_FOUND.get_msg())
@@ -2682,7 +2687,7 @@ def batch_create(file: UploadFile = File(...)):
     for row_index, row in enumerate(sheet.iter_rows(min_row=3), start=2):
         if all(cell.value is None for cell in row):
             continue
-        if any(not cell.value for cell in [row[0], row[1], row[3], row[5], row[6], row[7], row[8], row[9]]):
+        if any(cell.value is None or str(cell.value).strip() == const.EMPTY_STR for cell in [row[0], row[1], row[3], row[5], row[6], row[7], row[8], row[9]]):
             __add_error_msg(sheet, max_column, row_index, "Fields cannot be empty")
         elif sheet.cell(row=row_index + 1, column=2).value not in [0, 1]:
             __add_error_msg(sheet, max_column, row_index, f"The value of {header[1]} must be 0 or 1")
@@ -2716,13 +2721,10 @@ def batch_create(file: UploadFile = File(...)):
                 continue
             v = result.get(f"{row[9].value}/{row[7].value}/{row[8].value}/{row[0].value}")
             if v:
-                if v.split('/')[0]=="SUCCESSED":
+                if v.split('/')[0] == "SUCCESSED":
                     __add_success_msg(sheet, max_column, row_index)
                 else:
                     __add_error_msg(sheet, max_column, row_index, v.split('/')[1])
-    else:
-        raise BizException(MessageEnum.SOURCE_BATCH_SHEET_NOT_FOUND.get_code(),
-                           MessageEnum.SOURCE_BATCH_SHEET_NOT_FOUND.get_msg())
     # Write into excel
     excel_bytes = BytesIO()
     workbook.save(excel_bytes)
@@ -2749,6 +2751,7 @@ def query_batch_status(filename: str):
             response = __s3_client.get_object(Bucket=admin_bucket_name, Key=file_key)
             excel_bytes = response['Body'].read()
             workbook = openpyxl.load_workbook(BytesIO(excel_bytes))
+            
             try:
                 sheet = workbook[const.BATCH_SHEET]
             except KeyError:
@@ -2758,10 +2761,10 @@ def query_batch_status(filename: str):
                 if row[10] == "FAILED":
                     return 1
             return 2
-        return 0
+    return 0
 
 def download_batch_file(filename: str):
-    key = const.BATCH_CREATE_TEMPLATE_PATH if filename == "template" else f'{const.BATCH_CREATE_REPORT_PATH}/{filename}.xlsx'
+    key = const.BATCH_CREATE_TEMPLATE_PATH if filename.startswith("template") else f'{const.BATCH_CREATE_REPORT_PATH}/{filename}.xlsx'
     url = __s3_client.generate_presigned_url(
         ClientMethod="get_object",
         Params={'Bucket': admin_bucket_name, 'Key': key},
