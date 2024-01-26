@@ -440,8 +440,10 @@
     "rdsSubJobRunNumberDesc": "1 次 RDS 扫描可运行多少次 Glue 作业",
     "subnet": "子网 ",
     "subnetNameDesc": "子网中剩余IP总数",
-    "currentIPLeft": "当前剩余IP",
-    "subnetDesc": "每个子网的 IP 使用量 = (RDS 实例并发数量 * (3 + 子作业并发运行数量)) / 子网数量",
-    "estimateResult": "根据上述设置，对于每个作业运行，每个子网最多将消耗 {{ipCount}} 个 IP。"
+    "subnetDesc": "每个子网的 IP 使用量 = 3 + （可用于 1 次 RDS 扫描的子作业运行数量 * 2）",
+    "estimateResult": "根据上述设置，对于每个作业运行，每个子网最多将消耗 {{ipCount}} 个 IP。",
+    "estimateError": "发现作业中的 IP 不能超过子网剩余的 IP。请调整设置。",
+    "estimateSuccess": "配置验证成功。",
+    "estimateFirst": "请单击验证按钮以验证设置。"
   }
 }
