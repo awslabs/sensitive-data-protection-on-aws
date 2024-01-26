@@ -42,6 +42,7 @@ class DiscoveryJobRunDatabaseStatus(BaseModel):
     success_count: int
     fail_count: int
     ready_count: int
+    pending_count: int
     running_count: int
     stopped_count: int
     not_existed_count: int
@@ -49,6 +50,7 @@ class DiscoveryJobRunDatabaseStatus(BaseModel):
     success_per: int
     fail_per: int
     ready_per: int
+    pending_per: int
     running_per: int
     stopped_per: int
     not_existed_per: int

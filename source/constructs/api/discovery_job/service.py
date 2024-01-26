@@ -14,8 +14,7 @@ import datetime, time, pytz
 from openpyxl import Workbook
 from tempfile import NamedTemporaryFile
 from catalog.service import sync_job_detection_result
-from tools.str_tool import is_empty
-from common.abilities import need_change_account_id, convert_database_type_2_provider
+from common.abilities import need_change_account_id, convert_database_type_2_provider, is_run_in_admin_vpc
 import config.service as config_service
 from data_source import jdbc_schema
 from tools import list_tool
@@ -48,10 +47,7 @@ def create_job(job: schemas.DiscoveryJobCreate):
     if job.depth_structured is None:
         job.depth_structured = 0
     if job.depth_unstructured is None:
-        if job.database_type == DatabaseType.S3.value:
-            job.depth_unstructured = -1  # -1 represents all
-        else:
-            job.depth_unstructured = 0
+        job.depth_unstructured = 0
     db_job = crud.create_job(job)
     if db_job.schedule != const.ON_DEMAND:
         create_event(db_job.id, db_job.schedule)
@@ -259,10 +255,11 @@ def __start_run_databases(run_databases):
 
     account_loop_wait = {}
     for run_database in run_databases:
+        if is_run_in_admin_vpc(run_database.database_type, run_database.account_id):
+            limit_concurrency = True
         account_id = run_database.account_id
         if need_change_account_id(run_database.database_type):
             account_id = admin_account_id
-            limit_concurrency = True
         if account_id in account_loop_wait:
             tmp = account_loop_wait[account_id]
             tmp = tmp + const.JOB_INTERVAL_WAIT
@@ -271,7 +268,8 @@ def __start_run_databases(run_databases):
             account_loop_wait[account_id] = const.JOB_INTERVAL_WAIT
 
     if limit_concurrency:
-        concurrent_run_instance_number = config_service.get_config(const.CONFIG_CONCURRENT_RUN_INSTANCE_NUMBER, const.CONFIG_CONCURRENT_RUN_INSTANCE_NUMBER_DEFAULT_VALUE)
+        concurrent_run_job_number = int(config_service.get_config(const.CONFIG_CONCURRENT_RUN_JOB_NUMBER, const.CONFIG_CONCURRENT_RUN_JOB_NUMBER_DEFAULT_VALUE))
+        logger.debug(f"concurrent_run_job_number:{concurrent_run_job_number}")
         count_run_database = __count_run_database_by_subnet()
 
     job_placeholder = ","
@@ -279,13 +277,18 @@ def __start_run_databases(run_databases):
     failed_run_database_count = 0
     for run_database in run_databases:
         try:
-            if limit_concurrency:
+            if is_run_in_admin_vpc(run_database.database_type, run_database.account_id):
+                logger.debug(f"database_name:{run_database.database_name}")
                 provider_id = convert_database_type_2_provider(run_database.database_type)
                 database_schemas_real_time, subnet_id = jdbc_schema.get_schema_by_real_time(provider_id, run_database.account_id, run_database.region, run_database.database_name, True)
                 count = count_run_database.get(subnet_id, 0)
-                if count >= concurrent_run_instance_number:
+                logger.debug(f"subnet_id:{subnet_id}")
+                logger.debug(f"count:{count}")
+                if count >= concurrent_run_job_number:
                     run_database.state = RunDatabaseState.PENDING.value
+                    logger.debug(f"{run_database.database_name} break")
                     continue
+                logger.debug(f"run_database.database_name add")
                 count_run_database[subnet_id] = count + 1
                 if database_schemas_real_time:
                     database_schemas_snapshot, _ = jdbc_schema.get_schema_by_snapshot(provider_id, run_database.account_id, run_database.region, run_database.database_name)
@@ -322,7 +325,7 @@ def __start_run_databases(run_databases):
             if job.range == 1 and run_database.base_time:
                 base_time = mytime.format_time(run_database.base_time)
             need_run_crawler = True
-            if run_database.database_type == DatabaseType.GLUE.value or not is_empty(run_database.table_name):
+            if run_database.database_type == DatabaseType.GLUE.value or run_database.table_name:
                 need_run_crawler = False
             crawler_name = f"{const.SOLUTION_NAME}-{run_database.database_type}-{run_database.database_name}"
             glue_database_name = f"{const.SOLUTION_NAME}-{run_database.database_type}-{run_database.database_name}"
@@ -349,15 +352,15 @@ def __start_run_databases(run_databases):
                 "DatabaseName": run_database.database_name,
                 "GlueDatabaseName": glue_database_name,
                 "UnstructuredDatabaseName": f"{const.SOLUTION_NAME}-{DatabaseType.S3_UNSTRUCTURED.value}-{run_database.database_name}",
-                "TableName": job_placeholder if is_empty(run_database.table_name) else run_database.table_name,
+                "TableName": run_database.table_name if run_database.table_name else job_placeholder,
                 "TemplateId": str(run.template_id),
                 "TemplateSnapshotNo": str(run.template_snapshot_no),
                 "DepthStructured": "0" if run.depth_structured is None else str(run.depth_structured),
                 "DepthUnstructured": "0" if run.depth_unstructured is None else str(run.depth_unstructured),
-                "ExcludeKeywords": job_placeholder if is_empty(run.exclude_keywords) else run.exclude_keywords,
-                "IncludeKeywords": job_placeholder if is_empty(run.include_keywords) else run.include_keywords,
-                "ExcludeFileExtensions": job_placeholder if is_empty(run.exclude_file_extensions) else run.exclude_file_extensions,
-                "IncludeFileExtensions": job_placeholder if is_empty(run.include_file_extensions) else run.include_file_extensions,
+                "ExcludeKeywords": run.exclude_keywords if run.exclude_keywords else job_placeholder,
+                "IncludeKeywords": run.include_keywords if run.include_keywords else job_placeholder,
+                "ExcludeFileExtensions": run.exclude_file_extensions if run.exclude_file_extensions else job_placeholder,
+                "IncludeFileExtensions": run.include_file_extensions if run.include_file_extensions else job_placeholder,
                 "BaseTime": base_time,
                 # "JobBookmarkOption": job_bookmark_option,
                 "DetectionThreshold": str(job.detection_threshold),
@@ -615,8 +618,8 @@ def list_run_databases_pagination(run_id: int, condition: QueryCondition):
 
 def get_run_status(job_id: int, run_id: int) -> schemas.DiscoveryJobRunDatabaseStatus:
     run_list = crud.list_run_databases(run_id)
-    total_count = success_count = fail_count = ready_count = running_count = stopped_count = not_existed_count = 0
-    success_per = fail_per = ready_per = running_per = stopped_per = not_existed_per = 0
+    success_count = fail_count = ready_count = pending_count = running_count = stopped_count = not_existed_count = 0
+    success_per = fail_per = ready_per = pending_per = running_per = stopped_per = not_existed_per = 0
 
     total_count = len(run_list)
     if total_count > 0:
@@ -627,6 +630,8 @@ def get_run_status(job_id: int, run_id: int) -> schemas.DiscoveryJobRunDatabaseS
                 fail_count += 1
             elif run_item.state == RunDatabaseState.READY.value:
                 ready_count += 1
+            elif run_item.state == RunDatabaseState.PENDING.value:
+                pending_count += 1
             elif run_item.state == RunDatabaseState.RUNNING.value:
                 running_count += 1
             elif run_item.state == RunDatabaseState.STOPPED.value:
@@ -636,6 +641,7 @@ def get_run_status(job_id: int, run_id: int) -> schemas.DiscoveryJobRunDatabaseS
 
         fail_per = int(fail_count / total_count * 100)
         ready_per = int(ready_count / total_count * 100)
+        pending_per = int(pending_count / total_count * 100)
         running_per = int(running_count / total_count * 100)
         stopped_per = int(stopped_count / total_count * 100)
         not_existed_per = int(not_existed_count / total_count * 100)
@@ -646,6 +652,7 @@ def get_run_status(job_id: int, run_id: int) -> schemas.DiscoveryJobRunDatabaseS
         success_count=success_count,
         fail_count=fail_count,
         ready_count=ready_count,
+        pending_count=pending_count,
         running_count=running_count,
         stopped_count=stopped_count,
         not_existed_count=not_existed_count,
@@ -653,6 +660,7 @@ def get_run_status(job_id: int, run_id: int) -> schemas.DiscoveryJobRunDatabaseS
         success_per=success_per,
         fail_per=fail_per,
         ready_per=ready_per,
+        pending_per=pending_per,
         running_per=running_per,
         stopped_per=stopped_per,
         not_existed_per=not_existed_per

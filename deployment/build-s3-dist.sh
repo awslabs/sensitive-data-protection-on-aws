@@ -42,6 +42,8 @@ title "cdk synth"
 run cd ${SRC_PATH}
 
 # Replace before building
+sed -i "s|DEBUG|INFO|"g api/logging.conf
+
 sed -i "s|@TEMPLATE_SOLUTION_VERSION@|$SOLUTION_VERSION|"g lib/admin/database/*/*.sql
 sed -i "s|@TEMPLATE_SOLUTION_VERSION@|$SOLUTION_VERSION|"g lib/agent/DiscoveryJob.json
 

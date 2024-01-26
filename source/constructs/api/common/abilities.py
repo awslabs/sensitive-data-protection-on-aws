@@ -1,6 +1,7 @@
 from common.enum import (Provider,
                          ProviderName,
                          DatabaseType)
+from common.reference_parameter import logger, admin_account_id
 
 
 def convert_database_type_2_provider(database_type: str) -> int:
@@ -42,6 +43,15 @@ def need_change_account_id(database_type: str) -> bool:
     if database_type.startswith(DatabaseType.JDBC.value) and database_type != DatabaseType.JDBC_AWS.value:
         return True
     return False
+
+
+def is_run_in_admin_vpc(database_type: str, account_id: str = None) -> bool:
+    if database_type == DatabaseType.JDBC_AWS.value:
+        return account_id == admin_account_id
+    elif database_type.startswith(DatabaseType.JDBC.value):
+        return True
+    return False
+
 
 def query_all_vpc(ec2_client):
     vpcs = []

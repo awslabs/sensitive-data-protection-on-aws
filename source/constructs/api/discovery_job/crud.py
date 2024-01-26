@@ -9,10 +9,9 @@ from common.enum import MessageEnum, JobState, RunState, RunDatabaseState, Datab
 from sqlalchemy import func
 from common.constant import const
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime
 from catalog.crud import get_catalog_database_level_classification_by_type_all,get_catalog_database_level_classification_by_params
 from template.service import get_template_snapshot_no
-from tools.str_tool import is_empty
 
 
 def get_job(id: int) -> models.DiscoveryJob:
@@ -167,7 +166,18 @@ def init_run(job_id: int) -> int:
     if job.all_jdbc == 1:
         __add_job_databases(run, job.database_type, base_time_dict)
     for job_database in job_databases:
-        if is_empty(job_database.database_name) and is_empty(job_database.table_name):
+        if job_database.database_name:
+            run_database = models.DiscoveryJobRunDatabase(run_id=run.id,
+                                                          account_id=job_database.account_id,
+                                                          region=job_database.region,
+                                                          database_type=job_database.database_type,
+                                                          database_name=job_database.database_name,
+                                                          table_name=job_database.table_name,
+                                                          base_time=job_database.base_time,
+                                                          state=RunDatabaseState.READY.value,
+                                                          uuid=uuid.uuid4().hex)
+            run.databases.append(run_database)
+        else:
             catalog_databases = get_catalog_database_level_classification_by_params(job_database.account_id,job_database.region,job_database.database_type).all()
             for catalog_database in catalog_databases:
                 base_time = base_time_dict.get(
@@ -181,17 +191,6 @@ def init_run(job_id: int) -> int:
                                                               state=RunDatabaseState.READY.value,
                                                               uuid=uuid.uuid4().hex)
                 run.databases.append(run_database)
-        else:
-            run_database = models.DiscoveryJobRunDatabase(run_id=run.id,
-                                                          account_id=job_database.account_id,
-                                                          region=job_database.region,
-                                                          database_type=job_database.database_type,
-                                                          database_name=job_database.database_name,
-                                                          table_name=job_database.table_name,
-                                                          base_time=job_database.base_time,
-                                                          state=RunDatabaseState.READY.value,
-                                                          uuid=uuid.uuid4().hex)
-            run.databases.append(run_database)
     session.add(run)
     session.commit()
     return run.id
