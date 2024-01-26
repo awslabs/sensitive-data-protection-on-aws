@@ -103,8 +103,8 @@ const.CONNECTION_DESC_MAX_LEN = 10
 const.BATCH_CREATE_TEMPLATE_PATH = 'batch-create-jdbc-datasource/template/batch-create-jdbc-datasource.xlsx'
 const.BATCH_CREATE_REPORT_PATH = 'batch-create-jdbc-datasource/report'
 
-const.CONFIG_CONCURRENT_RUN_INSTANCE_NUMBER = 'ConcurrentRunInstanceNumber'
-const.CONFIG_CONCURRENT_RUN_INSTANCE_NUMBER_DEFAULT_VALUE = 50
+const.CONFIG_CONCURRENT_RUN_JOB_NUMBER = 'ConcurrentRunJobNumber'
+const.CONFIG_CONCURRENT_RUN_JOB_NUMBER_DEFAULT_VALUE = 50
 const.CONFIG_SUB_JOB_NUMBER_S3 = 'SubJobNumberS3'
 const.CONFIG_SUB_JOB_NUMBER_S3_DEFAULT_VALUE = 10
 const.CONFIG_SUB_JOB_NUMBER_RDS = 'SubJobNumberRds'
