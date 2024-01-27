@@ -90,7 +90,11 @@
     "chooseSubnet": "选择一个子网",
     "sg": "安全组",
     "sgDesc": "选择一个或多个安全组以允许访问在你的 VPC 子网中的数据存储。安全组与你的子网关联的ENI相关联。你必须选择至少一个对所有 TCP 端口有自我引用入站规则的安全组。",
-    "chooseSG": "选择一个或多个安全组"
+    "chooseSG": "选择一个或多个安全组",
+    "mysql": "MySQL（自动发现）",
+    "other": "其他",
+    "otherError": "其他 JDBC URL 不能以 'jdbc:mysql://' 开头",
+    "databaseError": "JDBC 数据库不能为空。"
   },
   "batch": {
     "name": "批量操作",

@@ -90,7 +90,11 @@
     "chooseSubnet": "Choose one subnet",
     "sg": "Security groups",
     "sgDesc": "Choose one or more security groups to allow access to the data store in your VPC subnet. Security groups are associated to the ENI attached to your subnet. You must choose at least one security group with a self-referencing inbound rule for all TCP ports.",
-    "chooseSG": "Choose one or more security groups"
+    "chooseSG": "Choose one or more security groups",
+    "mysql": "MySQL (Auto discovery)",
+    "other": "Others",
+    "otherError": "Other JDBC URL can not start with 'jdbc:mysql://'",
+    "databaseError": "JDBC Database can not be empty."
   },
   "batch": {
     "name": "Batch Operation",

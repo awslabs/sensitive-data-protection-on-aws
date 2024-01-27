@@ -134,7 +134,10 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
   }, []);
 
   useEffect(() => {
-    console.log("jdbcConnectionData.jdbc_connection_url is :"+jdbcConnectionData.jdbc_connection_url)
+    console.log(
+      'jdbcConnectionData.jdbc_connection_url is :' +
+        jdbcConnectionData.jdbc_connection_url
+    );
     if (
       jdbcConnectionData.instance_id !== '' &&
       jdbcConnectionData.jdbc_connection_url !== '' &&
@@ -625,18 +628,19 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                   label={t('datasource:jdbc.jdbcURL')}
                   description={t('datasource:jdbc.jdbcURLDesc')}
                   constraintText={t('datasource:jdbc.jdbcURLConstraint')}
-                  secondaryControl={props.providerId !== 1 && (
-                    <Button
-                      onClick={() => {
-                        findDatabase();
-                      }}
-                      iconName="search"
-                      disabled={props.providerId === 1 || loadingJdbcDatabase}
-                    >
-                      {t('datasource:jdbc.findDatabase')}
-                    </Button>
-                  )
-                }
+                  secondaryControl={
+                    props.providerId !== 1 && (
+                      <Button
+                        onClick={() => {
+                          findDatabase();
+                        }}
+                        iconName="search"
+                        disabled={props.providerId === 1 || loadingJdbcDatabase}
+                      >
+                        {t('datasource:jdbc.findDatabase')}
+                      </Button>
+                    )
+                  }
                 >
                   <Input
                     onChange={(e) => changeJDBCUrl(e.detail.value)}
