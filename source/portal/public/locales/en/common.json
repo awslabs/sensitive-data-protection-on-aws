@@ -441,7 +441,7 @@
     "subnet": "Subnet ",
     "subnetNameDesc": "Total number of left IPs in subnet",
     "currentIPLeft": "Current IP left",
-    "subnetDesc": "IP usage per subnet = 3 + (Number of sub-job runs can be used for 1 RDS scan * 2)",
+    "subnetDesc": "IP usage per subnet = (3 + (Number of sub-job runs can be used for 1 RDS scan * 2)) * Number of RDS instance detected concurrently",
     "estimateResult": "Based on the above settings, for each job run it will consume {{ipCount}} IPs maximum per subnet.",
     "estimateError": "The IP in discovery job can not be more than the IP left of subnets. Please adjust the settings.",
     "estimateSuccess": "Config validate successfully.",

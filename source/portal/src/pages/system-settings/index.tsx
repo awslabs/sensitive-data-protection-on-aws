@@ -99,7 +99,9 @@ const SystemSettingContent = () => {
   };
 
   const calculateEstimateRestIPs = () => {
-    return 3 + parseInt(subJobNumberRDS) * 2;
+    return (
+      (3 + parseInt(subJobNumberRDS) * 2) * parseInt(concurrentRunJobNumber)
+    );
   };
 
   const estimateIPs = () => {
