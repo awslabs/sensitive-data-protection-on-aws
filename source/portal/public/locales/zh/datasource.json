@@ -107,6 +107,22 @@
     "step2Desc": "填写模板中的信息",
     "step2Tips1": "确保没有重复项",
     "step3Title": "第 3 步：上传填写信息的模板",
-    "uploadTitle": "填写模板并上传"
+    "uploadTitle": "填写模板并上传",
+    "fileExtensionError": "上传的文件必须是 xlsx 格式。",
+    "chooseFiles": "选择文件",
+    "chooseFile": "选择文件",
+    "dropFilesUpload": "拖放文件以上传",
+    "dropFileUpload": "拖放文件以上传",
+    "removeFile": "移除文件",
+    "showFewer": "显示较少文件",
+    "showMore": "显示更多文件",
+    "error": "错误",
+    "only": "仅限 .xlsx 文件",
+    "successTitle": "成功创建数据源",
+    "successDesc": "请下载报告并检查结果。",
+    "failedTitle": "批量创建数据源失败",
+    "failedDesc": "请下载报告并修正数据，然后重新上传以重试。",
+    "inProgress": "进行中",
+    "inProgressDesc": "正在创建数据库，请不要关闭此窗口。预计耗时不超过15分钟。"
   }
 }
