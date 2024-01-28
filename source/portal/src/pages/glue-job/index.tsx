@@ -153,7 +153,7 @@ const GlueJobContent = () => {
     if (jobRowData.state === 'Active (idle)') {
       tempType = CLSAAIFIED_TYPE.SystemMark;
     }
-    if (jobRowData.state === 'Running' || jobRowData.state === 'Pending') {
+    if (jobRowData.state === 'Running') {
       tempType = CLSAAIFIED_TYPE.System;
     }
     if (jobRowData.state === 'Stopped') {
@@ -164,6 +164,9 @@ const GlueJobContent = () => {
     }
     if (jobRowData.state === 'Failed') {
       tempType = CLSAAIFIED_TYPE.Failed;
+    }
+    if (jobRowData.state === 'Pending') {
+      tempType = CLSAAIFIED_TYPE.Pending;
     }
     return (
       <CommonBadge
@@ -239,6 +242,7 @@ const GlueJobContent = () => {
 
   const getProcessData = (processData: any) => {
     const totalJobCount =
+      processData.pending_count +
       processData.success_count +
       processData.running_count +
       processData.fail_count +
@@ -246,6 +250,14 @@ const GlueJobContent = () => {
       processData.stopped_count +
       processData.not_existed_count;
     const tmpColumnChartData: ColumnChartData[] = [
+      {
+        title: t('PENDING'),
+        type: 'bar',
+        valueFormatter: (e: any) =>
+          `${processData.pending_count} (${(100 * e).toFixed(0)}%)`,
+        data: [{ x: '', y: processData.pending_count / totalJobCount }],
+        color: '#CCCCCC',
+      },
       {
         title: t('SUCCEEDED'),
         type: 'bar',

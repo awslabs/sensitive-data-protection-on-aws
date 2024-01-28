@@ -19,6 +19,7 @@ export const CLSAAIFIED_TYPE = {
   Completed: 'Completed',
   Stopped: 'Stopped',
   Crawling: 'Crawling',
+  Pending: 'Pending',
 };
 
 export const PRIVARY_TYPE_DATA = {

@@ -398,6 +398,7 @@
   "changeEnableError": "Change enable error",
   "selectCategoryLabel": "Please select category/label",
   "pending": "Pending",
+  "PENDING": "PENDING",
   "SUCCEEDED": "SUCCEEDED",
   "RUNNING": "RUNNING",
   "FAILED": "FAILED",

@@ -398,6 +398,7 @@
   "changeEnableError": "更改启用错误",
   "selectCategoryLabel": "请选择类别/标签",
   "pending": "等待",
+  "PENDING": "等待",
   "SUCCEEDED": "成功",
   "RUNNING": "运行中",
   "FAILED": "失败",
