@@ -123,6 +123,7 @@
     "failedTitle": "Failed create data sources in batch",
     "failedDesc": "Please download the report and fix the data to upload again to retry.",
     "inProgress": "In progress",
-    "inProgressDesc": "Creating databases, Please do not close this window. It will takes less than 15 minutes."
+    "inProgressDesc": "Creating databases, Please do not close this window. It will takes less than 15 minutes.",
+    "dismissAlert": "Please make sure that you have downloaded the batch import report. Once this window is closed, the report will not be available for download again."
   }
 }

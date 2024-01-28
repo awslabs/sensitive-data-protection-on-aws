@@ -166,6 +166,8 @@ const SystemSettingContent = () => {
                   value={concurrentRunJobNumber}
                   placeholder="100"
                   onChange={(e) => {
+                    setIpError(false);
+                    setIpSuccess(false);
                     setConcurrentRunJobNumber(e.detail.value);
                   }}
                 />
@@ -190,7 +192,7 @@ const SystemSettingContent = () => {
                 <div className="flex gap-10">
                   {subnetItems.map((item) => {
                     return (
-                      <div className="flex-1">
+                      <div className="flex-1" key={item.name}>
                         <FormField
                           label={item.name}
                           description={

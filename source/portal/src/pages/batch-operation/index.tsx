@@ -1,5 +1,6 @@
 import {
   AppLayout,
+  Box,
   Button,
   Container,
   ContentLayout,
@@ -8,6 +9,7 @@ import {
   FlashbarProps,
   FormField,
   Header,
+  Modal,
   ProgressBar,
   SpaceBetween,
   StatusIndicator,
@@ -89,12 +91,14 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
 
   const changeFile = (file: any) => {
     setUploadProgress(0);
-    if (file[0].name.endsWith('.xlsx') === true) {
-      setErrors([]);
-      setUploadDisabled(false);
-    } else {
-      setErrors([t('datasource:batch.fileExtensionError')]);
-      setUploadDisabled(true);
+    if (file && file.length > 0) {
+      if (file[0].name.endsWith('.xlsx') === true) {
+        setErrors([]);
+        setUploadDisabled(false);
+      } else {
+        setErrors([t('datasource:batch.fileExtensionError')]);
+        setUploadDisabled(true);
+      }
     }
     setFiles(file);
   };
@@ -274,6 +278,7 @@ const BatchOperation: React.FC = () => {
 
   const [status, setStatus] = useState(BatchOperationStatus.NotStarted);
   const [loadingDownload, setLoadingDownload] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const downloadReport = async () => {
     console.log('download report');
@@ -286,6 +291,16 @@ const BatchOperation: React.FC = () => {
       setLoadingDownload(false);
       startDownload(url);
     }
+  };
+
+  const confirmDismissNotification = () => {
+    localStorage.removeItem(BATCH_SOURCE_ID);
+    setFlashBar([]);
+    setShowConfirm(false);
+  };
+
+  const onDismissNotification = () => {
+    setShowConfirm(true);
   };
 
   useEffect(() => {
@@ -303,8 +318,7 @@ const BatchOperation: React.FC = () => {
             </Button>
           ),
           onDismiss: () => {
-            localStorage.removeItem(BATCH_SOURCE_ID);
-            setFlashBar([]);
+            onDismissNotification();
           },
         },
       ]);
@@ -323,8 +337,7 @@ const BatchOperation: React.FC = () => {
             </Button>
           ),
           onDismiss: () => {
-            localStorage.removeItem(BATCH_SOURCE_ID);
-            setFlashBar([]);
+            onDismissNotification();
           },
         },
       ]);
@@ -376,6 +389,35 @@ const BatchOperation: React.FC = () => {
               },
             ]}
           />
+          <Modal
+            onDismiss={() => setShowConfirm(false)}
+            visible={showConfirm}
+            footer={
+              <Box float="right">
+                <SpaceBetween direction="horizontal" size="xs">
+                  <Button
+                    variant="link"
+                    onClick={() => {
+                      setShowConfirm(false);
+                    }}
+                  >
+                    {t('button.cancel')}
+                  </Button>
+                  <Button
+                    variant="primary"
+                    onClick={() => {
+                      confirmDismissNotification();
+                    }}
+                  >
+                    {t('confirm')}
+                  </Button>
+                </SpaceBetween>
+              </Box>
+            }
+            header={t('confirm')}
+          >
+            {t('datasource:batch.dismissAlert')}
+          </Modal>
         </ContentLayout>
       }
       headerSelector="#header"
