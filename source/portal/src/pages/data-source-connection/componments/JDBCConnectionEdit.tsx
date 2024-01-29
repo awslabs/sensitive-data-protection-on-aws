@@ -496,7 +496,6 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
       setOtherJDBCUrlError(true);
       return;
     }
-    setIsLoading(true);
     setLoadingJdbcDatabase(true);
     const requestParam = {
       connection_url: jdbcConnectionData.jdbc_connection_url,
@@ -510,7 +509,6 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
     } catch (error) {
       alertMsg(error + '', 'error');
     }
-    setIsLoading(false);
     setLoadingJdbcDatabase(false);
   };
 
@@ -812,6 +810,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                 secondaryControl={
                   props.providerId !== 1 && (
                     <Button
+                      loading={loadingJdbcDatabase}
                       onClick={() => {
                         setJdbcDatabaseEmptyError(false);
                         findDatabase();
