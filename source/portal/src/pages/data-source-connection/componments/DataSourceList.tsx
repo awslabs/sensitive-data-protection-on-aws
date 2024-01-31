@@ -225,7 +225,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         },
         {
           text: t('button.deleteDataSource'),
-          id: 'disconnect_dc',
+          id: 'deleteDataSource',
           disabled:
             tagType === DATA_TYPE_ENUM.rds || selectedItems.length === 0,
         },
@@ -615,7 +615,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         await hideDataSourceJDBC(requestParam);
       }
       showHideSpinner(false);
-      alertMsg(t('disconnectSuccess'), 'success');
+      alertMsg(t('deleteSuccess'), 'success');
       setSelectedItems([]);
       getPageData();
       return;

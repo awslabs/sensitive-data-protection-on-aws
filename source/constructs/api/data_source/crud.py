@@ -859,18 +859,12 @@ def copy_properties(jdbc_instance_target: JDBCInstanceSource, jdbc_instance_orig
     jdbc_instance_target.jdbc_driver_class_name = jdbc_instance_origin.jdbc_driver_class_name
     jdbc_instance_target.jdbc_driver_jar_uri = jdbc_instance_origin.jdbc_driver_jar_uri
     jdbc_instance_target.detection_history_id = 0
-    # jdbc_instance_target.instance_class = jdbc_instance_origin.instance_class
-    # jdbc_instance_target.instance_status = jdbc_instance_origin.instance_status
     jdbc_instance_target.account_provider_id = jdbc_instance_origin.account_provider_id
     jdbc_instance_target.account_id = jdbc_instance_origin.account_id
     jdbc_instance_target.region = jdbc_instance_origin.region
-    # jdbc_instance_target.data_source_id = jdbc_instance_origin.data_source_id
-    # jdbc_instance_target.detection_history_id = jdbc_instance_origin.detection_history_id
     jdbc_instance_target.glue_database = jdbc_instance_origin.glue_database
-    # jdbc_instance_target.glue_crawler = jdbc_instance_origin.glue_crawler
+    jdbc_instance_target.glue_crawler = jdbc_instance_origin.glue_crawler
     jdbc_instance_target.glue_connection = jdbc_instance_origin.glue_connection
-    # jdbc_instance_target.glue_vpc_endpoint = jdbc_instance_origin.glue_vpc_endpoint
-    # jdbc_instance_target.glue_state = jdbc_instance_origin.glue_state
     jdbc_instance_target.create_type = jdbc_instance_origin.create_type
     return jdbc_instance_target
 

@@ -98,7 +98,7 @@
     "tab": "批量创建数据源",
     "step1Title": "第 1 步：下载模板",
     "step1Desc": "按照模板中的说明填写信息",
-    "step1Download": "下载模板'BatchCreateDataSourceTemplate.xlsx'",
+    "step1Download": "下载模板",
     "step2Title": "第 2 步：按照提示填写模板",
     "step2Desc": "填写模板中的信息",
     "step2Tips1": "确保没有重复项",

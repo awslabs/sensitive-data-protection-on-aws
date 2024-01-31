@@ -396,7 +396,14 @@ def sync_jdbc_connection(jdbc: JDBCInstanceSourceBase):
         password = conn_response.get('ConnectionProperties', {}).get('PASSWORD')
         secret = conn_response.get('ConnectionProperties', {}).get("SECRET_ID"),
         url = conn_response.get('ConnectionProperties', {}).get('JDBC_CONNECTION_URL'),
-        jdbc_instance = JDBCInstanceSource(jdbc, jdbc_connection_url=url, master_username=username, password=password, secret=secret)
+        jdbc_instance = JDBCInstanceSource(instance_id=jdbc.instance_id,
+                                           account_provider_id=jdbc.account_provider_id,
+                                           account_id=jdbc.account_id,
+                                           region=jdbc.region,
+                                           jdbc_connection_url=url,
+                                           master_username=username,
+                                           password=password,
+                                           secret=secret)
         # jdbc_instance.jdbc_connection_url = url
     # condition_check(ec2_client, credentials, source.glue_state, conn_response['PhysicalConnectionRequirements'])
         sync(glue_client,
@@ -693,6 +700,7 @@ def before_delete_jdbc_connection(provider_id, account, region, instance_id, dat
                                MessageEnum.DISCOVERY_JOB_CAN_NOT_DELETE_DATABASE.get_msg())
     else:
         logger.info(f"delete jdbc connection: {account},{region},{database_type},{jdbc_instance.instance_id}")
+        return jdbc_instance.glue_crawler
 
 def gen_assume_account(provider_id, account, region):
     account = account if provider_id == Provider.AWS_CLOUD.value else admin_account_id
@@ -1721,7 +1729,6 @@ def __validate_jdbc_url(url: str):
             return True
 
 def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
-    print(f"create {jdbcConn.instance_id}!!!")
     jdbc_targets = []
     create_connection_response = {}
     # get_db_names(jdbcConn.jdbc_connection_url, jdbcConn.jdbc_connection_schema)
@@ -1772,7 +1779,8 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
         if create_connection_response.get('ResponseMetadata', {}).get('HTTPStatusCode') != 200:
             raise BizException(MessageEnum.SOURCE_JDBC_CREATE_FAIL.get_code(),
                                MessageEnum.SOURCE_JDBC_CREATE_FAIL.get_msg())
-
+        # Creare Glue database
+        glue.create_database(DatabaseInput={'Name': glue_database_name})
         # Create Crawler
         jdbc_source = JdbcSource(connection_url=jdbcConn.jdbc_connection_url, username=jdbcConn.master_username, password=jdbcConn.password, secret_id=jdbcConn.secret)
         db_names = get_db_names_4_jdbc(jdbc_source, jdbcConn.jdbc_connection_schema)
