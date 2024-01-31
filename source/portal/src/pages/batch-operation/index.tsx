@@ -1,5 +1,6 @@
 import {
   AppLayout,
+  Box,
   Button,
   Container,
   ContentLayout,
@@ -8,6 +9,7 @@ import {
   FlashbarProps,
   FormField,
   Header,
+  Modal,
   ProgressBar,
   SpaceBetween,
   StatusIndicator,
@@ -89,12 +91,14 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
 
   const changeFile = (file: any) => {
     setUploadProgress(0);
-    if (file[0].name.endsWith('.xlsx') === true) {
-      setErrors([]);
-      setUploadDisabled(false);
-    } else {
-      setErrors(['Uploaded file must have an xlsx extension.']);
-      setUploadDisabled(true);
+    if (file && file.length > 0) {
+      if (file[0].name.endsWith('.xlsx') === true) {
+        setErrors([]);
+        setUploadDisabled(false);
+      } else {
+        setErrors([t('datasource:batch.fileExtensionError')]);
+        setUploadDisabled(true);
+      }
     }
     setFiles(file);
   };
@@ -206,23 +210,26 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
         }
       >
         <SpaceBetween direction="vertical" size="l">
-          <FormField
-            label={t('datasource:batch.uploadTitle')}
-            description="Description"
-          >
+          <FormField label={t('datasource:batch.uploadTitle')}>
             <FileUpload
               onChange={({ detail }) => {
                 changeFile(detail.value);
               }}
               value={files}
               i18nStrings={{
-                uploadButtonText: (e) => (e ? 'Choose files' : 'Choose file'),
+                uploadButtonText: (e) =>
+                  e
+                    ? t('datasource:batch.chooseFiles')
+                    : t('datasource:batch.chooseFile'),
                 dropzoneText: (e) =>
-                  e ? 'Drop files to upload' : 'Drop file to upload',
-                removeFileAriaLabel: (e) => `Remove file ${e + 1}`,
-                limitShowFewer: 'Show fewer files',
-                limitShowMore: 'Show more files',
-                errorIconAriaLabel: 'Error',
+                  e
+                    ? t('datasource:batch.dropFilesUpload')
+                    : t('datasource:batch.dropFileUpload'),
+                removeFileAriaLabel: (e) =>
+                  `${t('datasource:batch.removeFile')} ${e + 1}`,
+                limitShowFewer: t('datasource:batch.showFewer'),
+                limitShowMore: t('datasource:batch.showMore'),
+                errorIconAriaLabel: t('datasource:batch.error'),
               }}
               invalid
               fileErrors={errors}
@@ -231,7 +238,7 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
               showFileSize
               showFileThumbnail
               tokenLimit={1}
-              constraintText=".xlsx files only"
+              constraintText={t('datasource:batch.only')}
             />
           </FormField>
           {uploadProgress > 0 && (
@@ -271,6 +278,7 @@ const BatchOperation: React.FC = () => {
 
   const [status, setStatus] = useState(BatchOperationStatus.NotStarted);
   const [loadingDownload, setLoadingDownload] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const downloadReport = async () => {
     console.log('download report');
@@ -285,14 +293,24 @@ const BatchOperation: React.FC = () => {
     }
   };
 
+  const confirmDismissNotification = () => {
+    localStorage.removeItem(BATCH_SOURCE_ID);
+    setFlashBar([]);
+    setShowConfirm(false);
+  };
+
+  const onDismissNotification = () => {
+    setShowConfirm(true);
+  };
+
   useEffect(() => {
     if (status === BatchOperationStatus.Completed) {
       setFlashBar([
         {
-          header: 'Successfully create data sources',
+          header: t('datasource:batch.successTitle'),
           type: 'success',
           dismissible: true,
-          content: 'Please download the report and check the result.',
+          content: t('datasource:batch.successDesc'),
           id: 'success',
           action: (
             <Button onClick={downloadReport} loading={loadingDownload}>
@@ -300,8 +318,7 @@ const BatchOperation: React.FC = () => {
             </Button>
           ),
           onDismiss: () => {
-            localStorage.removeItem(BATCH_SOURCE_ID);
-            setFlashBar([]);
+            onDismissNotification();
           },
         },
       ]);
@@ -309,11 +326,10 @@ const BatchOperation: React.FC = () => {
     if (status === BatchOperationStatus.Error) {
       setFlashBar([
         {
-          header: 'Failed create data sources in batch',
+          header: t('datasource:batch.failedTitle'),
           type: 'error',
           dismissible: true,
-          content:
-            'Please download the report and fix the data to upload again to retry.',
+          content: t('datasource:batch.failedDesc'),
           id: 'error',
           action: (
             <Button onClick={downloadReport} loading={loadingDownload}>
@@ -321,8 +337,7 @@ const BatchOperation: React.FC = () => {
             </Button>
           ),
           onDismiss: () => {
-            localStorage.removeItem(BATCH_SOURCE_ID);
-            setFlashBar([]);
+            onDismissNotification();
           },
         },
       ]);
@@ -331,11 +346,10 @@ const BatchOperation: React.FC = () => {
       setFlashBar([
         {
           loading: true,
-          header: 'In progress',
+          header: t('datasource:batch.inProgress'),
           type: 'info',
           dismissible: false,
-          content:
-            'Creating databases, Please do not close this window. It will takes less than 15 minutes.',
+          content: t('datasource:batch.inProgressDesc'),
           id: 'info',
         },
       ]);
@@ -375,6 +389,35 @@ const BatchOperation: React.FC = () => {
               },
             ]}
           />
+          <Modal
+            onDismiss={() => setShowConfirm(false)}
+            visible={showConfirm}
+            footer={
+              <Box float="right">
+                <SpaceBetween direction="horizontal" size="xs">
+                  <Button
+                    variant="link"
+                    onClick={() => {
+                      setShowConfirm(false);
+                    }}
+                  >
+                    {t('button.cancel')}
+                  </Button>
+                  <Button
+                    variant="primary"
+                    onClick={() => {
+                      confirmDismissNotification();
+                    }}
+                  >
+                    {t('confirm')}
+                  </Button>
+                </SpaceBetween>
+              </Box>
+            }
+            header={t('confirm')}
+          >
+            {t('datasource:batch.dismissAlert')}
+          </Modal>
         </ContentLayout>
       }
       headerSelector="#header"

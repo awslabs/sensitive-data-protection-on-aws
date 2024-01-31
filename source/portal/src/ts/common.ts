@@ -60,3 +60,10 @@ export const nFormatter = (num: any, digits: any) => {
     ? (num / item.value).toFixed(digits).replace(rx, '$1') + item.symbol
     : '0';
 };
+
+export const checkJDBCIsMySQL = (jdbcURL: string) => {
+  if (jdbcURL.startsWith('jdbc:mysql://')) {
+    return true;
+  }
+  return false;
+};

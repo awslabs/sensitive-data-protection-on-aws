@@ -90,7 +90,11 @@
     "chooseSubnet": "Choose one subnet",
     "sg": "Security groups",
     "sgDesc": "Choose one or more security groups to allow access to the data store in your VPC subnet. Security groups are associated to the ENI attached to your subnet. You must choose at least one security group with a self-referencing inbound rule for all TCP ports.",
-    "chooseSG": "Choose one or more security groups"
+    "chooseSG": "Choose one or more security groups",
+    "mysql": "MySQL (Auto discovery)",
+    "other": "Others",
+    "otherError": "Other JDBC URL can not start with 'jdbc:mysql://'",
+    "databaseError": "JDBC Database can not be empty."
   },
   "batch": {
     "name": "Batch Operation",
@@ -103,6 +107,23 @@
     "step2Desc": "Fill the information in the template",
     "step2Tips1": "Making sure no duplicates",
     "step3Title": "Step 3: Upload the template with filled information",
-    "uploadTitle": "Fill in the template and upload"
+    "uploadTitle": "Fill in the template and upload",
+    "fileExtensionError": "Uploaded file must have an xlsx extension.",
+    "chooseFiles": "Choose files",
+    "chooseFile": "Choose file",
+    "dropFilesUpload": "Drop files to upload",
+    "dropFileUpload": "Drop file to upload",
+    "removeFile": "Remove file ",
+    "showFewer": "Show fewer files",
+    "showMore": "Show more files",
+    "error": "Error",
+    "only": ".xlsx files only",
+    "successTitle": "Successfully create data sources",
+    "successDesc": "Please download the report and check the result.",
+    "failedTitle": "Failed create data sources in batch",
+    "failedDesc": "Please download the report and fix the data to upload again to retry.",
+    "inProgress": "In progress",
+    "inProgressDesc": "Creating databases, Please do not close this window. It will takes less than 15 minutes.",
+    "dismissAlert": "Please make sure that you have downloaded the batch import report. Once this window is closed, the report will not be available for download again."
   }
 }

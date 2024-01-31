@@ -863,10 +863,10 @@ def check_running_run_databases():
             if (datetime.datetime.now(pytz.timezone('UTC')) - stop_time).seconds < const.LAMBDA_MAX_RUNTIME:
                 logger.info(f"run id:{run_database.run_id},run database id:{run_database.id} continue")
                 continue
-            state = RunDatabaseState.SUCCEEDED.value
+            state, message = __get_run_log(run_database, False)
         elif run_database_state == RunDatabaseState.FAILED.value.upper():
             state = RunDatabaseState.FAILED.value
-            message = __get_run_error_log(run_database)
+            _, message = __get_run_log(run_database)
         elif run_database_state == RunDatabaseState.ABORTED.value.upper():
             state = RunDatabaseState.STOPPED.value
 
@@ -906,7 +906,7 @@ def __get_run_database_state_from_agent(run_database: models.DiscoveryJobRunData
         return RunDatabaseState.NOT_EXIST.value, None
 
 
-def __get_run_error_log(run_database: models.DiscoveryJobRunDatabase) -> str:
+def __get_run_log(run_database: models.DiscoveryJobRunDatabase, error_log=True) -> (str, str):
     account_id = run_database.account_id
     region = run_database.region
     if need_change_account_id(run_database.database_type):
@@ -925,24 +925,29 @@ def __get_run_error_log(run_database: models.DiscoveryJobRunDatabase) -> str:
                               aws_session_token=credentials['SessionToken'],
                               region_name=region,
                               )
+    max_results = 1 if error_log else 5
     try:
         response = client_sfn.get_execution_history(
             executionArn=f'arn:{partition}:states:{region}:{account_id}:execution:{const.SOLUTION_NAME}-DiscoveryJob:{const.SOLUTION_NAME}-{run_database.run_id}-{run_database.id}-{run_database.uuid}',
             reverseOrder=True,
-            maxResults=1,
+            maxResults=max_results,
         )
     except client_sfn.exceptions.ExecutionDoesNotExist as e:
-        return RunDatabaseState.NOT_EXIST.value
-    if response["events"][0]["type"] == "ExecutionFailed":
-        return response["events"][0]["executionFailedEventDetails"]["cause"]
-    return ""
+        return RunDatabaseState.NOT_EXIST.value, ""
+    if error_log:
+        if response["events"][0]["type"] == "ExecutionFailed":
+            return RunDatabaseState.FAILED.value, response["events"][0]["executionFailedEventDetails"]["cause"]
+        return RunDatabaseState.FAILED.value, ""
+    else:
+        parameters = json.loads(response["events"][4]["taskScheduledEventDetails"]["parameters"])
+        result = parameters.get("MessageBody", {}).get("Result")
+        if result:
+            return result.get("State"), result.get("Message", "")
+        return RunDatabaseState.SUCCEEDED.value, ""
 
 
 def __get_cell_value(cell: dict):
-    if "VarCharValue" in cell:
-        return cell["VarCharValue"]
-    else:
-        return ""
+    return cell.get("VarCharValue", "")
 
 
 def get_report_url(run_id: int):

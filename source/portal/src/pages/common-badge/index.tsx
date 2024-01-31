@@ -59,6 +59,9 @@ const CommonBadge: React.FC<CommonBadgeProps> = (props: CommonBadgeProps) => {
     'failed-badge':
       badgeLabel === CLSAAIFIED_TYPE.Failed ||
       labelType === CLSAAIFIED_TYPE.Failed,
+    'pending-badge':
+      badgeLabel === CLSAAIFIED_TYPE.Pending ||
+      labelType === CLSAAIFIED_TYPE.Pending,
   });
 
   let iconName: any = 'status-pending';

@@ -398,6 +398,7 @@
   "changeEnableError": "Change enable error",
   "selectCategoryLabel": "Please select category/label",
   "pending": "Pending",
+  "PENDING": "PENDING",
   "SUCCEEDED": "SUCCEEDED",
   "RUNNING": "RUNNING",
   "FAILED": "FAILED",
@@ -441,7 +442,10 @@
     "subnet": "Subnet ",
     "subnetNameDesc": "Total number of left IPs in subnet",
     "currentIPLeft": "Current IP left",
-    "subnetDesc": "IP usage per subnet = (Concurrent number of RDS Instance * (3 + Concurrent number of sub-job runs)) / Count of subnets",
-    "estimateResult": "Based on the above settings, for each job run it will consume {{ipCount}} IPs maximum per subnet."
+    "subnetDesc": "IP usage per subnet = (3 + (Number of sub-job runs can be used for 1 RDS scan * 2)) * Number of RDS instance detected concurrently",
+    "estimateResult": "Based on the above settings, for each job run it will consume {{ipCount}} IPs maximum per subnet.",
+    "estimateError": "The IP in discovery job can not be more than the IP left of subnets. Please adjust the settings.",
+    "estimateSuccess": "Config validate successfully.",
+    "estimateFirst": "Please click validate button to validate the settings."
   }
 }
