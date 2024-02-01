@@ -176,6 +176,7 @@ export class ApiStack extends Construct {
         'glue:GetPartition',
         'glue:GetPartitions',
         'glue:BatchGetPartition',
+        'glue:TagResource',
         's3:PutObject',
         's3:DeleteObject',
         's3:GetObject',
