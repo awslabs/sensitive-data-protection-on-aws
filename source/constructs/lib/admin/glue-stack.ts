@@ -213,9 +213,12 @@ export class GlueStack extends Construct {
     }));
     const noramlStatement = new PolicyStatement({
       effect: Effect.ALLOW,
-      actions: ['glue:GetTable',
+      actions: [
+        'glue:GetTable',
         'glue:BatchCreatePartition',
-        'glue:CreatePartition'],
+        'glue:CreatePartition',
+        'glue:TagResource',
+      ],
       resources: [`arn:${Aws.PARTITION}:glue:*:${Aws.ACCOUNT_ID}:table/${SolutionInfo.SOLUTION_GLUE_DATABASE}/*`,
         `arn:${Aws.PARTITION}:glue:*:${Aws.ACCOUNT_ID}:database/${SolutionInfo.SOLUTION_GLUE_DATABASE}`,
         `arn:${Aws.PARTITION}:glue:*:${Aws.ACCOUNT_ID}:catalog`],
