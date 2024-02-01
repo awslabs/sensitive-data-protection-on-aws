@@ -11,6 +11,7 @@ import {
   Spinner,
   Tiles,
   Textarea,
+  Grid,
 } from '@cloudscape-design/components';
 import S3ResourceSelector from '@cloudscape-design/components/s3-resource-selector';
 import {
@@ -765,6 +766,9 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
               </FormField>
 
               {credential === 'secret' && (
+                <Grid
+                gridDefinition={[{ colspan: 9 },{colspan: 3}]}
+              >
                 <FormField stretch label={t('datasource:jdbc.secret')}>
                   <Select
                     placeholder={t('datasource:jdbc.selectSecret') ?? ''}
@@ -776,12 +780,30 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                     options={secretOption}
                   />
                 </FormField>
+                {props.providerId !== 1 && (
+                        <div style={{marginTop:25}}>
+                      <Button
+                        onClick={() => {
+                          setJdbcDatabaseEmptyError(false);
+                          findDatabase();
+                        }}
+                        iconName="search"
+                        loading={props.providerId === 1 || loadingJdbcDatabase}
+                      >
+                        {t('datasource:jdbc.findDatabase')}
+                      </Button>
+                      </div>
+                    )}
+                </Grid>
               )}
 
               {credential === 'password' && (
-                <>
+                 <Grid
+                 gridDefinition={[{ colspan: 4 },{ colspan: 5 },{colspan: 3}]}
+               >
                   <FormField stretch label={t('datasource:jdbc.username')}>
                     <Input
+                      placeholder={t('datasource:jdbc.inputUsername') ?? ''}
                       value={jdbcConnectionData.master_username}
                       onChange={({ detail }) => {
                         changeDatabase('');
@@ -791,6 +813,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                   </FormField>
                   <FormField stretch label={t('datasource:jdbc.password')}>
                     <Input
+                      placeholder={t('datasource:jdbc.inputPassword') ?? ''}
                       type="password"
                       value={jdbcConnectionData.password}
                       onChange={({ detail }) => {
@@ -799,7 +822,21 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                       }}
                     />
                   </FormField>
-                </>
+                  {props.providerId !== 1 && (
+                        <div style={{marginTop:25}}>
+                      <Button
+                        onClick={() => {
+                          setJdbcDatabaseEmptyError(false);
+                          findDatabase();
+                        }}
+                        iconName="search"
+                        loading={props.providerId === 1 || loadingJdbcDatabase}
+                      >
+                        {t('datasource:jdbc.findDatabase')}
+                      </Button>
+                      </div>
+                    )}
+                </Grid>
               )}
 
               <FormField
@@ -807,21 +844,6 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                 label={t('datasource:jdbc.jdbcDatabase')}
                 description={t('datasource:jdbc.jdbcDatabaseDesc')}
                 constraintText={t('datasource:jdbc.jdbcDatabaseConstraint')}
-                secondaryControl={
-                  props.providerId !== 1 && (
-                    <Button
-                      loading={loadingJdbcDatabase}
-                      onClick={() => {
-                        setJdbcDatabaseEmptyError(false);
-                        findDatabase();
-                      }}
-                      iconName="search"
-                      disabled={props.providerId === 1 || loadingJdbcDatabase}
-                    >
-                      {t('datasource:jdbc.findDatabase')}
-                    </Button>
-                  )
-                }
                 errorText={
                   jdbcDatabaseEmptyError
                     ? t('datasource:jdbc.databaseError')
@@ -829,6 +851,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                 }
               >
                 <Textarea
+                  disabled={jdbcConnType === 'mysql'}
                   onChange={(e) => changeDatabase(e.detail.value)}
                   placeholder={`crm_database\nuser_management\ninventory_management`}
                   value={jdbcConnectionData.jdbc_connection_schema}

@@ -430,7 +430,7 @@ def sync_crawler_result(
                 if delete_glue_table_names:
                     logger.info("batch delete glue tables" + json.dumps(delete_glue_table_names))
                     glue_client.batch_delete_table(DatabaseName=glue_database_name,
-                                                    TablesToDelete=delete_glue_table_names)
+                                                   TablesToDelete=delete_glue_table_names)
             except Exception as err:
                 logger.exception("batch delete glue tables error" + str(err))
             if logger.isEnabledFor(logging.DEBUG):
@@ -761,7 +761,6 @@ def __convert_identifiers_to_dict(identifiers: str):
             result_dict[i[0]] = i[1]
     return result_dict
 
-
 def sync_job_detection_result(
         account_id: str,
         region: str,
@@ -848,7 +847,7 @@ def sync_job_detection_result(
                             not overwrite and catalog_column.manual_tag != const.MANUAL)):
                         column_dict = {
                             "id": catalog_column.id,
-                            "identifier": json.dumps(identifier_dict),
+                            "identifier": json.dumps(identifier_dict, ensure_ascii=False),
                             "column_value_example": column_sample_data,
                             "column_path": column_path,
                             "privacy": column_privacy,

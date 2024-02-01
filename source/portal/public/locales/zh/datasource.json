@@ -80,6 +80,8 @@
     "selectSecret": "请选择密钥",
     "username": "用户名",
     "password": "密码",
+    "inputUsername": "请输入用户名",
+    "inputPassword": "请输入密码",
     "networkOption": "网络选项",
     "networkDesc": "如果你的 AWS Glue 工作需要连接到其他VPC或者其他云供应商环境中的 jdbc 资源，你需要提供额外的 VPC 特定的配置信息。",
     "vpc": "VPC",

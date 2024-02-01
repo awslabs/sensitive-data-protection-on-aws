@@ -12,6 +12,7 @@ import {
   Tiles,
   Textarea,
   Modal,
+  Grid,
 } from '@cloudscape-design/components';
 import {
   listGlueConnection,
@@ -864,6 +865,9 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                 </FormField>
 
                 {credential === 'secret' && (
+                  <Grid
+                  gridDefinition={[{ colspan: 9 },{colspan: 3}]}
+                >
                   <FormField stretch label={t('datasource:jdbc.secret')}>
                     <Select
                       placeholder={t('datasource:jdbc.selectSecret') ?? ''}
@@ -875,38 +879,8 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                       options={secretOption}
                     />
                   </FormField>
-                )}
-
-                {credential === 'password' && (
-                  <>
-                    <FormField stretch label={t('datasource:jdbc.username')}>
-                      <Input
-                        value={jdbcConnectionData.new.master_username}
-                        onChange={({ detail }) => {
-                          changeDatabase('');
-                          changeUserName(detail.value);
-                        }}
-                      />
-                    </FormField>
-                    <FormField stretch label={t('datasource:jdbc.password')}>
-                      <Input
-                        type="password"
-                        value={jdbcConnectionData.new.password}
-                        onChange={({ detail }) => {
-                          changeDatabase('');
-                          changePassword(detail.value);
-                        }}
-                      />
-                    </FormField>
-                  </>
-                )}
-                <FormField
-                  stretch
-                  label={t('datasource:jdbc.jdbcDatabase')}
-                  description={t('datasource:jdbc.jdbcDatabaseDesc')}
-                  constraintText={t('datasource:jdbc.jdbcDatabaseConstraint')}
-                  secondaryControl={
-                    props.providerId !== 1 && (
+                  {props.providerId !== 1 && (
+                        <div style={{marginTop:25}}>
                       <Button
                         onClick={() => {
                           setJdbcDatabaseEmptyError(false);
@@ -917,8 +891,59 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                       >
                         {t('datasource:jdbc.findDatabase')}
                       </Button>
-                    )
-                  }
+                      </div>
+                    )}
+                  </Grid>
+                )}
+
+                {credential === 'password' && (
+                  <Grid
+                  gridDefinition={[{ colspan: 4 },{ colspan: 5 },{colspan: 3}]}
+                >
+                    <FormField stretch label={t('datasource:jdbc.username')}>
+                      <Input
+                        placeholder={t('datasource:jdbc.inputUsername') ?? ''}
+                        value={jdbcConnectionData.new.master_username}
+                        onChange={({ detail }) => {
+                          changeDatabase('');
+                          changeUserName(detail.value);
+                        }}
+                      />
+                    </FormField>
+                    <FormField stretch label={t('datasource:jdbc.password')}>
+                      <Input
+                        placeholder={t('datasource:jdbc.inputPassword') ?? ''}
+                        type="password"
+                        value={jdbcConnectionData.new.password}
+                        onChange={({ detail }) => {
+                          changeDatabase('');
+                          changePassword(detail.value);
+                        }}
+                      />
+                    </FormField>
+                    {/* <FormField stretch label={t('datasource:jdbc.findDatabase')}> */}
+                      {props.providerId !== 1 && (
+                        <div style={{marginTop:25}}>
+                      <Button
+                        onClick={() => {
+                          setJdbcDatabaseEmptyError(false);
+                          findDatabase();
+                        }}
+                        iconName="search"
+                        loading={props.providerId === 1 || loadingJdbcDatabase}
+                      >
+                        {t('datasource:jdbc.findDatabase')}
+                      </Button>
+                      </div>
+                    )}
+                    {/* </FormField> */}
+                  </Grid>
+                )}
+                <FormField
+                  stretch
+                  label={t('datasource:jdbc.jdbcDatabase')}
+                  description={t('datasource:jdbc.jdbcDatabaseDesc')}
+                  constraintText={t('datasource:jdbc.jdbcDatabaseConstraint')}
                   errorText={
                     jdbcDatabaseEmptyError
                       ? t('datasource:jdbc.databaseError')
@@ -926,6 +951,7 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                   }
                 >
                   <Textarea
+                    disabled={jdbcConnType === 'mysql'}
                     onChange={(e) => {
                       changeDatabase(e.detail.value);
                       setJdbcDatabaseEmptyError(false);

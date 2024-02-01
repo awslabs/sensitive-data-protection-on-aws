@@ -400,10 +400,10 @@ def sync_jdbc_connection(jdbc: JDBCInstanceSourceBase):
                                            account_provider_id=jdbc.account_provider_id,
                                            account_id=jdbc.account_id,
                                            region=jdbc.region,
-                                           jdbc_connection_url=url,
+                                           jdbc_connection_url=url[0],
                                            master_username=username,
                                            password=password,
-                                           secret=secret)
+                                           secret=secret[0])
         # jdbc_instance.jdbc_connection_url = url
     # condition_check(ec2_client, credentials, source.glue_state, conn_response['PhysicalConnectionRequirements'])
         sync(glue_client,
