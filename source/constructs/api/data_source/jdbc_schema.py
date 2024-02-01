@@ -79,8 +79,6 @@ def sync_schema_by_job(provider_id: int, account_id: str, region: str, instance:
                                       region=assume_region,
                                       role_name='GlueDetectionJobRole')
     try:
-        logger.info(f"assume_account:{assume_account}")
-        logger.info(f"assume_region:{assume_region}")
         __get_glue_client(assume_account, assume_region).update_crawler(
             Name=info[0],
             Role=crawler_role_arn,

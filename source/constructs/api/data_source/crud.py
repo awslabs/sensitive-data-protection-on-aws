@@ -992,16 +992,34 @@ def update_schema_by_account(provider_id, account_id, instance, region, schema):
         jdbc_instance_source.jdbc_connection_schema = schema
     session.commit()
 
-def list_s3_resources():
-    return get_session().query(S3BucketSource.account_id, S3BucketSource.region, S3BucketSource.bucket_name).all()
+def list_s3_resources(condition):
+    session_result = get_session().query(S3BucketSource.account_id, S3BucketSource.region, S3BucketSource.bucket_name)
+    if condition:
+        return query_with_condition(session_result, condition).distinct(S3BucketSource.account_id, S3BucketSource.region, S3BucketSource.bucket_name)
+    return session_result
 
-def list_rds_resources():
-    return get_session().query(RdsInstanceSource.account_id, RdsInstanceSource.region, RdsInstanceSource.instance_id).all()
+def list_rds_resources(condition):
+    session_result = get_session().query(RdsInstanceSource.account_id, RdsInstanceSource.region, RdsInstanceSource.instance_id)
+    if condition:
+        return query_with_condition(session_result, condition) \
+            .distinct(RdsInstanceSource.account_id, RdsInstanceSource.region, RdsInstanceSource.instance_id)
+    return session_result
 
-def list_glue_resources():
-    return get_session().query(SourceGlueDatabase.account_id, SourceGlueDatabase.region, SourceGlueDatabase.glue_database_name).all()
+def list_glue_resources(condition):
+    session_result = get_session().query(SourceGlueDatabase.account_id, SourceGlueDatabase.region, SourceGlueDatabase.glue_database_name)
+    if condition:
+        return query_with_condition(session_result, condition) \
+            .distinct(SourceGlueDatabase.account_id, SourceGlueDatabase.region, SourceGlueDatabase.glue_database_name)
+    return session_result
 
-def list_jdbc_resources_by_provider(provider_id: int):
-    return get_session() \
+def list_jdbc_resources_by_provider(provider_id: int, condition):
+    session_result = get_session() \
         .query(JDBCInstanceSource.account_provider_id, JDBCInstanceSource.account_id, JDBCInstanceSource.region, JDBCInstanceSource.instance_id) \
-        .filter(JDBCInstanceSource.account_provider_id == provider_id).all()
+        .filter(JDBCInstanceSource.account_provider_id == provider_id)
+    if condition:
+        return query_with_condition(session_result, condition) \
+            .distinct(JDBCInstanceSource.account_provider_id,
+                      JDBCInstanceSource.account_id,
+                      JDBCInstanceSource.region,
+                      JDBCInstanceSource.instance_id)
+    return session_result

@@ -7,6 +7,7 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from common.query_condition import QueryCondition
 from common.request_wrapper import inject_session
 from common.response_wrapper import BaseResponse
+from source.constructs.api.data_source.resource_list import list_resources_by_database_type
 from . import crud, schemas, service, jdbc_schema
 
 router = APIRouter(prefix="/data-source", tags=["data-source"])
@@ -397,6 +398,11 @@ def query_batch_status(batch: str):
 @inject_session
 def download_batch_file(filename: str):
     return service.download_batch_file(filename)
+
+@router.post("/list-resources-database-type", response_model=BaseResponse)
+@inject_session
+def list_resources_database_type(database_type: str, condition: QueryCondition):
+    return list_resources_by_database_type(database_type, condition)
 
 # @router.post("/batch-sync-jdbc", response_model=BaseResponse)
 # @inject_session
