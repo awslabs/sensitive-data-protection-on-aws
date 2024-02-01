@@ -125,8 +125,8 @@ class DiscoveryJobState(BaseModel):
 class DiscoveryJobBase(BaseModel):
     name: str
     template_id: int = 1
-    schedule: str = "cron(0 12 * * ? *)"
-    description: Optional[str]
+    schedule: str = "OnDemand"
+    description: Optional[str] = ""
     range: int = 1
     depth_structured: int = 100
     depth_unstructured: Optional[int] = 10
@@ -138,10 +138,10 @@ class DiscoveryJobBase(BaseModel):
     all_glue: Optional[int]
     all_jdbc: Optional[int]
     overwrite: Optional[int]
-    exclude_keywords: Optional[str]
-    include_keywords: Optional[str]
-    exclude_file_extensions: Optional[str]
-    include_file_extensions: Optional[str]
+    exclude_keywords: Optional[str] = ""
+    include_keywords: Optional[str] = ""
+    exclude_file_extensions: Optional[str] = ""
+    include_file_extensions: Optional[str] = ""
     provider_id: Optional[int]
     database_type: Optional[str]
 
