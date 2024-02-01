@@ -7,7 +7,7 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from common.query_condition import QueryCondition
 from common.request_wrapper import inject_session
 from common.response_wrapper import BaseResponse
-from source.constructs.api.data_source.resource_list import list_resources_by_database_type
+from .resource_list import list_resources_by_database_type
 from . import crud, schemas, service, jdbc_schema
 
 router = APIRouter(prefix="/data-source", tags=["data-source"])

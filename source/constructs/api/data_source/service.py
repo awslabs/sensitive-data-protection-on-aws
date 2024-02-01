@@ -2820,7 +2820,7 @@ async def batch_sync_jdbc_manager(jdbc_list):
 
 async def __batch_sync_jdbc_worker(jdbc):
     sync_jdbc_connection(jdbc)
-        # return jdbc.account_provider_id, jdbc.account_id, jdbc.region, jdbc.instance_id, "SUCCESSED", None
+    # return jdbc.account_provider_id, jdbc.account_id, jdbc.region, jdbc.instance_id, "SUCCESSED", None
     # except BizException as be:
     #     return jdbc.account_provider_id, jdbc.account_id, jdbc.region, jdbc.instance_id, "FAILED", be.__msg__()
     # except Exception as e:
