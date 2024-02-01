@@ -992,34 +992,42 @@ def update_schema_by_account(provider_id, account_id, instance, region, schema):
         jdbc_instance_source.jdbc_connection_schema = schema
     session.commit()
 
-def list_s3_resources(condition):
-    session_result = get_session().query(S3BucketSource.account_id, S3BucketSource.region, S3BucketSource.bucket_name)
+def list_s3_resources(account_id, region, condition):
+    session_result = get_session().query(S3BucketSource)
+    if account_id:
+        session_result = session_result.filter(S3BucketSource.account_id == account_id)
+    if region:
+        session_result = session_result.filter(S3BucketSource.region == region)
     if condition:
-        return query_with_condition(session_result, condition).distinct(S3BucketSource.account_id, S3BucketSource.region, S3BucketSource.bucket_name)
+        return query_with_condition(session_result, condition)
     return session_result
 
-def list_rds_resources(condition):
-    session_result = get_session().query(RdsInstanceSource.account_id, RdsInstanceSource.region, RdsInstanceSource.instance_id)
+def list_rds_resources(account_id, region, condition):
+    session_result = get_session().query(RdsInstanceSource)
+    if account_id:
+        session_result = session_result.filter(RdsInstanceSource.account_id == account_id)
+    if region:
+        session_result = session_result.filter(RdsInstanceSource.region == region)
     if condition:
-        return query_with_condition(session_result, condition) \
-            .distinct(RdsInstanceSource.account_id, RdsInstanceSource.region, RdsInstanceSource.instance_id)
+        return query_with_condition(session_result, condition)
     return session_result
 
-def list_glue_resources(condition):
-    session_result = get_session().query(SourceGlueDatabase.account_id, SourceGlueDatabase.region, SourceGlueDatabase.glue_database_name)
+def list_glue_resources(account_id, region, condition):
+    session_result = get_session().query(SourceGlueDatabase)
+    if account_id:
+        session_result = session_result.filter(SourceGlueDatabase.account_id == account_id)
+    if region:
+        session_result = session_result.filter(SourceGlueDatabase.region == region)
     if condition:
-        return query_with_condition(session_result, condition) \
-            .distinct(SourceGlueDatabase.account_id, SourceGlueDatabase.region, SourceGlueDatabase.glue_database_name)
+        return query_with_condition(session_result, condition)
     return session_result
 
-def list_jdbc_resources_by_provider(provider_id: int, condition):
-    session_result = get_session() \
-        .query(JDBCInstanceSource.account_provider_id, JDBCInstanceSource.account_id, JDBCInstanceSource.region, JDBCInstanceSource.instance_id) \
-        .filter(JDBCInstanceSource.account_provider_id == provider_id)
+def list_jdbc_resources_by_provider(provider_id: int, account_id, region, condition):
+    session_result = get_session().query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == provider_id)
+    if account_id:
+        session_result = session_result.filter(JDBCInstanceSource.account_id == account_id)
+    if region:
+        session_result = session_result.filter(JDBCInstanceSource.region == region)
     if condition:
-        return query_with_condition(session_result, condition) \
-            .distinct(JDBCInstanceSource.account_provider_id,
-                      JDBCInstanceSource.account_id,
-                      JDBCInstanceSource.region,
-                      JDBCInstanceSource.instance_id)
+        return query_with_condition(session_result, condition)
     return session_result

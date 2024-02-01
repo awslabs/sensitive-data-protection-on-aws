@@ -2691,7 +2691,8 @@ def batch_create(file: UploadFile = File(...)):
     for row_index, row in enumerate(sheet.iter_rows(min_row=3), start=2):
         if all(cell.value is None for cell in row):
             continue
-        if any(cell.value is None or str(cell.value).strip() == const.EMPTY_STR for cell in [row[0], row[1], row[3], row[5], row[6], row[7], row[8], row[9]]):
+        if __check_empty_for_field(row, header):
+        # if any(cell.value is None or str(cell.value).strip() == const.EMPTY_STR for cell in [row[0], row[1], row[3], row[5], row[6], row[7], row[8], row[9]]):
             __add_error_msg(sheet, max_column, row_index, "Fields cannot be empty")
         elif sheet.cell(row=row_index + 1, column=2).value not in [0, 1]:
             __add_error_msg(sheet, max_column, row_index, f"The value of {header[1]} must be 0 or 1")
@@ -2738,6 +2739,11 @@ def batch_create(file: UploadFile = File(...)):
     __s3_client.upload_fileobj(excel_bytes, admin_bucket_name, batch_create_ds)
     print(f"cost:{time.time()-time_str}")
     return f'report_{time_str}'
+
+def __check_empty_for_field(row, header):
+    # row[0], row[1], row[3], row[5], row[6], row[7], row[8], row[9]
+    # if not row[0].value or str(cell.value).strip() == const.EMPTY_STR
+    return True, None
 
 def map_network_jdbc(created_jdbc_list: [JDBCInstanceSource], vpc_id, subnets, security_group_id):
     res = []
