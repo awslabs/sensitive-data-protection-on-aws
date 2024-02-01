@@ -2675,11 +2675,7 @@ def batch_create(file: UploadFile = File(...)):
     # Read the Excel file
     content = file.file.read()
     workbook = openpyxl.load_workbook(BytesIO(content), read_only=False)
-    print(f"******** worksheet is: {workbook}")
-    print(f"******** worksheet type is: {type(workbook)}")
     sheet_names = workbook.sheetnames
-    print(f"******** sheet_names is: {sheet_names[0]}")
-    print(f"******** BATCH_SHEET is: {const.BATCH_SHEET}")
     try:
         sheet = workbook.get_sheet_by_name(const.BATCH_SHEET)
     except KeyError:
@@ -2702,7 +2698,7 @@ def batch_create(file: UploadFile = File(...)):
         elif not __validate_jdbc_url(str(row[3].value)):
             __add_error_msg(sheet, max_column, row_index, f"The value of {header[3]} must be in the format jdbc:protocol://host:port")
         elif not str(row[3].value).startswith('jdbc:mysql') and not row[4].value:
-            __add_error_msg(sheet, max_column, row_index, f"MySQL-type data source {header[4]} cannot be null")
+            __add_error_msg(sheet, max_column, row_index, f"Non-MySQL-type data source {header[4]} cannot be null")
         elif len(str(row[2].value)) > const.CONNECTION_DESC_MAX_LEN:
             __add_error_msg(sheet, max_column, row_index, f"The value of {header[2]} must not exceed 2048")
         elif f"{row[9].value}/{row[7].value}/{row[8].value}/{row[0].value}" in jdbc_from_excel_set:
