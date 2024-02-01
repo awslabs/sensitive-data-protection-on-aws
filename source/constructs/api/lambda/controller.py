@@ -44,13 +44,17 @@ def __schedule_job(event):
     discovery_job_service.start_job(event["JobId"])
 
 
+def __replace_single_quotes(match):
+    return match.group(0).replace("'", "`")
+
+
 def __deal_queue(event):
     event_source = event['Records'][0]["eventSourceARN"].split(":")[-1]
     logger.info(f"event_source:{event_source}")
     for record in event['Records']:
         payload = record["body"]
         logger.info(payload)
-        updated_string = re.sub(r'("[^"]*?)(\')(.*?)(\')([^"]*?")', r'\1 \3 \5', str(payload))
+        updated_string = re.sub(r'".*?"', __replace_single_quotes, str(payload))
         payload = updated_string.replace("\'", "\"")
         logger.debug(payload)
         current_event = json.loads(payload)
