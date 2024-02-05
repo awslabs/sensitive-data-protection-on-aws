@@ -18,7 +18,7 @@ def lambda_handler(event, context):
         if not event:
             return
         if "Records" in event:
-            __deal_queue(event)
+            __dispatch_message(event)
             return
         # In the old version, the only parameter for scheduled job was JobId
         if "JobId" in event and len(event) == 1:
@@ -48,19 +48,42 @@ def __replace_single_quotes(match):
     return match.group(0).replace("'", "`")
 
 
-def __deal_queue(event):
+def __deal_single_quotes(payload):
+    logger.info(payload)
+    updated_string = re.sub(r'".*?"', __replace_single_quotes, str(payload))
+    payload = updated_string.replace("\'", "\"")
+    logger.debug(payload)
+    return payload
+
+
+def __dispatch_message(event):
+    if event['Records'][0].get("EventSource") == "aws:sns":
+        __deal_sns(event)
+    else:
+        __deal_sqs(event)
+
+
+def __deal_sns(event):
+    event_source = event['Records'][0]["EventSubscriptionArn"].split(":")[-2]
+    logger.info(f"event_source:{event_source}")
+    for record in event['Records']:
+        payload = record["Sns"]["Message"]
+        payload = __deal_single_quotes(payload)
+        current_event = json.loads(payload)
+        if event_source == f"{const.SOLUTION_NAME}-JobCompleted":
+            discovery_job_service.generate_report(int(current_event["JobId"]), int(current_event["RunId"]))
+
+
+def __deal_sqs(event):
     event_source = event['Records'][0]["eventSourceARN"].split(":")[-1]
     logger.info(f"event_source:{event_source}")
     for record in event['Records']:
         payload = record["body"]
-        logger.info(payload)
-        updated_string = re.sub(r'".*?"', __replace_single_quotes, str(payload))
-        payload = updated_string.replace("\'", "\"")
-        logger.debug(payload)
+        payload = __deal_single_quotes(payload)
         current_event = json.loads(payload)
         if event_source == f"{const.SOLUTION_NAME}-DiscoveryJob":
             discovery_job_service.complete_run_database(current_event)
-            discovery_job_service.change_run_state(int(current_event["RunId"]))
+            discovery_job_service.complete_run(int(current_event["RunId"]))
         elif event_source == f"{const.SOLUTION_NAME}-AutoSyncData":
             auto_sync_data.sync_data(current_event)
         elif event_source == f"{const.SOLUTION_NAME}-Crawler":

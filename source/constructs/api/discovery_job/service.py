@@ -18,14 +18,16 @@ from common.abilities import need_change_account_id, convert_database_type_2_pro
 import config.service as config_service
 from data_source import jdbc_schema
 from tools import list_tool
+from data_source.resource_list import list_resources_by_database_type
 
 version = os.getenv(const.VERSION, '')
 controller_function_name = os.getenv("ControllerFunctionName", f"{const.SOLUTION_NAME}-Controller")
 sqs_resource = boto3.resource('sqs')
 
-sql_result = "SELECT database_type,account_id,region,s3_bucket,s3_location,rds_instance_id,database_name,table_name,column_name,identifiers,sample_data FROM job_detection_output_table where run_id='%d' and privacy = 1"
+sql_result = "SELECT database_type,account_id,region,database_name,location,column_name,identifiers,sample_data FROM job_detection_output_table where run_id='%d' and privacy = 1"
 sql_error = "SELECT account_id,region,database_type,database_name,table_name,error_message FROM job_detection_error_table where run_id='%d'"
 extra_py_files = f"s3://{admin_bucket_name}/job/script/job_extra_files.zip"
+report_key_template = "report/report-%d-%d.xlsx"
 
 
 def list_jobs(condition: QueryCondition):
@@ -271,6 +273,9 @@ def __start_run_databases(run_databases):
         concurrent_run_job_number = int(config_service.get_config(const.CONFIG_CONCURRENT_RUN_JOB_NUMBER, const.CONFIG_CONCURRENT_RUN_JOB_NUMBER_DEFAULT_VALUE))
         logger.debug(f"concurrent_run_job_number:{concurrent_run_job_number}")
         count_run_database = __count_run_database_by_subnet()
+        for key in account_loop_wait:
+            if account_loop_wait[key] > const.JOB_INTERVAL_WAIT * concurrent_run_job_number:
+                account_loop_wait[key] = const.JOB_INTERVAL_WAIT * concurrent_run_job_number
 
     job_placeholder = ","
     account_first_wait = {}
@@ -565,19 +570,19 @@ def stop_job(job_id: int):
                                MessageEnum.DISCOVERY_JOB_STOPPING.get_msg())
 
     run_databases: list[models.DiscoveryJobRunDatabase] = db_run.databases
-    crud.stop_run(job_id, db_run.id, True)
+    crud.stop_run(job_id, db_run.id)
     job = crud.get_job(job_id)
     for run_database in run_databases:
         logger.info(f"Stop job,JobId:{job_id},RunId:{run_database.run_id},RunDatabaseId:{run_database.id},"
                     f"AccountId:{run_database.account_id},Region:{run_database.region},"
                     f"DatabaseType:{run_database.database_type},DatabaseName:{run_database.database_name}")
-        __stop_run(run_database)
+        __stop_step_function(run_database)
         __send_complete_run_database_message(job_id, run_database.run_id, run_database.id, run_database.account_id,
                                              run_database.region, run_database.database_type, run_database.database_name,
                                              job.overwrite == 1, RunDatabaseState.STOPPED.value)
 
 
-def __stop_run(run_database: models.DiscoveryJobRunDatabase):
+def __stop_step_function(run_database: models.DiscoveryJobRunDatabase):
     account_id = run_database.account_id
     region = run_database.region
     if need_change_account_id(run_database.database_type):
@@ -798,14 +803,40 @@ def __send_complete_run_database_message(job_id, run_id, run_database_id, accoun
     queue.send_message(MessageBody=json.dumps(event))
 
 
-def change_run_state(run_id: int):
+def __publish_job_completed(run_id: int):
+    topic_arn = f'arn:{partition}:sns:{admin_region}:{admin_account_id}:{const.SOLUTION_NAME}-JobCompleted'
+    sns = boto3.client('sns')
+
+    job = crud.get_job_by_run_id(run_id)
+    if not job:
+        return
+
+    message = {
+        'JobId': job.id,
+        'RunId': run_id,
+        'Message': f'{job.name} has been completed.'
+    }
+
+    message_body = json.dumps(message)
+    try:
+        response = sns.publish(
+            TopicArn=topic_arn,
+            Message=message_body,
+            Subject=message['Message'],
+        )
+    except Exception as e:
+        logger.exception(e)
+
+
+def complete_run(run_id: int):
     run_databases = crud.count_run_databases(run_id)
     # If there are running tasks, the state is running.
     for state, count in run_databases:
-        if state == RunDatabaseState.RUNNING.value:
+        if state in [RunDatabaseState.RUNNING.value, RunDatabaseState.PENDING.value]:
             logger.info("There are also running tasks.")
             return
     crud.complete_run(run_id)
+    __publish_job_completed(run_id)
 
 
 def complete_run_database(input_event):
@@ -950,7 +981,21 @@ def __get_cell_value(cell: dict):
     return cell.get("VarCharValue", "")
 
 
-def get_report_url(run_id: int):
+def generate_report(job_id: int, run_id: int, s3_client=None, key_name=None):
+    logger.info(f"Gen job report,run id:{run_id}")
+    if not s3_client:
+        s3_client = boto3.client('s3')
+    if not key_name:
+        key_name = report_key_template % (job_id, run_id)
+    job = crud.get_job(job_id)
+    datasource_info = {}
+    # Starting from version v1.1, a job only has one database_type
+    if job.database_type.startswith(DatabaseType.JDBC.value):
+        data_sources = list_resources_by_database_type(job.database_type).all()
+        for data_source in data_sources:
+            datasource_key = f"{job.database_type}-{data_source.instance_id}"
+            datasource_info[datasource_key] = data_source
+
     run_result = __query_athena(sql_result % run_id)
 
     wb = Workbook()
@@ -963,30 +1008,28 @@ def get_report_url(run_id: int):
     ws_glue = wb.create_sheet("Glue")
     ws_s3_structured.append(["account_id", "region", "s3_bucket", "s3_location", "column_name", "identifiers", "sample_data"])
     ws_s3_unstructured.append(["account_id", "region", "s3_bucket", "s3_location", "identifiers", "sample_data"])
-    ws_rds.append(["account_id", "region", "rds_instance_id", "table_name,", "column_name", "identifiers", "sample_data"])
-    ws_jdbc.append(["type", "account_id", "region", "database_name", "table_name,", "column_name", "identifiers", "sample_data"])
-    ws_glue.append(["account_id", "region", "database_name", "table_name,", "column_name", "identifiers", "sample_data"])
+    ws_rds.append(["account_id", "region", "rds_instance_id", "table_name", "column_name", "identifiers", "sample_data"])
+    ws_jdbc.append(["type", "account_id", "region", "database_name", "table_name", "column_name", "identifiers", "sample_data"])
+    ws_glue.append(["account_id", "region", "database_name", "table_name", "column_name", "identifiers", "sample_data"])
 
     for row in run_result[1:]:
         row_result = [__get_cell_value(cell) for cell in row]
         database_type = row_result[0]
         del row_result[0]
         if database_type == DatabaseType.S3.value:
-            del row_result[4:7]
             ws_s3_structured.append(row_result)
         elif database_type == DatabaseType.S3_UNSTRUCTURED.value:
-            del row_result[4:8]
+            del row_result[4]  # Delete column_name field
             ws_s3_unstructured.append(row_result)
         elif database_type == DatabaseType.GLUE.value:
-            del row_result[2:5]
             ws_glue.append(row_result)
         elif database_type.startswith(DatabaseType.JDBC.value):
-            del row_result[2:5]
+            datasource_key = f"{database_type}-{row_result[2]}"
+            data_source = datasource_info[datasource_key]
+            row_result.extend([data_source.description, data_source.jdbc_connection_url])
             row_result.insert(0, database_type[5:])
             ws_jdbc.append(row_result)
-        else:
-            del row_result[5:6]
-            del row_result[2:4]
+        else:  # RDS
             ws_rds.append(row_result)
 
     error_result = __query_athena(sql_error % run_id)
@@ -999,10 +1042,27 @@ def get_report_url(run_id: int):
 
     filename = NamedTemporaryFile().name
     wb.save(filename)
-    s3_client = boto3.client('s3')
-    key_name = f"report/report-{run_id}.xlsx"
     s3_client.upload_file(filename, admin_bucket_name, key_name)
     os.remove(filename)
+
+
+def __check_file_existence(s3_client, key_name):
+    try:
+        s3_client.head_object(Bucket=admin_bucket_name, Key=key_name)
+        return True
+    except Exception as e:
+        if e.response['Error']['Code'] == '404':
+            return False
+        else:
+            logger.info(e)
+            return False
+
+
+def get_report_url(job_id: int, run_id: int):
+    s3_client = boto3.client('s3')
+    key_name = report_key_template % (job_id, run_id)
+    if not __check_file_existence(s3_client, key_name):
+        generate_report(job_id, run_id, s3_client, key_name)
     method_parameters = {'Bucket': admin_bucket_name, 'Key': key_name}
     pre_url = s3_client.generate_presigned_url(
         ClientMethod="get_object",
