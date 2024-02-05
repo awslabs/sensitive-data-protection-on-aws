@@ -2,7 +2,6 @@ from fastapi import APIRouter
 from . import service, schemas
 from common.request_wrapper import inject_session
 from common.response_wrapper import BaseResponse
-from discovery_job import service as discovery_job_service
 
 router = APIRouter(prefix="/config", tags=["config"])
 
