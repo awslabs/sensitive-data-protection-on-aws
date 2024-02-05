@@ -38,10 +38,13 @@ import {
   LayerVersion,
 } from 'aws-cdk-lib/aws-lambda';
 import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
+import { Topic } from 'aws-cdk-lib/aws-sns';
+import { LambdaSubscription } from 'aws-cdk-lib/aws-sns-subscriptions';
 import { Construct } from 'constructs';
 import { SqsStack } from './sqs-stack';
 import { BuildConfig } from '../common/build-config';
 import { SolutionInfo } from '../common/solution-info';
+import { Alias } from 'aws-cdk-lib/aws-kms';
 
 export interface ApiProps {
   readonly vpc: IVpc;
@@ -98,6 +101,16 @@ export class ApiStack extends Construct {
     const autoSyncDataSqsStack = new SqsStack(this, 'AutoSyncDataQueue', { name: 'AutoSyncData', visibilityTimeout: 900 });
     const autoSyncDataEventSource = new SqsEventSource(autoSyncDataSqsStack.queue);
     controllerFunction.addEventSource(autoSyncDataEventSource);
+
+    this.createJobCompletedTopic(controllerFunction);
+  }
+
+  private createJobCompletedTopic(controllerFunction: Function) {
+    const jobCompletedTopic = new Topic(this, 'JobCompleted', {
+      topicName: `${SolutionInfo.SOLUTION_NAME}-JobCompleted`,
+      masterKey: Alias.fromAliasName(this, 'MasterKey', 'alias/aws/sns'),
+    });
+    jobCompletedTopic.addSubscription(new LambdaSubscription(controllerFunction));
   }
 
   private createFunction(name: string, handler: string, props: ApiProps, timeout?: number, functionName?: string) {
@@ -194,8 +207,10 @@ export class ApiStack extends Construct {
         'events:RemoveTargets',
         'events:UntagResource',
         'events:DisableRule',
+        'sns:Publish',
       ],
-      resources: [`arn:${Aws.PARTITION}:lambda:*:${Aws.ACCOUNT_ID}:function:*`,
+      resources: [
+        `arn:${Aws.PARTITION}:lambda:*:${Aws.ACCOUNT_ID}:function:*`,
         `arn:${Aws.PARTITION}:sqs:${Aws.REGION}:${Aws.ACCOUNT_ID}:${SolutionInfo.SOLUTION_NAME}-DiscoveryJob`,
         `arn:${Aws.PARTITION}:sqs:${Aws.REGION}:${Aws.ACCOUNT_ID}:${SolutionInfo.SOLUTION_NAME}-Crawler`,
         `arn:${Aws.PARTITION}:sqs:${Aws.REGION}:${Aws.ACCOUNT_ID}:${SolutionInfo.SOLUTION_NAME}-AutoSyncData`,
@@ -206,7 +221,9 @@ export class ApiStack extends Construct {
         `arn:${Aws.PARTITION}:glue:*:${Aws.ACCOUNT_ID}:table/${SolutionInfo.SOLUTION_GLUE_DATABASE}/*`,
         `arn:${Aws.PARTITION}:glue:*:${Aws.ACCOUNT_ID}:database/${SolutionInfo.SOLUTION_GLUE_DATABASE}`,
         `arn:${Aws.PARTITION}:glue:*:${Aws.ACCOUNT_ID}:catalog`,
-        `arn:${Aws.PARTITION}:events:*:${Aws.ACCOUNT_ID}:rule/${SolutionInfo.SOLUTION_NAME}-*`],
+        `arn:${Aws.PARTITION}:events:*:${Aws.ACCOUNT_ID}:rule/${SolutionInfo.SOLUTION_NAME}-*`,
+        `arn:${Aws.PARTITION}:sns:${Aws.REGION}:${Aws.ACCOUNT_ID}:${SolutionInfo.SOLUTION_NAME}-JobCompleted`,
+      ],
     });
     apiRole.addToPolicy(functionStatement);
 
