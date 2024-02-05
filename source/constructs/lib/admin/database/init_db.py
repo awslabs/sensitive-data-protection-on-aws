@@ -63,6 +63,7 @@ def on_update(event):
     main(event,"1.0.0-1.0.1")
     main(event,"1.0.1-1.0.2")
     main(event,"1.0.x-1.1.0")
+    main(event,"1.0.0-1.1.1")
 
 
 def on_delete(event):
