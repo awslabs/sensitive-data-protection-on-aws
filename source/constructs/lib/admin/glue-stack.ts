@@ -115,6 +115,7 @@ export class GlueStack extends Construct {
             { name: 'identifiers', type: 'array<struct<identifier:string,score:double>>' },
             { name: 'sample_data', type: 'array<string>' },
             { name: 'table_size', type: 'int' },
+            { name: 'location', type: 'string' },
             { name: 's3_location', type: 'string' },
             { name: 's3_bucket', type: 'string' },
             { name: 'rds_instance_id', type: 'string' },

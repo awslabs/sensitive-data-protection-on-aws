@@ -18,7 +18,7 @@ import { AgentRoleStack } from './agent/AgentRole-stack';
 import { CrawlerEventbridgeStack } from './agent/CrawlerEventbridge-stack';
 import { DeleteAgentResourcesStack } from './agent/DeleteAgentResources-stack';
 import { DiscoveryJobStack } from './agent/DiscoveryJob-stack';
-import { RenameResourcesStack } from './agent/RenameResources-stack';
+// import { RenameResourcesStack } from './agent/RenameResources-stack';
 import { BucketStack } from './common/bucket-stack';
 import { Parameter } from './common/parameter';
 import { SolutionInfo } from './common/solution-info';
@@ -54,9 +54,9 @@ export class AgentStack extends Stack {
       queueName: `${SolutionInfo.SOLUTION_NAME}-AutoSyncData`,
     });
 
-    new RenameResourcesStack(scope, 'RenameResources', {
-      adminAccountId: adminAccountId,
-    });
+    // new RenameResourcesStack(scope, 'RenameResources', {
+    //   adminAccountId: adminAccountId,
+    // });
   }
 
   constructor(scope: Construct, id: string, props?: StackProps) {

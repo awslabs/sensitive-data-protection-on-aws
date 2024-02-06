@@ -109,7 +109,7 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
     setLoadingUpload(true);
     try {
       const response = await axios.post(
-        `${BASE_URL}data-source/batch-create`,
+        `${BASE_URL}/data-source/batch-create`,
         formData,
         {
           headers: {

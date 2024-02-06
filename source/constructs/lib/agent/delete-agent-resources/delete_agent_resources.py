@@ -111,7 +111,7 @@ def cleanup_crawlers():
             if database_name.startswith(f"{solution_name}-s3-"):
                 unstructured_database_name = database_name.replace(f"{solution_name}-s3-",f"{solution_name}-unstructured-",1)
                 remove_database(unstructured_database_name)
-            if len(response_crawler['Crawler']['Targets']['JdbcTargets']) == 1:
+            if len(response_crawler['Crawler']['Targets']['JdbcTargets']) > 0:
                 connection_name = response_crawler['Crawler']['Targets']['JdbcTargets'][0]['ConnectionName']
                 remove_jdbc_connection(connection_name)
             crawlers.append(crawler_name)
