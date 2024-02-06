@@ -37,6 +37,7 @@ import SelectRDSCatalog from './components/SelectRDSCatalog';
 import SelectGlueCatalog from './components/SelectGlueCatalog';
 import SelectJDBCCatalog from './components/SelectJDBCCatalog';
 import { IAccountData } from 'pages/account-management/types/account_type';
+import moment from 'moment';
 
 export const convertAccountListToJobDatabases = (
   accountList: IAccountData[],
@@ -239,6 +240,40 @@ const CreateJobContent = () => {
     return true;
   };
 
+  const cronGeneratorForGlueDaily = (time: string) => {
+    const timeMoment = moment(time, 'HH:mm');
+    timeMoment.subtract(8, 'hours');
+    const hours = timeMoment.format('H');
+    const minutes = timeMoment.format('m');
+    return `${minutes} ${hours} * * ? *`;
+  };
+
+  const clkFrequencyApply = () => {
+    const tempType = jobData.frequencyType;
+    if (tempType === 'on_demand_run') {
+      return true;
+    }
+    if (tempType === 'daily') {
+      if (!jobData.frequencyTimeStart) {
+        alertMsg(t('job:selectHourOfDay'), 'error');
+        return false;
+      }
+    }
+    if (tempType === 'weekly') {
+      if (!jobData.frequencyTimeStart) {
+        alertMsg(t('job:selectDayOfWeek'), 'error');
+        return false;
+      }
+    }
+    if (tempType === 'monthly') {
+      if (!jobData.frequencyTimeStart) {
+        alertMsg(t('job:selectDayOfMonth'), 'error');
+        return false;
+      }
+    }
+    return true;
+  };
+
   const submitCreateJob = async () => {
     setIsLoading(true);
     let tempFrequency =
@@ -259,9 +294,11 @@ const CreateJobContent = () => {
       // Format the UTC hour as a string
       utcHourString = utcHourNormalized.toString().padStart(2, '0');
     }
-
+    console.info('jobData.frequencyType:', jobData.frequencyType);
     if (jobData.frequencyType === 'daily') {
-      tempFrequency = `0 ${utcHourString} * * ? *`;
+      tempFrequency = cronGeneratorForGlueDaily(
+        jobData.frequencyTimeStart?.value ?? ''
+      );
     }
     if (jobData.frequencyType === 'weekly') {
       const tempTime =
@@ -352,6 +389,12 @@ const CreateJobContent = () => {
         onSubmit={submitCreateJob}
         onCancel={cancelCreateJob}
         onNavigate={({ detail }) => {
+          console.info(detail);
+          if (detail.requestedStepIndex === 3) {
+            if (!clkFrequencyApply()) {
+              return;
+            }
+          }
           const checkResult = checkMustData(detail.requestedStepIndex);
           checkResult && setActiveStepIndex(detail.requestedStepIndex);
         }}
@@ -371,11 +414,11 @@ const CreateJobContent = () => {
                   });
                 }}
                 changeDataSource={(sId) => {
-                  sessionStorage[CACHE_CONDITION_KEY]=JSON.stringify({
+                  sessionStorage[CACHE_CONDITION_KEY] = JSON.stringify({
                     column: 'database_type',
-                    condition: "and",
-                    operation: "in",
-                    values: [sId]
+                    condition: 'and',
+                    operation: 'in',
+                    values: [sId],
                   });
                   setJobData((prev) => {
                     return {
