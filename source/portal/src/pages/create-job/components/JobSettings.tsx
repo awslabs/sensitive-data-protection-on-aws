@@ -21,7 +21,6 @@ import {
   DAY_OPTIONS,
   MONTH_OPTIONS,
 } from '../types/create_data_type';
-import { alertMsg } from 'tools/tools';
 import { useTranslation } from 'react-i18next';
 import { IJobType, SCAN_FREQUENCY } from 'pages/data-job/types/job_list_type';
 import { DEFAULT_TEMPLATE } from 'pages/data-template/types/template_type';
