@@ -12,6 +12,7 @@ from time import sleep
 import boto3
 from fastapi import File, UploadFile
 import openpyxl
+from openpyxl.styles import Font, PatternFill
 import pymysql
 from botocore.exceptions import ClientError
 
@@ -2675,40 +2676,39 @@ def batch_create(file: UploadFile = File(...)):
     # Read the Excel file
     content = file.file.read()
     workbook = openpyxl.load_workbook(BytesIO(content), read_only=False)
-    sheet_names = workbook.sheetnames
     try:
         sheet = workbook.get_sheet_by_name(const.BATCH_SHEET)
     except KeyError:
         raise BizException(MessageEnum.SOURCE_BATCH_SHEET_NOT_FOUND.get_code(),
                            MessageEnum.SOURCE_BATCH_SHEET_NOT_FOUND.get_msg())
     header = [cell for cell in sheet.iter_rows(min_row=2, max_row=2, values_only=True)][0]
-    max_column = sheet.max_column
-    sheet.insert_cols(max_column + 1, amount=2)
-    sheet.cell(row=2, column=max_column + 1, value="Result")
-    sheet.cell(row=2, column=max_column + 2, value="Details")
+    sheet.delete_cols(12, amount=2)
+    sheet.insert_cols(12, amount=2)
+    sheet.cell(row=2, column=12, value="Result")
+    sheet.cell(row=2, column=13, value="Details")
     accounts = crud.get_enable_account_list()
     accounts_list = [f"{account[0]}/{account[1]}/{account[2]}" for account in accounts]
     for row_index, row in enumerate(sheet.iter_rows(min_row=3), start=2):
         if all(cell.value is None for cell in row):
             continue
-        if __check_empty_for_field(row, header):
-        # if any(cell.value is None or str(cell.value).strip() == const.EMPTY_STR for cell in [row[0], row[1], row[3], row[5], row[6], row[7], row[8], row[9]]):
-            __add_error_msg(sheet, max_column, row_index, "Fields cannot be empty")
+        res, msg = __check_empty_for_field(row, header)
+        if res:
+            __add_error_msg(sheet, row_index, msg)
         elif sheet.cell(row=row_index + 1, column=2).value not in [0, 1]:
-            __add_error_msg(sheet, max_column, row_index, f"The value of {header[1]} must be 0 or 1")
+            __add_error_msg(sheet, row_index, f"The value of {header[1]} must be 0 or 1")
         elif not __validate_jdbc_url(str(row[3].value)):
-            __add_error_msg(sheet, max_column, row_index, f"The value of {header[3]} must be in the format jdbc:protocol://host:port")
+            __add_error_msg(sheet, row_index, f"The value of {header[3]} must be in the format jdbc:protocol://host:port")
         elif not str(row[3].value).startswith('jdbc:mysql') and not row[4].value:
-            __add_error_msg(sheet, max_column, row_index, f"Non-MySQL-type data source {header[4]} cannot be null")
+            __add_error_msg(sheet, row_index, f"Non-MySQL-type data source {header[4]} cannot be null")
         elif len(str(row[2].value)) > const.CONNECTION_DESC_MAX_LEN:
-            __add_error_msg(sheet, max_column, row_index, f"The value of {header[2]} must not exceed 2048")
-        elif f"{row[9].value}/{row[7].value}/{row[8].value}/{row[0].value}" in jdbc_from_excel_set:
-            __add_error_msg(sheet, max_column, row_index, f"The value of {header[0]}, {header[7]}, {header[8]}, {header[9]}  already exist in the preceding rows")
-        elif f"{row[9].value}/{row[7].value}/{row[8].value}" not in accounts_list:
-            __add_error_msg(sheet, max_column, row_index, "The account is not existed!")
+            __add_error_msg(sheet, row_index, f"The value of {header[2]} must not exceed 2048")
+        elif f"{row[10].value}/{row[8].value}/{row[9].value}/{row[0].value}" in jdbc_from_excel_set:
+            __add_error_msg(sheet, row_index, f"The value of {header[0]}, {header[8]}, {header[9]}, {header[10]}  already exist in the preceding rows")
+        elif f"{row[10].value}/{row[8].value}/{row[9].value}" not in accounts_list:
+            __add_error_msg(sheet, row_index, "The account is not existed!")
         else:
-            jdbc_from_excel_set.add(f"{row[9].value}/{row[7].value}/{row[8].value}/{row[0].value}")
-            account_set.add(f"{row[9].value}/{row[7].value}/{row[8].value}")
+            jdbc_from_excel_set.add(f"{row[10].value}/{row[8].value}/{row[9].value}/{row[0].value}")
+            account_set.add(f"{row[10].value}/{row[8].value}/{row[9].value}")
             created_jdbc_list.append(__gen_created_jdbc(row))
     # Query network info
     if account_set:
@@ -2722,14 +2722,14 @@ def batch_create(file: UploadFile = File(...)):
         batch_result = asyncio.run(batch_add_conn_jdbc(created_jdbc_list))
         result = {f"{item[0]}/{item[1]}/{item[2]}/{item[3]}": f"{item[4]}/{item[5]}" for item in batch_result}
         for row_index, row in enumerate(sheet.iter_rows(min_row=3), start=2):
-            if row[10].value:
+            if row[11].value:
                 continue
-            v = result.get(f"{row[9].value}/{row[7].value}/{row[8].value}/{row[0].value}")
+            v = result.get(f"{row[10].value}/{row[8].value}/{row[9].value}/{row[0].value}")
             if v:
                 if v.split('/')[0] == "SUCCESSED":
-                    __add_success_msg(sheet, max_column, row_index)
+                    __add_success_msg(sheet, row_index)
                 else:
-                    __add_error_msg(sheet, max_column, row_index, v.split('/')[1])
+                    __add_error_msg(sheet, row_index, v.split('/')[1])
     # Write into excel
     excel_bytes = BytesIO()
     workbook.save(excel_bytes)
@@ -2737,13 +2737,27 @@ def batch_create(file: UploadFile = File(...)):
     # Upload to S3
     batch_create_ds = f"{const.BATCH_CREATE_REPORT_PATH}/report_{time_str}.xlsx"
     __s3_client.upload_fileobj(excel_bytes, admin_bucket_name, batch_create_ds)
-    print(f"cost:{time.time()-time_str}")
     return f'report_{time_str}'
 
 def __check_empty_for_field(row, header):
-    # row[0], row[1], row[3], row[5], row[6], row[7], row[8], row[9]
-    # if not row[0].value or str(cell.value).strip() == const.EMPTY_STR
-    return True, None
+    if row[0].value is None or str(row[0].value).strip() == const.EMPTY_STR:
+        return True, f"{header[0]} should not be empty"
+    if row[1].value is None or str(row[1].value).strip() == const.EMPTY_STR:
+        return True, f"{header[1]} should not be empty"
+    if row[3].value is None or str(row[3].value).strip() == const.EMPTY_STR:
+        return True, f"{header[3]} should not be empty"
+    if row[5].value is None or str(row[5].value).strip() == const.EMPTY_STR:
+        if row[6].value is None or str(row[6].value).strip() == const.EMPTY_STR:
+            return True, f"{header[6]} should not be empty when {header[5]} is empty"
+        if row[7].value is None or str(row[7].value).strip() == const.EMPTY_STR:
+            return True, f"{header[7]} should not be empty when {header[5]} is empty"
+    if row[8].value is None or str(row[8].value).strip() == const.EMPTY_STR:
+        return True, f"{header[8]} should not be empty"
+    if row[9].value is None or str(row[9].value).strip() == const.EMPTY_STR:
+        return True, f"{header[9]} should not be empty"
+    if row[10].value is None or str(row[10].value).strip() == const.EMPTY_STR:
+        return True, f"{header[10]} should not be empty"
+    return False, None
 
 def map_network_jdbc(created_jdbc_list: [JDBCInstanceSource], vpc_id, subnets, security_group_id):
     res = []
@@ -2754,6 +2768,7 @@ def map_network_jdbc(created_jdbc_list: [JDBCInstanceSource], vpc_id, subnets, s
     return res
 
 def query_batch_status(filename: str):
+    success, warning, failed = 0, 0, 0
     file_key = f"{const.BATCH_CREATE_REPORT_PATH}/{filename}.xlsx"
     response = __s3_client.list_objects_v2(Bucket=admin_bucket_name, Prefix=const.BATCH_CREATE_REPORT_PATH)
     for obj in response.get('Contents', []):
@@ -2761,20 +2776,27 @@ def query_batch_status(filename: str):
             response = __s3_client.get_object(Bucket=admin_bucket_name, Key=file_key)
             excel_bytes = response['Body'].read()
             workbook = openpyxl.load_workbook(BytesIO(excel_bytes))
-            
             try:
                 sheet = workbook[const.BATCH_SHEET]
             except KeyError:
                 raise BizException(MessageEnum.SOURCE_BATCH_SHEET_NOT_FOUND.get_code(),
                                    MessageEnum.SOURCE_BATCH_SHEET_NOT_FOUND.get_msg())
             for _, row in enumerate(sheet.iter_rows(values_only=True, min_row=3)):
-                if row[10] == "FAILED":
-                    return 1
-            return 2
+                if row[11] == "FAILED":
+                    failed += 1
+                if row[11] == "SUCCESSED":
+                    success += 1
+                if row[11] == "WARNING":
+                    warning += 1
+            return {"success": success, "warning": warning, "failed": failed}
     return 0
 
 def download_batch_file(filename: str):
-    key = const.BATCH_CREATE_TEMPLATE_PATH if filename.startswith("template") else f'{const.BATCH_CREATE_REPORT_PATH}/{filename}.xlsx'
+    key = f'{const.BATCH_CREATE_REPORT_PATH}/{filename}.xlsx'
+    if filename.startswith("template-zh"):
+        key = const.BATCH_CREATE_TEMPLATE_PATH_CN
+    if filename.startswith("template-en"):
+        key = const.BATCH_CREATE_TEMPLATE_PATH_EN
     url = __s3_client.generate_presigned_url(
         ClientMethod="get_object",
         Params={'Bucket': admin_bucket_name, 'Key': key},
@@ -2782,12 +2804,17 @@ def download_batch_file(filename: str):
     )
     return url
 
-def __add_error_msg(sheet, max_column, row_index, msg):
-    sheet.cell(row=row_index + 1, column=max_column + 1, value="FAILED")
-    sheet.cell(row=row_index + 1, column=max_column + 2, value=msg)
+def __add_error_msg(sheet, row_index, msg):
+    if msg == const.EXISTED_MSG:
+        sheet.cell(row=row_index + 1, column=12, value="WARNING")
+        sheet.cell(row=row_index + 1, column=12).font = Font(color='563112', bold=True)
+    else:
+        sheet.cell(row=row_index + 1, column=12, value="FAILED")
+        sheet.cell(row=row_index + 1, column=12).font = Font(color='FF0000', bold=True)
+    sheet.cell(row=row_index + 1, column=13, value=msg)
 
-def __add_success_msg(sheet, max_column, row_index):
-    sheet.cell(row=row_index + 1, column=max_column + 1, value="SUCCESSED")
+def __add_success_msg(sheet, row_index):
+    sheet.cell(row=row_index + 1, column=12, value="SUCCESSED")
 
 def __gen_created_jdbc(row):
     created_jdbc = JDBCInstanceSource()
@@ -2796,11 +2823,12 @@ def __gen_created_jdbc(row):
     created_jdbc.description = str(row[2].value)
     created_jdbc.jdbc_connection_url = str(row[3].value)
     created_jdbc.jdbc_connection_schema = str(row[4].value).replace(",", "\n") if row[4].value else const.EMPTY_STR
-    created_jdbc.master_username = str(row[5].value)
-    created_jdbc.password = str(row[6].value)
-    created_jdbc.account_id = str(row[7].value)
-    created_jdbc.region = str(row[8].value)
-    created_jdbc.account_provider_id = row[9].value
+    created_jdbc.secret = str(row[5].value)
+    created_jdbc.master_username = str(row[6].value)
+    created_jdbc.password = str(row[7].value)
+    created_jdbc.account_id = str(row[8].value)
+    created_jdbc.region = str(row[9].value)
+    created_jdbc.account_provider_id = row[10].value
     created_jdbc.creation_time = ""
     created_jdbc.custom_jdbc_cert = ""
     created_jdbc.custom_jdbc_cert_string = ""

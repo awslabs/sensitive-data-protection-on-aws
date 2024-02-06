@@ -100,8 +100,10 @@ const.BATCH_CREATE_LIMIT = 1000
 const.BATCH_SHEET = "OriginTemplate"
 
 const.CONNECTION_DESC_MAX_LEN = 10
-const.BATCH_CREATE_TEMPLATE_PATH = 'batch-create-jdbc-datasource/template/batch-create-jdbc-datasource.xlsx'
+const.BATCH_CREATE_TEMPLATE_PATH_CN = 'batch-create-jdbc-datasource/template/batch_create_jdbc_datasource-cn.xlsx'
+const.BATCH_CREATE_TEMPLATE_PATH_EN = 'batch-create-jdbc-datasource/template/batch_create_jdbc_datasource-en.xlsx'
 const.BATCH_CREATE_REPORT_PATH = 'batch-create-jdbc-datasource/report'
+const.EXISTED_MSG = 'JDBC connection with the same instance already exists'
 
 const.CONFIG_CONCURRENT_RUN_JOB_NUMBER = 'ConcurrentRunJobNumber'
 const.CONFIG_CONCURRENT_RUN_JOB_NUMBER_DEFAULT_VALUE = 50
