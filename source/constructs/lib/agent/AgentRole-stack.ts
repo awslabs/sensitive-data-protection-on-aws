@@ -48,6 +48,7 @@ export class AgentRoleStack extends Construct {
             'glue:CheckSchemaVersionValidity',
             'glue:CreateClassifier',
             'glue:Get*',
+            'glue:BatchGet*',
             'lakeformation:*',
             's3:List*',
           ],
@@ -143,8 +144,9 @@ export class AgentRoleStack extends Construct {
           actions: [
             's3:ListBucket',
             's3:GetObject',
-            's3:PutObject', // Admin Bucket
+            's3:PutObject', // Put object in Admin Bucket.When installing Agent Stack independently, do not know the Admin Bucket name.
             'glue:Get*',
+            'glue:BatchGet*',
             'ec2:DescribeSubnets',
             'ec2:DescribeSecurityGroups',
             'ec2:DescribeVpcEndpoints',
@@ -168,8 +170,6 @@ export class AgentRoleStack extends Construct {
             'glue:UpdatePartition',
             'glue:BatchCreatePartition',
             'glue:BatchUpdatePartition',
-            'glue:BatchGetPartition',
-            'glue:BatchGetCustomEntityTypes',
             'glue:TagResource',
           ],
           resources: [

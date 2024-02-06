@@ -93,7 +93,9 @@ export class DiscoveryJobStack extends Construct {
             'glue:StartCrawler',
             'glue:StopCrawler',
             'glue:StartJobRun',
-            'glue:StopJobRun',
+            'glue:BatchStopJobRun',
+            'glue:GetJobRun',
+            'glue:GetJobRuns',
             'glue:TagResource',
           ],
           resources: [
@@ -170,7 +172,11 @@ export class DiscoveryJobStack extends Construct {
           actions: [
             'glue:GetTables',
           ],
-          resources: [`arn:${Aws.PARTITION}:glue:${Aws.REGION}:${Aws.ACCOUNT_ID}:table/${SolutionInfo.SOLUTION_NAME.toLowerCase()}-*/*`],
+          resources: [
+            `arn:${Aws.PARTITION}:glue:${Aws.REGION}:${Aws.ACCOUNT_ID}:catalog`,
+            `arn:${Aws.PARTITION}:glue:${Aws.REGION}:${Aws.ACCOUNT_ID}:database/${SolutionInfo.SOLUTION_NAME.toLowerCase()}-*`,
+            `arn:${Aws.PARTITION}:glue:${Aws.REGION}:${Aws.ACCOUNT_ID}:table/${SolutionInfo.SOLUTION_NAME.toLowerCase()}-*/*`,
+          ],
         }),
       ],
     }));

@@ -990,7 +990,7 @@ def generate_report(job_id: int, run_id: int, s3_client=None, key_name=None):
     job = crud.get_job(job_id)
     datasource_info = {}
     # Starting from version v1.1, a job only has one database_type
-    if job.database_type.startswith(DatabaseType.JDBC.value):
+    if job.database_type.startswith(DatabaseType.JDBC.value) or job.database_type == DatabaseType.RDS.value:
         data_sources = list_resources_by_database_type(job.database_type).all()
         for data_source in data_sources:
             datasource_key = f"{job.database_type}-{data_source.instance_id}"
@@ -1008,8 +1008,8 @@ def generate_report(job_id: int, run_id: int, s3_client=None, key_name=None):
     ws_glue = wb.create_sheet("Glue")
     ws_s3_structured.append(["account_id", "region", "s3_bucket", "s3_location", "column_name", "identifiers", "sample_data"])
     ws_s3_unstructured.append(["account_id", "region", "s3_bucket", "s3_location", "identifiers", "sample_data"])
-    ws_rds.append(["account_id", "region", "rds_instance_id", "table_name", "column_name", "identifiers", "sample_data"])
-    ws_jdbc.append(["type", "account_id", "region", "database_name", "table_name", "column_name", "identifiers", "sample_data"])
+    ws_rds.append(["account_id", "region", "instance_name", "description", "jdbc_url", "table_name", "column_name", "identifiers", "sample_data"])
+    ws_jdbc.append(["type", "account_id", "region", "instance_name", "description", "jdbc_url", "table_name", "column_name", "identifiers", "sample_data"])
     ws_glue.append(["account_id", "region", "database_name", "table_name", "column_name", "identifiers", "sample_data"])
 
     for row in run_result[1:]:
@@ -1026,10 +1026,13 @@ def generate_report(job_id: int, run_id: int, s3_client=None, key_name=None):
         elif database_type.startswith(DatabaseType.JDBC.value):
             datasource_key = f"{database_type}-{row_result[2]}"
             data_source = datasource_info[datasource_key]
-            row_result.extend([data_source.description, data_source.jdbc_connection_url])
+            row_result[3:3] = [data_source.description, data_source.jdbc_connection_url]
             row_result.insert(0, database_type[5:])
             ws_jdbc.append(row_result)
         else:  # RDS
+            datasource_key = f"{database_type}-{row_result[2]}"
+            data_source = datasource_info[datasource_key]
+            row_result[3:3] = [data_source.description, data_source.jdbc_connection_url]
             ws_rds.append(row_result)
 
     error_result = __query_athena(sql_error % run_id)
