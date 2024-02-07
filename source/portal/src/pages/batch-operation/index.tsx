@@ -34,7 +34,12 @@ enum BatchOperationStatus {
   Error = 'Error',
 }
 interface BatchOperationContentProps {
-  updateStatus: (status: BatchOperationStatus) => void;
+  updateStatus: (
+    status: BatchOperationStatus,
+    success?: number,
+    warning?: number,
+    failed?: number
+  ) => void;
 }
 
 const startDownload = (url: string) => {
@@ -72,14 +77,26 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
       const status: any = await queryBatchStatus({
         batch: fileId,
       });
-      // 0: Inprogress, 1: Error, 2: Completed
-      if (status === 1 || status === 2) {
+
+      // 0: Inprogress
+      // data {success: 0, failed: 1, warning: 2}a
+      if (status?.success > 0 || status?.warning > 0 || status?.failed > 0) {
         clearInterval(statusInterval);
-      }
-      if (status === 1) {
-        updateStatus(BatchOperationStatus.Error);
-      } else if (status === 2) {
-        updateStatus(BatchOperationStatus.Completed);
+        if (status.failed > 0) {
+          updateStatus(
+            BatchOperationStatus.Error,
+            status.success,
+            status.warning,
+            status.failed
+          );
+        } else {
+          updateStatus(
+            BatchOperationStatus.Completed,
+            status.success,
+            status.warning,
+            status.failed
+          );
+        }
       } else {
         updateStatus(BatchOperationStatus.Inprogress);
       }
@@ -276,6 +293,9 @@ const BatchOperation: React.FC = () => {
     []
   );
 
+  const [successCount, setSuccessCount] = useState(0);
+  const [warningCount, setWarningCount] = useState(0);
+  const [failedCount, setFailedCount] = useState(0);
   const [status, setStatus] = useState(BatchOperationStatus.NotStarted);
   const [loadingDownload, setLoadingDownload] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -310,7 +330,10 @@ const BatchOperation: React.FC = () => {
           header: t('datasource:batch.successTitle'),
           type: 'success',
           dismissible: true,
-          content: t('datasource:batch.successDesc'),
+          content: t('datasource:batch.successDesc', {
+            successCount: successCount,
+            warningCount: warningCount,
+          }),
           id: 'success',
           action: (
             <Button onClick={downloadReport} loading={loadingDownload}>
@@ -329,7 +352,11 @@ const BatchOperation: React.FC = () => {
           header: t('datasource:batch.failedTitle'),
           type: 'error',
           dismissible: true,
-          content: t('datasource:batch.failedDesc'),
+          content: t('datasource:batch.failedDesc', {
+            successCount: successCount,
+            warningCount: warningCount,
+            failedCount: failedCount,
+          }),
           id: 'error',
           action: (
             <Button onClick={downloadReport} loading={loadingDownload}>
@@ -385,7 +412,21 @@ const BatchOperation: React.FC = () => {
               {
                 label: t('datasource:batch.tab'),
                 id: 'title',
-                content: <BatchOperationContent updateStatus={setStatus} />,
+                content: (
+                  <BatchOperationContent
+                    updateStatus={(
+                      status,
+                      successCount,
+                      warningCount,
+                      failedCount
+                    ) => {
+                      setStatus(status);
+                      setSuccessCount(successCount ?? 0);
+                      setWarningCount(warningCount ?? 0);
+                      setFailedCount(failedCount ?? 0);
+                    }}
+                  />
+                ),
               },
             ]}
           />
