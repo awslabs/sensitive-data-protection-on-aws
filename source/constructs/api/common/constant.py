@@ -72,7 +72,7 @@ const.EXPORT_FILE_RDS_COLUMNS = ["account_id", "region", "type", "rds_instance_i
                                  "instance_catalog_label", "table_catalog_label", "comment", "last_updated_at", "last_updated_by"]
 const.EXPORT_FILE_GLUE_COLUMNS = ["account_id", "region", "type", "glue_database", "table_name", "column_name", "identifiers", "sample_data",
                                   "instance_catalog_label", "table_catalog_label", "comment", "last_updated_at", "last_updated_by"]
-const.EXPORT_FILE_JDBC_COLUMNS = ["account_id", "region", "type", "jdbc_connection", "table_name", "column_name", "identifiers", "sample_data",
+const.EXPORT_FILE_JDBC_COLUMNS = ["account_id", "region", "type", "instance_name", "description", "jdbc_url", "table_name", "column_name", "identifiers", "sample_data",
                                   "instance_catalog_label", "table_catalog_label", "comment", "last_updated_at", "last_updated_by"]
 const.EXPORT_XLSX_MAX_LINES = 30000
 const.EXPORT_CSV_MAX_LINES = 60000

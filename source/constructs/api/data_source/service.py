@@ -2620,7 +2620,7 @@ def query_connection_detail(account: JDBCInstanceSourceBase):
 def __gen_resources_name(jdbc):
     database_type = convert_provider_id_2_database_type(jdbc.account_provider_id)
     glue_connection_name = f"{const.SOLUTION_NAME}-{database_type}-{jdbc.instance_id}"
-    glue_database_name = f"{const.SOLUTION_NAME}-{database_type}-{jdbc.instance_id}"
+    glue_database_name = glue_connection_name
     crawler_name = f"{const.SOLUTION_NAME}-{database_type}-{jdbc.instance_id}"
     return glue_connection_name, glue_database_name, crawler_name
 

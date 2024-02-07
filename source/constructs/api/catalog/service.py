@@ -222,6 +222,7 @@ def sync_crawler_result(
         database_type: str,
         database_name: str,
 ):
+    database_name = database_name.strip()
     logger.info(f"start params {account_id} {region} {database_type} {database_name}")
     start_time = time.time()
     rds_engine_type = const.NA
@@ -243,7 +244,7 @@ def sync_crawler_result(
         )
         if jdbc_database:
             jdbc_engine_type = jdbc_database.jdbc_connection_url.split(':')[1]
-
+    
     if need_change_account_id(database_type):
         glue_client = get_boto3_client(admin_account_id, admin_region, "glue")
     else:
@@ -286,6 +287,7 @@ def sync_crawler_result(
             tables_response = glue_client.get_tables(
                 DatabaseName=glue_database_name, NextToken=next_token
             )
+            print(f"tableList is {tables_response['TableList']}")
             logger.info(f"The number of tables is {len(tables_response['TableList'])}")
             # logger.info("get glue tables" + str(tables_response))
             delete_glue_table_names = []
@@ -510,11 +512,17 @@ def sync_crawler_result(
             storage_location = rds_engine_type
         elif database_type == DatabaseType.GLUE.value:
             storage_location = const.NA
+        connection_info = glue_client.get_connection(Name=f"{const.SOLUTION_NAME}-{database_type}-{database_name}")['Connection'] if database_type.startswith(DatabaseType.JDBC.value) else {}
+        description = connection_info.get('Description', '')
+        url = connection_info.get('ConnectionProperties', {}).get('JDBC_CONNECTION_URL', '')
+        logger.info(f"connection_info description url!!!!!!!!!!:{description},{url}")
         catalog_database_dict = {
             "account_id": account_id,
             "region": region,
             "database_type": database_type,
             "database_name": database_name,
+            "description": description,
+            "url": url,
             "object_count": database_object_count,
             # not error ， logic change when 1.1.0
             "size_key": database_size,
@@ -532,6 +540,7 @@ def sync_crawler_result(
         }
         original_database = crud.get_catalog_database_level_classification_by_name(account_id, region, database_type,
                                                                                    database_name)
+        logger.info(f"original_database is {original_database}")
         if original_database == None:
             crud.create_catalog_database_level_classification(catalog_database_dict)
         else:
@@ -1387,31 +1396,39 @@ def filter_records(all_items: list, all_labels_dict: dict, sensitive_flag: str):
         row_result = [cell for cell in row]
         if sensitive_flag != 'all' and "N/A" in row_result[7]:
             continue
-        if row_result[9]:
-            row_result[9] = ",".join(gen_labels(all_labels_dict, row_result[9]))
-        if row_result[10]:
-            row_result[10] = ",".join(gen_labels(all_labels_dict, row_result[10]))
+        if row_result[12]:
+            row_result[12] = ",".join(gen_labels(all_labels_dict, row_result[12]))
+        if row_result[13]:
+            row_result[13] = ",".join(gen_labels(all_labels_dict, row_result[13]))
         catalog_type = row_result[2]
         if catalog_type == DatabaseType.S3.value:
+            del row_result[4]
+            del row_result[5]
+            del row_result[7]
             s3_records.append([row_result])
         elif catalog_type == DatabaseType.S3_UNSTRUCTURED.value:
+            del row_result[4]
+            del row_result[5]
+            del row_result[7]
             s3_unstructured_records.append([row_result])
         elif catalog_type == DatabaseType.RDS.value:
+            del row_result[4]
+            del row_result[5]
             del row_result[6]
+            del row_result[9]
             rds_records.append([row_result])
         elif catalog_type == DatabaseType.GLUE.value:
-            del row_result[6]
+            del row_result[4]
+            del row_result[5]
+            del row_result[7]
+            del row_result[9]
             glue_records.append([row_result])
         elif catalog_type.startswith(DatabaseType.JDBC.value):
             del row_result[6]
+            del row_result[9]
             jdbc_records.append([row_result])
         else:
             pass
-    # return {const.EXPORT_S3_MARK_STR: {const.EXPORT_S3_SHEET_TITLE: s3_records,
-    #                                    const.EXPORT_S3_UNSTRUCTURED_SHEET_TITLE: s3_unstructured_records},
-    #         const.EXPORT_RDS_MARK_STR: {const.EXPORT_RDS_SHEET_TITLE: rds_records},
-    #         const.EXPORT_GLUE_MARK_STR: {const.EXPORT_RDS_SHEET_TITLE: glue_records},
-    #         const.EXPORT_JDBC_MARK_STR: {const.EXPORT_RDS_SHEET_TITLE: jdbc_records}}
     return {const.EXPORT_S3_MARK_STR: s3_records,
             const.EXPORT_S3_UNSTRUCTURED_MARK_STR: s3_unstructured_records,
             const.EXPORT_RDS_MARK_STR: rds_records,
@@ -1433,52 +1450,16 @@ def gen_zip_file(header, record, tmp_filename, type):
                 batches = int(len(v) / const.EXPORT_XLSX_MAX_LINES)
                 if batches < 1:
                     __gen_xlsx_file(k, header.get(k), v, 0, zipf)
-                    # wb = Workbook()
-                    # ws1 = wb.active
-                    # ws1.title = k
-                    # ws1.append(header.get(k))
-                    # for row_index in range(0, len(v)):
-                    #     ws1.append([__get_cell_value(cell) for cell in v[row_index][0]])
-                    # file_name = f"{tmp_folder}/{k}.xlsx"
-                    # wb.save(file_name)
-                    # zipf.write(file_name, os.path.abspath(file_name))
-                    # os.remove(file_name)
                 else:
                     for i in range(0, batches + 1):
                         __gen_xlsx_file(f"{k}_{i+1}", header.get(k), v, const.EXPORT_XLSX_MAX_LINES * i, zipf)
-                        # wb = Workbook()
-                        # ws1 = wb.active
-                        # ws1.title = k
-                        # ws1.append(header.get(k))
-                        # for row_index in range(const.EXPORT_XLSX_MAX_LINES * i, min(const.EXPORT_XLSX_MAX_LINES * (i + 1), len(v))):
-                        #     ws1.append([__get_cell_value(cell) for cell in v[row_index][0]])
-                        # file_name = f"{tmp_folder}/{k}_{i+1}.xlsx"
-                        # wb.save(file_name)
-                        # zipf.write(file_name, os.path.basename(file_name))
-                        # os.remove(file_name)
             else:
                 batches = int(len(v) / const.EXPORT_CSV_MAX_LINES)
                 if batches < 1:
                     __gen_csv_file(k, header.get(k), v, 0, zipf)
-                    # file_name = f"{tmp_folder}/{k}.csv"
-                    # with open(file_name, 'w', encoding="utf-8-sig", newline='') as csv_file:
-                    #     csv_writer = csv.writer(csv_file)
-                    #     csv_writer.writerow(header.get(k))
-                    #     for record in v:
-                    #         csv_writer.writerow([__get_cell_value(cell) for cell in record[0]])
-                    # zipf.write(file_name, os.path.abspath(file_name))
-                    # os.remove(file_name)
                 else:
                     for i in range(0, batches + 1):
                         __gen_csv_file(f"{k}_{i+1}", header.get(k), v, const.EXPORT_CSV_MAX_LINES * i, zipf)
-                    #     file_name = f"{tmp_folder}/{k}_{i+1}.csv"
-                    #     with open(file_name, 'w', encoding="utf-8-sig", newline='') as csv_file:
-                    #         csv_writer = csv.writer(csv_file)
-                    #         csv_writer.writerow(header.get(k))
-                    #         for record in v[const.EXPORT_CSV_MAX_LINES * i: min(const.EXPORT_CSV_MAX_LINES * (i + 1), len(v))]:
-                    #             csv_writer.writerow([__get_cell_value(cell) for cell in record[0]])
-                    #     zipf.write(file_name, os.path.abspath(file_name))
-                    #     os.remove(file_name)
 
 def __get_cell_value(cell: dict):
     if isinstance(cell, datetime):
