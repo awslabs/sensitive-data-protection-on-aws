@@ -72,7 +72,7 @@ const.EXPORT_FILE_RDS_COLUMNS = ["account_id", "region", "type", "rds_instance_i
                                  "instance_catalog_label", "table_catalog_label", "comment", "last_updated_at", "last_updated_by"]
 const.EXPORT_FILE_GLUE_COLUMNS = ["account_id", "region", "type", "glue_database", "table_name", "column_name", "identifiers", "sample_data",
                                   "instance_catalog_label", "table_catalog_label", "comment", "last_updated_at", "last_updated_by"]
-const.EXPORT_FILE_JDBC_COLUMNS = ["account_id", "region", "type", "jdbc_connection", "table_name", "column_name", "identifiers", "sample_data",
+const.EXPORT_FILE_JDBC_COLUMNS = ["account_id", "region", "type", "instance_name", "description", "jdbc_url", "table_name", "column_name", "identifiers", "sample_data",
                                   "instance_catalog_label", "table_catalog_label", "comment", "last_updated_at", "last_updated_by"]
 const.EXPORT_XLSX_MAX_LINES = 30000
 const.EXPORT_CSV_MAX_LINES = 60000
@@ -100,8 +100,10 @@ const.BATCH_CREATE_LIMIT = 1000
 const.BATCH_SHEET = "OriginTemplate"
 
 const.CONNECTION_DESC_MAX_LEN = 10
-const.BATCH_CREATE_TEMPLATE_PATH = 'batch-create-jdbc-datasource/template/batch-create-jdbc-datasource.xlsx'
+const.BATCH_CREATE_TEMPLATE_PATH_CN = 'batch-create-jdbc-datasource/template/batch_create_jdbc_datasource-cn.xlsx'
+const.BATCH_CREATE_TEMPLATE_PATH_EN = 'batch-create-jdbc-datasource/template/batch_create_jdbc_datasource-en.xlsx'
 const.BATCH_CREATE_REPORT_PATH = 'batch-create-jdbc-datasource/report'
+const.EXISTED_MSG = 'JDBC connection with the same instance already exists'
 
 const.CONFIG_CONCURRENT_RUN_JOB_NUMBER = 'ConcurrentRunJobNumber'
 const.CONFIG_CONCURRENT_RUN_JOB_NUMBER_DEFAULT_VALUE = 50

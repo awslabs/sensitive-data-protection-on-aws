@@ -74,6 +74,8 @@ class CatalogDatabaseLevelClassification(Base):
     region = sa.Column(sa.String(20), nullable=False, info={'searchable': True})
     database_type = sa.Column(sa.String(20), nullable=False)
     database_name = sa.Column(sa.String(255), nullable=False, info={'searchable': True})
+    description = sa.Column(sa.String(2048), nullable=False, info={'searchable': True})
+    url = sa.Column(sa.String(2048), nullable=False, info={'searchable': True})
     privacy = sa.Column(sa.SmallInteger())
     sensitivity = sa.Column(sa.String(255), nullable=False)
     object_count = sa.Column(sa.BigInteger())

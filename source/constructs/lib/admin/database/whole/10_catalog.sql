@@ -74,6 +74,8 @@ create table catalog_database_level_classification
     region           varchar(20)   not null,
     database_type    varchar(20)   not null,
     database_name    varchar(255)  not null,
+    description      varchar(2048) null,
+    url      varchar(2048) null,
     privacy          smallint      null,
     sensitivity      varchar(255)  not null,
     object_count     bigint        null,

@@ -1,5 +1,7 @@
 from enum import Enum, unique
 
+from common.constant import const
+
 
 # system             1000 ~ 1099
 # user               1100 ~ 1199
@@ -99,7 +101,7 @@ class MessageEnum(Enum):
     SOURCE_JDBC_NO_CREDENTIAL = {1231: "No credential"}
     SOURCE_JDBC_NO_AUTH = {1232: "No authorization"}
     SOURCE_JDBC_DUPLICATE_AUTH = {1233: "Duplicate authorization"}
-    SOURCE_JDBC_ALREADY_EXISTS = {1234: "JDBC connection with the same instance already exists"}
+    SOURCE_JDBC_ALREADY_EXISTS = {1234: const.EXISTED_MSG}
     SOURCE_GLUE_DATABASE_EXISTS = {1235: "Glue database with the same name already exists"}
     SOURCE_GLUE_DATABASE_NO_INSTANCE = {1236: "Glue database does not exist"}
     SOURCE_SECURITY_GROUP_NOT_EXISTS = {1237: "Security for jdbc connection is not existed"}
