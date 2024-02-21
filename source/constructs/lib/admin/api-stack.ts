@@ -155,6 +155,8 @@ export class ApiStack extends Construct {
         'logs:CreateLogGroup',
         'logs:CreateLogStream',
         'logs:PutLogEvents',
+        'logs:DescribeLogGroups',
+        'logs:FilterLogEvents',
       ],
       resources: ['*'],
     });
