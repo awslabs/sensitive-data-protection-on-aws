@@ -26,4 +26,21 @@ const sendQuery = async (params: Record<string, any> | undefined) => {
   return result;
 };
 
-export { getPropertyValues, sendQuery };
+/**
+ * Download debug logs
+ * @param params
+ * @returns
+ */
+const downloadLogAsZip = async () => {
+  try {
+    const downloadLink = document.createElement('a');
+    downloadLink.href = '/query/download-logs';
+    downloadLink.download = 'aws_sdps_cloudwatch_logs.zip';
+    downloadLink.click();
+    window.URL.revokeObjectURL('/query/download-logs');
+  } catch (error) {
+    console.error('Error downloading file:', error);
+  }
+};
+
+export { getPropertyValues, sendQuery, downloadLogAsZip };
