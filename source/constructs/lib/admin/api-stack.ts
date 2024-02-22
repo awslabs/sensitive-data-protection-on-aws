@@ -80,15 +80,16 @@ export class ApiStack extends Construct {
     checkRunningRule.addTarget(new targets.LambdaFunction(controllerFunction, {
       event: events.RuleTargetInput.fromObject({ Action: 'CheckRunningRunDatabases' }),
     }));
-    // Tags.of(checkRunningRule).add(SolutionInfo.TAG_KEY, SolutionInfo.TAG_VALUE);
+    Tags.of(checkRunningRule).add(SolutionInfo.TAG_KEY, SolutionInfo.TAG_VALUE);
     const checkPendingRule = new events.Rule(this, 'CheckPendingRule', {
-      // ruleName: `${SolutionInfo.SOLUTION_NAME}-CheckPending`,
+      ruleName: `${SolutionInfo.SOLUTION_NAME}-CheckPending`,
       schedule: events.Schedule.rate(Duration.minutes(1)),
+      enabled: false,
     });
     checkPendingRule.addTarget(new targets.LambdaFunction(controllerFunction, {
       event: events.RuleTargetInput.fromObject({ Action: 'CheckPendingRunDatabases' }),
     }));
-    // Tags.of(checkPendingRule).add(SolutionInfo.TAG_KEY, SolutionInfo.TAG_VALUE);
+    Tags.of(checkPendingRule).add(SolutionInfo.TAG_KEY, SolutionInfo.TAG_VALUE);
 
     const discoveryJobSqsStack = new SqsStack(this, 'DiscoveryJobQueue', { name: 'DiscoveryJob', visibilityTimeout: 900 });
     const discoveryJobEventSource = new SqsEventSource(discoveryJobSqsStack.queue);

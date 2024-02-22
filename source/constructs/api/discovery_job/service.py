@@ -242,6 +242,11 @@ def __count_run_database_by_subnet() -> dict:
     return count_run_database
 
 
+def __enable_event_bridge(rule_name: str):
+    client_events = boto3.client('events')
+    client_events.enable_rule(Name=rule_name)
+
+
 def __start_run_databases(run_databases):
     job_dic = {}
     run_dic = {}
@@ -280,6 +285,7 @@ def __start_run_databases(run_databases):
     job_placeholder = ","
     account_first_wait = {}
     failed_run_database_count = 0
+    check_pending_started = False
     for run_database in run_databases:
         try:
             if is_run_in_admin_vpc(run_database.database_type, run_database.account_id):
@@ -292,6 +298,9 @@ def __start_run_databases(run_databases):
                 if count >= concurrent_run_job_number:
                     run_database.state = RunDatabaseState.PENDING.value
                     logger.debug(f"{run_database.database_name} break")
+                    if not check_pending_started:
+                        check_pending_started = True
+                        __enable_event_bridge(f"{const.SOLUTION_NAME}-CheckPending")
                     continue
                 logger.debug(f"run_database.database_name add")
                 count_run_database[subnet_id] = count + 1
