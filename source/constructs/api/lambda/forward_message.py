@@ -2,7 +2,7 @@ import boto3
 import logging
 import os
 
-logger = logging.getLogger('forward_message')
+logger = logging.getLogger('api')
 logger.setLevel(logging.INFO)
 admin_region = os.getenv("AdminRegion", "cn-northwest-1")
 sqs = boto3.resource('sqs', region_name=admin_region)
