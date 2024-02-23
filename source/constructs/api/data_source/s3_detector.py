@@ -1,10 +1,5 @@
-import os
-
 import boto3
-import logging
 from sqlalchemy import desc
-
-from common.constant import const
 from common.enum import ConnectionState, DatabaseType
 from db.database import get_session
 from db.models_data_source import S3BucketSource, DetectionHistory
@@ -13,12 +8,10 @@ from . import service
 from catalog.service import delete_catalog_by_database_region
 import asyncio
 from sqlalchemy.orm import Session
+from common.reference_parameter import logger, admin_region
 
-admin_account_region = boto3.session.Session().region_name
 sts_client = boto3.client('sts')
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
 
 async def detect_s3_data_source(session: Session, aws_account_id: str):
     iam_role_name = crud.get_iam_role(aws_account_id)
@@ -110,7 +103,7 @@ async def detect_s3_data_source(session: Session, aws_account_id: str):
         crud.delete_s3_bucket_source_by_name(aws_account_id, deleted_s3_region, deleted_s3_bucket_source)
 
     # TODO support multiple regions
-    crud.update_s3_bucket_count(account=aws_account_id, region=admin_account_region)
+    crud.update_s3_bucket_count(account=aws_account_id, region=admin_region)
 
 async def detect_multiple_account_in_async(accounts):
     session = get_session()

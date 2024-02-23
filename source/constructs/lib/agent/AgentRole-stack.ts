@@ -51,6 +51,7 @@ export class AgentRoleStack extends Construct {
             'glue:BatchGet*',
             'lakeformation:*',
             's3:List*',
+            's3:Get*',
           ],
           resources: ['*'],
         }),
