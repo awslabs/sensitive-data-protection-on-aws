@@ -18,9 +18,9 @@ When you want to scan a specific type of database for sensitive data, you can us
 2. Ensure that the inbound rule of the database to be scanned includes a self-reference of its security group. See [official documentation](https://docs.aws.amazon.com/glue/latest/dg/setup-vpc-for-glue-access.html) for details.
 3. Prepare Redshift connection credentials (username/password).
 
-!!! Info "How to Obtain Redshift Credentials"
-    DBAs or business teams create a read-only user for security audits. This user only needs read-only permissions.
-
+!!! Info "How to Obtain Database Credentials"
+    DBAs or business teams create a read-only user for security audits. This user only needs read-only permissions: `GRANT SHOW VIEW, SELECT ON *.* TO 'reader'@'%'`
+    
 ## Connect to Amazon Redshift Data Source
 1. From the left menu, select **Connect Data Source**
 2. Choose the **AWS Cloud** tab
