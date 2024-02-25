@@ -8,13 +8,10 @@ from common.enum import (
     Provider
 )
 from common.constant import const
-import logging
 from common.exception_handler import BizException
 import heapq
 from common.query_condition import QueryCondition
-
-
-logger = logging.getLogger("api")
+from common.reference_parameter import logger
 
 
 def agg_data_source_summary(provider_id):

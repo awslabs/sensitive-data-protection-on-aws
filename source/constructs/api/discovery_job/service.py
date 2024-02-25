@@ -242,6 +242,11 @@ def __count_run_database_by_subnet() -> dict:
     return count_run_database
 
 
+def __enable_event_bridge(rule_name: str):
+    client_events = boto3.client('events')
+    client_events.enable_rule(Name=rule_name)
+
+
 def __start_run_databases(run_databases):
     job_dic = {}
     run_dic = {}
@@ -280,6 +285,7 @@ def __start_run_databases(run_databases):
     job_placeholder = ","
     account_first_wait = {}
     failed_run_database_count = 0
+    check_pending_started = False
     for run_database in run_databases:
         try:
             if is_run_in_admin_vpc(run_database.database_type, run_database.account_id):
@@ -292,6 +298,9 @@ def __start_run_databases(run_databases):
                 if count >= concurrent_run_job_number:
                     run_database.state = RunDatabaseState.PENDING.value
                     logger.debug(f"{run_database.database_name} break")
+                    if not check_pending_started:
+                        check_pending_started = True
+                        __enable_event_bridge(f"{const.SOLUTION_NAME}-CheckPending")
                     continue
                 logger.debug(f"run_database.database_name add")
                 count_run_database[subnet_id] = count + 1
@@ -990,7 +999,7 @@ def generate_report(job_id: int, run_id: int, s3_client=None, key_name=None):
     job = crud.get_job(job_id)
     datasource_info = {}
     # Starting from version v1.1, a job only has one database_type
-    if job.database_type.startswith(DatabaseType.JDBC.value) or job.database_type == DatabaseType.RDS.value:
+    if job.database_type.startswith(DatabaseType.JDBC.value):
         data_sources = list_resources_by_database_type(job.database_type).all()
         for data_source in data_sources:
             datasource_key = f"{job.database_type}-{data_source.instance_id}"
@@ -1006,9 +1015,9 @@ def generate_report(job_id: int, run_id: int, s3_client=None, key_name=None):
     ws_rds = wb.create_sheet("Amazon RDS")
     ws_jdbc = wb.create_sheet("JDBC")
     ws_glue = wb.create_sheet("Glue")
-    ws_s3_structured.append(["account_id", "region", "s3_bucket", "s3_location", "column_name", "identifiers", "sample_data"])
-    ws_s3_unstructured.append(["account_id", "region", "s3_bucket", "s3_location", "identifiers", "sample_data"])
-    ws_rds.append(["account_id", "region", "instance_name", "description", "jdbc_url", "table_name", "column_name", "identifiers", "sample_data"])
+    ws_s3_structured.append(["account_id", "region", "bucket_name", "location", "column_name", "identifiers", "sample_data"])
+    ws_s3_unstructured.append(["account_id", "region", "bucket_name", "location", "identifiers", "sample_data"])
+    ws_rds.append(["account_id", "region", "instance_name", "table_name", "column_name", "identifiers", "sample_data"])
     ws_jdbc.append(["type", "account_id", "region", "instance_name", "description", "jdbc_url", "table_name", "column_name", "identifiers", "sample_data"])
     ws_glue.append(["account_id", "region", "database_name", "table_name", "column_name", "identifiers", "sample_data"])
 
@@ -1030,9 +1039,6 @@ def generate_report(job_id: int, run_id: int, s3_client=None, key_name=None):
             row_result.insert(0, database_type[5:])
             ws_jdbc.append(row_result)
         else:  # RDS
-            datasource_key = f"{database_type}-{row_result[2]}"
-            data_source = datasource_info[datasource_key]
-            row_result[3:3] = [data_source.description, data_source.jdbc_connection_url]
             ws_rds.append(row_result)
 
     error_result = __query_athena(sql_error % run_id)

@@ -1,29 +1,18 @@
-import os
-
 import boto3
-import logging
-
-from common.constant import const
 from common.enum import Provider, MessageEnum
 from db.database import get_session
 from db.models_data_source import DetectionHistory
 from common.abilities import convert_provider_id_2_name
 from . import crud
-from catalog.service import delete_catalog_by_database_region
 from sqlalchemy.orm import Session
 import asyncio
 from db.models_data_source import JDBCInstanceSource
 from botocore.exceptions import ClientError
 from common.exception_handler import BizException
+from common.reference_parameter import logger, admin_account_id, admin_region
 
 sts_client = boto3.client('sts')
-admin_account_region = boto3.session.Session().region_name
 
-caller_identity = sts_client.get_caller_identity()
-partition = caller_identity['Arn'].split(':')[1]
-admin_account_id = caller_identity.get('Account')
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
 
 async def detect_jdbc_connection(provider_id: int, account_id: str, session: Session):
     not_exist_connections = []
@@ -34,7 +23,7 @@ async def detect_jdbc_connection(provider_id: int, account_id: str, session: Ses
     else:
         history = DetectionHistory(provider=convert_provider_id_2_name(provider_id), account_id=account_id, source_type='jdbc', state=0)
         iam_role_name = crud.get_iam_role(admin_account_id)
-        regions = [admin_account_region]
+        regions = [admin_region]
     session.add(history)
     session.commit()
     assumed_role_object = sts_client.assume_role(
@@ -65,7 +54,7 @@ async def detect_jdbc_connection(provider_id: int, account_id: str, session: Ses
                 not_exist_connections.append(item.id)
     # delete not existed jdbc
     crud.delete_jdbc_connection_by_accounts(not_exist_connections)
-    region = admin_account_region if provider_id == Provider.AWS_CLOUD.value else None
+    region = admin_region if provider_id == Provider.AWS_CLOUD.value else None
     crud.update_jdbc_instance_count(provider=provider_id, account=account_id, region=region)
 
 async def detect_multiple_account_in_async(provider_id, accounts):

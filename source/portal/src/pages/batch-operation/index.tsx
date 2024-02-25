@@ -21,11 +21,13 @@ import Navigation from 'pages/left-menu/Navigation';
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
 import HelpInfo from 'common/HelpInfo';
-import { BATCH_SOURCE_ID, buildDocLink } from 'ts/common';
+import { AMPLIFY_CONFIG_JSON, BATCH_SOURCE_ID, buildDocLink } from 'ts/common';
 import axios from 'axios';
 import { BASE_URL } from 'tools/apiRequest';
 import { downloadBatchFiles, queryBatchStatus } from 'apis/data-source/api';
 import { alertMsg } from 'tools/tools';
+import { User } from 'oidc-client-ts';
+import { AmplifyConfigType } from 'ts/types';
 
 enum BatchOperationStatus {
   NotStarted = 'NotStarted',
@@ -125,12 +127,27 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
     formData.append('files', files[0]);
     setLoadingUpload(true);
     try {
+      const configJSONObj: AmplifyConfigType = localStorage.getItem(
+        AMPLIFY_CONFIG_JSON
+      )
+        ? JSON.parse(localStorage.getItem(AMPLIFY_CONFIG_JSON) || '')
+        : {};
+      const token =
+        process.env.REACT_APP_ENV === 'local' ||
+        process.env.REACT_APP_ENV === 'development'
+          ? ''
+          : User.fromStorageString(
+              localStorage.getItem(
+                `oidc.user:${configJSONObj.aws_oidc_issuer}:${configJSONObj.aws_oidc_client_id}`
+              ) || ''
+            )?.id_token;
       const response = await axios.post(
         `${BASE_URL}/data-source/batch-create`,
         formData,
         {
           headers: {
             'Content-Type': 'multipart/form-data',
+            Authorization: token ? `Bearer ${token}` : undefined,
           },
           onUploadProgress: (progressEvent: any) => {
             const percentCompleted = Math.round(
