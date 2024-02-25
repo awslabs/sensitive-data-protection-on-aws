@@ -410,6 +410,12 @@ def list_resources_by_database_type(database_type: str, condition: QueryConditio
         page=condition.page,
     ))
 
+
+@router.post("/batch-delete", response_model=BaseResponse)
+@inject_session
+def batch_delete_resource(account: schemas.AccountInfo, datasource_list: List):
+    return service.batch_delete_resource(account, datasource_list)
+
 # @router.post("/batch-sync-jdbc", response_model=BaseResponse)
 # @inject_session
 # def batch_sync_jdbc(connection_list: [schemas.JDBCInstanceSourceBase]):

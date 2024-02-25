@@ -64,15 +64,15 @@ const.MANUAL = 'manual'
 const.SYSTEM = 'system'
 const.SAMPLE_LIMIT = 1000
 const.LAMBDA_MAX_RUNTIME = 900
-const.EXPORT_FILE_S3_COLUMNS = ["account_id", "region", "type", "s3_bucket", "folder_name", "column_name", "column_path", "identifiers", "sample_data",
+const.EXPORT_FILE_S3_COLUMNS = ["account_id", "region", "bucket_name", "location", "identifiers", "sample_data",
                                 "bucket_catalog_label", "folder_catalog_label", "comment", "last_updated_at", "last_updated_by"]
-const.EXPORT_FILE_S3_UNSTRUCTURED_COLUMNS = ["account_id", "region", "type", "s3_bucket", "folder_name", "sample_object_name", "s3_location",
+const.EXPORT_FILE_S3_UNSTRUCTURED_COLUMNS = ["account_id", "region", "bucket_name", "location",
                                              "identifiers", "sample_data", "bucket_catalog_label", "folder_catalog_label", "comment", "last_updated_at", "last_updated_by"]
-const.EXPORT_FILE_RDS_COLUMNS = ["account_id", "region", "type", "rds_instance_id", "table_name", "column_name", "identifiers", "sample_data",
+const.EXPORT_FILE_RDS_COLUMNS = ["account_id", "region", "instance_name", "table_name", "column_name", "identifiers", "sample_data",
                                  "instance_catalog_label", "table_catalog_label", "comment", "last_updated_at", "last_updated_by"]
-const.EXPORT_FILE_GLUE_COLUMNS = ["account_id", "region", "type", "glue_database", "table_name", "column_name", "identifiers", "sample_data",
+const.EXPORT_FILE_GLUE_COLUMNS = ["account_id", "region", "database_name", "table_name", "column_name", "identifiers", "sample_data",
                                   "instance_catalog_label", "table_catalog_label", "comment", "last_updated_at", "last_updated_by"]
-const.EXPORT_FILE_JDBC_COLUMNS = ["account_id", "region", "type", "instance_name", "description", "jdbc_url", "table_name", "column_name", "identifiers", "sample_data",
+const.EXPORT_FILE_JDBC_COLUMNS = ["type", "account_id", "region", "instance_name", "description", "jdbc_url", "table_name", "column_name", "identifiers", "sample_data",
                                   "instance_catalog_label", "table_catalog_label", "comment", "last_updated_at", "last_updated_by"]
 const.EXPORT_XLSX_MAX_LINES = 30000
 const.EXPORT_CSV_MAX_LINES = 60000

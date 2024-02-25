@@ -1400,32 +1400,40 @@ def filter_records(all_items: list, all_labels_dict: dict, sensitive_flag: str):
             row_result[12] = ",".join(gen_labels(all_labels_dict, row_result[12]))
         if row_result[13]:
             row_result[13] = ",".join(gen_labels(all_labels_dict, row_result[13]))
-        catalog_type = row_result[2]
+        catalog_type = row_result[0]
         if catalog_type == DatabaseType.S3.value:
+            del row_result[0]
+            del row_result[3]
+            del row_result[3]
+            del row_result[3]
             del row_result[4]
-            del row_result[5]
-            del row_result[7]
+            del row_result[4]
             s3_records.append([row_result])
         elif catalog_type == DatabaseType.S3_UNSTRUCTURED.value:
+            del row_result[0]
+            del row_result[3]
+            del row_result[3]
+            del row_result[3]
             del row_result[4]
-            del row_result[5]
-            del row_result[7]
+            del row_result[4]
             s3_unstructured_records.append([row_result])
         elif catalog_type == DatabaseType.RDS.value:
+            del row_result[0]
+            del row_result[3]
+            del row_result[3]
             del row_result[4]
             del row_result[5]
-            del row_result[6]
-            del row_result[9]
             rds_records.append([row_result])
         elif catalog_type == DatabaseType.GLUE.value:
+            del row_result[0]
+            del row_result[3]
+            del row_result[3]
             del row_result[4]
             del row_result[5]
-            del row_result[7]
-            del row_result[9]
             glue_records.append([row_result])
         elif catalog_type.startswith(DatabaseType.JDBC.value):
-            del row_result[6]
-            del row_result[9]
+            del row_result[7]
+            del row_result[8]
             jdbc_records.append([row_result])
         else:
             pass

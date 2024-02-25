@@ -8,6 +8,7 @@ import re
 import time
 import traceback
 from time import sleep
+from typing import List
 
 import boto3
 from fastapi import File, UploadFile
@@ -2945,3 +2946,6 @@ async def __add_jdbc_conn_batch(jdbc: JDBCInstanceSource):
         return jdbc.account_provider_id, jdbc.account_id, jdbc.region, jdbc.instance_id, "FAILED", be.__msg__()
     except Exception as e:
         return jdbc.account_provider_id, jdbc.account_id, jdbc.region, jdbc.instance_id, "FAILED", str(e)
+
+def batch_delete_resource(account: AccountInfo, datasource_list: List):
+    pass

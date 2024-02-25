@@ -1056,9 +1056,9 @@ def update_catalog_table_labels(
 
 
 def get_export_catalog_data():
-    return get_session().query(models.CatalogColumnLevelClassification.account_id,
+    return get_session().query(models.CatalogColumnLevelClassification.database_type,
+                               models.CatalogColumnLevelClassification.account_id,
                                models.CatalogColumnLevelClassification.region,
-                               models.CatalogColumnLevelClassification.database_type,
                                models.CatalogColumnLevelClassification.database_name,
                                models.CatalogDatabaseLevelClassification.description,
                                models.CatalogDatabaseLevelClassification.url,
