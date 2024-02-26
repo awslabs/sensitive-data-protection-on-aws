@@ -7,7 +7,7 @@
 2. 准备好Redshift的连接凭证（用户名/密码）
 
 !!! Info "如何获得Redshift凭证"
-    DBA或业务方创建一个只读的User做安全审计使用。此用户只需要只读（read-only）权限。
+    DBA或业务方创建一个只读的用户（User）做安全审计使用。授予此用户只读权限：`GRANT SHOW VIEW, SELECT ON *.* TO 'reader'@'%'`;
 
 ## 连接Amazon Redshift数据源
 1. 从左侧菜单，选择 **连接数据源** 
