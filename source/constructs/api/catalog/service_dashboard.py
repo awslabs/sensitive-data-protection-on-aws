@@ -155,8 +155,8 @@ def agg_catalog_data_source_top_n(database_type: str, top_n: int):
     for table in table_rows:
         if table.identifiers == const.NA:
             continue
-        data_source_full_name = table.account_id + table.region + table.database_type + table.database_name
-      
+        type = 's3' if table.database_type == 'unstructured' else table.database_type
+        data_source_full_name = table.account_id + table.region + type + table.database_name
         table_identifiers = table.identifiers.split("|")
         for identifier in table_identifiers:
             if identifier == const.NA or identifier == "":
@@ -172,8 +172,6 @@ def agg_catalog_data_source_top_n(database_type: str, top_n: int):
         if database.account_id not in account_dict:
             account_dict[database.account_id]=set()
         account_dict[database.account_id].add(data_source_full_name)
-        
-    
     result_dict['account_top_n'] = __get_top_n_count(account_dict, top_n)
 
     logger.debug(identifier_dict.keys())
@@ -287,15 +285,25 @@ def get_database_by_identifier_paginate_s3(condition: QueryCondition):
             identifier = con.values[0]
     table_list = crud.get_s3_catalog_table_level_classification_by_identifier(identifier)
     for table in table_list:
-        database_full_name = table.account_id + "|" + table.region + "|" + table.database_type + "|" + table.database_name
+        type = 's3' if table.database_type == 'unstructured' else table.database_type
+        database_full_name = table.account_id + "|" + table.region + "|" + type + "|" + table.database_name
         database_set.add(database_full_name)
     database_list = sorted(list(database_set))
     for database_full_name in database_list:
         database_info = database_full_name.split("|")
+        db_type = database_info[2]
         result_db = crud.get_catalog_database_level_classification_by_name(database_info[0],
-                                                                          database_info[1],
-                                                                          database_info[2],
-                                                                          database_info[3])
+                                                                           database_info[1],
+                                                                           database_info[2],
+                                                                           database_info[3])
+        if db_type == "s3":
+            result_db_unstructured = crud.get_catalog_database_level_classification_by_name(database_info[0],
+                                                                                            database_info[1],
+                                                                                            'unstructured',
+                                                                                            database_info[3])
+            if result_db_unstructured:
+                result_db.size_key += result_db_unstructured.size_key
+                result_db.object_count += result_db_unstructured.object_count
         if result_db:
             result_list.append(result_db)
     if condition.size >= len(result_list):

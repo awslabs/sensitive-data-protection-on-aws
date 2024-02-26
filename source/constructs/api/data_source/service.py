@@ -2420,7 +2420,6 @@ def __query_third_account_network(vpc_list, ec2_client: any):
         ])
         vpc_ids = [item['VpcId'] for item in response['SecurityGroups']]
         subnets = ec2_client.describe_subnets(Filters=[{'Name': 'vpc-id', 'Values': [vpc_ids[0]]}])['Subnets']
-        print(f"subnets is {subnets}!!!!!!!")
         selected_subnet = subnets
         subnets_str_from_env = os.getenv('SubnetIds', '')
         if subnets_str_from_env:
@@ -2428,13 +2427,13 @@ def __query_third_account_network(vpc_list, ec2_client: any):
             selected_subnet = [item for item in subnets if item.get('SubnetId') in subnets_from_env]
         target_subnets = [{'subnetId': subnet["SubnetId"], 'arn': subnet["SubnetArn"], "subnetName": gen_resource_name(subnet)} for subnet in selected_subnet]
         vpc_info = ec2_client.describe_vpcs(VpcIds=[vpc_ids[0]])['Vpcs'][0]
-        tag = [obj for obj in vpc_info.get('Tags',[]) if obj.get("Key") == "Name"]
+        tag = [obj for obj in vpc_info.get('Tags', []) if obj.get("Key") == "Name"]
         return {"vpcs": [{'vpcId': vpc_info.get('VpcId'),
                           'vpcName': tag[0].get("Value", "-") if len(tag) > 0 else "-",
                           'subnets': target_subnets,
                           'securityGroups': [{'securityGroupId': response.get('SecurityGroups',[])[0].get('GroupId'),
                                               'securityGroupName': response.get('SecurityGroups',[])[0].get('GroupName')}]}]
-                }
+               }
     except ClientError as ce:
         logger.error(traceback.format_exc())
         if ce.response['Error']['Code'] == 'InvalidGroup.NotFound':
