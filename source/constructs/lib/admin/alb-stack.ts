@@ -165,7 +165,7 @@ export class AlbStack extends NestedStack {
 
     this.createApi(listener, props);
     this.createProtalConfig(listener, props);
-    this.createPortal(listener);
+    this.createPortal(listener, props);
   };
 
   private setUrl(scope: Construct, dnsName: string, props: AlbProps, defaultPort: number) {
@@ -272,7 +272,7 @@ export class AlbStack extends NestedStack {
     Tags.of(portalConfigTargetGroup).add(SolutionInfo.TAG_NAME, 'PortalConfig');
   }
 
-  private createPortal(listener: ApplicationListener) {
+  private createPortal(listener: ApplicationListener, props: AlbProps) {
     let portalFunction;
     if (BuildConfig.PortalRepository && BuildConfig.PortalTag) {
       portalFunction = new DockerImageFunction(this, 'PortalFunction', {
@@ -281,6 +281,9 @@ export class AlbStack extends NestedStack {
         code: DockerImageCode.fromEcr(Repository.fromRepositoryArn(this, 'PortalRepository', BuildConfig.PortalRepository),
           { tagOrDigest: BuildConfig.PortalTag }),
         architecture: Architecture.X86_64,
+        environment: {
+          OidcIssuer: props.oidcIssuer,
+        },
       });
     } else {
       portalFunction = new DockerImageFunction(this, 'PortalFunction', {
@@ -292,6 +295,9 @@ export class AlbStack extends NestedStack {
           platform: Platform.LINUX_AMD64,
         }),
         architecture: Architecture.X86_64,
+        environment: {
+          OidcIssuer: props.oidcIssuer,
+        },
       });
     }
     const portalTarget = [new LambdaTarget(portalFunction)];
