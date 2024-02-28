@@ -1,10 +1,10 @@
 #!/bin/sh
 
-writed=false
+wrote=false
 
 function write_domain_name(){
 	# In the lambda environment, except for tmp, everything is read-only
-	writed=true
+	wrote=true
 	csp="        add_header Content-Security-Policy \"default-src 'self' $1; img-src 'self' blob: data: ; style-src 'self' blob: data:; font-src 'self' blob: data:; script-src 'self';\";"
 	echo $csp > /tmp/CustomDomainName.conf
 }
@@ -24,11 +24,13 @@ else
 			fi
 		done
 		if [ "$exist" = false ]; then
-			write_domain_name $domain_name
+			sub_domain_name=$(echo "$domain_name" | awk -F'.' '{print $(NF-1)"."$NF}')
+			wildcard="*.$sub_domain_name"
+			write_domain_name $wildcard
 		fi
 	fi
 fi
-if [ "$writed" = false ]; then
+if [ "$wrote" = false ]; then
 	write_domain_name "*.okta.com *.authing.cn *.amazoncognito.com *.amazonaws.com"
 fi
 nginx -g "daemon off;"
