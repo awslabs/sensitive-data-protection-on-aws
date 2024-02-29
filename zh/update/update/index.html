@@ -1827,10 +1827,16 @@
 <img alt="Input Url" src="../images/InputUrl.jpg" /></li>
 <li>在<strong>指定堆栈详细信息</strong>页面上，各个参数保持不变，然后点击<strong>下一步</strong>。  </li>
 <li>在<strong>配置堆栈选项</strong>页面上，各个参数保持不变，然后点击<strong>下一步</strong>。  </li>
-<li>在<strong>审核</strong>页面上，查看并确认设置。选中3个“我确认”的复选框，点击<strong>提交</strong>按钮以更新堆栈。<br />
-等待约10分钟，以确保成功更新了所有相关资源。您可以选择“资源”和“事件”选项卡查看堆栈的状态。<br />
+<li>在<strong>审核</strong>页面上，查看并确认设置。选中3个“我确认”的复选框，点击<strong>提交</strong>按钮以更新堆栈。</li>
+<li>从1.1.0升级到后续版本时，请在CloudFormation更新5分钟后，手动删除4个状态为<strong>Available</strong>的ENI：2个描述内容包含<strong>PortalConfigFunction</strong>，2个描述内容包含<strong>PortalFunction</strong>。
+<img alt="Delete ENI" src="../images/DeleteENI.png" /></li>
+<li>等待约20分钟，以确保成功更新了所有相关资源。您可以选择“资源”和“事件”选项卡查看堆栈的状态。<br />
 更新成功后，即可重新打开管理员页面。</li>
 </ol>
+<div class="admonition important">
+<p class="admonition-title">重要提示</p>
+<p>需要手动删除ENI，否则升级会失败。</p>
+</div>
 <h3 id="agent">步骤二：升级Agent堆栈</h3>
 <p>操作步骤和升级管理员堆栈相同，注意在输入模板地址时，输入Agent模板地址即可。</p>
 <div class="admonition important">

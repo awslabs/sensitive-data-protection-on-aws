@@ -1738,10 +1738,16 @@ That is, the previous stack used the new VPC template, and the new stack must al
 <img alt="Input Url" src="../images/InputUrl.jpg" /></li>
 <li>On the <strong>specified stack details</strong> page, click <strong>Next</strong>.  </li>
 <li>On the <strong>Configure stack options</strong> page, click <strong>Next</strong>.</li>
-<li>On the <strong>Review</strong> page, review and confirm the settings. Select 3 checkboxes that I acknowledge.Choose <strong>Create stack</strong> to deploy the stack. <br />
-Wait for about 10 minutes to ensure that all related resource are updated. You can choose the <strong>Resource</strong> and <strong>Event</strong> tab to see the status of the stack.
+<li>On the <strong>Review</strong> page, review and confirm the settings. Select 3 checkboxes that I acknowledge.Choose <strong>Create stack</strong> to deploy the stack.</li>
+<li>When upgrading from 1.1.0 to subsequent versions, please manually delete 4 ENIs with a status of <strong>Available</strong> after 5 minutes of CloudFormat update: 2 descriptions contain <strong>PortalConfigFunction</strong> and 2 descriptions contain <strong>PortalFunction</strong>。
+<img alt="Delete ENI" src="../images/DeleteENI.png" /></li>
+<li>Wait for about 20 minutes to ensure that all related resource are updated. You can choose the <strong>Resource</strong> and <strong>Event</strong> tab to see the status of the stack.
 After the update is successful, you can reopen the administrator page.</li>
 </ol>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>You need to manually delete ENI, otherwise the upgrade will fail.</p>
+</div>
 <h3 id="step-2-update-the-agent-stack">Step 2. Update the agent stack</h3>
 <p>The operation steps are the same as updating the admin stack. Please note that when entering the template url, simply enter the agent template url.</p>
 <div class="admonition important">
