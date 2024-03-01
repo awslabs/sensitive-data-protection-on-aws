@@ -14,7 +14,7 @@
 | Amazon RDS for MariaDB|
 
 ### 前提条件 - 保持网络连通性
-1. 请确认您[添加AWS账户](data-source.md)时，选择的是CloudFormation方式。如果您添加账户时，选择JDBC方式，请转至[通过EC2代理连接数据库](data-catalog-create-jdbc-db-proxy.md)进行操作。
+1. 请确认您[添加AWS账户](data-source.md)时，选择的是CloudFormation方式。如果您添加账户时，选择JDBC方式，请转至[通过EC2代理连接数据库](data-catalog-create-jdbc-database-proxy.md)进行操作。
 2. 请确保待检测数据库的inbound rule上有所在安全组的自引用, 操作详见[官网文档](https://docs.aws.amazon.com/glue/latest/dg/setup-vpc-for-glue-access.html)。
 3. 准备好Redshift的连接凭证（用户名/密码）
 
