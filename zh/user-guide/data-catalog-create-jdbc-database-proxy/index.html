@@ -10,17 +10,21 @@
       
       
       
-        <link rel="canonical" href="https://awslabs.github.io/sensitive-data-protection-on-aws/architecture-overview/architecture-details/">
+        <link rel="canonical" href="https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/data-catalog-create-jdbc-database-proxy/">
       
       
+        <link rel="prev" href="../data-catalog-create-jdbc-redshift/">
+      
+      
+        <link rel="next" href="../data-identifiers/">
       
       
       <link rel="icon" href="https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.11">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.12">
     
     
       
-        <title>解决方案如何运作 - 敏感数据保护解决方案</title>
+        <title>连接JDBC(RDS Proxy) - 敏感数据保护解决方案</title>
       
     
     
@@ -72,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#_1" class="md-skip">
+        <a href="#-jdbc" class="md-skip">
           跳转至
         </a>
       
@@ -111,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              解决方案如何运作
+              连接JDBC(RDS Proxy)
             
           </span>
         </div>
@@ -276,17 +280,19 @@
       
   
   
+    
   
   
+  
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" checked>
         
           
           <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
@@ -300,7 +306,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_1">
             <span class="md-nav__icon md-icon"></span>
             实施指南
@@ -455,7 +461,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../architecture/" class="md-nav__link">
+      <a href="../../architecture-overview/architecture/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -476,7 +482,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../well-architected-pillars/" class="md-nav__link">
+      <a href="../../architecture-overview/well-architected-pillars/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -799,17 +805,19 @@
                 
   
   
+    
   
   
+  
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7" checked>
         
           
           <label class="md-nav__link" for="__nav_1_7" id="__nav_1_7_label" tabindex="0">
@@ -823,7 +831,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_7_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_7_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_1_7">
             <span class="md-nav__icon md-icon"></span>
             用户指南
@@ -837,7 +845,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/get-started/" class="md-nav__link">
+      <a href="../get-started/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -855,17 +863,19 @@
                 
   
   
+    
   
   
+  
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7_2" checked>
         
           
           <label class="md-nav__link" for="__nav_1_7_2" id="__nav_1_7_2_label" tabindex="0">
@@ -879,7 +889,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_7_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_1_7_2">
             <span class="md-nav__icon md-icon"></span>
             第1步：连接数据源
@@ -893,7 +903,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/data-source/" class="md-nav__link">
+      <a href="../data-source/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -914,7 +924,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/data-catalog-create-s3/" class="md-nav__link">
+      <a href="../data-catalog-create-s3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -935,7 +945,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/data-catalog-create-rds/" class="md-nav__link">
+      <a href="../data-catalog-create-rds/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -956,7 +966,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/data-catalog-create-glue/" class="md-nav__link">
+      <a href="../data-catalog-create-glue/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -977,7 +987,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/data-catalog-create-jdbc/" class="md-nav__link">
+      <a href="../data-catalog-create-jdbc/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -998,7 +1008,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/data-catalog-create-jdbc-redshift/" class="md-nav__link">
+      <a href="../data-catalog-create-jdbc-redshift/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1016,10 +1026,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../user-guide/data-catalog-create-jdbc-rds-proxy.md" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    连接JDBC(RDS Proxy)
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -1028,6 +1058,44 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#-" class="md-nav__link">
+    <span class="md-ellipsis">
+      前提条件 - 保持网络连通性
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ec2db-proxy" class="md-nav__link">
+    <span class="md-ellipsis">
+      通过EC2数据库代理（DB Proxy）连接数据库
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1048,7 +1116,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/data-identifiers/" class="md-nav__link">
+      <a href="../data-identifiers/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1104,7 +1172,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/discovery-job-create/" class="md-nav__link">
+      <a href="../discovery-job-create/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1125,7 +1193,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/discovery-job-details/" class="md-nav__link">
+      <a href="../discovery-job-details/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1146,7 +1214,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/discovery-job-report/" class="md-nav__link">
+      <a href="../discovery-job-report/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1167,7 +1235,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/discovery-job-rerun-and-duplicate/" class="md-nav__link">
+      <a href="../discovery-job-rerun-and-duplicate/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1188,7 +1256,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/discovery-job-pause-and-cancel/" class="md-nav__link">
+      <a href="../discovery-job-pause-and-cancel/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1252,7 +1320,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/check-result-dashboard/" class="md-nav__link">
+      <a href="../check-result-dashboard/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1273,7 +1341,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/check-result-data-catalog/" class="md-nav__link">
+      <a href="../check-result-data-catalog/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1294,7 +1362,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/data-catalog-labels/" class="md-nav__link">
+      <a href="../data-catalog-labels/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1323,7 +1391,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/appendix-built-in-supported-datatypes/" class="md-nav__link">
+      <a href="../appendix-built-in-supported-datatypes/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1344,7 +1412,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/appendix-built-in-identifiers/" class="md-nav__link">
+      <a href="../appendix-built-in-identifiers/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1365,7 +1433,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/appendix-permissions/" class="md-nav__link">
+      <a href="../appendix-permissions/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1386,7 +1454,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/appendix-organization/" class="md-nav__link">
+      <a href="../appendix-organization/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1407,11 +1475,32 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/appendix-build-in-identifiers-eu-gdpr/" class="md-nav__link">
+      <a href="../appendix-build-in-identifiers-eu-gdpr/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
     附录：EU个人信息标识符(GDPR参考)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../appendix-database-proxy/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    附录：创建数据库代理
   </span>
   
 
@@ -1653,18 +1742,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
+  <a href="#-" class="md-nav__link">
     <span class="md-ellipsis">
-      管理员帐户中的模块
+      前提条件 - 保持网络连通性
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
+  <a href="#ec2db-proxy" class="md-nav__link">
     <span class="md-ellipsis">
-      监控帐户中的模块
+      通过EC2数据库代理（DB Proxy）连接数据库
     </span>
   </a>
   
@@ -1688,42 +1777,91 @@
   
 
 
-<h1 id="_1">解决方案如何运作</h1>
-<p>本节描述了构成此解决方案的组件和 AWS 服务以及高层次系统设计。</p>
-<p><img alt="高层次系统设计" src="../../images/system-design.png" />
-<strong>AWS 上的敏感数据保护高层次系统设计</strong></p>
-<p>如图所示，集中式敏感数据治理帐户是管理员帐户。解决方案用户（通常为安全审计员）可以在部署 <strong>Admin</strong> 堆栈后通过 Web 门户访问解决方案。用户可以在部署 <strong>Agent</strong> 堆栈并登录 Web 门户后浏览数据目录并在监控帐户中执行敏感数据检测作业。</p>
-<p>多个监控帐户与管理员帐户连接，具有数据源访问和作业执行权限，以便管理员帐户可以在指定的监控帐户中调用作业处理器模型进行敏感数据检测。</p>
-<h2 id="_2">管理员帐户中的模块</h2>
-<ul>
+<h1 id="-jdbc">连接到数据源 - JDBC（数据库代理)</h1>
+<p>当您的RDS/数据库在私有网络，且对于IP有严格的限制（只允许固定IP进行接入），您需要通过这种方式进行数据源连接。</p>
+<h3 id="-">前提条件 - 保持网络连通性</h3>
+<ol>
+<li>请确认您<a href="../data-source/">添加AWS账户</a>时，选择JDBC方式，请转至<a href="./">连接到数据源 - RDS</a>进行操作。</li>
+<li>创建数据库代理（Proxy）：在方案所在VPC创建EC2作为代理机器，参考步骤详见：<a href="../appendix-database-proxy/">附录:创建数据库代理</a>。</li>
+<li>添加RDS访问白名单：将EC2的IP添加至待检测数据库的Security Group的Inbound Rule。</li>
+</ol>
+<h2 id="ec2db-proxy">通过EC2数据库代理（DB Proxy）连接数据库</h2>
+<ol>
+<li>在左侧菜单，选择 <strong>连接数据源</strong> </li>
+<li>选择您所需要扫描的云账户，单击进入帐户，打开详细页面</li>
+<li>单击进入一个云帐户，打开详细页面</li>
+<li>选择 <strong>自定义数据库（JDBC）</strong> 标签页</li>
 <li>
-<p><strong>Web 门户（UI）</strong>：解决方案管理员或普通用户可以通过 Web 门户访问解决方案。它提供安全的用户访问管理和解决方案的 Web UI。</p>
+<p>点击<strong>操作</strong>，<strong>添加数据源</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>必填项</th>
+<th>参数描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>实例名称</td>
+<td>是</td>
+<td>数据库实例名称</td>
+</tr>
+<tr>
+<td>勾选SSL连接</td>
+<td>否</td>
+<td>是否通过SSL连接</td>
+</tr>
+<tr>
+<td>描述（选填）</td>
+<td>否</td>
+<td>实例描述</td>
+</tr>
+<tr>
+<td>JDBC URL（必填）</td>
+<td>是</td>
+<td>至少填写一个数据库实例下的database，用于连接和扫描。具体格式：<code>jdbc:mysql://ec2_public_ip:port/databasename</code></td>
+</tr>
+<tr>
+<td>JDBC数据库</td>
+<td>否</td>
+<td>填写此实例（instance）中所有需要扫描的数据库（databases）列表（包含上面必填的database）。点击按钮，“自动查询数据库列表”</td>
+</tr>
+<tr>
+<td>凭证</td>
+<td>是</td>
+<td>选择用户名密码或SecretManager。填写数据库的用户名/密码。</td>
+</tr>
+<tr>
+<td>VPC</td>
+<td>是</td>
+<td>选择Proxy所在的VPC</td>
+</tr>
+<tr>
+<td>子网</td>
+<td>是</td>
+<td>选择Proxy所在的VPC子网</td>
+</tr>
+<tr>
+<td>安全组</td>
+<td>是</td>
+<td>选择Proxy所在的VPC安全组</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition info">
+<p class="admonition-title">自动获取数据库按钮</p>
+<p>方案目前支持自动获取MySQL数据库。</p>
+</div>
 </li>
 <li>
-<p><strong>数据源管理（DSM）</strong>：DSM 负责通过数据源检测器从监控帐户中检索数据源并存储数据源结构。用户可以探索监控帐户中的数据存储，例如 S3 存储桶和 RDS 实例。</p>
+<p>选择数据库实例，点击按钮 <strong>同步至数据目录</strong></p>
 </li>
-<li>
-<p><strong>数据目录管理（DCM）</strong>：DCM 可以发现 DSM 中数据源的最新模式（通常称为元数据）。该模式包括表列等信息在 RDS 数据库中以及敏感数据检测作业运行后的敏感数据检测结果。</p>
-</li>
-<li>
-<p><strong>作业控制器（JC）</strong>：作业控制器负责在监控帐户中执行检测作业并将检测结果收集回管理员帐户。它可以配置作业按用户定义的时间表或根据需要运行。</p>
-</li>
-<li>
-<p><strong>模板配置（TC）</strong>：检测模板存储在 TC 模型中。它包含内置模板和自定义模板。JC 可以检索模板以运行作业处理器。</p>
-</li>
-<li>
-<p><strong>帐户管理（AM）</strong>：监控 AWS 帐户由 AM 模型管理。</p>
-</li>
-</ul>
-<h2 id="_3">监控帐户中的模块</h2>
-<ul>
-<li>
-<p><strong>作业处理器</strong>：作业处理器是敏感数据检测的运行容器，由作业控制器调用。作业处理器将原始数据读取到检测引擎进行检测，并将分析结果和运行状态发送到作业控制器。</p>
-</li>
-<li>
-<p><strong>检测引擎</strong>：检测引擎模型是具有 AI/ML 支持功能的核心敏感数据检测引擎。它从作业处理器接收数据，使用预先训练的 ML 模型或模式识别敏感数据类型。</p>
-</li>
-</ul>
+<li>您看到目录状态变为灰色<code>PENDING</code>，表示连接开始（约3分钟）</li>
+<li>您看到目录状态变为蓝色<code>CRAWLING</code>。（200张表约15分钟）</li>
+<li>您看到目录状态边绿色 <code>ACTIVE</code>，则表示已为 RDS 实例创建了数据目录。此时您可以点击对应 数据目录 的连接进行初步查看，以及后续扫描工作。</li>
+</ol>
+<p>至此，您已经通过JDBC方式建立好的RDS代理的数据源连接，可以开始下一步操作了。</p>
 
 
 
@@ -1768,7 +1906,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": "develop"}</script>
     
     
-      <script src="../../assets/javascripts/bundle.8fd75fb4.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c8d2eff1.min.js"></script>
       
     
   </body>

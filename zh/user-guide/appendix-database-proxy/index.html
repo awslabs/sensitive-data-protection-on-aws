@@ -13,14 +13,18 @@
         <link rel="canonical" href="https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/appendix-database-proxy/">
       
       
+        <link rel="prev" href="../appendix-build-in-identifiers-eu-gdpr/">
+      
+      
+        <link rel="next" href="../../faq/">
       
       
       <link rel="icon" href="https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.11">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.12">
     
     
       
-        <title>Appendix database proxy - 敏感数据保护解决方案</title>
+        <title>附录：创建数据库代理 - 敏感数据保护解决方案</title>
       
     
     
@@ -111,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Appendix database proxy
+              附录：创建数据库代理
             
           </span>
         </div>
@@ -276,17 +280,19 @@
       
   
   
+    
   
   
+  
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" checked>
         
           
           <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
@@ -300,7 +306,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_1">
             <span class="md-nav__icon md-icon"></span>
             实施指南
@@ -799,17 +805,19 @@
                 
   
   
+    
   
   
+  
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_7" checked>
         
           
           <label class="md-nav__link" for="__nav_1_7" id="__nav_1_7_label" tabindex="0">
@@ -823,7 +831,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_7_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_7_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_1_7">
             <span class="md-nav__icon md-icon"></span>
             用户指南
@@ -1019,7 +1027,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../data-catalog-create-jdbc-rds-proxy.md" class="md-nav__link">
+      <a href="../data-catalog-create-jdbc-database-proxy/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1421,6 +1429,141 @@
 
               
             
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    附录：创建数据库代理
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    附录：创建数据库代理
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#ec2" class="md-nav__link">
+    <span class="md-ellipsis">
+      使用EC2配置数据库代理
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="使用EC2配置数据库代理">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1:安装
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2:启动
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3:查看状态
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4etcnginxnginxconf" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 4:编辑/etc/nginx/nginx.conf文件
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 5: 重新加载配置文件
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 6: 为实例添加安全组
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-7" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 7: （可选）本地测试代理是否生效
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1653,18 +1796,78 @@
         <li class="md-nav__item">
   <a href="#ec2" class="md-nav__link">
     <span class="md-ellipsis">
-      配置EC2数据库代理
+      使用EC2配置数据库代理
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="使用EC2配置数据库代理">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1:安装
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#ip" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#step-2" class="md-nav__link">
     <span class="md-ellipsis">
-      其他机器，只能是IP，不能是域名
+      Step 2:启动
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3:查看状态
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4etcnginxnginxconf" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 4:编辑/etc/nginx/nginx.conf文件
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 5: 重新加载配置文件
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 6: 为实例添加安全组
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-7" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 7: （可选）本地测试代理是否生效
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1686,26 +1889,38 @@
   
 
 
-<h2 id="ec2">配置EC2数据库代理</h2>
-<p>创建1个EC2实例作为数据库代理。安装iptables 设置端口转发。例如:</p>
-<p>'''
-Step1: 安装 </p>
-<blockquote>
-<p>sudo yum install iptables
-Step2: 启用IP转发。在Linux上，IP转发通常默认禁用。要启用它，编辑/etc/sysctl.conf文件，修改或添加以下内容
-net.ipv4.ip_forward = 1
-Step3: 应用新的sysctl设置
-sudo sysctl -p /etc/sysctl.conf
-Step4: 设置转发规则</p>
-<h1 id="ip">其他机器，只能是IP，不能是域名</h1>
-<p>sudo iptables -t nat -A PREROUTING -p tcp --dport 444 -j DNAT --to 192.168.1.100:3000
-sudo iptables -t nat -A POSTROUTING -j MASQUERADE
-Step5: 保存规则以便重启有效
-sudo service iptables save
-Step6: 查看NAT规则
-sudo iptables -L -n -v --line-numbers -t nat
-'''</p>
-</blockquote>
+  <h1>附录：创建数据库代理</h1>
+
+<h2 id="ec2">使用EC2配置数据库代理</h2>
+<p>创建1个EC2实例作为数据库代理。安装Nginx 设置端口转发。例如:</p>
+<h3 id="step-1">Step 1:安装</h3>
+<p><code>sudo yum install nginx nginx-mod-stream</code></p>
+<h3 id="step-2">Step 2:启动</h3>
+<p><code>sudo systemctl start nginx</code></p>
+<h3 id="step-3">Step 3:查看状态</h3>
+<p><code>systemctl status nginx</code></p>
+<h3 id="step-4etcnginxnginxconf">Step 4:编辑/etc/nginx/nginx.conf文件</h3>
+<p><code>sudo vim /etc/nginx/nginx.conf</code><br />
+在文件末尾添加类似以下内容
+<div class="highlight"><pre><span></span><code>stream {
+    upstream backend1 {
+        server 10.0.34.171:3306  max_fails=3 fail_timeout=30s; # server地址可以使用域名
+    }
+    server {
+        listen 3306;
+        proxy_connect_timeout 1s;
+        proxy_pass backend1;
+    }
+}
+</code></pre></div></p>
+<h3 id="step-5">Step 5: 重新加载配置文件</h3>
+<p><code>sudo nginx -s reload</code></p>
+<h3 id="step-6">Step 6: 为实例添加安全组</h3>
+<p>Proxy安全组添加Rule，允许以下2个安全组的所有TCP进入：<code>SDPS-CustomDB</code>、<code>堆栈名-RDSRDSClient</code></p>
+<h3 id="step-7">Step 7: （可选）本地测试代理是否生效</h3>
+<div class="highlight"><pre><span></span><code>sudo yum install telnet
+telnet 127.0.0.1 7001
+</code></pre></div>
 
 
 
@@ -1750,7 +1965,7 @@ sudo iptables -L -n -v --line-numbers -t nat
     <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": "develop"}</script>
     
     
-      <script src="../../assets/javascripts/bundle.8fd75fb4.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c8d2eff1.min.js"></script>
       
     
   </body>

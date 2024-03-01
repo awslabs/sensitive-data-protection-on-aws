@@ -8,17 +8,21 @@
       
       
       
-        <link rel="canonical" href="https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/data-catalog-create-jdbc-db-proxy/">
+        <link rel="canonical" href="https://awslabs.github.io/sensitive-data-protection-on-aws/user-guide/appendix-database-proxy/">
       
       
+        <link rel="prev" href="../appendix-build-in-identifiers-eu-gdpr/">
+      
+      
+        <link rel="next" href="../../faq/">
       
       
       <link rel="icon" href="https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.11">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.12">
     
     
       
-        <title>Connect to Data Sources - JDBC (Database Proxy) - Sensitive Data Protection on AWS</title>
+        <title>Appx.Create database proxy - Sensitive Data Protection on AWS</title>
       
     
     
@@ -70,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#connect-to-data-sources-jdbc-database-proxy" class="md-skip">
+        <a href="#using-ec2-to-configure-database-agents" class="md-skip">
           Skip to content
         </a>
       
@@ -109,7 +113,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Connect to Data Sources - JDBC (Database Proxy)
+              Appx.Create database proxy
             
           </span>
         </div>
@@ -274,17 +278,19 @@
       
   
   
+    
   
   
+  
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" checked>
         
           
           <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
@@ -298,7 +304,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_1">
             <span class="md-nav__icon md-icon"></span>
             Implementation Guide
@@ -776,17 +782,19 @@
                 
   
   
+    
   
   
+  
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_6" checked>
         
           
           <label class="md-nav__link" for="__nav_1_6" id="__nav_1_6_label" tabindex="0">
@@ -800,7 +808,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_1_6">
             <span class="md-nav__icon md-icon"></span>
             Use the solution
@@ -996,7 +1004,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../data-catalog-create-jdbc-rds-proxy.md" class="md-nav__link">
+      <a href="../data-catalog-create-jdbc-database-proxy/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1398,6 +1406,141 @@
 
               
             
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Appx.Create database proxy
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Appx.Create database proxy
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#using-ec2-to-configure-database-agents" class="md-nav__link">
+    <span class="md-ellipsis">
+      Using EC2 to configure database agents
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Using EC2 to configure database agents">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1install" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1:Install
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2start" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2:Start
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3view-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3:View status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4edit-etcnginxnginxconf" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 4:Edit /etc/nginx/nginx.conf
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-reload-configuration-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 5: Reload configuration file
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-6-add-2-security-groups-to-the-instance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 6: Add 2 security groups to the instance
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-7-optional-is-the-local-testing-agent-effective" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 7: (Optional) Is the local testing agent effective
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1641,8 +1784,6 @@
   
   
   
-    
-  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -1651,20 +1792,80 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#prerequisites-maintain-network-connectivity" class="md-nav__link">
+  <a href="#using-ec2-to-configure-database-agents" class="md-nav__link">
     <span class="md-ellipsis">
-      Prerequisites - Maintain Network Connectivity
+      Using EC2 to configure database agents
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Using EC2 to configure database agents">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1install" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1:Install
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#connect-to-the-database-through-ec2-database-proxy-db-proxy" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#step-2start" class="md-nav__link">
     <span class="md-ellipsis">
-      Connect to the Database Through EC2 Database Proxy (DB Proxy)
+      Step 2:Start
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3view-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3:View status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4edit-etcnginxnginxconf" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 4:Edit /etc/nginx/nginx.conf
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-reload-configuration-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 5: Reload configuration file
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-6-add-2-security-groups-to-the-instance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 6: Add 2 security groups to the instance
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-7-optional-is-the-local-testing-agent-effective" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 7: (Optional) Is the local testing agent effective
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1683,91 +1884,38 @@
                   
 
 
-<h1 id="connect-to-data-sources-jdbc-database-proxy">Connect to Data Sources - JDBC (Database Proxy)</h1>
-<p>When your RDS/database is in a private network and there are strict IP restrictions (only fixed IPs are allowed for access), you need to connect to the data source in this way.</p>
-<h3 id="prerequisites-maintain-network-connectivity">Prerequisites - Maintain Network Connectivity</h3>
-<ol>
-<li>Please ensure when you <a href="../data-source/">add an AWS account</a>, choose the JDBC method, then proceed to <a href="data-catalog-create-jdbc-rds-proxy.md">Connect to Data Source - RDS</a> for operations.</li>
-<li>Create a Database Proxy: Create an EC2 in the VPC where the solution resides to act as a proxy machine. Refer to the steps in: <a href="appendix-database-proxy.md">Appendix: Creating a Database Proxy</a>.</li>
-<li>Add RDS to the whitelist: Add the EC2 IP to the Inbound Rule of the Security Group for the database to be scanned.</li>
-</ol>
-<h2 id="connect-to-the-database-through-ec2-database-proxy-db-proxy">Connect to the Database Through EC2 Database Proxy (DB Proxy)</h2>
-<ol>
-<li>In the left menu, select <strong>Connect Data Source</strong></li>
-<li>Choose the cloud account you wish to scan, click to enter the account, and open the details page</li>
-<li>Click to enter a cloud account, open the details page</li>
-<li>Select the <strong>Custom Database (JDBC)</strong> tab</li>
-<li>
-<p>Click <strong>Action</strong>, <strong>Add Data Source</strong></p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Required</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Instance Name</td>
-<td>Yes</td>
-<td>Database instance name</td>
-</tr>
-<tr>
-<td>Check SSL Connection</td>
-<td>No</td>
-<td>Whether to connect via SSL</td>
-</tr>
-<tr>
-<td>Description (Optional)</td>
-<td>No</td>
-<td>Instance description</td>
-</tr>
-<tr>
-<td>JDBC URL (Required)</td>
-<td>Yes</td>
-<td>Fill in at least one database under the database instance for connection and scanning. Format: <code>jdbc:mysql://ec2_public_ip:port/databasename</code></td>
-</tr>
-<tr>
-<td>JDBC Databases</td>
-<td>No</td>
-<td>List all databases in this instance that need to be scanned, including the required database above. Click the button to "Auto Query Database List"</td>
-</tr>
-<tr>
-<td>Credentials</td>
-<td>Yes</td>
-<td>Choose username and password or SecretManager. Enter the database username/password.</td>
-</tr>
-<tr>
-<td>VPC</td>
-<td>Yes</td>
-<td>Select the VPC where the Proxy resides</td>
-</tr>
-<tr>
-<td>Subnet</td>
-<td>Yes</td>
-<td>Select the subnet in the VPC where the Proxy resides</td>
-</tr>
-<tr>
-<td>Security Group</td>
-<td>Yes</td>
-<td>Select the security group in the VPC where the Proxy resides</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition info">
-<p class="admonition-title">Auto Retrieve Database Button</p>
-<p>The solution currently supports auto-retrieval of MySQL databases.</p>
-</div>
-</li>
-<li>
-<p>Choose the database instance, click the button <strong>Sync to Data Catalog</strong></p>
-</li>
-<li>You will see the catalog status turn to gray <code>PENDING</code>, indicating the connection is starting (about 3 minutes)</li>
-<li>You will see the catalog status turn to blue <code>CRAWLING</code> (about 15 minutes for 200 tables)</li>
-<li>When you see the catalog status turn to green <code>ACTIVE</code>, it means a data catalog has been created for the RDS instance. At this point, you can click on the corresponding data catalog link for a preliminary view and subsequent scanning tasks.</li>
-</ol>
-<p>At this point, you have established a connection to the RDS proxy's data source via JDBC and can proceed to the next steps.</p>
+  <h1>Appx.Create database proxy</h1>
+
+<h2 id="using-ec2-to-configure-database-agents">Using EC2 to configure database agents</h2>
+<p>Create one EC2 instance as the database proxy. Install Nginx to set port forwarding. For example:</p>
+<h3 id="step-1install">Step 1:Install</h3>
+<p><code>sudo yum install nginx nginx-mod-stream</code></p>
+<h3 id="step-2start">Step 2:Start</h3>
+<p><code>sudo systemctl start nginx</code></p>
+<h3 id="step-3view-status">Step 3:View status</h3>
+<p><code>systemctl status nginx</code></p>
+<h3 id="step-4edit-etcnginxnginxconf">Step 4:Edit /etc/nginx/nginx.conf</h3>
+<p><code>sudo vim /etc/nginx/nginx.conf</code><br />
+Add content similar to the following at the end of the file
+<div class="highlight"><pre><span></span><code>stream {
+    upstream backend1 {
+        server 10.0.34.171:3306  max_fails=3 fail_timeout=30s; # Server address can use domain name
+    }
+    server {
+        listen 3306;
+        proxy_connect_timeout 1s;
+        proxy_pass backend1;
+    }
+}
+</code></pre></div></p>
+<h3 id="step-5-reload-configuration-file">Step 5: Reload configuration file</h3>
+<p><code>sudo nginx -s reload</code></p>
+<h3 id="step-6-add-2-security-groups-to-the-instance">Step 6: Add 2 security groups to the instance</h3>
+<p>Add Rule to the Proxy security group to allow all TCP entries from the following two security groups:<code>SDPS-CustomDB</code>、<code>StackName-RDSRDSClient</code></p>
+<h3 id="step-7-optional-is-the-local-testing-agent-effective">Step 7: (Optional) Is the local testing agent effective</h3>
+<div class="highlight"><pre><span></span><code>sudo yum install telnet
+telnet 127.0.0.1 7001
+</code></pre></div>
 
 
 
@@ -1812,7 +1960,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": "develop"}</script>
     
     
-      <script src="../../assets/javascripts/bundle.8fd75fb4.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c8d2eff1.min.js"></script>
       
     
   </body>
