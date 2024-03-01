@@ -3,7 +3,7 @@
 当您希望对某个Redshift Cluster进行敏感数据扫描时，您可以将Redshift的database作为数据源。
 
 ### 前提条件 - 保持网络连通性
-1. 请确认您[添加AWS账户](data-source.md)时，选择的是CloudFormation方式。如果您添加账户时，选择JDBC方式，请转至[通过EC2代理连接数据库](data-catalog-create-jdbc-rds-proxy.md)进行操作。
+1. 请确认您[添加AWS账户](data-source.md)时，选择的是CloudFormation方式。如果您添加账户时，选择JDBC方式，请转至[通过EC2代理连接数据库](data-catalog-create-jdbc-database-proxy.md)进行操作。
 2. 准备好Redshift的连接凭证（用户名/密码）
 
 !!! Info "如何获得Redshift凭证"

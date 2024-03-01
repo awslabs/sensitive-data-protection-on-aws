@@ -2,7 +2,7 @@
 当您的RDS/数据库在私有网络，且对于IP有严格的限制（只允许固定IP进行接入），您需要通过这种方式进行数据源连接。
 
 ### 前提条件 - 保持网络连通性
-1. 请确认您[添加AWS账户](data-source.md)时，选择JDBC方式，请转至[连接到数据源 - RDS](data-catalog-create-jdbc-rds-proxy.md)进行操作。
+1. 请确认您[添加AWS账户](data-source.md)时，选择JDBC方式，请转至[连接到数据源 - RDS](data-catalog-create-jdbc-database-proxy.md)进行操作。
 2. 创建数据库代理（Proxy）：在方案所在VPC创建EC2作为代理机器，参考步骤详见：[附录:创建数据库代理](appendix-database-proxy.md)。
 3. 添加RDS访问白名单：将EC2的IP添加至待检测数据库的Security Group的Inbound Rule。
 

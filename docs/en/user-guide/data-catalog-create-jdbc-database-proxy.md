@@ -2,7 +2,7 @@
 When your RDS/database is in a private network and there are strict IP restrictions (only fixed IPs are allowed for access), you need to connect to the data source in this way.
 
 ### Prerequisites - Maintain Network Connectivity
-1. Please ensure when you [add an AWS account](data-source.md), choose the JDBC method, then proceed to [Connect to Data Source - RDS](data-catalog-create-jdbc-rds-proxy.md) for operations.
+1. Please ensure when you [add an AWS account](data-source.md), choose the JDBC method, then proceed to [Connect to Data Source - RDS](data-catalog-create-jdbc-database-proxy.md) for operations.
 2. Create a Database Proxy: Create an EC2 in the VPC where the solution resides to act as a proxy machine. Refer to the steps in: [Appendix: Creating a Database Proxy](appendix-database-proxy.md).
 3. Add RDS to the whitelist: Add the EC2 IP to the Inbound Rule of the Security Group for the database to be scanned.
 
