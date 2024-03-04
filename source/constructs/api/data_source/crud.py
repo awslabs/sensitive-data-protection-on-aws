@@ -1031,3 +1031,48 @@ def list_jdbc_resources_by_provider(provider_id: int, account_id, region, condit
     if condition:
         return query_with_condition(session_result, condition)
     return session_result
+
+# ["account_id", "region", "bucket_name", "crawler_status", "last_updated_at", "last_updated_by"]
+def get_datasource_from_s3():
+    return get_session().query(S3BucketSource.account_id,
+                               S3BucketSource.region,
+                               S3BucketSource.bucket_name,
+                               S3BucketSource.glue_state,
+                               S3BucketSource.modify_time,
+                               S3BucketSource.modify_by
+                               ).all()
+
+# ["account_id", "region", "instance_name", "engine_type", "location", "crawler_status", "last_updated_at", "last_updated_by"]
+def get_datasource_from_rds():
+    return get_session().query(RdsInstanceSource.account_id,
+                               RdsInstanceSource.region,
+                               RdsInstanceSource.instance_id,
+                               RdsInstanceSource.engine,
+                               RdsInstanceSource.address,
+                               RdsInstanceSource.glue_state,
+                               RdsInstanceSource.modify_time,
+                               RdsInstanceSource.modify_by
+                               ).all()
+
+# ["account_id", "region", "database_name", "description", "location", "crawler_status", "last_updated_at", "last_updated_by"]
+def get_datasource_from_glue():
+    return get_session().query(SourceGlueDatabase.account_id,
+                               SourceGlueDatabase.region,
+                               SourceGlueDatabase.glue_database_name,
+                               SourceGlueDatabase.glue_database_description,
+                               SourceGlueDatabase.glue_database_location_uri,
+                               SourceGlueDatabase.glue_state,
+                               SourceGlueDatabase.modify_time,
+                               SourceGlueDatabase.modify_by).all()
+
+# ["type", "account_id", "region", "instance_name", "description", "location", "crawler_status", "last_updated_at", "last_updated_by"]
+def get_datasource_from_jdbc():
+    return get_session().query(JDBCInstanceSource.account_provider_id,
+                               JDBCInstanceSource.account_id,
+                               JDBCInstanceSource.region,
+                               JDBCInstanceSource.instance_id,
+                               JDBCInstanceSource.description,
+                               JDBCInstanceSource.jdbc_connection_url,
+                               JDBCInstanceSource.glue_state,
+                               JDBCInstanceSource.modify_time,
+                               JDBCInstanceSource.modify_by).all()

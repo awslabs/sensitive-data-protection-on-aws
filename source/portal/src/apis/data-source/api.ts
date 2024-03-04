@@ -288,6 +288,24 @@ const downloadBatchFiles = async (params: any) => {
   return result;
 };
 
+const exportDatasource = async (params: any) => {
+  const result = await apiRequest(
+    'post',
+    'data-source/export-datasource?key=' + params.key,
+    {}
+  );
+  return result;
+};
+
+const deleteReport = async (params: any) => {
+  const result = await apiRequest(
+    'post',
+    'data-source/delete-report?key=' + params.key,
+    {}
+  );
+  return result;
+};
+
 export {
   getDataSourceS3ByPage,
   getDataSourceRdsByPage,
@@ -328,4 +346,6 @@ export {
   batchCreateDatasource,
   queryBatchStatus,
   downloadBatchFiles,
+  exportDatasource,
+  deleteReport
 };
