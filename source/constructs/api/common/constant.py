@@ -117,6 +117,15 @@ const.CONTROLLER_ACTION_CHECK_RUNNING_RUN_DATABASES = 'CheckRunningRunDatabases'
 const.CONTROLLER_ACTION_CHECK_PENDING_RUN_DATABASES = 'CheckPendingRunDatabases'
 const.CONTROLLER_ACTION_REFRESH_ACCOUNT = 'RefreshAccount'
 
+const.EXPORT_DS_HEADER_S3 = ["account_id", "region", "bucket_name", "crawler_status", "last_updated_at", "last_updated_by"]
+const.EXPORT_DS_HEADER_RDS = ["account_id", "region", "instance_name", "engine_type", "location", "crawler_status", "last_updated_at", "last_updated_by"]
+const.EXPORT_DS_HEADER_GLUE = ["account_id", "region", "database_name", "description", "location", "crawler_status", "last_updated_at", "last_updated_by"]
+const.EXPORT_DS_HEADER_JDBC = ["type", "account_id", "region", "instance_name", "description", "location", "crawler_status", "last_updated_at", "last_updated_by"]
+const.S3_STR = "S3"
+const.RDS_STR = "RDS"
+const.GLUE_STR = "GLUE"
+const.JDBC_STR = "JDBC"
+const.DATASOURCE_REPORT = "report/datasource"
 
 const.UNSTRUCTURED_FILES = {
     "document": ["doc", "docx", "pdf", "ppt", "pptx", "xls", "xlsx", "odp"],

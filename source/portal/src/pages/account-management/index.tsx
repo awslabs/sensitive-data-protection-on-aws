@@ -15,6 +15,7 @@ import {
 import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import Navigation from 'pages/left-menu/Navigation';
 import { getAccountInfomation } from 'apis/dashboard/api';
+import { exportDatasource, deleteReport } from 'apis/data-source/api';
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
 import HelpInfo from 'common/HelpInfo';
@@ -22,18 +23,45 @@ import { buildDocLink } from 'ts/common';
 import ProviderTab, { ProviderType } from 'common/ProviderTab';
 import { CACHE_CONDITION_KEY } from 'enum/common_types';
 import { useNavigate } from 'react-router-dom';
+import { alertMsg } from 'tools/tools';
+import { format } from 'date-fns';
+import { time } from 'console';
+
 
 const AccountManagementHeader: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [downloading, setDownloading] = useState(false)
+
+  const timeStr = format(new Date(), 'yyyyMMddHHmmss');
+
+  const batchExport = async () => {
+    setDownloading(true);
+    const url: any = await exportDatasource({key: timeStr});
+    setDownloading(false);
+    if (url) {
+      window.open(url, '_blank');
+      setTimeout(() => {
+        deleteReport({key: timeStr});
+      }, 2000);
+    } else {
+      alertMsg(t('noReportFile'), 'error');
+    }
+    }
+  
   return (
     <Header
       variant="h1"
       description={t('account:connectToDataSourceDesc')}
       actions={
-        <Button onClick={() => navigate(RouterEnum.BatchOperation.path)}>
-          {t('button.batchOperation')}
+        <SpaceBetween direction='horizontal' size='xs'>
+        <Button onClick={() => batchExport()} disabled={downloading}>
+          {t('button.batchExport')}
         </Button>
+        <Button onClick={() => navigate(RouterEnum.BatchOperation.path)}>
+          {t('button.batchCreate')}
+        </Button>
+        </SpaceBetween>
       }
     >
       {t('account:connectToDataSource')}

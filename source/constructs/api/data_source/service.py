@@ -5,6 +5,7 @@ import json
 import os
 import random
 import re
+import tempfile
 import time
 import traceback
 from time import sleep
@@ -33,6 +34,7 @@ from db.models_data_source import (Account)
 from discovery_job.service import can_delete_database as can_delete_job_database
 from discovery_job.service import delete_account as delete_job_by_account
 from discovery_job.service import delete_database as delete_job_database
+from common.concurrent_upload2s3 import concurrent_upload
 from .jdbc_schema import list_jdbc_databases
 from . import s3_detector, rds_detector, glue_database_detector, jdbc_detector, crud
 from .schemas import (AccountInfo, AdminAccountInfo,
@@ -62,6 +64,8 @@ _agent_role_name = os.getenv('AgentRoleNameList', 'RoleForAdmin')
 
 sts = boto3.client('sts')
 """ :type : pyboto3.sts """
+
+__s3_client = boto3.client('s3')
 
 _jdbc_url_patterns = [
         r'jdbc:redshift://[\w.-]+:\d+/([\w-]+)',
@@ -2109,7 +2113,7 @@ def __update_access_policy_for_account():
             ],
             "Resource": f"arn:{partition}:s3:::{bucket_name}/glue-database/*"
         }
-        s3 = boto3.client('s3')
+        s3 = __s3_client
         """ :type : pyboto3.s3 """
         try:
             restored_statements = []
@@ -2949,5 +2953,71 @@ async def __add_jdbc_conn_batch(jdbc: JDBCInstanceSource):
     except Exception as e:
         return jdbc.account_provider_id, jdbc.account_id, jdbc.region, jdbc.instance_id, "FAILED", str(e)
 
+# TBD
 def batch_delete_resource(account: AccountInfo, datasource_list: List):
     pass
+
+def export_datasource(key: str):
+    default_sheet = "Sheet"
+    sheets = {const.S3_STR: 0, const.RDS_STR: 1, const.GLUE_STR: 2, const.JDBC_STR: 3}
+    workbook = openpyxl.Workbook()
+    # session = get_session()
+    # with ThreadPoolExecutor(max_workers=4) as executor:
+    #     for sheet, index in sheets.items():
+    #         executor.submit(__read_and_write, sheet, index, workbook, session)
+    for sheet, index in sheets.items():
+        __read_and_write(sheet, index, workbook)
+    if default_sheet in workbook.sheetnames and len(workbook.sheetnames) > 1:
+        sheet = workbook[default_sheet]
+        workbook.remove(sheet)
+    workbook.active = 0
+    file_name = f"datasource_{key}.xlsx"
+    tmp_file = f"{tempfile.gettempdir()}/{file_name}"
+    report_file = f"{const.DATASOURCE_REPORT}/{file_name}"
+    workbook.save(tmp_file)
+    stats = os.stat(tmp_file)
+    if stats.st_size < 6 * 1024 * 1024:
+        __s3_client.upload_file(tmp_file, admin_bucket_name, report_file)
+    else:
+        concurrent_upload(admin_bucket_name, report_file, tmp_file, __s3_client)
+    os.remove(tmp_file)
+    method_parameters = {'Bucket': admin_bucket_name, 'Key': report_file}
+    pre_url = __s3_client.generate_presigned_url(
+        ClientMethod="get_object",
+        Params=method_parameters,
+        ExpiresIn=60
+    )
+    return pre_url
+
+def delete_report(key: str):
+    __s3_client.delete_object(Bucket=admin_bucket_name, Key=f"{const.DATASOURCE_REPORT}/datasource_{key}.xlsx")
+
+def __read_and_write(sheet_name, index, workbook):
+    column_mappings = {
+        const.S3_STR: const.EXPORT_DS_HEADER_S3,
+        const.RDS_STR: const.EXPORT_DS_HEADER_RDS,
+        const.GLUE_STR: const.EXPORT_DS_HEADER_GLUE,
+        const.JDBC_STR: const.EXPORT_DS_HEADER_JDBC}
+    column_mapping = column_mappings[sheet_name]
+    # query = f"SELECT {', '.join(query_columns)} FROM {table_name}"
+    # result = engine.execute(query)
+    if sheet_name == const.S3_STR:
+        result = crud.get_datasource_from_s3()
+    elif sheet_name == const.RDS_STR:
+        result = crud.get_datasource_from_rds()
+    elif sheet_name == const.GLUE_STR:
+        result = crud.get_datasource_from_glue()
+    else:
+        result = crud.get_datasource_from_jdbc()
+
+    if sheet_name in workbook.sheetnames:
+        sheet = workbook[sheet_name]
+    else:
+        sheet = workbook.create_sheet(sheet_name, index=index)
+        sheet.append(column_mapping)
+
+    for row_num, row_data in enumerate(result, start=2):
+        for col_num, cell_value in enumerate(row_data, start=1):
+            if sheet_name == const.JDBC_STR and col_num == 1:
+                cell_value = convert_provider_id_2_database_type(cell_value)
+            sheet.cell(row=row_num, column=col_num).value = cell_value

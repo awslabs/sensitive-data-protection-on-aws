@@ -107,6 +107,8 @@
     "editDataSource": "编辑数据源",
     "download": "下载",
     "batchOperation": "批量操作",
+    "batchCreate": "批量创建",
+    "batchExport": "批量导出数据源",
     "estimateIP": "评估 IP 使用情况",
     "upload": "上传"
   },

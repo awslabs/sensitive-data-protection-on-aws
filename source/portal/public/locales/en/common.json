@@ -107,6 +107,8 @@
     "editDataSource": "Edit data source",
     "download": "Download",
     "batchOperation": "Batch Operation",
+    "batchCreate": "Batch Create",
+    "batchExport": "Batch Export Datasource",
     "estimateIP": "Estimate IP usage",
     "upload": "Upload"
   },
