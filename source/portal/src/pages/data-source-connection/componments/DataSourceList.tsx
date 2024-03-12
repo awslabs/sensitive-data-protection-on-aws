@@ -228,7 +228,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         {
           text: t('button.editDataSource'),
           id: 'editJdbc',
-          disabled: selectedItems.length === 0,
+          disabled: selectedItems.length !== 1,
         },
         {
           text: t('button.deleteDataSource'),
@@ -985,7 +985,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                     iconName="refresh"
                   />
                   <Button
-                    disabled={isLoading || selectedItems.length === 0}
+                    disabled={isLoading || selectedItems.length !== 1}
                     onClick={clkConnected}
                   >
                     {tagType === DATA_TYPE_ENUM.jdbc

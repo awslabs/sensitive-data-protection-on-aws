@@ -273,10 +273,7 @@ def get_refs_by_prop(id: int):
 def get_all_identifiers():
     return get_session().query(models.TemplateIdentifier.name,
                                models.TemplateIdentifier.description,
-                               models.TemplateIdentifier.type,
                                models.TemplateIdentifier.classification,
-                               models.TemplateIdentifier.privacy,
-                               models.TemplateIdentifier.rule,
                                models.TemplateIdentifier.header_keywords,
                                models.TemplateIdentifier.exclude_keywords,
                                models.TemplateIdentifier.max_distance,
@@ -286,4 +283,4 @@ def get_all_identifiers():
                                            models.TemplateIdentifier.id == models.TemplateIdentifierPropRef.identifier_id
                                            ).outerjoin(models.TemplateIdentifierProp,
                                                        models.TemplateIdentifierPropRef.prop_id == models.TemplateIdentifierProp.id
-                                                       ).all()
+                                                       ).filter(models.TemplateIdentifier.type == 1).all()
