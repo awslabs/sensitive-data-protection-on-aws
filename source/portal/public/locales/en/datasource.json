@@ -7,7 +7,7 @@
   "organization": "Organization",
   "filterBuckets": "Filter buckets",
   "filterInstances": "Filter instances",
-  "connectToRDSDataSource": "Connect to RDS data source",
+  "connectToRDSDataSource": "Authorize to RDS data source",
   "rdsInstances": "RDS instances",
   "credential": "Credential",
   "security": "Security group",

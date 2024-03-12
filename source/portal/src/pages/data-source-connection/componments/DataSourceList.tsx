@@ -914,9 +914,9 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                     disabled={isLoading || selectedItems.length === 0}
                     onClick={clkConnected}
                   >
-                    {tagType === DATA_TYPE_ENUM.s3
-                      ? t('button.authorize')
-                      : t('button.connect')}
+                    {tagType === DATA_TYPE_ENUM.jdbc
+                      ? t('button.connect')
+                      : t('button.authorize')}
                   </Button>
                   <ButtonDropdown
                     onItemClick={({ detail }) => {
@@ -1066,7 +1066,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                 onClick={connectRDS}
                 loading={btnDisabled}
               >
-                {t('button.connect')}
+                {t('button.authorize')}
               </Button>
             </SpaceBetween>
           </Box>
