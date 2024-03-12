@@ -82,6 +82,24 @@ const getTemplateUpdateTime = async () => {
   return result;
 };
 
+const exportIdentify = async (params: any) => {
+  const result = await apiRequest(
+    'post',
+    'template/export-identify?key=' + params.key,
+    {}
+  );
+  return result;
+};
+
+const deleteReport = async (params: any) => {
+  const result = await apiRequest(
+    'post',
+    'template/delete-report?key=' + params.key,
+    {}
+  );
+  return result;
+};
+
 export {
   getTemplateMappingList,
   deleteTemplateMapping,
@@ -93,4 +111,6 @@ export {
   updateIdentifiers,
   getIndentifierInTemplate,
   getTemplateUpdateTime,
+  exportIdentify,
+  deleteReport
 };

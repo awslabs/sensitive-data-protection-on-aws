@@ -18,6 +18,8 @@ import ResourcesFilter from 'pages/resources-filter';
 import { IDENTIFIER_COLUMN_LIST } from '../types/identifiers_type';
 import {
   deleteIdentifiers,
+  deleteReport,
+  exportIdentify,
   getIdentifiersList,
   updateIdentifiers,
 } from 'apis/data-template/api';
@@ -29,6 +31,7 @@ import { useTranslation } from 'react-i18next';
 import PropsModal, { Props } from 'common/PropsModal';
 import PropsSelect from 'common/PropsSelect';
 import IdentifierTypeSelect from 'common/IdentifierTypeSelect';
+import { format } from 'date-fns';
 
 interface IdentifierTableProps {
   title: string;
@@ -56,6 +59,21 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
   const [isShowDelete, setIsShowDelete] = useState(false);
   const [s3ConflictCount, setS3ConflictCount] = useState(0);
   const [rdsConflictCount, setrdsConflictCount] = useState(0);
+  const [downloading, setDownloading] = useState(false);
+  const timeStr = format(new Date(), 'yyyyMMddHHmmss');
+  const batchExport = async () => {
+    setDownloading(true);
+    const url: any = await exportIdentify({key: timeStr});
+    setDownloading(false);
+    if (url) {
+      window.open(url, '_blank');
+      setTimeout(() => {
+        deleteReport({key: timeStr});
+      }, 2000);
+    } else {
+      alertMsg(t('noReportFile'), 'error');
+    }
+  }
 
   const [query, setQuery] = useState({
     tokens: [],
@@ -439,6 +457,12 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
                 <>
                   {type === 1 && (
                     <SpaceBetween direction="horizontal" size="xs">
+                      <Button onClick={() => batchExport()} disabled={downloading}>
+                        {t('button.batchExportIdentify')}
+                      </Button>
+                      <Button onClick={() => navigate(`${RouterEnum.BatchOperation.base}/identifier`)}>
+                        {t('button.batchCreate')}
+                      </Button>
                       <Button
                         onClick={clkDelete}
                         disabled={selectedItems.length === 0}

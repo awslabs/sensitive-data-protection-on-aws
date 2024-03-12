@@ -18,7 +18,7 @@ from openpyxl.styles import Font, PatternFill
 import pymysql
 from botocore.exceptions import ClientError
 
-from catalog.service import delete_catalog_by_account_region as delete_catalog_by_account
+from catalog.service import delete_catalog_by_account_region as delete_catalog_by_account, delete_catalog_by_database_region_batch
 from catalog.service import delete_catalog_by_database_region as delete_catalog_by_database_region
 from common.abilities import (convert_provider_id_2_database_type, convert_provider_id_2_name, query_all_vpc)
 from common.constant import const
@@ -750,9 +750,14 @@ def delete_glue_database(provider_id: int, account: str, region: str, name: str)
 
     return True
 
-def delete_jdbc_connection(provider_id: int, account: str, region: str, instance_id: str, delete_catalog_only=False):
+async def __delete_jdbc_connection(provider_id: int, account: str, region: str, instance_id: str, delete_catalog_only=False):
     database_type = convert_provider_id_2_database_type(provider_id)
-    before_delete_jdbc_connection(provider_id, account, region, instance_id, database_type)
+    try:
+        before_delete_jdbc_connection(provider_id, account, region, instance_id, database_type)
+    except BizException as be:
+        return instance_id, be.__msg__()
+    except Exception as e:
+        return instance_id, str(e)
     assume_account, assume_region = gen_assume_account(provider_id, account, region)
     err = []
     # 1/3 delete job database
@@ -761,17 +766,21 @@ def delete_jdbc_connection(provider_id: int, account: str, region: str, instance
             logger.info('delete_job_database start')
             delete_job_database(account_id=account, region=region, database_type=database_type, database_name=instance_id)
             logger.info('delete_job_database end')
+    except BizException as be:
+        return instance_id, be.__msg__()
     except Exception as e:
-        logger.error(traceback.format_exc())
-        err.append(str(e))
+        return instance_id, str(e)
     # 2/3 delete catalog
     try:
         logger.info('delete_catalog_by_database_region start')
-        delete_catalog_by_database_region(database=instance_id, region=region, type=database_type)
+        delete_catalog_by_database_region_batch(database=instance_id, region=region, type=database_type)
         logger.info('delete_catalog_by_database_region end')
+    except BizException as be:
+        print(f"delete_catalog_by_database_region biz res is >>>>>>{instance_id}-{be.__msg__()}")
+        return instance_id, be.__msg__()
     except Exception as e:
-        logger.error(traceback.format_exc())
-        err.append(str(e))
+        print(f"delete_catalog_by_database_region res is >>>>>>{instance_id}-{str(e)}")
+        return instance_id, str(e)
 
     if not delete_catalog_only:
         # 3/3 delete source
@@ -782,53 +791,50 @@ def delete_jdbc_connection(provider_id: int, account: str, region: str, instance
                 logger.info(f'delete_crawler start:{assume_account, jdbc_conn.glue_crawler}')
                 glue.delete_crawler(Name=jdbc_conn.glue_crawler)
                 logger.info(f'delete_crawler end:{jdbc_conn.glue_crawler}')
+            except BizException as be:
+                return instance_id, be.__msg__()
             except Exception as e:
-                logger.error(traceback.format_exc())
-                err.append(str(e))
+                return instance_id, str(e)
         if jdbc_conn.glue_database:
             try:
                 glue.delete_database(Name=jdbc_conn.glue_database)
+            except BizException as be:
+                return instance_id, be.__msg__()
             except Exception as e:
-                logger.error(traceback.format_exc())
-                err.append(str(e))
+                return instance_id, str(e)
         if jdbc_conn.glue_connection:
             try:
                 glue.delete_connection(
                     CatalogId=assume_account,
                     ConnectionName=jdbc_conn.glue_connection
                 )
+            except BizException as be:
+                return instance_id, be.__msg__()
             except Exception as e:
-                logger.error(traceback.format_exc())
-                err.append(str(e))
+                return instance_id, str(e)
         crud.delete_jdbc_connection(provider_id, account, region, instance_id)
         try:
             crud.update_jdbc_instance_count(provider_id, account, region)
+        except BizException as be:
+            return instance_id, be.__msg__()
         except Exception as e:
-            logger.error(traceback.format_exc())
-            err.append(str(e))
+            return instance_id, str(e)
 
     if not err:
         logger.error(err)
         # raise BizException(MessageEnum.SOURCE_S3_CONNECTION_DELETE_ERROR.get_code(), err)
 
-    return True
+    return instance_id, const.EMPTY_STR
 
-def hide_jdbc_connection(provider_id: int, account: str, region: str, instance_id: str):
-    database_type = convert_provider_id_2_database_type(provider_id)
-    before_delete_jdbc_connection(provider_id, account, region, instance_id, database_type)
+async def __delete_jdbc_connections(provider_id: int, account: str, region: str, instances: list[str]):
+    tasks = []
+    for instance in instances:
+        task = asyncio.create_task(__delete_jdbc_connection(provider_id, account, region, instance))
+        tasks.append(task)
+    return await asyncio.gather(*tasks)
 
-    err = []
-    crud.hide_jdbc_connection(provider_id, account, region, instance_id)
-    try:
-        crud.update_jdbc_instance_count(provider_id, account, region)
-    except Exception as e:
-        logger.error(traceback.format_exc())
-        err.append(str(e))
-
-    if not err:
-        logger.error(err)
-
-    return True
+def delete_jdbc_connections(provider_id: int, account: str, region: str, instances: list[str]):
+    return asyncio.run(__delete_jdbc_connections(provider_id, account, region, instances))
 
 def gen_credentials(account: str):
     try:

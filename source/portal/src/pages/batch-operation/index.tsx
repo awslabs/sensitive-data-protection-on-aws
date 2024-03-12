@@ -28,6 +28,8 @@ import { downloadBatchFiles, queryBatchStatus } from 'apis/data-source/api';
 import { alertMsg } from 'tools/tools';
 import { User } from 'oidc-client-ts';
 import { AmplifyConfigType } from 'ts/types';
+import { useParams } from 'react-router-dom';
+import { TFunction } from 'i18next';
 
 enum BatchOperationStatus {
   NotStarted = 'NotStarted',
@@ -52,11 +54,20 @@ const startDownload = (url: string) => {
   document.body.removeChild(link);
 };
 
-const AddAccountHeader: React.FC = () => {
+const genTypeDesc = (type: string|undefined, t: TFunction) => {
+  if(type === "identifier"){
+    return t('common:batch.nameDescIdentifier')
+  }  
+  return t('common:batch.nameDescDataSource')
+}
+
+
+const AddBatchOperationHeader: React.FC<any> = (props:any) => {
   const { t } = useTranslation();
+  const { type } = props
   return (
-    <Header variant="h1" description={t('datasource:batch.nameDesc')}>
-      {t('datasource:batch.name')}
+    <Header variant="h1" description={genTypeDesc(type, t)}>
+      {t('common:batch.name')}
     </Header>
   );
 };
@@ -115,7 +126,7 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
         setErrors([]);
         setUploadDisabled(false);
       } else {
-        setErrors([t('datasource:batch.fileExtensionError')]);
+        setErrors([t('common:batch.fileExtensionError')]);
         setUploadDisabled(true);
       }
     }
@@ -208,8 +219,8 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
     <SpaceBetween direction="vertical" size="xl">
       <Container
         header={
-          <Header variant="h2" description={t('datasource:batch.step1Desc')}>
-            {t('datasource:batch.step1Title')}
+          <Header variant="h2" description={t('common:batch.step1Desc')}>
+            {t('common:batch.step1Title')}
           </Header>
         }
       >
@@ -223,28 +234,28 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
             variant="link"
             loading={loadingDownload}
           >
-            {t('datasource:batch.step1Download')}
+            {t('common:batch.step1Download')}
           </Button>
         </p>
       </Container>
       <Container
         header={
-          <Header variant="h2" description={t('datasource:batch.step2Desc')}>
-            {t('datasource:batch.step2Title')}
+          <Header variant="h2" description={t('common:batch.step2Desc')}>
+            {t('common:batch.step2Title')}
           </Header>
         }
       >
         <ul>
-          <li>{t('datasource:batch.step2Tips1')}</li>
+          <li>{t('common:batch.step2Tips1')}</li>
         </ul>
       </Container>
       <Container
         header={
-          <Header variant="h2">{t('datasource:batch.step3Title')}</Header>
+          <Header variant="h2">{t('common:batch.step3Title')}</Header>
         }
       >
         <SpaceBetween direction="vertical" size="l">
-          <FormField label={t('datasource:batch.uploadTitle')}>
+          <FormField label={t('common:batch.uploadTitle')}>
             <FileUpload
               onChange={({ detail }) => {
                 changeFile(detail.value);
@@ -253,17 +264,17 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
               i18nStrings={{
                 uploadButtonText: (e) =>
                   e
-                    ? t('datasource:batch.chooseFiles')
-                    : t('datasource:batch.chooseFile'),
+                    ? t('common:batch.chooseFiles')
+                    : t('common:batch.chooseFile'),
                 dropzoneText: (e) =>
                   e
-                    ? t('datasource:batch.dropFilesUpload')
-                    : t('datasource:batch.dropFileUpload'),
+                    ? t('common:batch.dropFilesUpload')
+                    : t('common:batch.dropFileUpload'),
                 removeFileAriaLabel: (e) =>
-                  `${t('datasource:batch.removeFile')} ${e + 1}`,
-                limitShowFewer: t('datasource:batch.showFewer'),
-                limitShowMore: t('datasource:batch.showMore'),
-                errorIconAriaLabel: t('datasource:batch.error'),
+                  `${t('common:batch.removeFile')} ${e + 1}`,
+                limitShowFewer: t('common:batch.showFewer'),
+                limitShowMore: t('common:batch.showMore'),
+                errorIconAriaLabel: t('common:batch.error'),
               }}
               invalid
               fileErrors={errors}
@@ -272,7 +283,7 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
               showFileSize
               showFileThumbnail
               tokenLimit={1}
-              constraintText={t('datasource:batch.only')}
+              constraintText={t('common:batch.only')}
             />
           </FormField>
           {uploadProgress > 0 && (
@@ -297,14 +308,26 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
   );
 };
 
+const genBreadcrumbItem = (type: string|undefined, t: TFunction) => {
+  if(type === "identifier"){
+    return  {
+      text: t('breadcrumb.manageIdentifier'),
+      href: RouterEnum.TemplateIdentifiers.path,
+    }
+  }
+  return  {
+    text: t('breadcrumb.dataSourceConnection'),
+    href: RouterEnum.DataSourceConnection.path,
+  }
+}
+
+
 const BatchOperation: React.FC = () => {
+  const {type}: any = useParams();
   const { t, i18n } = useTranslation();
   const breadcrumbItems = [
     { text: t('breadcrumb.home'), href: RouterEnum.Home.path },
-    {
-      text: t('breadcrumb.dataSourceConnection'),
-      href: RouterEnum.DataSourceConnection.path,
-    },
+    genBreadcrumbItem(type, t),
   ];
   const [flashBar, setFlashBar] = useState<FlashbarProps.MessageDefinition[]>(
     []
@@ -336,6 +359,13 @@ const BatchOperation: React.FC = () => {
     setShowConfirm(false);
   };
 
+  const genTabName = (type:string, t:TFunction) => {
+    if(type==="identifier"){
+      return t('common:batch.tabIdentifier')
+    }
+    return t('common:batch.tabDataSource')
+  }
+
   const onDismissNotification = () => {
     setShowConfirm(true);
   };
@@ -344,10 +374,10 @@ const BatchOperation: React.FC = () => {
     if (status === BatchOperationStatus.Completed) {
       setFlashBar([
         {
-          header: t('datasource:batch.successTitle'),
+          header: t('common:batch.successTitle'),
           type: 'success',
           dismissible: true,
-          content: t('datasource:batch.successDesc', {
+          content: t('common:batch.successDesc', {
             successCount: successCount,
             warningCount: warningCount,
           }),
@@ -366,10 +396,10 @@ const BatchOperation: React.FC = () => {
     if (status === BatchOperationStatus.Error) {
       setFlashBar([
         {
-          header: t('datasource:batch.failedTitle'),
+          header: t('common:batch.failedTitle'),
           type: 'error',
           dismissible: true,
-          content: t('datasource:batch.failedDesc', {
+          content: t('common:batch.failedDesc', {
             successCount: successCount,
             warningCount: warningCount,
             failedCount: failedCount,
@@ -390,10 +420,10 @@ const BatchOperation: React.FC = () => {
       setFlashBar([
         {
           loading: true,
-          header: t('datasource:batch.inProgress'),
+          header: t('common:batch.inProgress'),
           type: 'info',
           dismissible: false,
-          content: t('datasource:batch.inProgressDesc'),
+          content: t('common:batch.inProgressDesc'),
           id: 'info',
         },
       ]);
@@ -423,11 +453,11 @@ const BatchOperation: React.FC = () => {
         />
       }
       content={
-        <ContentLayout disableOverlap header={<AddAccountHeader />}>
+        <ContentLayout disableOverlap header={<AddBatchOperationHeader type={type}/>}>
           <Tabs
             tabs={[
               {
-                label: t('datasource:batch.tab'),
+                label: genTabName(type, t),
                 id: 'title',
                 content: (
                   <BatchOperationContent
@@ -474,7 +504,7 @@ const BatchOperation: React.FC = () => {
             }
             header={t('confirm')}
           >
-            {t('datasource:batch.dismissAlert')}
+            {t('common:batch.dismissAlert')}
           </Modal>
         </ContentLayout>
       }

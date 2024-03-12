@@ -1,5 +1,8 @@
 import json
+import os
+import tempfile
 import boto3
+import openpyxl
 from common.constant import const
 from common.response_wrapper import S3WrapEncoder
 from common.exception_handler import BizException
@@ -7,11 +10,12 @@ from common.enum import MessageEnum, DatabaseType, IdentifierDependency, Identif
 from common.query_condition import QueryCondition
 from common.reference_parameter import admin_bucket_name
 from catalog.service_dashboard import get_database_by_identifier
+from common import concurrent_upload2s3
 from template import schemas, crud
 
 
 caller_identity = boto3.client('sts').get_caller_identity()
-
+__s3_client = boto3.client('s3')
 
 def get_identifiers(condition: QueryCondition):
     return crud.get_identifiers(condition)
@@ -169,3 +173,45 @@ def check_rule(identifier):
     if identifier.type == IdentifierType.CUSTOM.value and identifier.header_keywords and '""' in identifier.header_keywords[1:-1].split(","):
         raise BizException(MessageEnum.TEMPLATE_HEADER_KEYWORDS_EMPTY.get_code(),
                            MessageEnum.TEMPLATE_HEADER_KEYWORDS_EMPTY.get_msg())
+
+
+def export_identify(key):
+    default_sheet = "Sheet"
+    workbook = openpyxl.Workbook()
+    sheet = workbook.create_sheet("IDENTIFY", index=0)
+    if default_sheet in workbook.sheetnames and len(workbook.sheetnames) > 1:
+        origin_sheet = workbook[default_sheet]
+        workbook.remove(origin_sheet)
+    sheet.append(const.EXPORT_IDENTIFY_HEADER)
+    result = crud.get_all_identifiers()
+    for row_num, row_data in enumerate(result, start=2):
+        for col_num, cell_value in enumerate(row_data, start=1):
+            if col_num == 3:
+                cell_value = "Customize" if cell_value == 1 else "Built in"
+            if col_num == 4:
+                cell_value = "Machine learning" if cell_value == 0 else "Regex"
+            if col_num == 5:
+                cell_value = "Non PII" if cell_value == 0 else "PII"
+            sheet.cell(row=row_num, column=col_num).value = cell_value
+    workbook.active = 0
+    file_name = f"identify_{key}.xlsx"
+    tmp_file = f"{tempfile.gettempdir()}/{file_name}"
+    report_file = f"{const.IDENTIFY_REPORT}/{file_name}"
+    workbook.save(tmp_file)
+    stats = os.stat(tmp_file)
+    if stats.st_size < 6 * 1024 * 1024:
+        __s3_client.upload_file(tmp_file, admin_bucket_name, report_file)
+    else:
+        concurrent_upload2s3(admin_bucket_name, report_file, tmp_file, __s3_client)
+    os.remove(tmp_file)
+    method_parameters = {'Bucket': admin_bucket_name, 'Key': report_file}
+    pre_url = __s3_client.generate_presigned_url(
+        ClientMethod="get_object",
+        Params=method_parameters,
+        ExpiresIn=60
+    )
+    return pre_url
+
+
+def delete_report(key):
+    __s3_client.delete_object(Bucket=admin_bucket_name, Key=f"{const.IDENTIFY_REPORT}/identify_{key}.xlsx")

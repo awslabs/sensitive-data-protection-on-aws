@@ -47,7 +47,7 @@ const AccountManagementHeader: React.FC = () => {
     } else {
       alertMsg(t('noReportFile'), 'error');
     }
-    }
+  }
   
   return (
     <Header
@@ -56,9 +56,9 @@ const AccountManagementHeader: React.FC = () => {
       actions={
         <SpaceBetween direction='horizontal' size='xs'>
         <Button onClick={() => batchExport()} disabled={downloading}>
-          {t('button.batchExport')}
+          {t('button.batchExportDS')}
         </Button>
-        <Button onClick={() => navigate(RouterEnum.BatchOperation.path)}>
+        <Button onClick={() => navigate(`${RouterEnum.BatchOperation.base}/datasource`)}>
           {t('button.batchCreate')}
         </Button>
         </SpaceBetween>

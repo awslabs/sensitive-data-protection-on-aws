@@ -118,3 +118,14 @@ def delete_prop(id: int):
 @inject_session
 def get_template_time(tid: int):
     return service.get_template_snapshot_no(tid)
+
+
+@router.post("/export-identify", response_model=BaseResponse)
+@inject_session
+def export_identify(key: str):
+    return service.export_identify(key)
+
+@router.post("/delete-report", response_model=BaseResponse)
+@inject_session
+def delete_report(key: str):
+    return service.delete_report(key)

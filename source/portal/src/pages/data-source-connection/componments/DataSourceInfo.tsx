@@ -7,9 +7,6 @@ import { getProviderByProviderId } from 'enum/common_types';
 
 const DataSourceInfo: React.FC<any> = ({ accountData }: any) => {
   const { t } = useTranslation();
-  useEffect(() => {
-    console.log('accountData is', accountData);
-  });
 
   const [providerType, setProviderType] = useState('AWS');
   // genProvider(accountData.account_provider_id)

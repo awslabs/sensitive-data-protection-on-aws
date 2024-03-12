@@ -17,6 +17,9 @@ import {
   ButtonDropdownProps,
   StatusIndicator,
   Multiselect,
+  Icon,
+  Popover,
+  // Flashbar,
 } from '@cloudscape-design/components';
 import { DATA_TYPE_ENUM, TABLE_NAME } from 'enum/common_types';
 import {
@@ -48,7 +51,7 @@ import {
   getSecrets,
   hideDataSourceS3,
   hideDataSourceRDS,
-  hideDataSourceJDBC,
+  deleteDataSourceJDBC,
   deleteDataCatalogS3,
   deleteDataCatalogRDS,
   deleteDataCatalogJDBC,
@@ -71,9 +74,13 @@ import { useTranslation } from 'react-i18next';
 import JDBCConnection from './JDBCConnection';
 import JDBCConnectionEdit from './JDBCConnectionEdit';
 import DataSourceCatalog from './DataSourceCatalog';
+import DataSourceDelete from 'pages/data-source-delete';
 
 const DataSourceList: React.FC<any> = memo((props: any) => {
   const { tagType, accountData } = props;
+  const [delFailedItems, setDelFailedItems] = React.useState([] as any);
+  const [showDelResModal, setShowDelResModal] = useState(false)
+  const [isShowDelete, setIsShowDelete] = useState(false);
   const { t } = useTranslation();
   const columnList =
     tagType === DATA_TYPE_ENUM.s3
@@ -246,6 +253,11 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
     return res;
   };
 
+  const closeDelResModal =()=>{
+    setDelFailedItems([])
+    setShowDelResModal(false)
+  }
+
   const getPageData = async () => {
     setIsLoading(true);
     setSelectedItems([]);
@@ -411,9 +423,18 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       try {
         await connectDataSourceJDBC(requestParam);
         showHideSpinner(false);
-        alertMsg(t('startConnect'), 'success');
         setSelectedItems([]);
         getPageData();
+        alertMsg(t('startConnect'), 'success');
+        // setItems([{
+        //   header: "Failed to update 4 instances",
+        //   type: "error",
+        //   content: "This is a dismissible error message.",
+        //   dismissible: true,
+        //   dismissLabel: "Dismiss message",
+        //   onDismiss: () => setItems([]),
+        //   id: "message_1"
+        // }])
       } catch (error) {
         setSelectedItems([]);
         showHideSpinner(false);
@@ -602,8 +623,9 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
     } else if (tagType === DATA_TYPE_ENUM.rds) {
       requestParam.instance = selectedItems[0].instance_id;
     } else if (tagType === DATA_TYPE_ENUM.jdbc) {
-      requestParam.instance = selectedItems[0].instance_id;
-      requestParam.account_provider = selectedItems[0].account_provider_id;
+      // requestParam.instances = selectedItems[0].instance_id;
+      // requestParam.instances = selectedItems.map((item: any)=>item.instance_id);
+      // requestParam.account_provider = selectedItems[0].account_provider_id;
     }
     showHideSpinner(true);
     try {
@@ -612,17 +634,68 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       } else if (tagType === DATA_TYPE_ENUM.rds) {
         await hideDataSourceRDS(requestParam);
       } else if (tagType === DATA_TYPE_ENUM.jdbc) {
-        await hideDataSourceJDBC(requestParam);
+        setIsShowDelete(true)
+        showHideSpinner(false);
+        return
       }
       showHideSpinner(false);
       alertMsg(t('deleteSuccess'), 'success');
       setSelectedItems([]);
       getPageData();
+
       return;
     } catch (error) {
       setSelectedItems([]);
       showHideSpinner(false);
     }
+  };
+
+  const confirmDelete = async () => {
+    const requestParam: any = {
+      account_id: selectedItems[0].account_id,
+      region: selectedItems[0].region,
+      instances: selectedItems.map((item: any)=>item.instance_id),
+      account_provider: selectedItems[0].account_provider_id
+    };
+
+
+    showHideSpinner(true);
+    // try {
+    //   await deleteTemplateMapping(requestParam.ids);
+    //   alertMsg(t('deleteSuccess'), 'success');
+    //   showHideSpinner(false);
+    //   getPageData();
+    //   setIsShowDelete(false);
+    // } catch (error) {
+    //   showHideSpinner(false);
+    // }
+    try {
+      const response:[string, string] = await deleteDataSourceJDBC(requestParam) as [string, string];
+        const res = response.filter(item=>item[1] !== '')
+        setDelFailedItems(res)
+        console.log("delete jdbc res is >>>>>>"+response)
+        showHideSpinner(false);
+        setSelectedItems([]);
+        getPageData();
+        setIsShowDelete(false);
+        if(res.length === 0){
+          alertMsg(t('deleteSuccess'), 'success');
+        } else {
+          setShowDelResModal(true)
+        }
+        return;
+    } catch (error) {
+      showHideSpinner(false);
+    }
+  };
+
+  const deleteModalProps = {
+    isShowDelete,
+    setIsShowDelete,
+    confirmDelete,
+    selectedInstances: selectedItems.map((item: any)=>item.instance_id),
+    title: t('datasource:jdbc.removeDataSource'),
+    confirmText: t('button.remove'),
   };
 
   const loadAccountSecrets = async () => {
@@ -656,6 +729,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
 
   return (
     <>
+      {/* <Flashbar items={items} /> */}
       <Table
         variant="embedded"
         className="no-shadow-list"
@@ -969,7 +1043,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
           </>
         }
         items={pageData}
-        selectionType="single"
+        selectionType={tagType === DATA_TYPE_ENUM.jdbc?"multi":"single"}
         loadingText={t('table.loadingResources') || ''}
         visibleColumns={preferences.visibleContent}
         empty={
@@ -1050,6 +1124,30 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         }
         loading={isLoading}
       />
+      <DataSourceDelete {...deleteModalProps} />
+      <Modal
+      visible={showDelResModal}
+      onDismiss={() => setShowDelResModal(false)}
+      footer={
+        <Box float="right">
+          <SpaceBetween direction="horizontal" size="xs">
+            <Button onClick={()=>closeDelResModal()}>确认</Button>
+          </SpaceBetween>
+        </Box>
+      }
+      header={t('datasource:jdbc.removeDataSource')}
+    >
+      <p>{t('datasource:jdbc.removeDataSourceFailed')}</p>
+      {delFailedItems.map((item:any) => {
+        return (<Box color="text-status-error">
+          <StatusIndicator type="error">
+            {item[0]} - {item[1]}
+          </StatusIndicator>
+      </Box>
+  )
+      })}
+      <p>{t('datasource:jdbc.confirmReason')}</p>
+    </Modal>
       <Modal
         visible={showRdsPwdModal}
         onDismiss={() => setShowRdsPwdModal(false)}

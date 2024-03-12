@@ -294,8 +294,6 @@ class OperationType(Enum):
     NOT_CONTAIN = "!:"
     IN = "in"
 
-
-
 @unique
 class AutoSyncDataAction(Enum):
     DELETE_ACCOUNT = "DeleteAccount"

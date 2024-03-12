@@ -265,8 +265,25 @@ def update_prop(id: int, prop: schemas.TemplateIdentifierProp):
     session.commit()
     return snapshot_no, get_identifier(id)
 
-
-def get_refs_by_prop(id:int):
-
+def get_refs_by_prop(id: int):
     return get_session().query(models.TemplateIdentifierPropRef).filter(
         models.TemplateIdentifierPropRef.prop_id == id).all()
+
+# ["Data identify name", "Description", "Identify type", "Category","privacy","rule","header_keywords","exclude_keywords","max_distance","min_occurrence", "Identify label"]
+def get_all_identifiers():
+    return get_session().query(models.TemplateIdentifier.name,
+                               models.TemplateIdentifier.description,
+                               models.TemplateIdentifier.type,
+                               models.TemplateIdentifier.classification,
+                               models.TemplateIdentifier.privacy,
+                               models.TemplateIdentifier.rule,
+                               models.TemplateIdentifier.header_keywords,
+                               models.TemplateIdentifier.exclude_keywords,
+                               models.TemplateIdentifier.max_distance,
+                               models.TemplateIdentifier.min_occurrence,
+                               models.TemplateIdentifierProp.prop_name
+                               ).outerjoin(models.TemplateIdentifierPropRef,
+                                           models.TemplateIdentifier.id == models.TemplateIdentifierPropRef.identifier_id
+                                           ).outerjoin(models.TemplateIdentifierProp,
+                                                       models.TemplateIdentifierPropRef.prop_id == models.TemplateIdentifierProp.id
+                                                       ).all()

@@ -1200,11 +1200,12 @@ def delete_catalog_by_account_region(account_id: str, region: str):
         )
     try:
         crud.delete_catalog_column_level_classification_by_account_region(account_id, region)
-    except Exception:
-        raise BizException(
-            MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_code(),
-            MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_msg(),
-        )
+    except Exception as e:
+        print(f"{str(e)}")
+        # raise BizException(
+        #     MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_code(),
+        #     MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_msg(),
+        # )
     return True
 
 
@@ -1225,11 +1226,37 @@ def delete_catalog_by_database_region(database: str, region: str, type: str):
         )
     try:
         crud.delete_catalog_column_level_classification_by_database_region(database, region, type)
+    except Exception as e:
+        print(f"{str(e)}")
+        # raise BizException(
+        #     MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_code(),
+        #     MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_msg(),
+        # )
+    return True
+
+def delete_catalog_by_database_region_batch(database: str, region: str, type: str):
+    try:
+        crud.delete_catalog_database_level_classification_by_database_region_batch(database, region, type)
     except Exception:
         raise BizException(
-            MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_code(),
-            MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_msg(),
+            MessageEnum.CATALOG_DATABASE_DELETE_FAILED.get_code(),
+            MessageEnum.CATALOG_DATABASE_DELETE_FAILED.get_msg(),
         )
+    try:
+        crud.delete_catalog_table_level_classification_by_database_region_batch(database, region, type)
+    except Exception:
+        raise BizException(
+            MessageEnum.CATALOG_TABLE_DELETE_FAILED.get_code(),
+            MessageEnum.CATALOG_TABLE_DELETE_FAILED.get_msg(),
+        )
+    try:
+        crud.delete_catalog_column_level_classification_by_database_region_batch(database, region, type)
+    except Exception as e:
+        print(f"{str(e)}")
+        # raise BizException(
+        #     MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_code(),
+        #     MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_msg(),
+        # )
     return True
 
 

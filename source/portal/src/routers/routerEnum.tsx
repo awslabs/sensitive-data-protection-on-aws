@@ -17,6 +17,7 @@ import BatchOperation from 'pages/batch-operation';
 import SystemSetting from 'pages/system-settings';
 
 interface RouterEnumType {
+  base?: string;
   path: string;
   element: JSX.Element;
 }
@@ -68,7 +69,8 @@ export const RouterEnum: Record<string, RouterEnumType> = {
     element: <TimeLine />,
   },
   BatchOperation: {
-    path: '/batch-operation',
+    base: '/batch-operation',
+    path: '/batch-operation/:type',
     element: <BatchOperation />,
   },
   SystemSettings: {

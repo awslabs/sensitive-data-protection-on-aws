@@ -126,6 +126,8 @@ const.RDS_STR = "RDS"
 const.GLUE_STR = "GLUE"
 const.JDBC_STR = "JDBC"
 const.DATASOURCE_REPORT = "report/datasource"
+const.IDENTIFY_REPORT = "report/identify"
+const.EXPORT_IDENTIFY_HEADER = ["Data identify name", "Description", "Identify type", "Category","privacy","rule","header_keywords","exclude_keywords","max_distance","min_occurrence", "Identify label"]
 
 const.UNSTRUCTURED_FILES = {
     "document": ["doc", "docx", "pdf", "ppt", "pptx", "xls", "xlsx", "odp"],

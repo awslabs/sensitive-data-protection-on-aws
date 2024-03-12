@@ -119,8 +119,8 @@ const hideDataSourceRDS = async (params: any) => {
   return result;
 };
 
-const hideDataSourceJDBC = async (params: any) => {
-  const result = await apiRequest('post', 'data-source/hide-jdbc', params);
+const deleteDataSourceJDBC = async (params: any) => {
+  const result = await apiRequest('post', 'data-source/delete-jdbc', params);
   return result;
 };
 
@@ -331,7 +331,7 @@ export {
   getDataSourceJdbcByPage,
   hideDataSourceS3,
   hideDataSourceRDS,
-  hideDataSourceJDBC,
+  deleteDataSourceJDBC,
   deleteDataCatalogS3,
   deleteDataCatalogRDS,
   deleteDataCatalogJDBC,
