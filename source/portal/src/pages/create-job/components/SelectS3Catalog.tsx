@@ -64,7 +64,7 @@ const SelectS3Catalog: React.FC<SelectS3CatalogProps> = (
     query: s3Query,
     setQuery: setS3Query,
     columnList: S3_CATALOG_FILTER_COLUMNS.filter((i) => i.filter),
-    tableName: TABLE_NAME.CATALOG_DATABASE_LEVEL_CLASSIFICATION,
+    tableName: TABLE_NAME.SOURCE_S3_BUCKET,
     filteringPlaceholder: t('job:filterBuckets'),
   };
 
@@ -76,7 +76,6 @@ const SelectS3Catalog: React.FC<SelectS3CatalogProps> = (
 
   const getS3CatalogData = async () => {
     setIsLoading(true);
-    // setSelectedItems([]);
     const requestParam = {
       page: currentPage,
       size: preferences.pageSize,
@@ -84,20 +83,12 @@ const SelectS3Catalog: React.FC<SelectS3CatalogProps> = (
       asc: false,
       conditions: [] as any,
     };
-
-    s3Query.tokens?.forEach((item: any) => {
-      requestParam.conditions.push({
-        column: item.propertyKey,
-        values: [`${item.value}`],
-        condition: 'and',
-        operation: item.operator,
-      });
+    requestParam.conditions.push({
+      column: COLUMN_OBJECT_STR.GlueState,
+      values: ['UNCONNECTED'],
+      condition: s3Query.operation,
+      operation: '!=',
     });
-    // requestParam.conditions.push({
-    //   column: COLUMN_OBJECT_STR.,
-    //   values: [(selectedCrawler as any).value === 'connected' ? 'ACTIVE' : ''],
-    //   condition: s3Query.operation,
-    // });
     const result: any = await getDataSourceS3ByPage(requestParam);
     console.info('result:', result);
     setIsLoading(false);

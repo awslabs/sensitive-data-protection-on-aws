@@ -13,6 +13,7 @@ export const COLUMN_OBJECT_STR = {
   Region: 'region',
   LastModifyBy: 'modify_by',
   LastModifyAt: 'modify_time',
+  GlueState: 'glue_state',
 };
 
 export const S3_CATALOG_FILTER_COLUMNS = [
