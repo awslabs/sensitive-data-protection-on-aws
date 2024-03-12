@@ -13,11 +13,12 @@ export const COLUMN_OBJECT_STR = {
   Region: 'region',
   LastModifyBy: 'modify_by',
   LastModifyAt: 'modify_time',
+  GlueState: 'glue_state',
 };
 
 export const S3_CATALOG_FILTER_COLUMNS = [
   {
-    id: COLUMN_OBJECT_STR.DatabaseName,
+    id: 'bucket_name',
     label: 'table.label.bucketName',
     filter: true,
   },

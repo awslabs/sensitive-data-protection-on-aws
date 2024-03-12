@@ -7,7 +7,7 @@
   "organization": "组织",
   "filterBuckets": "过滤存储桶",
   "filterInstances": "筛选实例",
-  "connectToRDSDataSource": "连接到 RDS 数据源",
+  "connectToRDSDataSource": "授权 RDS 数据源",
   "rdsInstances": "RDS 实例",
   "credential": "认证方式",
   "security": "安全组",
