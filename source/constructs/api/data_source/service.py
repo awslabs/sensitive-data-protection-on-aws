@@ -1638,7 +1638,7 @@ def get_secrets(provider: int, account: str, region: str):
                                   region_name=region_aws
                                   )
     """ :type : pyboto3.secretsmanager """
-    response = secretsmanager.list_secrets()
+    response = secretsmanager.list_secrets(MaxResults=100)
     secrets = []
     for secret in response['SecretList']:
         secrets.append(
