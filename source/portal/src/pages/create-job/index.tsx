@@ -63,7 +63,22 @@ export const convertDataSourceListToJobDatabases = (
       account_id: element.account_id,
       region: element.region,
       database_type: source_type,
-      database_name: element.database_name,
+      database_name: element.instance_id,
+      table_name: '',
+    };
+  });
+};
+
+export const convertGlueDataSourceListToJobDatabases = (
+  dataSources: IDataSourceType[],
+  source_type: string
+) => {
+  return dataSources.map((element) => {
+    return {
+      account_id: element.account_id,
+      region: element.region,
+      database_type: source_type,
+      database_name: element.glue_database_name,
       table_name: '',
     };
   });
@@ -351,7 +366,7 @@ const CreateJobContent = () => {
     try {
       const result: any = await createJob(requestParamJob);
       if (result && result.id && jobData.frequencyType === 'on_demand_run') {
-        await startJob(result);
+        startJob(result);
       }
       setIsLoading(true);
       alertMsg(t('submitSuccess'), 'success');

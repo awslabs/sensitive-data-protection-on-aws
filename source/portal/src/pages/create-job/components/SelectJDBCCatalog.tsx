@@ -16,7 +16,7 @@ import {
   COLUMN_OBJECT_STR,
 } from '../types/create_data_type';
 import { getDataBaseByType, searchCatalogTables } from 'apis/data-catalog/api';
-import { formatNumber, formatSize } from 'tools/tools';
+import { alertMsg, formatNumber, formatSize } from 'tools/tools';
 import CommonBadge from 'pages/common-badge';
 import {
   BADGE_TYPE,
@@ -34,6 +34,7 @@ import {
   CATALOG_TABLE_FILTER_COLUMN,
   RDS_FILTER_COLUMN,
 } from 'pages/data-catalog/types/data_config';
+import { getDataSourceJdbcByPage } from 'apis/data-source/api';
 
 interface SelectJDBCCatalogProps {
   jobData: IJobType;
@@ -87,31 +88,28 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
     const requestParam = {
       page: currentPage,
       size: preferences.pageSize,
-      sort_column: '',
-      asc: true,
-      conditions: [
-        {
-          column: 'database_type',
-          values:
-            jobData.database_type === 'jdbc_aws'
-              ? ['jdbc_aws']
-              : [jobData.database_type],
-          operation: 'in',
-          condition: 'and',
-        },
-      ] as any,
+      sort_column: COLUMN_OBJECT_STR.LastModifyAt,
+      asc: false,
+      conditions: [] as any,
     };
-    jdbcQuery.tokens &&
-      jdbcQuery.tokens.forEach((item: any) => {
-        requestParam.conditions.push({
-          column: item.propertyKey,
-          values: [`${item.value}`],
-          condition: jdbcQuery.operation,
-        });
-      });
-    const dataResult = await getDataBaseByType(requestParam);
-    setJdbcCatalogData((dataResult as any)?.items);
-    setJdbcTotal((dataResult as any)?.total);
+    requestParam.conditions.push({
+      column: COLUMN_OBJECT_STR.GlueState,
+      values: ['UNCONNECTED'],
+      condition: jdbcQuery.operation,
+      operation: '!=',
+    });
+    const result: any = await getDataSourceJdbcByPage(
+      requestParam,
+      parseInt(jobData.provider_id)
+    );
+    console.info('result:', result);
+    setIsLoading(false);
+    if (!result?.items) {
+      alertMsg(t('loadDataError'), 'error');
+      return;
+    }
+    setJdbcCatalogData(result.items);
+    setJdbcTotal(result.total);
     setIsLoading(false);
   };
 
