@@ -366,7 +366,7 @@ const CreateJobContent = () => {
     try {
       const result: any = await createJob(requestParamJob);
       if (result && result.id && jobData.frequencyType === 'on_demand_run') {
-        await startJob(result);
+        startJob(result);
       }
       setIsLoading(true);
       alertMsg(t('submitSuccess'), 'success');
