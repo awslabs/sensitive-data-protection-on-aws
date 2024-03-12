@@ -63,7 +63,22 @@ export const convertDataSourceListToJobDatabases = (
       account_id: element.account_id,
       region: element.region,
       database_type: source_type,
-      database_name: element.database_name,
+      database_name: element.instance_id,
+      table_name: '',
+    };
+  });
+};
+
+export const convertGlueDataSourceListToJobDatabases = (
+  dataSources: IDataSourceType[],
+  source_type: string
+) => {
+  return dataSources.map((element) => {
+    return {
+      account_id: element.account_id,
+      region: element.region,
+      database_type: source_type,
+      database_name: element.glue_database_name,
       table_name: '',
     };
   });
