@@ -14,7 +14,7 @@ import {
   S3_CATALOG_FILTER_COLUMNS,
 } from '../types/create_data_type';
 import { getDataSourceS3ByPage } from 'apis/data-source/api';
-import { formatSize } from 'tools/tools';
+import { alertMsg, formatSize } from 'tools/tools';
 import CommonBadge from 'pages/common-badge';
 import {
   BADGE_TYPE,
@@ -76,36 +76,37 @@ const SelectS3Catalog: React.FC<SelectS3CatalogProps> = (
 
   const getS3CatalogData = async () => {
     setIsLoading(true);
+    // setSelectedItems([]);
     const requestParam = {
       page: currentPage,
       size: preferences.pageSize,
-      sort_column: '',
-      asc: true,
-      conditions: [
-        {
-          column: 'glue_state',
-          values: ['ACTIVE'],
-          condition: 'and',
-          operation: ':',
-        },
-      ] as any,
+      sort_column: COLUMN_OBJECT_STR.LastModifyAt,
+      asc: false,
+      conditions: [] as any,
     };
-    if (s3Query.tokens) {
-      s3Query.tokens.forEach((item: any) => {
-        requestParam.conditions.push({
-          column:
-            item.propertyKey === COLUMN_OBJECT_STR.DatabaseName
-              ? COLUMN_OBJECT_STR.BucketName
-              : item.propertyKey,
-          values: [`${item.value}`],
-          condition: s3Query.operation,
-        });
+
+    s3Query.tokens?.forEach((item: any) => {
+      requestParam.conditions.push({
+        column: item.propertyKey,
+        values: [`${item.value}`],
+        condition: 'and',
+        operation: item.operator,
       });
-    }
-    const dataResult = await getDataSourceS3ByPage(requestParam);
-    setS3CatalogData((dataResult as any)?.items);
-    setS3Total((dataResult as any)?.total);
+    });
+    // requestParam.conditions.push({
+    //   column: COLUMN_OBJECT_STR.,
+    //   values: [(selectedCrawler as any).value === 'connected' ? 'ACTIVE' : ''],
+    //   condition: s3Query.operation,
+    // });
+    const result: any = await getDataSourceS3ByPage(requestParam);
+    console.info('result:', result);
     setIsLoading(false);
+    if (!result?.items) {
+      alertMsg(t('loadDataError'), 'error');
+      return;
+    }
+    setS3CatalogData(result.items);
+    setS3Total(result.total);
   };
 
   const buildPrivacyColumn = (item: any, e: any) => {
