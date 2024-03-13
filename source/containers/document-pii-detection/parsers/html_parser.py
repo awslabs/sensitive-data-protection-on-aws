@@ -11,13 +11,12 @@ class HtmlParser(BaseParser):
         super().__init__(s3_client=s3_client)
         # additional PdfParser constructor code here
 
-    def parse_file(self, html_path):
+    def parse_file(self, html_stream):
         """
         Extracts text from a html file and returns a string of content.
         """
 
-        with open(html_path, "rb") as stream:
-            soup = BeautifulSoup(stream, 'lxml')
+        soup = BeautifulSoup(html_stream, 'lxml')
 
         # Convert tables to ASCII ones
         soup = self._replace_tables(soup)
