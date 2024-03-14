@@ -56,6 +56,9 @@ const CommonBadge: React.FC<CommonBadgeProps> = (props: CommonBadgeProps) => {
     'system-mark-badge':
       badgeLabel === CLSAAIFIED_TYPE.SystemMark ||
       labelType === CLSAAIFIED_TYPE.SystemMark,
+    'authorized-badge':
+      badgeLabel === CLSAAIFIED_TYPE.Authorized ||
+      labelType === CLSAAIFIED_TYPE.Authorized,
     'failed-badge':
       badgeLabel === CLSAAIFIED_TYPE.Failed ||
       labelType === CLSAAIFIED_TYPE.Failed,
@@ -87,7 +90,7 @@ const CommonBadge: React.FC<CommonBadgeProps> = (props: CommonBadgeProps) => {
     case 'SUCCEEDED':
       iconName = 'status-positive';
       break;
-    case 'CONNECTED':
+    case 'AUTHORIZED':
         iconName = 'status-info';
         break;
     case 'ACTIVE':

@@ -866,7 +866,7 @@ def copy_properties(jdbc_instance_target: JDBCInstanceSource, jdbc_instance_orig
     jdbc_instance_target.glue_crawler = jdbc_instance_origin.glue_crawler
     jdbc_instance_target.glue_connection = jdbc_instance_origin.glue_connection
     jdbc_instance_target.create_type = jdbc_instance_origin.create_type
-    jdbc_instance_target.glue_state = ConnectionState.CONNECTED.value
+    jdbc_instance_target.glue_state = ConnectionState.AUTHORIZED.value
     return jdbc_instance_target
 
 def add_jdbc_conn(jdbcConn: schemas.JDBCInstanceSourceFullInfo):

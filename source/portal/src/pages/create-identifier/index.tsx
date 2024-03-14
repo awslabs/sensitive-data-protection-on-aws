@@ -191,6 +191,16 @@ const CreateIdentifierContent = (props: any) => {
     return isReg;
   };
 
+  const changeMaxDistance = (value: string)=>{
+      if(value === '0') return
+      setMaxDistance(value)
+  }
+
+  const changeMinOccurrence = (value: string)=>{
+    if(value === '0') return
+      setMinOccurrence(value)
+  }
+
   const submitIdentifier = async () => {
     if (!identifierName) {
       alertMsg(t('identifier:inputName'), 'error');
@@ -508,7 +518,7 @@ const CreateIdentifierContent = (props: any) => {
                 type="number"
                 value={minOccurrence}
                 onChange={({ detail }) => {
-                  setMinOccurrence(detail.value);
+                  changeMinOccurrence(detail.value);
                 }}
                 placeholder="2"
               />
@@ -522,7 +532,7 @@ const CreateIdentifierContent = (props: any) => {
                 type="number"
                 value={maxDistance}
                 onChange={({ detail }) => {
-                  setMaxDistance(detail.value);
+                  changeMaxDistance(detail.value);
                 }}
                 placeholder="50"
               />
