@@ -242,6 +242,7 @@ class CatalogModifier(Enum):
 class ConnectionState(Enum):
     PENDING = "PENDING"
     CRAWLING = "CRAWLING"
+    CONNECTED = "CONNECTED"
     ACTIVE = "ACTIVE"
     UNSUPPORTED = "UNSUPPORTED FILE TYPES"
     ERROR = "ERROR"

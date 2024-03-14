@@ -87,6 +87,9 @@ const CommonBadge: React.FC<CommonBadgeProps> = (props: CommonBadgeProps) => {
     case 'SUCCEEDED':
       iconName = 'status-positive';
       break;
+    case 'CONNECTED':
+        iconName = 'status-info';
+        break;
     case 'ACTIVE':
       iconName = 'status-positive';
       break;

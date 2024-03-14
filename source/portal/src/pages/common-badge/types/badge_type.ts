@@ -14,6 +14,7 @@ export const CLSAAIFIED_TYPE = {
   Manual: 'Manual',
   SystemMark: 'System(?)',
   Success: 'Success',
+  Connected: 'Connected',
   Unconnected: 'Unconnected',
   Failed: 'Failed',
   Completed: 'Completed',

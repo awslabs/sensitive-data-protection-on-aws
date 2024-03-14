@@ -782,6 +782,10 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                       tempType = CLSAAIFIED_TYPE.SystemMark;
                       tempIsLoading = true;
                       break;
+                    case 'CONNECTED':
+                        tempLabel = 'CONNECTED';
+                        tempType = CLSAAIFIED_TYPE.Connected;
+                        break;
                     case 'ACTIVE':
                       tempLabel = 'ACTIVE';
                       tempType = CLSAAIFIED_TYPE.Success;

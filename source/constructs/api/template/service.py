@@ -261,7 +261,7 @@ def download_batch_file(filename: str):
 def batch_create(file: UploadFile = File(...)):
     res_column_index = 10
     time_str = time.time()
-    jdbc_from_excel_set = set()
+    identifier_from_excel_set = set()
     created_jdbc_list = []
     account_set = set()
     # Check if the file is an Excel file
@@ -281,19 +281,19 @@ def batch_create(file: UploadFile = File(...)):
     sheet.insert_cols(10, amount=2)
     sheet.cell(row=2, column=10, value="Result")
     sheet.cell(row=2, column=11, value="Details")
-    # accounts = crud.get_enable_account_list()
-    # accounts_list = [f"{account[0]}/{account[1]}/{account[2]}" for account in accounts]
+    identifiers = crud.get_all_identifiers()
+    identifier_list = [{identifier[0]} for identifier in identifiers]
     for row_index, row in enumerate(sheet.iter_rows(min_row=3), start=2):
         if all(cell.value is None for cell in row):
             continue
         res, msg = __check_empty_for_field(row, header)
         if res:
             insert_error_msg_2_cells(sheet, row_index, msg, res_column_index)
-        elif f"{row[10].value}/{row[8].value}/{row[9].value}/{row[0].value}" in jdbc_from_excel_set:
-            insert_error_msg_2_cells(sheet, row_index, f"The value of {header[0]}, {header[8]}, {header[9]}, {header[10]}  already exist in the preceding rows", res_column_index)
-        elif f"{row[10].value}/{row[8].value}/{row[9].value}" not in accounts_list:
+        elif f"{row[0].value}" in identifier_from_excel_set:
+            insert_error_msg_2_cells(sheet, row_index, f"The value of {header[0]}  already exist in the preceding rows", res_column_index)
+        elif f"{row[0].value}" in identifier_list:
             # Account.account_provider_id, Account.account_id, Account.region
-            insert_error_msg_2_cells(sheet, row_index, "The account is not existed!", res_column_index)
+            insert_error_msg_2_cells(sheet, row_index, "A data identifier with the same name already exists", res_column_index)
         else:
             jdbc_from_excel_set.add(f"{row[10].value}/{row[8].value}/{row[9].value}/{row[0].value}")
             account_set.add(f"{row[10].value}/{row[8].value}/{row[9].value}")
