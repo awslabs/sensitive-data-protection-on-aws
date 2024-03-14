@@ -11,8 +11,9 @@ import tempfile
 import pathlib
 from collections import defaultdict
 import cProfile
-
+from multiprocessing import Process, Queue, Lock
 from parser_factory import ParserFactory
+import io
 
 
 def remove_symbols(input_string):
@@ -204,6 +205,66 @@ def create_glue_table(glue_client, database_name, table_name, glue_table_info):
     print(response)
 
 
+# Worker function to process a detection_files item
+def worker(queue,
+           lock,
+           crawler_result_bucket_name,
+           destination_database,
+           original_file_bucket_name):
+    while not queue.empty():
+        with lock:
+            item = queue.get()
+            if item is None:
+                break
+
+        glue_client = boto3.client('glue', region_name='cn-northwest-1')
+        s3_client = boto3.client('s3', region_name='cn-northwest-1')
+        file_category = item[0]
+        file = item[1]
+        file_path = file[0]
+        file_info = file[1]
+        try:
+            print('Worker is processing... ' + file_path)
+            file_contents = batch_process_files(s3_client, original_file_bucket_name, file_info, file_category)
+            # print(file_contents)
+            # split file_contents into several dictionaries, with which contain 100 files at most
+            split_file_contents_list = split_dictionary(file_contents, chunk_size=100)
+            len_split_file_contents_list = len(split_file_contents_list)
+            for split_file_content_id, split_file_contents in enumerate(split_file_contents_list):
+                # convert file_contents to dataframe
+                df = pd.DataFrame.from_dict(split_file_contents, orient='index')
+                df = df.transpose()
+                columns = df.columns.tolist()
+
+                # dump file_info into string and encode in base64 as filename
+                file_path = file_path.lstrip('./')
+                file_path_process_list = file_path.split('/')
+                if len_split_file_contents_list > 1:
+                    file_path_process_list = file_path_process_list[:-1] + [
+                        f"part{str(split_file_content_id)}"] + file_path_process_list[-1:]
+
+                table_name = '_'.join(file_path_process_list)
+
+                table_name = table_name.replace('.', '_')
+                table_name = original_file_bucket_name + '_' + table_name
+
+                # save to csv and upload to s3
+                with tempfile.NamedTemporaryFile(mode='w') as temp:
+                    csv_file_path = temp.name
+                    df.to_csv(csv_file_path, header=False)
+                    s3_client.upload_file(csv_file_path, crawler_result_bucket_name,
+                                          f"parser_results/{table_name}/result.csv")
+
+                glue_table_info = organize_table_info(table_name, crawler_result_bucket_name,
+                                                      original_file_bucket_name, file_info, columns, file_category,
+                                                      split_file_content_id)
+                create_glue_table(glue_client, destination_database, table_name, glue_table_info)
+
+        except Exception as e:
+            print(f"Error occured processing {file_path}. Error message: {e}")
+        print('Worker is finished on ' + file_path)
+
+
 def main():
     original_bucket_name = 'yiyan-test-s6-100partition'  # param_dict['SourceBucketName']
     crawler_result_bucket_name = 'sdps-agent-agents3bucket37b73ecb-veydzutbtwma'  # param_dict['ResultBucketName']
@@ -244,52 +305,105 @@ def main():
         with open(temp_file_path, 'r') as f:
             print(f)
             bucket_info = json.load(f)
-            print(bucket_info)
 
     # 4. Batch process files in same folder with same type
+    queue = Queue()
+    lock = Lock()
+
     original_file_bucket_name = bucket_info['bucket_name']
+    num_items = 0
     for file_category in ['detection_files', 'include_files', 'exclude_files']:
-        files = bucket_info[file_category]
-        for file_path, file_info in files.items():
-            print(f"Processing {file_path}...")
-            try:
-                file_contents = batch_process_files(s3_client, original_file_bucket_name, file_info, file_category)
+        for files in bucket_info[file_category].items():
+            queue.put((file_category, files))
+            num_items += 1
+        # files = bucket_info[file_category]
 
-                # split file_contents into several dictionaries, with which contain 100 files at most
-                split_file_contents_list = split_dictionary(file_contents, chunk_size=100)
-                len_split_file_contents_list = len(split_file_contents_list)
-                for split_file_content_id, split_file_contents in enumerate(split_file_contents_list):
-                    # convert file_contents to dataframe
-                    df = pd.DataFrame.from_dict(split_file_contents, orient='index')
-                    df = df.transpose()
-                    columns = df.columns.tolist()
+    processes = []
+    # Create up to X processes
+    num_workers = min(5, num_items)
+    for _ in range(num_workers):
+        p = Process(
+            target=worker,
+            args=(
+                queue,
+                lock,
+                crawler_result_bucket_name,
+                destination_database,
+                original_file_bucket_name
+            )
+        )
+        processes.append(p)
+        p.start()
 
-                    # dump file_info into string and encode in base64 as filename
-                    file_path = file_path.lstrip('./')
-                    file_path_process_list = file_path.split('/')
-                    if len_split_file_contents_list > 1:
-                        file_path_process_list = file_path_process_list[:-1] + [
-                            f"part{str(split_file_content_id)}"] + file_path_process_list[-1:]
+    # Add None to the queue to signal workers to exit
+    for _ in range(num_workers):
+        queue.put(None)
 
-                    table_name = '_'.join(file_path_process_list)
+    # Wait for all worker processes to finish
+    for p in processes:
+        p.join()
 
-                    table_name = table_name.replace('.', '_')
-                    table_name = original_file_bucket_name + '_' + table_name
+        # for file_path, file_info in files.items():
+        #     process_detection_file(crawler_result_bucket_name, destination_database, detection_files_queue.get(), file_category,
+        #                   glue_client, original_file_bucket_name, s3_client)
 
-                    # save to csv and upload to s3
-                    with tempfile.NamedTemporaryFile(mode='w') as temp:
-                        csv_file_path = temp.name
-                        df.to_csv(csv_file_path, header=False)
-                        s3_client.upload_file(csv_file_path, crawler_result_bucket_name,
-                                              f"parser_results/{table_name}/result.csv")
 
-                    glue_table_info = organize_table_info(table_name, crawler_result_bucket_name,
-                                                          original_file_bucket_name, file_info, columns, file_category,
-                                                          split_file_content_id)
-                    create_glue_table(glue_client, destination_database, table_name, glue_table_info)
+def process_detection_file(
+        crawler_result_bucket_name,
+        destination_database,
+        files,
+        file_category,
+        # glue_client,
+        original_file_bucket_name,
+        # s3_client,
+        queue):
+    glue_client = boto3.client('glue', region_name='cn-northwest-1')
+    s3_client = boto3.client('s3', region_name='cn-northwest-1')
+    for file_path, file_info in files.items():
+        try:
+            file_contents = batch_process_files(s3_client, original_file_bucket_name, file_info, file_category)
 
-            except Exception as e:
-                print(f"Error occured processing {file_path}. Error message: {e}")
+            # split file_contents into several dictionaries, with which contain 100 files at most
+            split_file_contents_list = split_dictionary(file_contents, chunk_size=100)
+            len_split_file_contents_list = len(split_file_contents_list)
+            for split_file_content_id, split_file_contents in enumerate(split_file_contents_list):
+                # convert file_contents to dataframe
+                df = pd.DataFrame.from_dict(split_file_contents, orient='index')
+                df = df.transpose()
+                columns = df.columns.tolist()
+
+                # dump file_info into string and encode in base64 as filename
+                file_path = file_path.lstrip('./')
+                file_path_process_list = file_path.split('/')
+                if len_split_file_contents_list > 1:
+                    file_path_process_list = file_path_process_list[:-1] + [
+                        f"part{str(split_file_content_id)}"] + file_path_process_list[-1:]
+
+                table_name = '_'.join(file_path_process_list)
+
+                table_name = table_name.replace('.', '_')
+                table_name = original_file_bucket_name + '_' + table_name
+
+                # save to csv and upload to s3
+                # with tempfile.NamedTemporaryFile(mode='w') as temp:
+                #     csv_file_path = temp.name
+                #     df.to_csv(csv_file_path, header=False)
+                #     s3_client.upload_file(csv_file_path, crawler_result_bucket_name,
+                #                           f"parser_results/{table_name}/result.csv")
+
+                csv_buffer = io.StringIO()
+                df.to_csv(csv_buffer, index=False, header=False)
+                csv_data = csv_buffer.getvalue()
+                s3_client.put_object(Bucket=crawler_result_bucket_name, Key=f"parser_results/{table_name}/result.csv",
+                                     Body=csv_data)
+
+                glue_table_info = organize_table_info(table_name, crawler_result_bucket_name,
+                                                      original_file_bucket_name, file_info, columns, file_category,
+                                                      split_file_content_id)
+                create_glue_table(glue_client, destination_database, table_name, glue_table_info)
+
+        except Exception as e:
+            print(f"Error occured processing {file_path}. Error message: {e}")
 
 
 if __name__ == '__main__':
@@ -310,7 +424,7 @@ if __name__ == '__main__':
     pr.disable()
     pr.create_stats()
     pr.print_stats()
-    pr.dump_stats('stats_stream.output')
+    pr.dump_stats('stats_stream_processes.output')
 
     # main()
-
+#
