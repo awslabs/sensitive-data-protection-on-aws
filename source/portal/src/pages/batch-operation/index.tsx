@@ -24,7 +24,8 @@ import HelpInfo from 'common/HelpInfo';
 import { AMPLIFY_CONFIG_JSON, BATCH_SOURCE_ID, buildDocLink } from 'ts/common';
 import axios from 'axios';
 import { BASE_URL } from 'tools/apiRequest';
-import { downloadBatchFiles, queryBatchStatus } from 'apis/data-source/api';
+import { downloadDataSourceBatchFiles, queryBatchStatus } from 'apis/data-source/api';
+import { downloadIdentifierBatchFiles, queryIdentifierBatchStatus } from 'apis/data-template/api';
 import { alertMsg } from 'tools/tools';
 import { User } from 'oidc-client-ts';
 import { AmplifyConfigType } from 'ts/types';
@@ -38,6 +39,7 @@ enum BatchOperationStatus {
   Error = 'Error',
 }
 interface BatchOperationContentProps {
+  type: string,
   updateStatus: (
     status: BatchOperationStatus,
     success?: number,
@@ -77,7 +79,7 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
   props: BatchOperationContentProps
 ) => {
   const { t, i18n } = useTranslation();
-  const { updateStatus } = props;
+  const { updateStatus,type } = props;
   const [uploadDisabled, setUploadDisabled] = useState(false);
   const [files, setFiles] = useState([] as any);
   const [errors, setErrors] = useState([] as any);
@@ -85,12 +87,19 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
   const [loadingUpload, setLoadingUpload] = useState(false);
   const [loadingDownload, setLoadingDownload] = useState(false);
 
-  const queryStatus = async (fileId: string) => {
-    try {
-      const status: any = await queryBatchStatus({
-        batch: fileId,
-      });
+  const queryStatus = async (fileId: string, type:string) => {
 
+    try {
+      let status:any
+      if(type==="identifier"){
+        status = await queryIdentifierBatchStatus({
+          batch: fileId,
+        });
+      } else {
+        status = await queryBatchStatus({
+          batch: fileId,
+        });
+      }
       // 0: Inprogress
       // data {success: 0, failed: 1, warning: 2}a
       if (status?.success > 0 || status?.warning > 0 || status?.failed > 0) {
@@ -133,7 +142,7 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
     setFiles(file);
   };
 
-  const handleUpload = async () => {
+  const handleUpload = async (type:string) => {
     const formData = new FormData();
     formData.append('files', files[0]);
     setLoadingUpload(true);
@@ -153,7 +162,7 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
               ) || ''
             )?.id_token;
       const response = await axios.post(
-        `${BASE_URL}/data-source/batch-create`,
+        `${BASE_URL}/template/batch-create`,
         formData,
         {
           headers: {
@@ -177,7 +186,7 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
         localStorage.setItem(BATCH_SOURCE_ID, fileId);
         updateStatus(BatchOperationStatus.Inprogress);
         statusInterval = setInterval(() => {
-          queryStatus(fileId);
+          queryStatus(fileId, type);
         }, 5000);
       } else {
         setUploadProgress(0);
@@ -189,25 +198,29 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
     }
   };
 
-  const downloadReport = async () => {
+  const downloadReport = async (type:string) => {
     console.log('download template');
     setLoadingDownload(true);
-    const fileName = `template-${i18n.language}`;
-    if (fileName) {
-      const url: any = await downloadBatchFiles({
-        filename: fileName,
+    let url:any
+    if(type==="identifier"){
+      url = await downloadIdentifierBatchFiles({
+        filename: `identifier-template-${i18n.language}`,
       });
-      setLoadingDownload(false);
-      startDownload(url);
+    } else {
+      url = await downloadDataSourceBatchFiles({
+        filename: `template-${i18n.language}`,
+      });
     }
+    setLoadingDownload(false);
+    startDownload(url);
   };
 
   useEffect(() => {
     const fileId = localStorage.getItem(BATCH_SOURCE_ID);
     if (fileId) {
-      queryStatus(fileId);
+      queryStatus(fileId, type);
       statusInterval = setInterval(() => {
-        queryStatus(fileId);
+        queryStatus(fileId, type);
       }, 5000);
     }
     return () => {
@@ -229,7 +242,7 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
           <Button
             iconName="download"
             onClick={() => {
-              downloadReport();
+              downloadReport(type);
             }}
             variant="link"
             loading={loadingDownload}
@@ -298,7 +311,7 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
             variant="primary"
             loading={loadingUpload}
             disabled={uploadDisabled || files.length <= 0 || loadingUpload}
-            onClick={handleUpload}
+            onClick={()=>handleUpload(type)}
           >
             {t('button.upload')}
           </Button>
@@ -345,7 +358,7 @@ const BatchOperation: React.FC = () => {
     setLoadingDownload(true);
     const fileName = localStorage.getItem(BATCH_SOURCE_ID);
     if (fileName) {
-      const url: any = await downloadBatchFiles({
+      const url: any = await downloadDataSourceBatchFiles({
         filename: fileName,
       });
       setLoadingDownload(false);
@@ -461,6 +474,7 @@ const BatchOperation: React.FC = () => {
                 id: 'title',
                 content: (
                   <BatchOperationContent
+                    type={type}
                     updateStatus={(
                       status,
                       successCount,

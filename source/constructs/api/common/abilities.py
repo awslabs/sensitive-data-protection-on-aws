@@ -2,6 +2,8 @@ from common.enum import (Provider,
                          ProviderName,
                          DatabaseType)
 from common.reference_parameter import logger, admin_account_id
+from common.constant import const
+from openpyxl.styles import Font, PatternFill
 
 
 def convert_database_type_2_provider(database_type: str) -> int:
@@ -61,3 +63,15 @@ def query_all_vpc(ec2_client):
         response = ec2_client.describe_vpcs(NextToken=response['NextToken'])
         vpcs.append(response['Vpcs'])
     return vpcs[0]
+
+def insert_error_msg_2_cells(sheet, row_index, msg, res_column_index):
+    if msg == const.EXISTED_MSG:
+        sheet.cell(row=row_index + 1, column=res_column_index, value="WARNING")
+        sheet.cell(row=row_index + 1, column=res_column_index).font = Font(color='563112', bold=True)
+    else:
+        sheet.cell(row=row_index + 1, column=res_column_index, value="FAILED")
+        sheet.cell(row=row_index + 1, column=res_column_index).font = Font(color='FF0000', bold=True)
+    sheet.cell(row=row_index + 1, column=res_column_index + 1, value=msg)
+
+def insert_success_2_cells(sheet, row_index, res_column_index):
+    sheet.cell(row=row_index + 1, column=res_column_index, value="SUCCESSED")

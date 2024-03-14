@@ -1,7 +1,10 @@
+from io import BytesIO
 import json
 import os
 import tempfile
+import time
 import boto3
+from fastapi import File, UploadFile
 import openpyxl
 from common.constant import const
 from common.response_wrapper import S3WrapEncoder
@@ -11,6 +14,7 @@ from common.query_condition import QueryCondition
 from common.reference_parameter import admin_bucket_name
 from catalog.service_dashboard import get_database_by_identifier
 from common import concurrent_upload2s3
+from common.abilities import insert_error_msg_2_cells, insert_success_2_cells
 from template import schemas, crud
 
 
@@ -215,3 +219,117 @@ def export_identify(key):
 
 def delete_report(key):
     __s3_client.delete_object(Bucket=admin_bucket_name, Key=f"{const.IDENTIFY_REPORT}/identify_{key}.xlsx")
+
+
+def query_batch_status(filename: str):
+    success, warning, failed = 0, 0, 0
+    file_key = f"{const.BATCH_CREATE_IDENTIFIER_REPORT_PATH}/{filename}.xlsx"
+    response = __s3_client.list_objects_v2(Bucket=admin_bucket_name, Prefix=const.BATCH_CREATE_IDENTIFIER_REPORT_PATH)
+    for obj in response.get('Contents', []):
+        if obj['Key'] == file_key:
+            response = __s3_client.get_object(Bucket=admin_bucket_name, Key=file_key)
+            excel_bytes = response['Body'].read()
+            workbook = openpyxl.load_workbook(BytesIO(excel_bytes))
+            try:
+                sheet = workbook[const.BATCH_SHEET]
+            except KeyError:
+                raise BizException(MessageEnum.SOURCE_BATCH_SHEET_NOT_FOUND.get_code(),
+                                   MessageEnum.SOURCE_BATCH_SHEET_NOT_FOUND.get_msg())
+            for _, row in enumerate(sheet.iter_rows(values_only=True, min_row=3)):
+                if row[11] == "FAILED":
+                    failed += 1
+                if row[11] == "SUCCESSED":
+                    success += 1
+                if row[11] == "WARNING":
+                    warning += 1
+            return {"success": success, "warning": warning, "failed": failed}
+    return 0
+
+def download_batch_file(filename: str):
+    key = f'{const.BATCH_CREATE_IDENTIFIER_REPORT_PATH}/{filename}.xlsx'
+    if filename.startswith("identifier-template-zh"):
+        key = const.BATCH_CREATE_IDENTIFIER_TEMPLATE_PATH_CN
+    if filename.startswith("identifier-template-en"):
+        key = const.BATCH_CREATE_IDENTIFIER_TEMPLATE_PATH_EN
+    url = __s3_client.generate_presigned_url(
+        ClientMethod="get_object",
+        Params={'Bucket': admin_bucket_name, 'Key': key},
+        ExpiresIn=60
+    )
+    return url
+
+def batch_create(file: UploadFile = File(...)):
+    res_column_index = 10
+    time_str = time.time()
+    jdbc_from_excel_set = set()
+    created_jdbc_list = []
+    account_set = set()
+    # Check if the file is an Excel file
+    if not file.filename.endswith('.xlsx'):
+        raise BizException(MessageEnum.SOURCE_BATCH_CREATE_FORMAT_ERR.get_code(),
+                           MessageEnum.SOURCE_BATCH_CREATE_FORMAT_ERR.get_msg())
+    # Read the Excel file
+    content = file.file.read()
+    workbook = openpyxl.load_workbook(BytesIO(content), read_only=False)
+    try:
+        sheet = workbook.get_sheet_by_name(const.BATCH_SHEET)
+    except KeyError:
+        raise BizException(MessageEnum.SOURCE_BATCH_SHEET_NOT_FOUND.get_code(),
+                           MessageEnum.SOURCE_BATCH_SHEET_NOT_FOUND.get_msg())
+    header = [cell for cell in sheet.iter_rows(min_row=2, max_row=2, values_only=True)][0]
+    sheet.delete_cols(10, amount=2)
+    sheet.insert_cols(10, amount=2)
+    sheet.cell(row=2, column=10, value="Result")
+    sheet.cell(row=2, column=11, value="Details")
+    # accounts = crud.get_enable_account_list()
+    # accounts_list = [f"{account[0]}/{account[1]}/{account[2]}" for account in accounts]
+    for row_index, row in enumerate(sheet.iter_rows(min_row=3), start=2):
+        if all(cell.value is None for cell in row):
+            continue
+        res, msg = __check_empty_for_field(row, header)
+        if res:
+            insert_error_msg_2_cells(sheet, row_index, msg, res_column_index)
+        elif f"{row[10].value}/{row[8].value}/{row[9].value}/{row[0].value}" in jdbc_from_excel_set:
+            insert_error_msg_2_cells(sheet, row_index, f"The value of {header[0]}, {header[8]}, {header[9]}, {header[10]}  already exist in the preceding rows", res_column_index)
+        elif f"{row[10].value}/{row[8].value}/{row[9].value}" not in accounts_list:
+            # Account.account_provider_id, Account.account_id, Account.region
+            insert_error_msg_2_cells(sheet, row_index, "The account is not existed!", res_column_index)
+        else:
+            jdbc_from_excel_set.add(f"{row[10].value}/{row[8].value}/{row[9].value}/{row[0].value}")
+            account_set.add(f"{row[10].value}/{row[8].value}/{row[9].value}")
+            created_jdbc_list.append(__gen_created_jdbc(row))
+    # Query network info
+    if account_set:
+        account_info = list(account_set)[0].split("/")
+        network = query_account_network(AccountInfo(account_provider_id=account_info[0], account_id=account_info[1], region=account_info[2])) \
+            .get('vpcs', [])[0]
+        vpc_id = network.get('vpcId')
+        subnets = [subnet.get('subnetId') for subnet in network.get('subnets')]
+        security_group_id = network.get('securityGroups', [])[0].get('securityGroupId')
+        created_jdbc_list = map_network_jdbc(created_jdbc_list, vpc_id, subnets, security_group_id)
+        batch_result = asyncio.run(batch_add_conn_jdbc(created_jdbc_list))
+        result = {f"{item[0]}/{item[1]}/{item[2]}/{item[3]}": f"{item[4]}/{item[5]}" for item in batch_result}
+        for row_index, row in enumerate(sheet.iter_rows(min_row=3), start=2):
+            if row[11].value:
+                continue
+            v = result.get(f"{row[10].value}/{row[8].value}/{row[9].value}/{row[0].value}")
+            if v:
+                if v.split('/')[0] == "SUCCESSED":
+                    insert_success_2_cells(sheet, row_index, res_column_index)
+                else:
+                    insert_error_msg_2_cells(sheet, row_index, v.split('/')[1], res_column_index)
+    # Write into excel
+    excel_bytes = BytesIO()
+    workbook.save(excel_bytes)
+    excel_bytes.seek(0)
+    # Upload to S3
+    batch_create_ds = f"{const.BATCH_CREATE_IDENTIFIER_REPORT_PATH}/report_{time_str}.xlsx"
+    __s3_client.upload_fileobj(excel_bytes, admin_bucket_name, batch_create_ds)
+    return f'report_{time_str}'
+
+def __check_empty_for_field(row, header):
+    if row[0].value is None or str(row[0].value).strip() == const.EMPTY_STR:
+        return True, f"{header[0]} should not be empty"
+    if row[2].value is None or str(row[2].value).strip() == const.EMPTY_STR:
+        return True, f"{header[2]} should not be empty"
+    return False, None

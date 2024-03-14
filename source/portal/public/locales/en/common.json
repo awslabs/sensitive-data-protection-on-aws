@@ -459,7 +459,7 @@
     "tabIdentifier": "Batch identifier creation",
     "step1Title": "Step 1: Download Template",
     "step1Desc": "Follow instruction in template to fill in information",
-    "step1Download": "Download template 'BatchCreateDataSourceTemplate.xlsx'",
+    "step1Download": "Download template",
     "step2Title": "Step 2: Follow the instruction to fill in the template",
     "step2Desc": "Fill the information in the template",
     "step2Tips1": "Making sure no duplicates",

@@ -279,7 +279,7 @@ const queryBatchStatus = async (params: any) => {
   return result;
 };
 
-const downloadBatchFiles = async (params: any) => {
+const downloadDataSourceBatchFiles = async (params: any) => {
   const result = await apiRequest(
     'post',
     'data-source/download-batch-file?filename=' + params.filename,
@@ -345,7 +345,7 @@ export {
   queryJdbcDatabases,
   batchCreateDatasource,
   queryBatchStatus,
-  downloadBatchFiles,
+  downloadDataSourceBatchFiles,
   exportDatasource,
   deleteReport
 };

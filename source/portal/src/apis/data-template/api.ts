@@ -100,6 +100,24 @@ const deleteReport = async (params: any) => {
   return result;
 };
 
+const downloadIdentifierBatchFiles = async (params: any) => {
+  const result = await apiRequest(
+    'post',
+    'template/download-batch-file?filename=' + params.filename,
+    {}
+  );
+  return result;
+};
+
+const queryIdentifierBatchStatus = async (params: any) => {
+  const result = await apiRequest(
+    'post',
+    'template/query-batch-status?batch=' + params.batch,
+    {}
+  );
+  return result;
+};
+
 export {
   getTemplateMappingList,
   deleteTemplateMapping,
@@ -112,5 +130,7 @@ export {
   getIndentifierInTemplate,
   getTemplateUpdateTime,
   exportIdentify,
-  deleteReport
+  deleteReport,
+  downloadIdentifierBatchFiles,
+  queryIdentifierBatchStatus
 };

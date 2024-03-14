@@ -100,9 +100,12 @@ const.BATCH_CREATE_LIMIT = 1000
 const.BATCH_SHEET = "OriginTemplate"
 
 const.CONNECTION_DESC_MAX_LEN = 10
-const.BATCH_CREATE_TEMPLATE_PATH_CN = 'batch-create-jdbc-datasource/template/batch_create_jdbc_datasource-cn.xlsx'
-const.BATCH_CREATE_TEMPLATE_PATH_EN = 'batch-create-jdbc-datasource/template/batch_create_jdbc_datasource-en.xlsx'
-const.BATCH_CREATE_REPORT_PATH = 'batch-create-jdbc-datasource/report'
+const.BATCH_CREATE_TEMPLATE_PATH_CN = 'batch_create/datasource/template/batch_create_jdbc_datasource-cn.xlsx'
+const.BATCH_CREATE_TEMPLATE_PATH_EN = 'batch_create/datasource/template/batch_create_jdbc_datasource-en.xlsx'
+const.BATCH_CREATE_IDENTIFIER_TEMPLATE_PATH_CN = 'batch_create/identifier/template/batch_create_identifier-cn.xlsx'
+const.BATCH_CREATE_IDENTIFIER_TEMPLATE_PATH_EN = 'batch_create/identifier/template/batch_create_identifier-en.xlsx'
+const.BATCH_CREATE_REPORT_PATH = 'batch_create/datasource/report'
+const.BATCH_CREATE_IDENTIFIER_REPORT_PATH = 'batch_create/identifier/report'
 const.EXISTED_MSG = 'JDBC connection with the same instance already exists'
 
 const.CONFIG_CONCURRENT_RUN_JOB_NUMBER = 'ConcurrentRunJobNumber'

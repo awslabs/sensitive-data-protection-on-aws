@@ -14,13 +14,12 @@ from typing import List
 import boto3
 from fastapi import File, UploadFile
 import openpyxl
-from openpyxl.styles import Font, PatternFill
 import pymysql
 from botocore.exceptions import ClientError
 
 from catalog.service import delete_catalog_by_account_region as delete_catalog_by_account, delete_catalog_by_database_region_batch
 from catalog.service import delete_catalog_by_database_region as delete_catalog_by_database_region
-from common.abilities import (convert_provider_id_2_database_type, convert_provider_id_2_name, query_all_vpc)
+from common.abilities import (convert_provider_id_2_database_type, convert_provider_id_2_name, insert_error_msg_2_cells, insert_success_2_cells, query_all_vpc)
 from common.constant import const
 from common.enum import (MessageEnum,
                          ConnectionState,
@@ -2677,6 +2676,7 @@ def __get_glue_client(account, region):
 #     return databases
 
 def batch_create(file: UploadFile = File(...)):
+    res_column_index = 12
     time_str = time.time()
     jdbc_from_excel_set = set()
     created_jdbc_list = []
@@ -2705,20 +2705,20 @@ def batch_create(file: UploadFile = File(...)):
             continue
         res, msg = __check_empty_for_field(row, header)
         if res:
-            __add_error_msg(sheet, row_index, msg)
+            insert_error_msg_2_cells(sheet, row_index, msg, res_column_index)
         elif sheet.cell(row=row_index + 1, column=2).value not in [0, 1]:
-            __add_error_msg(sheet, row_index, f"The value of {header[1]} must be 0 or 1")
+            insert_error_msg_2_cells(sheet, row_index, f"The value of {header[1]} must be 0 or 1", res_column_index)
         elif not __validate_jdbc_url(str(row[3].value)):
-            __add_error_msg(sheet, row_index, f"The value of {header[3]} must be in the format jdbc:protocol://host:port")
+            insert_error_msg_2_cells(sheet, row_index, f"The value of {header[3]} must be in the format jdbc:protocol://host:port", res_column_index)
         elif not str(row[3].value).startswith('jdbc:mysql') and not row[4].value:
-            __add_error_msg(sheet, row_index, f"Non-MySQL-type data source {header[4]} cannot be null")
+            insert_error_msg_2_cells(sheet, row_index, f"Non-MySQL-type data source {header[4]} cannot be null", res_column_index)
         elif len(str(row[2].value)) > const.CONNECTION_DESC_MAX_LEN:
-            __add_error_msg(sheet, row_index, f"The value of {header[2]} must not exceed 2048")
+            insert_error_msg_2_cells(sheet, row_index, f"The value of {header[2]} must not exceed 2048", res_column_index)
         elif f"{row[10].value}/{row[8].value}/{row[9].value}/{row[0].value}" in jdbc_from_excel_set:
-            __add_error_msg(sheet, row_index, f"The value of {header[0]}, {header[8]}, {header[9]}, {header[10]}  already exist in the preceding rows")
+            insert_error_msg_2_cells(sheet, row_index, f"The value of {header[0]}, {header[8]}, {header[9]}, {header[10]}  already exist in the preceding rows", res_column_index)
         elif f"{row[10].value}/{row[8].value}/{row[9].value}" not in accounts_list:
             # Account.account_provider_id, Account.account_id, Account.region
-            __add_error_msg(sheet, row_index, "The account is not existed!")
+            insert_error_msg_2_cells(sheet, row_index, "The account is not existed!", res_column_index)
         else:
             jdbc_from_excel_set.add(f"{row[10].value}/{row[8].value}/{row[9].value}/{row[0].value}")
             account_set.add(f"{row[10].value}/{row[8].value}/{row[9].value}")
@@ -2740,9 +2740,9 @@ def batch_create(file: UploadFile = File(...)):
             v = result.get(f"{row[10].value}/{row[8].value}/{row[9].value}/{row[0].value}")
             if v:
                 if v.split('/')[0] == "SUCCESSED":
-                    __add_success_msg(sheet, row_index)
+                    insert_success_2_cells(sheet, row_index, res_column_index)
                 else:
-                    __add_error_msg(sheet, row_index, v.split('/')[1])
+                    insert_error_msg_2_cells(sheet, row_index, v.split('/')[1], res_column_index)
     # Write into excel
     excel_bytes = BytesIO()
     workbook.save(excel_bytes)
@@ -2817,18 +2817,6 @@ def download_batch_file(filename: str):
     )
     return url
 
-def __add_error_msg(sheet, row_index, msg):
-    if msg == const.EXISTED_MSG:
-        sheet.cell(row=row_index + 1, column=12, value="WARNING")
-        sheet.cell(row=row_index + 1, column=12).font = Font(color='563112', bold=True)
-    else:
-        sheet.cell(row=row_index + 1, column=12, value="FAILED")
-        sheet.cell(row=row_index + 1, column=12).font = Font(color='FF0000', bold=True)
-    sheet.cell(row=row_index + 1, column=13, value=msg)
-
-def __add_success_msg(sheet, row_index):
-    sheet.cell(row=row_index + 1, column=12, value="SUCCESSED")
-
 def __gen_created_jdbc(row):
     created_jdbc = JDBCInstanceSource()
     created_jdbc.instance_id = row[0].value
@@ -2867,49 +2855,6 @@ async def batch_sync_jdbc_manager(jdbc_list):
 
 async def __batch_sync_jdbc_worker(jdbc):
     sync_jdbc_connection(jdbc)
-    # return jdbc.account_provider_id, jdbc.account_id, jdbc.region, jdbc.instance_id, "SUCCESSED", None
-    # except BizException as be:
-    #     return jdbc.account_provider_id, jdbc.account_id, jdbc.region, jdbc.instance_id, "FAILED", be.__msg__()
-    # except Exception as e:
-    #     return jdbc.account_provider_id, jdbc.account_id, jdbc.region, jdbc.instance_id, "FAILED", str(e)
-# def get_schema_by_snapshot(provider_id: int, account_id: str, instance: str, region: str):
-#     res = crud.get_schema_by_snapshot(provider_id, account_id, instance, region)
-#     return res[0][0].replace(',', '\n').split('\n') if res else None, res[0][1] if res else None
-
-# def get_schema_by_real_time(provider_id: int, account_id: str, instance: str, region: str, db_info: bool = False):
-#     db, subnet_id = None, None
-#     assume_account, assume_region = __get_admin_info(JDBCInstanceSourceBase(account_provider_id=provider_id, account_id=account_id, instance_id=instance, region=region))
-#     connection_rds = crud.get_connection_by_instance(provider_id, account_id, instance, region)
-#     glue = __get_glue_client(assume_account, assume_region)
-#     connection = glue.get_connection(Name=connection_rds[0][0]).get('Connection', {})
-#     if connection_rds[0] and connection_rds[0][0]:
-#         subnet_id = connection.get('PhysicalConnectionRequirements', {}).get('SubnetId')
-#     if db_info:
-#         connection_properties = connection.get("ConnectionProperties", {})
-#         jdbc_source = JdbcSource(username=connection_properties.get("USERNAME"),
-#                                  password=connection_properties.get("PASSWORD"),
-#                                  secret_id=connection_properties.get("SECRET_ID"),
-#                                  connection_url=connection_properties.get("JDBC_CONNECTION_URL")
-#                                  )
-#         db = list_jdbc_databases(jdbc_source)
-#     return db, subnet_id
-
-# def sync_schema_by_job(provider_id: int, account_id: str, instance: str, region: str, schema: str):
-#     jdbc = JDBCInstanceSourceBase(instance_id=instance, account_provider_id=provider_id, account_id=account_id, region=region)
-#     account_id, region = __get_admin_info(jdbc)
-#     # Query Info
-#     info = crud.get_crawler_glue_db_by_instance(provider_id, account_id, instance, region)
-#     if not info:
-#         return
-#     crawler_role_arn = __gen_role_arn(account_id=account_id,
-#                                       region=region,
-#                                       role_name='GlueDetectionJobRole')
-#     db_names = schema.split("\n")
-#     jdbc_targets = __gen_jdbc_targets_from_db_names(info[0][2], db_names)
-#     # Update Crawler
-#     __update_crawler(provider_id, account_id, instance, region, jdbc_targets, info[0][0], info[0][1], crawler_role_arn)
-#     # Update RDS
-#     crud.update_schema_by_account(provider_id, account_id, instance, region, schema)
 
 def __gen_jdbc_targets_from_db_names(connection_name, db_names):
     jdbc_targets = []

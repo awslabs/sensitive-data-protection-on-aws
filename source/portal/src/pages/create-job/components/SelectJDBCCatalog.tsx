@@ -23,7 +23,7 @@ import {
   PRIVARY_TYPE_INT_DATA,
 } from 'pages/common-badge/types/badge_type';
 import ResourcesFilter from 'pages/resources-filter';
-import { JDBC_VIEW, TABLE_NAME } from 'enum/common_types';
+import { JDBC_VIEW, SOURCE_TYPE, TABLE_NAME } from 'enum/common_types';
 import { useTranslation } from 'react-i18next';
 import { IDataSourceType, IJobType } from 'pages/data-job/types/job_list_type';
 import {
@@ -98,9 +98,11 @@ const SelectJDBCCatalog: React.FC<SelectJDBCCatalogProps> = (
       condition: jdbcQuery.operation,
       operation: '!=',
     });
+    
+    const provider_id = jobData.database_type === SOURCE_TYPE.JDBC_PROXY? 4 : parseInt(jobData.provider_id)
     const result: any = await getDataSourceJdbcByPage(
       requestParam,
-      parseInt(jobData.provider_id)
+      provider_id
     );
     console.info('result:', result);
     setIsLoading(false);
