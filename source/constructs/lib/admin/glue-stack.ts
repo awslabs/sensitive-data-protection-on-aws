@@ -56,12 +56,20 @@ export class GlueStack extends Construct {
       destinationKeyPrefix: 'job/script',
     });
 
-    new S3Deployment.BucketDeployment(this, 'BatchCreateJdbcDatasource', {
+    new S3Deployment.BucketDeployment(this, 'BatchCreateDatasourceTemplate', {
       memoryLimit: 512,
       ephemeralStorageSize: Size.mebibytes(512),
-      sources: [S3Deployment.Source.asset('config/batch-create-jdbc-datasource/template')],
+      sources: [S3Deployment.Source.asset('config/batch_create/datasource/template')],
       destinationBucket: props.bucket,
-      destinationKeyPrefix: 'batch-create-jdbc-datasource/template',
+      destinationKeyPrefix: 'batch_create/datasource/template',
+    });
+
+    new S3Deployment.BucketDeployment(this, 'BatchCreateIdentifierTemplate', {
+      memoryLimit: 512,
+      ephemeralStorageSize: Size.mebibytes(512),
+      sources: [S3Deployment.Source.asset('config/batch_create/identifier/template')],
+      destinationBucket: props.bucket,
+      destinationKeyPrefix: 'batch_create/identifier/template',
     });
 
     // When upgrading, files with template as the prefix will be deleted
@@ -93,8 +101,8 @@ export class GlueStack extends Construct {
         name: table_name,
         description: 'Save SDPS glue detection data',
         partitionKeys: [{ name: 'year', type: 'smallint' },
-          { name: 'month', type: 'smallint' },
-          { name: 'day', type: 'smallint' }],
+        { name: 'month', type: 'smallint' },
+        { name: 'day', type: 'smallint' }],
         parameters: {
           classification: 'parquet',
           has_encrypted_data: 'Unencrypted',
@@ -221,8 +229,8 @@ export class GlueStack extends Construct {
         'glue:TagResource',
       ],
       resources: [`arn:${Aws.PARTITION}:glue:*:${Aws.ACCOUNT_ID}:table/${SolutionInfo.SOLUTION_GLUE_DATABASE}/*`,
-        `arn:${Aws.PARTITION}:glue:*:${Aws.ACCOUNT_ID}:database/${SolutionInfo.SOLUTION_GLUE_DATABASE}`,
-        `arn:${Aws.PARTITION}:glue:*:${Aws.ACCOUNT_ID}:catalog`],
+      `arn:${Aws.PARTITION}:glue:*:${Aws.ACCOUNT_ID}:database/${SolutionInfo.SOLUTION_GLUE_DATABASE}`,
+      `arn:${Aws.PARTITION}:glue:*:${Aws.ACCOUNT_ID}:catalog`],
     });
     addPartitionRole.addToPolicy(noramlStatement);
 
