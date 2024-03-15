@@ -1,3 +1,4 @@
+import asyncio
 from io import BytesIO
 import json
 import os
@@ -262,8 +263,9 @@ def batch_create(file: UploadFile = File(...)):
     res_column_index = 10
     time_str = time.time()
     identifier_from_excel_set = set()
-    created_jdbc_list = []
-    account_set = set()
+    created_identifier_list = []
+    category_list = crud.get_props_by_type(1)
+    label_list = crud.get_props_by_type(2)
     # Check if the file is an Excel file
     if not file.filename.endswith('.xlsx'):
         raise BizException(MessageEnum.SOURCE_BATCH_CREATE_FORMAT_ERR.get_code(),
@@ -284,40 +286,51 @@ def batch_create(file: UploadFile = File(...)):
     identifiers = crud.get_all_identifiers()
     identifier_list = [{identifier[0]} for identifier in identifiers]
     for row_index, row in enumerate(sheet.iter_rows(min_row=3), start=2):
+        props = []
         if all(cell.value is None for cell in row):
             continue
         res, msg = __check_empty_for_field(row, header)
         if res:
             insert_error_msg_2_cells(sheet, row_index, msg, res_column_index)
         elif f"{row[0].value}" in identifier_from_excel_set:
-            insert_error_msg_2_cells(sheet, row_index, f"The value of {header[0]}  already exist in the preceding rows", res_column_index)
+            insert_error_msg_2_cells(sheet, row_index, f"The value of {header[0]} already exist in the preceding rows", res_column_index)
+        elif not row[3].value and not row[4].value:
+            # Content validation rules and title keywords validation rules cannot be empty at the same time.
+            insert_error_msg_2_cells(sheet, row_index, f"The value of {header[3]} and {header[4]} cannot be empty at the same time.", res_column_index)   
+        elif row[6].value:
+            pass
+        elif row[7].value:
+            pass
+        elif row[8].value:
+            category = [category for category in category_list if category.prop_name == row[8].value]
+            if category:
+                props.append(category[0])
+            else:
+                insert_error_msg_2_cells(sheet, row_index, f"The value of {header[8]} is not existed in System, please take a check", res_column_index)
+        elif row[9].value:
+            label = [label for label in label_list if label.prop_name == row[9].value]
+            if label:
+                props.append(label[0])
+            else:
+                insert_error_msg_2_cells(sheet, row_index, f"The value of {header[9]} is not existed in System, please take a check", res_column_index)
         elif f"{row[0].value}" in identifier_list:
             # Account.account_provider_id, Account.account_id, Account.region
             insert_error_msg_2_cells(sheet, row_index, "A data identifier with the same name already exists", res_column_index)
         else:
-            jdbc_from_excel_set.add(f"{row[10].value}/{row[8].value}/{row[9].value}/{row[0].value}")
-            account_set.add(f"{row[10].value}/{row[8].value}/{row[9].value}")
-            created_jdbc_list.append(__gen_created_jdbc(row))
-    # Query network info
-    if account_set:
-        account_info = list(account_set)[0].split("/")
-        network = query_account_network(AccountInfo(account_provider_id=account_info[0], account_id=account_info[1], region=account_info[2])) \
-            .get('vpcs', [])[0]
-        vpc_id = network.get('vpcId')
-        subnets = [subnet.get('subnetId') for subnet in network.get('subnets')]
-        security_group_id = network.get('securityGroups', [])[0].get('securityGroupId')
-        created_jdbc_list = map_network_jdbc(created_jdbc_list, vpc_id, subnets, security_group_id)
-        batch_result = asyncio.run(batch_add_conn_jdbc(created_jdbc_list))
-        result = {f"{item[0]}/{item[1]}/{item[2]}/{item[3]}": f"{item[4]}/{item[5]}" for item in batch_result}
-        for row_index, row in enumerate(sheet.iter_rows(min_row=3), start=2):
-            if row[11].value:
-                continue
-            v = result.get(f"{row[10].value}/{row[8].value}/{row[9].value}/{row[0].value}")
-            if v:
-                if v.split('/')[0] == "SUCCESSED":
-                    insert_success_2_cells(sheet, row_index, res_column_index)
-                else:
-                    insert_error_msg_2_cells(sheet, row_index, v.split('/')[1], res_column_index)
+            identifier_from_excel_set.add(row[0].value)            
+            # account_set.add(f"{row[10].value}/{row[8].value}/{row[9].value}")
+            created_identifier_list.append(__gen_created_identifier(row, props))
+    batch_result = asyncio.run(batch_add_identifier(created_identifier_list))
+    result = {f"{item[0]}/{item[1]}/{item[2]}/{item[3]}": f"{item[4]}/{item[5]}" for item in batch_result}
+    for row_index, row in enumerate(sheet.iter_rows(min_row=3), start=2):
+        if row[11].value:
+            continue
+        v = result.get(f"{row[10].value}/{row[8].value}/{row[9].value}/{row[0].value}")
+        if v:
+            if v.split('/')[0] == "SUCCESSED":
+                insert_success_2_cells(sheet, row_index, res_column_index)
+            else:
+                insert_error_msg_2_cells(sheet, row_index, v.split('/')[1], res_column_index)
     # Write into excel
     excel_bytes = BytesIO()
     workbook.save(excel_bytes)
@@ -333,3 +346,28 @@ def __check_empty_for_field(row, header):
     if row[2].value is None or str(row[2].value).strip() == const.EMPTY_STR:
         return True, f"{header[2]} should not be empty"
     return False, None
+
+def __gen_created_identifier(row, props):
+    created_identifier = schemas.TemplateIdentifier()
+    created_identifier.name = row[0].value
+    created_identifier.description = str(row[1].value)
+    created_identifier.props = props
+    created_identifier.rule = row[3].value
+    created_identifier.header_keywords = row[4].value
+    created_identifier.exclude_keywords = row[5].value
+    created_identifier.max_distance = row[6].value
+    created_identifier.min_occurrence = row[7].value
+    return created_identifier
+
+async def batch_add_identifier(created_identifier_list):
+    tasks = [asyncio.create_task(__add_create_identifier_batch(identifier)) for identifier in created_identifier_list]
+    return await asyncio.gather(*tasks)
+
+async def __add_create_identifier_batch(identifier: schemas.TemplateIdentifier):
+    try:
+        create_identifier(identifier)
+        return identifier.name, "SUCCESSED", None
+    except BizException as be:
+        return identifier.name, "FAILED", be.__msg__()
+    except Exception as e:
+        return identifier.name, "FAILED", str(e)

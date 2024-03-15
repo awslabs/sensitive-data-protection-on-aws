@@ -32,5 +32,7 @@
   "minDis": "最小识别规则",
   "minDisDesc": "此值适用于任何识别规则（仅启用关键字、仅启用正则表达式，关键字和正则表达式都启用）",
   "textBased": "基于文本",
-  "imageBased": "基于图片"
+  "imageBased": "基于图片",
+  "IdentifierNameNull": "标识符名称不能为空",
+  "RuleNull": "内容的校验规则和标题关键字的校验规则不能同时为空"
 }

@@ -479,7 +479,8 @@
     "failedTitle": "批量创建数据源失败",
     "failedDesc": "{{successCount}} 成功，{{warningCount}} 警告，{{failedCount}} 失败。请下载报告并修复数据以重新上传以重试。",
     "inProgress": "进行中",
-    "inProgressDesc": "正在创建数据库，请不要关闭此窗口。预计耗时不超过15分钟。",
+    "inProgressDesc": "正在创建数据源，请不要关闭此窗口。预计耗时不超过15分钟。",
+    "inProgressIdentifierDesc": "正在创建标识符，请不要关闭此窗口。预计耗时不超过15分钟。",
     "dismissAlert": "请确保已经下载了批量导入报告，关闭此窗口后，报告将不可再次下载。"
   }
 }

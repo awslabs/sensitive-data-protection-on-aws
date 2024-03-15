@@ -5,7 +5,7 @@ const requestPropsByType = async (params: { type: string }) => {
   const result: any = await apiRequest(
     'get',
     `template/list-props-by-type/${params.type}`,
-    params
+    undefined
   );
   return result;
 };

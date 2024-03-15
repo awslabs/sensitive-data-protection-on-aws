@@ -284,3 +284,10 @@ def get_all_identifiers():
                                            ).outerjoin(models.TemplateIdentifierProp,
                                                        models.TemplateIdentifierPropRef.prop_id == models.TemplateIdentifierProp.id
                                                        ).filter(models.TemplateIdentifier.type == 1).all()
+
+
+def get_all_categories():
+    pass
+
+def get_all_labels():
+    pass

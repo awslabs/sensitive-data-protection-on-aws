@@ -144,6 +144,7 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
 
   const handleUpload = async (type:string) => {
     const formData = new FormData();
+    let questDomain = 'data-source/batch-create';
     formData.append('files', files[0]);
     setLoadingUpload(true);
     try {
@@ -161,8 +162,11 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
                 `oidc.user:${configJSONObj.aws_oidc_issuer}:${configJSONObj.aws_oidc_client_id}`
               ) || ''
             )?.id_token;
+      if(type==="identifier"){
+        questDomain="template/batch-create"
+      }
       const response = await axios.post(
-        `${BASE_URL}/template/batch-create`,
+        `${BASE_URL}/${questDomain}`,
         formData,
         {
           headers: {
@@ -436,7 +440,7 @@ const BatchOperation: React.FC = () => {
           header: t('common:batch.inProgress'),
           type: 'info',
           dismissible: false,
-          content: t('common:batch.inProgressDesc'),
+          content: type==="identifier"?t('common:batch.inProgressIdentifierDesc'):t('common:batch.inProgressDesc'),
           id: 'info',
         },
       ]);

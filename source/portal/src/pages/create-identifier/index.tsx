@@ -3,6 +3,7 @@ import {
   Button,
   Container,
   ExpandableSection,
+  Flashbar,
   FormField,
   Grid,
   Header,
@@ -75,6 +76,21 @@ const CreateIdentifierContent = (props: any) => {
     },
   } = location.state || {};
   const { t } = useTranslation();
+  // const [errorMsg, setErrorMsg] = useState('')
+  const [errorItems, setErrorItems] = React.useState([
+    // {
+    //   type: "info",
+    //   dismissible: true,
+    //   dismissLabel: "Dismiss message",
+    //   onDismiss: () => setItems([]),
+    //   content: (
+    //     <>
+    //       This is an info flash message. It contains{" "}
+    //     </>
+    //   ),
+    //   id: "message_1"
+    // }
+  ] as any);
   const [identifierName, setIdentifierName] = useState(oldData.name);
   const [identifierDescription, setIdentifierDescription] = useState(
     oldData.description
@@ -201,9 +217,35 @@ const CreateIdentifierContent = (props: any) => {
       setMinOccurrence(value)
   }
 
-  const submitIdentifier = async () => {
+  const submitIdentifier = async (t:any) => {
+    console.log(keywordList)
     if (!identifierName) {
-      alertMsg(t('identifier:inputName'), 'error');
+      // alertMsg(t('identifier:inputName'), 'error');
+      // setErrorMsg(t('identifier:IdentifierNameNull'))
+      setErrorItems([...errorItems, {
+        type: "error",
+        dismissible: true,
+        onDismiss: () => setErrorItems([]),
+        content: (
+          <>
+            {t('identifier:IdentifierNameNull')}
+          </>
+        )
+        }])
+      return;
+    }
+
+    if (!patternRex && (keywordList==null || (keywordList.length===1 && !keywordList[0]))) {
+      setErrorItems([...errorItems, {
+        type: "error",
+        dismissible: true,
+        onDismiss: () => setErrorItems([]),
+        content: (
+          <>
+            {t('identifier:RuleNull')}
+          </>
+        )
+        }])
       return;
     }
     if (!clkValidate(false)) {
@@ -294,6 +336,7 @@ const CreateIdentifierContent = (props: any) => {
   };
 
   return (
+    <>
     <Grid gridDefinition={[{ colspan: 7 }, { colspan: 5 }]}>
       <SpaceBetween
         direction="vertical"
@@ -539,21 +582,25 @@ const CreateIdentifierContent = (props: any) => {
             </FormField>
           </SpaceBetween>
         </ExpandableSection>
-
-        <div className="text-right">
+        {/* <Grid
+          gridDefinition={[{ colspan: 6 }, { colspan: 6 }]}
+        > */}
+          {/* <div style={{color:"red",paddingTop:5}}>{errorMsg &&(<><Icon name="status-warning" /> {errorMsg}</>)}</div> */}
+          <div className="text-right">
           <Button className="identifier-opt-btn" onClick={backNavigate}>
             {t('button.back')}
           </Button>
           <Button
             className="ml-10"
             variant="primary"
-            onClick={submitIdentifier}
+            onClick={()=>submitIdentifier(t)}
             loading={isLoading}
             disabled={(!identifierName && !patternRex) || oldData.type === 0}
           >
             {t('button.save')}
           </Button>
         </div>
+        {/* </Grid> */}
       </SpaceBetween>
 
       <Container
@@ -601,6 +648,8 @@ const CreateIdentifierContent = (props: any) => {
         }}
       />
     </Grid>
+    {errorItems && <Flashbar items={errorItems} />}
+    </>
   );
 };
 
