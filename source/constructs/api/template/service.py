@@ -237,11 +237,11 @@ def query_batch_status(filename: str):
                 raise BizException(MessageEnum.SOURCE_BATCH_SHEET_NOT_FOUND.get_code(),
                                    MessageEnum.SOURCE_BATCH_SHEET_NOT_FOUND.get_msg())
             for _, row in enumerate(sheet.iter_rows(values_only=True, min_row=3)):
-                if row[11] == "FAILED":
+                if row[9] == "FAILED":
                     failed += 1
-                if row[11] == "SUCCESSED":
+                if row[9] == "SUCCESSED":
                     success += 1
-                if row[11] == "WARNING":
+                if row[9] == "WARNING":
                     warning += 1
             return {"success": success, "warning": warning, "failed": failed}
     return 0
@@ -278,17 +278,22 @@ def batch_create(file: UploadFile = File(...)):
     except KeyError:
         raise BizException(MessageEnum.SOURCE_BATCH_SHEET_NOT_FOUND.get_code(),
                            MessageEnum.SOURCE_BATCH_SHEET_NOT_FOUND.get_msg())
+    # if sheet.max_row == 2:
+    #     raise BizException(MessageEnum.SOURCE_BATCH_SHEET_NO_CONTENT.get_code(),
+    #                        MessageEnum.SOURCE_BATCH_SHEET_NO_CONTENT.get_msg())
     header = [cell for cell in sheet.iter_rows(min_row=2, max_row=2, values_only=True)][0]
     sheet.delete_cols(10, amount=2)
     sheet.insert_cols(10, amount=2)
     sheet.cell(row=2, column=10, value="Result")
     sheet.cell(row=2, column=11, value="Details")
     identifiers = crud.get_all_identifiers()
-    identifier_list = [{identifier[0]} for identifier in identifiers]
+    identifier_list = [identifier[0] for identifier in identifiers]
+    no_content = True
     for row_index, row in enumerate(sheet.iter_rows(min_row=3), start=2):
         props = []
         if all(cell.value is None for cell in row):
             continue
+        no_content = False
         res, msg = __check_empty_for_field(row, header)
         if res:
             insert_error_msg_2_cells(sheet, row_index, msg, res_column_index)
@@ -297,35 +302,45 @@ def batch_create(file: UploadFile = File(...)):
         elif not row[3].value and not row[4].value:
             # Content validation rules and title keywords validation rules cannot be empty at the same time.
             insert_error_msg_2_cells(sheet, row_index, f"The value of {header[3]} and {header[4]} cannot be empty at the same time.", res_column_index)   
-        elif row[6].value:
-            pass
-        elif row[7].value:
-            pass
-        elif row[8].value:
-            category = [category for category in category_list if category.prop_name == row[8].value]
-            if category:
-                props.append(category[0])
-            else:
-                insert_error_msg_2_cells(sheet, row_index, f"The value of {header[8]} is not existed in System, please take a check", res_column_index)
-        elif row[9].value:
-            label = [label for label in label_list if label.prop_name == row[9].value]
-            if label:
-                props.append(label[0])
-            else:
-                insert_error_msg_2_cells(sheet, row_index, f"The value of {header[9]} is not existed in System, please take a check", res_column_index)
-        elif f"{row[0].value}" in identifier_list:
+        elif not __is_pos_int_or_none(row[5]):
+            insert_error_msg_2_cells(sheet, row_index, f"The value of {header[5]} must be positive integer.", res_column_index) 
+        elif not __is_pos_int_or_none(row[6]):
+            insert_error_msg_2_cells(sheet, row_index, f"The value of {header[6]} must be positive integer.", res_column_index) 
+        elif row[7].value and not [category for category in category_list if category.prop_name.lower() == row[7].value.strip().lower()]:
+            # category = 
+            # if category:
+            #     props.append(category[0])
+            # else:
+            insert_error_msg_2_cells(sheet, row_index, f"The value of {header[7]} is not existed in System, please take a check", res_column_index)
+        elif row[8].value and not [label for label in label_list if label.prop_name.lower() == row[8].value.strip().lower()]:
+            # label = 
+            # if label:
+            #     props.append(label[0])
+            # else:
+            insert_error_msg_2_cells(sheet, row_index, f"The value of {header[8]} is not existed in System, please take a check", res_column_index)
+        elif row[0].value in identifier_list:
             # Account.account_provider_id, Account.account_id, Account.region
             insert_error_msg_2_cells(sheet, row_index, "A data identifier with the same name already exists", res_column_index)
         else:
-            identifier_from_excel_set.add(row[0].value)            
+            identifier_from_excel_set.add(row[0].value)
+            if row[7].value:
+                categories = [category for category in category_list if category.prop_name.lower() == row[7].value.strip().lower()]
+                props.append(categories[0].id)
+            if row[8].value:
+                labels = [label for label in label_list if label.prop_name.lower() == row[8].value.strip().lower()]
+                props.append(labels[0].id)
             # account_set.add(f"{row[10].value}/{row[8].value}/{row[9].value}")
             created_identifier_list.append(__gen_created_identifier(row, props))
+    if no_content:
+        raise BizException(MessageEnum.SOURCE_BATCH_SHEET_NO_CONTENT.get_code(),
+                           MessageEnum.SOURCE_BATCH_SHEET_NO_CONTENT.get_msg())
     batch_result = asyncio.run(batch_add_identifier(created_identifier_list))
-    result = {f"{item[0]}/{item[1]}/{item[2]}/{item[3]}": f"{item[4]}/{item[5]}" for item in batch_result}
+    result = {item[0]: f"{item[1]}/{item[2]}" for item in batch_result}
     for row_index, row in enumerate(sheet.iter_rows(min_row=3), start=2):
-        if row[11].value:
+        # print(f"row[10] id {row[1].value} ")
+        if row[10] and row[10].value:
             continue
-        v = result.get(f"{row[10].value}/{row[8].value}/{row[9].value}/{row[0].value}")
+        v = result.get(row[0].value)
         if v:
             if v.split('/')[0] == "SUCCESSED":
                 insert_success_2_cells(sheet, row_index, res_column_index)
@@ -357,7 +372,18 @@ def __gen_created_identifier(row, props):
     created_identifier.exclude_keywords = row[5].value
     created_identifier.max_distance = row[6].value
     created_identifier.min_occurrence = row[7].value
+    created_identifier.type = IdentifierType.CUSTOM.value
     return created_identifier
+
+def __is_pos_int_or_none(cell):
+    if not cell or not cell.value:
+        return True
+    try:
+        if int(cell.value) > 0:
+            return True
+    except Exception as e:
+        return False
+    return False
 
 async def batch_add_identifier(created_identifier_list):
     tasks = [asyncio.create_task(__add_create_identifier_batch(identifier)) for identifier in created_identifier_list]

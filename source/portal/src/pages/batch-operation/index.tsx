@@ -357,14 +357,21 @@ const BatchOperation: React.FC = () => {
   const [loadingDownload, setLoadingDownload] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const downloadReport = async () => {
+  const downloadReport = async (type: string) => {
     console.log('download report');
     setLoadingDownload(true);
     const fileName = localStorage.getItem(BATCH_SOURCE_ID);
+    let url:any;
     if (fileName) {
-      const url: any = await downloadDataSourceBatchFiles({
-        filename: fileName,
-      });
+      if(type==="identifier"){
+        url = await downloadIdentifierBatchFiles({
+          filename: fileName,
+        });
+      } else {
+        url = await downloadDataSourceBatchFiles({
+          filename: fileName,
+        });
+      }
       setLoadingDownload(false);
       startDownload(url);
     }
@@ -400,7 +407,7 @@ const BatchOperation: React.FC = () => {
           }),
           id: 'success',
           action: (
-            <Button onClick={downloadReport} loading={loadingDownload}>
+            <Button onClick={()=>downloadReport(type)} loading={loadingDownload}>
               {t('button.downloadReport')}
             </Button>
           ),
@@ -423,7 +430,7 @@ const BatchOperation: React.FC = () => {
           }),
           id: 'error',
           action: (
-            <Button onClick={downloadReport} loading={loadingDownload}>
+            <Button onClick={()=>downloadReport(type)} loading={loadingDownload}>
               {t('button.downloadReport')}
             </Button>
           ),

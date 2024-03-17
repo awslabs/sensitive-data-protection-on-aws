@@ -2700,9 +2700,11 @@ def batch_create(file: UploadFile = File(...)):
     sheet.cell(row=2, column=13, value="Details")
     accounts = crud.get_enable_account_list()
     accounts_list = [f"{account[0]}/{account[1]}/{account[2]}" for account in accounts]
+    no_content = True
     for row_index, row in enumerate(sheet.iter_rows(min_row=3), start=2):
         if all(cell.value is None for cell in row):
             continue
+        no_content = False
         res, msg = __check_empty_for_field(row, header)
         if res:
             insert_error_msg_2_cells(sheet, row_index, msg, res_column_index)
@@ -2723,6 +2725,9 @@ def batch_create(file: UploadFile = File(...)):
             jdbc_from_excel_set.add(f"{row[10].value}/{row[8].value}/{row[9].value}/{row[0].value}")
             account_set.add(f"{row[10].value}/{row[8].value}/{row[9].value}")
             created_jdbc_list.append(__gen_created_jdbc(row))
+    if no_content:
+        raise BizException(MessageEnum.SOURCE_BATCH_SHEET_NO_CONTENT.get_code(),
+                           MessageEnum.SOURCE_BATCH_SHEET_NO_CONTENT.get_msg())
     # Query network info
     if account_set:
         account_info = list(account_set)[0].split("/")

@@ -65,7 +65,7 @@ def query_all_vpc(ec2_client):
     return vpcs[0]
 
 def insert_error_msg_2_cells(sheet, row_index, msg, res_column_index):
-    if msg == const.EXISTED_MSG:
+    if msg in [const.EXISTED_MSG, const.IDENTIFIER_EXISTED_MSG]:
         sheet.cell(row=row_index + 1, column=res_column_index, value="WARNING")
         sheet.cell(row=row_index + 1, column=res_column_index).font = Font(color='563112', bold=True)
     else:

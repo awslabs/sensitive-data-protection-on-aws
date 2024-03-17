@@ -107,6 +107,7 @@ const.BATCH_CREATE_IDENTIFIER_TEMPLATE_PATH_EN = 'batch_create/identifier/templa
 const.BATCH_CREATE_REPORT_PATH = 'batch_create/datasource/report'
 const.BATCH_CREATE_IDENTIFIER_REPORT_PATH = 'batch_create/identifier/report'
 const.EXISTED_MSG = 'JDBC connection with the same instance already exists'
+const.IDENTIFIER_EXISTED_MSG = "A data identifier with the same name already exists"
 
 const.CONFIG_CONCURRENT_RUN_JOB_NUMBER = 'ConcurrentRunJobNumber'
 const.CONFIG_CONCURRENT_RUN_JOB_NUMBER_DEFAULT_VALUE = 50

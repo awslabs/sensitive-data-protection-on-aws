@@ -23,7 +23,7 @@ class MessageEnum(Enum):
     # template
     TEMPLATE_NOT_EXISTS = {1401: "The classification template does not exist"}
     TEMPLATE_IDENTIFIER_NOT_EXISTS = {1402: "The data identifier does not exist"}
-    TEMPLATE_IDENTIFIER_EXISTS = {1403: "A data identifier with the same name already exists"}
+    TEMPLATE_IDENTIFIER_EXISTS = {1403: const.IDENTIFIER_EXISTED_MSG}
     TEMPLATE_IDENTIFIER_USED = {1404: "The data identifier is being used"}
     TEMPLATE_PROPS_USED = {1405: "The item is being used"}
     TEMPLATE_PROPS_EXISTS = {1406: "A category/regulation with the same name already exists"}
@@ -129,6 +129,7 @@ class MessageEnum(Enum):
     SOURCE_BATCH_CREATE_FORMAT_ERR = {1259: "Invalid file type, please provide an Excel file (.xlsx)."}
     SOURCE_BATCH_CREATE_LIMIT_ERR = {1260: "Batch operation limit exceeded, please ensure that a maximum of 100 data sources are created at a time."}
     SOURCE_BATCH_SHEET_NOT_FOUND = {1261: "Sheet [OriginTemplate] not found in the Excel file"}
+    SOURCE_BATCH_SHEET_NO_CONTENT = {1262: "There is no relevant data in sheet [OriginTemplate], please add data according to the format."}
     # label
     LABEL_EXIST_FAILED = {1611: "Cannot create duplicated label"}
 
