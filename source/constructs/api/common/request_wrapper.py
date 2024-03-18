@@ -26,12 +26,13 @@ def inject_session(func):
         start_time = time.time()
         # Parameters may contain sensitive information entered by users, such as database connection information,
         # so they will not be output in the production environment
-        logger.debug(f"START >>> METHOD: {func.__name__} PARAMS: {kwargs}")
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug(f"START >>> METHOD: {func.__name__} PARAMS: {kwargs}")
         try:
             gen_session()
             result = func(*args, **kwargs)
             res = resp_ok(result)
-            logger.debug(f"END >>> USED:{round(time.time()-start_time)}ms")
+            logger.debug(f"END >>> USED:{round(time.time()-start_time)}s")
             return res
         finally:
             close_session()
