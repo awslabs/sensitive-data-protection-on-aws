@@ -2957,7 +2957,7 @@ def export_datasource(key: str):
     return pre_url
 
 def delete_report(key: str):
-    __s3_client.delete_object(Bucket=admin_bucket_name, Key=f"{const.DATASOURCE_REPORT}/datasource_{key}.xlsx")
+    __s3_client.delete_object(Bucket=admin_bucket_name, Key=f"{const.BATCH_CREATE_REPORT_PATH}/{key}.xlsx")
 
 def __read_and_write(sheet_name, index, workbook):
     column_mappings = {

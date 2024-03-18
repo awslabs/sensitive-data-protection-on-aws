@@ -219,7 +219,7 @@ def export_identify(key):
 
 
 def delete_report(key):
-    __s3_client.delete_object(Bucket=admin_bucket_name, Key=f"{const.IDENTIFY_REPORT}/identify_{key}.xlsx")
+    __s3_client.delete_object(Bucket=admin_bucket_name, Key=f"{const.BATCH_CREATE_IDENTIFIER_REPORT_PATH}/{key}.xlsx")
 
 
 def query_batch_status(filename: str):

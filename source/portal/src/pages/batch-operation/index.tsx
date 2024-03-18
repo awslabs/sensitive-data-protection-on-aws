@@ -24,7 +24,7 @@ import HelpInfo from 'common/HelpInfo';
 import { AMPLIFY_CONFIG_JSON, BATCH_SOURCE_ID, buildDocLink } from 'ts/common';
 import axios from 'axios';
 import { BASE_URL } from 'tools/apiRequest';
-import { downloadDataSourceBatchFiles, queryBatchStatus } from 'apis/data-source/api';
+import { deleteReport, downloadDataSourceBatchFiles, queryBatchStatus } from 'apis/data-source/api';
 import { downloadIdentifierBatchFiles, queryIdentifierBatchStatus } from 'apis/data-template/api';
 import { alertMsg } from 'tools/tools';
 import { User } from 'oidc-client-ts';
@@ -217,6 +217,9 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
     }
     setLoadingDownload(false);
     startDownload(url);
+    setTimeout(() => {
+      deleteReport({key: localStorage.getItem(BATCH_SOURCE_ID)});
+    }, 2000);
   };
 
   useEffect(() => {
@@ -378,6 +381,7 @@ const BatchOperation: React.FC = () => {
   };
 
   const confirmDismissNotification = () => {
+    deleteReport({key: localStorage.getItem(BATCH_SOURCE_ID)})
     localStorage.removeItem(BATCH_SOURCE_ID);
     setFlashBar([]);
     setShowConfirm(false);
