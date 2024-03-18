@@ -2731,12 +2731,13 @@ def batch_create(file: UploadFile = File(...)):
     # Query network info
     if account_set:
         account_info = list(account_set)[0].split("/")
+        # TODO：奇数行第一个字网，偶数行第二个字网
         network = query_account_network(AccountInfo(account_provider_id=account_info[0], account_id=account_info[1], region=account_info[2])) \
             .get('vpcs', [])[0]
         vpc_id = network.get('vpcId')
         subnets = [subnet.get('subnetId') for subnet in network.get('subnets')]
         security_group_id = network.get('securityGroups', [])[0].get('securityGroupId')
-        created_jdbc_list = map_network_jdbc(created_jdbc_list, vpc_id, subnets, security_group_id)
+        created_jdbc_list = map_network_jdbc(created_jdbc_list, subnets, security_group_id)
         batch_result = asyncio.run(batch_add_conn_jdbc(created_jdbc_list))
         result = {f"{item[0]}/{item[1]}/{item[2]}/{item[3]}": f"{item[4]}/{item[5]}" for item in batch_result}
         for row_index, row in enumerate(sheet.iter_rows(min_row=3), start=2):
@@ -2777,11 +2778,11 @@ def __check_empty_for_field(row, header):
         return True, f"{header[10]} should not be empty"
     return False, None
 
-def map_network_jdbc(created_jdbc_list: [JDBCInstanceSource], vpc_id, subnets, security_group_id):
+def map_network_jdbc(created_jdbc_list, subnets, security_group_id):
     res = []
-    for item in created_jdbc_list:
+    for index, item in enumerate(created_jdbc_list):
         item.network_sg_id = security_group_id
-        item.network_subnet_id = random.choice(subnets)
+        item.network_subnet_id = subnets[0] if index % 2 == 0 else subnets[1]
         res.append(item)
     return res
 
@@ -2826,12 +2827,21 @@ def __gen_created_jdbc(row):
     created_jdbc = JDBCInstanceSource()
     created_jdbc.instance_id = row[0].value
     created_jdbc.jdbc_enforce_ssl = "true" if row[1].value == 1 else "false"
-    created_jdbc.description = str(row[2].value)
+    created_jdbc.description = str(row[2].value) if row[2].value else const.EMPTY_STR
     created_jdbc.jdbc_connection_url = str(row[3].value)
-    created_jdbc.jdbc_connection_schema = str(row[4].value).replace(",", "\n") if row[4].value else const.EMPTY_STR
-    created_jdbc.secret = str(row[5].value)
-    created_jdbc.master_username = str(row[6].value)
-    created_jdbc.password = str(row[7].value)
+    created_jdbc.secret = str(row[5].value) if row[5].value else None
+    created_jdbc.master_username = str(row[6].value) if row[6].value else None
+    created_jdbc.password = str(row[7].value) if row[7].value else None
+    if row[4].value and row[4].value.strip() != const.EMPTY_STR:
+        created_jdbc.jdbc_connection_schema = str(row[4].value).replace(",", "\n")
+    else:
+        source: JdbcSource = JdbcSource(connection_url=created_jdbc.jdbc_connection_url,
+                                        username=created_jdbc.master_username,
+                                        password=created_jdbc.password,
+                                        secret_id=created_jdbc.secret
+                                        )
+        created_jdbc.jdbc_connection_schema = ("\n").join(list_jdbc_databases(source))
+    # created_jdbc.jdbc_connection_schema = str(row[4].value) if row[4].value else None
     created_jdbc.account_id = str(row[8].value)
     created_jdbc.region = str(row[9].value)
     created_jdbc.account_provider_id = row[10].value
@@ -2842,7 +2852,7 @@ def __gen_created_jdbc(row):
     created_jdbc.jdbc_driver_jar_uri = ""
     created_jdbc.last_updated_time = ""
     created_jdbc.network_availability_zone = ""
-    created_jdbc.secret = ""
+    # created_jdbc.secret = ""
     created_jdbc.skip_custom_jdbc_cert_validation = "false"
     return created_jdbc
 
@@ -2907,6 +2917,7 @@ async def __add_jdbc_conn_batch(jdbc: JDBCInstanceSource):
     except BizException as be:
         return jdbc.account_provider_id, jdbc.account_id, jdbc.region, jdbc.instance_id, "FAILED", be.__msg__()
     except Exception as e:
+        logger.info(e)
         return jdbc.account_provider_id, jdbc.account_id, jdbc.region, jdbc.instance_id, "FAILED", str(e)
 
 # TBD

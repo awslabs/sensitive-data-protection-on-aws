@@ -171,7 +171,7 @@ def sync_s3(snapshot_no):
     )
 
 
-def check_rule(identifier):
+def check_rule(identifier: schemas.TemplateIdentifier):
     if identifier.type == IdentifierType.CUSTOM.value and identifier.rule == const.EMPTY_STR:
         raise BizException(MessageEnum.TEMPLATE_IDENTIFIER_RULES_EMPTY.get_code(),
                            MessageEnum.TEMPLATE_IDENTIFIER_RULES_EMPTY.get_msg())
@@ -368,8 +368,8 @@ def __gen_created_identifier(row, props):
     created_identifier.description = str(row[1].value)
     created_identifier.props = props
     created_identifier.rule = row[3].value
-    created_identifier.header_keywords = row[4].value
-    created_identifier.exclude_keywords = row[5].value
+    created_identifier.header_keywords = str(str(row[4].value).split(",")) if row[4].value else None
+    created_identifier.exclude_keywords = str(str(row[5].value).split(",")) if row[5].value else None
     created_identifier.max_distance = row[6].value
     created_identifier.min_occurrence = row[7].value
     created_identifier.type = IdentifierType.CUSTOM.value
