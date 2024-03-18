@@ -1,19 +1,17 @@
-import json
-import boto3
-import os
-import sys
-import pandas as pd
-import re
 import argparse
 import copy
-import logging
-import tempfile
-import pathlib
-from collections import defaultdict
-import cProfile
-from multiprocessing import Process, Queue, Lock
-from parser_factory import ParserFactory
 import io
+import json
+import pathlib
+import re
+import tempfile
+from collections import defaultdict
+from multiprocessing import Process, Queue, Lock
+
+import boto3
+import pandas as pd
+
+from parser_factory import ParserFactory
 
 
 def remove_symbols(input_string):
@@ -262,20 +260,28 @@ def worker(queue,
 
         except Exception as e:
             print(f"Error occured processing {file_path}. Error message: {e}")
+        # print_system_usage()
         print('Worker is finished on ' + file_path)
 
 
-def main():
-    original_bucket_name = 'yiyan-test-s6-100partition'  # param_dict['SourceBucketName']
-    crawler_result_bucket_name = 'sdps-agent-agents3bucket37b73ecb-veydzutbtwma'  # param_dict['ResultBucketName']
-    region_name = 'cn-northwest-1'  # param_dict['RegionName']
+# def print_system_usage():
+#     """Print the current CPU and memory usage."""
+#     cpu_usage = psutil.cpu_percent(interval=1)
+#     memory_usage = psutil.virtual_memory().percent
+#
+#     print(f"CPU: {cpu_usage}%, Memory: {memory_usage}%")
+
+def main(param_dict):
+    original_bucket_name = param_dict['SourceBucketName']
+    crawler_result_bucket_name = param_dict['ResultBucketName']
+    region_name = param_dict['RegionName']
+    worker_num = param_dict['WorkerNum']
 
     crawler_result_object_key = f"crawler_results/{original_bucket_name}_info.json"
     destination_database = f"SDPS-unstructured-{original_bucket_name}"
 
     s3_client = boto3.client('s3', region_name=region_name)
     glue_client = boto3.client('glue', region_name=region_name)
-    print(region_name)
     print('============')
     # 1. Create a Glue Database
     try:
@@ -296,14 +302,12 @@ def main():
             )
         print(f"Deleted all tables in database '{destination_database}'. Start creating tables...")
 
-    # 2. Download the crawler result from S3 and 
+    # 2. Download the crawler result from S3 and
     with tempfile.NamedTemporaryFile(mode='w') as temp:
         temp_file_path = temp.name
-        print(crawler_result_bucket_name)
         s3_client.download_file(Bucket=crawler_result_bucket_name, Key=crawler_result_object_key,
                                 Filename=temp_file_path)
         with open(temp_file_path, 'r') as f:
-            print(f)
             bucket_info = json.load(f)
 
     # 4. Batch process files in same folder with same type
@@ -316,11 +320,10 @@ def main():
         for files in bucket_info[file_category].items():
             queue.put((file_category, files))
             num_items += 1
-        # files = bucket_info[file_category]
 
     processes = []
     # Create up to X processes
-    num_workers = min(5, num_items)
+    num_workers = min(worker_num, num_items)
     for _ in range(num_workers):
         p = Process(
             target=worker,
@@ -407,24 +410,18 @@ def process_detection_file(
 
 
 if __name__ == '__main__':
-    # parser = argparse.ArgumentParser(...)
-    # parser.add_argument('--SourceBucketName', type=str, default='icyxu-glue-assets-member-a',
-    #                     help='crawler_result_bucket_name')
-    # parser.add_argument('--ResultBucketName', type=str, default='icyxu-glue-assets-member-a',
-    #                     help='crawler_result_bucket_name')
-    # parser.add_argument('--RegionName', type=str, default='us-west-2',
-    #                     help='crawler_result_object_key')
-    #
-    # args, _ = parser.parse_known_args()
-    # param_dict = copy.copy(vars(args))
+    parser = argparse.ArgumentParser(...)
+    parser.add_argument('--SourceBucketName', type=str, default='icyxu-glue-assets-member-a',
+                        help='crawler_result_bucket_name')
+    parser.add_argument('--ResultBucketName', type=str, default='icyxu-glue-assets-member-a',
+                        help='crawler_result_bucket_name')
+    parser.add_argument('--RegionName', type=str, default='us-west-2',
+                        help='crawler_result_object_key')
+    parser.add_argument('--WorkerNum', type=int, default=10,
+                        help='worker_num')
 
-    pr = cProfile.Profile()
-    pr.enable()
-    main()
-    pr.disable()
-    pr.create_stats()
-    pr.print_stats()
-    pr.dump_stats('stats_stream_processes.output')
+    args, _ = parser.parse_known_args()
+    param_dict = copy.copy(vars(args))
 
-    # main()
+    main(param_dict)
 #
