@@ -1,4 +1,5 @@
 import os
+import logging
 import boto3
 import json
 import db.models_discovery_job as models
@@ -689,6 +690,14 @@ def get_run_progress(job_id: int, run_id: int) -> list[schemas.DiscoveryJobRunDa
     run_progress = []
     for run_database in run.databases:
         try:
+            if run_database.state == RunDatabaseState.PENDING.value:
+                progress = schemas.DiscoveryJobRunDatabaseProgress(run_database_id=run_database.id,
+                                                                   current_table_count=-1,
+                                                                   table_count=-1,
+                                                                   current_table_count_unstructured=-1,
+                                                                   table_count_unstructured=-1)
+                run_progress.append(progress)
+                continue
             base_time = datetime.datetime.min
             if job.range == 1 and run_database.base_time:
                 base_time = run_database.base_time
@@ -735,13 +744,15 @@ def get_run_progress(job_id: int, run_id: int) -> list[schemas.DiscoveryJobRunDa
 def __get_run_current_table_count(run_id: int):
     sql = f"select run_database_id,database_type,count(distinct table_name) from sdps_database.job_detection_output_table where run_id='{run_id}' group by run_database_id,database_type"
     current_table_count = __query_athena(sql)
-    logger.debug(current_table_count)
+    if logger.isEnabledFor(logging.DEBUG):
+        logger.debug(current_table_count)
     table_count = {}
     for row in current_table_count[1:]:
         row_result = [__get_cell_value(cell) for cell in row]
         key = int(row_result[0]) if row_result[1] != DatabaseType.S3_UNSTRUCTURED.value else f"{row_result[0]}-{DatabaseType.S3_UNSTRUCTURED.value}"
         table_count[key] = int(row_result[2])
-    logger.debug(table_count)
+    if logger.isEnabledFor(logging.DEBUG):
+        logger.debug(table_count)
     return table_count
 
 
