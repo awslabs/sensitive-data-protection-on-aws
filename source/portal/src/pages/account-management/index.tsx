@@ -15,7 +15,7 @@ import {
 import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import Navigation from 'pages/left-menu/Navigation';
 import { getAccountInfomation } from 'apis/dashboard/api';
-import { exportDatasource, deleteReport } from 'apis/data-source/api';
+import { exportDatasource, deleteDSReport } from 'apis/data-source/api';
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
 import HelpInfo from 'common/HelpInfo';
@@ -42,7 +42,7 @@ const AccountManagementHeader: React.FC = () => {
     if (url) {
       window.open(url, '_blank');
       setTimeout(() => {
-        deleteReport({key: timeStr});
+        deleteDSReport({key: timeStr});
       }, 2000);
     } else {
       alertMsg(t('noReportFile'), 'error');

@@ -24,8 +24,8 @@ import HelpInfo from 'common/HelpInfo';
 import { AMPLIFY_CONFIG_JSON, BATCH_SOURCE_ID, buildDocLink } from 'ts/common';
 import axios from 'axios';
 import { BASE_URL } from 'tools/apiRequest';
-import { deleteReport, downloadDataSourceBatchFiles, queryBatchStatus } from 'apis/data-source/api';
-import { downloadIdentifierBatchFiles, queryIdentifierBatchStatus } from 'apis/data-template/api';
+import { deleteDSReport, downloadDataSourceBatchFiles, queryBatchStatus } from 'apis/data-source/api';
+import { deleteIdentifierReport, downloadIdentifierBatchFiles, queryIdentifierBatchStatus } from 'apis/data-template/api';
 import { alertMsg } from 'tools/tools';
 import { User } from 'oidc-client-ts';
 import { AmplifyConfigType } from 'ts/types';
@@ -218,9 +218,16 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
     setLoadingDownload(false);
     startDownload(url);
     setTimeout(() => {
-      deleteReport({key: localStorage.getItem(BATCH_SOURCE_ID)});
-      localStorage.removeItem(BATCH_SOURCE_ID);
+      if(type==="identifier"){
+        deleteIdentifierReport({key: localStorage.getItem(BATCH_SOURCE_ID)});
+        localStorage.removeItem(BATCH_SOURCE_ID);
+        
+      } else{
+        deleteDSReport({key: localStorage.getItem(BATCH_SOURCE_ID)});
+        localStorage.removeItem(BATCH_SOURCE_ID);
+      }
     }, 2000);
+    // setFlashBar([]);
   };
 
   useEffect(() => {
@@ -251,6 +258,7 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
             iconName="download"
             onClick={() => {
               downloadReport(type);
+              
             }}
             variant="link"
             loading={loadingDownload}
@@ -380,14 +388,25 @@ const BatchOperation: React.FC = () => {
       startDownload(url);
     }
     setTimeout(() => {
-      deleteReport({key: localStorage.getItem(BATCH_SOURCE_ID)});
-      localStorage.removeItem(BATCH_SOURCE_ID);
+      if(type==="identifier"){
+        deleteIdentifierReport({key: localStorage.getItem(BATCH_SOURCE_ID)});
+        localStorage.removeItem(BATCH_SOURCE_ID);
+      } else {
+        deleteDSReport({key: localStorage.getItem(BATCH_SOURCE_ID)});
+        localStorage.removeItem(BATCH_SOURCE_ID);
+      }
+      setFlashBar([]);
     }, 2000);
   };
 
-  const confirmDismissNotification = () => {
-    deleteReport({key: localStorage.getItem(BATCH_SOURCE_ID)})
-    localStorage.removeItem(BATCH_SOURCE_ID);
+  const confirmDismissNotification = (type:string) => {
+    if(type==="identifier"){
+      deleteIdentifierReport({key: localStorage.getItem(BATCH_SOURCE_ID)})
+      localStorage.removeItem(BATCH_SOURCE_ID);
+    } else {
+      deleteDSReport({key: localStorage.getItem(BATCH_SOURCE_ID)})
+      localStorage.removeItem(BATCH_SOURCE_ID);
+    }
     setFlashBar([]);
     setShowConfirm(false);
   };
@@ -528,7 +547,7 @@ const BatchOperation: React.FC = () => {
                   <Button
                     variant="primary"
                     onClick={() => {
-                      confirmDismissNotification();
+                      confirmDismissNotification(type);
                     }}
                   >
                     {t('confirm')}

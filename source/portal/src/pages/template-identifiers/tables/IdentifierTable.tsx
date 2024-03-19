@@ -18,7 +18,7 @@ import ResourcesFilter from 'pages/resources-filter';
 import { IDENTIFIER_COLUMN_LIST } from '../types/identifiers_type';
 import {
   deleteIdentifiers,
-  deleteReport,
+  deleteIdentifierReport,
   exportIdentify,
   getIdentifiersList,
   updateIdentifiers,
@@ -68,7 +68,7 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
     if (url) {
       window.open(url, '_blank');
       setTimeout(() => {
-        deleteReport({key: timeStr});
+        deleteIdentifierReport({key: timeStr});
       }, 2000);
     } else {
       alertMsg(t('noReportFile'), 'error');

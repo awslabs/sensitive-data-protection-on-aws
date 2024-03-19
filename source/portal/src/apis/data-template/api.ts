@@ -91,7 +91,7 @@ const exportIdentify = async (params: any) => {
   return result;
 };
 
-const deleteReport = async (params: any) => {
+const deleteIdentifierReport = async (params: any) => {
   const result = await apiRequest(
     'post',
     'template/delete-report?key=' + params.key,
@@ -130,7 +130,7 @@ export {
   getIndentifierInTemplate,
   getTemplateUpdateTime,
   exportIdentify,
-  deleteReport,
+  deleteIdentifierReport,
   downloadIdentifierBatchFiles,
   queryIdentifierBatchStatus
 };

@@ -297,7 +297,7 @@ const exportDatasource = async (params: any) => {
   return result;
 };
 
-const deleteReport = async (params: any) => {
+const deleteDSReport = async (params: any) => {
   const result = await apiRequest(
     'post',
     'data-source/delete-report?key=' + params.key,
@@ -347,5 +347,5 @@ export {
   queryBatchStatus,
   downloadDataSourceBatchFiles,
   exportDatasource,
-  deleteReport
+  deleteDSReport
 };
