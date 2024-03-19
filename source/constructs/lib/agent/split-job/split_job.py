@@ -11,18 +11,18 @@ glue = boto3.client('glue')
 
 
 def get_table_count(glue_database_name, base_time):
-    next_token = ""
+    next_token = None
     table_count = 0
     while True:
-        response = glue.get_tables(
-            # CatalogId=catalog_id, 
-            DatabaseName=glue_database_name, 
-            NextToken=next_token)
+        if next_token:
+            response = glue.get_tables(DatabaseName=glue_database_name, NextToken=next_token)
+        else:
+            response = glue.get_tables(DatabaseName=glue_database_name)
         for table in response['TableList']:
             if table.get('Parameters', {}).get('classification', '') != 'UNKNOWN' and table['UpdateTime'] > base_time:
                 table_count += 1
         next_token = response.get('NextToken')
-        if next_token is None:
+        if not next_token:
             break
     return table_count
 

@@ -109,18 +109,13 @@ def __do_delete_rules(response):
 
 
 def delete_event_rules():
-    response = events_client.list_rules(
-        NamePrefix=f'{solution_name}-Controller-',
-        Limit=100,
-    )
-    __do_delete_rules(response)
+    next_token = None
     while True:
-        if "NextToken" not in response:
-            break
-        next_token = response["NextToken"]
-        response = events_client.list_rules(
-            NamePrefix=f'{solution_name}-Controller-',
-            Limit=100,
-            NextToken=next_token
-        )
+        if next_token:
+            response = events_client.list_rules(NamePrefix=f'{solution_name}-Controller-', Limit=100, NextToken=next_token)
+        else:
+            response = events_client.list_rules(NamePrefix=f'{solution_name}-Controller-', Limit=100)
         __do_delete_rules(response)
+        next_token = response.get('NextToken')
+        if not next_token:
+            break
