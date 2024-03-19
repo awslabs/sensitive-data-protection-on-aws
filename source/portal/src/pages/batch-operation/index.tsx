@@ -104,7 +104,7 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
       // data {success: 0, failed: 1, warning: 2}a
       if (status?.success > 0 || status?.warning > 0 || status?.failed > 0) {
         clearInterval(statusInterval);
-        if (status.failed > 0) {
+        if (status.failed > 0 || status.warning > 0) {
           updateStatus(
             BatchOperationStatus.Error,
             status.success,
@@ -202,7 +202,7 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
     }
   };
 
-  const downloadReport = async (type:string) => {
+  const downloadTemplate = async (type:string) => {
     console.log('download template');
     setLoadingDownload(true);
     let url:any
@@ -217,17 +217,6 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
     }
     setLoadingDownload(false);
     startDownload(url);
-    setTimeout(() => {
-      if(type==="identifier"){
-        deleteIdentifierReport({key: localStorage.getItem(BATCH_SOURCE_ID)});
-        localStorage.removeItem(BATCH_SOURCE_ID);
-        
-      } else{
-        deleteDSReport({key: localStorage.getItem(BATCH_SOURCE_ID)});
-        localStorage.removeItem(BATCH_SOURCE_ID);
-      }
-    }, 2000);
-    // setFlashBar([]);
   };
 
   useEffect(() => {
@@ -257,7 +246,7 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
           <Button
             iconName="download"
             onClick={() => {
-              downloadReport(type);
+              downloadTemplate(type);
               
             }}
             variant="link"
@@ -368,6 +357,10 @@ const BatchOperation: React.FC = () => {
   const [status, setStatus] = useState(BatchOperationStatus.NotStarted);
   const [loadingDownload, setLoadingDownload] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  useEffect(()=>{
+    console.log("clear flash")
+  },[flashBar])
 
   const downloadReport = async (type: string) => {
     console.log('download report');
