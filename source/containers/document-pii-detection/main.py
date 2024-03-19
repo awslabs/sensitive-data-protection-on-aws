@@ -9,7 +9,7 @@ from multiprocessing import Process
 
 import boto3
 import pandas as pd
-
+import psutil
 from parser_factory import ParserFactory
 
 
@@ -208,6 +208,9 @@ def worker(worker_files,
            destination_database,
            original_file_bucket_name):
     for file_category, file_info in worker_files:
+
+
+
         glue_client = boto3.client('glue', region_name='cn-northwest-1')
         s3_client = boto3.client('s3', region_name='cn-northwest-1')
         current = file_info[0]
@@ -261,13 +264,14 @@ def main(param_dict):
     original_bucket_name = param_dict['SourceBucketName']
     crawler_result_bucket_name = param_dict['ResultBucketName']
     region_name = param_dict['RegionName']
-    worker_num = param_dict['WorkerNum']
+    worker_num = psutil.cpu_count(logical=False)
+    # worker_num = param_dict['WorkerNum']
 
     crawler_result_object_key = f"crawler_results/{original_bucket_name}_info.json"
     destination_database = f"SDPS-unstructured-{original_bucket_name}"
 
-    s3_client = boto3.client('s3', region_name=region_name)
-    glue_client = boto3.client('glue', region_name=region_name)
+    s3_client = boto3.client('s3', region_name='cn-northwest-1')
+    glue_client = boto3.client('glue', region_name='cn-northwest-1')
     print('============')
     # 1. Create a Glue Database
     try:
