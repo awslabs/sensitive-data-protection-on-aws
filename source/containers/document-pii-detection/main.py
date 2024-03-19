@@ -211,8 +211,8 @@ def worker(worker_files,
 
 
 
-        glue_client = boto3.client('glue', region_name='cn-northwest-1')
-        s3_client = boto3.client('s3', region_name='cn-northwest-1')
+        glue_client = boto3.client('glue')
+        s3_client = boto3.client('s3')
         current = file_info[0]
         file_info = file_info[1]
         file_type = file_info['file_type']
@@ -261,18 +261,17 @@ def worker(worker_files,
 
 
 def main(param_dict):
-    original_bucket_name = param_dict['SourceBucketName']
-    crawler_result_bucket_name = param_dict['ResultBucketName']
-    region_name = param_dict['RegionName']
-    worker_num = psutil.cpu_count(logical=False)
-    # worker_num = param_dict['WorkerNum']
+    original_bucket_name = 'yiyan-test-s6-100partition' #param_dict['SourceBucketName']
+    crawler_result_bucket_name = 'sdps-agent-agents3bucket37b73ecb-veydzutbtwma' #param_dict['ResultBucketName']
+    region_name = 'cn-northwest-1' #param_dict['RegionName']
+    worker_num = psutil.cpu_count(logical=False) * 2 #param_dict['WorkerNum']
 
     crawler_result_object_key = f"crawler_results/{original_bucket_name}_info.json"
     destination_database = f"SDPS-unstructured-{original_bucket_name}"
 
-    s3_client = boto3.client('s3', region_name='cn-northwest-1')
-    glue_client = boto3.client('glue', region_name='cn-northwest-1')
-    print('============')
+    s3_client = boto3.client('s3')
+    glue_client = boto3.client('glue')
+    print('++++++++++++')
     # 1. Create a Glue Database
     try:
         response = glue_client.create_database(
@@ -295,6 +294,8 @@ def main(param_dict):
     # 2. Download the crawler result from S3 and
     with tempfile.NamedTemporaryFile(mode='w') as temp:
         temp_file_path = temp.name
+        print('crawler_result_bucket_name:'+crawler_result_bucket_name)
+        print('crawler_result_object_key:'+crawler_result_object_key)
         s3_client.download_file(Bucket=crawler_result_bucket_name, Key=crawler_result_object_key,
                                 Filename=temp_file_path)
         with open(temp_file_path, 'r') as f:
