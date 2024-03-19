@@ -219,6 +219,7 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
     startDownload(url);
     setTimeout(() => {
       deleteReport({key: localStorage.getItem(BATCH_SOURCE_ID)});
+      localStorage.removeItem(BATCH_SOURCE_ID);
     }, 2000);
   };
 
@@ -378,6 +379,10 @@ const BatchOperation: React.FC = () => {
       setLoadingDownload(false);
       startDownload(url);
     }
+    setTimeout(() => {
+      deleteReport({key: localStorage.getItem(BATCH_SOURCE_ID)});
+      localStorage.removeItem(BATCH_SOURCE_ID);
+    }, 2000);
   };
 
   const confirmDismissNotification = () => {
