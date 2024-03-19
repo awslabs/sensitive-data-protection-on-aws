@@ -272,6 +272,13 @@ export class DiscoveryJobStack extends Construct {
           actions: [
             's3:ListBucket',
             's3:GetObject',
+            'ecr:BatchCheckLayerAvailability',
+            'ecr:BatchGetImage',
+            'ecr:GetAuthorizationToken',
+            'ecr:GetDownloadUrlForLayer',
+            'logs:CreateLogGroup',
+            'logs:CreateLogStream',
+            'logs:PutLogEvents',
           ],
           resources: ['*'],
         }),
@@ -289,6 +296,7 @@ export class DiscoveryJobStack extends Construct {
             's3:PutObject',
           ],
           resources: [
+            `arn:${Aws.PARTITION}:glue:${Aws.REGION}:${Aws.ACCOUNT_ID}:catalog`,
             `arn:${Aws.PARTITION}:glue:${Aws.REGION}:${Aws.ACCOUNT_ID}:database/${SolutionInfo.SOLUTION_NAME.toLowerCase()}-*`,
             `arn:${Aws.PARTITION}:glue:${Aws.REGION}:${Aws.ACCOUNT_ID}:table/${SolutionInfo.SOLUTION_NAME.toLowerCase()}-*/*`,
             `arn:${Aws.PARTITION}:s3:::${props.agentBucketName}/*`,
