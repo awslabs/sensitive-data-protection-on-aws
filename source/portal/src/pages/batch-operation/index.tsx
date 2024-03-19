@@ -21,7 +21,7 @@ import Navigation from 'pages/left-menu/Navigation';
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
 import HelpInfo from 'common/HelpInfo';
-import { AMPLIFY_CONFIG_JSON, BATCH_SOURCE_ID, buildDocLink } from 'ts/common';
+import { AMPLIFY_CONFIG_JSON, BATCH_SOURCE_ID, BATCH_IDENTIFIER_ID, buildDocLink } from 'ts/common';
 import axios from 'axios';
 import { BASE_URL } from 'tools/apiRequest';
 import { deleteDSReport, downloadDataSourceBatchFiles, queryBatchStatus } from 'apis/data-source/api';
@@ -187,7 +187,11 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
       setLoadingUpload(false);
       if (response.data.status === 'success') {
         const fileId = response.data.data;
-        localStorage.setItem(BATCH_SOURCE_ID, fileId);
+        if(type==="identifier"){
+          localStorage.setItem(BATCH_IDENTIFIER_ID, fileId);
+        } else{
+          localStorage.setItem(BATCH_SOURCE_ID, fileId);
+        }
         updateStatus(BatchOperationStatus.Inprogress);
         statusInterval = setInterval(() => {
           queryStatus(fileId, type);
@@ -220,7 +224,12 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
   };
 
   useEffect(() => {
-    const fileId = localStorage.getItem(BATCH_SOURCE_ID);
+    let fileId: any
+    if(type==="identifier"){
+      fileId = localStorage.getItem(BATCH_IDENTIFIER_ID);
+    } else {
+      fileId = localStorage.getItem(BATCH_SOURCE_ID);
+    }
     if (fileId) {
       queryStatus(fileId, type);
       statusInterval = setInterval(() => {
@@ -365,7 +374,7 @@ const BatchOperation: React.FC = () => {
   const downloadReport = async (type: string) => {
     console.log('download report');
     setLoadingDownload(true);
-    const fileName = localStorage.getItem(BATCH_SOURCE_ID);
+    const fileName = type==="identifier" ? localStorage.getItem(BATCH_IDENTIFIER_ID) : localStorage.getItem(BATCH_SOURCE_ID);
     let url:any;
     if (fileName) {
       if(type==="identifier"){
@@ -382,8 +391,8 @@ const BatchOperation: React.FC = () => {
     }
     setTimeout(() => {
       if(type==="identifier"){
-        deleteIdentifierReport({key: localStorage.getItem(BATCH_SOURCE_ID)});
-        localStorage.removeItem(BATCH_SOURCE_ID);
+        deleteIdentifierReport({key: localStorage.getItem(BATCH_IDENTIFIER_ID)});
+        localStorage.removeItem(BATCH_IDENTIFIER_ID);
       } else {
         deleteDSReport({key: localStorage.getItem(BATCH_SOURCE_ID)});
         localStorage.removeItem(BATCH_SOURCE_ID);
@@ -394,8 +403,8 @@ const BatchOperation: React.FC = () => {
 
   const confirmDismissNotification = (type:string) => {
     if(type==="identifier"){
-      deleteIdentifierReport({key: localStorage.getItem(BATCH_SOURCE_ID)})
-      localStorage.removeItem(BATCH_SOURCE_ID);
+      deleteIdentifierReport({key: localStorage.getItem(BATCH_IDENTIFIER_ID)})
+      localStorage.removeItem(BATCH_IDENTIFIER_ID);
     } else {
       deleteDSReport({key: localStorage.getItem(BATCH_SOURCE_ID)})
       localStorage.removeItem(BATCH_SOURCE_ID);

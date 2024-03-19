@@ -11,7 +11,8 @@ export const EN_DOC_LINK =
   'https://awslabs.github.io/sensitive-data-protection-on-aws/en';
 
 export const SDPS_DEBUG_MODE = 'SDPS_DEBUG_MODE';
-export const BATCH_SOURCE_ID = 'SDPS_BATCH_FILE_ID';
+export const BATCH_SOURCE_ID = 'SDPS_BATCH_DATASOURCE_FILE_ID';
+export const BATCH_IDENTIFIER_ID = 'SDPS_BATCH_IDENTIFIER_FILE_ID';
 export interface ColumnList {
   id: string;
   label: string;
