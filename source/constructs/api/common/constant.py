@@ -99,7 +99,7 @@ const.ZERO = 0
 const.BATCH_CREATE_LIMIT = 1000
 const.BATCH_SHEET = "OriginTemplate"
 
-const.CONNECTION_DESC_MAX_LEN = 10
+const.CONNECTION_DESC_MAX_LEN = 2048
 const.BATCH_CREATE_TEMPLATE_PATH_CN = 'batch_create/datasource/template/batch_create_jdbc_datasource-cn.xlsx'
 const.BATCH_CREATE_TEMPLATE_PATH_EN = 'batch_create/datasource/template/batch_create_jdbc_datasource-en.xlsx'
 const.BATCH_CREATE_IDENTIFIER_TEMPLATE_PATH_CN = 'batch_create/identifier/template/batch_create_identifier-cn.xlsx'

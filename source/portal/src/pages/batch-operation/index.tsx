@@ -119,9 +119,10 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
             status.failed
           );
         }
-      } else {
-        updateStatus(BatchOperationStatus.Inprogress);
       }
+      //  else {
+      //   updateStatus(BatchOperationStatus.Inprogress);
+      // }
     } catch (error) {
       console.error('error:', error);
       clearInterval(statusInterval);
@@ -147,6 +148,7 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
     let questDomain = 'data-source/batch-create';
     formData.append('files', files[0]);
     setLoadingUpload(true);
+    updateStatus(BatchOperationStatus.Inprogress);
     try {
       const configJSONObj: AmplifyConfigType = localStorage.getItem(
         AMPLIFY_CONFIG_JSON
