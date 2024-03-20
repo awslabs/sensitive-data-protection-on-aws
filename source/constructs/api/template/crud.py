@@ -269,25 +269,24 @@ def get_refs_by_prop(id: int):
     return get_session().query(models.TemplateIdentifierPropRef).filter(
         models.TemplateIdentifierPropRef.prop_id == id).all()
 
-# ["Data identify name", "Description", "Identify type", "Category","privacy","rule","header_keywords","exclude_keywords","max_distance","min_occurrence", "Identify label"]
 def get_all_identifiers():
-    return get_session().query(models.TemplateIdentifier.name,
-                               models.TemplateIdentifier.description,
-                               models.TemplateIdentifier.classification,
-                               models.TemplateIdentifier.header_keywords,
-                               models.TemplateIdentifier.exclude_keywords,
-                               models.TemplateIdentifier.max_distance,
-                               models.TemplateIdentifier.min_occurrence,
-                               models.TemplateIdentifierProp.prop_name
-                               ).outerjoin(models.TemplateIdentifierPropRef,
-                                           models.TemplateIdentifier.id == models.TemplateIdentifierPropRef.identifier_id
-                                           ).outerjoin(models.TemplateIdentifierProp,
-                                                       models.TemplateIdentifierPropRef.prop_id == models.TemplateIdentifierProp.id
-                                                       ).filter(models.TemplateIdentifier.type == 1).all()
+    return get_session().query(
+        models.TemplateIdentifier.id,
+        models.TemplateIdentifier.name,
+        models.TemplateIdentifier.description,
+        models.TemplateIdentifier.header_keywords,
+        models.TemplateIdentifier.exclude_keywords,
+        models.TemplateIdentifier.max_distance,
+        models.TemplateIdentifier.min_occurrence,
+    ).filter(models.TemplateIdentifier.type == 1).all()
 
-
-def get_all_categories():
-    pass
-
-def get_all_labels():
-    pass
+def get_identifier_prop_mapping():
+    return get_session().query(
+        models.TemplateIdentifier.id,
+        models.TemplateIdentifierProp.prop_type,
+        models.TemplateIdentifierProp.prop_name
+    ).filter(models.TemplateIdentifier.type == 1).outerjoin(models.TemplateIdentifierPropRef,
+                                                            models.TemplateIdentifierPropRef.identifier_id == models.TemplateIdentifier.id
+                                                            ).outerjoin(models.TemplateIdentifierProp,
+                                                                        models.TemplateIdentifierProp.id == models.TemplateIdentifierPropRef.prop_id
+                                                                        ).all()

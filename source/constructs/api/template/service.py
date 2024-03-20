@@ -189,15 +189,20 @@ def export_identify(key):
         workbook.remove(origin_sheet)
     sheet.append(const.EXPORT_IDENTIFY_HEADER)
     result = crud.get_all_identifiers()
+    props_list = crud.get_identifier_prop_mapping()
+    props_mapping = __convert_prop_list_2_mapping(props_list)
     for row_num, row_data in enumerate(result, start=2):
+        category = props_mapping.get(f"{row_data[0]}-1")
+        label = props_mapping.get("{row_data[0]}-2")
+        # del row_data[0]
         for col_num, cell_value in enumerate(row_data, start=1):
-            if col_num == 3:
-                cell_value = "Customize" if cell_value == 1 else "Built in"
-            if col_num == 4:
-                cell_value = "Machine learning" if cell_value == 0 else "Regex"
-            if col_num == 5:
-                cell_value = "Non PII" if cell_value == 0 else "PII"
-            sheet.cell(row=row_num, column=col_num).value = cell_value
+            if col_num == 1:
+                continue
+            sheet.cell(row=row_num, column=col_num - 1).value = cell_value
+            if category:
+                sheet.cell(row=row_num, column=7, value=category)
+            if label:
+                sheet.cell(row=row_num, column=8, value=label)
     workbook.active = 0
     file_name = f"identify_{key}.xlsx"
     tmp_file = f"{tempfile.gettempdir()}/{file_name}"
@@ -217,6 +222,11 @@ def export_identify(key):
     )
     return pre_url
 
+def __convert_prop_list_2_mapping(list):
+    mapping = {}
+    for item in list:
+        mapping[f"{item[0]}-{item[1]}"] = item[2]
+    return mapping
 
 def delete_report(key):
     __s3_client.delete_object(Bucket=admin_bucket_name, Key=f"{const.BATCH_CREATE_IDENTIFIER_REPORT_PATH}/{key}.xlsx")
@@ -278,9 +288,6 @@ def batch_create(file: UploadFile = File(...)):
     except KeyError:
         raise BizException(MessageEnum.SOURCE_BATCH_SHEET_NOT_FOUND.get_code(),
                            MessageEnum.SOURCE_BATCH_SHEET_NOT_FOUND.get_msg())
-    # if sheet.max_row == 2:
-    #     raise BizException(MessageEnum.SOURCE_BATCH_SHEET_NO_CONTENT.get_code(),
-    #                        MessageEnum.SOURCE_BATCH_SHEET_NO_CONTENT.get_msg())
     header = [cell for cell in sheet.iter_rows(min_row=2, max_row=2, values_only=True)][0]
     sheet.delete_cols(10, amount=2)
     sheet.insert_cols(10, amount=2)
@@ -303,20 +310,12 @@ def batch_create(file: UploadFile = File(...)):
             # Content validation rules and title keywords validation rules cannot be empty at the same time.
             insert_error_msg_2_cells(sheet, row_index, f"The value of {header[3]} and {header[4]} cannot be empty at the same time.", res_column_index)   
         elif not __is_pos_int_or_none(row[5]):
-            insert_error_msg_2_cells(sheet, row_index, f"The value of {header[5]} must be positive integer.", res_column_index) 
+            insert_error_msg_2_cells(sheet, row_index, f"The value of {header[5]} must be positive integer.", res_column_index)
         elif not __is_pos_int_or_none(row[6]):
-            insert_error_msg_2_cells(sheet, row_index, f"The value of {header[6]} must be positive integer.", res_column_index) 
+            insert_error_msg_2_cells(sheet, row_index, f"The value of {header[6]} must be positive integer.", res_column_index)
         elif row[7].value and not [category for category in category_list if category.prop_name.lower() == row[7].value.strip().lower()]:
-            # category = 
-            # if category:
-            #     props.append(category[0])
-            # else:
             insert_error_msg_2_cells(sheet, row_index, f"The value of {header[7]} is not existed in System, please take a check", res_column_index)
         elif row[8].value and not [label for label in label_list if label.prop_name.lower() == row[8].value.strip().lower()]:
-            # label = 
-            # if label:
-            #     props.append(label[0])
-            # else:
             insert_error_msg_2_cells(sheet, row_index, f"The value of {header[8]} is not existed in System, please take a check", res_column_index)
         elif row[0].value in identifier_list:
             # Account.account_provider_id, Account.account_id, Account.region

@@ -108,6 +108,8 @@ const.BATCH_CREATE_REPORT_PATH = 'batch_create/datasource/report'
 const.BATCH_CREATE_IDENTIFIER_REPORT_PATH = 'batch_create/identifier/report'
 const.EXISTED_MSG = 'JDBC connection with the same instance already exists'
 const.IDENTIFIER_EXISTED_MSG = "A data identifier with the same name already exists"
+const.DATASOURCE_REPORT = "batch_export/datasource"
+const.IDENTIFY_REPORT = "batch_export/identify"
 
 const.CONFIG_CONCURRENT_RUN_JOB_NUMBER = 'ConcurrentRunJobNumber'
 const.CONFIG_CONCURRENT_RUN_JOB_NUMBER_DEFAULT_VALUE = 50
@@ -129,9 +131,9 @@ const.S3_STR = "S3"
 const.RDS_STR = "RDS"
 const.GLUE_STR = "GLUE"
 const.JDBC_STR = "JDBC"
-const.DATASOURCE_REPORT = "report/datasource"
-const.IDENTIFY_REPORT = "report/identify"
-const.EXPORT_IDENTIFY_HEADER = ["Data identify name", "Description", "Category", "header_keywords", "exclude_keywords","max_distance","min_occurrence", "Identify label"]
+# const.DATASOURCE_REPORT = "report/datasource"
+# const.IDENTIFY_REPORT = "report/identify"
+const.EXPORT_IDENTIFY_HEADER = ["Data identify name", "Description", "header_keywords", "exclude_keywords","max_distance","min_occurrence","Identify Category", "Identify label"]
 
 const.UNSTRUCTURED_FILES = {
     "document": ["doc", "docx", "pdf", "ppt", "pptx", "xls", "xlsx", "odp"],
