@@ -1755,6 +1755,13 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
     ec2_client, __ = __ec2(account=account_id, region=region)
     glue = __get_glue_client(account=account_id, region=region)
     try:
+        if not jdbcConn.jdbc_connection_schema:
+            source: JdbcSource = JdbcSource(connection_url=jdbcConn.jdbc_connection_url,
+                                            username=jdbcConn.master_username,
+                                            password=jdbcConn.password,
+                                            secret_id=jdbcConn.secret
+                                            )
+            jdbcConn.jdbc_connection_schema = ("\n").join(list_jdbc_databases(source))
         availability_zone = ec2_client.describe_subnets(SubnetIds=[jdbcConn.network_subnet_id])['Subnets'][0]['AvailabilityZone']
         try:
             connectionProperties_dict = gen_conn_properties(jdbcConn)
@@ -1817,13 +1824,6 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
             )
         except Exception:
             logger.error(traceback.format_exc())
-        if not jdbcConn.jdbc_connection_schema:
-            source: JdbcSource = JdbcSource(connection_url=jdbcConn.jdbc_connection_url,
-                                            username=jdbcConn.master_username,
-                                            password=jdbcConn.password,
-                                            secret_id=jdbcConn.secret
-                                            )
-            jdbcConn.jdbc_connection_schema = ("\n").join(list_jdbc_databases(source))
         jdbcConn.network_availability_zone = availability_zone
         jdbcConn.create_type = JDBCCreateType.ADD.value
         jdbc_conn_insert = JDBCInstanceSourceFullInfo()
