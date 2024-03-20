@@ -274,6 +274,7 @@ def get_all_identifiers():
         models.TemplateIdentifier.id,
         models.TemplateIdentifier.name,
         models.TemplateIdentifier.description,
+        models.TemplateIdentifier.rule,
         models.TemplateIdentifier.header_keywords,
         models.TemplateIdentifier.exclude_keywords,
         models.TemplateIdentifier.max_distance,

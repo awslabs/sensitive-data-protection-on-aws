@@ -41,6 +41,7 @@
   },
   "button": {
     "authorize": "授权",
+    "addAndAuthorize": "添加数据源并授权",
     "signin": "登录",
     "cancel": "取消",
     "delete": "删除",

@@ -193,16 +193,16 @@ def export_identify(key):
     props_mapping = __convert_prop_list_2_mapping(props_list)
     for row_num, row_data in enumerate(result, start=2):
         category = props_mapping.get(f"{row_data[0]}-1")
-        label = props_mapping.get("{row_data[0]}-2")
+        label = props_mapping.get(f"{row_data[0]}-2")
         # del row_data[0]
         for col_num, cell_value in enumerate(row_data, start=1):
             if col_num == 1:
                 continue
             sheet.cell(row=row_num, column=col_num - 1).value = cell_value
             if category:
-                sheet.cell(row=row_num, column=7, value=category)
+                sheet.cell(row=row_num, column=8, value=category)
             if label:
-                sheet.cell(row=row_num, column=8, value=label)
+                sheet.cell(row=row_num, column=9, value=label)
     workbook.active = 0
     file_name = f"identify_{key}.xlsx"
     tmp_file = f"{tempfile.gettempdir()}/{file_name}"

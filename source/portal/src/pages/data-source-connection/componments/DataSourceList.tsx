@@ -183,11 +183,11 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         id: 'connectAll',
         disabled: tagType === DATA_TYPE_ENUM.rds,
       },
-      {
-        text: t('button.addDataSource'),
-        id: 'addDataSource',
-        disabled: tagType !== DATA_TYPE_ENUM.jdbc,
-      },
+      // {
+      //   text: t('button.addDataSource'),
+      //   id: 'addDataSource',
+      //   disabled: tagType !== DATA_TYPE_ENUM.jdbc,
+      // },
       // {
       //   text: t('button.addDataSourceBatch'),
       //   id: 'addDataSourceBatch',
@@ -220,11 +220,11 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
     }
     if (tagType === DATA_TYPE_ENUM.jdbc) {
       res = [
-        {
-          text: t('button.addDataSource'),
-          id: 'addImportJdbc',
-          disabled: tagType !== DATA_TYPE_ENUM.jdbc,
-        },
+        // {
+        //   text: t('button.addDataSource'),
+        //   id: 'addImportJdbc',
+        //   disabled: tagType !== DATA_TYPE_ENUM.jdbc,
+        // },
         {
           text: t('button.editDataSource'),
           id: 'editJdbc',
@@ -996,6 +996,13 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                       ? t('button.connect')
                       : t('button.authorize')}
                   </Button>
+                  { tagType === DATA_TYPE_ENUM.jdbc && 
+                    <Button
+                    onClick={()=>clkAddSource('addImportJdbc')}
+                  >
+                    {t('button.addAndAuthorize')}
+                  </Button>
+                  }
                   <ButtonDropdown
                     onItemClick={({ detail }) => {
                       if (detail.id === 'disconnect') {
@@ -1007,9 +1014,9 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                       if (detail.id === 'deleteDatabase') {
                         clkDeleteDatabase();
                       }
-                      if (detail.id === 'addImportJdbc') {
-                        clkAddSource('addImportJdbc');
-                      }
+                      // if (detail.id === 'addImportJdbc') {
+                      //   clkAddSource('addImportJdbc');
+                      // }
                       if (detail.id === 'editJdbc') {
                         clkAddSource('editJdbc');
                       }

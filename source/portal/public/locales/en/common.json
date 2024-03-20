@@ -41,6 +41,7 @@
   },
   "button": {
     "authorize": "Authorize",
+    "addAndAuthorize": "Add data source and authorize",
     "signin": "Sign In",
     "cancel": "Cancel",
     "delete": "Delete",

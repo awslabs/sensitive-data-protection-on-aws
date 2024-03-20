@@ -133,7 +133,7 @@ const.GLUE_STR = "GLUE"
 const.JDBC_STR = "JDBC"
 # const.DATASOURCE_REPORT = "report/datasource"
 # const.IDENTIFY_REPORT = "report/identify"
-const.EXPORT_IDENTIFY_HEADER = ["Data identify name", "Description", "header_keywords", "exclude_keywords","max_distance","min_occurrence","Identify Category", "Identify label"]
+const.EXPORT_IDENTIFY_HEADER = ["Data identify name", "Description", "Rule", "header_keywords", "exclude_keywords", "max_distance", "min_occurrence", "Identify Category", "Identify label"]
 
 const.UNSTRUCTURED_FILES = {
     "document": ["doc", "docx", "pdf", "ppt", "pptx", "xls", "xlsx", "odp"],
