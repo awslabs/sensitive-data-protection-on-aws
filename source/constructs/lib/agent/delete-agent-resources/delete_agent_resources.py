@@ -98,9 +98,12 @@ def on_delete(event):
 
 def cleanup_crawlers():
     crawlers = []
-    next_page = ''
+    next_token = None
     while True:
-        response = glue.list_crawlers(NextToken=next_page, Tags={'Owner':solution_name, 'AdminAccountId': admin_account_id})
+        if next_token:
+            response = glue.list_crawlers(Tags={'Owner':solution_name, 'AdminAccountId': admin_account_id}, NextToken=next_token)
+        else:
+            response = glue.list_crawlers(Tags={'Owner':solution_name, 'AdminAccountId': admin_account_id})
         for crawler_name in response['CrawlerNames']:
             if not crawler_name.startswith(solution_name + "-"):
                 continue
@@ -116,8 +119,8 @@ def cleanup_crawlers():
                 remove_jdbc_connection(connection_name)
             crawlers.append(crawler_name)
 
-        next_page = response.get('NextToken')
-        if next_page is None:
+        next_token = response.get('NextToken')
+        if not next_token:
             break
 
     return crawlers
@@ -146,14 +149,14 @@ def remove_crawler(crawler_name: str):
 
 
 def clean_jobs():
-    next_token = ''
+    next_token = None
     while True:
-        response = glue.list_jobs(
-            NextToken=next_token,
-            Tags={'Owner':solution_name, "AdminAccountId": admin_account_id}
-        )
+        if next_token:
+            response = glue.list_jobs(Tags={'Owner':solution_name, "AdminAccountId": admin_account_id}, NextToken=next_token)
+        else:
+            response = glue.list_jobs(Tags={'Owner':solution_name, "AdminAccountId": admin_account_id})
         for job in response["JobNames"]:
             glue.delete_job(JobName=job)
         next_token = response.get("NextToken")
-        if next_token is None:
+        if not next_token:
             break

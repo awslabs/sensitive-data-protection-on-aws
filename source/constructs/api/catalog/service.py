@@ -724,7 +724,7 @@ def __query_job_result_by_athena(
         else:
             time.sleep(1)
     athena_result_list = []
-    next_token = ''
+    next_token = None
     while True:
         if next_token:
             result = client.get_query_results(QueryExecutionId=query_id, NextToken=next_token)
@@ -732,9 +732,8 @@ def __query_job_result_by_athena(
             result = client.get_query_results(QueryExecutionId=query_id)
         athena_result_list.append(result)
         # logger.info(result)
-        if "NextToken" in result and result['NextToken']:
-            next_token = result['NextToken']
-        else:
+        next_token = response.get('NextToken')
+        if not next_token:
             break
 
     # result = client.get_query_results(QueryExecutionId=query_id, NextToken='')

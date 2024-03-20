@@ -787,14 +787,15 @@ def __get_table_count_from_agent(run_database: models.DiscoveryJobRunDatabase, b
         glue_database_name = f'{const.SOLUTION_NAME}-{DatabaseType.S3_UNSTRUCTURED.value}-{run_database.database_name}'
     elif run_database.database_type == DatabaseType.GLUE.value:
         glue_database_name = run_database.database_name
-    next_token = ""
+    next_token = None
     count = 0
     logger.info(base_time)
     while True:
         try:
-            response = glue.get_tables(
-                DatabaseName=glue_database_name,
-                NextToken=next_token)
+            if next_token:
+                response = glue.get_tables(DatabaseName=glue_database_name, NextToken=next_token)
+            else:
+                response = glue.get_tables(DatabaseName=glue_database_name)
         except Exception as e:
             logger.exception(e)
             return -1
@@ -802,7 +803,7 @@ def __get_table_count_from_agent(run_database: models.DiscoveryJobRunDatabase, b
             if table.get('Parameters', {}).get('classification', '') != 'UNKNOWN' and table['UpdateTime'] > base_time:
                 count += 1
         next_token = response.get('NextToken')
-        if next_token is None:
+        if not next_token:
             break
     return count
 
