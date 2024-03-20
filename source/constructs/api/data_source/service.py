@@ -1817,7 +1817,13 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
             )
         except Exception:
             logger.error(traceback.format_exc())
-
+        if not jdbcConn.jdbc_connection_schema:
+            source: JdbcSource = JdbcSource(connection_url=jdbcConn.jdbc_connection_url,
+                                            username=jdbcConn.master_username,
+                                            password=jdbcConn.password,
+                                            secret_id=jdbcConn.secret
+                                            )
+            jdbcConn.jdbc_connection_schema = ("\n").join(list_jdbc_databases(source))
         jdbcConn.network_availability_zone = availability_zone
         jdbcConn.create_type = JDBCCreateType.ADD.value
         jdbc_conn_insert = JDBCInstanceSourceFullInfo()
@@ -2835,13 +2841,7 @@ def __gen_created_jdbc(row):
     if row[4].value and row[4].value.strip() != const.EMPTY_STR:
         created_jdbc.jdbc_connection_schema = str(row[4].value).replace(",", "\n")
     else:
-        source: JdbcSource = JdbcSource(connection_url=created_jdbc.jdbc_connection_url,
-                                        username=created_jdbc.master_username,
-                                        password=created_jdbc.password,
-                                        secret_id=created_jdbc.secret
-                                        )
-        created_jdbc.jdbc_connection_schema = ("\n").join(list_jdbc_databases(source))
-    # created_jdbc.jdbc_connection_schema = str(row[4].value) if row[4].value else None
+        created_jdbc.jdbc_connection_schema = None
     created_jdbc.account_id = str(row[8].value)
     created_jdbc.region = str(row[9].value)
     created_jdbc.account_provider_id = row[10].value
