@@ -183,7 +183,7 @@ def check_rule(identifier: schemas.TemplateIdentifier):
 def export_identify(key):
     default_sheet = "Sheet"
     workbook = openpyxl.Workbook()
-    sheet = workbook.create_sheet("IDENTIFY", index=0)
+    sheet = workbook.create_sheet(const.BATCH_SHEET, index=0)
     if default_sheet in workbook.sheetnames and len(workbook.sheetnames) > 1:
         origin_sheet = workbook[default_sheet]
         workbook.remove(origin_sheet)
@@ -198,7 +198,10 @@ def export_identify(key):
         for col_num, cell_value in enumerate(row_data, start=1):
             if col_num == 1:
                 continue
-            sheet.cell(row=row_num, column=col_num - 1).value = cell_value
+            if col_num == 5 or col_num == 6:
+                sheet.cell(row=row_num, column=col_num - 1).value = cell_value.replace('\"', '')[1:-1] if cell_value else cell_value
+            else:
+                sheet.cell(row=row_num, column=col_num - 1).value = cell_value
             if category:
                 sheet.cell(row=row_num, column=8, value=category)
             if label:
@@ -357,8 +360,8 @@ def batch_create(file: UploadFile = File(...)):
 def __check_empty_for_field(row, header):
     if row[0].value is None or str(row[0].value).strip() == const.EMPTY_STR:
         return True, f"{header[0]} should not be empty"
-    if row[2].value is None or str(row[2].value).strip() == const.EMPTY_STR:
-        return True, f"{header[2]} should not be empty"
+    # if row[2].value is None or str(row[2].value).strip() == const.EMPTY_STR:
+    #     return True, f"{header[2]} should not be empty"
     return False, None
 
 def __gen_created_identifier(row, props):

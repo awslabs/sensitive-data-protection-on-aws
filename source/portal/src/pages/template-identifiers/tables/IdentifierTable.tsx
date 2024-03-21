@@ -457,6 +457,13 @@ const IdentifierTable: React.FC<IdentifierTableProps> = (
                 <>
                   {type === 1 && (
                     <SpaceBetween direction="horizontal" size="xs">
+                      <Button
+                    onClick={() => {
+                      getPageData();
+                    }}
+                    disabled={isLoading}
+                    iconName="refresh"
+                      />
                       <Button onClick={() => batchExport()} disabled={downloading}>
                         {t('button.batchExportIdentify')}
                       </Button>

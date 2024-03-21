@@ -988,14 +988,14 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                     disabled={isLoading}
                     iconName="refresh"
                   />
-                  <Button
+                  {tagType !== DATA_TYPE_ENUM.jdbc &&
+                    <Button
                     disabled={isLoading || selectedItems.length !== 1}
                     onClick={clkConnected}
                   >
-                    {tagType === DATA_TYPE_ENUM.jdbc
-                      ? t('button.connect')
-                      : t('button.authorize')}
+                    {t('button.authorize')}
                   </Button>
+                  }
                   { tagType === DATA_TYPE_ENUM.jdbc && 
                     <Button
                     onClick={()=>clkAddSource('addImportJdbc')}

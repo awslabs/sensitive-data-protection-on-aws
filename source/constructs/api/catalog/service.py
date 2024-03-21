@@ -296,7 +296,7 @@ def sync_crawler_result(
             table_create_list = []
             table_update_list = []
             for table in tables_response["TableList"]:
-                table_name = table["Name"].strip()
+                table_name = table["Location"].strip()
                 # If the file is end of .csv or .json, but the content of the file is not csv/json
                 # glue can't crawl them correctly
                 # So there is no sizeKey in Parameters, we set the default value is 0
@@ -1420,7 +1420,7 @@ def filter_records(all_items: list, all_labels_dict: dict, sensitive_flag: str):
     jdbc_records = []
     for row in all_items:
         row_result = [cell for cell in row]
-        if sensitive_flag != 'all' and "N/A" in row_result[7]:
+        if sensitive_flag != 'all' and "N/A" in row_result[10]:
             continue
         if row_result[12]:
             row_result[12] = ",".join(gen_labels(all_labels_dict, row_result[12]))
