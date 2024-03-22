@@ -98,6 +98,8 @@ const.PRIVATE = 'Private'
 const.ZERO = 0
 const.BATCH_CREATE_LIMIT = 1000
 const.BATCH_SHEET = "OriginTemplate"
+const.REGION_CORD = "region_cord"
+const.REGION_ALIAS = "region_alias"
 
 const.CONNECTION_DESC_MAX_LEN = 2048
 const.BATCH_CREATE_TEMPLATE_PATH_CN = 'batch_create/datasource/template/batch_create_jdbc_datasource-cn.xlsx'

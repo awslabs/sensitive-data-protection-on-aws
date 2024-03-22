@@ -314,7 +314,7 @@ class Provider(Enum):
 
 @unique
 class ProviderName(Enum):
-    AWS_CLOUD = 'AWS'
+    AWS_CLOUD = 'AWS CLOUD'
     TENCENT_CLOUD = 'TENCENT CLOUD'
     GOOGLE_CLOUD = 'GOOGLE CLOUD'
     JDBC_PROXY = 'JDBC PROXY'

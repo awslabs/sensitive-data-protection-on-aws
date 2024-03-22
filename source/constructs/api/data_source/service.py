@@ -2487,34 +2487,71 @@ def test_glue_conn(account, connection):
         ConnectionName=connection
     )['ConnectionTest']['Status']
 
+# def list_data_location():
+#     res = []
+#     provider_list = crud.list_distinct_provider()
+#     for item in provider_list:
+#         regions: list[SourceRegion] = crud.list_distinct_region_by_provider(item.id)
+#         accounts_db = crud.get_account_list_by_provider(item.id)
+#         if not regions:
+#             continue
+#         if not accounts_db:
+#             continue
+#         for subItem in regions:
+#             accounts = []
+#             for account in accounts_db:
+#                 if account.region == subItem.region_name:
+#                     accounts.append(account)
+#             if len(accounts) == 0:
+#                 continue
+#             location = DataLocationInfo()
+#             location.account_count = len(accounts)
+#             location.source = item.provider_name
+#             location.region = subItem.region_name
+#             location.coordinate = subItem.region_cord
+#             location.region_alias = subItem.region_alias
+#             location.provider_id = item.id
+#             res.append(location)
+#     res = sorted(res, key=lambda x: x.account_count, reverse=True)
+#     return res
 
 def list_data_location():
     res = []
-    provider_list = crud.list_distinct_provider()
-    for item in provider_list:
-        regions: list[SourceRegion] = crud.list_distinct_region_by_provider(item.id)
-        accounts_db = crud.get_account_list_by_provider(item.id)
-        if not regions:
-            continue
-        if not accounts_db:
-            continue
-        for subItem in regions:
-            accounts = []
-            for account in accounts_db:
-                if account.region == subItem.region_name:
-                    accounts.append(account)
-            if len(accounts) == 0:
-                continue
-            location = DataLocationInfo()
-            location.account_count = len(accounts)
-            location.source = item.provider_name if item.id != ProviderName.JDBC_PROXY.value else ProviderName.AWS_CLOUD.value
-            location.region = subItem.region_name
-            location.coordinate = subItem.region_cord
-            location.region_alias = subItem.region_alias
-            location.provider_id = item.id if item.id != Provider.JDBC_PROXY.value else Provider.AWS_CLOUD.value
-            res.append(location)
+    provider_region_account_dict = {}
+    provider_region_detail_dict = {}
+    all_enable_accounts: List[Account] = crud.get_enable_account_list()
+    all_enable_regions: List[SourceRegion] = crud.get_enable_region_list()
+    if all_enable_regions:
+        for region in all_enable_regions:
+            provider_region_detail_dict[f"{region.provider_id}|{region.region_name}"] = {const.REGION_CORD: region.region_cord,
+                                                                                         const.REGION_ALIAS: region.region_alias}
+    if all_enable_accounts:
+        for account in all_enable_accounts:
+            if account.account_provider_id == Provider.AWS_CLOUD.value or account.account_provider_id == Provider.JDBC_PROXY.value:
+                provider_region_account_dict = __gen_account_set(provider_region_account_dict, account, Provider.AWS_CLOUD.value)
+            else:
+                provider_region_account_dict = __gen_account_set(provider_region_account_dict, account, account.account_provider_id)
+    for product_region, account_set in provider_region_account_dict.items():
+        provider_id = int(product_region.split("|")[0])
+        location = DataLocationInfo()
+        location.account_count = len(account_set)
+        location.source = convert_provider_id_2_name(provider_id)
+        location.region = product_region.split("|")[1]
+        location.coordinate = provider_region_detail_dict.get(product_region, {}).get(const.REGION_CORD)
+        location.region_alias = provider_region_detail_dict.get(product_region, {}).get(const.REGION_ALIAS)
+        location.provider_id = provider_id
+        res.append(location)
     res = sorted(res, key=lambda x: x.account_count, reverse=True)
     return res
+
+def __gen_account_set(details: dict, account: Account, key: int):
+    tmp_value = details.get(f"{key}|{account.region}")
+    if tmp_value:
+        tmp_value.add(account.account_id)
+    else:
+        tmp_value = set()
+    details[f"{key}|{account.region}"] = tmp_value
+    return details
 
 def query_regions_by_provider(provider_id: int):
     return crud.query_regions_by_provider(provider_id)

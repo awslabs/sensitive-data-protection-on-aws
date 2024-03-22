@@ -926,6 +926,11 @@ def get_account_list_by_provider(provider_id):
     return get_session().query(Account).filter(Account.account_provider_id == provider_id,
                                                Account.status == SourceAccountStatus.ENABLE.value).all()
 
+def get_enable_account_list():
+    return get_session().query(Account).filter(Account.status == SourceAccountStatus.ENABLE.value).all()
+
+def get_enable_region_list():
+    return get_session().query(SourceRegion).filter(SourceRegion.status == SourceRegionStatus.ENABLE.value).all()
 
 def list_distinct_region_by_provider(provider_id) -> list[SourceRegion]:
     return get_session().query(SourceRegion).filter(SourceRegion.provider_id == provider_id,

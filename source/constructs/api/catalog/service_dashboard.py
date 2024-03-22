@@ -302,8 +302,11 @@ def get_database_by_identifier_paginate_s3(condition: QueryCondition):
                                                                                             'unstructured',
                                                                                             database_info[3])
             if result_db_unstructured:
-                result_db.size_key += result_db_unstructured.size_key
-                result_db.object_count += result_db_unstructured.object_count
+                if result_db:
+                    result_db.size_key += result_db_unstructured.size_key
+                    result_db.object_count += result_db_unstructured.object_count
+                else:
+                    result_db = result_db_unstructured
         if result_db:
             result_list.append(result_db)
     if condition.size >= len(result_list):
