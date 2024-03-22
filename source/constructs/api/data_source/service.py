@@ -26,7 +26,7 @@ from common.enum import (MessageEnum,
                          Provider,
                          DataSourceType,
                          DatabaseType,
-                         JDBCCreateType)
+                         JDBCCreateType, ProviderName)
 from common.exception_handler import BizException
 from common.query_condition import QueryCondition
 from db.models_data_source import (Account)
@@ -2507,11 +2507,11 @@ def list_data_location():
                 continue
             location = DataLocationInfo()
             location.account_count = len(accounts)
-            location.source = item.provider_name
+            location.source = item.provider_name if item.id != ProviderName.JDBC_PROXY.value else ProviderName.AWS_CLOUD.value
             location.region = subItem.region_name
             location.coordinate = subItem.region_cord
             location.region_alias = subItem.region_alias
-            location.provider_id = item.id
+            location.provider_id = item.id if item.id != Provider.JDBC_PROXY.value else Provider.AWS_CLOUD.value
             res.append(location)
     res = sorted(res, key=lambda x: x.account_count, reverse=True)
     return res
