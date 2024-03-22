@@ -5,11 +5,14 @@ import pathlib
 import re
 import tempfile
 from collections import defaultdict
-from multiprocessing import Process
+from multiprocessing import Process, Queue, Lock
 
 import boto3
 import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
 import psutil
+
 from parser_factory import ParserFactory
 
 
@@ -203,22 +206,25 @@ def create_glue_table(glue_client, database_name, table_name, glue_table_info):
 
 
 # Worker function to process a detection_files item
-def worker(worker_files,
+def worker(queue,
+           lock,
            crawler_result_bucket_name,
            destination_database,
            original_file_bucket_name):
-    for file_category, file_info in worker_files:
+    while not queue.empty():
+        with lock:
+            item = queue.get()
+            if item is None:
+                break
 
-
-
-        glue_client = boto3.client('glue')
-        s3_client = boto3.client('s3')
-        current = file_info[0]
-        file_info = file_info[1]
-        file_type = file_info['file_type']
-        file_path = file_info['file_path']
+        glue_client = boto3.client('glue', region_name='cn-northwest-1')
+        s3_client = boto3.client('s3', region_name='cn-northwest-1')
+        file_category = item[0]
+        file = item[1]
+        file_path = file[0]
+        file_info = file[1]
         try:
-            print('Worker is processing... ' + current)
+            print('Worker is processing... ' + file_path)
             file_contents = batch_process_files(s3_client, original_file_bucket_name, file_info, file_category)
             # print(file_contents)
             # split file_contents into several dictionaries, with which contain 100 files at most
@@ -257,20 +263,20 @@ def worker(worker_files,
         except Exception as e:
             print(f"Error occured processing {file_path}. Error message: {e}")
         # print_system_usage()
-        print('Worker is finished on ' + current)
+        print('Worker is finished on ' + file_path)
 
 
 def main(param_dict):
-    original_bucket_name = 'yiyan-test-s6-100partition' #param_dict['SourceBucketName']
-    crawler_result_bucket_name = 'sdps-agent-agents3bucket37b73ecb-veydzutbtwma' #param_dict['ResultBucketName']
-    region_name = 'cn-northwest-1' #param_dict['RegionName']
-    worker_num = psutil.cpu_count(logical=False) * 2 #param_dict['WorkerNum']
-
+    original_bucket_name = 'yiyan-test-s6-100partition'  # param_dict['SourceBucketName']
+    crawler_result_bucket_name = 'sdps-agent-agents3bucket37b73ecb-veydzutbtwma'  # param_dict['ResultBucketName']
+    region_name = 'cn-northwest-1'  # param_dict['RegionName']
+    worker_num = psutil.cpu_count(logical=False)  # param_dict['WorkerNum']
+    print('worker_num:'+str(worker_num))
     crawler_result_object_key = f"crawler_results/{original_bucket_name}_info.json"
     destination_database = f"SDPS-unstructured-{original_bucket_name}"
 
-    s3_client = boto3.client('s3')
-    glue_client = boto3.client('glue')
+    s3_client = boto3.client('s3', region_name='cn-northwest-1')
+    glue_client = boto3.client('glue', region_name='cn-northwest-1')
     print('++++++++++++')
     # 1. Create a Glue Database
     try:
@@ -294,36 +300,33 @@ def main(param_dict):
     # 2. Download the crawler result from S3 and
     with tempfile.NamedTemporaryFile(mode='w') as temp:
         temp_file_path = temp.name
-        print('crawler_result_bucket_name:'+crawler_result_bucket_name)
-        print('crawler_result_object_key:'+crawler_result_object_key)
+        print('crawler_result_bucket_name:' + crawler_result_bucket_name)
+        print('crawler_result_object_key:' + crawler_result_object_key)
         s3_client.download_file(Bucket=crawler_result_bucket_name, Key=crawler_result_object_key,
                                 Filename=temp_file_path)
         with open(temp_file_path, 'r') as f:
             bucket_info = json.load(f)
 
     # 4. Batch process files in same folder with same type
-    original_file_bucket_name = bucket_info['bucket_name']
-    files_list = []
-    # todo should sort by  real sample file count
-    for file_category in ['detection_files', 'include_files', 'exclude_files']:
-        # queue.put((file_category, files))
-        file_category_list = [(file_category, files) for files in bucket_info[file_category].items()]
-        files_list.extend(file_category_list)
+    queue = Queue()
+    lock = Lock()
 
-    num_items = len(files_list)
-    worker_num = min(worker_num, num_items)
-    remainder = int(num_items / worker_num)
-    start = 0
+    original_file_bucket_name = bucket_info['bucket_name']
+    num_items = 0
+    for file_category in ['detection_files', 'include_files', 'exclude_files']:
+        for files in bucket_info[file_category].items():
+            queue.put((file_category, files))
+            num_items += 1
 
     processes = []
     # Create up to X processes
-    for i in range(worker_num):
-        end = start + remainder + (1 if i < remainder else 0)
-        worker_files = files_list[start:end]
+    worker_num = min(worker_num, num_items)
+    for _ in range(worker_num):
         p = Process(
             target=worker,
             args=(
-                worker_files,
+                queue,
+                lock,
                 crawler_result_bucket_name,
                 destination_database,
                 original_file_bucket_name
@@ -331,7 +334,10 @@ def main(param_dict):
         )
         processes.append(p)
         p.start()
-        start = end
+
+    # Add None to the queue to signal workers to exit
+    for _ in range(worker_num):
+        queue.put(None)
 
     # Wait for all worker processes to finish
     for p in processes:
