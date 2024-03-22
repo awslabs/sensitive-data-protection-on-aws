@@ -650,7 +650,7 @@ def update_jdbc_connection_full(jdbc_instance: schemas.JDBCInstanceSourceUpdate)
     jdbc_instance_source.glue_connection = jdbc_instance_source.glue_connection
     jdbc_instance_source.glue_vpc_endpoint = None
     jdbc_instance_source.glue_crawler_last_updated = datetime.datetime.utcnow()
-    jdbc_instance_source.glue_state = None
+    jdbc_instance_source.glue_state = ConnectionState.AUTHORIZED.value
     session.merge(jdbc_instance_source)
     session.commit()
 
