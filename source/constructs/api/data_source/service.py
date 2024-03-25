@@ -2550,6 +2550,7 @@ def __gen_account_set(details: dict, account: Account, key: int):
         tmp_value.add(account.account_id)
     else:
         tmp_value = set()
+        tmp_value.add(account.account_id)
     details[f"{key}|{account.region}"] = tmp_value
     return details
 

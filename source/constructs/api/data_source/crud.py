@@ -805,17 +805,25 @@ def add_third_account(account, role_arn):
     return True
 
 
-def get_source_s3_account_region():
-    return (get_session()
-            .query(S3BucketSource.region, S3BucketSource.account_id)
-            .distinct()
-            .all()
-            )
+# def get_source_s3_account_region():
+#     return (get_session()
+#             .query(S3BucketSource.region, S3BucketSource.account_id)
+#             .distinct()
+#             .all()
+#             )
 
+# def get_source_proxy_account_region():
+#     return (get_session()
+#             .query(Account.region, Account.account_id)
+#             .filter(Account.account_provider_id == Provider.JDBC_PROXY.value)
+#             .distinct()
+#             .all()
+#             )
 
-def get_source_rds_account_region():
+def get_source_aws_account_region():
     return (get_session()
-            .query(RdsInstanceSource.region, RdsInstanceSource.account_id)
+            .query(Account.region, Account.account_id)
+            .filter(or_(Account.account_provider_id == Provider.AWS_CLOUD.value, Account.account_provider_id == Provider.JDBC_PROXY.value ))
             .distinct()
             .all()
             )

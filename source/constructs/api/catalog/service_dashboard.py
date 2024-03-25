@@ -15,7 +15,7 @@ from common.reference_parameter import logger
 
 
 def agg_data_source_summary(provider_id):
-    if provider_id == Provider.AWS_CLOUD.value:
+    if provider_id == str(Provider.AWS_CLOUD.value):
         account_set, region_set = count_aws_account_region()
     # Get data source total region.
     else:
@@ -25,17 +25,14 @@ def agg_data_source_summary(provider_id):
     return result_dict
 
 def count_aws_account_region():
-    s3_account_region = data_source_crud.get_source_s3_account_region()
-    rds_account_region = data_source_crud.get_source_rds_account_region()
+    # s3_account_region = data_source_crud.get_source_s3_account_region()
+    # rds_account_region = data_source_crud.get_source_rds_account_region()
+    aws_account_region = data_source_crud.get_source_aws_account_region()
 
     account_set = set()
     region_set = set()
-    for d in s3_account_region:
-        account_set.add(d['aws_account'])
-        region_set.add(d['region'])
-
-    for d in rds_account_region:
-        account_set.add(d['aws_account'])
+    for d in aws_account_region:
+        account_set.add(d['account_id'])
         region_set.add(d['region'])
     return account_set, region_set
 
