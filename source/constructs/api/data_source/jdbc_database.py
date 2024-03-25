@@ -15,11 +15,12 @@ class JdbcDatabase(metaclass=ABCMeta):
 class MySQLDatabase(JdbcDatabase):
     ignored_databases = ['information_schema', 'innodb', 'mysql', 'performance_schema', 'sys', 'tmp']
 
-    def __init__(self, host, port, user, password):
+    def __init__(self, host, port, user, password, ssl_verify_cert=False):
         self.host = host
         self.port = port
         self.user = user
         self.password = password
+        self.ssl_verify_cert = ssl_verify_cert
 
     def list_databases(self):
         databases = []
@@ -27,7 +28,9 @@ class MySQLDatabase(JdbcDatabase):
             db = pymysql.connect(host=self.host,
                                  port=self.port,
                                  user=self.user,
-                                 password=self.password)
+                                 password=self.password,
+                                 ssl_verify_cert=self.ssl_verify_cert,
+                                 )
         except Exception as e:
             logger.info(e)
             raise BizException(MessageEnum.SOURCE_JDBC_LIST_DATABASES_FAILED.get_code(),
