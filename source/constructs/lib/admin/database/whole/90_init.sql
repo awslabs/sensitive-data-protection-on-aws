@@ -1,6 +1,6 @@
 -- Config
 INSERT INTO config (config_key, config_value) VALUES ('ConcurrentRunJobNumber','10');
-INSERT INTO config (config_key, config_value) VALUES ('SubJobNumberS3','10');
+INSERT INTO config (config_key, config_value) VALUES ('SubJobNumberS3','80');
 INSERT INTO config (config_key, config_value) VALUES ('SubJobNumberRds','3');
 -- Template
 DELETE FROM template WHERE id=1;

@@ -487,6 +487,7 @@ def __create_job(database_type: str, account_id, region, database_name, job_name
                                    NumberOfWorkers=2,
                                    WorkerType='G.1X',
                                    ExecutionProperty={'MaxConcurrentRuns': 100},
+                                   Timeout=30 * 24 * 60,
                                    Connections={'Connections': list(connection_set)},
                                    )
         else:
@@ -501,6 +502,7 @@ def __create_job(database_type: str, account_id, region, database_name, job_name
                                    NumberOfWorkers=2,
                                    WorkerType='G.1X',
                                    ExecutionProperty={'MaxConcurrentRuns': 1000},
+                                   Timeout=30 * 24 * 60,
                                    )
 
 
