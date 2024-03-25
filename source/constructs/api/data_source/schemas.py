@@ -404,3 +404,4 @@ class JdbcSource(BaseModel):
     username: Optional[str]
     password: Optional[str]
     secret_id: Optional[str]
+    ssl_verify_cert: Optional[bool]

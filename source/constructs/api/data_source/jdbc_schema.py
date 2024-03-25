@@ -21,13 +21,14 @@ def list_jdbc_databases(source: JdbcSource) -> list[str]:
     port = int(url_arr[3].split("/")[0])
     user = source.username
     password = source.password
+    ssl_verify_cert = True if source.ssl_verify_cert else False
     if source.secret_id:
         secrets_client = boto3.client('secretsmanager')
         secret_response = secrets_client.get_secret_value(SecretId=source.secret_id)
         secrets = json.loads(secret_response['SecretString'])
         user = secrets['username']
         password = secrets['password']
-    mysql_database = jdbc_database.MySQLDatabase(host, port, user, password)
+    mysql_database = jdbc_database.MySQLDatabase(host, port, user, password, ssl_verify_cert)
     databases = mysql_database.list_databases()
     logger.info(databases)
     return databases
