@@ -5,6 +5,7 @@ import os.path as osp
 import cv2
 
 cuda_available = False
+onnxruntime.set_default_logger_severity(3)
 
 def distance2bbox(points, distance, max_shape=None):
     """Decode distance prediction to bounding box.

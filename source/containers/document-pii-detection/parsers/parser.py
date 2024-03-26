@@ -2,6 +2,7 @@ import os
 import magic
 import re
 from tempfile import NamedTemporaryFile
+import boto3
 
 def merge_strings(substrings, delimiter='.', max_length=128, truncate_buffer=False):
     """
@@ -48,7 +49,7 @@ class BaseParser:
     def load_content(self, bucket, object_key):
         """
         Downloads the file from S3.
-        """
+
         # Create a temporary file
         with NamedTemporaryFile() as temp_file:
             self.s3_client.download_file(Bucket=bucket, Key=object_key, Filename=temp_file.name)
@@ -60,6 +61,18 @@ class BaseParser:
                 print(f"Failed to parse file {object_key}. Error: {e}")
                 file_content = []
             processed_content = self.postprocess_content(file_content)
+        """
+        # begin download obj into memory
+        s3 = boto3.resource('s3', region_name='cn-northwest-1')
+        obj = s3.Object(bucket, object_key).get()
+
+        try:
+            file_content = self.parse_file(obj['Body'].read())
+        except Exception as e:
+            print(f"Failed to parse file {object_key}. Error: {e}")
+            file_content = []
+        processed_content = self.postprocess_content(file_content)
+        # end download obj into memory
 
         return processed_content
     

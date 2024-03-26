@@ -13,6 +13,8 @@ from .postprocess import build_post_process
 
 cuda_available = False
 
+onnxruntime.set_default_logger_severity(3)
+
 def sorted_boxes(dt_boxes):
     """
     Sort text boxes in order from top to bottom, left to right
