@@ -1116,10 +1116,10 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                 except Exception as e:
                     logger.info("update_crawler error")
                     logger.info(str(e))
-                st_cr_response = glue.start_crawler(
-                    Name=crawler_name
-                )
-                logger.info(st_cr_response)
+                # st_cr_response = glue.start_crawler(
+                #     Name=crawler_name
+                # )
+                # logger.info(st_cr_response)
             except Exception as e:
                 logger.info("sync_rds_connection get_crawler and create:")
                 logger.info(str(e))
@@ -1136,10 +1136,10 @@ def sync_rds_connection(account: str, region: str, instance_name: str, rds_user=
                     },
                 )
                 logger.info(response)
-                start_response = glue.start_crawler(
-                    Name=crawler_name
-                )
-                logger.info(start_response)
+                # start_response = glue.start_crawler(
+                #     Name=crawler_name
+                # )
+                # logger.info(start_response)
             crud.create_rds_connection(account, region, instance_name, glue_connection_name, glue_database_name,
                                        None, crawler_name)
         else:
@@ -1759,7 +1759,8 @@ def add_jdbc_conn(jdbcConn: JDBCInstanceSource):
             source: JdbcSource = JdbcSource(connection_url=jdbcConn.jdbc_connection_url,
                                             username=jdbcConn.master_username,
                                             password=jdbcConn.password,
-                                            secret_id=jdbcConn.secret
+                                            secret_id=jdbcConn.secret,
+                                            ssl_verify_cert=True if jdbcConn.jdbc_enforce_ssl == "true" else False
                                             )
             jdbcConn.jdbc_connection_schema = ("\n").join(list_jdbc_databases(source))
         availability_zone = ec2_client.describe_subnets(SubnetIds=[jdbcConn.network_subnet_id])['Subnets'][0]['AvailabilityZone']
@@ -2775,13 +2776,12 @@ def batch_create(file: UploadFile = File(...)):
     # Query network info
     if account_set:
         account_info = list(account_set)[0].split("/")
-        # TODO：奇数行第一个字网，偶数行第二个字网
         network = query_account_network(AccountInfo(account_provider_id=account_info[0], account_id=account_info[1], region=account_info[2])) \
             .get('vpcs', [])[0]
         vpc_id = network.get('vpcId')
         subnets = [subnet.get('subnetId') for subnet in network.get('subnets')]
         security_group_id = network.get('securityGroups', [])[0].get('securityGroupId')
-        created_jdbc_list = map_network_jdbc(created_jdbc_list, subnets, security_group_id)
+        created_jdbc_list = __map_network_jdbc(created_jdbc_list, subnets, security_group_id)
         batch_result = asyncio.run(batch_add_conn_jdbc(created_jdbc_list))
         result = {f"{item[0]}/{item[1]}/{item[2]}/{item[3]}": f"{item[4]}/{item[5]}" for item in batch_result}
         for row_index, row in enumerate(sheet.iter_rows(min_row=3), start=2):
@@ -2822,7 +2822,7 @@ def __check_empty_for_field(row, header):
         return True, f"{header[10]} should not be empty"
     return False, None
 
-def map_network_jdbc(created_jdbc_list, subnets, security_group_id):
+def __map_network_jdbc(created_jdbc_list, subnets, security_group_id):
     res = []
     for index, item in enumerate(created_jdbc_list):
         item.network_sg_id = security_group_id

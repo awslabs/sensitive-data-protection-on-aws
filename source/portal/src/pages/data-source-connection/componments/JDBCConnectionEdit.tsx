@@ -503,6 +503,7 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
       username: jdbcConnectionData.master_username,
       password: jdbcConnectionData.password,
       secret_id: jdbcConnectionData.secret,
+      ssl_verify_cert: jdbcConnectionData.jdbc_enforce_ssl === "true" ? true: false
     };
     try {
       const res: any = await queryJdbcDatabases(requestParam);

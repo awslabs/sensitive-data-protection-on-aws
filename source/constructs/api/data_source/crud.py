@@ -384,7 +384,7 @@ def create_s3_connection(account: str, region: str, bucket: str, glue_connection
     s3_bucket_source.glue_database = glue_database_name
     s3_bucket_source.glue_crawler = crawler_name
     s3_bucket_source.glue_crawler_last_updated = datetime.datetime.utcnow()
-    s3_bucket_source.glue_state = ConnectionState.ACTIVE.value
+    s3_bucket_source.glue_state = ConnectionState.AUTHORIZED.value
     session.merge(s3_bucket_source)
     session.commit()
 
@@ -514,7 +514,7 @@ def create_rds_connection(account: str,
                                                                   RdsInstanceSource.region == region,
                                                                   RdsInstanceSource.account_id == account).order_by(
         desc(RdsInstanceSource.detection_history_id)).first()
-    if rds_instance_source is None:
+    if not rds_instance_source:
         rds_instance_source = RdsInstanceSource(instance_id=instance, region=region,
                                                 account_id=account)
     rds_instance_source.glue_database = glue_database
@@ -522,7 +522,7 @@ def create_rds_connection(account: str,
     rds_instance_source.glue_connection = glue_connection
     rds_instance_source.glue_vpc_endpoint = glue_vpc_endpoint_id
     rds_instance_source.glue_crawler_last_updated = datetime.datetime.utcnow()
-    rds_instance_source.glue_state = ConnectionState.CRAWLING.value
+    rds_instance_source.glue_state = ConnectionState.AUTHORIZED.value
     session.merge(rds_instance_source)
     session.commit()
 
