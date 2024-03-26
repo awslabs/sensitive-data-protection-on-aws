@@ -12,5 +12,6 @@ python-magic==0.4.27
 python-docx==1.1.0
 bs4==0.0.2
 pandas==2.2.1
+pyarrow==15.0.2
 psutil==5.9.8
 opencv-python-headless==4.9.0.80

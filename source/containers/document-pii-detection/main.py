@@ -81,11 +81,10 @@ def organize_table_info(table_name, result_bucket_name, original_bucket_name, fi
     simplified_file_info['sample_files'] = simplified_file_info['sample_files'][:10]
     description = json.dumps(simplified_file_info, ensure_ascii=False)
     s3_location = f"s3://{result_bucket_name}/parser_results/{table_name}/"
-    input_format = 'org.apache.hadoop.mapred.TextInputFormat'
+    input_format = 'org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat'
     output_format = 'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
     table_type = 'EXTERNAL_TABLE'
-    serde_info = {'SerializationLibrary': 'org.apache.hadoop.hive.serde2.OpenCSVSerde',
-                  'Parameters': {'field.delim': ','}}
+    serde_info = {'SerializationLibrary': 'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'}
     parameters = {'originalFileBucketName': original_bucket_name,
                   'originalFileType': file_info['file_type'],
                   'originalFilePath': file_info['file_path'],
@@ -93,8 +92,8 @@ def organize_table_info(table_name, result_bucket_name, original_bucket_name, fi
                   'originalFileCategory': file_category,
                   'sizeKey': str(file_info['total_file_size']),
                   'objectCount': str(file_info['total_file_count']),
-                  'Unstructured': 'true',
-                  'classification': 'csv',
+                  'Unstructured': 'false',
+                  'classification': 'parquet',
                   'splitFileContentId': str(split_file_content_id)}
     glue_table_columns = [{'Name': 'index', 'Type': 'string'}]
     for column in columns:
@@ -248,12 +247,28 @@ def worker(queue,
                 table_name = table_name.replace('.', '_')
                 table_name = original_file_bucket_name + '_' + table_name
 
-                # save to csv and upload to s3
-                with tempfile.NamedTemporaryFile(mode='w') as temp:
-                    csv_file_path = temp.name
-                    df.to_csv(csv_file_path, header=False)
-                    s3_client.upload_file(csv_file_path, crawler_result_bucket_name,
-                                          f"parser_results/{table_name}/result.csv")
+                # Convert the DataFrame to a PyArrow Table
+                table = pa.Table.from_pandas(df)
+
+                # Create a PyArrow Writer for Parquet format without compression
+                sink = pa.BufferOutputStream()
+                writer = pq.ParquetWriter(sink, table.schema)
+
+                # Write the PyArrow Table to the buffer
+                writer.write_table(table)
+
+                # Close the writer
+                writer.close()
+
+                # Get the uncompressed in-memory Parquet data as bytes
+                parquet_bytes = sink.getvalue().to_pybytes()
+
+                # Upload the uncompressed Parquet data to S3
+                s3_client.put_object(
+                    Body=parquet_bytes,
+                    Bucket=crawler_result_bucket_name,
+                    Key=f"parser_results/{table_name}/result.parquet"
+                )
 
                 glue_table_info = organize_table_info(table_name, crawler_result_bucket_name,
                                                       original_file_bucket_name, file_info, columns, file_category,
@@ -271,7 +286,7 @@ def main(param_dict):
     crawler_result_bucket_name = 'sdps-agent-agents3bucket37b73ecb-veydzutbtwma'  # param_dict['ResultBucketName']
     region_name = 'cn-northwest-1'  # param_dict['RegionName']
     worker_num = psutil.cpu_count(logical=False)  # param_dict['WorkerNum']
-    print('worker_num:'+str(worker_num))
+    print('worker_num:' + str(worker_num))
     crawler_result_object_key = f"crawler_results/{original_bucket_name}_info.json"
     destination_database = f"SDPS-unstructured-{original_bucket_name}"
 
