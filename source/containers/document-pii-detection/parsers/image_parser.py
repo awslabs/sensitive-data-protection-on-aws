@@ -4,6 +4,7 @@ from .parser import BaseParser
 
 from PIL import Image
 import numpy as np
+import io
 
 from .image_analysis.face_detection import face_detection_main
 from .image_analysis.general_ocr import ocr_main
@@ -33,6 +34,12 @@ class ImageParser(BaseParser):
         
         return img
 
+    def read_img_stream(self, stream):
+        with Image.open(io.BytesIO(stream)) as img:
+            img = np.array(img.convert('RGB'))[:, :, :3]
+
+        return img
+
     def face_detection_pipeline(self, img):
         bboxes, kpss = self.face_detection_model.detect(img)
         return bboxes, kpss
@@ -43,9 +50,9 @@ class ImageParser(BaseParser):
         dt_results = list(zip(dt_boxes, rec_res))
         return dt_results
 
-    def parse_file(self, file_path):
+    def parse_file(self, file_stream):
         file_content = []
-        img = self.read_img(file_path)
+        img = self.read_img_stream(file_stream)
 
         face_detection_result, _ = self.face_detection_pipeline(img)
         ocr_pipeline_result = self.ocr_pipeline(img)

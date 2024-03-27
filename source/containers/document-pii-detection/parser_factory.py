@@ -23,7 +23,7 @@ class ParserFactory:
         elif file_type.lower() in ['.eml']:
             return EmailParser(s3_client=s3_client)
         elif file_type.lower() in ['.jpg', '.jpeg', '.png', ".gif", ".bmp", ".tiff", ".tif"]:
-            return ImageParser(s3_client=s3_client, fd_model_path='./fd_model/', 
+            return ImageParser(s3_client=s3_client, fd_model_path='./fd_model/',
                                ocr_model_path='./ocr_model/')
         else:
             raise ValueError('Unsupported file type')

@@ -7,7 +7,7 @@ When you wish to perform a sensitive data scan on a Redshift Cluster, you can us
 2. Prepare Redshift connection credentials (username/password).
 
 !!! Info "How to Obtain Redshift Credentials"
-    DBAs or business teams create a read-only user for security audits. This user only needs read-only permissions.
+    DBAs or business teams create a read-only user for security audits. This user only needs read-only permissions: `GRANT SHOW VIEW, SELECT ON *.* TO 'reader'@'%'`.
 
 ## Connect to Amazon Redshift Data Source
 1. From the left menu, select **Connect Data Source**

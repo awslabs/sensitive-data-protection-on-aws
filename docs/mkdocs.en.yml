@@ -33,7 +33,7 @@ nav:
             - Connect to Glue: user-guide/data-catalog-create-glue.md
             - Connect to JDBC: user-guide/data-catalog-create-jdbc.md
             - Connect to JDBC(Redshift): user-guide/data-catalog-create-jdbc-redshift.md
-            - Connect to JDBC(RDS Proxy): user-guide/data-catalog-create-jdbc-rds-proxy.md
+            - Connect to JDBC(RDS Proxy): user-guide/data-catalog-create-jdbc-database-proxy.md
         - Step2：Define classification template: user-guide/data-identifiers.md
         - Step3：Run sensitive data discovery jobs: 
             - Create job: user-guide/discovery-job-create.md
@@ -50,6 +50,7 @@ nav:
         - Appx.Permissions of CloudFormation Stacks: user-guide/appendix-permissions.md
         - Appx.Add accounts via AWS Organization: user-guide/appendix-organization.md
         - Appx.EU PII identifiers(GDPR reference): user-guide/appendix-build-in-identifiers-eu-gdpr.md
+        - Appx.Create database proxy: user-guide/appendix-database-proxy.md
     - FAQ: faq.md
     - Troubleshooting: troubleshooting.md
     - Uninstall the solution: uninstall.md

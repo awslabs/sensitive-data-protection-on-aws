@@ -26,9 +26,13 @@ Use the following steps to update this solution on AWS.
 ![Input Url](images/InputUrl.jpg)
 3. On the **specified stack details** page, click **Next**.  
 4. On the **Configure stack options** page, click **Next**.
-5. On the **Review** page, review and confirm the settings. Select 3 checkboxes that I acknowledge.Choose **Create stack** to deploy the stack.   
-Wait for about 10 minutes to ensure that all related resource are updated. You can choose the **Resource** and **Event** tab to see the status of the stack.
+5. On the **Review** page, review and confirm the settings. Select 3 checkboxes that I acknowledge.Choose **Create stack** to deploy the stack.
+6. When upgrading from 1.1.0 to subsequent versions, please manually delete 4 ENIs with a status of **Available** after 5 minutes of CloudFormat update: 2 descriptions contain **PortalConfigFunction** and 2 descriptions contain **PortalFunction**。
+![Delete ENI](images/DeleteENI.png)
+7. Wait for about 20 minutes to ensure that all related resource are updated. You can choose the **Resource** and **Event** tab to see the status of the stack.
 After the update is successful, you can reopen the administrator page.
+!!! Important "Important"
+    You need to manually delete ENI, otherwise the upgrade will fail.
 
 ### Step 2. Update the agent stack
 
