@@ -46,13 +46,21 @@ const getDataSourceRdsByPage = async (params: any) => {
 
 // 分页获取DataSource Glue列表
 const getDataSourceGlueByPage = async (params: any) => {
-  const result = await apiRequest('post', 'data-source/list-glue-database', params);
+  const result = await apiRequest(
+    'post',
+    'data-source/list-glue-database',
+    params
+  );
   return result;
 };
 
 // 分页获取DataSource JDBC列表
 const getDataSourceJdbcByPage = async (params: any, provider_id: number) => {
-  const result = await apiRequest('post', `data-source/list-jdbc?provider_id=${provider_id}`, params);
+  const result = await apiRequest(
+    'post',
+    `data-source/list-jdbc?provider_id=${provider_id}`,
+    params
+  );
   return result;
 };
 
@@ -111,38 +119,62 @@ const hideDataSourceRDS = async (params: any) => {
   return result;
 };
 
-const hideDataSourceJDBC = async (params: any) => {
-  const result = await apiRequest('post', 'data-source/hide-jdbc', params);
+const deleteDataSourceJDBC = async (params: any) => {
+  const result = await apiRequest('post', 'data-source/delete-jdbc', params);
   return result;
 };
 
 const deleteDataCatalogS3 = async (params: any) => {
-  const result = await apiRequest('post', 'data-source/delete-catalog-s3', params);
+  const result = await apiRequest(
+    'post',
+    'data-source/delete-catalog-s3',
+    params
+  );
   return result;
 };
 
 const deleteDataCatalogRDS = async (params: any) => {
-  const result = await apiRequest('post', 'data-source/delete-catalog-rds', params);
+  const result = await apiRequest(
+    'post',
+    'data-source/delete-catalog-rds',
+    params
+  );
   return result;
 };
 
 const deleteDataCatalogJDBC = async (params: any) => {
-  const result = await apiRequest('post', 'data-source/delete-catalog-jdbc', params);
+  const result = await apiRequest(
+    'post',
+    'data-source/delete-catalog-jdbc',
+    params
+  );
   return result;
 };
 
 const disconnectAndDeleteS3 = async (params: any) => {
-  const result = await apiRequest('post', 'data-source/disconnect-delete-catalog-s3', params);
+  const result = await apiRequest(
+    'post',
+    'data-source/disconnect-delete-catalog-s3',
+    params
+  );
   return result;
 };
 
 const disconnectAndDeleteRDS = async (params: any) => {
-  const result = await apiRequest('post', 'data-source/disconnect-delete-catalog-rds', params);
+  const result = await apiRequest(
+    'post',
+    'data-source/disconnect-delete-catalog-rds',
+    params
+  );
   return result;
 };
 
 const disconnectAndDeleteJDBC = async (params: any) => {
-  const result = await apiRequest('post', 'data-source/disconnect-delete-catalog-jdbc', params);
+  const result = await apiRequest(
+    'post',
+    'data-source/disconnect-delete-catalog-jdbc',
+    params
+  );
   return result;
 };
 
@@ -152,52 +184,125 @@ const connectDataSourceJDBC = async (params: any) => {
 };
 
 const connectDataSourceGlue = async (params: any) => {
-  const result = await apiRequest('post', 'data-source/sync-glue-database', params);
+  const result = await apiRequest(
+    'post',
+    'data-source/sync-glue-database',
+    params
+  );
   return result;
 };
 
-const listGlueConnection =  async (params: any) => {
-  const result = await apiRequest('post', 'data-source/query-glue-connections', params);
+const listGlueConnection = async (params: any) => {
+  const result = await apiRequest(
+    'post',
+    'data-source/query-glue-connections',
+    params
+  );
   return result;
 };
 
-const importGlueConnection =  async (params: any) => {
-  const result = await apiRequest('post', 'data-source/import-jdbc-conn', params);
+const importGlueConnection = async (params: any) => {
+  const result = await apiRequest(
+    'post',
+    'data-source/import-jdbc-conn',
+    params
+  );
   return result;
 };
 
-const queryNetworkInfo =  async (params: any) => {
-  const result = await apiRequest('post', 'data-source/query-account-network', params);
+const queryNetworkInfo = async (params: any) => {
+  const result = await apiRequest(
+    'post',
+    'data-source/query-account-network',
+    params
+  );
   return result;
 };
 
-const queryBuckets =  async (params: any) => {
+const queryBuckets = async (params: any) => {
   const result = await apiRequest('post', 'data-source/list-buckets', params);
   return result;
 };
 
-const createConnection =  async (params: any) => {
+const createConnection = async (params: any) => {
   const result = await apiRequest('post', 'data-source/add-jdbc-conn', params);
   return result;
 };
 
-const updateConnection =  async (params: any) => {
-  const result = await apiRequest('post', 'data-source/update-jdbc-conn', params);
+const updateConnection = async (params: any) => {
+  const result = await apiRequest(
+    'post',
+    'data-source/update-jdbc-conn',
+    params
+  );
   return result;
 };
 
-const queryConnectionDetails =  async (params: any) => {
-  const result = await apiRequest('post', 'data-source/query-connection-detail', params);
+const queryConnectionDetails = async (params: any) => {
+  const result = await apiRequest(
+    'post',
+    'data-source/query-connection-detail',
+    params
+  );
   return result;
 };
 
-const deleteGlueDatabase =  async (params: any) => {
-  const result = await apiRequest('post', 'data-source/delete-glue-database', params);
+const deleteGlueDatabase = async (params: any) => {
+  const result = await apiRequest(
+    'post',
+    'data-source/delete-glue-database',
+    params
+  );
   return result;
 };
 
-const queryJdbcDatabases =  async (params: any) => {
+const queryJdbcDatabases = async (params: any) => {
   const result = await apiRequest('post', 'data-source/jdbc-databases', params);
+  return result;
+};
+
+const batchCreateDatasource = async (params: any) => {
+  const result = await apiRequest(
+    'post',
+    'data-source/batch-create',
+    params.files
+  );
+  return result;
+};
+
+const queryBatchStatus = async (params: any) => {
+  const result = await apiRequest(
+    'post',
+    'data-source/query-batch-status?batch=' + params.batch,
+    {}
+  );
+  return result;
+};
+
+const downloadDataSourceBatchFiles = async (params: any) => {
+  const result = await apiRequest(
+    'post',
+    'data-source/download-batch-file?filename=' + params.filename,
+    {}
+  );
+  return result;
+};
+
+const exportDatasource = async (params: any) => {
+  const result = await apiRequest(
+    'post',
+    'data-source/export-datasource?key=' + params.key,
+    {}
+  );
+  return result;
+};
+
+const deleteDSReport = async (params: any) => {
+  const result = await apiRequest(
+    'post',
+    'data-source/delete-report?key=' + params.key,
+    {}
+  );
   return result;
 };
 
@@ -226,7 +331,7 @@ export {
   getDataSourceJdbcByPage,
   hideDataSourceS3,
   hideDataSourceRDS,
-  hideDataSourceJDBC,
+  deleteDataSourceJDBC,
   deleteDataCatalogS3,
   deleteDataCatalogRDS,
   deleteDataCatalogJDBC,
@@ -237,5 +342,10 @@ export {
   connectDataSourceGlue,
   deleteGlueDatabase,
   updateConnection,
-  queryJdbcDatabases
+  queryJdbcDatabases,
+  batchCreateDatasource,
+  queryBatchStatus,
+  downloadDataSourceBatchFiles,
+  exportDatasource,
+  deleteDSReport
 };

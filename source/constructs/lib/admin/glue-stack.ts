@@ -56,6 +56,22 @@ export class GlueStack extends Construct {
       destinationKeyPrefix: 'job/script',
     });
 
+    new S3Deployment.BucketDeployment(this, 'BatchCreateDatasourceTemplate', {
+      memoryLimit: 512,
+      ephemeralStorageSize: Size.mebibytes(512),
+      sources: [S3Deployment.Source.asset('config/batch_create/datasource/template')],
+      destinationBucket: props.bucket,
+      destinationKeyPrefix: 'batch_create/datasource/template',
+    });
+
+    new S3Deployment.BucketDeployment(this, 'BatchCreateIdentifierTemplate', {
+      memoryLimit: 512,
+      ephemeralStorageSize: Size.mebibytes(512),
+      sources: [S3Deployment.Source.asset('config/batch_create/identifier/template')],
+      destinationBucket: props.bucket,
+      destinationKeyPrefix: 'batch_create/identifier/template',
+    });
+
     // When upgrading, files with template as the prefix will be deleted
     // Therefore, the initial template file will no longer be deployed.
     // new S3Deployment.BucketDeployment(this, 'DeploymentTemplate', {
@@ -85,8 +101,8 @@ export class GlueStack extends Construct {
         name: table_name,
         description: 'Save SDPS glue detection data',
         partitionKeys: [{ name: 'year', type: 'smallint' },
-          { name: 'month', type: 'smallint' },
-          { name: 'day', type: 'smallint' }],
+        { name: 'month', type: 'smallint' },
+        { name: 'day', type: 'smallint' }],
         parameters: {
           classification: 'parquet',
           has_encrypted_data: 'Unencrypted',
@@ -107,6 +123,7 @@ export class GlueStack extends Construct {
             { name: 'identifiers', type: 'array<struct<identifier:string,score:double>>' },
             { name: 'sample_data', type: 'array<string>' },
             { name: 'table_size', type: 'int' },
+            { name: 'location', type: 'string' },
             { name: 's3_location', type: 'string' },
             { name: 's3_bucket', type: 'string' },
             { name: 'rds_instance_id', type: 'string' },
@@ -205,12 +222,15 @@ export class GlueStack extends Construct {
     }));
     const noramlStatement = new PolicyStatement({
       effect: Effect.ALLOW,
-      actions: ['glue:GetTable',
+      actions: [
+        'glue:GetTable',
         'glue:BatchCreatePartition',
-        'glue:CreatePartition'],
+        'glue:CreatePartition',
+        'glue:TagResource',
+      ],
       resources: [`arn:${Aws.PARTITION}:glue:*:${Aws.ACCOUNT_ID}:table/${SolutionInfo.SOLUTION_GLUE_DATABASE}/*`,
-        `arn:${Aws.PARTITION}:glue:*:${Aws.ACCOUNT_ID}:database/${SolutionInfo.SOLUTION_GLUE_DATABASE}`,
-        `arn:${Aws.PARTITION}:glue:*:${Aws.ACCOUNT_ID}:catalog`],
+      `arn:${Aws.PARTITION}:glue:*:${Aws.ACCOUNT_ID}:database/${SolutionInfo.SOLUTION_GLUE_DATABASE}`,
+      `arn:${Aws.PARTITION}:glue:*:${Aws.ACCOUNT_ID}:catalog`],
     });
     addPartitionRole.addToPolicy(noramlStatement);
 

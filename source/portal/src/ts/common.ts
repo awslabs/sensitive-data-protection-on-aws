@@ -11,6 +11,8 @@ export const EN_DOC_LINK =
   'https://awslabs.github.io/sensitive-data-protection-on-aws/en';
 
 export const SDPS_DEBUG_MODE = 'SDPS_DEBUG_MODE';
+export const BATCH_SOURCE_ID = 'SDPS_BATCH_DATASOURCE_FILE_ID';
+export const BATCH_IDENTIFIER_ID = 'SDPS_BATCH_IDENTIFIER_FILE_ID';
 export interface ColumnList {
   id: string;
   label: string;
@@ -58,4 +60,11 @@ export const nFormatter = (num: any, digits: any) => {
   return item
     ? (num / item.value).toFixed(digits).replace(rx, '$1') + item.symbol
     : '0';
+};
+
+export const checkJDBCIsMySQL = (jdbcURL: string) => {
+  if (jdbcURL.startsWith('jdbc:mysql://')) {
+    return true;
+  }
+  return false;
 };

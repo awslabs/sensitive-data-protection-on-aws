@@ -9,4 +9,5 @@ COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.6.0 /lambda-adapter /opt
 COPY --from=builder /tmp/frontend/build/ /usr/share/nginx/public/
 COPY nginx-config/ /etc/nginx/
 EXPOSE 8080
-CMD ["nginx", "-g", "daemon off;"]
+RUN chmod +x /etc/nginx/start_nginx.sh
+ENTRYPOINT ["/etc/nginx/start_nginx.sh"]

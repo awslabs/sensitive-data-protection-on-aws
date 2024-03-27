@@ -68,6 +68,7 @@ export class VpcStack extends Construct {
   public publicSubnet2 = '';
   public privateSubnet1 = '';
   public privateSubnet2 = '';
+  readonly customDBSecurityGroup: SecurityGroup;
 
   constructor(scope: Construct, id: string, props?: VpcProps) {
     super(scope, id);
@@ -78,14 +79,15 @@ export class VpcStack extends Construct {
       this.createVpc(props);
     }
     // Create CustomDB Security Group
-    const securityGroup = new SecurityGroup(this, 'CustomDBSecurityGroup', {
+    this.customDBSecurityGroup = new SecurityGroup(this, 'CustomDBSecurityGroup', {
       vpc: this.vpc,
       securityGroupName: 'SDPS-CustomDB',
       description: 'Allow all TCP ingress traffic',
     });
 
     // Allow ingress on all TCP ports from the same security group
-    securityGroup.addIngressRule(securityGroup, Port.allTcp());
+    this.customDBSecurityGroup.addIngressRule(this.customDBSecurityGroup, Port.allTcp());
+    Tags.of(this.customDBSecurityGroup).add(SolutionInfo.TAG_NAME, `${SolutionInfo.SOLUTION_NAME}-ConnectToCustomDatabase`);
   }
 
   private createVpc(props?: VpcProps) {

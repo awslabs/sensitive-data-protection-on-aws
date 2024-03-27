@@ -82,6 +82,42 @@ const getTemplateUpdateTime = async () => {
   return result;
 };
 
+const exportIdentify = async (params: any) => {
+  const result = await apiRequest(
+    'post',
+    'template/export-identify?key=' + params.key,
+    {}
+  );
+  return result;
+};
+
+const deleteIdentifierReport = async (params: any) => {
+  const result = await apiRequest(
+    'post',
+    'template/delete-report?key=' + params.key,
+    {}
+  );
+  return result;
+};
+
+const downloadIdentifierBatchFiles = async (params: any) => {
+  const result = await apiRequest(
+    'post',
+    'template/download-batch-file?filename=' + params.filename,
+    {}
+  );
+  return result;
+};
+
+const queryIdentifierBatchStatus = async (params: any) => {
+  const result = await apiRequest(
+    'post',
+    'template/query-batch-status?batch=' + params.batch,
+    {}
+  );
+  return result;
+};
+
 export {
   getTemplateMappingList,
   deleteTemplateMapping,
@@ -93,4 +129,8 @@ export {
   updateIdentifiers,
   getIndentifierInTemplate,
   getTemplateUpdateTime,
+  exportIdentify,
+  deleteIdentifierReport,
+  downloadIdentifierBatchFiles,
+  queryIdentifierBatchStatus
 };

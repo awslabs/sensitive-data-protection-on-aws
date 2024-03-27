@@ -23,16 +23,31 @@ As shown in the following format. Please follow this configuration. Select 'Othe
 ```json
 {"username":"db username","password":"db password","engine":"mysql","host":"127.0.0.1","port":6306}
 ```
-### 4. Configuration development mode
-The following command is configured as development mode to bypass authentication.
+### 4. Configure development parameters
 ```shell
+export AdminBucketName="Your admin bucket name"
+# The two subnets where the API lambda is located
+export SubnetIds="subnet-xxxxxx,subnet-xxxxxx"
+# Development mode that bypasses authentication
 export mode=dev
 ```
-### 5. Starting web services locally
+### 5. Run as API role
+Firstly, use `aws configure -- profile cn` to configure a user authorization information. This user needs to have `sts:AssumeRole` permission.  
+Secondly, modify the trust relationships of the SDPS API role in the Admin account and add the first step user in the principal.  
+Thirdly, modify `.aws/config` file and configure the default profile using the following command
+```
+[default]
+region = cn-northwest-1
+source_profile = cn
+role_arn = arn:aws-cn:iam::{AdminAccountId}:role/SDPSAPIRole-cn-northwest-1
+output = json
+```
+Finally, validate using `aws sts get-caller-identity`. If the returned content contains `arn:aws-cn:sts::{AdminAccountId}:assumed-role/SDPSAPIRole-{Region}`, it indicates that the configuration is correct.
+### 6. Starting web services locally
 ```shell
 uvicorn main:app --reload
 ```
-### 6. View API
+### 7. View API
 http://127.0.0.1:8000/docs
 
 ## File Naming

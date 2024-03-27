@@ -1,21 +1,15 @@
-import os
-
 import boto3
-import logging
-
 from common.constant import const
 from common.enum import ConnectionState, DatabaseType, Provider
 from db.database import get_session
-from db.models_data_source import DetectionHistory, RdsInstanceSource, Account
+from db.models_data_source import DetectionHistory
 from . import crud, schemas
-from catalog.service import delete_catalog_by_database_region
 from sqlalchemy.orm import Session
 import asyncio
+from common.reference_parameter import logger, admin_region
 
 sts_client = boto3.client('sts')
-admin_account_region = boto3.session.Session().region_name
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+
 
 async def detect_glue_database_connection(session: Session, aws_account_id: str):
     iam_role_name = crud.get_iam_role(aws_account_id)
@@ -43,7 +37,7 @@ async def detect_glue_database_connection(session: Session, aws_account_id: str)
         )
         # glue_database_list = client.get_databases()['DatabaseList']
         glue_database_list = get_all_databases(client)
-    db_glue_list = crud.list_glue_database_ar(account_id=aws_account_id, region=admin_account_region)
+    db_glue_list = crud.list_glue_database_ar(account_id=aws_account_id, region=admin_region)
     for item in db_glue_list:
         if not item.glue_database_name.upper().startswith(DatabaseType.JDBC.value):
             db_database_name_list.append(item.glue_database_name)
@@ -67,7 +61,7 @@ async def detect_glue_database_connection(session: Session, aws_account_id: str)
         if item not in glue_database_name_list:
             refresh_list.append(item)
     crud.delete_not_exist_glue_database(refresh_list)
-    crud.update_glue_database_count(account=aws_account_id, region=admin_account_region)
+    crud.update_glue_database_count(account=aws_account_id, region=admin_region)
 
 
 def get_all_databases(glue_client):

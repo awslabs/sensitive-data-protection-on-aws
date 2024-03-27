@@ -1,4 +1,5 @@
-from fastapi import APIRouter
+from typing import List
+from fastapi import APIRouter, File, UploadFile
 from fastapi_pagination import Page, Params
 from fastapi_pagination.ext.sqlalchemy import paginate
 from common.request_wrapper import inject_session
@@ -118,3 +119,29 @@ def delete_prop(id: int):
 @inject_session
 def get_template_time(tid: int):
     return service.get_template_snapshot_no(tid)
+
+
+@router.post("/export-identify", response_model=BaseResponse)
+@inject_session
+def export_identify(key: str):
+    return service.export_identify(key)
+
+@router.post("/delete-report", response_model=BaseResponse)
+@inject_session
+def delete_report(key: str):
+    return service.delete_report(key)
+
+@router.post("/batch-create", response_model=BaseResponse)
+@inject_session
+def batch_create(files: List[UploadFile] = File(...)):
+    return service.batch_create(files[0])
+
+@router.post("/query-batch-status", response_model=BaseResponse)
+@inject_session
+def query_batch_status(batch: str):
+    return service.query_batch_status(batch)
+
+@router.post("/download-batch-file", response_model=BaseResponse)
+@inject_session
+def download_batch_file(filename: str):
+    return service.download_batch_file(filename)

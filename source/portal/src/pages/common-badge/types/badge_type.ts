@@ -14,11 +14,13 @@ export const CLSAAIFIED_TYPE = {
   Manual: 'Manual',
   SystemMark: 'System(?)',
   Success: 'Success',
+  Authorized: 'Authorized',
   Unconnected: 'Unconnected',
   Failed: 'Failed',
   Completed: 'Completed',
   Stopped: 'Stopped',
   Crawling: 'Crawling',
+  Pending: 'Pending',
 };
 
 export const PRIVARY_TYPE_DATA = {

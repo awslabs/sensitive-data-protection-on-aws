@@ -5,6 +5,7 @@ import { AmplifyConfigType } from 'ts/types';
 import { AMPLIFY_CONFIG_JSON, buildDocLink, buildCommitLink, SDPS_DEBUG_MODE } from 'ts/common';
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
+import { downloadLogAsZip } from 'apis/query/api';
 
 interface LayoutHeaderProps {
   user: any;
@@ -111,17 +112,22 @@ const LayoutHeader: React.FC<LayoutHeaderProps> = ({
               // text: t('header.support') || '',
               items: [
                 {
+                  id: 'version',
+                  text: t('header.version') + ' @TEMPLATE_BUILD_VERSION@',
+                  href: buildCommitLink('@TEMPLATE_BUILD_VERSION@'),
+                  external: true,
+                  // disabled: true,
+                  // href: RouterEnum.TimeLine.path,
+                },
+                {
                   id: 'documentation',
                   text: t('header.doc') || '',
                   href: buildDocLink(i18n.language),
                   external: true,
                 },
                 {
-                  id: 'version',
-                  text: t('header.version') + ' @TEMPLATE_BUILD_VERSION@',
-                  href: buildCommitLink('@TEMPLATE_BUILD_VERSION@'),
-                  // disabled: true,
-                  // href: RouterEnum.TimeLine.path,
+                  id: 'logs',
+                  text: 'Export CloudWatch Logs',
                 },
                 {
                   id: 'debug',
@@ -145,6 +151,9 @@ const LayoutHeader: React.FC<LayoutHeaderProps> = ({
             if (item.detail.id === 'debug') {
               setDebugMode(!debugMode);
               localStorage.setItem(SDPS_DEBUG_MODE, debugMode.toString());
+            }
+            if (item.detail.id === 'logs') {
+              downloadLogAsZip();
             }
           },
         },

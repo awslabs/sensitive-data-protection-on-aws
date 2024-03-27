@@ -59,12 +59,12 @@ def split_dictionary(raw_dictionary, chunk_size=100):
 def get_previous_tables(glue_client, database_name):
     tables = []
 
-    next_token = ""
+    next_token = None
     while True:
-        response = glue_client.get_tables(
-            DatabaseName=database_name,
-            NextToken=next_token
-        )
+        if next_token:
+            response = glue_client.get_tables(DatabaseName=database_name, NextToken=next_token)
+        else:
+            response = glue_client.get_tables(DatabaseName=database_name)
         for table in response.get('TableList', []):
             if table.get('Parameters', {}).get('classification', '') != 'UNKNOWN':
                 tables.append(table)

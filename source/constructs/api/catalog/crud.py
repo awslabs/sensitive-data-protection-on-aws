@@ -669,6 +669,16 @@ def delete_catalog_table_level_classification_by_database_region(database: str, 
     ).delete()
     session.commit()
 
+def delete_catalog_table_level_classification_by_database_region_batch(database: str, region: str, type: str):
+    session = get_session()
+    session.query(models.CatalogTableLevelClassification).filter(
+        models.CatalogTableLevelClassification.database_name == database,
+        models.CatalogTableLevelClassification.database_type == type
+    ).filter(
+        models.CatalogTableLevelClassification.region == region
+    ).delete(synchronize_session=False)
+    session.commit()
+
 
 def delete_catalog_table_level_classification_by_database(database: str, region: str, type: str):
     session = get_session()
@@ -698,6 +708,16 @@ def delete_catalog_database_level_classification_by_database_region(database: st
     ).delete()
     session.commit()
 
+def delete_catalog_database_level_classification_by_database_region_batch(database: str, region: str, type: str):
+    session = get_session()
+    session.query(models.CatalogDatabaseLevelClassification).filter(
+        models.CatalogDatabaseLevelClassification.database_name == database,
+        models.CatalogDatabaseLevelClassification.database_type == type
+    ).filter(
+        models.CatalogDatabaseLevelClassification.region == region
+    ).delete(synchronize_session=False)
+    session.commit()
+
 
 def delete_catalog_column_level_classification_by_database_region(database: str, region: str, type: str):
     session = get_session()
@@ -707,6 +727,16 @@ def delete_catalog_column_level_classification_by_database_region(database: str,
     ).filter(
         models.CatalogColumnLevelClassification.region == region
     ).delete()
+    session.commit()
+
+def delete_catalog_column_level_classification_by_database_region_batch(database: str, region: str, type: str):
+    session = get_session()
+    session.query(models.CatalogColumnLevelClassification).filter(
+        models.CatalogColumnLevelClassification.database_name == database,
+        models.CatalogDatabaseLevelClassification.database_type == type
+    ).filter(
+        models.CatalogColumnLevelClassification.region == region
+    ).delete(synchronize_session=False)
     session.commit()
 
 
@@ -1056,11 +1086,14 @@ def update_catalog_table_labels(
 
 
 def get_export_catalog_data():
-    return get_session().query(models.CatalogColumnLevelClassification.account_id,
+    return get_session().query(models.CatalogColumnLevelClassification.database_type,
+                               models.CatalogColumnLevelClassification.account_id,
                                models.CatalogColumnLevelClassification.region,
-                               models.CatalogColumnLevelClassification.database_type,
                                models.CatalogColumnLevelClassification.database_name,
+                               models.CatalogDatabaseLevelClassification.description,
+                               models.CatalogDatabaseLevelClassification.url,
                                models.CatalogColumnLevelClassification.table_name,
+                               models.CatalogTableLevelClassification.storage_location,
                                models.CatalogColumnLevelClassification.column_name,
                                models.CatalogColumnLevelClassification.column_path,
                                models.CatalogColumnLevelClassification.identifier,

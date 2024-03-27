@@ -304,7 +304,7 @@ class SourceDeteteJDBCConnection(BaseModel):
     account_provider: int
     account_id: str
     region: str
-    instance: str
+    instances: list[str]
 
 class SourceDeteteS3Connection(BaseModel):
     account_id: str
@@ -404,3 +404,4 @@ class JdbcSource(BaseModel):
     username: Optional[str]
     password: Optional[str]
     secret_id: Optional[str]
+    ssl_verify_cert: Optional[bool]

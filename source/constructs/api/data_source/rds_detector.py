@@ -1,8 +1,4 @@
-import os
-
 import boto3
-import logging
-
 from common.constant import const
 from common.enum import ConnectionState, DatabaseType, Provider
 from db.database import get_session
@@ -12,11 +8,10 @@ from . import service
 from catalog.service import delete_catalog_by_database_region
 from sqlalchemy.orm import Session
 import asyncio
+from common.reference_parameter import logger, admin_region
 
 sts_client = boto3.client('sts')
-admin_account_region = boto3.session.Session().region_name
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+
 
 async def detect_rds_data_source(session: Session, aws_account_id: str):
     iam_role_name = crud.get_iam_role(aws_account_id)
@@ -110,7 +105,7 @@ async def detect_rds_data_source(session: Session, aws_account_id: str):
                                                 Account.account_id == aws_account_id,
                                                 Account.region == region).first()
         # TODO support multiple regions
-        crud.update_rds_instance_count(account=aws_account_id, region=admin_account_region)
+        crud.update_rds_instance_count(account=aws_account_id, region=admin_region)
 
 
 async def detect_multiple_account_in_async(accounts):

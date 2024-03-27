@@ -17,3 +17,7 @@ def set_value(key: str, value: str):
                                   config_value=value)
         session.add(db_config)
     session.commit()
+
+
+def list_config():
+    return get_session().query(models.Config).all()

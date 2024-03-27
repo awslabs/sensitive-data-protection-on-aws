@@ -12,12 +12,13 @@ import {
 import {
   COLUMN_OBJECT_STR,
   GLUE_ACCOUNTS_COLUMNS,
+  GLUE_CATALOG_COLUMS,
   RDS_CATALOG_COLUMS,
   RDS_FOLDER_COLUMS,
   S3_CATALOG_COLUMS,
 } from '../types/create_data_type';
 import { getDataBaseByType, searchCatalogTables } from 'apis/data-catalog/api';
-import { formatSize } from 'tools/tools';
+import { alertMsg, formatSize } from 'tools/tools';
 import CommonBadge from 'pages/common-badge';
 import {
   BADGE_TYPE,
@@ -31,6 +32,7 @@ import { IDataSourceType, IJobType } from 'pages/data-job/types/job_list_type';
 import {
   convertAccountListToJobDatabases,
   convertDataSourceListToJobDatabases,
+  convertGlueDataSourceListToJobDatabases,
   convertTableSourceToJobDatabases,
 } from '../index';
 import { getAccountList } from 'apis/account-manager/api';
@@ -39,6 +41,7 @@ import {
   CATALOG_TABLE_FILTER_COLUMN,
   RDS_FILTER_COLUMN,
 } from 'pages/data-catalog/types/data_config';
+import { getDataSourceGlueByPage } from 'apis/data-source/api';
 
 interface SelectS3CatalogProps {
   jobData: IJobType;
@@ -104,27 +107,25 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
     const requestParam = {
       page: currentPage,
       size: preferences.pageSize,
-      sort_column: '',
-      asc: true,
-      conditions: [
-        {
-          column: 'database_type',
-          values: ['glue'],
-          condition: 'and',
-        },
-      ] as any,
+      sort_column: COLUMN_OBJECT_STR.glueDatabaseCreatedTime,
+      asc: false,
+      conditions: [] as any,
     };
-    glueQuery.tokens &&
-      glueQuery.tokens.forEach((item: any) => {
-        requestParam.conditions.push({
-          column: item.propertyKey,
-          values: [`${item.value}`],
-          condition: glueQuery.operation,
-        });
-      });
-    const dataResult = await getDataBaseByType(requestParam);
-    setGlueCatalogData((dataResult as any)?.items);
-    setGlueTotal((dataResult as any)?.total);
+    requestParam.conditions.push({
+      column: COLUMN_OBJECT_STR.GlueState,
+      values: ['UNCONNECTED'],
+      condition: glueQuery.operation,
+      operation: '!=',
+    });
+    const result: any = await getDataSourceGlueByPage(requestParam);
+    console.info('result:', result);
+    setIsLoading(false);
+    if (!result?.items) {
+      alertMsg(t('loadDataError'), 'error');
+      return;
+    }
+    setGlueCatalogData(result.items);
+    setGlueTotal(result.total);
     setIsLoading(false);
   };
 
@@ -221,7 +222,7 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
   useEffect(() => {
     if (jobData.glueSelectedView === GLUE_VIEW.GLUE_INSTANCE_VIEW) {
       changeSelectDatabases(
-        convertDataSourceListToJobDatabases(
+        convertGlueDataSourceListToJobDatabases(
           selectedGlueItems,
           jobData.database_type
         )
@@ -320,7 +321,7 @@ const SelectGlueCatalog: React.FC<SelectS3CatalogProps> = (
                 }}
                 items={glueCatalogData}
                 filter={<ResourcesFilter {...glueFilterProps} />}
-                columnDefinitions={RDS_CATALOG_COLUMS.map((item) => {
+                columnDefinitions={GLUE_CATALOG_COLUMS.map((item) => {
                   return {
                     id: item.id,
                     header: t(item.label),

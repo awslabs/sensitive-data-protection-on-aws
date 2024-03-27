@@ -16,8 +16,9 @@ from common.enum import MessageEnum
 from common.constant import const
 from template.main import router as template_router
 from version.main import router as version_router
-from common.exception_handler import biz_exception
 from label.main import router as label_router
+from config.main import router as config_router
+from common.exception_handler import biz_exception
 from fastapi_pagination import add_pagination
 
 logging.config.fileConfig('logging.conf', disable_existing_loggers=False)
@@ -169,6 +170,7 @@ def __online_validate(token, jwt_claims):
         return False
 
 
+app.include_router(config_router)
 app.include_router(discovery_router)
 app.include_router(data_source_router)
 app.include_router(catalog_router)

@@ -93,6 +93,7 @@ if __name__ == "__main__":
                 'database_name': args['DatabaseName'],
                 'database_type': args['DatabaseType'],
                 'table_name': table['Name'],
+                'location': basic_table_info['location'],
                 's3_location': basic_table_info['s3_location'],
                 's3_bucket': basic_table_info['s3_bucket'],
                 'rds_instance_id': basic_table_info['rds_instance_id'],

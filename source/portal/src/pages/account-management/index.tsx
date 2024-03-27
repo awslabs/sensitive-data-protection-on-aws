@@ -5,6 +5,7 @@ import AccountList from './componments/AccountList';
 import { getSourceCoverage } from 'apis/data-source/api';
 import {
   AppLayout,
+  Button,
   ContentLayout,
   Grid,
   Header,
@@ -14,17 +15,55 @@ import {
 import CustomBreadCrumb from 'pages/left-menu/CustomBreadCrumb';
 import Navigation from 'pages/left-menu/Navigation';
 import { getAccountInfomation } from 'apis/dashboard/api';
+import { exportDatasource, deleteDSReport } from 'apis/data-source/api';
 import { RouterEnum } from 'routers/routerEnum';
 import { useTranslation } from 'react-i18next';
 import HelpInfo from 'common/HelpInfo';
 import { buildDocLink } from 'ts/common';
 import ProviderTab, { ProviderType } from 'common/ProviderTab';
 import { CACHE_CONDITION_KEY } from 'enum/common_types';
+import { useNavigate } from 'react-router-dom';
+import { alertMsg } from 'tools/tools';
+import { format } from 'date-fns';
+import { time } from 'console';
+
 
 const AccountManagementHeader: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [downloading, setDownloading] = useState(false)
+
+  const timeStr = format(new Date(), 'yyyyMMddHHmmss');
+
+  const batchExport = async () => {
+    setDownloading(true);
+    const url: any = await exportDatasource({key: timeStr});
+    setDownloading(false);
+    if (url) {
+      window.open(url, '_blank');
+      setTimeout(() => {
+        deleteDSReport({key: timeStr});
+      }, 2000);
+    } else {
+      alertMsg(t('noReportFile'), 'error');
+    }
+  }
+  
   return (
-    <Header variant="h1" description={t('account:connectToDataSourceDesc')}>
+    <Header
+      variant="h1"
+      description={t('account:connectToDataSourceDesc')}
+      actions={
+        <SpaceBetween direction='horizontal' size='xs'>
+        <Button onClick={() => batchExport()} disabled={downloading}>
+          {t('button.batchExportDS')}
+        </Button>
+        <Button onClick={() => navigate(`${RouterEnum.BatchOperation.base}/datasource`)}>
+          {t('button.batchCreate')}
+        </Button>
+        </SpaceBetween>
+      }
+    >
       {t('account:connectToDataSource')}
     </Header>
   );
@@ -51,16 +90,18 @@ const AccountManagementContent: React.FC = () => {
   const [loadingAccounts, setLoadingAccounts] = useState(true);
 
   useEffect(() => {
-    
     if (currentProvider) {
       getSourceCoverageData(currentProvider.id);
     }
     sessionStorage[CACHE_CONDITION_KEY] = JSON.stringify({
-      column: "account_provider_id",
-      condition: "and",
-      operation: "in",
-      values: (currentProvider == null || currentProvider.id === 1)?[1, 4]:[currentProvider.id]
-    })
+      column: 'account_provider_id',
+      condition: 'and',
+      operation: 'in',
+      values:
+        currentProvider == null || currentProvider.id === 1
+          ? [1, 4]
+          : [currentProvider.id],
+    });
   }, [currentProvider]);
 
   const getSourceCoverageData = async (providerId: number | string) => {

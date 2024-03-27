@@ -64,15 +64,15 @@ const.MANUAL = 'manual'
 const.SYSTEM = 'system'
 const.SAMPLE_LIMIT = 1000
 const.LAMBDA_MAX_RUNTIME = 900
-const.EXPORT_FILE_S3_COLUMNS = ["account_id", "region", "type", "s3_bucket", "folder_name", "column_name", "column_path", "identifiers", "sample_data",
+const.EXPORT_FILE_S3_COLUMNS = ["account_id", "region", "bucket_name", "location", "identifiers", "sample_data",
                                 "bucket_catalog_label", "folder_catalog_label", "comment", "last_updated_at", "last_updated_by"]
-const.EXPORT_FILE_S3_UNSTRUCTURED_COLUMNS = ["account_id", "region", "type", "s3_bucket", "folder_name", "sample_object_name", "s3_location",
+const.EXPORT_FILE_S3_UNSTRUCTURED_COLUMNS = ["account_id", "region", "bucket_name", "location",
                                              "identifiers", "sample_data", "bucket_catalog_label", "folder_catalog_label", "comment", "last_updated_at", "last_updated_by"]
-const.EXPORT_FILE_RDS_COLUMNS = ["account_id", "region", "type", "rds_instance_id", "table_name", "column_name", "identifiers", "sample_data",
+const.EXPORT_FILE_RDS_COLUMNS = ["account_id", "region", "instance_name", "table_name", "column_name", "identifiers", "sample_data",
                                  "instance_catalog_label", "table_catalog_label", "comment", "last_updated_at", "last_updated_by"]
-const.EXPORT_FILE_GLUE_COLUMNS = ["account_id", "region", "type", "glue_database", "table_name", "column_name", "identifiers", "sample_data",
+const.EXPORT_FILE_GLUE_COLUMNS = ["account_id", "region", "database_name", "table_name", "column_name", "identifiers", "sample_data",
                                   "instance_catalog_label", "table_catalog_label", "comment", "last_updated_at", "last_updated_by"]
-const.EXPORT_FILE_JDBC_COLUMNS = ["account_id", "region", "type", "jdbc_connection", "table_name", "column_name", "identifiers", "sample_data",
+const.EXPORT_FILE_JDBC_COLUMNS = ["type", "account_id", "region", "instance_name", "description", "jdbc_url", "table_name", "column_name", "identifiers", "sample_data",
                                   "instance_catalog_label", "table_catalog_label", "comment", "last_updated_at", "last_updated_by"]
 const.EXPORT_XLSX_MAX_LINES = 30000
 const.EXPORT_CSV_MAX_LINES = 60000
@@ -96,6 +96,46 @@ const.NO = 'No'
 const.PUBLIC = 'Public'
 const.PRIVATE = 'Private'
 const.ZERO = 0
+const.BATCH_CREATE_LIMIT = 1000
+const.BATCH_SHEET = "OriginTemplate"
+const.REGION_CORD = "region_cord"
+const.REGION_ALIAS = "region_alias"
+
+const.CONNECTION_DESC_MAX_LEN = 2048
+const.BATCH_CREATE_TEMPLATE_PATH_CN = 'batch_create/datasource/template/batch_create_jdbc_datasource-cn.xlsx'
+const.BATCH_CREATE_TEMPLATE_PATH_EN = 'batch_create/datasource/template/batch_create_jdbc_datasource-en.xlsx'
+const.BATCH_CREATE_IDENTIFIER_TEMPLATE_PATH_CN = 'batch_create/identifier/template/batch_create_identifier-cn.xlsx'
+const.BATCH_CREATE_IDENTIFIER_TEMPLATE_PATH_EN = 'batch_create/identifier/template/batch_create_identifier-en.xlsx'
+const.BATCH_CREATE_REPORT_PATH = 'batch_create/datasource/report'
+const.BATCH_CREATE_IDENTIFIER_REPORT_PATH = 'batch_create/identifier/report'
+const.EXISTED_MSG = 'JDBC connection with the same instance already exists'
+const.IDENTIFIER_EXISTED_MSG = "A data identifier with the same name already exists"
+const.DATASOURCE_REPORT = "batch_export/datasource"
+const.IDENTIFY_REPORT = "batch_export/identify"
+
+const.CONFIG_CONCURRENT_RUN_JOB_NUMBER = 'ConcurrentRunJobNumber'
+const.CONFIG_CONCURRENT_RUN_JOB_NUMBER_DEFAULT_VALUE = 50
+const.CONFIG_SUB_JOB_NUMBER_S3 = 'SubJobNumberS3'
+const.CONFIG_SUB_JOB_NUMBER_S3_DEFAULT_VALUE = 10
+const.CONFIG_SUB_JOB_NUMBER_RDS = 'SubJobNumberRds'
+const.CONFIG_SUB_JOB_NUMBER_RDS_DEFAULT_VALUE = 3
+const.CONTROLLER_ACTION = 'Action'
+const.CONTROLLER_ACTION_SCHEDULE_JOB = 'ScheduleJob'
+const.CONTROLLER_ACTION_CHECK_RUNNING_RUN_DATABASES = 'CheckRunningRunDatabases'
+const.CONTROLLER_ACTION_CHECK_PENDING_RUN_DATABASES = 'CheckPendingRunDatabases'
+const.CONTROLLER_ACTION_REFRESH_ACCOUNT = 'RefreshAccount'
+
+const.EXPORT_DS_HEADER_S3 = ["account_id", "region", "bucket_name", "crawler_status", "last_updated_at", "last_updated_by"]
+const.EXPORT_DS_HEADER_RDS = ["account_id", "region", "instance_name", "engine_type", "location", "crawler_status", "last_updated_at", "last_updated_by"]
+const.EXPORT_DS_HEADER_GLUE = ["account_id", "region", "database_name", "description", "location", "crawler_status", "last_updated_at", "last_updated_by"]
+const.EXPORT_DS_HEADER_JDBC = ["type", "account_id", "region", "instance_name", "description", "location", "crawler_status", "last_updated_at", "last_updated_by"]
+const.S3_STR = "S3"
+const.RDS_STR = "RDS"
+const.GLUE_STR = "GLUE"
+const.JDBC_STR = "JDBC"
+# const.DATASOURCE_REPORT = "report/datasource"
+# const.IDENTIFY_REPORT = "report/identify"
+const.EXPORT_IDENTIFY_HEADER = ["Data identify name", "Description", "Rule", "header_keywords", "exclude_keywords", "max_distance", "min_occurrence", "Identify Category", "Identify label"]
 
 const.UNSTRUCTURED_FILES = {
     "document": ["doc", "docx", "pdf", "ppt", "pptx", "xls", "xlsx", "odp"],

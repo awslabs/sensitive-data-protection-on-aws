@@ -4,6 +4,7 @@ import {
   Container,
   ContentLayout,
   Header,
+  SpaceBetween,
   Tabs,
 } from '@cloudscape-design/components';
 import React, { useState } from 'react';
@@ -25,9 +26,11 @@ const TemplateIdentifiersHeader: React.FC = () => {
       variant="h1"
       description={t('template:manageDataIdentifierDesc')}
       actions={
-        <Button onClick={() => navigate(RouterEnum.Datatemplate.path)}>
-          {t('button.defineTemplate')}
-        </Button>
+        <SpaceBetween direction='horizontal' size='xs'>
+          <Button onClick={() => navigate(RouterEnum.Datatemplate.path)}>
+            {t('button.defineTemplate')}
+          </Button>
+        </SpaceBetween>
       }
     >
       {t('template:manageDataIdentifier')}

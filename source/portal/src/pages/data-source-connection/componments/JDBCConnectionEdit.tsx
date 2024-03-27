@@ -11,6 +11,7 @@ import {
   Spinner,
   Tiles,
   Textarea,
+  Grid,
 } from '@cloudscape-design/components';
 import S3ResourceSelector from '@cloudscape-design/components/s3-resource-selector';
 import {
@@ -26,6 +27,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { alertMsg } from 'tools/tools';
 import { i18ns } from '../types/s3_selector_config';
+import { checkJDBCIsMySQL } from 'ts/common';
 
 interface JDBCConnectionProps {
   providerId: number;
@@ -106,6 +108,14 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
   const [secretItem, setSecretItem] = useState<SelectProps.Option | null>(null);
   const [loadingJdbcDatabase, setLoadingJdbcDatabase] = useState(false);
 
+  const [jdbcConnType, setJdbcConnType] = useState(
+    jdbcConnectionData.jdbc_connection_url.startsWith('jdbc:mysql:')
+      ? 'mysql'
+      : 'other'
+  );
+  const [tmpJDBCUrl, setTmpJDBCUrl] = useState('');
+  const [otherJDBCUrlError, setOtherJDBCUrlError] = useState(false);
+  const [jdbcDatabaseEmptyError, setJdbcDatabaseEmptyError] = useState(false);
   // useEffect(() => {
   //   if (credentialType === 'secret_manager') {
   //     loadAccountSecrets();
@@ -134,7 +144,10 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
   }, []);
 
   useEffect(() => {
-    console.log("jdbcConnectionData.jdbc_connection_url is :"+jdbcConnectionData.jdbc_connection_url)
+    console.log(
+      'jdbcConnectionData.jdbc_connection_url is :' +
+        jdbcConnectionData.jdbc_connection_url
+    );
     if (
       jdbcConnectionData.instance_id !== '' &&
       jdbcConnectionData.jdbc_connection_url !== '' &&
@@ -184,6 +197,14 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
   };
 
   const updateJdbcConnection = async () => {
+    if (jdbcConnType === 'other' && checkJDBCIsMySQL(tmpJDBCUrl)) {
+      setOtherJDBCUrlError(true);
+      return;
+    }
+    if (!jdbcConnectionData?.jdbc_connection_schema?.trim()) {
+      setJdbcDatabaseEmptyError(true);
+      return;
+    }
     try {
       await updateConnection(jdbcConnectionData);
       alertMsg(t('successUpdate'), 'success');
@@ -294,7 +315,15 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
     };
     try {
       const res: any = await queryConnectionDetails(requestParam);
-
+      const resJDBCUrl =
+        res?.['ConnectionProperties']?.['JDBC_CONNECTION_URL'] ?? '';
+      if (resJDBCUrl.startsWith('jdbc:mysql:')) {
+        setJdbcConnType('mysql');
+        setTmpJDBCUrl(resJDBCUrl.replace('jdbc:mysql://', ''));
+      } else {
+        setJdbcConnType('other');
+        setTmpJDBCUrl(resJDBCUrl);
+      }
       setJdbcConnectionData({
         ...jdbcConnectionData,
         instance_id: props.instanceId,
@@ -464,13 +493,17 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
   };
 
   const findDatabase = async () => {
-    setIsLoading(true);
+    if (jdbcConnType === 'other' && checkJDBCIsMySQL(tmpJDBCUrl)) {
+      setOtherJDBCUrlError(true);
+      return;
+    }
     setLoadingJdbcDatabase(true);
     const requestParam = {
       connection_url: jdbcConnectionData.jdbc_connection_url,
       username: jdbcConnectionData.master_username,
       password: jdbcConnectionData.password,
       secret_id: jdbcConnectionData.secret,
+      ssl_verify_cert: jdbcConnectionData.jdbc_enforce_ssl === "true" ? true: false
     };
     try {
       const res: any = await queryJdbcDatabases(requestParam);
@@ -478,9 +511,16 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
     } catch (error) {
       alertMsg(error + '', 'error');
     }
-    setIsLoading(false);
     setLoadingJdbcDatabase(false);
   };
+
+  useEffect(() => {
+    let jdbcURLStr = tmpJDBCUrl;
+    if (jdbcConnType === 'mysql') {
+      jdbcURLStr = 'jdbc:mysql://' + tmpJDBCUrl;
+    }
+    changeJDBCUrl(jdbcURLStr);
+  }, [tmpJDBCUrl]);
 
   return (
     <RightModal
@@ -619,43 +659,62 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                   value={jdbcConnectionData.description}
                 />
               </FormField>
+
+              <FormField stretch>
+                <Tiles
+                  onChange={({ detail }) => {
+                    setOtherJDBCUrlError(false);
+                    setTmpJDBCUrl('');
+                    changeDatabase('');
+                    setJdbcConnType(detail.value);
+                  }}
+                  value={jdbcConnType}
+                  items={[
+                    {
+                      disabled: true,
+                      label: t('datasource:jdbc.mysql'),
+                      value: 'mysql',
+                    },
+                    {
+                      disabled: true,
+                      label: t('datasource:jdbc.other'),
+                      value: 'other',
+                    },
+                  ]}
+                />
+              </FormField>
+
               <>
                 <FormField
                   stretch
                   label={t('datasource:jdbc.jdbcURL')}
                   description={t('datasource:jdbc.jdbcURLDesc')}
                   constraintText={t('datasource:jdbc.jdbcURLConstraint')}
-                  secondaryControl={props.providerId !== 1 && (
-                    <Button
-                      onClick={() => {
-                        findDatabase();
-                      }}
-                      iconName="search"
-                      disabled={props.providerId === 1 || loadingJdbcDatabase}
-                    >
-                      {t('datasource:jdbc.findDatabase')}
-                    </Button>
-                  )
-                }
+                  errorText={
+                    otherJDBCUrlError ? t('datasource:jdbc.otherError') : ''
+                  }
                 >
-                  <Input
-                    onChange={(e) => changeJDBCUrl(e.detail.value)}
-                    placeholder="jdbc:protocol://host:port"
-                    value={jdbcConnectionData.jdbc_connection_url}
-                  />
+                  <div className="flex">
+                    {jdbcConnType === 'mysql' && (
+                      <div className="jdbc-prefix">jdbc:mysql://</div>
+                    )}
+                    <div className="flex-1">
+                      <Input
+                        onChange={(e) => {
+                          setOtherJDBCUrlError(false);
+                          setTmpJDBCUrl(e.detail.value);
+                        }}
+                        placeholder={
+                          jdbcConnType === 'mysql'
+                            ? 'host:port'
+                            : 'jdbc:protocol://host:port'
+                        }
+                        value={tmpJDBCUrl}
+                      />
+                    </div>
+                  </div>
                 </FormField>
-                <FormField
-                  stretch
-                  label={t('datasource:jdbc.jdbcDatabase')}
-                  description={t('datasource:jdbc.jdbcDatabaseDesc')}
-                  constraintText={t('datasource:jdbc.jdbcDatabaseConstraint')}
-                >
-                  <Textarea
-                    onChange={(e) => changeDatabase(e.detail.value)}
-                    placeholder={`crm_database\nuser_management\ninventory_management`}
-                    value={jdbcConnectionData.jdbc_connection_schema}
-                  />
-                </FormField>
+
                 <FormField
                   stretch
                   label={t('datasource:jdbc.jdbcClassName')}
@@ -708,6 +767,9 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
               </FormField>
 
               {credential === 'secret' && (
+                <Grid
+                gridDefinition={[{ colspan: 9 },{colspan: 3}]}
+              >
                 <FormField stretch label={t('datasource:jdbc.secret')}>
                   <Select
                     placeholder={t('datasource:jdbc.selectSecret') ?? ''}
@@ -719,29 +781,84 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
                     options={secretOption}
                   />
                 </FormField>
+                {props.providerId !== 1 && (
+                        <div style={{marginTop:25}}>
+                      <Button
+                        onClick={() => {
+                          setJdbcDatabaseEmptyError(false);
+                          findDatabase();
+                        }}
+                        iconName="search"
+                        loading={props.providerId === 1 || loadingJdbcDatabase}
+                      >
+                        {t('datasource:jdbc.findDatabase')}
+                      </Button>
+                      </div>
+                    )}
+                </Grid>
               )}
 
               {credential === 'password' && (
-                <>
+                 <Grid
+                 gridDefinition={[{ colspan: 4 },{ colspan: 5 },{colspan: 3}]}
+               >
                   <FormField stretch label={t('datasource:jdbc.username')}>
                     <Input
+                      placeholder={t('datasource:jdbc.inputUsername') ?? ''}
                       value={jdbcConnectionData.master_username}
                       onChange={({ detail }) => {
+                        changeDatabase('');
                         changeUserName(detail.value);
                       }}
                     />
                   </FormField>
                   <FormField stretch label={t('datasource:jdbc.password')}>
                     <Input
+                      placeholder={t('datasource:jdbc.inputPassword') ?? ''}
                       type="password"
                       value={jdbcConnectionData.password}
                       onChange={({ detail }) => {
+                        changeDatabase('');
                         changePassword(detail.value);
                       }}
                     />
                   </FormField>
-                </>
+                  {props.providerId !== 1 && (
+                        <div style={{marginTop:25}}>
+                      <Button
+                        onClick={() => {
+                          setJdbcDatabaseEmptyError(false);
+                          findDatabase();
+                        }}
+                        iconName="search"
+                        loading={props.providerId === 1 || loadingJdbcDatabase}
+                      >
+                        {t('datasource:jdbc.findDatabase')}
+                      </Button>
+                      </div>
+                    )}
+                </Grid>
               )}
+
+              <FormField
+                stretch
+                label={t('datasource:jdbc.jdbcDatabase')}
+                description={t('datasource:jdbc.jdbcDatabaseDesc')}
+                constraintText={t('datasource:jdbc.jdbcDatabaseConstraint')}
+                errorText={
+                  jdbcDatabaseEmptyError
+                    ? t('datasource:jdbc.databaseError')
+                    : ''
+                }
+              >
+                <Textarea
+                  disabled={jdbcConnType === 'mysql'}
+                  onChange={(e) => changeDatabase(e.detail.value)}
+                  placeholder={`crm_database\nuser_management\ninventory_management`}
+                  value={jdbcConnectionData.jdbc_connection_schema}
+                />
+              </FormField>
+
               <ExpandableSection
                 headerText={t('datasource:jdbc.networkOption')}
                 expanded

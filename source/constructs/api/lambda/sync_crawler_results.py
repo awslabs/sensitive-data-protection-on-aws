@@ -1,18 +1,12 @@
-import json
-import logging
-import re
 import traceback
-
 import catalog.service as catalog_service
 import data_source.crud as data_source_crud
 from common.abilities import convert_database_type_2_provider
 from common.abilities import need_change_account_id
 from common.constant import const
 from common.enum import DatabaseType, ConnectionState
-from db.database import gen_session, close_session
 from common.reference_parameter import logger
 
-logger.setLevel(logging.INFO)
 crawler_prefixes = const.SOLUTION_NAME + "-"
 
 
@@ -114,18 +108,3 @@ def sync_result(input_event):
             state=state
         )
         logger.debug("update jdbc datasource finished")
-
-
-def lambda_handler(event, context):
-    try:
-        gen_session()
-        for record in event['Records']:
-            payload = record["body"]
-            logger.info(payload)
-            updated_string = re.sub(r'("[^"]*?)(\'.*?\')([^"]*?")', r'\1--\3', str(payload))
-            payload = updated_string.replace("\'", "\"")
-            sync_result(json.loads(payload))
-    except Exception:
-        logger.error(traceback.format_exc())
-    finally:
-        close_session()

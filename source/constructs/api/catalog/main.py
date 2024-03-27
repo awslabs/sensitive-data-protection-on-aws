@@ -395,7 +395,6 @@ def agg_catalog_summary_by_privacy(database_type: str):
 @router.get("/dashboard/agg-catalog-top-n", response_model=BaseResponse)
 @inject_session
 def agg_catalog_top_n(database_type: str, top_n: int):
-
     return service_dashboard.agg_catalog_data_source_top_n(database_type, top_n)
 
 

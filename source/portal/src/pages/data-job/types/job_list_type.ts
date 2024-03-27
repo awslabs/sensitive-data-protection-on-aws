@@ -125,6 +125,8 @@ export interface IDataSourceType {
   sensitivity: string;
   labels: Array<any>;
   table_name: string;
+  instance_id: string;
+  glue_database_name: string;
 }
 export interface IDataSourceS3BucketType {
   bucket_name: string;

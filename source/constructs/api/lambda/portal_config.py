@@ -2,7 +2,7 @@ import logging
 import os
 import json
 
-logger = logging.getLogger('portal_config')
+logger = logging.getLogger('api')
 logger.setLevel(logging.INFO)
 
 

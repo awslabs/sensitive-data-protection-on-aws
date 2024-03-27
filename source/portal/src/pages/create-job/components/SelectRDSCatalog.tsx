@@ -17,7 +17,7 @@ import {
   S3_CATALOG_COLUMS,
 } from '../types/create_data_type';
 import { getDataBaseByType, searchCatalogTables } from 'apis/data-catalog/api';
-import { formatNumber, formatSize } from 'tools/tools';
+import { alertMsg, formatNumber, formatSize } from 'tools/tools';
 import CommonBadge from 'pages/common-badge';
 import {
   BADGE_TYPE,
@@ -35,6 +35,7 @@ import {
   CATALOG_TABLE_FILTER_COLUMN,
   RDS_FILTER_COLUMN,
 } from 'pages/data-catalog/types/data_config';
+import { getDataSourceRdsByPage } from 'apis/data-source/api';
 
 interface SelectRDSCatalogProps {
   jobData: IJobType;
@@ -88,27 +89,25 @@ const SelectRDSCatalog: React.FC<SelectRDSCatalogProps> = (
     const requestParam = {
       page: currentPage,
       size: preferences.pageSize,
-      sort_column: '',
-      asc: true,
-      conditions: [
-        {
-          column: 'database_type',
-          values: ['rds'],
-          condition: 'and',
-        },
-      ] as any,
+      sort_column: COLUMN_OBJECT_STR.RdsCreatedTime,
+      asc: false,
+      conditions: [] as any,
     };
-    rdsQuery.tokens &&
-      rdsQuery.tokens.forEach((item: any) => {
-        requestParam.conditions.push({
-          column: item.propertyKey,
-          values: [`${item.value}`],
-          condition: rdsQuery.operation,
-        });
-      });
-    const dataResult = await getDataBaseByType(requestParam);
-    setRdsCatalogData((dataResult as any)?.items);
-    setRdsTotal((dataResult as any)?.total);
+    requestParam.conditions.push({
+      column: COLUMN_OBJECT_STR.GlueState,
+      values: ['UNCONNECTED'],
+      condition: rdsQuery.operation,
+      operation: '!=',
+    });
+    const result: any = await getDataSourceRdsByPage(requestParam);
+    console.info('result:', result);
+    setIsLoading(false);
+    if (!result?.items) {
+      alertMsg(t('loadDataError'), 'error');
+      return;
+    }
+    setRdsCatalogData(result.items);
+    setRdsTotal(result.total);
     setIsLoading(false);
   };
 

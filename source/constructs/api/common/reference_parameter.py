@@ -11,3 +11,4 @@ admin_bucket_name = os.getenv(const.ADMIN_BUCKET_NAME, f"{const.ADMIN_BUCKET_NAM
 partition = caller_identity['Arn'].split(':')[1]
 url_suffix = const.URL_SUFFIX_CN if partition == const.PARTITION_CN else ''
 public_account_id = const.PUBLIC_ACCOUNT_ID_CN if partition == const.PARTITION_CN else const.PUBLIC_ACCOUNT_ID_GLOBAL
+admin_subnet_ids = os.getenv('SubnetIds', '').split(',')
