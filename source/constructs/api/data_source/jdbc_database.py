@@ -34,7 +34,7 @@ class MySQLDatabase(JdbcDatabase):
         except Exception as e:
             logger.info(e)
             raise BizException(MessageEnum.SOURCE_JDBC_LIST_DATABASES_FAILED.get_code(),
-                               str(e.args[1]) if e.args else traceback.format_exc())
+                               str(e.args[len(e.args)-1]) if e.args else traceback.format_exc())
 
         try:
             cursor = db.cursor()
