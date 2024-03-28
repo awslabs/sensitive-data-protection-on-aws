@@ -645,10 +645,10 @@ def update_jdbc_connection_full(jdbc_instance: schemas.JDBCInstanceSourceUpdate)
     jdbc_instance_source.network_sg_id = jdbc_instance.network_sg_id
     jdbc_instance_source.jdbc_driver_class_name = jdbc_instance.jdbc_driver_class_name
     jdbc_instance_source.jdbc_driver_jar_uri = jdbc_instance.jdbc_driver_jar_uri
-    jdbc_instance_source.glue_database = None
-    jdbc_instance_source.glue_crawler = None
+    # jdbc_instance_source.glue_database = None
+    # jdbc_instance_source.glue_crawler = None
     jdbc_instance_source.glue_connection = jdbc_instance_source.glue_connection
-    jdbc_instance_source.glue_vpc_endpoint = None
+    # jdbc_instance_source.glue_vpc_endpoint = None
     jdbc_instance_source.glue_crawler_last_updated = datetime.datetime.utcnow()
     jdbc_instance_source.glue_state = ConnectionState.AUTHORIZED.value
     session.merge(jdbc_instance_source)
