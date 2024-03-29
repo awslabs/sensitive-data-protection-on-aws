@@ -287,7 +287,6 @@ def sync_crawler_result(
             tables_response = glue_client.get_tables(
                 DatabaseName=glue_database_name, NextToken=next_token
             )
-            print(f"tableList is {tables_response['TableList']}")
             logger.info(f"The number of tables is {len(tables_response['TableList'])}")
             # logger.info("get glue tables" + str(tables_response))
             delete_glue_table_names = []
@@ -1200,7 +1199,7 @@ def delete_catalog_by_account_region(account_id: str, region: str):
     try:
         crud.delete_catalog_column_level_classification_by_account_region(account_id, region)
     except Exception as e:
-        print(f"{str(e)}")
+        logger.info(f"{str(e)}")
         # raise BizException(
         #     MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_code(),
         #     MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_msg(),
@@ -1226,7 +1225,7 @@ def delete_catalog_by_database_region(database: str, region: str, type: str):
     try:
         crud.delete_catalog_column_level_classification_by_database_region(database, region, type)
     except Exception as e:
-        print(f"{str(e)}")
+        logger.info(f"{str(e)}")
         # raise BizException(
         #     MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_code(),
         #     MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_msg(),
@@ -1251,7 +1250,7 @@ def delete_catalog_by_database_region_batch(database: str, region: str, type: st
     try:
         crud.delete_catalog_column_level_classification_by_database_region_batch(database, region, type)
     except Exception as e:
-        print(f"{str(e)}")
+        logger.info(f"{str(e)}")
         # raise BizException(
         #     MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_code(),
         #     MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_msg(),

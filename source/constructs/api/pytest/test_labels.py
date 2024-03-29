@@ -143,7 +143,6 @@ def test_get_labels_by_one_database(mocker):
                                             }
                                             )
     assert get_labels_by_one_database.status_code == 200
-    print(get_labels_by_one_database.json())
     assert 'status' in get_labels_by_one_database.json()
     assert get_labels_by_one_database.json()['status'] == 'success'
 

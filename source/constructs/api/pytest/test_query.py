@@ -107,7 +107,6 @@ def test_tables(mocker):
                             headers={"authorization": "Bearer fake_token"}
                             )
     assert get_tables.status_code == 200
-    print(get_tables.json())
     assert 'status' in get_tables.json()
     assert get_tables.json()['status'] == 'success'
     if __name__ == '__main__':

@@ -339,7 +339,6 @@ def batch_create(file: UploadFile = File(...)):
     batch_result = asyncio.run(batch_add_identifier(created_identifier_list))
     result = {item[0]: f"{item[1]}/{item[2]}" for item in batch_result}
     for row_index, row in enumerate(sheet.iter_rows(min_row=3), start=2):
-        # print(f"row[10] id {row[1].value} ")
         if row[10] and row[10].value:
             continue
         v = result.get(row[0].value)

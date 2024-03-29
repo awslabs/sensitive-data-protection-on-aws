@@ -775,10 +775,8 @@ async def __delete_jdbc_connection(provider_id: int, account: str, region: str, 
         delete_catalog_by_database_region_batch(database=instance_id, region=region, type=database_type)
         logger.info('delete_catalog_by_database_region end')
     except BizException as be:
-        print(f"delete_catalog_by_database_region biz res is >>>>>>{instance_id}-{be.__msg__()}")
         return instance_id, be.__msg__()
     except Exception as e:
-        print(f"delete_catalog_by_database_region res is >>>>>>{instance_id}-{str(e)}")
         return instance_id, str(e)
 
     if not delete_catalog_only:
