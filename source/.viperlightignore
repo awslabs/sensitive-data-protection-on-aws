@@ -18,7 +18,10 @@ constructs/api/pytest/test_data_source.py
 constructs/api/pytest/test_labels.py
 constructs/api/pytest/test_query.py
 constructs/lib/common/solution-info.ts:30
-*.xlsx
+constructs/config/batch_create/datasource/template/batch_create_jdbc_datasource-cn.xlsx
+constructs/config/batch_create/datasource/template/batch_create_jdbc_datasource-en.xlsx
+constructs/config/batch_create/identifier/template/batch_create_identifier-cn.xlsx
+constructs/config/batch_create/identifier/template/batch_create_identifier-en.xlsx
 
 [python-pipoutdated]
 pip=v21.1.2
