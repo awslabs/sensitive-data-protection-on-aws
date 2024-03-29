@@ -1,5 +1,7 @@
 from enum import Enum, unique
 
+from common.constant import const
+
 
 # system             1000 ~ 1099
 # user               1100 ~ 1199
@@ -21,7 +23,7 @@ class MessageEnum(Enum):
     # template
     TEMPLATE_NOT_EXISTS = {1401: "The classification template does not exist"}
     TEMPLATE_IDENTIFIER_NOT_EXISTS = {1402: "The data identifier does not exist"}
-    TEMPLATE_IDENTIFIER_EXISTS = {1403: "A data identifier with the same name already exists"}
+    TEMPLATE_IDENTIFIER_EXISTS = {1403: const.IDENTIFIER_EXISTED_MSG}
     TEMPLATE_IDENTIFIER_USED = {1404: "The data identifier is being used"}
     TEMPLATE_PROPS_USED = {1405: "The item is being used"}
     TEMPLATE_PROPS_EXISTS = {1406: "A category/regulation with the same name already exists"}
@@ -99,7 +101,7 @@ class MessageEnum(Enum):
     SOURCE_JDBC_NO_CREDENTIAL = {1231: "No credential"}
     SOURCE_JDBC_NO_AUTH = {1232: "No authorization"}
     SOURCE_JDBC_DUPLICATE_AUTH = {1233: "Duplicate authorization"}
-    SOURCE_JDBC_ALREADY_EXISTS = {1234: "JDBC connection with the same instance already exists"}
+    SOURCE_JDBC_ALREADY_EXISTS = {1234: const.EXISTED_MSG}
     SOURCE_GLUE_DATABASE_EXISTS = {1235: "Glue database with the same name already exists"}
     SOURCE_GLUE_DATABASE_NO_INSTANCE = {1236: "Glue database does not exist"}
     SOURCE_SECURITY_GROUP_NOT_EXISTS = {1237: "Security for jdbc connection is not existed"}
@@ -123,8 +125,11 @@ class MessageEnum(Enum):
     SOURCE_JDBC_ALREADY_IMPORTED = {1255: "JDBC connection with the same instance already be imported"}
     SOURCE_JDBC_LIST_DATABASES_NOT_SUPPORTED = {1256: "JDBC list databases not supported."}
     SOURCE_JDBC_LIST_DATABASES_FAILED = {1257: "JDBC list databases failed."}
-    SOURCE_ACCOUNT_ID_ALREADY_EXISTS = {1256: "A duplicate account with the same name already exists. Please note that account names must be unique."}
-    
+    SOURCE_ACCOUNT_ID_ALREADY_EXISTS = {1258: "A duplicate account with the same name already exists. Please note that account names must be unique."}
+    SOURCE_BATCH_CREATE_FORMAT_ERR = {1259: "Invalid file type, please provide an Excel file (.xlsx)."}
+    SOURCE_BATCH_CREATE_LIMIT_ERR = {1260: "Batch operation limit exceeded, please ensure that a maximum of 100 data sources are created at a time."}
+    SOURCE_BATCH_SHEET_NOT_FOUND = {1261: "Sheet [OriginTemplate] not found in the Excel file"}
+    SOURCE_BATCH_SHEET_NO_CONTENT = {1262: "There is no relevant data in sheet [OriginTemplate], please add data according to the format."}
     # label
     LABEL_EXIST_FAILED = {1611: "Cannot create duplicated label"}
 
@@ -164,6 +169,7 @@ class RunState(Enum):
 @unique
 class RunDatabaseState(Enum):
     READY = "Ready"
+    PENDING = "Pending"
     RUNNING = "Running"
     SUCCEEDED = "Succeeded"
     FAILED = "Failed"
@@ -237,6 +243,7 @@ class CatalogModifier(Enum):
 class ConnectionState(Enum):
     PENDING = "PENDING"
     CRAWLING = "CRAWLING"
+    AUTHORIZED = "AUTHORIZED"
     ACTIVE = "ACTIVE"
     UNSUPPORTED = "UNSUPPORTED FILE TYPES"
     ERROR = "ERROR"
@@ -289,8 +296,6 @@ class OperationType(Enum):
     NOT_CONTAIN = "!:"
     IN = "in"
 
-
-
 @unique
 class AutoSyncDataAction(Enum):
     DELETE_ACCOUNT = "DeleteAccount"
@@ -309,7 +314,7 @@ class Provider(Enum):
 
 @unique
 class ProviderName(Enum):
-    AWS_CLOUD = 'AWS'
+    AWS_CLOUD = 'AWS CLOUD'
     TENCENT_CLOUD = 'TENCENT CLOUD'
     GOOGLE_CLOUD = 'GOOGLE CLOUD'
     JDBC_PROXY = 'JDBC PROXY'

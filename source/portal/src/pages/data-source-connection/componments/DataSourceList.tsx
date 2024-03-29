@@ -16,6 +16,10 @@ import {
   ButtonDropdown,
   ButtonDropdownProps,
   StatusIndicator,
+  Multiselect,
+  Icon,
+  Popover,
+  // Flashbar,
 } from '@cloudscape-design/components';
 import { DATA_TYPE_ENUM, TABLE_NAME } from 'enum/common_types';
 import {
@@ -47,7 +51,7 @@ import {
   getSecrets,
   hideDataSourceS3,
   hideDataSourceRDS,
-  hideDataSourceJDBC,
+  deleteDataSourceJDBC,
   deleteDataCatalogS3,
   deleteDataCatalogRDS,
   deleteDataCatalogJDBC,
@@ -70,9 +74,13 @@ import { useTranslation } from 'react-i18next';
 import JDBCConnection from './JDBCConnection';
 import JDBCConnectionEdit from './JDBCConnectionEdit';
 import DataSourceCatalog from './DataSourceCatalog';
+import DataSourceDelete from 'pages/data-source-delete';
 
 const DataSourceList: React.FC<any> = memo((props: any) => {
   const { tagType, accountData } = props;
+  const [delFailedItems, setDelFailedItems] = React.useState([] as any);
+  const [showDelResModal, setShowDelResModal] = useState(false)
+  const [isShowDelete, setIsShowDelete] = useState(false);
   const { t } = useTranslation();
   const columnList =
     tagType === DATA_TYPE_ENUM.s3
@@ -108,10 +116,12 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
   const filterTableName =
     tagType === DATA_TYPE_ENUM.s3
       ? TABLE_NAME.SOURCE_S3_BUCKET
-      : (tagType === DATA_TYPE_ENUM.rds ? (TABLE_NAME.SOURCE_RDS_INSTANCE)
-      : (tagType === DATA_TYPE_ENUM.glue ? TABLE_NAME.SOURCE_GLUE_DATABASE 
-      : TABLE_NAME.SOURCE_JDBC_CONNECTION))
-      // : TABLE_NAME.SOURCE_RDS_INSTANCE;
+      : tagType === DATA_TYPE_ENUM.rds
+      ? TABLE_NAME.SOURCE_RDS_INSTANCE
+      : tagType === DATA_TYPE_ENUM.glue
+      ? TABLE_NAME.SOURCE_GLUE_DATABASE
+      : TABLE_NAME.SOURCE_JDBC_CONNECTION;
+  // : TABLE_NAME.SOURCE_RDS_INSTANCE;
   const resFilterProps = {
     totalCount,
     columnList: columnList.filter((i) => i.filter),
@@ -126,6 +136,8 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
 
   const [showAddConnection, setShowAddConnection] = useState(false);
   const [showEditConnection, setShowEditConnection] = useState(false);
+  const [sgs, setSgs] = useState([] as any);
+  const [selectedSgs, setSelectedSgs] = useState([] as any);
 
   useEffect(() => {
     if (tagType === DATA_TYPE_ENUM.jdbc && !showAddConnection) {
@@ -171,11 +183,16 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         id: 'connectAll',
         disabled: tagType === DATA_TYPE_ENUM.rds,
       },
-      {
-        text: t('button.addDataSource'),
-        id: 'addDataSource',
-        disabled: tagType !== DATA_TYPE_ENUM.jdbc,
-      },
+      // {
+      //   text: t('button.addDataSource'),
+      //   id: 'addDataSource',
+      //   disabled: tagType !== DATA_TYPE_ENUM.jdbc,
+      // },
+      // {
+      //   text: t('button.addDataSourceBatch'),
+      //   id: 'addDataSourceBatch',
+      //   disabled: tagType !== DATA_TYPE_ENUM.jdbc,
+      // },
       {
         text: t('button.deleteDataSource'),
         id: 'deleteDataSource',
@@ -203,19 +220,19 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
     }
     if (tagType === DATA_TYPE_ENUM.jdbc) {
       res = [
-        {
-          text: t('button.addDataSource'),
-          id: 'addImportJdbc',
-          disabled: tagType !== DATA_TYPE_ENUM.jdbc,
-        },
+        // {
+        //   text: t('button.addDataSource'),
+        //   id: 'addImportJdbc',
+        //   disabled: tagType !== DATA_TYPE_ENUM.jdbc,
+        // },
         {
           text: t('button.editDataSource'),
           id: 'editJdbc',
-          disabled: selectedItems.length === 0,
+          disabled: selectedItems.length !== 1,
         },
         {
           text: t('button.deleteDataSource'),
-          id: 'disconnect_dc',
+          id: 'deleteDataSource',
           disabled:
             tagType === DATA_TYPE_ENUM.rds || selectedItems.length === 0,
         },
@@ -235,6 +252,11 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
 
     return res;
   };
+
+  const closeDelResModal =()=>{
+    setDelFailedItems([])
+    setShowDelResModal(false)
+  }
 
   const getPageData = async () => {
     setIsLoading(true);
@@ -401,9 +423,18 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       try {
         await connectDataSourceJDBC(requestParam);
         showHideSpinner(false);
-        alertMsg(t('startConnect'), 'success');
         setSelectedItems([]);
         getPageData();
+        alertMsg(t('startConnect'), 'success');
+        // setItems([{
+        //   header: "Failed to update 4 instances",
+        //   type: "error",
+        //   content: "This is a dismissible error message.",
+        //   dismissible: true,
+        //   dismissLabel: "Dismiss message",
+        //   onDismiss: () => setItems([]),
+        //   id: "message_1"
+        // }])
       } catch (error) {
         setSelectedItems([]);
         showHideSpinner(false);
@@ -592,8 +623,9 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
     } else if (tagType === DATA_TYPE_ENUM.rds) {
       requestParam.instance = selectedItems[0].instance_id;
     } else if (tagType === DATA_TYPE_ENUM.jdbc) {
-      requestParam.instance = selectedItems[0].instance_id;
-      requestParam.account_provider = selectedItems[0].account_provider_id;
+      // requestParam.instances = selectedItems[0].instance_id;
+      // requestParam.instances = selectedItems.map((item: any)=>item.instance_id);
+      // requestParam.account_provider = selectedItems[0].account_provider_id;
     }
     showHideSpinner(true);
     try {
@@ -602,17 +634,68 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
       } else if (tagType === DATA_TYPE_ENUM.rds) {
         await hideDataSourceRDS(requestParam);
       } else if (tagType === DATA_TYPE_ENUM.jdbc) {
-        await hideDataSourceJDBC(requestParam);
+        setIsShowDelete(true)
+        showHideSpinner(false);
+        return
       }
       showHideSpinner(false);
-      alertMsg(t('disconnectSuccess'), 'success');
+      alertMsg(t('deleteSuccess'), 'success');
       setSelectedItems([]);
       getPageData();
+
       return;
     } catch (error) {
       setSelectedItems([]);
       showHideSpinner(false);
     }
+  };
+
+  const confirmDelete = async () => {
+    const requestParam: any = {
+      account_id: selectedItems[0].account_id,
+      region: selectedItems[0].region,
+      instances: selectedItems.map((item: any)=>item.instance_id),
+      account_provider: selectedItems[0].account_provider_id
+    };
+
+
+    showHideSpinner(true);
+    // try {
+    //   await deleteTemplateMapping(requestParam.ids);
+    //   alertMsg(t('deleteSuccess'), 'success');
+    //   showHideSpinner(false);
+    //   getPageData();
+    //   setIsShowDelete(false);
+    // } catch (error) {
+    //   showHideSpinner(false);
+    // }
+    try {
+      const response:[string, string] = await deleteDataSourceJDBC(requestParam) as [string, string];
+        const res = response.filter(item=>item[1] !== '')
+        setDelFailedItems(res)
+        console.log("delete jdbc res is >>>>>>"+response)
+        showHideSpinner(false);
+        setSelectedItems([]);
+        getPageData();
+        setIsShowDelete(false);
+        if(res.length === 0){
+          alertMsg(t('deleteSuccess'), 'success');
+        } else {
+          setShowDelResModal(true)
+        }
+        return;
+    } catch (error) {
+      showHideSpinner(false);
+    }
+  };
+
+  const deleteModalProps = {
+    isShowDelete,
+    setIsShowDelete,
+    confirmDelete,
+    selectedInstances: selectedItems.map((item: any)=>item.instance_id),
+    title: t('datasource:jdbc.removeDataSource'),
+    confirmText: t('button.remove'),
   };
 
   const loadAccountSecrets = async () => {
@@ -646,6 +729,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
 
   return (
     <>
+      {/* <Flashbar items={items} /> */}
       <Table
         variant="embedded"
         className="no-shadow-list"
@@ -698,6 +782,10 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                       tempType = CLSAAIFIED_TYPE.SystemMark;
                       tempIsLoading = true;
                       break;
+                    case 'AUTHORIZED':
+                        tempLabel = 'AUTHORIZED';
+                        tempType = CLSAAIFIED_TYPE.Authorized;
+                        break;
                     case 'ACTIVE':
                       tempLabel = 'ACTIVE';
                       tempType = CLSAAIFIED_TYPE.Success;
@@ -900,14 +988,21 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                     disabled={isLoading}
                     iconName="refresh"
                   />
-                  <Button
-                    disabled={isLoading || selectedItems.length === 0}
+                  {tagType !== DATA_TYPE_ENUM.jdbc &&
+                    <Button
+                    disabled={isLoading || selectedItems.length !== 1}
                     onClick={clkConnected}
                   >
-                    {tagType === DATA_TYPE_ENUM.s3
-                      ? t('button.authorize')
-                      : t('button.connect')}
+                    {t('button.authorize')}
                   </Button>
+                  }
+                  { tagType === DATA_TYPE_ENUM.jdbc && 
+                    <Button
+                    onClick={()=>clkAddSource('addImportJdbc')}
+                  >
+                    {t('button.addAndAuthorize')}
+                  </Button>
+                  }
                   <ButtonDropdown
                     onItemClick={({ detail }) => {
                       if (detail.id === 'disconnect') {
@@ -919,9 +1014,9 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                       if (detail.id === 'deleteDatabase') {
                         clkDeleteDatabase();
                       }
-                      if (detail.id === 'addImportJdbc') {
-                        clkAddSource('addImportJdbc');
-                      }
+                      // if (detail.id === 'addImportJdbc') {
+                      //   clkAddSource('addImportJdbc');
+                      // }
                       if (detail.id === 'editJdbc') {
                         clkAddSource('editJdbc');
                       }
@@ -959,7 +1054,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
           </>
         }
         items={pageData}
-        selectionType="single"
+        selectionType={tagType === DATA_TYPE_ENUM.jdbc?"multi":"single"}
         loadingText={t('table.loadingResources') || ''}
         visibleColumns={preferences.visibleContent}
         empty={
@@ -1040,6 +1135,30 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
         }
         loading={isLoading}
       />
+      <DataSourceDelete {...deleteModalProps} />
+      <Modal
+      visible={showDelResModal}
+      onDismiss={() => setShowDelResModal(false)}
+      footer={
+        <Box float="right">
+          <SpaceBetween direction="horizontal" size="xs">
+            <Button onClick={()=>closeDelResModal()}>确认</Button>
+          </SpaceBetween>
+        </Box>
+      }
+      header={t('datasource:jdbc.removeDataSource')}
+    >
+      <p>{t('datasource:jdbc.removeDataSourceFailed')}</p>
+      {delFailedItems.map((item:any) => {
+        return (<Box color="text-status-error">
+          <StatusIndicator type="error">
+            {item[0]} - {item[1]}
+          </StatusIndicator>
+      </Box>
+  )
+      })}
+      <p>{t('datasource:jdbc.confirmReason')}</p>
+    </Modal>
       <Modal
         visible={showRdsPwdModal}
         onDismiss={() => setShowRdsPwdModal(false)}
@@ -1056,7 +1175,7 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
                 onClick={connectRDS}
                 loading={btnDisabled}
               >
-                {t('button.connect')}
+                {t('button.authorize')}
               </Button>
             </SpaceBetween>
           </Box>
@@ -1115,7 +1234,19 @@ const DataSourceList: React.FC<any> = memo((props: any) => {
           </Grid>
           <br></br>
 
-          <FormField label="Credential">
+          {/* <FormField label={t('datasource:security')}>
+            <Multiselect
+              selectedOptions={selectedSgs}
+              onChange={({ detail }) =>
+                setSelectedSgs(detail.selectedOptions)
+              }
+              options={sgs}
+              empty={t('datasource:emptySg')||''}
+              placeholder={t('datasource:chooseSg')||''}
+            /> 
+          </FormField> */}
+
+          <FormField label={t('datasource:credential')}>
             <Tiles
               onChange={({ detail }) => setCedentialType(detail.value)}
               value={cedentialType}

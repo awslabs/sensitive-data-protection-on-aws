@@ -1,15 +1,12 @@
-import json
 import logging
 import time
 import boto3
 from common.enum import AutoSyncDataAction, Provider
 from data_source.service import delete_account
-from db.database import close_session, gen_session
 from common.reference_parameter import logger, admin_region, partition
 from botocore.exceptions import ClientError
 from common.constant import const
 
-logger.setLevel(logging.INFO)
 client_sts = boto3.client('sts')
 
 
@@ -37,14 +34,3 @@ def sync_data(input_event):
             else:
                 break
         delete_account(Provider.AWS_CLOUD.value, agent_account_id, None)
-
-
-def lambda_handler(event, context):
-    try:
-        gen_session()
-        for record in event['Records']:
-            payload = record["body"]
-            logger.info(payload)
-            sync_data(json.loads(payload))
-    finally:
-        close_session()

@@ -5,16 +5,8 @@ from . import schemas, service
 from common.response_wrapper import BaseResponse
 from common.query_condition import QueryCondition
 from fastapi_pagination.ext.sqlalchemy import paginate
-from fastapi.responses import RedirectResponse
-from common.constant import const
 
 router = APIRouter(prefix="/discovery-jobs", tags=["discovery-job"])
-
-
-# @router.get("/last-job-time", response_model=BaseResponse[str])
-# @inject_session
-# def last_job_time():
-#     return service.last_job_time()
 
 
 @router.post("", response_model=BaseResponse[schemas.DiscoveryJob])
@@ -32,85 +24,85 @@ def list_jobs(condition: QueryCondition):
     ))
 
 
-@router.get("/{id}", response_model=BaseResponse[schemas.DiscoveryJob])
+@router.get("/{job_id}", response_model=BaseResponse[schemas.DiscoveryJob])
 @inject_session
-def get_job(id: int):
-    return service.get_job(id)
+def get_job(job_id: int):
+    return service.get_job(job_id)
 
 
-@router.delete("/{id}", response_model=BaseResponse[bool])
+@router.delete("/{job_id}", response_model=BaseResponse[bool])
 @inject_session
-def delete_job(id: int):
-    service.delete_job(id)
+def delete_job(job_id: int):
+    service.delete_job(job_id)
     return True
 
 
-@router.patch("/{id}", response_model=BaseResponse[bool])
+@router.patch("/{job_id}", response_model=BaseResponse[bool])
 @inject_session
-def update_job(id: int, job: schemas.DiscoveryJobUpdate):
-    service.update_job(id, job)
+def update_job(job_id: int, job: schemas.DiscoveryJobUpdate):
+    service.update_job(job_id, job)
     return True
 
 
-@router.post("/{id}/enable", response_model=BaseResponse[bool])
+@router.post("/{job_id}/enable", response_model=BaseResponse[bool])
 @inject_session
-def enable_job(id: int):
-    service.enable_job(id)
+def enable_job(job_id: int):
+    service.enable_job(job_id)
     return True
 
 
-@router.post("/{id}/disable", response_model=BaseResponse[bool])
+@router.post("/{job_id}/disable", response_model=BaseResponse[bool])
 @inject_session
-def disable_job(id: int):
-    service.disable_job(id)
+def disable_job(job_id: int):
+    service.disable_job(job_id)
     return True
 
 
-@router.post("/{id}/start", response_model=BaseResponse[bool])
+@router.post("/{job_id}/start", response_model=BaseResponse[bool])
 @inject_session
-def start_job(id: int):
-    service.start_job(id)
+def start_job(job_id: int):
+    service.start_job(job_id)
     return True
 
 
-@router.post("/{id}/stop", response_model=BaseResponse[bool])
+@router.post("/{job_id}/stop", response_model=BaseResponse[bool])
 @inject_session
-def stop_job(id: int):
-    service.stop_job(id)
+def stop_job(job_id: int):
+    service.stop_job(job_id)
     return True
 
 
-@router.get("/{id}/runs", response_model=BaseResponse[Page[schemas.DiscoveryJobRunList]])
+@router.get("/{job_id}/runs", response_model=BaseResponse[Page[schemas.DiscoveryJobRunList]])
 @inject_session
-def list_runs(id: int, params: Params = Depends()):
-    return paginate(service.get_runs(id), params)
+def list_runs(job_id: int, params: Params = Depends()):
+    return paginate(service.get_runs(job_id), params)
 
 
-@router.get("/{id}/runs/{run_id}", response_model=BaseResponse[schemas.DiscoveryJobRun])
+@router.get("/{job_id}/runs/{run_id}", response_model=BaseResponse[schemas.DiscoveryJobRun])
 @inject_session
-def get_run(id: int, run_id: int):
+def get_run(job_id: int, run_id: int):
     return service.get_run(run_id)
 
 
-@router.post("/{id}/runs/{run_id}/databases", response_model=BaseResponse[Page[schemas.DiscoveryJobRunDatabaseList]])
+@router.post("/{job_id}/runs/{run_id}/databases", response_model=BaseResponse[Page[schemas.DiscoveryJobRunDatabaseList]])
 @inject_session
-def list_run_databases(id: int, run_id: int, condition: QueryCondition):
+def list_run_databases(job_id: int, run_id: int, condition: QueryCondition):
     return paginate(service.list_run_databases_pagination(run_id, condition), Params(
         size=condition.size,
         page=condition.page,
     ))
 
 
-@router.get("/{id}/runs/{run_id}/status", response_model=BaseResponse[schemas.DiscoveryJobRunDatabaseStatus])
+@router.get("/{job_id}/runs/{run_id}/status", response_model=BaseResponse[schemas.DiscoveryJobRunDatabaseStatus])
 @inject_session
-def get_run_status(id: int, run_id: int):
-    return service.get_run_status(id, run_id)
+def get_run_status(job_id: int, run_id: int):
+    return service.get_run_status(job_id, run_id)
 
 
-@router.get("/{id}/runs/{run_id}/progress", response_model=BaseResponse[list[schemas.DiscoveryJobRunDatabaseProgress]])
+@router.get("/{job_id}/runs/{run_id}/progress", response_model=BaseResponse[list[schemas.DiscoveryJobRunDatabaseProgress]])
 @inject_session
-def get_run_progress(id: int, run_id: int):
-    return service.get_run_progress(id, run_id)
+def get_run_progress(job_id: int, run_id: int):
+    return service.get_run_progress(job_id, run_id)
 
 
 # @router.get("/{id}/runs/{run_id}/report",
@@ -127,15 +119,15 @@ def get_run_progress(id: int, run_id: int):
 #     return RedirectResponse(url)
 
 
-@router.get("/{id}/runs/{run_id}/report_url", response_model=BaseResponse[str])
+@router.get("/{job_id}/runs/{run_id}/report_url", response_model=BaseResponse[str])
 @inject_session
-def get_report_url(id: int, run_id: int):
-    url = service.get_report_url(run_id)
+def get_report_url(job_id: int, run_id: int):
+    url = service.get_report_url(job_id, run_id)
     return url
 
 
-@router.get("/{id}/runs/{run_id}/template_snapshot_url", response_model=BaseResponse[str])
+@router.get("/{job_id}/runs/{run_id}/template_snapshot_url", response_model=BaseResponse[str])
 @inject_session
-def get_template_snapshot_url(id: int, run_id: int):
+def get_template_snapshot_url(job_id: int, run_id: int):
     url = service.get_template_snapshot_url(run_id)
     return url

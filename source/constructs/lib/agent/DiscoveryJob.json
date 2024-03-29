@@ -453,7 +453,7 @@
                 "ProcessingResources": {
                   "ClusterConfig": {
                     "InstanceCount": 1,
-                    "InstanceType": "ml.m5.2xlarge",
+                    "InstanceType": "ml.c5.24xlarge",
                     "VolumeSizeInGB": 1
                   }
                 },

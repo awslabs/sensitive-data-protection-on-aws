@@ -1,15 +1,22 @@
-from enum import Enum
+import io
 import json
+import time
+import zipfile
+from datetime import datetime, timezone
+from enum import Enum
 from typing import Optional
 
+import boto3
 from fastapi import APIRouter
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from common.request_wrapper import inject_session
 from common.response_wrapper import BaseResponse
 from db.models_catalog import CatalogColumnLevelClassification, CatalogTableLevelClassification, \
     CatalogDatabaseLevelClassification
-from db.models_data_source import S3BucketSource, Account, DetectionHistory, RdsInstanceSource, JDBCInstanceSource, SourceGlueDatabase
+from db.models_data_source import S3BucketSource, Account, DetectionHistory, RdsInstanceSource, JDBCInstanceSource, \
+    SourceGlueDatabase
 from db.models_discovery_job import DiscoveryJob, DiscoveryJobDatabase, DiscoveryJobRun, DiscoveryJobRunDatabase
 from db.models_template import TemplateIdentifier, TemplateMapping
 from . import crud
@@ -90,6 +97,7 @@ def filter_values(table: str, column: str, condition: str):
             values.append('Empty')
     return values
 
+
 @router.post("/", response_model=BaseResponse)
 @inject_session
 def filter_values(query: Query):
@@ -118,3 +126,36 @@ def tables():
     for searchable_class in searchable:
         tables.append(searchable_class.__tablename__)
     return tables
+
+
+@router.get("/download-logs", response_class=StreamingResponse)
+def download_log_as_zip():
+    filename = f"aws_sdps_cloudwatch_logs.zip"
+    logs = boto3.client('logs')
+    response = logs.describe_log_groups(logGroupNamePattern='APIAPIFunction')
+    log_group_names = [group['logGroupName'] for group in response['logGroups']]
+    end_time = int(time.time()) * 1000
+    start_time = end_time - 1 * 24 * 60 * 60 * 1000  # recent 1 days logs
+
+    zip_bytes = io.BytesIO()
+    with zipfile.ZipFile(zip_bytes, 'w') as zipf:
+        for log_group_name in log_group_names:
+            response = logs.filter_log_events(
+                logGroupName=log_group_name,
+                startTime=start_time,
+                endTime=end_time,
+                interleaved=True
+            )
+            log_events = sorted(response['events'], key=lambda x: x['timestamp'], reverse=True)
+            log_file_name = f'{log_group_name}.txt'
+            log_content = []
+            for event in log_events:
+                timestamp = event['timestamp'] / 1000  # to seconds
+                timestamp_str = datetime.fromtimestamp(timestamp, timezone.utc).isoformat()
+                log_content.append(f'{timestamp_str}\t {event["message"]}')
+
+            zipf.writestr(log_file_name, '\n'.join(log_content))
+
+    zip_bytes.seek(0)
+    return StreamingResponse(zip_bytes, media_type="application/zip",
+                             headers={"Content-Disposition": f"attachment; filename={filename}"})

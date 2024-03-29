@@ -9,10 +9,9 @@ from common.enum import MessageEnum, JobState, RunState, RunDatabaseState, Datab
 from sqlalchemy import func
 from common.constant import const
 import uuid
-import datetime
-from catalog.crud import get_catalog_database_level_classification_by_type_all,get_catalog_database_level_classification_by_params
+from datetime import datetime
+from data_source.resource_list import list_resources_by_database_type
 from template.service import get_template_snapshot_no
-from tools.str_tool import is_empty
 
 
 def get_job(id: int) -> models.DiscoveryJob:
@@ -104,15 +103,28 @@ def get_running_run(job_id: int) -> models.DiscoveryJobRun:
     return db_run
 
 
+def __get_database_name_key(database_type: str) -> str:
+    if database_type == DatabaseType.S3.value:
+        return "bucket_name"
+    elif database_type == DatabaseType.RDS.value:
+        return "instance_id"
+    elif database_type == DatabaseType.GLUE.value:
+        return "glue_database_name"
+    else:
+        return "instance_id"
+
+
 def __add_job_databases(run: models.DiscoveryJobRun, database_type: str, base_time_dict: dict):
-    databases = get_catalog_database_level_classification_by_type_all(database_type).all()
-    for database in databases:
-        base_time = base_time_dict.get(f'{database.account_id}-{database.region}-{database_type}-{database.database_name}')
+    data_sources = list_resources_by_database_type(database_type).all()
+    database_name_key = __get_database_name_key(database_type)
+    for data_source in data_sources:
+        database_name = getattr(data_source, database_name_key)
+        base_time = base_time_dict.get(f'{data_source.account_id}-{data_source.region}-{database_type}-{database_name}')
         run_database = models.DiscoveryJobRunDatabase(run_id=run.id,
-                                                      account_id=database.account_id,
-                                                      region=database.region,
+                                                      account_id=data_source.account_id,
+                                                      region=data_source.region,
                                                       database_type=database_type,
-                                                      database_name=database.database_name,
+                                                      database_name=database_name,
                                                       base_time=base_time,
                                                       state=RunDatabaseState.READY.value,
                                                       uuid=uuid.uuid4().hex)
@@ -167,21 +179,7 @@ def init_run(job_id: int) -> int:
     if job.all_jdbc == 1:
         __add_job_databases(run, job.database_type, base_time_dict)
     for job_database in job_databases:
-        if is_empty(job_database.database_name) and is_empty(job_database.table_name):
-            catalog_databases = get_catalog_database_level_classification_by_params(job_database.account_id,job_database.region,job_database.database_type).all()
-            for catalog_database in catalog_databases:
-                base_time = base_time_dict.get(
-                    f'{job_database.account_id}-{job_database.region}-{job_database.database_type}-{catalog_database.database_name}', datetime.datetime.min)
-                run_database = models.DiscoveryJobRunDatabase(run_id=run.id,
-                                                              account_id=job_database.account_id,
-                                                              region=job_database.region,
-                                                              database_type=job_database.database_type,
-                                                              database_name=catalog_database.database_name,
-                                                              base_time=base_time,
-                                                              state=RunDatabaseState.READY.value,
-                                                              uuid=uuid.uuid4().hex)
-                run.databases.append(run_database)
-        else:
+        if job_database.database_name:
             run_database = models.DiscoveryJobRunDatabase(run_id=run.id,
                                                           account_id=job_database.account_id,
                                                           region=job_database.region,
@@ -192,6 +190,22 @@ def init_run(job_id: int) -> int:
                                                           state=RunDatabaseState.READY.value,
                                                           uuid=uuid.uuid4().hex)
             run.databases.append(run_database)
+        else:
+            data_sources = list_resources_by_database_type(job_database.database_type, job_database.account_id, job_database.region).all()
+            database_name_key = __get_database_name_key(job_database.database_type)
+            for data_source in data_sources:
+                database_name = getattr(data_source, database_name_key)
+                base_time = base_time_dict.get(
+                    f'{job_database.account_id}-{job_database.region}-{job_database.database_type}-{database_name}', datetime.min)
+                run_database = models.DiscoveryJobRunDatabase(run_id=run.id,
+                                                              account_id=job_database.account_id,
+                                                              region=job_database.region,
+                                                              database_type=job_database.database_type,
+                                                              database_name=database_name,
+                                                              base_time=base_time,
+                                                              state=RunDatabaseState.READY.value,
+                                                              uuid=uuid.uuid4().hex)
+                run.databases.append(run_database)
     session.add(run)
     session.commit()
     return run.id
@@ -237,23 +251,18 @@ def count_run_databases(run_id: int):
     return db_count
 
 
-def stop_run(job_id: int, run_id: int, stopping=False):
+def stop_run(job_id: int, run_id: int):
     session = get_session()
     run_database_update = schemas.DiscoveryJobRunDatabaseUpdate()
-    run_database_update.end_time = mytime.get_time()
-    run_database_update.state = RunDatabaseState.STOPPING.value if stopping else RunDatabaseState.STOPPED.value
+    run_database_update.state = RunDatabaseState.STOPPING.value
     session.query(models.DiscoveryJobRunDatabase).filter(models.DiscoveryJobRunDatabase.run_id == run_id).update(run_database_update.dict(exclude_unset=True))
+
     run_update = schemas.DiscoveryJobRunUpdate()
-    run_update.end_time = mytime.get_time()
-    run_update.state = RunState.STOPPING.value if stopping else RunState.STOPPED.value
+    run_update.state = RunState.STOPPING.value
     session.query(models.DiscoveryJobRun).filter(models.DiscoveryJobRun.id == run_id).update(run_update.dict(exclude_unset=True))
+
     job: models.DiscoveryJob = session.query(models.DiscoveryJob).get(job_id)
-    job_state = JobState.OD_STOPPING.value if stopping else JobState.IDLE.value
-    if job.schedule == const.ON_DEMAND:
-        job_state = JobState.OD_STOPPING.value if stopping else JobState.OD_COMPLETED.value
-    job.state = job_state
-    if not stopping:
-        job.last_end_time = mytime.get_time()
+    job.state = JobState.OD_STOPPING.value
     session.commit()
 
 
@@ -293,7 +302,7 @@ def get_run_database(run_database_id: int) -> models.DiscoveryJobRunDatabase:
     return session.query(models.DiscoveryJobRunDatabase).get(run_database_id)
 
 
-def update_job_database_base_time(job_id: int, account_id: str, region: str, database_type: str, database_name: str, base_time: datetime.datetime):
+def update_job_database_base_time(job_id: int, account_id: str, region: str, database_type: str, database_name: str, base_time: datetime):
     session = get_session()
     job_database = schemas.DiscoveryJobDatabaseBaseTime(base_time=base_time)
     session.query(models.DiscoveryJobDatabase).filter(models.DiscoveryJobDatabase.job_id == job_id,
@@ -304,10 +313,17 @@ def update_job_database_base_time(job_id: int, account_id: str, region: str, dat
     session.commit()
 
 
-def get_running_run_databases() -> list[models.DiscoveryJobRunDatabase]:
+def get_run_databases_by_state(state: RunDatabaseState) -> list[models.DiscoveryJobRunDatabase]:
     session = get_session()
-    db_run_databases = session.query(models.DiscoveryJobRunDatabase).filter(models.DiscoveryJobRunDatabase.state == RunDatabaseState.RUNNING.value).all()
-    return db_run_databases
+    return session.query(models.DiscoveryJobRunDatabase).filter(models.DiscoveryJobRunDatabase.state == state.value).all()
+
+
+def get_running_run_databases() -> list[models.DiscoveryJobRunDatabase]:
+    return get_run_databases_by_state(RunDatabaseState.RUNNING)
+
+
+def get_pending_run_databases() -> list[models.DiscoveryJobRunDatabase]:
+    return get_run_databases_by_state(RunDatabaseState.PENDING)
 
 
 def count_account_run_job(account_id: str, regin: str):

@@ -1,0 +1,19 @@
+# 忽略所有在 tests 目录下的文件
+tests/
+
+# 忽略所有的 .json 文件
+*.json
+
+# 忽略特定的文件
+.gitignore
+deployment/cdk-solution-helper/index.js
+deployment/cdk-solution-helper/index.js
+deployment/cdk-solution-helper/index.js
+deployment/helper.py
+source/portal/config/env.js
+source/portal/config/modules.js
+source/portal/config/modules.js
+source/portal/config/modules.js
+source/portal/config/paths.js
+source/portal/nginx-config/start_nginx.sh
+.github/*

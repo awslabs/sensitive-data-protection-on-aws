@@ -32,5 +32,7 @@
   "minDis": "Min. occurrence of identification rules",
   "minDisDesc": "This value applies on any identification rules (only Keyword enabled, only Regex enabled, or both Keywords and Regex are enabled).",
   "textBased": "Text based",
-  "imageBased": "Image based"
+  "imageBased": "Image based",
+  "IdentifierNameNull": "Identifier name must not be null.",
+  "RuleNull": "Content validation rules and title keywords validation rules cannot be empty at the same time."
 }

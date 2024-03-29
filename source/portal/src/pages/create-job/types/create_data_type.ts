@@ -13,11 +13,14 @@ export const COLUMN_OBJECT_STR = {
   Region: 'region',
   LastModifyBy: 'modify_by',
   LastModifyAt: 'modify_time',
+  GlueState: 'glue_state',
+  RdsCreatedTime: 'created_time',
+  glueDatabaseCreatedTime: 'create_time',
 };
 
 export const S3_CATALOG_FILTER_COLUMNS = [
   {
-    id: COLUMN_OBJECT_STR.DatabaseName,
+    id: 'bucket_name',
     label: 'table.label.bucketName',
     filter: true,
   },
@@ -70,20 +73,48 @@ export const S3_CATALOG_COLUMS = [
 
 export const RDS_CATALOG_COLUMS = [
   {
-    id: 'database_name',
+    id: 'instance_id',
     label: 'table.label.instanceName',
     filter: true,
   },
+  // {
+  //   id: 'object_count',
+  //   label: 'table.label.tables',
+  //   filter: true,
+  // },
+  // {
+  //   id: 'privacy',
+  //   label: 'table.label.privacy',
+  //   filter: true,
+  // },
   {
-    id: 'object_count',
-    label: 'table.label.tables',
+    id: 'account_id',
+    label: 'table.label.awsAccount',
     filter: true,
   },
   {
-    id: 'privacy',
-    label: 'table.label.privacy',
+    id: 'region',
+    label: 'table.label.awsRegion',
     filter: true,
   },
+];
+
+export const GLUE_CATALOG_COLUMS = [
+  {
+    id: 'glue_database_name',
+    label: 'table.label.instanceName',
+    filter: true,
+  },
+  // {
+  //   id: 'object_count',
+  //   label: 'table.label.tables',
+  //   filter: true,
+  // },
+  // {
+  //   id: 'privacy',
+  //   label: 'table.label.privacy',
+  //   filter: true,
+  // },
   {
     id: 'account_id',
     label: 'table.label.awsAccount',
@@ -97,19 +128,24 @@ export const RDS_CATALOG_COLUMS = [
 ];
 
 export const JDBC_INSTANCE_COLUMS = [
+  // {
+  //   id: COLUMN_OBJECT_STR.ConnectionName,
+  //   label: 'table.label.connectionName',
+  //   filter: true,
+  // },
+  // {
+  //   id: 'object_count',
+  //   label: 'table.label.tables',
+  //   filter: true,
+  // },
+  // {
+  //   id: 'privacy',
+  //   label: 'table.label.privacy',
+  //   filter: true,
+  // },
   {
-    id: COLUMN_OBJECT_STR.ConnectionName,
-    label: 'table.label.connectionName',
-    filter: true,
-  },
-  {
-    id: 'object_count',
-    label: 'table.label.tables',
-    filter: true,
-  },
-  {
-    id: 'privacy',
-    label: 'table.label.privacy',
+    id: 'instance_id',
+    label: 'table.label.instanceName',
     filter: true,
   },
   {

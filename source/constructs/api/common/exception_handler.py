@@ -1,11 +1,9 @@
 from fastapi import status, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
-import os
 from common.enum import MessageEnum
 from common.constant import const
 import logging
 from .response_wrapper import resp_err
-
 import traceback
 
 logger = logging.getLogger(const.LOGGER_API)
@@ -31,8 +29,6 @@ def biz_exception(app: FastAPI):
         if isinstance(exc, BizException):
             return
         error_msg = traceback.format_exc()
-        if os.getenv(const.MODE) != const.MODE_DEV:
-            error_msg = error_msg.replace("\n", "\r")
         logger.error(error_msg)
         return resp_err(MessageEnum.BIZ_UNKNOWN_ERR.get_code(),
                         MessageEnum.BIZ_UNKNOWN_ERR.get_msg())
@@ -46,3 +42,6 @@ class BizException(Exception):
         self.code = code
         self.message = message
         self.ref = ref
+
+    def __msg__(self):
+        return self.message

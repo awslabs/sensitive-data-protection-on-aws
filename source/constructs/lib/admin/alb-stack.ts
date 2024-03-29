@@ -165,7 +165,7 @@ export class AlbStack extends NestedStack {
 
     this.createApi(listener, props);
     this.createProtalConfig(listener, props);
-    this.createPortal(listener);
+    this.createPortal(listener, props);
   };
 
   private setUrl(scope: Construct, dnsName: string, props: AlbProps, defaultPort: number) {
@@ -225,6 +225,7 @@ export class AlbStack extends NestedStack {
     });
     albSecurityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(port), 'rule of allow inbound traffic from server port');
     albSecurityGroup.addIngressRule(Peer.anyIpv6(), Port.tcp(port), 'rule of allow inbound traffic from server port');
+    Tags.of(albSecurityGroup).add(SolutionInfo.TAG_NAME, `${SolutionInfo.SOLUTION_NAME}-ALB`);
     return albSecurityGroup;
   }
 
@@ -271,7 +272,7 @@ export class AlbStack extends NestedStack {
     Tags.of(portalConfigTargetGroup).add(SolutionInfo.TAG_NAME, 'PortalConfig');
   }
 
-  private createPortal(listener: ApplicationListener) {
+  private createPortal(listener: ApplicationListener, props: AlbProps) {
     let portalFunction;
     if (BuildConfig.PortalRepository && BuildConfig.PortalTag) {
       portalFunction = new DockerImageFunction(this, 'PortalFunction', {
@@ -280,6 +281,9 @@ export class AlbStack extends NestedStack {
         code: DockerImageCode.fromEcr(Repository.fromRepositoryArn(this, 'PortalRepository', BuildConfig.PortalRepository),
           { tagOrDigest: BuildConfig.PortalTag }),
         architecture: Architecture.X86_64,
+        environment: {
+          OidcIssuer: props.oidcIssuer,
+        },
       });
     } else {
       portalFunction = new DockerImageFunction(this, 'PortalFunction', {
@@ -291,6 +295,9 @@ export class AlbStack extends NestedStack {
           platform: Platform.LINUX_AMD64,
         }),
         architecture: Architecture.X86_64,
+        environment: {
+          OidcIssuer: props.oidcIssuer,
+        },
       });
     }
     const portalTarget = [new LambdaTarget(portalFunction)];

@@ -57,7 +57,19 @@ const Navigation: React.FC<INavigationProps> = (props: INavigationProps) => {
         },
       ],
     },
+    {
+      type: 'section',
+      text: t('nav.systemSettings'),
+      items: [
+        {
+          type: 'link',
+          text: t('nav.systemSettings'),
+          href: RouterEnum.SystemSettings.path,
+        },
+      ],
+    },
     { type: 'divider' },
+
     {
       type: 'link',
       text: t('nav.doc'),

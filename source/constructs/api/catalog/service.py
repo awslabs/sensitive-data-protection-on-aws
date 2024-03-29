@@ -222,6 +222,7 @@ def sync_crawler_result(
         database_type: str,
         database_name: str,
 ):
+    database_name = database_name.strip()
     logger.info(f"start params {account_id} {region} {database_type} {database_name}")
     start_time = time.time()
     rds_engine_type = const.NA
@@ -243,7 +244,7 @@ def sync_crawler_result(
         )
         if jdbc_database:
             jdbc_engine_type = jdbc_database.jdbc_connection_url.split(':')[1]
-
+    
     if need_change_account_id(database_type):
         glue_client = get_boto3_client(admin_account_id, admin_region, "glue")
     else:
@@ -294,7 +295,7 @@ def sync_crawler_result(
             table_create_list = []
             table_update_list = []
             for table in tables_response["TableList"]:
-                table_name = table["Name"].strip()
+                table_name = table["Location"].strip()
                 # If the file is end of .csv or .json, but the content of the file is not csv/json
                 # glue can't crawl them correctly
                 # So there is no sizeKey in Parameters, we set the default value is 0
@@ -430,7 +431,7 @@ def sync_crawler_result(
                 if delete_glue_table_names:
                     logger.info("batch delete glue tables" + json.dumps(delete_glue_table_names))
                     glue_client.batch_delete_table(DatabaseName=glue_database_name,
-                                                    TablesToDelete=delete_glue_table_names)
+                                                   TablesToDelete=delete_glue_table_names)
             except Exception as err:
                 logger.exception("batch delete glue tables error" + str(err))
             if logger.isEnabledFor(logging.DEBUG):
@@ -510,11 +511,17 @@ def sync_crawler_result(
             storage_location = rds_engine_type
         elif database_type == DatabaseType.GLUE.value:
             storage_location = const.NA
+        connection_info = glue_client.get_connection(Name=f"{const.SOLUTION_NAME}-{database_type}-{database_name}")['Connection'] if database_type.startswith(DatabaseType.JDBC.value) else {}
+        description = connection_info.get('Description', '')
+        url = connection_info.get('ConnectionProperties', {}).get('JDBC_CONNECTION_URL', '')
+        logger.info(f"connection_info description url!!!!!!!!!!:{description},{url}")
         catalog_database_dict = {
             "account_id": account_id,
             "region": region,
             "database_type": database_type,
             "database_name": database_name,
+            "description": description,
+            "url": url,
             "object_count": database_object_count,
             # not error ， logic change when 1.1.0
             "size_key": database_size,
@@ -532,6 +539,7 @@ def sync_crawler_result(
         }
         original_database = crud.get_catalog_database_level_classification_by_name(account_id, region, database_type,
                                                                                    database_name)
+        logger.info(f"original_database is {original_database}")
         if original_database == None:
             crud.create_catalog_database_level_classification(catalog_database_dict)
         else:
@@ -715,7 +723,7 @@ def __query_job_result_by_athena(
         else:
             time.sleep(1)
     athena_result_list = []
-    next_token = ''
+    next_token = None
     while True:
         if next_token:
             result = client.get_query_results(QueryExecutionId=query_id, NextToken=next_token)
@@ -723,9 +731,8 @@ def __query_job_result_by_athena(
             result = client.get_query_results(QueryExecutionId=query_id)
         athena_result_list.append(result)
         # logger.info(result)
-        if "NextToken" in result and result['NextToken']:
-            next_token = result['NextToken']
-        else:
+        next_token = response.get('NextToken')
+        if not next_token:
             break
 
     # result = client.get_query_results(QueryExecutionId=query_id, NextToken='')
@@ -760,7 +767,6 @@ def __convert_identifiers_to_dict(identifiers: str):
         elif len(i) == 2:
             result_dict[i[0]] = i[1]
     return result_dict
-
 
 def sync_job_detection_result(
         account_id: str,
@@ -848,7 +854,7 @@ def sync_job_detection_result(
                             not overwrite and catalog_column.manual_tag != const.MANUAL)):
                         column_dict = {
                             "id": catalog_column.id,
-                            "identifier": json.dumps(identifier_dict),
+                            "identifier": json.dumps(identifier_dict, ensure_ascii=False),
                             "column_value_example": column_sample_data,
                             "column_path": column_path,
                             "privacy": column_privacy,
@@ -1192,11 +1198,12 @@ def delete_catalog_by_account_region(account_id: str, region: str):
         )
     try:
         crud.delete_catalog_column_level_classification_by_account_region(account_id, region)
-    except Exception:
-        raise BizException(
-            MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_code(),
-            MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_msg(),
-        )
+    except Exception as e:
+        logger.info(f"{str(e)}")
+        # raise BizException(
+        #     MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_code(),
+        #     MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_msg(),
+        # )
     return True
 
 
@@ -1217,11 +1224,37 @@ def delete_catalog_by_database_region(database: str, region: str, type: str):
         )
     try:
         crud.delete_catalog_column_level_classification_by_database_region(database, region, type)
+    except Exception as e:
+        logger.info(f"{str(e)}")
+        # raise BizException(
+        #     MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_code(),
+        #     MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_msg(),
+        # )
+    return True
+
+def delete_catalog_by_database_region_batch(database: str, region: str, type: str):
+    try:
+        crud.delete_catalog_database_level_classification_by_database_region_batch(database, region, type)
     except Exception:
         raise BizException(
-            MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_code(),
-            MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_msg(),
+            MessageEnum.CATALOG_DATABASE_DELETE_FAILED.get_code(),
+            MessageEnum.CATALOG_DATABASE_DELETE_FAILED.get_msg(),
         )
+    try:
+        crud.delete_catalog_table_level_classification_by_database_region_batch(database, region, type)
+    except Exception:
+        raise BizException(
+            MessageEnum.CATALOG_TABLE_DELETE_FAILED.get_code(),
+            MessageEnum.CATALOG_TABLE_DELETE_FAILED.get_msg(),
+        )
+    try:
+        crud.delete_catalog_column_level_classification_by_database_region_batch(database, region, type)
+    except Exception as e:
+        logger.info(f"{str(e)}")
+        # raise BizException(
+        #     MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_code(),
+        #     MessageEnum.CATALOG_COLUMN_DELETE_FAILED.get_msg(),
+        # )
     return True
 
 
@@ -1386,33 +1419,49 @@ def filter_records(all_items: list, all_labels_dict: dict, sensitive_flag: str):
     jdbc_records = []
     for row in all_items:
         row_result = [cell for cell in row]
-        if sensitive_flag != 'all' and "N/A" in row_result[7]:
+        if sensitive_flag != 'all' and "N/A" in row_result[10]:
             continue
-        if row_result[9]:
-            row_result[9] = ",".join(gen_labels(all_labels_dict, row_result[9]))
-        if row_result[10]:
-            row_result[10] = ",".join(gen_labels(all_labels_dict, row_result[10]))
-        catalog_type = row_result[2]
+        if row_result[12]:
+            row_result[12] = ",".join(gen_labels(all_labels_dict, row_result[12]))
+        if row_result[13]:
+            row_result[13] = ",".join(gen_labels(all_labels_dict, row_result[13]))
+        catalog_type = row_result[0]
         if catalog_type == DatabaseType.S3.value:
+            del row_result[0]
+            del row_result[3]
+            del row_result[3]
+            del row_result[3]
+            del row_result[4]
+            del row_result[4]
             s3_records.append([row_result])
         elif catalog_type == DatabaseType.S3_UNSTRUCTURED.value:
+            del row_result[0]
+            del row_result[3]
+            del row_result[3]
+            del row_result[3]
+            del row_result[4]
+            del row_result[4]
             s3_unstructured_records.append([row_result])
         elif catalog_type == DatabaseType.RDS.value:
-            del row_result[6]
+            del row_result[0]
+            del row_result[3]
+            del row_result[3]
+            del row_result[4]
+            del row_result[5]
             rds_records.append([row_result])
         elif catalog_type == DatabaseType.GLUE.value:
-            del row_result[6]
+            del row_result[0]
+            del row_result[3]
+            del row_result[3]
+            del row_result[4]
+            del row_result[5]
             glue_records.append([row_result])
         elif catalog_type.startswith(DatabaseType.JDBC.value):
-            del row_result[6]
+            del row_result[7]
+            del row_result[8]
             jdbc_records.append([row_result])
         else:
             pass
-    # return {const.EXPORT_S3_MARK_STR: {const.EXPORT_S3_SHEET_TITLE: s3_records,
-    #                                    const.EXPORT_S3_UNSTRUCTURED_SHEET_TITLE: s3_unstructured_records},
-    #         const.EXPORT_RDS_MARK_STR: {const.EXPORT_RDS_SHEET_TITLE: rds_records},
-    #         const.EXPORT_GLUE_MARK_STR: {const.EXPORT_RDS_SHEET_TITLE: glue_records},
-    #         const.EXPORT_JDBC_MARK_STR: {const.EXPORT_RDS_SHEET_TITLE: jdbc_records}}
     return {const.EXPORT_S3_MARK_STR: s3_records,
             const.EXPORT_S3_UNSTRUCTURED_MARK_STR: s3_unstructured_records,
             const.EXPORT_RDS_MARK_STR: rds_records,
@@ -1434,52 +1483,16 @@ def gen_zip_file(header, record, tmp_filename, type):
                 batches = int(len(v) / const.EXPORT_XLSX_MAX_LINES)
                 if batches < 1:
                     __gen_xlsx_file(k, header.get(k), v, 0, zipf)
-                    # wb = Workbook()
-                    # ws1 = wb.active
-                    # ws1.title = k
-                    # ws1.append(header.get(k))
-                    # for row_index in range(0, len(v)):
-                    #     ws1.append([__get_cell_value(cell) for cell in v[row_index][0]])
-                    # file_name = f"{tmp_folder}/{k}.xlsx"
-                    # wb.save(file_name)
-                    # zipf.write(file_name, os.path.abspath(file_name))
-                    # os.remove(file_name)
                 else:
                     for i in range(0, batches + 1):
                         __gen_xlsx_file(f"{k}_{i+1}", header.get(k), v, const.EXPORT_XLSX_MAX_LINES * i, zipf)
-                        # wb = Workbook()
-                        # ws1 = wb.active
-                        # ws1.title = k
-                        # ws1.append(header.get(k))
-                        # for row_index in range(const.EXPORT_XLSX_MAX_LINES * i, min(const.EXPORT_XLSX_MAX_LINES * (i + 1), len(v))):
-                        #     ws1.append([__get_cell_value(cell) for cell in v[row_index][0]])
-                        # file_name = f"{tmp_folder}/{k}_{i+1}.xlsx"
-                        # wb.save(file_name)
-                        # zipf.write(file_name, os.path.basename(file_name))
-                        # os.remove(file_name)
             else:
                 batches = int(len(v) / const.EXPORT_CSV_MAX_LINES)
                 if batches < 1:
                     __gen_csv_file(k, header.get(k), v, 0, zipf)
-                    # file_name = f"{tmp_folder}/{k}.csv"
-                    # with open(file_name, 'w', encoding="utf-8-sig", newline='') as csv_file:
-                    #     csv_writer = csv.writer(csv_file)
-                    #     csv_writer.writerow(header.get(k))
-                    #     for record in v:
-                    #         csv_writer.writerow([__get_cell_value(cell) for cell in record[0]])
-                    # zipf.write(file_name, os.path.abspath(file_name))
-                    # os.remove(file_name)
                 else:
                     for i in range(0, batches + 1):
                         __gen_csv_file(f"{k}_{i+1}", header.get(k), v, const.EXPORT_CSV_MAX_LINES * i, zipf)
-                    #     file_name = f"{tmp_folder}/{k}_{i+1}.csv"
-                    #     with open(file_name, 'w', encoding="utf-8-sig", newline='') as csv_file:
-                    #         csv_writer = csv.writer(csv_file)
-                    #         csv_writer.writerow(header.get(k))
-                    #         for record in v[const.EXPORT_CSV_MAX_LINES * i: min(const.EXPORT_CSV_MAX_LINES * (i + 1), len(v))]:
-                    #             csv_writer.writerow([__get_cell_value(cell) for cell in record[0]])
-                    #     zipf.write(file_name, os.path.abspath(file_name))
-                    #     os.remove(file_name)
 
 def __get_cell_value(cell: dict):
     if isinstance(cell, datetime):

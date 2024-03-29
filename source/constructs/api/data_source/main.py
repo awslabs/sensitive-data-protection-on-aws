@@ -1,11 +1,14 @@
-from fastapi import APIRouter
+from io import BytesIO
+from typing import List
+from fastapi import APIRouter, File, UploadFile
 from fastapi_pagination import Page, Params
 from fastapi_pagination.ext.sqlalchemy import paginate
 
 from common.query_condition import QueryCondition
 from common.request_wrapper import inject_session
 from common.response_wrapper import BaseResponse
-from . import crud, schemas, service
+# from .resource_list import list_resources_by_database_type
+from . import crud, schemas, service, jdbc_schema, resource_list
 
 router = APIRouter(prefix="/data-source", tags=["data-source"])
 
@@ -81,15 +84,15 @@ def delete_s3_connection(s3: schemas.SourceDeteteS3Connection):
         s3.bucket
     )
 
-@router.post("/disconnect-delete-catalog-jdbc", response_model=BaseResponse)
-@inject_session
-def disconnect_and_delete_catalog_jdbc_connection(jdbc: schemas.SourceDeteteJDBCConnection):
-    return service.delete_jdbc_connection(
-        int(jdbc.account_provider),
-        jdbc.account_id,
-        jdbc.region,
-        jdbc.instance
-    )
+# @router.post("/disconnect-delete-catalog-jdbc", response_model=BaseResponse)
+# @inject_session
+# def disconnect_and_delete_catalog_jdbc_connection(jdbc: schemas.SourceDeteteJDBCConnection):
+#     return service.delete_jdbc_connection(
+#         int(jdbc.account_provider),
+#         jdbc.account_id,
+#         jdbc.region,
+#         jdbc.instance
+#     )
 
 @router.post("/hide-s3", response_model=BaseResponse)
 @inject_session
@@ -190,8 +193,6 @@ def hide_glue_database(glueDatabase: schemas.SourceDeteteGlueDatabase):
         glueDatabase.name
     )
 
-
-
 @router.post("/sync-glue-database", response_model=BaseResponse)
 @inject_session
 def sync_glue_database(glueDatabase: schemas.SourceGlueDatabaseBase):
@@ -203,34 +204,24 @@ def sync_glue_database(glueDatabase: schemas.SourceGlueDatabaseBase):
 
 @router.post("/delete-jdbc", response_model=BaseResponse)
 @inject_session
-def delete_jdbc_connection(jdbc: schemas.SourceDeteteJDBCConnection):
-    return service.delete_jdbc_connection(
+def delete_jdbc_connections(jdbc: schemas.SourceDeteteJDBCConnection):
+    return service.delete_jdbc_connections(
         int(jdbc.account_provider),
         jdbc.account_id,
         jdbc.region,
-        jdbc.instance
+        jdbc.instances
     )
 
-@router.post("/delete-catalog-jdbc", response_model=BaseResponse)
-@inject_session
-def delete_catalog_jdbc_connection(jdbc: schemas.SourceDeteteJDBCConnection):
-    return service.delete_jdbc_connection(
-        int(jdbc.account_provider),
-        jdbc.account_id,
-        jdbc.region,
-        jdbc.instance,
-        delete_catalog_only=True
-    )
-
-@router.post("/hide-jdbc", response_model=BaseResponse)
-@inject_session
-def hide_jdbc_connection(jdbc: schemas.SourceDeteteJDBCConnection):
-    return service.hide_jdbc_connection(
-        int(jdbc.account_provider),
-        jdbc.account_id,
-        jdbc.region,
-        jdbc.instance
-    )
+# @router.post("/delete-catalog-jdbc", response_model=BaseResponse)
+# @inject_session
+# def delete_catalog_jdbc_connection(jdbc: schemas.SourceDeteteJDBCConnection):
+#     return service.delete_jdbc_connection(
+#         int(jdbc.account_provider),
+#         jdbc.account_id,
+#         jdbc.region,
+#         jdbc.instance,
+#         delete_catalog_only=True
+#     )
 
 @router.post("/sync-jdbc", response_model=BaseResponse)
 @inject_session
@@ -352,7 +343,6 @@ def test_jdbc_conn(jdbc_conn_param: schemas.JDBCInstanceSourceBase):
 def get_data_location_list():
     return service.list_data_location()
 
-
 @router.get("/query-regions-by-provider", response_model=BaseResponse)
 @inject_session
 def query_regions_by_provider(provider_id: str):
@@ -379,8 +369,54 @@ def list_buckets(account: schemas.AccountInfo):
 def query_connection_detail(account: schemas.JDBCInstanceSourceBase):
     return service.query_connection_detail(account)
 
-
 @router.post("/jdbc-databases", response_model=BaseResponse[list[str]])
 @inject_session
 def list_jdbc_databases(source: schemas.JdbcSource):
-    return service.list_jdbc_databases(source)
+    return jdbc_schema.list_jdbc_databases(source)
+
+@router.post("/batch-create", response_model=BaseResponse)
+@inject_session
+def batch_create(files: List[UploadFile] = File(...)):
+    return service.batch_create(files[0])
+
+@router.post("/query-batch-status", response_model=BaseResponse)
+@inject_session
+def query_batch_status(batch: str):
+    return service.query_batch_status(batch)
+
+@router.post("/download-batch-file", response_model=BaseResponse)
+@inject_session
+def download_batch_file(filename: str):
+    return service.download_batch_file(filename)
+
+@router.post("/list-resources-by-database-type", response_model=BaseResponse)
+@inject_session
+def list_resources_by_database_type(database_type: str, condition: QueryCondition, account_id: str = None, region: str = None):
+    return paginate(resource_list.list_resources_by_database_type(database_type=database_type,
+                                                                  account_id=account_id,
+                                                                  region=region,
+                                                                  condition=condition), Params(
+        size=condition.size,
+        page=condition.page,
+    ))
+
+@router.post("/export-datasource", response_model=BaseResponse)
+@inject_session
+def export_datasource(key: str):
+    return service.export_datasource(key)
+
+@router.post("/delete-report", response_model=BaseResponse)
+@inject_session
+def delete_report(key: str):
+    return service.delete_report(key)
+
+
+@router.post("/batch-delete", response_model=BaseResponse)
+@inject_session
+def batch_delete_resource(account, datasource_list):
+    return service.batch_delete_resource(account, datasource_list)
+
+# @router.post("/batch-sync-jdbc", response_model=BaseResponse)
+# @inject_session
+# def batch_sync_jdbc(connection_list: [schemas.JDBCInstanceSourceBase]):
+#     return service.batch_sync_jdbc(connection_list)

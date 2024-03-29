@@ -56,9 +56,15 @@ const CommonBadge: React.FC<CommonBadgeProps> = (props: CommonBadgeProps) => {
     'system-mark-badge':
       badgeLabel === CLSAAIFIED_TYPE.SystemMark ||
       labelType === CLSAAIFIED_TYPE.SystemMark,
+    'authorized-badge':
+      badgeLabel === CLSAAIFIED_TYPE.Authorized ||
+      labelType === CLSAAIFIED_TYPE.Authorized,
     'failed-badge':
       badgeLabel === CLSAAIFIED_TYPE.Failed ||
       labelType === CLSAAIFIED_TYPE.Failed,
+    'pending-badge':
+      badgeLabel === CLSAAIFIED_TYPE.Pending ||
+      labelType === CLSAAIFIED_TYPE.Pending,
   });
 
   let iconName: any = 'status-pending';
@@ -84,6 +90,9 @@ const CommonBadge: React.FC<CommonBadgeProps> = (props: CommonBadgeProps) => {
     case 'SUCCEEDED':
       iconName = 'status-positive';
       break;
+    case 'AUTHORIZED':
+        iconName = 'status-info';
+        break;
     case 'ACTIVE':
       iconName = 'status-positive';
       break;

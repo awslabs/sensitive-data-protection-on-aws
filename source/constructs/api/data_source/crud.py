@@ -384,7 +384,7 @@ def create_s3_connection(account: str, region: str, bucket: str, glue_connection
     s3_bucket_source.glue_database = glue_database_name
     s3_bucket_source.glue_crawler = crawler_name
     s3_bucket_source.glue_crawler_last_updated = datetime.datetime.utcnow()
-    s3_bucket_source.glue_state = ConnectionState.ACTIVE.value
+    s3_bucket_source.glue_state = ConnectionState.AUTHORIZED.value
     session.merge(s3_bucket_source)
     session.commit()
 
@@ -514,7 +514,7 @@ def create_rds_connection(account: str,
                                                                   RdsInstanceSource.region == region,
                                                                   RdsInstanceSource.account_id == account).order_by(
         desc(RdsInstanceSource.detection_history_id)).first()
-    if rds_instance_source is None:
+    if not rds_instance_source:
         rds_instance_source = RdsInstanceSource(instance_id=instance, region=region,
                                                 account_id=account)
     rds_instance_source.glue_database = glue_database
@@ -522,7 +522,7 @@ def create_rds_connection(account: str,
     rds_instance_source.glue_connection = glue_connection
     rds_instance_source.glue_vpc_endpoint = glue_vpc_endpoint_id
     rds_instance_source.glue_crawler_last_updated = datetime.datetime.utcnow()
-    rds_instance_source.glue_state = ConnectionState.CRAWLING.value
+    rds_instance_source.glue_state = ConnectionState.AUTHORIZED.value
     session.merge(rds_instance_source)
     session.commit()
 
@@ -645,12 +645,12 @@ def update_jdbc_connection_full(jdbc_instance: schemas.JDBCInstanceSourceUpdate)
     jdbc_instance_source.network_sg_id = jdbc_instance.network_sg_id
     jdbc_instance_source.jdbc_driver_class_name = jdbc_instance.jdbc_driver_class_name
     jdbc_instance_source.jdbc_driver_jar_uri = jdbc_instance.jdbc_driver_jar_uri
-    jdbc_instance_source.glue_database = None
-    jdbc_instance_source.glue_crawler = None
+    # jdbc_instance_source.glue_database = None
+    # jdbc_instance_source.glue_crawler = None
     jdbc_instance_source.glue_connection = jdbc_instance_source.glue_connection
-    jdbc_instance_source.glue_vpc_endpoint = None
+    # jdbc_instance_source.glue_vpc_endpoint = None
     jdbc_instance_source.glue_crawler_last_updated = datetime.datetime.utcnow()
-    jdbc_instance_source.glue_state = None
+    jdbc_instance_source.glue_state = ConnectionState.AUTHORIZED.value
     session.merge(jdbc_instance_source)
     session.commit()
 
@@ -805,17 +805,25 @@ def add_third_account(account, role_arn):
     return True
 
 
-def get_source_s3_account_region():
-    return (get_session()
-            .query(S3BucketSource.region, S3BucketSource.account_id)
-            .distinct()
-            .all()
-            )
+# def get_source_s3_account_region():
+#     return (get_session()
+#             .query(S3BucketSource.region, S3BucketSource.account_id)
+#             .distinct()
+#             .all()
+#             )
 
+# def get_source_proxy_account_region():
+#     return (get_session()
+#             .query(Account.region, Account.account_id)
+#             .filter(Account.account_provider_id == Provider.JDBC_PROXY.value)
+#             .distinct()
+#             .all()
+#             )
 
-def get_source_rds_account_region():
+def get_source_aws_account_region():
     return (get_session()
-            .query(RdsInstanceSource.region, RdsInstanceSource.account_id)
+            .query(Account.region, Account.account_id)
+            .filter(or_(Account.account_provider_id == Provider.AWS_CLOUD.value, Account.account_provider_id == Provider.JDBC_PROXY.value ))
             .distinct()
             .all()
             )
@@ -859,19 +867,14 @@ def copy_properties(jdbc_instance_target: JDBCInstanceSource, jdbc_instance_orig
     jdbc_instance_target.jdbc_driver_class_name = jdbc_instance_origin.jdbc_driver_class_name
     jdbc_instance_target.jdbc_driver_jar_uri = jdbc_instance_origin.jdbc_driver_jar_uri
     jdbc_instance_target.detection_history_id = 0
-    # jdbc_instance_target.instance_class = jdbc_instance_origin.instance_class
-    # jdbc_instance_target.instance_status = jdbc_instance_origin.instance_status
     jdbc_instance_target.account_provider_id = jdbc_instance_origin.account_provider_id
     jdbc_instance_target.account_id = jdbc_instance_origin.account_id
     jdbc_instance_target.region = jdbc_instance_origin.region
-    # jdbc_instance_target.data_source_id = jdbc_instance_origin.data_source_id
-    # jdbc_instance_target.detection_history_id = jdbc_instance_origin.detection_history_id
-    # jdbc_instance_target.glue_database = jdbc_instance_origin.glue_database
-    # jdbc_instance_target.glue_crawler = jdbc_instance_origin.glue_crawler
+    jdbc_instance_target.glue_database = jdbc_instance_origin.glue_database
+    jdbc_instance_target.glue_crawler = jdbc_instance_origin.glue_crawler
     jdbc_instance_target.glue_connection = jdbc_instance_origin.glue_connection
-    # jdbc_instance_target.glue_vpc_endpoint = jdbc_instance_origin.glue_vpc_endpoint
-    # jdbc_instance_target.glue_state = jdbc_instance_origin.glue_state
     jdbc_instance_target.create_type = jdbc_instance_origin.create_type
+    jdbc_instance_target.glue_state = ConnectionState.AUTHORIZED.value
     return jdbc_instance_target
 
 def add_jdbc_conn(jdbcConn: schemas.JDBCInstanceSourceFullInfo):
@@ -931,6 +934,11 @@ def get_account_list_by_provider(provider_id):
     return get_session().query(Account).filter(Account.account_provider_id == provider_id,
                                                Account.status == SourceAccountStatus.ENABLE.value).all()
 
+def get_enable_account_list():
+    return get_session().query(Account).filter(Account.status == SourceAccountStatus.ENABLE.value).all()
+
+def get_enable_region_list():
+    return get_session().query(SourceRegion).filter(SourceRegion.status == SourceRegionStatus.ENABLE.value).all()
 
 def list_distinct_region_by_provider(provider_id) -> list[SourceRegion]:
     return get_session().query(SourceRegion).filter(SourceRegion.provider_id == provider_id,
@@ -959,3 +967,126 @@ def get_total_glue_database_count():
 def get_connected_glue_database_count():
     list = list_glue_database_source_without_condition()
     return 0 if not list else list.filter(SourceGlueDatabase.glue_state == ConnectionState.ACTIVE.value).count()
+
+
+def get_schema_by_snapshot(provider_id, account_id, region, instance):
+    return get_session().query(JDBCInstanceSource.jdbc_connection_schema, JDBCInstanceSource.network_subnet_id) \
+        .filter(JDBCInstanceSource.account_provider_id == provider_id) \
+        .filter(JDBCInstanceSource.account_id == account_id) \
+        .filter(JDBCInstanceSource.instance_id == instance) \
+        .filter(JDBCInstanceSource.region == region).first()
+
+
+def get_connection_by_instance(provider_id, account_id, region, instance):
+    return get_session().query(JDBCInstanceSource.glue_connection) \
+        .filter(JDBCInstanceSource.account_provider_id == provider_id) \
+        .filter(JDBCInstanceSource.account_id == account_id) \
+        .filter(JDBCInstanceSource.instance_id == instance) \
+        .filter(JDBCInstanceSource.region == region).first()
+
+
+def get_crawler_glue_db_by_instance(provider_id, account_id, region, instance):
+    return get_session().query(JDBCInstanceSource.glue_crawler, JDBCInstanceSource.glue_database, JDBCInstanceSource.glue_connection) \
+        .filter(JDBCInstanceSource.account_provider_id == provider_id) \
+        .filter(JDBCInstanceSource.account_id == account_id) \
+        .filter(JDBCInstanceSource.instance_id == instance) \
+        .filter(JDBCInstanceSource.region == region).first()
+
+def get_enable_account_list():
+    return get_session().query(Account.account_provider_id, Account.account_id, Account.region) \
+        .filter(Account.status == SourceAccountStatus.ENABLE.value).all()
+
+def update_schema_by_account(provider_id, account_id, instance, region, schema):
+    session = get_session()
+    jdbc_instance_source = session.query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == provider_id, 
+                                                                    JDBCInstanceSource.region == region,
+                                                                    JDBCInstanceSource.account_id == account_id,
+                                                                    JDBCInstanceSource.instance_id == instance).first()
+    if jdbc_instance_source:
+        jdbc_instance_source.jdbc_connection_schema = schema
+    session.commit()
+
+def list_s3_resources(account_id, region, condition):
+    session_result = get_session().query(S3BucketSource)
+    if account_id:
+        session_result = session_result.filter(S3BucketSource.account_id == account_id)
+    if region:
+        session_result = session_result.filter(S3BucketSource.region == region)
+    if condition:
+        return query_with_condition(session_result, condition)
+    return session_result
+
+def list_rds_resources(account_id, region, condition):
+    session_result = get_session().query(RdsInstanceSource)
+    if account_id:
+        session_result = session_result.filter(RdsInstanceSource.account_id == account_id)
+    if region:
+        session_result = session_result.filter(RdsInstanceSource.region == region)
+    if condition:
+        return query_with_condition(session_result, condition)
+    return session_result
+
+def list_glue_resources(account_id, region, condition):
+    session_result = get_session().query(SourceGlueDatabase)
+    if account_id:
+        session_result = session_result.filter(SourceGlueDatabase.account_id == account_id)
+    if region:
+        session_result = session_result.filter(SourceGlueDatabase.region == region)
+    if condition:
+        return query_with_condition(session_result, condition)
+    return session_result
+
+def list_jdbc_resources_by_provider(provider_id: int, account_id, region, condition):
+    session_result = get_session().query(JDBCInstanceSource).filter(JDBCInstanceSource.account_provider_id == provider_id)
+    if account_id:
+        session_result = session_result.filter(JDBCInstanceSource.account_id == account_id)
+    if region:
+        session_result = session_result.filter(JDBCInstanceSource.region == region)
+    if condition:
+        return query_with_condition(session_result, condition)
+    return session_result
+
+# ["account_id", "region", "bucket_name", "crawler_status", "last_updated_at", "last_updated_by"]
+def get_datasource_from_s3():
+    return get_session().query(S3BucketSource.account_id,
+                               S3BucketSource.region,
+                               S3BucketSource.bucket_name,
+                               S3BucketSource.glue_state,
+                               S3BucketSource.modify_time,
+                               S3BucketSource.modify_by
+                               ).all()
+
+# ["account_id", "region", "instance_name", "engine_type", "location", "crawler_status", "last_updated_at", "last_updated_by"]
+def get_datasource_from_rds():
+    return get_session().query(RdsInstanceSource.account_id,
+                               RdsInstanceSource.region,
+                               RdsInstanceSource.instance_id,
+                               RdsInstanceSource.engine,
+                               RdsInstanceSource.address,
+                               RdsInstanceSource.glue_state,
+                               RdsInstanceSource.modify_time,
+                               RdsInstanceSource.modify_by
+                               ).all()
+
+# ["account_id", "region", "database_name", "description", "location", "crawler_status", "last_updated_at", "last_updated_by"]
+def get_datasource_from_glue():
+    return get_session().query(SourceGlueDatabase.account_id,
+                               SourceGlueDatabase.region,
+                               SourceGlueDatabase.glue_database_name,
+                               SourceGlueDatabase.glue_database_description,
+                               SourceGlueDatabase.glue_database_location_uri,
+                               SourceGlueDatabase.glue_state,
+                               SourceGlueDatabase.modify_time,
+                               SourceGlueDatabase.modify_by).all()
+
+# ["type", "account_id", "region", "instance_name", "description", "location", "crawler_status", "last_updated_at", "last_updated_by"]
+def get_datasource_from_jdbc():
+    return get_session().query(JDBCInstanceSource.account_provider_id,
+                               JDBCInstanceSource.account_id,
+                               JDBCInstanceSource.region,
+                               JDBCInstanceSource.instance_id,
+                               JDBCInstanceSource.description,
+                               JDBCInstanceSource.jdbc_connection_url,
+                               JDBCInstanceSource.glue_state,
+                               JDBCInstanceSource.modify_time,
+                               JDBCInstanceSource.modify_by).all()

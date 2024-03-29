@@ -1,6 +1,6 @@
 boto3==1.28.70
 pytz==2023.3
-fastapi==0.109.1
+fastapi==0.109.2
 mangum==0.17.0
 sqlalchemy==1.4.44
 fastapi-pagination==0.12.11
@@ -11,3 +11,4 @@ requests==2.31.0
 urllib3==1.26.18
 python-jose==3.3.0
 pydantic==1.10.13
+python_multipart==0.0.6

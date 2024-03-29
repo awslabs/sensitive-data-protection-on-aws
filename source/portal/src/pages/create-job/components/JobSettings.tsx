@@ -21,7 +21,6 @@ import {
   DAY_OPTIONS,
   MONTH_OPTIONS,
 } from '../types/create_data_type';
-import { alertMsg } from 'tools/tools';
 import { useTranslation } from 'react-i18next';
 import { IJobType, SCAN_FREQUENCY } from 'pages/data-job/types/job_list_type';
 import { DEFAULT_TEMPLATE } from 'pages/data-template/types/template_type';
@@ -76,21 +75,18 @@ const JobSettings: React.FC<JobSettingsProps> = (props: JobSettingsProps) => {
     }
     if (tempType === 'daily') {
       if (!frequencyStart) {
-        alertMsg(t('job:selectHourOfDay'), 'error');
         return;
       }
       setFrequency(`Daily, start time: ${frequencyStart.value}`);
     }
     if (tempType === 'weekly') {
       if (!frequencyStart) {
-        alertMsg(t('job:selectDayOfWeek'), 'error');
         return;
       }
       setFrequency(`${t('job:weeklyStartDay')} ${frequencyStart.value}`);
     }
     if (tempType === 'monthly') {
       if (!frequencyStart) {
-        alertMsg(t('job:selectDayOfMonth'), 'error');
         return;
       }
       setFrequency(`${t('job:monthlyStartDay')} ${frequencyStart.value}`);
