@@ -18,6 +18,7 @@ constructs/api/pytest/test_data_source.py
 constructs/api/pytest/test_labels.py
 constructs/api/pytest/test_query.py
 constructs/lib/common/solution-info.ts:30
+*.xlsx
 
 [python-pipoutdated]
 pip=v21.1.2
