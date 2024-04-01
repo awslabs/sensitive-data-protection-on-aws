@@ -47,10 +47,10 @@ if __name__ == "__main__":
 
     args = getResolvedOptions(sys.argv, ["AccountId", 'Region','JOB_NAME', 'DatabaseName', 'JobId', 'RunId', 
         'RunDatabaseId', 'AdminBucketName', 'TemplateId', 'TemplateSnapshotNo', 'BaseTime',
-        'TableBegin', 'TableEnd', 'TableName', 'IncludeKeywords', 'ExcludeKeywords'])
+        'TableBegin', 'TableEnd', 'TableName', 'IncludeKeywords', 'ExcludeKeywords', 'UnstructuredGlueDatabaseName'])
     args['DatabaseType'] = 's3_unstructured'
 
-    full_database_name = f"SDPS-unstructured-{args['DatabaseName']}"
+    full_database_name = args['UnstructuredGlueDatabaseName']
     output_path = f"s3://{args['AdminBucketName']}/glue-database/{result_table}/"
     error_path = f"s3://{args['AdminBucketName']}/glue-database/job_detection_error_table/"
 

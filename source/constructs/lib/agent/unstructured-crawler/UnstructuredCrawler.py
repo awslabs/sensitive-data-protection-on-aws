@@ -172,24 +172,27 @@ def list_s3_objects(bucket_name, scan_depth, include_file_extensions,
     """
     bucket_info = {}
 
-    paginator = s3_client.get_paginator('list_objects_v2')
-    pages = paginator.paginate(Bucket=bucket_name, Prefix=prefix, PaginationConfig={'PageSize': 1000})
-
     supported_types = []
     for file_type, file_extensiones in supported_file_types.items():
         supported_types.extend(file_extensiones)
     
     detection_files, include_files, exclude_files = {}, {}, {}
 
-    # iterate over pages
-    for page in pages:
-        # loop through objects in page
-        if 'Contents' in page:
-            page_detection_files, page_include_files, page_exclude_files = summarize_page(page, 
-                supported_types, include_file_extensions, exclude_file_extensions, base_time, scan_depth)
-            detection_files = update_dict_files(detection_files, page_detection_files)
-            include_files = update_dict_files(include_files, page_include_files)
-            exclude_files = update_dict_files(exclude_files, page_exclude_files)
+    prefixes = [""]
+    if prefix and prefix != ",":
+        prefixes = prefix.split(",")
+    for current_prefix in prefixes:
+        paginator = s3_client.get_paginator('list_objects_v2')
+        pages = paginator.paginate(Bucket=bucket_name, Prefix=current_prefix, PaginationConfig={'PageSize': 1000})
+        # iterate over pages
+        for page in pages:
+            # loop through objects in page
+            if 'Contents' in page:
+                page_detection_files, page_include_files, page_exclude_files = summarize_page(page, 
+                    supported_types, include_file_extensions, exclude_file_extensions, base_time, scan_depth)
+                detection_files = update_dict_files(detection_files, page_detection_files)
+                include_files = update_dict_files(include_files, page_include_files)
+                exclude_files = update_dict_files(exclude_files, page_exclude_files)
 
     detection_files = postprocess_crawler_result(detection_files, scan_depth, mode = "detect")
     include_files = postprocess_crawler_result(include_files, scan_depth, mode = "include")
@@ -209,12 +212,12 @@ def list_s3_objects(bucket_name, scan_depth, include_file_extensions,
 
     return bucket_info
 
-def upload_bucket_info(bucket_info, source_bucket_name, result_bucket_name, result_prefix=''):
+def upload_bucket_info(bucket_info, source_bucket_name, result_bucket_name, job_id, run_id):
     # dump json format content to a file and save to s3
     json_file_path = NamedTemporaryFile().name
     with open(json_file_path, 'w') as json_file:
         json.dump(bucket_info, json_file, ensure_ascii=False)
-    s3_client.upload_file(json_file_path, result_bucket_name, f"{result_prefix}/{source_bucket_name}_info.json")
+    s3_client.upload_file(json_file_path, result_bucket_name, f"crawler_results/{source_bucket_name}_{job_id}_{run_id}_info.json")
 
     os.remove(json_file_path)
 
@@ -229,15 +232,27 @@ def lambda_handler(event, context):
 
     base_time_str = event.get('BaseTime', '1970-01-01 00:00:00')
     base_time = parse(base_time_str).replace(tzinfo=timezone.utc)
+    prefix = event['Prefix']
+    unstructured_glue_database_name = event['UnstructuredGlueDatabaseName']
+    job_id = event['JobId']
+    run_id = event['RunId']
+    region = event['Region']
     
     bucket_info = list_s3_objects(source_bucket_name, scan_depth, 
-                                  include_file_extensions, exclude_file_extensions, base_time)
-    upload_bucket_info(bucket_info, source_bucket_name, result_bucket_name=result_bucket_name, result_prefix="crawler_results")
+                                  include_file_extensions, exclude_file_extensions, base_time, prefix)
+    upload_bucket_info(bucket_info, source_bucket_name, result_bucket_name, job_id, run_id)
 
 
-    return {
-        "statusCode": 200,
-        "body": json.dumps({
-            "message": "Detection Finished"
-        }),
-    }
+    return ["--SourceBucketName",
+            source_bucket_name,
+            "--ResultBucketName",
+            result_bucket_name,
+            "--RegionName",
+            region,
+            "--UnstructuredGlueDatabaseName",
+            unstructured_glue_database_name,
+            "--JobId",
+            job_id,
+            "--RunId",
+            run_id
+            ]

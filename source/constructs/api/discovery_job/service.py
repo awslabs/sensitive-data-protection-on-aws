@@ -196,17 +196,16 @@ def disable_job(id: int):
 
 def start_job(job_id: int):
     run_id = crud.init_run(job_id)
-    if run_id >= 0:
-        run = crud.get_run(run_id)
-        if not run.databases:
-            crud.complete_run(run_id)
-            raise BizException(MessageEnum.DISCOVERY_JOB_DATABASE_IS_EMPTY.get_code(),
-                               MessageEnum.DISCOVERY_JOB_DATABASE_IS_EMPTY.get_msg())
-        failed_run_database_count = __start_run_databases(run.databases)
-        if failed_run_database_count == len(run.databases):
-            crud.complete_run(run_id)
-            raise BizException(MessageEnum.DISCOVERY_JOB_ALL_RUN_FAILED.get_code(),
-                               MessageEnum.DISCOVERY_JOB_ALL_RUN_FAILED.get_msg())
+    run = crud.get_run(run_id)
+    if not run.databases:
+        crud.complete_run(run_id)
+        raise BizException(MessageEnum.DISCOVERY_JOB_DATABASE_IS_EMPTY.get_code(),
+                           MessageEnum.DISCOVERY_JOB_DATABASE_IS_EMPTY.get_msg())
+    failed_run_database_count = __start_run_databases(run.databases)
+    if failed_run_database_count == len(run.databases):
+        crud.complete_run(run_id)
+        raise BizException(MessageEnum.DISCOVERY_JOB_ALL_RUN_FAILED.get_code(),
+                           MessageEnum.DISCOVERY_JOB_ALL_RUN_FAILED.get_msg())
 
 
 def start_sample_job(job_id: int, table_name: str):
@@ -344,19 +343,29 @@ def __start_run_databases(run_databases):
                 need_run_crawler = False
             crawler_name = f"{const.SOLUTION_NAME}-{run_database.database_type}-{run_database.database_name}"
             glue_database_name = f"{const.SOLUTION_NAME}-{run_database.database_type}-{run_database.database_name}"
+            unstructured_glue_database_name = f"{const.SOLUTION_NAME}-{DatabaseType.S3_UNSTRUCTURED.value}-{run_database.database_name}"
             if run_database.database_type == DatabaseType.GLUE.value:
                 glue_database_name = run_database.database_name
+            need_set_crawler = False
+            if run_database.database_type == DatabaseType.S3.value:
+                need_set_crawler = True
+            if run_database.database_type == DatabaseType.S3.value and run_database.prefix:
+                crawler_name += f"-job-{job.id}"
+                glue_database_name += f"-job-{job.id}"
+                unstructured_glue_database_name += f"-job-{job.id}"
             job_name_structured = f"{const.SOLUTION_NAME}-{run_database.database_type}-{run_database.database_name}"
             job_name_unstructured = f"{const.SOLUTION_NAME}-{DatabaseType.S3_UNSTRUCTURED.value}-{run_database.database_name}"
             run_name = f'{const.SOLUTION_NAME}-{run_database.run_id}-{run_database.id}-{run_database.uuid}'
             # agent_bucket_name = f"{const.AGENT_BUCKET_NAME_PREFIX}-{run_database.account_id}-{run_database.region}"
-            unstructured_parser_job_image_uri = f"{public_account_id}.dkr.ecr.{run_database.region}.amazonaws.com{url_suffix}/aws-sensitive-data-protection-models:v1.1.2"
+            # unstructured_parser_job_image_uri = f"{public_account_id}.dkr.ecr.{run_database.region}.amazonaws.com{url_suffix}/aws-sensitive-data-protection-models:v1.1.2"
+            unstructured_parser_job_image_uri = f"{run_database.account_id}.dkr.ecr.{run_database.region}.amazonaws.com{url_suffix}/aws-sensitive-data-protection-models"
             unstructured_parser_job_role = f"arn:{partition}:iam::{run_database.account_id}:role/{const.SOLUTION_NAME}UnstructuredParserRole-{run_database.region}"
             execution_input = {
                 "RunName": run_name,
                 "JobNameStructured": job_name_structured,
                 "JobNameUnstructured": job_name_unstructured,
                 "NeedRunCrawler": need_run_crawler,
+                "NeedSetCrawler": need_set_crawler,
                 "CrawlerName": crawler_name,
                 "JobId": str(job.id),  # When calling Glue Job using StepFunction, the parameter must be of string type
                 "RunId": str(run_database.run_id),
@@ -366,8 +375,9 @@ def __start_run_databases(run_databases):
                 "DatabaseType": run_database.database_type,
                 "DatabaseName": run_database.database_name,
                 "GlueDatabaseName": glue_database_name,
-                "UnstructuredDatabaseName": f"{const.SOLUTION_NAME}-{DatabaseType.S3_UNSTRUCTURED.value}-{run_database.database_name}",
+                "UnstructuredGlueDatabaseName": unstructured_glue_database_name,
                 "TableName": run_database.table_name if run_database.table_name else job_placeholder,
+                "Prefix": run_database.prefix if run_database.prefix else job_placeholder,
                 "TemplateId": str(run.template_id),
                 "TemplateSnapshotNo": str(run.template_snapshot_no),
                 "DepthStructured": "0" if run.depth_structured is None else str(run.depth_structured),

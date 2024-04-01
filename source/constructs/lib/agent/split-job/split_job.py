@@ -65,7 +65,7 @@ def lambda_handler(event, context):
     
     glue_database_name = event['GlueDatabaseName']
     if event.get("IsUnstructured") == 'true':
-        glue_database_name = event['UnstructuredDatabaseName']
+        glue_database_name = event['UnstructuredGlueDatabaseName']
     logger.info(f"glue_database_name:{glue_database_name}")
     table_count = get_table_count(glue_database_name, base_time)
     if table_count == 0:

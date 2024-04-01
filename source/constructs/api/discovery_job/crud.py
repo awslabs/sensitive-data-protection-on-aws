@@ -142,7 +142,8 @@ def init_run(job_id: int) -> int:
     session = get_session()
     job: models.DiscoveryJob = session.query(models.DiscoveryJob).get(job_id)
     if job.state == JobState.RUNNING.value or job.state == JobState.OD_RUNNING.value:
-        return -1
+        raise BizException(MessageEnum.DISCOVERY_JOB_RUNNING.get_code(),
+                           MessageEnum.DISCOVERY_JOB_RUNNING.get_msg())
     current_time = mytime.get_time()
     job_state = JobState.RUNNING.value
     if job.schedule == const.ON_DEMAND:

@@ -282,9 +282,11 @@ def main(param_dict):
     original_bucket_name = param_dict['SourceBucketName']
     crawler_result_bucket_name = param_dict['ResultBucketName']
     region_name = param_dict['RegionName']
+    job_id = param_dict['JobId']
+    run_id = param_dict['RunId']
     worker_num = psutil.cpu_count(logical=False)
-    crawler_result_object_key = f"crawler_results/{original_bucket_name}_info.json"
-    destination_database = f"SDPS-unstructured-{original_bucket_name}"
+    crawler_result_object_key = f"crawler_results/{original_bucket_name}_{job_id}_{run_id}_info.json"
+    destination_database = param_dict['UnstructuredGlueDatabaseName']
 
     s3_client = boto3.client('s3', region_name=region_name)
     glue_client = boto3.client('glue', region_name=region_name)
@@ -297,7 +299,7 @@ def main(param_dict):
             }
         )
     except glue_client.exceptions.AlreadyExistsException:
-        print(f"Database '{destination_database}' already exists. Skipping database creation...")
+        print(f"Database '{destination_database}' already exists. Recreate...")
         # Need to delete previous created tables
 
         response = glue_client.delete_database(Name=destination_database)
@@ -361,6 +363,12 @@ if __name__ == '__main__':
                         help='crawler_result_bucket_name')
     parser.add_argument('--RegionName', type=str, default='',
                         help='crawler_result_object_key')
+    parser.add_argument('--JobId', type=str, default='',
+                        help='job id')
+    parser.add_argument('--RunId', type=str, default='',
+                        help='run id')
+    parser.add_argument('--UnstructuredGlueDatabaseName', type=str, default='',
+                        help='glue database name')
 
     args, _ = parser.parse_known_args()
     param_dict = copy.copy(vars(args))

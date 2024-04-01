@@ -287,6 +287,7 @@ export class DiscoveryJobStack extends Construct {
           actions: [
             'glue:CreateDatabase',
             'glue:GetDatabase',
+            'glue:DeleteDatabase',
             'glue:CreateTable',
             'glue:DeleteTable',
             'glue:DeleteTableVersion',
@@ -299,6 +300,7 @@ export class DiscoveryJobStack extends Construct {
             `arn:${Aws.PARTITION}:glue:${Aws.REGION}:${Aws.ACCOUNT_ID}:catalog`,
             `arn:${Aws.PARTITION}:glue:${Aws.REGION}:${Aws.ACCOUNT_ID}:database/${SolutionInfo.SOLUTION_NAME.toLowerCase()}-*`,
             `arn:${Aws.PARTITION}:glue:${Aws.REGION}:${Aws.ACCOUNT_ID}:table/${SolutionInfo.SOLUTION_NAME.toLowerCase()}-*/*`,
+            `arn:${Aws.PARTITION}:glue:${Aws.REGION}:${Aws.ACCOUNT_ID}:userDefinedFunction/${SolutionInfo.SOLUTION_NAME.toLowerCase()}-*/*`,
             `arn:${Aws.PARTITION}:s3:::${props.agentBucketName}/*`,
           ],
         }),
