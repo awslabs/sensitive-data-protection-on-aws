@@ -10,6 +10,6 @@
   "aws_user_pools_id": "",
   "aws_user_pools_web_client_id": "",
   "version": "v1.0.0",
-  "backend_url": "https://sdps-beta.demo.solutions.aws.a2z.org.cn:444",
+  "backend_url": "https://sdps-dev.demo.solutions.aws.a2z.org.cn:444",
   "expired": 12
 }
