@@ -67,9 +67,12 @@ async def validate(request: Request, call_next):
                 'Access-Control-Allow-Credentials': 'true'
             },
         )
-    authorization = hs.get("Authorization")
+    api_key_request = hs.get(const.HTTP_HEADER_API_KEY)
+    authorization = hs.get(const.HTTP_HEADER_AUTHORIZATION)
     os.environ[const.USER] = const.USER_DEFAULT_NAME
     if request.scope["path"] in const.EXCLUDE_PATH_LIST:
+        pass
+    elif api_key_request and api_key_request == os.getenv(const.API_KEY):
         pass
     elif authorization:
         try:

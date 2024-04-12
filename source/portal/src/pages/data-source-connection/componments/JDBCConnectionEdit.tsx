@@ -28,6 +28,7 @@ import { useTranslation } from 'react-i18next';
 import { alertMsg } from 'tools/tools';
 import { i18ns } from '../types/s3_selector_config';
 import { checkJDBCIsMySQL } from 'ts/common';
+import { stringify } from 'querystring';
 
 interface JDBCConnectionProps {
   providerId: number;
@@ -210,7 +211,13 @@ const JDBCConnectionEdit: React.FC<JDBCConnectionProps> = (
       alertMsg(t('successUpdate'), 'success');
       props.setShowModal(false);
     } catch (error) {
-      alertMsg(t('failUpdate'), 'error');
+      if(error instanceof Error){
+        alertMsg(error.message, 'error');
+      } else if(error instanceof String){
+        alertMsg(error.toString(), 'error');
+      } else {
+        alertMsg(error as string, 'error');
+      }
     }
   };
 

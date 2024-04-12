@@ -132,7 +132,7 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
   const changeFile = (file: any) => {
     setUploadProgress(0);
     if (file && file.length > 0) {
-      if (file[0].name.endsWith('.xlsx') === true) {
+      if (file[0].name.endsWith('.xlsx') || file[0].name.endsWith('.xlsm')) {
         setErrors([]);
         setUploadDisabled(false);
       } else {
@@ -199,6 +199,9 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
           queryStatus(fileId, type);
         }, 5000);
       } else {
+        console.log("upload failed!!!")
+        // setFlashBar([]);
+        updateStatus(BatchOperationStatus.NotStarted);
         setUploadProgress(0);
         alertMsg(response.data.message ?? '', 'error');
       }
@@ -307,7 +310,7 @@ const BatchOperationContent: React.FC<BatchOperationContentProps> = (
               }}
               invalid
               fileErrors={errors}
-              accept=".xlsx"
+              accept=".xlsx, .xlsm"
               showFileLastModified
               showFileSize
               showFileThumbnail
@@ -484,7 +487,10 @@ const BatchOperation: React.FC = () => {
         },
       ]);
     }
-  }, [status]);
+    if (status === BatchOperationStatus.NotStarted) {
+      setFlashBar([]);
+    }
+    }, [status]);
 
   return (
     <AppLayout
