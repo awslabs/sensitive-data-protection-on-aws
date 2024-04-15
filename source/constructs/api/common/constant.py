@@ -153,3 +153,11 @@ const.UNSTRUCTURED_FILES = {
     "executable": ["exe", "dll", "app"],
     "font": ["ttf", "otf"]
 }
+
+const.HTTP_HEADER_AUTHORIZATION = "Authorization"
+const.HTTP_HEADER_API_KEY = "x-api-key"
+
+const.OPEN_APIS = [
+    "/data-source/add_account",
+    "/data-source/add-jdbc-conn"
+]

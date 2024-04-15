@@ -56,6 +56,12 @@ nav:
     - Uninstall the solution: uninstall.md
     - Developer guide:
         - Source code: developer-guide/source.md
+        - API Access Restriction: developer-guide/api-access.md
+        - API overview: developer-guide/api-preview.md
+        - Datasource API: developer-guide/datasource.md
+        - Job API: developer-guide/job.md
+        - Identifier API: developer-guide/identifier.md
+        - Appendix：OpenApi.json: developer-guide/openapi.json
     - Revisions: revisions.md
     - Contributors: contributors.md
     - Notices: notices.md

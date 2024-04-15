@@ -57,6 +57,12 @@ nav:
     - 卸载解决方案: uninstall.md
     - 开发者指南:
         - 源代码: developer-guide/source.md
+        - API 访问限制: developer-guide/api-access.md
+        - API 概览: developer-guide/api-preview.md
+        - 数据源相关接口: developer-guide/datasource.md
+        - 检测任务相关接口: developer-guide/job.md
+        - 数据识别规则相关接口: developer-guide/identifier.md
+        - 附录：OpenApi.json: developer-guide/openapi.json
     - 文档修订信息: revisions.md
     - 贡献人员: contributors.md
     - 关于 Premium Edition: about-premium-edition.md

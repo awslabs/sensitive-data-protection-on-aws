@@ -295,7 +295,7 @@ def sync_crawler_result(
             table_create_list = []
             table_update_list = []
             for table in tables_response["TableList"]:
-                table_name = table["Location"].strip()
+                table_name = table["StorageDescriptor"]["Location"].strip()
                 # If the file is end of .csv or .json, but the content of the file is not csv/json
                 # glue can't crawl them correctly
                 # So there is no sizeKey in Parameters, we set the default value is 0
