@@ -1,6 +1,5 @@
 ## 使用EC2配置数据库代理
-
-<<<<<<< HEAD
+g
 ### 创建并登录到代理EC2机器，配置转发端口
 有一些用户的数据库Security Group设置了限制，只允许固定IP访问。这个时候，用户需要一个EC2作为Proxy来提供固定的IP。
 
@@ -23,21 +22,6 @@
   - 编辑配置文件：
 ```python
 # 用代码替换默认的nginx.conf文件内容。您需要进行必要的调整。
-=======
-创建1个EC2实例作为数据库代理。安装Nginx 设置端口转发。例如:
-
-
-### Step 1:安装
-`sudo yum install nginx nginx-mod-stream`
-### Step 2:启动
-`sudo systemctl start nginx`
-### Step 3:查看状态
-`systemctl status nginx`
-### Step 4:编辑/etc/nginx/nginx.conf文件
-`sudo vim /etc/nginx/nginx.conf`  
-在文件末尾添加类似以下内容
-```
->>>>>>> parent of 1ae0db0e (docs for batch proxy data source creation)
 stream {
     upstream backend1 {
         server 10.0.34.171:3306  max_fails=3 fail_timeout=30s; # server地址可以使用域名
@@ -49,7 +33,6 @@ stream {
     }
 }
 ```
-<<<<<<< HEAD
 !!! Info 数据库太多时，如何编辑配置文件？
     如果您需要配置多个端口转发，可以使用SDP **批量创建数据源**功能，并通过模版来创建Nginx配置文件。见下面附录。
 
@@ -82,7 +65,6 @@ stream {
 | test-instance-7002  | 1   | xxxx2.sql.db.com:3306 | jdbc:mysql://172.31.48.6:7002                |                |           | root     | Temp123456! | 123456789 | ap-guangzhou-1 | 4          |
 
 
-
 ##### Step 3: 生成Nginx软件的config文件
 （在本地）打开excel软件，菜单栏点击 Tools → Marco → Visual Basic Editor 功能。
 
@@ -112,14 +94,3 @@ stream {
     }
 }
 ```
-=======
-### Step 5: 重新加载配置文件
-`sudo nginx -s reload`
-### Step 6: 为实例添加安全组
-Proxy安全组添加Rule，允许以下2个安全组的所有TCP进入：`SDPS-CustomDB`、`堆栈名-RDSRDSClient`
-### Step 7: （可选）本地测试代理是否生效
-```
-sudo yum install telnet
-telnet 127.0.0.1 7001
-```
->>>>>>> parent of 1ae0db0e (docs for batch proxy data source creation)

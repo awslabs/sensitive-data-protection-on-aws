@@ -5,7 +5,6 @@ Some users' database Security Groups have restrictions that only allow fixed IP 
 
 Next, we will create an EC2 instance as a database proxy, install Nginx software, and set up port forwarding. When making a data source connection, SDPS connects to EC2 and makes a JDBC connection to the database through this EC2.
 
-<<<<<<< HEAD
 ##### Step 1: Create an EC2 Instance
 - In the EC2 console. Create an EC2 in the VPC where SDP is located, to be used as a proxy server.
 - Configure the EC2 Security Group: Add an Inbound Rule, allowing all TCP entries from the following two security groups: SDPS-CustomDB, Stack Name-RDSRDSClient
@@ -24,18 +23,6 @@ Next, we will create an EC2 instance as a database proxy, install Nginx software
   - Edit the configuration file:
 ```python
 # Replace the default nginx.conf file content with code. You need to make necessary adjustments.
-=======
-### Step 1:Install
-`sudo yum install nginx nginx-mod-stream`
-### Step 2:Start
-`sudo systemctl start nginx`
-### Step 3:View status
-`systemctl status nginx`
-### Step 4:Edit /etc/nginx/nginx.conf
-`sudo vim /etc/nginx/nginx.conf`  
-Add content similar to the following at the end of the file
-```
->>>>>>> parent of 1ae0db0e (docs for batch proxy data source creation)
 stream {
     upstream backend1 {
         server 10.0.34.171:3306  max_fails=3 fail_timeout=30s; 
