@@ -3,6 +3,7 @@
 Create one EC2 instance as the database proxy. Install Nginx to set port forwarding. For example:
 
 
+
 ### Step 1:Install
 `sudo yum install nginx nginx-mod-stream`
 ### Step 2:Start
