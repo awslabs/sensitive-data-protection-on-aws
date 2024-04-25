@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.17">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.19">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.bcfcd587.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.66ac8b77.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#using-ec2-to-configure-database-agents" class="md-skip">
+        <a href="#configuring-database-proxy-on-ec2" class="md-skip">
           Skip to content
         </a>
       
@@ -219,7 +219,7 @@
         <a href="https://github.com/awslabs/sensitive-data-protection-on-aws" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     awslabs/sensitive-data-protection-on-aws
@@ -264,7 +264,7 @@
       <a href="https://github.com/awslabs/sensitive-data-protection-on-aws" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     awslabs/sensitive-data-protection-on-aws
@@ -1455,75 +1455,114 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#using-ec2-to-configure-database-agents" class="md-nav__link">
+  <a href="#configuring-database-proxy-on-ec2" class="md-nav__link">
     <span class="md-ellipsis">
-      Using EC2 to configure database agents
+      Configuring Database Proxy on EC2
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Using EC2 to configure database agents">
+    <nav class="md-nav" aria-label="Configuring Database Proxy on EC2">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#step-1install" class="md-nav__link">
+  <a href="#create-and-log-in-to-the-proxy-ec2-machine-configure-forwarding-ports" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 1:Install
+      Create and log in to the proxy EC2 machine, configure forwarding ports
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Create and log in to the proxy EC2 machine, configure forwarding ports">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-create-an-ec2-instance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: Create an EC2 Instance
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-2start" class="md-nav__link">
+  <a href="#step-2-install-nginx-software-on-ec2" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 2:Start
+      Step 2: Install Nginx software on EC2
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-3view-status" class="md-nav__link">
+  <a href="#step-3-configure-nginx-software" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 3:View status
+      Step 3: Configure Nginx software
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-4edit-etcnginxnginxconf" class="md-nav__link">
+  <a href="#step-5-reload-the-configuration-file" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 4:Edit /etc/nginx/nginx.conf
+      Step 5: Reload the configuration file
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-5-reload-configuration-file" class="md-nav__link">
+  <a href="#step-7-test-if-the-proxy-ec2-port-forwarding-is-effective-optional" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 5: Reload configuration file
+      Step 7: Test if the proxy EC2 port forwarding is effective (Optional)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#appendix-batch-create-data-sources-forwarded-from-the-proxy-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      Appendix: Batch create data sources forwarded from the proxy server
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Appendix: Batch create data sources forwarded from the proxy server">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-download-the-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: Download the template
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-6-add-2-security-groups-to-the-instance" class="md-nav__link">
+  <a href="#step-2-edit-the-excel-file" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 6: Add 2 security groups to the instance
+      Step 2: Edit the excel file
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-7-optional-is-the-local-testing-agent-effective" class="md-nav__link">
+  <a href="#step-3-generate-the-nginx-softwares-config-file" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 7: (Optional) Is the local testing agent effective
+      Step 3: Generate the Nginx software's config file
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1918,75 +1957,114 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#using-ec2-to-configure-database-agents" class="md-nav__link">
+  <a href="#configuring-database-proxy-on-ec2" class="md-nav__link">
     <span class="md-ellipsis">
-      Using EC2 to configure database agents
+      Configuring Database Proxy on EC2
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Using EC2 to configure database agents">
+    <nav class="md-nav" aria-label="Configuring Database Proxy on EC2">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#step-1install" class="md-nav__link">
+  <a href="#create-and-log-in-to-the-proxy-ec2-machine-configure-forwarding-ports" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 1:Install
+      Create and log in to the proxy EC2 machine, configure forwarding ports
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Create and log in to the proxy EC2 machine, configure forwarding ports">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-create-an-ec2-instance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: Create an EC2 Instance
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-2start" class="md-nav__link">
+  <a href="#step-2-install-nginx-software-on-ec2" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 2:Start
+      Step 2: Install Nginx software on EC2
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-3view-status" class="md-nav__link">
+  <a href="#step-3-configure-nginx-software" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 3:View status
+      Step 3: Configure Nginx software
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-4edit-etcnginxnginxconf" class="md-nav__link">
+  <a href="#step-5-reload-the-configuration-file" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 4:Edit /etc/nginx/nginx.conf
+      Step 5: Reload the configuration file
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-5-reload-configuration-file" class="md-nav__link">
+  <a href="#step-7-test-if-the-proxy-ec2-port-forwarding-is-effective-optional" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 5: Reload configuration file
+      Step 7: Test if the proxy EC2 port forwarding is effective (Optional)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#appendix-batch-create-data-sources-forwarded-from-the-proxy-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      Appendix: Batch create data sources forwarded from the proxy server
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Appendix: Batch create data sources forwarded from the proxy server">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-download-the-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: Download the template
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-6-add-2-security-groups-to-the-instance" class="md-nav__link">
+  <a href="#step-2-edit-the-excel-file" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 6: Add 2 security groups to the instance
+      Step 2: Edit the excel file
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-7-optional-is-the-local-testing-agent-effective" class="md-nav__link">
+  <a href="#step-3-generate-the-nginx-softwares-config-file" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 7: (Optional) Is the local testing agent effective
+      Step 3: Generate the Nginx software's config file
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -2012,35 +2090,132 @@
 
   <h1>Appx.Create database proxy</h1>
 
-<h2 id="using-ec2-to-configure-database-agents">Using EC2 to configure database agents</h2>
-<p>Create one EC2 instance as the database proxy. Install Nginx to set port forwarding. For example:</p>
-<h3 id="step-1install">Step 1:Install</h3>
-<p><code>sudo yum install nginx nginx-mod-stream</code></p>
-<h3 id="step-2start">Step 2:Start</h3>
-<p><code>sudo systemctl start nginx</code></p>
-<h3 id="step-3view-status">Step 3:View status</h3>
-<p><code>systemctl status nginx</code></p>
-<h3 id="step-4edit-etcnginxnginxconf">Step 4:Edit /etc/nginx/nginx.conf</h3>
-<p><code>sudo vim /etc/nginx/nginx.conf</code><br />
-Add content similar to the following at the end of the file
-<div class="highlight"><pre><span></span><code>stream {
-    upstream backend1 {
-        server 10.0.34.171:3306  max_fails=3 fail_timeout=30s; # Server address can use domain name
-    }
-    server {
-        listen 3306;
-        proxy_connect_timeout 1s;
-        proxy_pass backend1;
-    }
-}
-</code></pre></div></p>
-<h3 id="step-5-reload-configuration-file">Step 5: Reload configuration file</h3>
-<p><code>sudo nginx -s reload</code></p>
-<h3 id="step-6-add-2-security-groups-to-the-instance">Step 6: Add 2 security groups to the instance</h3>
-<p>Add Rule to the Proxy security group to allow all TCP entries from the following two security groups:<code>SDPS-CustomDB</code>、<code>StackName-RDSRDSClient</code></p>
-<h3 id="step-7-optional-is-the-local-testing-agent-effective">Step 7: (Optional) Is the local testing agent effective</h3>
-<div class="highlight"><pre><span></span><code>sudo yum install telnet
-telnet 127.0.0.1 7001
+<h2 id="configuring-database-proxy-on-ec2">Configuring Database Proxy on EC2</h2>
+<h3 id="create-and-log-in-to-the-proxy-ec2-machine-configure-forwarding-ports">Create and log in to the proxy EC2 machine, configure forwarding ports</h3>
+<p>Some users' database Security Groups have restrictions that only allow fixed IP access. In this case, users need an EC2 as a Proxy to provide a fixed IP.</p>
+<p>Next, we will create an EC2 instance as a database proxy, install Nginx software, and set up port forwarding. When making a data source connection, SDPS connects to EC2 and makes a JDBC connection to the database through this EC2.</p>
+<h5 id="step-1-create-an-ec2-instance">Step 1: Create an EC2 Instance</h5>
+<ul>
+<li>In the EC2 console. Create an EC2 in the VPC where SDP is located, to be used as a proxy server.</li>
+<li>Configure the EC2 Security Group: Add an Inbound Rule, allowing all TCP entries from the following two security groups: SDPS-CustomDB, Stack Name-RDSRDSClient</li>
+</ul>
+<h5 id="step-2-install-nginx-software-on-ec2">Step 2: Install Nginx software on EC2</h5>
+<ul>
+<li>Copy the EC2's .pem file to the Bastion host for logging into the proxy server.</li>
+<li>From your Bastion host, log in to EC2 using SSH, for example:
+  <code>ssh -i /path/to/your/key.pem ec2-user@ec2-private-ip</code></li>
+<li>Run the following commands in sequence to install and start Nginx.</li>
+<li>Installation: <code>sudo yum install nginx nginx-mod-stream</code></li>
+<li>Start: <code>sudo systemctl start nginx</code></li>
+<li>Check status: <code>systemctl status nginx</code></li>
+</ul>
+<h5 id="step-3-configure-nginx-software">Step 3: Configure Nginx software</h5>
+<ul>
+<li>Open the configuration file: <code>vim /etc/nginx/nginx.conf</code></li>
+<li>Edit the configuration file:
+<div class="highlight"><pre><span></span><code><span class="c1"># Replace the default nginx.conf file content with code. You need to make necessary adjustments.</span>
+<span class="n">stream</span> <span class="p">{</span>
+    <span class="n">upstream</span> <span class="n">backend1</span> <span class="p">{</span>
+        <span class="n">server</span> <span class="mf">10.0.34.171</span><span class="p">:</span><span class="mi">3306</span>  <span class="n">max_fails</span><span class="o">=</span><span class="mi">3</span> <span class="n">fail_timeout</span><span class="o">=</span><span class="mi">30</span><span class="n">s</span><span class="p">;</span> 
+        <span class="c1"># You need to modify the server address to the IP:Port of your target database, you can also use DomainName:Port format.</span>
+    <span class="p">}</span>
+    <span class="n">server</span> <span class="p">{</span>
+        <span class="n">listen</span> <span class="mi">7001</span><span class="p">;</span> <span class="c1"># This EC2 port is used for forwarding requests (Port)</span>
+        <span class="n">proxy_connect_timeout</span> <span class="mi">2</span><span class="n">s</span><span class="p">;</span>
+        <span class="n">proxy_timeout</span> <span class="mi">3</span><span class="n">s</span><span class="p">;</span>
+        <span class="n">proxy_pass</span> <span class="n">backend1</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+!!! Info How to edit the configuration file when there are many databases?
+    If you need to configure multiple port forwarding, you can use the SDP <strong>batch create data source</strong> feature, and create the Nginx configuration file through the template. See below Appendix.</li>
+</ul>
+<h5 id="step-5-reload-the-configuration-file">Step 5: Reload the configuration file</h5>
+<p>Save the configuration file and reload it to take effect: <code>sudo nginx -s reload</code></p>
+<h5 id="step-7-test-if-the-proxy-ec2-port-forwarding-is-effective-optional">Step 7: Test if the proxy EC2 port forwarding is effective (Optional)</h5>
+<p>On EC2, install telnet, and test if the local 7001 port can be pinged.
+<code>sudo yum install telnet</code>
+<code>telnet 127.0.0.1 7001</code>
+If configured correctly, you should see the following log:
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="n">Trying</span><span class="w"> </span><span class="mf">127.0.0.1</span><span class="p">...</span>
+<span class="w">    </span><span class="n">Connected</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="mf">127.0.0.1</span><span class="p">.</span>
+</code></pre></div>
+Now, you have completed the configuration of the proxy server, you can go back to the SDP UI to manually add or batch add data sources.</p>
+<hr />
+<h3 id="appendix-batch-create-data-sources-forwarded-from-the-proxy-server">Appendix: Batch create data sources forwarded from the proxy server</h3>
+<h5 id="step-1-download-the-template">Step 1: Download the template</h5>
+<p>From the SDP UI, download the template for batch creating data sources.</p>
+<h5 id="step-2-edit-the-excel-file">Step 2: Edit the excel file</h5>
+<p>Fill in the data sources you need to scan.</p>
+<table>
+<thead>
+<tr>
+<th>InstanceName</th>
+<th>SSL</th>
+<th>Description</th>
+<th>JDBC_URL</th>
+<th>JDBC_Databases</th>
+<th>SecretARN</th>
+<th>Username</th>
+<th>Password</th>
+<th>AccountID</th>
+<th>Region</th>
+<th>ProviderID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>test-instance-7001</td>
+<td>1</td>
+<td>xxxx1.sql.db.com:23297</td>
+<td>jdbc:mysql://172.31.48.6:7001</td>
+<td></td>
+<td></td>
+<td>root</td>
+<td>Temp123456!</td>
+<td>123456789</td>
+<td>ap-guangzhou-1</td>
+<td>4</td>
+</tr>
+<tr>
+<td>test-instance-7002</td>
+<td>1</td>
+<td>xxxx2.sql.db.com:3306</td>
+<td>jdbc:mysql://172.31.48.6:7002</td>
+<td></td>
+<td></td>
+<td>root</td>
+<td>Temp123456!</td>
+<td>123456789</td>
+<td>ap-guangzhou-1</td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+<h5 id="step-3-generate-the-nginx-softwares-config-file">Step 3: Generate the Nginx software's config file</h5>
+<p>(On your local machine) Open the Excel software, in the menu bar click Tools → Macro → Visual Basic Editor.</p>
+<p>Click the run button, and a config.txt file will be generated in the directory where the Excel file is located.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// This is a sample.</span>
+<span class="c1">// Forward through EC2&#39;s 7001 port to xxxx1.sql.db.com:23297 database.</span>
+<span class="c1">// Forward through EC2&#39;s 7002 port to xxxx2.sql.xxdb.com:3306 database.</span>
+<span class="n">stream</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">upstream</span><span class="w"> </span><span class="n">backend1</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">server</span><span class="w"> </span><span class="n">xxxx1</span><span class="p">.</span><span class="na">sql</span><span class="p">.</span><span class="na">db</span><span class="p">.</span><span class="na">com</span><span class="p">:</span><span class="mi">23297</span><span class="w"> </span><span class="n">max_fails</span><span class="o">=</span><span class="mi">3</span><span class="w"> </span><span class="n">fail_timeout</span><span class="o">=</span><span class="mi">30</span><span class="n">s</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">server</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">listen</span><span class="w"> </span><span class="mi">7001</span><span class="p">;</span><span class="w"> </span>
+<span class="w">        </span><span class="n">proxy_connect_timeout</span><span class="w"> </span><span class="mi">2</span><span class="n">s</span><span class="p">;</span>
+<span class="w">        </span><span class="n">proxy_pass</span><span class="w"> </span><span class="n">backend1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">upstream</span><span class="w"> </span><span class="n">backend2</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">server</span><span class="w"> </span><span class="n">xxxx2</span><span class="p">.</span><span class="na">sql</span><span class="p">.</span><span class="na">db</span><span class="p">.</span><span class="na">com</span><span class="p">:</span><span class="mi">3306</span><span class="w"> </span><span class="n">max_fails</span><span class="o">=</span><span class="mi">3</span><span class="w"> </span><span class="n">fail_timeout</span><span class="o">=</span><span class="mi">30</span><span class="n">s</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">server</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">listen</span><span class="w"> </span><span class="mi">7002</span><span class="p">;</span><span class="w"> </span>
+<span class="w">        </span><span class="n">proxy_connect_timeout</span><span class="w"> </span><span class="mi">2</span><span class="n">s</span><span class="p">;</span>
+<span class="w">        </span><span class="n">proxy_pass</span><span class="w"> </span><span class="n">backend2</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
 </code></pre></div>
 
 
@@ -2086,7 +2261,7 @@ telnet 127.0.0.1 7001
     <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": "develop"}</script>
     
     
-      <script src="../../assets/javascripts/bundle.1e8ae164.min.js"></script>
+      <script src="../../assets/javascripts/bundle.dd8806f2.min.js"></script>
       
     
   </body>
