@@ -908,8 +908,14 @@ def sync_job_detection_result(
             continue
         row_count += table_size
         catalog_table = None
-        if table_name in database_catalog_table_dict:
-            catalog_table = database_catalog_table_dict[table_name]
+
+        tmp_database_catalog_table_dict = {}
+        for key, value in database_catalog_table_dict.items():
+            new_key = key.replace(".", "_")
+            tmp_database_catalog_table_dict[new_key] = value
+
+        if table_name in tmp_database_catalog_table_dict:
+            catalog_table = tmp_database_catalog_table_dict[table_name]
         logger.debug(
             "sync_job_detection_result - RESET ADDITIONAL COLUMNS : " + json.dumps(table_column_dict[table_name]))
         if table_name not in table_privacy_dict:

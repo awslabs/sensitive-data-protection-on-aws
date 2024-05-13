@@ -2725,7 +2725,7 @@ def batch_create(file: UploadFile = File(...)):
     created_jdbc_list = []
     account_set = set()
     # Check if the file is an Excel file
-    if not file.filename.endswith('.xlsx'):
+    if not file.filename.endswith('.xlsx') and not file.filename.endswith('.xlsm'):
         raise BizException(MessageEnum.SOURCE_BATCH_CREATE_FORMAT_ERR.get_code(),
                            MessageEnum.SOURCE_BATCH_CREATE_FORMAT_ERR.get_msg())
     # Read the Excel file

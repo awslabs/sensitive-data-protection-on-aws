@@ -549,7 +549,8 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
       username: jdbcConnectionData.new.master_username,
       password: jdbcConnectionData.new.password,
       secret_id: jdbcConnectionData.new.secret,
-      ssl_verify_cert: jdbcConnectionData.new.jdbc_enforce_ssl === "true" ? true: false
+      ssl_verify_cert:
+        jdbcConnectionData.new.jdbc_enforce_ssl === 'true' ? true : false,
     };
     try {
       const res: any = await queryJdbcDatabases(requestParam);
@@ -866,22 +867,20 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                 </FormField>
 
                 {credential === 'secret' && (
-                  <Grid
-                  gridDefinition={[{ colspan: 9 },{colspan: 3}]}
-                >
-                  <FormField stretch label={t('datasource:jdbc.secret')}>
-                    <Select
-                      placeholder={t('datasource:jdbc.selectSecret') ?? ''}
-                      selectedOption={secretItem}
-                      onChange={
-                        ({ detail }) => changeSecret(detail.selectedOption)
-                        // setSecretItem(detail.selectedOption)
-                      }
-                      options={secretOption}
-                    />
-                  </FormField>
-                  {props.providerId !== 1 && (
-                        <div style={{marginTop:25}}>
+                  <Grid gridDefinition={[{ colspan: 9 }, { colspan: 3 }]}>
+                    <FormField stretch label={t('datasource:jdbc.secret')}>
+                      <Select
+                        placeholder={t('datasource:jdbc.selectSecret') ?? ''}
+                        selectedOption={secretItem}
+                        onChange={
+                          ({ detail }) => changeSecret(detail.selectedOption)
+                          // setSecretItem(detail.selectedOption)
+                        }
+                        options={secretOption}
+                      />
+                    </FormField>
+                    {/* {props.providerId !== 1 && ( */}
+                    <div style={{ marginTop: 25 }}>
                       <Button
                         onClick={() => {
                           setJdbcDatabaseEmptyError(false);
@@ -892,15 +891,19 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                       >
                         {t('datasource:jdbc.findDatabase')}
                       </Button>
-                      </div>
-                    )}
+                    </div>
+                    {/* )} */}
                   </Grid>
                 )}
 
                 {credential === 'password' && (
                   <Grid
-                  gridDefinition={[{ colspan: 4 },{ colspan: 5 },{colspan: 3}]}
-                >
+                    gridDefinition={[
+                      { colspan: 4 },
+                      { colspan: 5 },
+                      { colspan: 3 },
+                    ]}
+                  >
                     <FormField stretch label={t('datasource:jdbc.username')}>
                       <Input
                         placeholder={t('datasource:jdbc.inputUsername') ?? ''}
@@ -922,22 +925,25 @@ const JDBCConnection: React.FC<JDBCConnectionProps> = (
                         }}
                       />
                     </FormField>
-                    {/* <FormField stretch label={t('datasource:jdbc.findDatabase')}> */}
-                      {props.providerId !== 1 && (
-                        <div style={{marginTop:25}}>
-                      <Button
-                        onClick={() => {
-                          setJdbcDatabaseEmptyError(false);
-                          findDatabase();
-                        }}
-                        iconName="search"
-                        loading={props.providerId === 1 || loadingJdbcDatabase}
-                      >
-                        {t('datasource:jdbc.findDatabase')}
-                      </Button>
+                    <FormField
+                      stretch
+                      label={t('datasource:jdbc.findDatabase')}
+                    >
+                      {/* {props.providerId !== 1 && ( */}
+                      <div>
+                        <Button
+                          onClick={() => {
+                            setJdbcDatabaseEmptyError(false);
+                            findDatabase();
+                          }}
+                          iconName="search"
+                          loading={loadingJdbcDatabase}
+                        >
+                          {t('datasource:jdbc.findDatabase')}
+                        </Button>
                       </div>
-                    )}
-                    {/* </FormField> */}
+                      {/* )} */}
+                    </FormField>
                   </Grid>
                 )}
                 <FormField
