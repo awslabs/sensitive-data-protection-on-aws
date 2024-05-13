@@ -841,7 +841,7 @@ def sync_job_detection_result(
                     column_path = __get_athena_column_value(row["Data"][6], "str"),
                     location = __get_athena_column_value(row["Data"][7], "str"),
                     table_size_dict[table_name] = table_size
-                    table_size_dict[location] = table_size
+                    # table_size_dict[location] = table_size
                     if table_name in table_column_dict:
                         table_column_dict[table_name].append(column_name)
                     else:
@@ -913,7 +913,8 @@ def sync_job_detection_result(
 
         tmp_database_catalog_table_dict = {}
         for key, value in database_catalog_table_dict.items():
-            new_key = key.replace(".", "_")
+            key_array=key.split(".")
+            new_key = f"{key_array[0]}_{key_array[1].replace('-', '_')}"
             tmp_database_catalog_table_dict[new_key] = value
 
         if table_name in tmp_database_catalog_table_dict:
