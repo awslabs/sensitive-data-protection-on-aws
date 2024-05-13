@@ -41,7 +41,7 @@ def get_catalog_column_level_classification_by_database(
         if not query:
             break
         for item in query:
-            key_name = f'{item.table_name}_{item.column_name}'
+            key_name = f'{item.table_name}.{item.column_name}'.replace(".","_")
             results[key_name] = item
         page += 1
     return results

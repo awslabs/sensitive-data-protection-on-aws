@@ -130,6 +130,7 @@ class MessageEnum(Enum):
     SOURCE_BATCH_CREATE_LIMIT_ERR = {1260: "Batch operation limit exceeded, please ensure that a maximum of 100 data sources are created at a time."}
     SOURCE_BATCH_SHEET_NOT_FOUND = {1261: "Sheet [OriginTemplate] not found in the Excel file"}
     SOURCE_BATCH_SHEET_NO_CONTENT = {1262: "There is no relevant data in sheet [OriginTemplate], please add data according to the format."}
+    SOURCE_BATCH_SECURITY_GROUP_NOT_CONFIG = {1263: "Admin account doesn't have an Security group named SDPS-CustomDB"}
     # label
     LABEL_EXIST_FAILED = {1611: "Cannot create duplicated label"}
 

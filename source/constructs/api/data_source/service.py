@@ -2725,7 +2725,7 @@ def batch_create(file: UploadFile = File(...)):
     created_jdbc_list = []
     account_set = set()
     # Check if the file is an Excel file
-    if not file.filename.endswith('.xlsx'):
+    if not file.filename.endswith('.xlsx') and not file.filename.endswith('.xlsm'):
         raise BizException(MessageEnum.SOURCE_BATCH_CREATE_FORMAT_ERR.get_code(),
                            MessageEnum.SOURCE_BATCH_CREATE_FORMAT_ERR.get_msg())
     # Read the Excel file
@@ -2774,11 +2774,21 @@ def batch_create(file: UploadFile = File(...)):
     # Query network info
     if account_set:
         account_info = list(account_set)[0].split("/")
-        network = query_account_network(AccountInfo(account_provider_id=account_info[0], account_id=account_info[1], region=account_info[2])) \
-            .get('vpcs', [])[0]
-        vpc_id = network.get('vpcId')
-        subnets = [subnet.get('subnetId') for subnet in network.get('subnets')]
-        security_group_id = network.get('securityGroups', [])[0].get('securityGroupId')
+        networks = query_account_network(AccountInfo(account_provider_id=account_info[0], account_id=account_info[1], region=account_info[2])) \
+            .get('vpcs', [])
+        security_group_id = None
+        for network in networks:
+            for securityGroup in network.get('securityGroups',[]):
+                if securityGroup.get("securityGroupName") == const.SECURITY_GROUP_JDBC:
+                    # vpc_id = network.get('vpcId')
+                    subnets = [subnet.get('subnetId') for subnet in network.get('subnets')]
+                    security_group_id = securityGroup.get("securityGroupId")
+                    break
+            if security_group_id:
+                break
+        if not security_group_id:
+            raise BizException(MessageEnum.SOURCE_BATCH_SECURITY_GROUP_NOT_CONFIG.get_code(),
+                           MessageEnum.SOURCE_BATCH_SECURITY_GROUP_NOT_CONFIG.get_msg())
         created_jdbc_list = __map_network_jdbc(created_jdbc_list, subnets, security_group_id)
         batch_result = asyncio.run(batch_add_conn_jdbc(created_jdbc_list))
         result = {f"{item[0]}/{item[1]}/{item[2]}/{item[3]}": f"{item[4]}/{item[5]}" for item in batch_result}

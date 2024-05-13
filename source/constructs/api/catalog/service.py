@@ -687,7 +687,7 @@ def __query_job_result_by_athena(
     # Select result
     select_sql = (
             (
-                """SELECT table_name,column_name,cast(identifiers as json) as identifiers_str,CASE WHEN sample_data is NULL then '' else array_join(sample_data, \'|\') end as sample_str, privacy, table_size, s3_location 
+                """SELECT table_name,column_name,cast(identifiers as json) as identifiers_str,CASE WHEN sample_data is NULL then '' else array_join(sample_data, \'|\') end as sample_str, privacy, table_size, s3_location, location 
             FROM %s 
             WHERE account_id='%s'
                 AND region='%s' 
@@ -838,8 +838,10 @@ def sync_job_detection_result(
                     column_sample_data = __get_athena_column_value(row["Data"][3], "str")
                     privacy = int(__get_athena_column_value(row["Data"][4], "int"))
                     table_size = int(__get_athena_column_value(row["Data"][5], "int"))
-                    column_path = __get_athena_column_value(row["Data"][6], "str")
+                    column_path = __get_athena_column_value(row["Data"][6], "str"),
+                    location = __get_athena_column_value(row["Data"][7], "str"),
                     table_size_dict[table_name] = table_size
+                    table_size_dict[location] = table_size
                     if table_name in table_column_dict:
                         table_column_dict[table_name].append(column_name)
                     else:
@@ -908,8 +910,14 @@ def sync_job_detection_result(
             continue
         row_count += table_size
         catalog_table = None
-        if table_name in database_catalog_table_dict:
-            catalog_table = database_catalog_table_dict[table_name]
+
+        tmp_database_catalog_table_dict = {}
+        for key, value in database_catalog_table_dict.items():
+            new_key = key.replace(".", "_")
+            tmp_database_catalog_table_dict[new_key] = value
+
+        if table_name in tmp_database_catalog_table_dict:
+            catalog_table = tmp_database_catalog_table_dict[table_name]
         logger.debug(
             "sync_job_detection_result - RESET ADDITIONAL COLUMNS : " + json.dumps(table_column_dict[table_name]))
         if table_name not in table_privacy_dict:
