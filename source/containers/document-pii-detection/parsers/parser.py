@@ -1,10 +1,12 @@
 import os
-import magic
 import re
 from tempfile import NamedTemporaryFile
-import boto3
 
-def merge_strings(substrings, delimiter='.', max_length=128, truncate_buffer=False):
+import boto3
+import magic
+
+
+def merge_strings(substrings, delimiter=".", max_length=128, truncate_buffer=False):
     """
     Merges a list of strings into a list of strings with a maximum length.
 
@@ -20,7 +22,7 @@ def merge_strings(substrings, delimiter='.', max_length=128, truncate_buffer=Fal
         if a substring in original substrings is longer than max_length, it will still be in merged substrings.
     """
     merged_strings = []
-    buffer = ''
+    buffer = ""
     for substring in substrings:
         if len(buffer + delimiter + substring) > max_length:
             buffer = buffer[:max_length] if truncate_buffer else buffer
@@ -33,18 +35,19 @@ def merge_strings(substrings, delimiter='.', max_length=128, truncate_buffer=Fal
         merged_strings.append(buffer)
     return merged_strings
 
+
 class BaseParser:
     def __init__(self, s3_client):
         # constructor code here
         # self.region = region
-        self.s3_client=s3_client
+        self.s3_client = s3_client
         pass
 
     def parse_file(self, file_path, **kwargs):
         """This method must be overwritten by child classes to extract raw
-        text from a file path. 
+        text from a file path.
         """
-        raise NotImplementedError('must be overwritten by child classes')
+        raise NotImplementedError("must be overwritten by child classes")
 
     def load_content(self, bucket, object_key):
         """
@@ -63,11 +66,11 @@ class BaseParser:
             processed_content = self.postprocess_content(file_content)
         """
         # begin download obj into memory
-        s3 = boto3.resource('s3', region_name='cn-northwest-1')
+        s3 = boto3.resource("s3", region_name=self.s3_client.meta.region_name)
         obj = s3.Object(bucket, object_key).get()
 
         try:
-            file_content = self.parse_file(obj['Body'].read())
+            file_content = self.parse_file(obj["Body"].read())
         except Exception as e:
             print(f"Failed to parse file {object_key}. Error: {e}")
             file_content = []
@@ -75,27 +78,31 @@ class BaseParser:
         # end download obj into memory
 
         return processed_content
-    
+
     def postprocess_content(self, file_content):
         """
         For each item in content, if size is bigger than 128, split it into multiple items.
         """
         # split all_page_content into a list of lines and remove empty lines
-        processed_content=[]
+        processed_content = []
         for page in file_content:
             # page_content = []
-            lines = [line for line in page.splitlines() if line.strip() != '']
+            lines = [line for line in page.splitlines() if line.strip() != ""]
 
             for item in lines:
                 if len(item) > 128:
                     # Split item by . and extend to processed_content
-                    re_split_items = re.split(r'(?<=[.。;])', item)
-                    merged_split_items = merge_strings(re_split_items, delimiter='', max_length=128)
+                    re_split_items = re.split(r"(?<=[.。;])", item)
+                    merged_split_items = merge_strings(
+                        re_split_items, delimiter="", max_length=128
+                    )
                     processed_content.extend(merged_split_items)
                 else:
                     processed_content.extend([item])
 
-        processed_content = merge_strings(processed_content, delimiter='    ', max_length=128, truncate_buffer=True)
+        processed_content = merge_strings(
+            processed_content, delimiter="    ", max_length=128, truncate_buffer=True
+        )
         processed_content = processed_content[:10000]
         return processed_content
 
@@ -104,7 +111,7 @@ class BaseParser:
         Returns the encoding of the file.
         """
 
-        with open(file_path, 'rb') as f:
+        with open(file_path, "rb") as f:
             blob = f.read()
         m = magic.Magic(mime_encoding=True)
         encoding = m.from_buffer(blob)
