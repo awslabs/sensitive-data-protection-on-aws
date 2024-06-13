@@ -1,5 +1,5 @@
-## 使用EC2配置数据库代理
-g
+## 创建EC2数据库代理，配置Nginx转发到数据源
+
 ### 创建并登录到代理EC2机器，配置转发端口
 有一些用户的数据库Security Group设置了限制，只允许固定IP访问。这个时候，用户需要一个EC2作为Proxy来提供固定的IP。
 
@@ -33,7 +33,8 @@ stream {
     }
 }
 ```
-!!! Info 数据库太多时，如何编辑配置文件？
+
+!!! Info "数据库太多时，如何编辑配置文件？"
     如果您需要配置多个端口转发，可以使用SDP **批量创建数据源**功能，并通过模版来创建Nginx配置文件。见下面附录。
 
 ##### Step 5: 重新加载配置文件
@@ -51,12 +52,12 @@ stream {
 至此，您已经配置完代理服务器的配置，可以回到SDP UI上手动添加或者批量添加数据源了。
 
 ---
-### 附录：批量创建从代理服务器转发的数据源
+## 批量创建数据源时，生成Nginx配置文件
 
-##### Step 1: 下载模版
+### Step 1: 下载模版
 从SDP UI上面，下载批量创建数据源的模版。
 
-##### Step 2: 编辑excel文件
+### Step 2: 编辑excel文件
 填入您所需要扫描的数据源。
 
 | InstanceName        | SSL | Description                                                        | JDBC_URL                                     | JDBC_Databases | SecretARN | Username | Password   | AccountID            | Region         | ProviderID |
@@ -64,9 +65,8 @@ stream {
 | test-instance-7001  | 1   | xxxx1.sql.db.com:23297 | jdbc:mysql://172.31.48.6:7001                |                |           | root     | Temp123456! | 123456789 | ap-guangzhou-1 | 4          |
 | test-instance-7002  | 1   | xxxx2.sql.db.com:3306 | jdbc:mysql://172.31.48.6:7002                |                |           | root     | Temp123456! | 123456789 | ap-guangzhou-1 | 4          |
 
-
-##### Step 3: 生成Nginx软件的config文件
-（在本地）打开excel软件，菜单栏点击 Tools → Marco → Visual Basic Editor 功能。
+### Step 3: 生成Nginx软件的config文件
+（在本地）打开模版文件（.xlsm）软件，菜单栏点击 Tools → Marco → Visual Basic Editor 功能。
 
 
 点击运行按钮，会看到excel文件所在目录下生成一个config.txt文件。
