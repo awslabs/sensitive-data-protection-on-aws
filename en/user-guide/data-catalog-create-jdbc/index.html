@@ -14,11 +14,11 @@
         <link rel="prev" href="../data-catalog-create-glue/">
       
       
-        <link rel="next" href="../data-catalog-create-jdbc-redshift/">
+        <link rel="next" href="../data-identifiers/">
       
       
       <link rel="icon" href="https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.19">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.26">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.66ac8b77.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.6543a935.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -202,7 +202,7 @@
       
     </form>
     <div class="md-search__output">
-      <div class="md-search__scrollwrap" data-md-scrollfix>
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
             Initializing search
@@ -1010,20 +1010,77 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#prerequisites-maintain-network-connectivity" class="md-nav__link">
+  <a href="#prerequisites-ensure-network-connectivity" class="md-nav__link">
     <span class="md-ellipsis">
-      Prerequisites - Maintain Network Connectivity
+      Prerequisites - Ensure Network Connectivity
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#connect-to-amazon-redshift-data-source" class="md-nav__link">
+  <a href="#connect-to-a-single-jdbc-data-source" class="md-nav__link">
     <span class="md-ellipsis">
-      Connect to Amazon Redshift Data Source
+      Connect to a Single JDBC Data Source
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bulk-automatic-creation-of-jdbc-data-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bulk Automatic Creation of JDBC Data Sources
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bulk Automatic Creation of JDBC Data Sources">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-download-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: Download Template
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-edit-the-template-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2: Edit the Template File
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connect-to-data-sources-via-database-proxy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Connect to Data Sources via Database Proxy
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Connect to Data Sources via Database Proxy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters-for-creating-data-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters for Creating Data Sources
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1031,48 +1088,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../data-catalog-create-jdbc-redshift/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Connect to JDBC(Redshift)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../data-catalog-create-jdbc-database-proxy/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Connect to JDBC(RDS Proxy)
-  </span>
-  
-
-      </a>
     </li>
   
 
@@ -1477,7 +1492,7 @@
         
   
   <span class="md-ellipsis">
-    Appx.Create database proxy
+    Appx.Create and config database proxy
   </span>
   
 
@@ -1866,20 +1881,77 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#prerequisites-maintain-network-connectivity" class="md-nav__link">
+  <a href="#prerequisites-ensure-network-connectivity" class="md-nav__link">
     <span class="md-ellipsis">
-      Prerequisites - Maintain Network Connectivity
+      Prerequisites - Ensure Network Connectivity
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#connect-to-amazon-redshift-data-source" class="md-nav__link">
+  <a href="#connect-to-a-single-jdbc-data-source" class="md-nav__link">
     <span class="md-ellipsis">
-      Connect to Amazon Redshift Data Source
+      Connect to a Single JDBC Data Source
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bulk-automatic-creation-of-jdbc-data-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bulk Automatic Creation of JDBC Data Sources
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bulk Automatic Creation of JDBC Data Sources">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-download-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: Download Template
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-edit-the-template-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2: Edit the Template File
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connect-to-data-sources-via-database-proxy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Connect to Data Sources via Database Proxy
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Connect to Data Sources via Database Proxy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters-for-creating-data-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters for Creating Data Sources
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1899,7 +1971,9 @@
 
 
 <h1 id="connect-to-data-sources-jdbc">Connect to Data Sources - JDBC</h1>
-<p>When you want to scan a specific type of database for sensitive data, you can use the DB instance or databases as a data source.</p>
+<p>When you wish to perform sensitive data scans on a particular type of database, you can use DB instances or databases as your data sources.</p>
+<p>First, please ensure that when you <a href="../data-source/">add an AWS account</a>, you select the CloudFormation method. If you added the account using the JDBC method, please proceed to <a href="data-catalog-create-jdbc-database-proxy.md">Connect to the Database via EC2 Proxy</a>.</p>
+<p>Currently supported JDBC data sources:</p>
 <table>
 <thead>
 <tr>
@@ -1933,31 +2007,30 @@
 </tr>
 </tbody>
 </table>
-<h3 id="prerequisites-maintain-network-connectivity">Prerequisites - Maintain Network Connectivity</h3>
+<h3 id="prerequisites-ensure-network-connectivity">Prerequisites - Ensure Network Connectivity</h3>
 <ol>
-<li>Please confirm that when you <a href="../data-source/">add an AWS account</a>, you choose the CloudFormation method. If you added the account using the JDBC method, please go to <a href="data-catalog-create-jdbc-db-proxy.md">Connect via EC2 Proxy</a> for operations.</li>
-<li>Ensure that the inbound rule of the database to be scanned includes a self-reference of its security group. See <a href="https://docs.aws.amazon.com/glue/latest/dg/setup-vpc-for-glue-access.html">official documentation</a> for details.</li>
-<li>Prepare Redshift connection credentials (username/password).</li>
+<li>Please ensure that the inbound rule for the database you want to scan has self-reference in the security group. For detailed steps, refer to the <a href="https://docs.aws.amazon.com/glue/latest/dg/setup-vpc-for-glue-access.html">official documentation</a>.</li>
+<li>Have the database connection credentials ready (username/password).</li>
 </ol>
 <div class="admonition info">
-<p class="admonition-title">How to Obtain Database Credentials</p>
-<p>DBAs or business teams create a read-only user for security audits. This user only needs read-only permissions: <code>GRANT SHOW VIEW, SELECT ON *.* TO 'reader'@'%'</code></p>
+<p class="admonition-title">How to get JDBC Credentials</p>
+<p>DBA or the business unit creates a read-only user (User) for security auditing purposes. Grant this user read-only permissions: <code>GRANT SHOW VIEW, SELECT ON *.* TO 'reader'@'%'</code>;</p>
 </div>
-<h2 id="connect-to-amazon-redshift-data-source">Connect to Amazon Redshift Data Source</h2>
+<h2 id="connect-to-a-single-jdbc-data-source">Connect to a Single JDBC Data Source</h2>
 <ol>
-<li>From the left menu, select <strong>Connect Data Source</strong></li>
-<li>Choose the <strong>AWS Cloud</strong> tab</li>
-<li>Click to enter an AWS account and open its detail page</li>
-<li>Select the <strong>Custom Database (JDBC)</strong> tab</li>
-<li>Click <strong>Action</strong>, <strong>Add Data Source</strong></li>
+<li>From the left menu, select <strong>Connect Data Source</strong>.</li>
+<li>Choose the <strong>AWS Cloud</strong> tab.</li>
+<li>Click on an AWS account to open the detailed page.</li>
+<li>Select the <strong>Custom Database (JDBC)</strong> tab.</li>
+<li>Click <strong>Actions</strong>, <strong>Add Data Source</strong>.</li>
 <li>
-<p>In the popup window, enter Redshift credential information. (If you choose Secret Manager, you need to manage the username/password for this Redshift in Secret Manager in advance.)</p>
+<p>In the pop-up window, enter the database credential information. (If you choose the Secret Manager method, you need to host the username/password in Secret Manager beforehand.)</p>
 <table>
 <thead>
 <tr>
 <th>Parameter</th>
 <th>Required</th>
-<th>Description</th>
+<th>Parameter Description</th>
 </tr>
 </thead>
 <tbody>
@@ -1967,7 +2040,7 @@
 <td>Database name</td>
 </tr>
 <tr>
-<td>Check SSL Connection</td>
+<td>Enable SSL</td>
 <td>No</td>
 <td>Whether to connect via SSL</td>
 </tr>
@@ -1977,19 +2050,24 @@
 <td>Instance description</td>
 </tr>
 <tr>
+<td>Database Type</td>
+<td>Yes</td>
+<td>Choose between MySQL or other. If MySQL is selected, the solution supports automatic querying of databases in the instance. If other, you need to manually add the DB list.</td>
+</tr>
+<tr>
 <td>JDBC URL (Required)</td>
 <td>Yes</td>
-<td>Fill in a database for connection and scanning. See the table below for the specific format.</td>
+<td>Fill in a database to connect and scan. See the "JDBC URL Format and Examples" section at the bottom of this article for specific format.</td>
 </tr>
 <tr>
 <td>JDBC Databases</td>
 <td>No</td>
-<td>If you want to display multiple databases in a data catalog, fill in the database list. For example, for one data catalog per database instance, you can fill in multiple databases under the instance. If you only want to scan one database under this instance, leave it empty.</td>
+<td>If you want to display multiple databases in a data catalog, enter a list of databases. For example, if one data catalog corresponds to one database instance, you can enter multiple databases under instance. If you only want to scan one database under this instance, keep it blank.</td>
 </tr>
 <tr>
 <td>Credentials</td>
 <td>Yes</td>
-<td>Choose username and password or SecretManager. Enter the database username/password.</td>
+<td>Choose username/password or SecretManager. Fill in the database's username/password.</td>
 </tr>
 <tr>
 <td>VPC</td>
@@ -1999,73 +2077,140 @@
 <tr>
 <td>Subnet</td>
 <td>Yes</td>
-<td>Select the subnet in the VPC where the database is located</td>
+<td>Select the VPC subnet where the database is located</td>
 </tr>
 <tr>
 <td>Security Group</td>
 <td>Yes</td>
-<td>Select the security group in the VPC where the database is located</td>
+<td>Select the VPC security group where the database is located</td>
 </tr>
 </tbody>
 </table>
 </li>
 <li>
-<p>Click <strong>Connect</strong>. You can wait 10 seconds before closing this window.</p>
+<p>Click <strong>Authorize</strong>. You can close this window after waiting for 10s.</p>
 </li>
-<li>You will see the catalog status turn to gray <code>PENDING</code>, indicating the connection is starting (about 3 minutes).</li>
-<li>You will see the catalog status turn to blue <code>CRAWLING</code>. (about 15 minutes for 200 tables)</li>
-<li>When you see the catalog status turn green <code>ACTIVE</code>, it means a data catalog has been created for the Redshift Cluster.</li>
+<li>You'll see the directory status change to blue <code>AUTHORIZED</code>. This also means that in the SDP backend, AWS Glue has successfully created a Crawler.</li>
 </ol>
-<p>At this point, you have successfully connected the Redshift data source and can proceed to the next step 👉 <a href="../data-identifiers/">Define Classification and Grading Templates</a>.</p>
-<div class="admonition info">
-<p class="admonition-title">JDBC URL Formats and Examples</p>
+<p><strong>You have now connected to this data source via JDBC 🎉. You can proceed to the next step to <a href="../data-identifiers/">Define Classification and Grading Templates</a>.</strong></p>
+<p>Once you have configured the classification template and completed the sensitive data discovery task:</p>
+<ul>
+<li>If the task is successful: You will see the directory status on this data source page turn green <code>ACTIVE</code>, indicating that the data directory has been created for this data.</li>
+<li>If the task fails: You will see the directory status on this data source page turn gray <code>Error message</code>, and you can hover over the error to see the specific information.</li>
+</ul>
+<h2 id="bulk-automatic-creation-of-jdbc-data-sources">Bulk Automatic Creation of JDBC Data Sources</h2>
+<p>If you have many data sources and adding them one by one in the UI is not convenient, you can use this bulk creation feature.</p>
+<h3 id="step-1-download-template">Step 1: Download Template</h3>
+<p>On the AWS account management page, click on the <strong>Bulk Create</strong> button.
+On the bulk operation page, first download the "Bulk Create Data Sources" template (.xlsm).</p>
+<h3 id="step-2-edit-the-template-file">Step 2: Edit the Template File</h3>
+<p>Open this file with Microsoft Excel. Excel software will prompt, "Do you need Enabled Macros?" Choose Enable.
+<img alt="edit-icon" src="../../images/batch_create_datasource_enablemarcos.png" /></p>
+<p>Enter the data sources you need to scan, and it is recommended to do it in small batches (for easier error checking).</p>
 <table>
 <thead>
 <tr>
+<th>Instance Name</th>
+<th>SSL</th>
+<th>Description</th>
 <th>JDBC URL</th>
-<th>Example</th>
+<th>JDBC Databases</th>
+<th>SecretARN</th>
+<th>Username</th>
+<th>Password</th>
+<th>AccountID</th>
+<th>Region</th>
+<th>ProviderID</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Amazon Redshift</td>
-<td><code>jdbc:redshift://xxx.us-east-1.redshift.amazonaws.com:8192/dev</code></td>
+<td>test-instance-7001</td>
+<td>1</td>
+<td>xxxx1.sql.db.com:23297</td>
+<td>jdbc:mysql://172.31.48.6:7001</td>
+<td></td>
+<td></td>
+<td>root</td>
+<td>Temp123456!</td>
+<td>123456789</td>
+<td>ap-guangzhou-1</td>
+<td>1</td>
 </tr>
 <tr>
-<td>Amazon RDS for MySQL</td>
-<td><code>jdbc:mysql://xxx-cluster.cluster-xxx.us-east-1.rds.amazonaws.com:3306/employee</code></td>
-</tr>
-<tr>
-<td>Amazon RDS for PostgreSQL</td>
-<td><code>jdbc:postgresql://xxx-cluster.cluster-xxx.us-east-1.rds.amazonaws.com:5432/employee</code></td>
-</tr>
-<tr>
-<td>Amazon RDS for Oracle</td>
-<td><code>jdbc:oracle:thin://@xxx-cluster.cluster-xxx.us-east-1.rds.amazonaws.com:1521/employee</code></td>
-</tr>
-<tr>
-<td>Amazon RDS for Microsoft SQL Server</td>
-<td><code>jdbc:sqlserver://xxx-cluster.cluster-xxx.us-east-1.rds.amazonaws.com:1433;databaseName=employee</code></td>
-</tr>
-<tr>
-<td>Amazon Aurora PostgreSQL</td>
-<td><code>jdbc:postgresql://employee_instance_1.xxxxxxxxxxxx.us-east-2.rds.amazonaws.com:5432/employee</code></td>
-</tr>
-<tr>
-<td>Amazon RDS for MariaDB</td>
-<td><code>jdbc:mysql://xxx-cluster.cluster-xxx.aws-region.rds.amazonaws.com:3306/employee</code></td>
-</tr>
-<tr>
-<td>Snowflake (Standard Connection)</td>
-<td><code>jdbc:snowflake://account_name.snowflakecomputing.com/?user=user_name&amp;db=sample&amp;role=role_name&amp;warehouse=warehouse_name</code></td>
-</tr>
-<tr>
-<td>Snowflake (AWS PrivateLink Connection)</td>
-<td><code>jdbc:snowflake://account_name.region.privatelink.snowflakecomputing.com/?user=user_name&amp;db=sample&amp;role=role_name&amp;warehouse=warehouse_name</code></td>
+<td>test-instance-7002</td>
+<td>1</td>
+<td>xxxx2.sql.db.com:3306</td>
+<td>jdbc:mysql://172.31.48.6:7002</td>
+<td></td>
+<td></td>
+<td>root</td>
+<td>Temp123456!</td>
+<td>123456789</td>
+<td>ap-guangzhou-1</td>
+<td>1</td>
 </tr>
 </tbody>
 </table>
-</div>
+<h2 id="connect-to-data-sources-via-database-proxy">Connect to Data Sources via Database Proxy</h2>
+<p>When your RDS/database is in a private network and strict IP restrictions apply (only allowing fixed IPs to access), you need to connect to data sources this way.</p>
+<ol>
+<li>Create a database proxy: Create an EC2 as a proxy machine in the VPC where the solution is located. Refer to the detailed steps in <a href="../appendix-database-proxy/">Appendix: Create and Configure Database Proxy</a>.</li>
+<li>When configuring the Proxy, configure the Nginx steps. Refer to the detailed steps in <a href="../appendix-database-proxy/">Appendix: Create and Configure Database Proxy</a>.</li>
+<li>When creating the JDBC data source,<ul>
+<li>For the Description field, it is recommended to fill in the actual database address.</li>
+<li>For the JDBC URL field, fill in <code>jdbc:mysql://ec2_public_ip:port/databasename</code>.</li>
+<li>Fill in the Provider field with 4. (Required for batch creation template)</li>
+</ul>
+</li>
+</ol>
+<p>--</p>
+<h3 id="parameters-for-creating-data-sources">Parameters for Creating Data Sources</h3>
+<p>JDBC URL Format and Examples</p>
+<pre><code>| JDBC URL                                        | Example                                                                                      |
+|-------------------------------------------------|----------------------------------------------------------------------------------------------|
+| Amazon Redshift                                 | `jdbc:redshift://xxx.us-east-1.redshift.amazonaws.com:8192/dev`                              |
+| Amazon RDS for MySQL                            | `jdbc:mysql://xxx-cluster.cluster-xxx.us-east-1.rds.amazonaws.com:3306/employee`             |
+| Amazon RDS for PostgreSQL                       | `jdbc:postgresql://xxx-cluster.cluster-xxx.us-east-1.rds.amazonaws.com:5432/employee`        |
+| Amazon RDS for Oracle                           | `jdbc:oracle:thin://@xxx-cluster.cluster-xxx.us-east-1.rds.amazonaws.com:1521/employee`      |
+| Amazon RDS for Microsoft SQL Server             | `jdbc:sqlserver://xxx-cluster.cluster-xxx.us-east-1.rds.amazonaws.com:1433;databaseName=employee` |
+| Amazon Aurora PostgreSQL                        | `jdbc:postgresql://employee_instance_1.xxxxxxxxxxxx.us-east-2.rds.amazonaws.com:5432/employee` |
+| Amazon RDS for MariaDB                          | `jdbc:mysql://xxx-cluster.cluster-xxx.aws-region.rds.amazonaws.com:3306/employee`            |
+| Snowflake (Standard Connection)                 | `jdbc:snowflake://account_name.snowflakecomputing.com/?user=user_name&amp;db=sample&amp;role=role_name&amp;warehouse=warehouse_name` |
+| Snowflake (AWS PrivateLink Connection)          | `jdbc:snowflake://account_name.region.privatelink.snowflakecomputing.com/?user=user_name&amp;db=sample&amp;role=role_name&amp;warehouse=warehouse_name` |
+</code></pre>
+<p>Provider Parameter (used for batch creation):</p>
+<table>
+<thead>
+<tr>
+<th>Provider</th>
+<th>Provider Id</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AWS</td>
+<td>1</td>
+<td>AWS (Installed method: CloudFormation)</td>
+</tr>
+<tr>
+<td>Tencent</td>
+<td>2</td>
+<td>Tencent account</td>
+</tr>
+<tr>
+<td>Google</td>
+<td>3</td>
+<td>Google account</td>
+</tr>
+<tr>
+<td>AWS(JDBC Only)</td>
+<td>4</td>
+<td>AWS (Installed method:JDBC Only)</td>
+</tr>
+</tbody>
+</table>
 
 
 
@@ -2110,7 +2255,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": "develop"}</script>
     
     
-      <script src="../../assets/javascripts/bundle.dd8806f2.min.js"></script>
+      <script src="../../assets/javascripts/bundle.ad660dcc.min.js"></script>
       
     
   </body>

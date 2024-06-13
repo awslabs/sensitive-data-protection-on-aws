@@ -20,15 +20,15 @@
       
       
       <link rel="icon" href="https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.19">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.26">
     
     
       
-        <title>附录：创建数据库代理 - 敏感数据保护解决方案</title>
+        <title>附录：创建、配置数据库代理 - 敏感数据保护解决方案</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.66ac8b77.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.6543a935.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#ec2" class="md-skip">
+        <a href="#ec2nginx" class="md-skip">
           跳转至
         </a>
       
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              附录：创建数据库代理
+              附录：创建、配置数据库代理
             
           </span>
         </div>
@@ -204,7 +204,7 @@
       
     </form>
     <div class="md-search__output">
-      <div class="md-search__scrollwrap" data-md-scrollfix>
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
             正在初始化搜索引擎
@@ -999,48 +999,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../data-catalog-create-jdbc-redshift/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    连接JDBC(Redshift)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../data-catalog-create-jdbc-database-proxy/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    连接JDBC(RDS Proxy)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -1447,7 +1405,7 @@
           
   
   <span class="md-ellipsis">
-    附录：创建数据库代理
+    附录：创建、配置数据库代理
   </span>
   
 
@@ -1458,7 +1416,7 @@
         
   
   <span class="md-ellipsis">
-    附录：创建数据库代理
+    附录：创建、配置数据库代理
   </span>
   
 
@@ -1478,17 +1436,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#ec2" class="md-nav__link">
+  <a href="#ec2nginx" class="md-nav__link">
     <span class="md-ellipsis">
-      使用EC2配置数据库代理
+      创建EC2数据库代理，配置Nginx转发到数据源
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="使用EC2配置数据库代理">
+    <nav class="md-nav" aria-label="创建EC2数据库代理，配置Nginx转发到数据源">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#ec2_1" class="md-nav__link">
+  <a href="#ec2" class="md-nav__link">
     <span class="md-ellipsis">
       创建并登录到代理EC2机器，配置转发端口
     </span>
@@ -1547,14 +1505,19 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nginx" class="md-nav__link">
     <span class="md-ellipsis">
-      附录：批量创建从代理服务器转发的数据源
+      批量创建数据源时，生成Nginx配置文件
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="附录：批量创建从代理服务器转发的数据源">
+    <nav class="md-nav" aria-label="批量创建数据源时，生成Nginx配置文件">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1581,11 +1544,6 @@
       Step 3: 生成Nginx软件的config文件
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -1959,17 +1917,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#ec2" class="md-nav__link">
+  <a href="#ec2nginx" class="md-nav__link">
     <span class="md-ellipsis">
-      使用EC2配置数据库代理
+      创建EC2数据库代理，配置Nginx转发到数据源
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="使用EC2配置数据库代理">
+    <nav class="md-nav" aria-label="创建EC2数据库代理，配置Nginx转发到数据源">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#ec2_1" class="md-nav__link">
+  <a href="#ec2" class="md-nav__link">
     <span class="md-ellipsis">
       创建并登录到代理EC2机器，配置转发端口
     </span>
@@ -2028,14 +1986,19 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nginx" class="md-nav__link">
     <span class="md-ellipsis">
-      附录：批量创建从代理服务器转发的数据源
+      批量创建数据源时，生成Nginx配置文件
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="附录：批量创建从代理服务器转发的数据源">
+    <nav class="md-nav" aria-label="批量创建数据源时，生成Nginx配置文件">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2069,11 +2032,6 @@
     </nav>
   
 </li>
-        
-      </ul>
-    </nav>
-  
-</li>
       
     </ul>
   
@@ -2093,11 +2051,10 @@
   
 
 
-  <h1>附录：创建数据库代理</h1>
+  <h1>附录：创建、配置数据库代理</h1>
 
-<h2 id="ec2">使用EC2配置数据库代理</h2>
-<p>g</p>
-<h3 id="ec2_1">创建并登录到代理EC2机器，配置转发端口</h3>
+<h2 id="ec2nginx">创建EC2数据库代理，配置Nginx转发到数据源</h2>
+<h3 id="ec2">创建并登录到代理EC2机器，配置转发端口</h3>
 <p>有一些用户的数据库Security Group设置了限制，只允许固定IP访问。这个时候，用户需要一个EC2作为Proxy来提供固定的IP。</p>
 <p>接下来，我们将创建1个EC2实例作为数据库代理，并安装Nginx软件并设置端口转发。在做数据源连接时，SDPS连接EC2，并通过这台EC2目标对数据库进行JDBC连接。</p>
 <h5 id="step-1ec2">Step 1:创建EC2实例</h5>
@@ -2130,10 +2087,12 @@
         <span class="n">proxy_pass</span> <span class="n">backend1</span><span class="p">;</span>
     <span class="p">}</span>
 <span class="p">}</span>
-</code></pre></div>
-!!! Info 数据库太多时，如何编辑配置文件？
-    如果您需要配置多个端口转发，可以使用SDP <strong>批量创建数据源</strong>功能，并通过模版来创建Nginx配置文件。见下面附录。</li>
+</code></pre></div></li>
 </ul>
+<div class="admonition info">
+<p class="admonition-title">数据库太多时，如何编辑配置文件？</p>
+<p>如果您需要配置多个端口转发，可以使用SDP <strong>批量创建数据源</strong>功能，并通过模版来创建Nginx配置文件。见下面附录。</p>
+</div>
 <h5 id="step-5">Step 5: 重新加载配置文件</h5>
 <p>保存配置文件，并重新加载使其生效：<code>sudo nginx -s reload</code></p>
 <h5 id="step-7-ec2">Step 7: 测试代理EC2端口转发是否生效 （可选）</h5>
@@ -2146,10 +2105,10 @@
 </code></pre></div>
 至此，您已经配置完代理服务器的配置，可以回到SDP UI上手动添加或者批量添加数据源了。</p>
 <hr />
-<h3 id="_1">附录：批量创建从代理服务器转发的数据源</h3>
-<h5 id="step-1">Step 1: 下载模版</h5>
+<h2 id="nginx">批量创建数据源时，生成Nginx配置文件</h2>
+<h3 id="step-1">Step 1: 下载模版</h3>
 <p>从SDP UI上面，下载批量创建数据源的模版。</p>
-<h5 id="step-2-excel">Step 2: 编辑excel文件</h5>
+<h3 id="step-2-excel">Step 2: 编辑excel文件</h3>
 <p>填入您所需要扫描的数据源。</p>
 <table>
 <thead>
@@ -2196,8 +2155,8 @@
 </tr>
 </tbody>
 </table>
-<h5 id="step-3-nginxconfig">Step 3: 生成Nginx软件的config文件</h5>
-<p>（在本地）打开excel软件，菜单栏点击 Tools → Marco → Visual Basic Editor 功能。</p>
+<h3 id="step-3-nginxconfig">Step 3: 生成Nginx软件的config文件</h3>
+<p>（在本地）打开模版文件（.xlsm）软件，菜单栏点击 Tools → Marco → Visual Basic Editor 功能。</p>
 <p>点击运行按钮，会看到excel文件所在目录下生成一个config.txt文件。</p>
 <div class="highlight"><pre><span></span><code><span class="c1">// 这个是一个样例。</span>
 <span class="c1">// 通过EC2的7001端口转发至xxxx1.sql.db.com:23297数据库。</span>
@@ -2265,7 +2224,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": "develop"}</script>
     
     
-      <script src="../../assets/javascripts/bundle.dd8806f2.min.js"></script>
+      <script src="../../assets/javascripts/bundle.ad660dcc.min.js"></script>
       
     
   </body>

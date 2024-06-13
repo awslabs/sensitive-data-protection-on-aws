@@ -16,11 +16,11 @@
         <link rel="prev" href="../data-catalog-create-glue/">
       
       
-        <link rel="next" href="../data-catalog-create-jdbc-redshift/">
+        <link rel="next" href="../data-identifiers/">
       
       
       <link rel="icon" href="https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.19">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.26">
     
     
       
@@ -28,7 +28,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.66ac8b77.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.6543a935.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -204,7 +204,7 @@
       
     </form>
     <div class="md-search__output">
-      <div class="md-search__scrollwrap" data-md-scrollfix>
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
             正在初始化搜索引擎
@@ -1042,11 +1042,68 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#amazon-redshift" class="md-nav__link">
+  <a href="#jdbc" class="md-nav__link">
     <span class="md-ellipsis">
-      连接Amazon Redshift数据源
+      连接单个JDBC数据源
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#jdbc_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      批量自动创建JDBC数据源
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="批量自动创建JDBC数据源">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: 下载模版
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2: 编辑模版文件
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      通过代理数据库连接到数据源
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="通过代理数据库连接到数据源">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      创建数据源的参数
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1054,48 +1111,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../data-catalog-create-jdbc-redshift/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    连接JDBC(Redshift)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../data-catalog-create-jdbc-database-proxy/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    连接JDBC(RDS Proxy)
-  </span>
-  
-
-      </a>
     </li>
   
 
@@ -1500,7 +1515,7 @@
         
   
   <span class="md-ellipsis">
-    附录：创建数据库代理
+    附录：创建、配置数据库代理
   </span>
   
 
@@ -1877,11 +1892,68 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#amazon-redshift" class="md-nav__link">
+  <a href="#jdbc" class="md-nav__link">
     <span class="md-ellipsis">
-      连接Amazon Redshift数据源
+      连接单个JDBC数据源
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#jdbc_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      批量自动创建JDBC数据源
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="批量自动创建JDBC数据源">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: 下载模版
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2: 编辑模版文件
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      通过代理数据库连接到数据源
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="通过代理数据库连接到数据源">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      创建数据源的参数
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1905,6 +1977,8 @@
 
 <h1 id="-jdbc">连接到数据源 - JDBC</h1>
 <p>当您希望对某一种数据库进行敏感数据扫描时，您可以将DB instance或databases作为数据源。</p>
+<p>首先，请确认您<a href="../data-source/">添加AWS账户</a>时，选择的是CloudFormation方式。如果您添加账户时，选择JDBC方式，请转至<a href="data-catalog-create-jdbc-database-proxy.md">通过EC2代理连接数据库</a>进行操作。</p>
+<p>当前支持的JDBC数据源</p>
 <table>
 <thead>
 <tr>
@@ -1940,15 +2014,14 @@
 </table>
 <h3 id="-">前提条件 - 保持网络连通性</h3>
 <ol>
-<li>请确认您<a href="../data-source/">添加AWS账户</a>时，选择的是CloudFormation方式。如果您添加账户时，选择JDBC方式，请转至<a href="../data-catalog-create-jdbc-database-proxy/">通过EC2代理连接数据库</a>进行操作。</li>
 <li>请确保待检测数据库的inbound rule上有所在安全组的自引用, 操作详见<a href="https://docs.aws.amazon.com/glue/latest/dg/setup-vpc-for-glue-access.html">官网文档</a>。</li>
-<li>准备好Redshift的连接凭证（用户名/密码）</li>
+<li>准备好数据库连接凭证（用户名/密码）</li>
 </ol>
 <div class="admonition info">
 <p class="admonition-title">如何获得JDBC凭证</p>
 <p>DBA或业务方创建一个只读的用户（User）做安全审计使用。授予此用户只读权限：<code>GRANT SHOW VIEW, SELECT ON *.* TO 'reader'@'%'</code>;</p>
 </div>
-<h2 id="amazon-redshift">连接Amazon Redshift数据源</h2>
+<h2 id="jdbc">连接单个JDBC数据源</h2>
 <ol>
 <li>从左侧菜单，选择 <strong>连接数据源</strong> </li>
 <li>选择<strong>AWS Cloud</strong>标签页</li>
@@ -1956,7 +2029,7 @@
 <li>选择 <strong>自定义数据库（JDBC）</strong> 标签页。</li>
 <li>点击<strong>操作</strong>，<strong>添加数据源</strong></li>
 <li>
-<p>在弹出窗口中，输入Redshift凭证信息。（如果您选择Secret Manager方式，需要提前为此Redshift的用户名/密码托管在Secret Manager。）</p>
+<p>在弹出窗口中，输入数据库凭证信息。（如果您选择Secret Manager方式，需要提前将用户名/密码托管在Secret Manager。）</p>
 <table>
 <thead>
 <tr>
@@ -1982,9 +2055,14 @@
 <td>实例描述</td>
 </tr>
 <tr>
+<td>数据库类型</td>
+<td>是</td>
+<td>选择MySQL 还是其他。如果是MySQL，方案支持自动查询实例中的数据库。若其他，您需要手动添加DB列表。</td>
+</tr>
+<tr>
 <td>JDBC URL（必填）</td>
 <td>是</td>
-<td>填写一个database，用于连接和扫描。具体格式请参见下表。</td>
+<td>填写一个database，用于连接和扫描。具体格式请参见本文最下面“JDBC URL格式以及样例”。</td>
 </tr>
 <tr>
 <td>JDBC数据库</td>
@@ -2015,62 +2093,129 @@
 </table>
 </li>
 <li>
-<p>点击 <strong>连接</strong>。您可以等待10s关闭此窗口。</p>
+<p>点击 <strong>授权</strong>。您可以等待10s关闭此窗口。</p>
 </li>
-<li>您看到目录状态变为灰色<code>PENDING</code>，表示连接开始（约3分钟）</li>
-<li>您看到目录状态变为蓝色<code>CRAWLING</code>。（200张表约15分钟）</li>
-<li>您看到目录状态边绿色 <code>ACTIVE</code>，则表示已为该Redshift Cluster创建了数据目录。</li>
+<li>您看到目录状态变为蓝色<code>AUTHROZIED</code>（已授权）。这也意味着在SDP后台，AWS Glue已经成功创建Crawler。</li>
 </ol>
-<p>至此，您已经连接好Redshift数据源了，可以开始下一步操作👉<a href="../data-identifiers/">定义分类分级模版</a>。</p>
-<div class="admonition info">
-<p class="admonition-title">JDBC URL格式以及样例</p>
+<p><strong>至此，您已经以JDBC方式连接到此数据源了🎉。您可以开始下一步操作👉<a href="../data-identifiers/">定义分类分级模版</a>。</strong> </p>
+<p>当您配置完分类模版，并运行完敏感数据发现任务。</p>
+<ul>
+<li>若任务成功：您会在此数据源页面看到目录状态为绿色 <code>ACTIVE</code>，则表示已为该数据创建了数据目录。</li>
+<li>若任务失败：您会在此数据源页面看到目录状态灰色<code>Error message</code>，你可以将鼠标放在错误上面看到具体信息。</li>
+</ul>
+<h2 id="jdbc_1">批量自动创建JDBC数据源</h2>
+<p>如果您有很多的数据源，在UI上一个一个添加数据源不是很方便，此时，您可以使用这个批量创建的功能。</p>
+<h3 id="step-1">Step 1: 下载模版</h3>
+<p>在AWS账号管理页面，点击<strong>批量创建</strong>按钮。
+在批量操作页面，首先下载“批量创建数据源”模版(.xlsm)。</p>
+<h3 id="step-2">Step 2: 编辑模版文件</h3>
+<p>用Microsoft Excel打开这个文件。Excel软件会提示，“是否需要Enabled Marcos？”，选择Enable。
+<img alt="edit-icon" src="../../images/batch_create_datasource_enablemarcos.png" /></p>
+<p>填入您所需要扫描的数据源，建议少量多次（方便排查错误）。</p>
 <table>
 <thead>
 <tr>
-<th>JDBC URL</th>
-<th>Example</th>
+<th>InstanceName</th>
+<th>SSL</th>
+<th>Description</th>
+<th>JDBC_URL</th>
+<th>JDBC_Databases</th>
+<th>SecretARN</th>
+<th>Username</th>
+<th>Password</th>
+<th>AccountID</th>
+<th>Region</th>
+<th>ProviderID</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Amazon Redshift</td>
-<td><code>jdbc:redshift://xxx.us-east-1.redshift.amazonaws.com:8192/dev</code></td>
+<td>test-instance-7001</td>
+<td>1</td>
+<td>xxxx1.sql.db.com:23297</td>
+<td>jdbc:mysql://172.31.48.6:7001</td>
+<td></td>
+<td></td>
+<td>root</td>
+<td>Temp123456!</td>
+<td>123456789</td>
+<td>ap-guangzhou-1</td>
+<td>1</td>
 </tr>
 <tr>
-<td>Amazon RDS for MySQL</td>
-<td><code>jdbc:mysql://xxx-cluster.cluster-xxx.us-east-1.rds.amazonaws.com:3306/employee</code></td>
-</tr>
-<tr>
-<td>Amazon RDS for PostgreSQL</td>
-<td><code>jdbc:postgresql://xxx-cluster.cluster-xxx.us-east-1.rds.amazonaws.com:5432/employee</code></td>
-</tr>
-<tr>
-<td>Amazon RDS for Oracle</td>
-<td><code>jdbc:oracle:thin://@xxx-cluster.cluster-xxx.us-east-1.rds.amazonaws.com:1521/employee</code></td>
-</tr>
-<tr>
-<td>Amazon RDS for Microsoft SQL Server</td>
-<td><code>jdbc:sqlserver://xxx-cluster.cluster-xxx.us-east-1.rds.amazonaws.com:1433;databaseName=employee</code></td>
-</tr>
-<tr>
-<td>Amazon Aurora PostgreSQL</td>
-<td><code>jdbc:postgresql://employee_instance_1.xxxxxxxxxxxx.us-east-2.rds.amazonaws.com:5432/employee</code></td>
-</tr>
-<tr>
-<td>Amazon RDS for MariaDB</td>
-<td><code>jdbc:mysql://xxx-cluster.cluster-xxx.aws-region.rds.amazonaws.com:3306/employee</code></td>
-</tr>
-<tr>
-<td>Snowflake (Standard Connection)</td>
-<td><code>jdbc:snowflake://account_name.snowflakecomputing.com/?user=user_name&amp;db=sample&amp;role=role_name&amp;warehouse=warehouse_name</code></td>
-</tr>
-<tr>
-<td>Snowflake (AWS PrivateLink Connection)</td>
-<td><code>jdbc:snowflake://account_name.region.privatelink.snowflakecomputing.com/?user=user_name&amp;db=sample&amp;role=role_name&amp;warehouse=warehouse_name</code></td>
+<td>test-instance-7002</td>
+<td>1</td>
+<td>xxxx2.sql.db.com:3306</td>
+<td>jdbc:mysql://172.31.48.6:7002</td>
+<td></td>
+<td></td>
+<td>root</td>
+<td>Temp123456!</td>
+<td>123456789</td>
+<td>ap-guangzhou-1</td>
+<td>1</td>
 </tr>
 </tbody>
 </table>
-</div>
+<h2 id="_1">通过代理数据库连接到数据源</h2>
+<p>当您的RDS/数据库在私有网络，且对于IP有严格的限制（只允许固定IP进行接入），您需要通过这种方式进行数据源连接。</p>
+<ol>
+<li>创建数据库代理（Proxy）：在方案所在VPC创建EC2作为代理机器，参考步骤详见：<a href="../appendix-database-proxy/">附录:创建、配置数据库代理</a>。</li>
+<li>配置Proxy时，配置Nginx的步骤，参考步骤详见：<a href="../appendix-database-proxy/">附录:创建、配置数据库代理</a>。。</li>
+<li>创建JDBC数据源时，<ul>
+<li>Description字段建议填真实数据库地址。</li>
+<li>JDBC URL字段填写<code>jdbc:mysql://ec2_public_ip:port/databasename</code> 。</li>
+<li>Provider字段的值填4。 （批量创建模版中需要填写）</li>
+</ul>
+</li>
+</ol>
+<p>--</p>
+<h3 id="_2">创建数据源的参数</h3>
+<p>JDBC URL格式以及样例</p>
+<pre><code>| JDBC URL                                        | Example                                                                                      |
+|-------------------------------------------------|----------------------------------------------------------------------------------------------|
+| Amazon Redshift                                 | `jdbc:redshift://xxx.us-east-1.redshift.amazonaws.com:8192/dev`                              |
+| Amazon RDS for MySQL                            | `jdbc:mysql://xxx-cluster.cluster-xxx.us-east-1.rds.amazonaws.com:3306/employee`             |
+| Amazon RDS for PostgreSQL                       | `jdbc:postgresql://xxx-cluster.cluster-xxx.us-east-1.rds.amazonaws.com:5432/employee`        |
+| Amazon RDS for Oracle                           | `jdbc:oracle:thin://@xxx-cluster.cluster-xxx.us-east-1.rds.amazonaws.com:1521/employee`      |
+| Amazon RDS for Microsoft SQL Server             | `jdbc:sqlserver://xxx-cluster.cluster-xxx.us-east-1.rds.amazonaws.com:1433;databaseName=employee` |
+| Amazon Aurora PostgreSQL                        | `jdbc:postgresql://employee_instance_1.xxxxxxxxxxxx.us-east-2.rds.amazonaws.com:5432/employee` |
+| Amazon RDS for MariaDB                          | `jdbc:mysql://xxx-cluster.cluster-xxx.aws-region.rds.amazonaws.com:3306/employee`            |
+| Snowflake (Standard Connection)                 | `jdbc:snowflake://account_name.snowflakecomputing.com/?user=user_name&amp;db=sample&amp;role=role_name&amp;warehouse=warehouse_name` |
+| Snowflake (AWS PrivateLink Connection)          | `jdbc:snowflake://account_name.region.privatelink.snowflakecomputing.com/?user=user_name&amp;db=sample&amp;role=role_name&amp;warehouse=warehouse_name` |
+</code></pre>
+<p>Provider参数（批量创建时使用）:</p>
+<table>
+<thead>
+<tr>
+<th>Provider</th>
+<th>Provider Id</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AWS</td>
+<td>1</td>
+<td>AWS (Installed method: CloudFormation)</td>
+</tr>
+<tr>
+<td>Tencent</td>
+<td>2</td>
+<td>Tencent account</td>
+</tr>
+<tr>
+<td>Google</td>
+<td>3</td>
+<td>Google account</td>
+</tr>
+<tr>
+<td>AWS(JDBC Only)</td>
+<td>4</td>
+<td>AWS (Installed method:JDBC Only)</td>
+</tr>
+</tbody>
+</table>
 
 
 
@@ -2115,7 +2260,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": "develop"}</script>
     
     
-      <script src="../../assets/javascripts/bundle.dd8806f2.min.js"></script>
+      <script src="../../assets/javascripts/bundle.ad660dcc.min.js"></script>
       
     
   </body>

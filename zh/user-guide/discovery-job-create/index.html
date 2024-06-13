@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.19">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.26">
     
     
       
@@ -28,7 +28,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.66ac8b77.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.6543a935.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -204,7 +204,7 @@
       
     </form>
     <div class="md-search__output">
-      <div class="md-search__scrollwrap" data-md-scrollfix>
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
             正在初始化搜索引擎
@@ -999,48 +999,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../data-catalog-create-jdbc-redshift/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    连接JDBC(Redshift)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../data-catalog-create-jdbc-database-proxy/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    连接JDBC(RDS Proxy)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -1502,7 +1460,7 @@
         
   
   <span class="md-ellipsis">
-    附录：创建数据库代理
+    附录：创建、配置数据库代理
   </span>
   
 
@@ -1913,14 +1871,10 @@
 
 <p>您可以创建和管理用于检测敏感数据的作业。发现作业由一个或多个 AWS Glue 作业组成，用于实际数据检测。有关更多信息，请参阅<a href="../discovery-job-details/">查看作业详细信息</a>。</p>
 <h2 id="_1">创建发现作业</h2>
-<ol>
-<li>在左侧菜单，选择<strong>执行敏感数据发现作业</strong>。</li>
-<li>
-<p>选择<strong>创建敏感数据发现作业</strong>。
+<p>在左侧菜单，选择<strong>执行敏感数据发现作业</strong></p>
+<p>点击按钮，<strong>创建敏感数据发现作业</strong>。
 <img alt="edit-icon" src="../../images/job-list-cn.png" /></p>
-<ul>
-<li>
-<p><strong>步骤1：选择数据源</strong></p>
+<p><strong>步骤1</strong>: 选择Provider和数据源</p>
 <table>
 <thead>
 <tr>
@@ -1931,7 +1885,7 @@
 <tbody>
 <tr>
 <td>AWS</td>
-<td>S3, RDS, Glue, JDBC</td>
+<td>S3, RDS, Glue, Custom databases，Proxy databases</td>
 </tr>
 <tr>
 <td>Tencent</td>
@@ -1943,9 +1897,16 @@
 </tr>
 </tbody>
 </table>
-</li>
-<li>
-<p><strong>步骤2：作业设置</strong></p>
+<div class="admonition info">
+<p class="admonition-title">AWS的CustomDB和ProxyDB是指什么？</p>
+<ul>
+<li>如果是本账号扫描，连接JDBC数据源，那么，请选择CustomDB</li>
+<li>如果您添加账号时，选择了CloudFormation的安装方式，连接了JDBC数据源，那么，请选择Custom databases</li>
+<li>如果您添加账号时，选择了JDBC Only的安装方式，连接了JDBC数据源，那么，请选择Proxy databases</li>
+</ul>
+</div>
+<p><strong>步骤2</strong>: 选择具体待扫描的数据源</p>
+<p><strong>步骤3</strong>: 作业设置</p>
 <table>
 <thead>
 <tr>
@@ -1987,17 +1948,9 @@
 </tr>
 </tbody>
 </table>
-</li>
-<li>
-<p><strong>步骤3：高级配置项</strong></p>
-</li>
-<li><strong>步骤4：作业预览</strong></li>
-</ul>
-</li>
-<li>
-<p>预览作业后，选择<strong>运行作业</strong>。</p>
-</li>
-</ol>
+<p><strong>步骤4</strong>：高级配置项</p>
+<p><strong>步骤5</strong>：作业预览
+    预览作业后，选择<strong>运行作业</strong>。</p>
 <hr />
 <h3 id="_2">关于增量扫描：</h3>
 <p>当在job选择“增量扫描”设置的时候，S3和RDS的扫描逻辑略有不同，如下：</p>
@@ -2059,7 +2012,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": "develop"}</script>
     
     
-      <script src="../../assets/javascripts/bundle.dd8806f2.min.js"></script>
+      <script src="../../assets/javascripts/bundle.ad660dcc.min.js"></script>
       
     
   </body>

@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.19">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.26">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.66ac8b77.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.6543a935.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#create-discovery-jobs" class="md-skip">
+        <a href="#create-discovery-job" class="md-skip">
           Skip to content
         </a>
       
@@ -202,7 +202,7 @@
       
     </form>
     <div class="md-search__output">
-      <div class="md-search__scrollwrap" data-md-scrollfix>
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
             Initializing search
@@ -976,48 +976,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../data-catalog-create-jdbc-redshift/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Connect to JDBC(Redshift)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../data-catalog-create-jdbc-database-proxy/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Connect to JDBC(RDS Proxy)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -1133,19 +1091,19 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#create-discovery-jobs" class="md-nav__link">
+  <a href="#create-discovery-job" class="md-nav__link">
     <span class="md-ellipsis">
-      Create Discovery Jobs
+      Create Discovery Job
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Create Discovery Jobs">
+    <nav class="md-nav" aria-label="Create Discovery Job">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#about-incremental-scanning" class="md-nav__link">
+  <a href="#about-incremental-scan" class="md-nav__link">
     <span class="md-ellipsis">
-      About Incremental Scanning:
+      About Incremental Scan:
     </span>
   </a>
   
@@ -1479,7 +1437,7 @@
         
   
   <span class="md-ellipsis">
-    Appx.Create database proxy
+    Appx.Create and config database proxy
   </span>
   
 
@@ -1866,19 +1824,19 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#create-discovery-jobs" class="md-nav__link">
+  <a href="#create-discovery-job" class="md-nav__link">
     <span class="md-ellipsis">
-      Create Discovery Jobs
+      Create Discovery Job
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Create Discovery Jobs">
+    <nav class="md-nav" aria-label="Create Discovery Job">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#about-incremental-scanning" class="md-nav__link">
+  <a href="#about-incremental-scan" class="md-nav__link">
     <span class="md-ellipsis">
-      About Incremental Scanning:
+      About Incremental Scan:
     </span>
   </a>
   
@@ -1906,16 +1864,10 @@
 
   <h1>Create job</h1>
 
-<p>You can create and manage jobs to detect sensitive data. Discovery jobs consist of one or more AWS Glue jobs for actual data detection. For more information, see <a href="../discovery-job-details/">Viewing Job Details</a>.</p>
-<h2 id="create-discovery-jobs">Create Discovery Jobs</h2>
-<ol>
-<li>In the left menu, select <strong>Run Sensitive Data Discovery Job</strong>.</li>
-<li>
-<p>Choose <strong>Create Sensitive Data Discovery Job</strong>.
-<img alt="edit-icon" src="docs/../../images/job-list-cn.png" /></p>
-<ul>
-<li>
-<p><strong>Step 1: Select Data Source</strong></p>
+<p>You can create and manage jobs for detecting sensitive data. Discovery jobs consist of one or more AWS Glue jobs used for actual data detection. For more information, please see <a href="../discovery-job-details/">View Job Details</a>.</p>
+<h2 id="create-discovery-job">Create Discovery Job</h2>
+<p>From the left menu, select <strong>Run Sensitive Data Discovery Job</strong>. Click <strong>Create Sensitive Data Discovery Job</strong>.</p>
+<p><strong>Step 1</strong>: Choose Data Source</p>
 <table>
 <thead>
 <tr>
@@ -1926,7 +1878,7 @@
 <tbody>
 <tr>
 <td>AWS</td>
-<td>S3, RDS, Glue, JDBC</td>
+<td>S3, RDS, Glue, Custom databases，Proxy databases</td>
 </tr>
 <tr>
 <td>Tencent</td>
@@ -1938,9 +1890,16 @@
 </tr>
 </tbody>
 </table>
-</li>
-<li>
-<p><strong>Step 2: Job Settings</strong></p>
+<div class="admonition info">
+<p class="admonition-title">What are AWS CustomDB and ProxyDB?</p>
+<ul>
+<li>If you are scanning within your own account and connecting to a JDBC data source, select CustomDB</li>
+<li>If you added your account using CloudFormation and connected to a JDBC data source, select Custom databases</li>
+<li>If you added your account using JDBC Only and connected to a JDBC data source, select Proxy databases</li>
+</ul>
+</div>
+<p><strong>Step 2</strong>: Select specific database to be scanned</p>
+<p><strong>Step 3</strong>: Job Settings</p>
 <table>
 <thead>
 <tr>
@@ -1956,64 +1915,51 @@
 <td>On-demand<br> Daily<br> Weekly<br> Monthly</td>
 </tr>
 <tr>
-<td>Scan Depth</td>
-<td>Indicates the number of sample rows.</td>
+<td>Sampling Depth</td>
+<td>Indicates the number of sampled rows.</td>
 <td>100 (Recommended)<br> 10, 30, 60, 100, 300, 500, 1000</td>
 </tr>
 <tr>
-<td>Scan Depth - Unstructured Data</td>
-<td>Applies only to S3, samples the number of unstructured files in different folders.</td>
-<td>Can Skip, 10 files, 30 files, All files</td>
+<td>Sampling Depth - Unstructured Data</td>
+<td>Applicable only to S3, the number of unstructured files sampled per folder.</td>
+<td>Skip, 10 files, 30 files, All files</td>
 </tr>
 <tr>
 <td>Scan Scope</td>
-<td>Defines the overall scan scope of the target data source.<br> "Full Scan" scans all target data sources.<br> "Incremental Scan" skips data sources unchanged since the last data catalog update.</td>
-<td>Full Scan<br> Incremental Scan (Recommended)</td>
+<td>Defines the overall scan scope of the target data source. <br> "Comprehensive Scan" means scanning all target data sources. <br> "Incremental Scan" means skipping data sources unchanged since the last data directory update.</td>
+<td>Comprehensive Scan<br> Incremental Scan (Recommended)</td>
 </tr>
 <tr>
 <td>Detection Threshold</td>
-<td>Defines the job's tolerance level required. If the scan depth is 1000 rows, a 10% threshold means that if more than 100 rows (out of 1000) match the identifier rules, the column will be marked as sensitive. A lower threshold indicates lower tolerance for sensitive data.</td>
+<td>Defines the tolerance level required for the job. If the sampling depth is 1000 rows, a threshold of 10% means if more than 100 rows (out of 1000 rows) match the identifier rules, the column will be flagged as sensitive. A lower threshold indicates lower tolerance.</td>
 <td>10% (Recommended)<br> 20%<br> 30%<br> 40%<br> 50%<br> 100%</td>
 </tr>
 <tr>
-<td>Override Manual Privacy Labels</td>
-<td>Choose whether to allow this job to use job results to override privacy labels in the data catalog.</td>
-<td>Do Not Override (Recommended)<br> Override</td>
+<td>Overwrite Privacy Tags Manually Updated</td>
+<td>Choose whether to allow the job to overwrite data directory privacy tags with job results.</td>
+<td>Do Not Overwrite (Recommended)<br> Overwrite</td>
 </tr>
 </tbody>
 </table>
-</li>
-<li>
-<p><strong>Step 3: Advanced Configuration</strong></p>
-</li>
-<li>
-<p><strong>Step 4: Job Preview</strong></p>
-</li>
-</ul>
-</li>
-<li>
-<p>After previewing the job, select <strong>Run Job</strong>.</p>
-</li>
-</ol>
-<h3 id="about-incremental-scanning">About Incremental Scanning:</h3>
-<p>When the "Incremental Scan" setting is selected in the job, the scanning logic for S3 and RDS is slightly different, as follows:</p>
-<p>S3: When there is any change to an S3 object, the incremental scan will scan the Folder level of that path.</p>
+<p><strong>Step 4</strong>: Advanced Configuration Items
+<strong>Step 5</strong>: Job Preview
+    After previewing the job, select <strong>Run Job</strong>.</p>
+<hr />
+<h3 id="about-incremental-scan">About Incremental Scan:</h3>
+<p>When choosing "Incremental Scan" in the job settings, the scan logic for S3 and RDS differs slightly as follows:</p>
+<p>S3: When any changes occur in S3 objects, the incremental scan scans at the folder level.</p>
 <ul>
 <li>
-<p>For example: there is 1 bucket with 3 folders, each containing a CSV file with a different schema. When the schema of the files in 1 folder is changed, during incremental scanning, the job will only scan the CSV files in that folder, not the other 2 folders.</p>
+<p>Example: With 1 bucket and 3 folders, each containing a CSV file (with different schemas), if the schema of one folder's file changes, the job will only scan the CSV files in that folder during incremental scanning, skipping the other 2 folders.</p>
 </li>
 <li>
-<p>For example: there is 1 bucket with 3 folders, each containing a CSV file with a different schema. When the schema of the files in 1 folder remains the same but the number of rows is increased or the file is updated in any way, during incremental scanning, the job will only scan the CSV files in that folder, not the other 2 folders.</p>
+<p>Example: With 1 bucket and 3 folders, each containing a CSV file (with different schemas), if there are no schema changes but additional rows are added or any file updates occur in one folder, the job will only scan the CSV files in that folder during incremental scanning, skipping the other 2 folders.</p>
 </li>
 </ul>
-<p>RDS: Only when there is a column-level change to an RDS table will the incremental scan scan that table.</p>
+<p>RDS: Only when there are column-level changes in RDS tables does the incremental scan scan the table.</p>
 <ul>
-<li>
-<p>For example: there is 1 RDS instance with 3 tables. When the schema of 1 table is changed (a column is added or deleted), during incremental scanning, only that table will be scanned, and the other two tables will be skipped.</p>
-</li>
-<li>
-<p>For example: there is 1 RDS instance with 3 tables. When the schema of 1 table remains the same but rows are added or deleted, during incremental scanning, none of the 3 tables will be scanned.</p>
-</li>
+<li>Example: With 1 RDS instance and 3 tables, if the schema of one table changes (adding or deleting columns), the job will only scan that table during incremental scanning, skipping the other 2 tables.</li>
+<li>Example: With 1 RDS instance and 3 tables, if there are no schema changes but rows are added/deleted, none of these 3 tables will be scanned during incremental scanning.</li>
 </ul>
 
 
@@ -2059,7 +2005,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": "develop"}</script>
     
     
-      <script src="../../assets/javascripts/bundle.dd8806f2.min.js"></script>
+      <script src="../../assets/javascripts/bundle.ad660dcc.min.js"></script>
       
     
   </body>

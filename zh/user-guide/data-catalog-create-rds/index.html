@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="https://s3.cn-north-1.amazonaws.com.cn/aws-assets-prod/libra-css/images/site/fav/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.19">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.26">
     
     
       
@@ -28,7 +28,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.66ac8b77.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.6543a935.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -204,7 +204,7 @@
       
     </form>
     <div class="md-search__output">
-      <div class="md-search__scrollwrap" data-md-scrollfix>
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
             正在初始化搜索引擎
@@ -1059,48 +1059,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../data-catalog-create-jdbc-redshift/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    连接JDBC(Redshift)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../data-catalog-create-jdbc-database-proxy/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    连接JDBC(RDS Proxy)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -1500,7 +1458,7 @@
         
   
   <span class="md-ellipsis">
-    附录：创建数据库代理
+    附录：创建、配置数据库代理
   </span>
   
 
@@ -1906,7 +1864,7 @@
 <h1 id="-rds">连接到数据源 - RDS</h1>
 <h3 id="-">前提条件 - 保持网络连通性</h3>
 <ol>
-<li>请确认您<a href="../data-source/">添加AWS账户</a>时，选择的是CloudFormation方式。如果您添加账户时，选择JDBC方式，请转至<a href="../data-catalog-create-jdbc-database-proxy/">通过EC2代理连接数据库</a>进行操作。</li>
+<li>请确认您<a href="../data-source/">添加AWS账户</a>时，选择的是CloudFormation方式。如果您添加账户时，选择JDBC方式，请转至<a href="data-catalog-create-jdbc-database-proxy.md">通过EC2代理连接数据库</a>进行操作。</li>
 <li>请确保待检测RDS的inbound rule上有所在安全组的自引用, 操作详见<a href="https://docs.aws.amazon.com/glue/latest/dg/setup-vpc-for-glue-access.html">官网文档</a>。</li>
 <li>请确保Amazon RDS 实例所在VPC至少要有1个私有子网，</li>
 <li>请确保RDS所在VPC满足以下条件之一： 1） 它具有 <a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html">VPC NAT 网关</a>。
@@ -1995,7 +1953,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": "develop"}</script>
     
     
-      <script src="../../assets/javascripts/bundle.dd8806f2.min.js"></script>
+      <script src="../../assets/javascripts/bundle.ad660dcc.min.js"></script>
       
     
   </body>
