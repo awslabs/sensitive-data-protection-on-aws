@@ -5,7 +5,7 @@ mangum==0.17.0
 sqlalchemy==1.4.44
 fastapi-pagination==0.12.11
 openpyxl==3.0.10
-pymysql==1.0.2
+pymysql==1.1.1
 sqlakeyset==1.0.1659142803
 requests==2.31.0
 urllib3==1.26.18
