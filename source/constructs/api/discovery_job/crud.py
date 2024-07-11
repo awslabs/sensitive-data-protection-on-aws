@@ -166,6 +166,8 @@ def init_run(job_id: int) -> int:
         __add_job_databases(run, DatabaseType.GLUE.value, base_time_dict)
     if job.all_jdbc == 1:
         __add_job_databases(run, job.database_type, base_time_dict)
+    if job.database_type == 's3_log':
+        __add_job_databases(run, 's3_log', base_time_dict)
     for job_database in job_databases:
         if is_empty(job_database.database_name) and is_empty(job_database.table_name):
             catalog_databases = get_catalog_database_level_classification_by_params(job_database.account_id,job_database.region,job_database.database_type).all()

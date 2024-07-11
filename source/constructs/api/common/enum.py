@@ -187,6 +187,7 @@ class DatabaseType(Enum):
     JDBC_ALIYUN = "jdbc_aliyun"
     JDBC_GOOGLE = "jdbc_google"
     JDBC_PROXY = "jdbc_proxy"
+    S3_LOG = "s3_log"
 
 
 @unique
@@ -347,6 +348,7 @@ class DataSourceType(str, Enum):
     glue_database = "glue_database"
     jdbc = "jdbc"
     all = "all"
+    s3_log = "s3_log"
 
 @unique
 class JDBCCreateType(Enum):
