@@ -67,7 +67,7 @@ const SelectProvider: React.FC<SelectProviderProps> = (
 
   const buildIconName = (e: SelectProps.Option) => {
     if (e.value === SOURCE_TYPE.S3_BANK_CARD) {
-      return 's3';
+      return 's3log';
     }
     return e?.value?.startsWith('jdbc') ? 'db' : e.value;
   };
@@ -79,7 +79,7 @@ const SelectProvider: React.FC<SelectProviderProps> = (
           ...e,
           image: (
             <img
-              width="50%"
+              width={buildIconName(e) === 's3log' ? '80%' : '50%'}
               src={`/logos/source/${buildIconName(e)}.svg`}
               alt={e.label}
             />

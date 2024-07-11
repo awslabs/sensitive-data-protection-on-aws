@@ -437,7 +437,7 @@ const GlueJobContent = () => {
               {jobData?.database_type === SOURCE_TYPE.S3_BANK_CARD ? (
                 <>
                   <p className="p-title">{t('catalog:detail.identifier')}</p>
-                  <p>LUHN_ADVANCED_BANK_CARD</p>
+                  <p>LUHN_ADVANCED_BANKCARD</p>
                 </>
               ) : (
                 <>
