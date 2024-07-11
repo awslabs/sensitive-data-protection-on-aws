@@ -117,9 +117,12 @@ const JobPreview: React.FC<JobPreviewProps> = (props: JobPreviewProps) => {
         <FormField label={t('job:create.desc')}>
           <span>{jobData.description}</span>
         </FormField>
-        <FormField label={t('job:create.dataClassfiyTmpl')}>
-          <span>{jobData.templateObj?.label}</span>
-        </FormField>
+        {jobData.database_type !== SOURCE_TYPE.S3_BANK_CARD && (
+          <FormField label={t('job:create.dataClassfiyTmpl')}>
+            <span>{jobData.templateObj?.label}</span>
+          </FormField>
+        )}
+
         <FormField label={t('job:create.scanFreq')}>
           <span>
             {jobData.frequencyType.toUpperCase()}{' '}
@@ -131,29 +134,33 @@ const JobPreview: React.FC<JobPreviewProps> = (props: JobPreviewProps) => {
             )}
           </span>
         </FormField>
-        <FormField label={t('job:create.scanDepth')}>
-          <span>{jobData.scanDepthObj?.label}</span>
-        </FormField>
-        <FormField label={t('job:create.scanRange')}>
-          <span>{jobData.scanRangeObj?.label}</span>
-        </FormField>
-        <FormField label={t('job:create.detectionThreshold')}>
-          <span>{jobData.detectionThresholdObj?.label}</span>
-        </FormField>
-        <FormField label={t('job:create.override')}>
-          <span>{jobData?.overrideObj?.label}</span>
-        </FormField>
-        <FormField label={t('job:create.excludeKeywords')}>
-          <span>
-            <pre>{jobData.exclude_keywords}</pre>
-          </span>
-        </FormField>
-        <FormField label={t('job:create.includeKeywords')}>
-          <span>
-            <pre>{jobData.include_keywords}</pre>
-          </span>
-        </FormField>
-        {jobData.database_type === SOURCE_TYPE.S3 && (
+        {jobData.database_type !== SOURCE_TYPE.S3_BANK_CARD && (
+          <>
+            <FormField label={t('job:create.scanDepth')}>
+              <span>{jobData.scanDepthObj?.label}</span>
+            </FormField>
+            <FormField label={t('job:create.scanRange')}>
+              <span>{jobData.scanRangeObj?.label}</span>
+            </FormField>
+            <FormField label={t('job:create.detectionThreshold')}>
+              <span>{jobData.detectionThresholdObj?.label}</span>
+            </FormField>
+            <FormField label={t('job:create.override')}>
+              <span>{jobData?.overrideObj?.label}</span>
+            </FormField>
+            <FormField label={t('job:create.excludeKeywords')}>
+              <span>
+                <pre>{jobData.exclude_keywords}</pre>
+              </span>
+            </FormField>
+            <FormField label={t('job:create.includeKeywords')}>
+              <span>
+                <pre>{jobData.include_keywords}</pre>
+              </span>
+            </FormField>
+          </>
+        )}
+        {jobData.database_type.startsWith('s3') && (
           <>
             <FormField label={t('job:create.excludeFile')}>
               <span>

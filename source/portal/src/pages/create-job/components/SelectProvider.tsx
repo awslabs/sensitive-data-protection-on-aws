@@ -2,6 +2,7 @@ import {
   Container,
   FormField,
   Header,
+  SelectProps,
   SpaceBetween,
   Spinner,
   Tiles,
@@ -9,7 +10,7 @@ import {
 } from '@cloudscape-design/components';
 import { getSourceProviders } from 'apis/data-source/api';
 import { ProviderType } from 'common/ProviderTab';
-import { getSourceTypeByProvider } from 'enum/common_types';
+import { getSourceTypeByProvider, SOURCE_TYPE } from 'enum/common_types';
 import { IJobType } from 'pages/data-job/types/job_list_type';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -64,6 +65,13 @@ const SelectProvider: React.FC<SelectProviderProps> = (
     setLoadingProvider(false);
   };
 
+  const buildIconName = (e: SelectProps.Option) => {
+    if (e.value === SOURCE_TYPE.S3_BANK_CARD) {
+      return 's3';
+    }
+    return e?.value?.startsWith('jdbc') ? 'db' : e.value;
+  };
+
   useEffect(() => {
     const sourceOptionList = getSourceTypeByProvider(jobData.provider_id).map(
       (e) => {
@@ -72,9 +80,7 @@ const SelectProvider: React.FC<SelectProviderProps> = (
           image: (
             <img
               width="50%"
-              src={`/logos/source/${
-                e.value.startsWith('jdbc') ? 'db' : e.value
-              }.svg`}
+              src={`/logos/source/${buildIconName(e)}.svg`}
               alt={e.label}
             />
           ),

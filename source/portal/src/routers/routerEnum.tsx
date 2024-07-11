@@ -20,7 +20,7 @@ interface RouterEnumType {
 }
 
 export const RouterEnum: Record<string, RouterEnumType> = {
-  Home: { path: '/', element: <Home /> },
+  Home: { path: '/', element: <AccountManagement /> },
   Catalog: { path: '/catalog', element: <DataCatalogList /> },
   Datajob: { path: '/datajob', element: <DataJob /> },
   Datatemplate: { path: '/datatemplate', element: <DataTemplate /> },

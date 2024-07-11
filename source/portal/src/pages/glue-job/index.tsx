@@ -36,7 +36,11 @@ import { alertMsg, formatTime, useDidUpdateEffect } from 'tools/tools';
 import { useTranslation } from 'react-i18next';
 import HelpInfo from 'common/HelpInfo';
 import { buildDocLink } from 'ts/common';
-import { getProviderByProviderId, getSourceByJob } from 'enum/common_types';
+import {
+  getProviderByProviderId,
+  getSourceByJob,
+  SOURCE_TYPE,
+} from 'enum/common_types';
 import GlueJobCatalog from './componments/GlueJobCatalog';
 
 interface ProgressType {
@@ -59,6 +63,11 @@ const GULE_JOB_COLUMN = [
     filter: true,
   },
   {
+    id: 'privacy',
+    label: 'table.label.privacy',
+    filter: true,
+  },
+  {
     id: 'account_id',
     label: 'table.label.awsAccount',
     filter: true,
@@ -71,11 +80,6 @@ const GULE_JOB_COLUMN = [
   {
     id: 'database_name',
     label: 'table.label.dataCatalog',
-    filter: true,
-  },
-  {
-    id: 'database_link',
-    label: 'table.label.link',
     filter: true,
   },
   {
@@ -430,30 +434,40 @@ const GlueJobContent = () => {
               </p>
             </div>
             <div className="job-header-run">
-              <p className="p-title">
-                {t('job:detail.classificationSnapshot')}
-              </p>
-              <p>
-                {downloading ? (
-                  <Spinner />
-                ) : (
-                  <>
-                    <Icon name="download" />
-                    &nbsp;&nbsp;
-                    <span
-                      className="job-name"
-                      onClick={() =>
-                        clkDownloadTemplate(
-                          jobDetailData.id,
-                          jobDetailData.job_id
-                        )
-                      }
-                    >
-                      {t('button.downloadSnapshot')}
-                    </span>
-                  </>
-                )}
-              </p>
+              {jobData?.database_type === SOURCE_TYPE.S3_BANK_CARD ? (
+                <>
+                  <p className="p-title">{t('catalog:detail.identifier')}</p>
+                  <p>LUHN_ADVANCED_BANK_CARD</p>
+                </>
+              ) : (
+                <>
+                  <p className="p-title">
+                    {t('job:detail.classificationSnapshot')}
+                  </p>
+                  <p>
+                    {downloading ? (
+                      <Spinner />
+                    ) : (
+                      <>
+                        <Icon name="download" />
+                        &nbsp;&nbsp;
+                        <span
+                          className="job-name"
+                          onClick={() =>
+                            clkDownloadTemplate(
+                              jobDetailData.id,
+                              jobDetailData.job_id
+                            )
+                          }
+                        >
+                          {t('button.downloadSnapshot')}
+                        </span>
+                      </>
+                    )}
+                  </p>
+                </>
+              )}
+
               <p className="p-title">{t('job:detail.glueJobStatus')}</p>
               <HorizontalBarChart chartData={processData} />
             </div>

@@ -66,6 +66,7 @@ export const SOURCE_TYPE = {
   JDBC_ALIYUN: 'jdbc_aliyun',
   JDBC_GOOGLE: 'jdbc_google',
   JDBC_PROXY: 'jdbc_proxy',
+  S3_BANK_CARD: 's3_log',
 };
 
 export const getProviderByProviderId = (providerId: number | string) => {
@@ -81,13 +82,17 @@ export const getProviderByProviderId = (providerId: number | string) => {
       return { name: 'Google Cloud' };
     case 4:
       return { name: 'AWS' };
+    case 5:
+      return { name: 'AWS' };
     default:
       return { name: '-' };
   }
 };
 
 export const getSourceByJob = (jobData: any) => {
-  if (jobData?.database_type?.startsWith(SOURCE_TYPE.JDBC)) {
+  if (jobData?.database_type === SOURCE_TYPE.S3_BANK_CARD) {
+    return 'S3 (Optimized for Bank Card)';
+  } else if (jobData?.database_type?.startsWith(SOURCE_TYPE.JDBC)) {
     return 'JDBC';
   } else if (jobData?.database_type) {
     return jobData?.database_type?.toUpperCase();
@@ -106,6 +111,8 @@ export const getJDBCTypeByProviderId = (providerId: number) => {
       return SOURCE_TYPE.JDBC_GOOGLE;
     case 4:
       return SOURCE_TYPE.JDBC_PROXY;
+    case 5:
+      return SOURCE_TYPE.S3_BANK_CARD;
     default:
       return SOURCE_TYPE.JDBC;
   }
@@ -124,9 +131,7 @@ export const getSourceTypeByProvider = (providerId: string | number) => {
           label: 'Amazon RDS',
           value: SOURCE_TYPE.RDS,
         },
-        { label: 'Glue data catalogs',
-          value: SOURCE_TYPE.GLUE 
-        },
+        { label: 'Glue data catalogs', value: SOURCE_TYPE.GLUE },
         {
           label: 'Custom databases',
           value: SOURCE_TYPE.JDBC_AWS,
@@ -134,6 +139,10 @@ export const getSourceTypeByProvider = (providerId: string | number) => {
         {
           label: 'Proxy databases',
           value: SOURCE_TYPE.JDBC_PROXY,
+        },
+        {
+          label: 'Amazon S3 (Optimized for Bank Card)',
+          value: SOURCE_TYPE.S3_BANK_CARD,
         },
       ];
     case '2':

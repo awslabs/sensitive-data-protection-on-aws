@@ -162,41 +162,44 @@ const JobSettings: React.FC<JobSettingsProps> = (props: JobSettingsProps) => {
           </FormField>
         </SpaceBetween>
       </Container>
-      <Container
-        header={
-          <Header variant="h2">{t('job:create.dataClassfiyTmpl')}</Header>
-        }
-      >
-        <FormField
-          label={t('job:create.dataClassfiyTmpl')}
-          info={
-            <Popover
-              dismissButton={false}
-              position="right"
-              size="large"
-              content={
-                <StatusIndicator type="info">
-                  {t('job:create.dataClassfiyTmplPop1')}
-                  <p>{t('job:create.dataClassfiyTmplPop2')}</p>
-                  <p>{t('job:create.dataClassfiyTmplPop3')}</p>
-                </StatusIndicator>
-              }
-            >
-              <b className="title-info">{t('info')}</b>
-            </Popover>
+
+      {jobData.database_type !== SOURCE_TYPE.S3_BANK_CARD && (
+        <Container
+          header={
+            <Header variant="h2">{t('job:create.dataClassfiyTmpl')}</Header>
           }
         >
-          <Select
-            selectedOption={jobData.templateObj}
-            onChange={(select) => {
-              changeTemplateObj(select.detail.selectedOption);
-            }}
-            triggerVariant="option"
-            options={[DEFAULT_TEMPLATE]}
-            placeholder={t('job:create.classifyTmplForPrivacy') ?? ''}
-          ></Select>
-        </FormField>
-      </Container>
+          <FormField
+            label={t('job:create.dataClassfiyTmpl')}
+            info={
+              <Popover
+                dismissButton={false}
+                position="right"
+                size="large"
+                content={
+                  <StatusIndicator type="info">
+                    {t('job:create.dataClassfiyTmplPop1')}
+                    <p>{t('job:create.dataClassfiyTmplPop2')}</p>
+                    <p>{t('job:create.dataClassfiyTmplPop3')}</p>
+                  </StatusIndicator>
+                }
+              >
+                <b className="title-info">{t('info')}</b>
+              </Popover>
+            }
+          >
+            <Select
+              selectedOption={jobData.templateObj}
+              onChange={(select) => {
+                changeTemplateObj(select.detail.selectedOption);
+              }}
+              triggerVariant="option"
+              options={[DEFAULT_TEMPLATE]}
+              placeholder={t('job:create.classifyTmplForPrivacy') ?? ''}
+            ></Select>
+          </FormField>
+        </Container>
+      )}
 
       <Container
         header={<Header variant="h2">{t('job:create.jobSettings')}</Header>}
@@ -363,8 +366,44 @@ const JobSettings: React.FC<JobSettingsProps> = (props: JobSettingsProps) => {
             </>
           ) : (
             <>
+              {jobData.database_type !== SOURCE_TYPE.S3_BANK_CARD && (
+                <FormField
+                  label={t('job:create.scanDepth')}
+                  info={
+                    <Popover
+                      dismissButton={false}
+                      position="right"
+                      size="large"
+                      content={
+                        <StatusIndicator type="info">
+                          {t('job:create.scanDepthPop1')}
+                          <p>{t('job:create.scanDepthPop2')}</p>
+                        </StatusIndicator>
+                      }
+                    >
+                      <b className="title-info">{t('info')}</b>
+                    </Popover>
+                  }
+                >
+                  <Select
+                    selectedOption={jobData.scanDepthObj}
+                    onChange={(select) => {
+                      changeScanDepthObj(select.detail.selectedOption);
+                    }}
+                    triggerVariant="option"
+                    options={SCAN_DEPTH_OPTIONS}
+                    selectedAriaLabel={t('selected') ?? ''}
+                    placeholder={t('job:create.scanDepthPlaceholder') ?? ''}
+                  ></Select>
+                </FormField>
+              )}
+            </>
+          )}
+
+          {jobData.database_type !== SOURCE_TYPE.S3_BANK_CARD && (
+            <>
               <FormField
-                label={t('job:create.scanDepth')}
+                label={t('job:create.scanRange')}
                 info={
                   <Popover
                     dismissButton={false}
@@ -372,8 +411,8 @@ const JobSettings: React.FC<JobSettingsProps> = (props: JobSettingsProps) => {
                     size="large"
                     content={
                       <StatusIndicator type="info">
-                        {t('job:create.scanDepthPop1')}
-                        <p>{t('job:create.scanDepthPop2')}</p>
+                        {t('job:create.scanRangePop1')}
+                        <p>{t('job:create.scanRangePop2')}</p>
                       </StatusIndicator>
                     }
                   >
@@ -382,88 +421,60 @@ const JobSettings: React.FC<JobSettingsProps> = (props: JobSettingsProps) => {
                 }
               >
                 <Select
-                  selectedOption={jobData.scanDepthObj}
+                  selectedOption={jobData.scanRangeObj}
                   onChange={(select) => {
-                    changeScanDepthObj(select.detail.selectedOption);
+                    changeScanRangeObj(select.detail.selectedOption);
                   }}
                   triggerVariant="option"
-                  options={SCAN_DEPTH_OPTIONS}
+                  options={SCAN_RANGE_OPTIONS}
                   selectedAriaLabel={t('selected') ?? ''}
-                  placeholder={t('job:create.scanDepthPlaceholder') ?? ''}
+                  placeholder={t('job:create.scanRangePlaceholder') ?? ''}
+                ></Select>
+              </FormField>
+              <FormField
+                label={t('job:create.detectionThreshold')}
+                info={
+                  <Popover
+                    dismissButton={false}
+                    position="right"
+                    size="large"
+                    content={
+                      <StatusIndicator type="info">
+                        {t('job:create.detectionThresholdPop1')}
+                        <p>{t('job:create.detectionThresholdPop2')}</p>
+                      </StatusIndicator>
+                    }
+                  >
+                    <b className="title-info">{t('info')}</b>
+                  </Popover>
+                }
+              >
+                <Select
+                  selectedOption={jobData.detectionThresholdObj}
+                  onChange={(select) => {
+                    changeDetectionThresholdObj(select.detail.selectedOption);
+                  }}
+                  triggerVariant="option"
+                  options={DETECTION_THRESHOLD_OPTIONS}
+                  selectedAriaLabel={t('selected') ?? ''}
+                  placeholder={
+                    t('job:create.detectionThresholdPlaceholder') ?? ''
+                  }
+                ></Select>
+              </FormField>
+              <FormField label={t('job:create.override')}>
+                <Select
+                  selectedOption={jobData.overrideObj}
+                  onChange={(select) => {
+                    changeOverrideObj(select.detail.selectedOption);
+                  }}
+                  triggerVariant="option"
+                  options={OVERRIDE_OPTIONS}
+                  selectedAriaLabel={t('selected') ?? ''}
                 ></Select>
               </FormField>
             </>
           )}
-
-          <FormField
-            label={t('job:create.scanRange')}
-            info={
-              <Popover
-                dismissButton={false}
-                position="right"
-                size="large"
-                content={
-                  <StatusIndicator type="info">
-                    {t('job:create.scanRangePop1')}
-                    <p>{t('job:create.scanRangePop2')}</p>
-                  </StatusIndicator>
-                }
-              >
-                <b className="title-info">{t('info')}</b>
-              </Popover>
-            }
-          >
-            <Select
-              selectedOption={jobData.scanRangeObj}
-              onChange={(select) => {
-                changeScanRangeObj(select.detail.selectedOption);
-              }}
-              triggerVariant="option"
-              options={SCAN_RANGE_OPTIONS}
-              selectedAriaLabel={t('selected') ?? ''}
-              placeholder={t('job:create.scanRangePlaceholder') ?? ''}
-            ></Select>
-          </FormField>
-          <FormField
-            label={t('job:create.detectionThreshold')}
-            info={
-              <Popover
-                dismissButton={false}
-                position="right"
-                size="large"
-                content={
-                  <StatusIndicator type="info">
-                    {t('job:create.detectionThresholdPop1')}
-                    <p>{t('job:create.detectionThresholdPop2')}</p>
-                  </StatusIndicator>
-                }
-              >
-                <b className="title-info">{t('info')}</b>
-              </Popover>
-            }
-          >
-            <Select
-              selectedOption={jobData.detectionThresholdObj}
-              onChange={(select) => {
-                changeDetectionThresholdObj(select.detail.selectedOption);
-              }}
-              triggerVariant="option"
-              options={DETECTION_THRESHOLD_OPTIONS}
-              selectedAriaLabel={t('selected') ?? ''}
-              placeholder={t('job:create.detectionThresholdPlaceholder') ?? ''}
-            ></Select>
-          </FormField>
-          <FormField label={t('job:create.override')}>
-            <Select
-              selectedOption={jobData.overrideObj}
-              onChange={(select) => {
-                changeOverrideObj(select.detail.selectedOption);
-              }}
-              triggerVariant="option"
-              options={OVERRIDE_OPTIONS}
-              selectedAriaLabel={t('selected') ?? ''}
-            ></Select>
-          </FormField>
         </SpaceBetween>
       </Container>
     </SpaceBetween>

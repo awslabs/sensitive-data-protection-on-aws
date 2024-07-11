@@ -371,11 +371,11 @@ const CreateJobContent = () => {
                   });
                 }}
                 changeDataSource={(sId) => {
-                  sessionStorage[CACHE_CONDITION_KEY]=JSON.stringify({
+                  sessionStorage[CACHE_CONDITION_KEY] = JSON.stringify({
                     column: 'database_type',
-                    condition: "and",
-                    operation: "in",
-                    values: [sId]
+                    condition: 'and',
+                    operation: 'in',
+                    values: [sId],
                   });
                   setJobData((prev) => {
                     return {
@@ -395,7 +395,7 @@ const CreateJobContent = () => {
             title: t('job:create.selectDataCatalog'),
             content: (
               <>
-                {jobData.database_type === SOURCE_TYPE.S3 && (
+                {jobData.database_type.startsWith('s3') && (
                   <SelectS3Catalog
                     jobData={jobData}
                     changeSelectType={(type) => {

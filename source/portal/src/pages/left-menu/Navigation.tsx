@@ -17,18 +17,18 @@ const Navigation: React.FC<INavigationProps> = (props: INavigationProps) => {
   const { t, i18n } = useTranslation();
   const navHeader = { text: t('solution.title'), href: RouterEnum.Home.path };
   const navItems: SideNavigationProps.Item[] = [
-    {
-      type: 'section',
-      text: t('nav.summary'),
-      items: [
-        { type: 'link', text: t('nav.summary'), href: RouterEnum.Home.path },
-        {
-          type: 'link',
-          text: t('nav.browserCatalog'),
-          href: RouterEnum.Catalog.path,
-        },
-      ],
-    },
+    // {
+    //   type: 'section',
+    //   text: t('nav.summary'),
+    //   items: [
+    //     { type: 'link', text: t('nav.summary'), href: RouterEnum.Home.path },
+    //     {
+    //       type: 'link',
+    //       text: t('nav.browserCatalog'),
+    //       href: RouterEnum.Catalog.path,
+    //     },
+    //   ],
+    // },
 
     {
       type: 'section',
