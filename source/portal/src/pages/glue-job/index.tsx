@@ -19,6 +19,7 @@ import CommonBadge from 'pages/common-badge';
 import {
   BADGE_TYPE,
   CLSAAIFIED_TYPE,
+  PRIVARY_TYPE_INT_DATA,
 } from 'pages/common-badge/types/badge_type';
 import moment from 'moment';
 import {
@@ -516,6 +517,22 @@ const GlueJobContent = () => {
                         databaseName={(e as any).database_name}
                         databaseType={(e as any).database_type}
                         providerId={jobData.provider_id}
+                      />
+                    );
+                  }
+                  if (item.id === 'privacy') {
+                    if (
+                      (e as any)[item.id] &&
+                      ((e as any)[item.id] === 'N/A' ||
+                        (e as any)[item.id].toString() ===
+                          PRIVARY_TYPE_INT_DATA['N/A'])
+                    ) {
+                      return 'N/A';
+                    }
+                    return (
+                      <CommonBadge
+                        badgeType={BADGE_TYPE.Privacy}
+                        badgeLabel={(e as any)[item.id]}
                       />
                     );
                   }
