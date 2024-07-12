@@ -11,6 +11,7 @@ from common.constant import const
 import uuid
 import datetime
 from catalog.crud import get_catalog_database_level_classification_by_type_all,get_catalog_database_level_classification_by_params
+import db.models_catalog as catalog_models
 from template.service import get_template_snapshot_no
 from tools.str_tool import is_empty
 
@@ -218,8 +219,39 @@ def list_run_databases(run_id: int) -> list[models.DiscoveryJobRunDatabase]:
 
 
 def list_run_databases_pagination(run_id: int, condition: QueryCondition):
-    return query_with_condition(get_session().query(models.DiscoveryJobRunDatabase).filter(
-            models.DiscoveryJobRunDatabase.run_id == run_id), condition)
+    dbs = get_session().query(models.DiscoveryJobRunDatabase).filter(
+        models.DiscoveryJobRunDatabase.run_id == run_id).all()
+
+    dbs_with_privacy = []
+    for db in dbs:
+        p = 0
+        try:
+            cs = get_session().query(catalog_models.CatalogDatabaseLevelClassification).filter(
+                catalog_models.CatalogDatabaseLevelClassification.database_name == db.database_name).top()
+            p = cs.privacy
+        except Exception:
+            pass
+
+        db_with_privacy = schemas.DiscoveryJobRunDatabaseWithPrivacyBase(
+            run_id=db.run_id,
+            account_id=db.account_id,
+            region=db.region,
+            database_type=db.database_type,
+            database_name=db.database_name,
+            table_name=db.table_name,
+            base_time=db.base_time,
+            start_time=db.start_time,
+            end_time=db.end_time,
+            state=db.state,
+            error_log=db.error_log,
+            privacy=p
+        )
+
+        dbs_with_privacy.append(db_with_privacy)
+
+    return {
+        "items": dbs_with_privacy
+    }
 
 
 def save_run_database(run_database: models.DiscoveryJobRunDatabase):

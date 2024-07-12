@@ -92,7 +92,7 @@ def get_run(id: int, run_id: int):
     return service.get_run(run_id)
 
 
-@router.post("/{id}/runs/{run_id}/databases", response_model=BaseResponse[Page[schemas.DiscoveryJobRunDatabaseList]])
+@router.post("/{id}/runs/{run_id}/databases", response_model=BaseResponse)
 @inject_session
 def list_run_databases(id: int, run_id: int, condition: QueryCondition):
     return paginate(service.list_run_databases_pagination(run_id, condition), Params(

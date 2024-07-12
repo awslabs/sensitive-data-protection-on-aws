@@ -17,6 +17,25 @@ class DiscoveryJobRunDatabaseBase(BaseModel):
     state: Optional[str]
     error_log: Optional[str]
 
+class DiscoveryJobRunDatabaseWithPrivacyBase(BaseModel):
+    run_id: int
+    account_id: str
+    region: str
+    database_type: Optional[str]
+    privacy: Optional[str] = '0'
+    database_name: Optional[str]
+    table_name: Optional[str]
+    base_time: Optional[datetime.datetime]
+    start_time: Optional[datetime.datetime]
+    end_time: Optional[datetime.datetime]
+    state: Optional[str]
+    error_log: Optional[str]
+
+class DiscoveryJobRunDatabaseWithPrivacyList(DiscoveryJobRunDatabaseWithPrivacyBase):
+    id: int
+
+    class Config:
+        orm_mode = True
 
 class DiscoveryJobRunDatabaseUpdate(BaseModel):
     end_time: Optional[datetime.datetime]
