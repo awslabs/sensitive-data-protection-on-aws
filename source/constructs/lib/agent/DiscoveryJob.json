@@ -11,10 +11,20 @@
               "Type": "Choice",
               "Choices": [
                 {
-                  "Not": {
-                    "Variable": "$.DepthStructured",
-                    "StringEquals": "0"
-                  },
+                  "And": [
+                    {
+                      "Not": {
+                        "Variable": "$.DepthStructured",
+                        "StringEquals": "0"
+                      }
+                    },
+                    {
+                      "Not": {
+                        "Variable": "$.DatabaseType",
+                        "StringEquals": "s3_log"
+                      }
+                    }
+                  ],
                   "Next": "NeedRunCrawler"
                 }
               ],
@@ -325,6 +335,12 @@
                         "Variable": "$.DepthUnstructured",
                         "StringEquals": "0"
                       }
+                    },
+                    {
+                      "Not": {
+                        "Variable": "$.DatabaseType",
+                        "StringEquals": "s3_log"
+                      }
                     }
                   ],
                   "Next": "GetAgentBucketName"
@@ -630,6 +646,261 @@
               "ResultPath": "$.Result"
             },
             "Unstructured Job Failed": {
+              "Type": "Pass",
+              "ResultPath": "$.Result",
+              "Result": {
+                "State": "Failed",
+                "Message": "ProcessingJob is failed."
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "S3Logs",
+          "States": {
+            "S3Logs": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.DatabaseType",
+                  "StringEquals": "s3_log",
+                  "Next": "GetAgentBucketNameS3Log"
+                }
+              ]
+            },
+            "GetAgentBucketNameS3Log": {
+              "Type": "Task",
+              "Next": "BuildProcessingJobParamS3Log",
+              "Parameters": {
+                "Name": "SDPS-AgentBucketName"
+              },
+              "Resource": "arn:${AWS::Partition}:states:::aws-sdk:ssm:getParameter",
+              "ResultPath": "$.AgentBucketName"
+            },
+            "BuildProcessingJobParamS3Log": {
+              "Type": "Parallel",
+              "Next": "SageMaker CreateProcessingJobS3Log",
+              "Branches": [
+                {
+                  "StartAt": "SourceBucketNameKeyS3Log",
+                  "States": {
+                    "SourceBucketNameKeyS3Log": {
+                      "Type": "Pass",
+                      "End": true,
+                      "Result": "--SourceBucketName"
+                    }
+                  }
+                },
+                {
+                  "StartAt": "SourceBucketNameValueS3Log",
+                  "States": {
+                    "SourceBucketNameValueS3Log": {
+                      "Type": "Pass",
+                      "End": true,
+                      "InputPath": "$.DatabaseName"
+                    }
+                  }
+                },
+                {
+                  "StartAt": "ResultBucketNameKeyS3Log",
+                  "States": {
+                    "ResultBucketNameKeyS3Log": {
+                      "Type": "Pass",
+                      "End": true,
+                      "Result": "--ResultBucketName"
+                    }
+                  }
+                },
+                {
+                  "StartAt": "ResultBucketNameValueS3Log",
+                  "States": {
+                    "ResultBucketNameValueS3Log": {
+                      "Type": "Pass",
+                      "End": true,
+                      "InputPath": "$.AgentBucketName.Parameter.Value"
+                    }
+                  }
+                },
+                {
+                  "StartAt": "RegionNameKeyS3Log",
+                  "States": {
+                    "RegionNameKeyS3Log": {
+                      "Type": "Pass",
+                      "End": true,
+                      "Result": "--RegionName"
+                    }
+                  }
+                },
+                {
+                  "StartAt": "RegionNameValueS3Log",
+                  "States": {
+                    "RegionNameValueS3Log": {
+                      "Type": "Pass",
+                      "End": true,
+                      "InputPath": "$.Region"
+                    }
+                  }
+                }
+              ],
+              "ResultPath": "$.ProcessingJobParam"
+            },
+            "SageMaker CreateProcessingJobS3Log": {
+              "Type": "Task",
+              "Resource": "arn:${AWS::Partition}:states:::sagemaker:createProcessingJob",
+              "Parameters": {
+                "AppSpecification": {
+                  "ContainerArguments.$": "$.ProcessingJobParam",
+                  "ContainerEntrypoint": [
+                    "python",
+                    "main.py"
+                  ],
+                  "ImageUri.$": "$.UnstructuredParserJobImageUri"
+                },
+                "ProcessingResources": {
+                  "ClusterConfig": {
+                    "InstanceCount": 1,
+                    "InstanceType": "ml.m5.2xlarge",
+                    "VolumeSizeInGB": 1
+                  }
+                },
+                "RoleArn.$": "$.UnstructuredParserJobRole",
+                "ProcessingJobName.$": "$.RunName"
+              },
+              "Next": "WaitingForProcessingJobS3Log",
+              "ResultPath": "$.CreateProcessingJob"
+            },
+            "WaitingForProcessingJobS3Log": {
+              "Type": "Wait",
+              "Seconds": 30,
+              "Next": "DescribeProcessingJobS3Log"
+            },
+            "DescribeProcessingJobS3Log": {
+              "Type": "Task",
+              "Next": "Job Complete?S3Log",
+              "Parameters": {
+                "ProcessingJobName.$": "$.RunName"
+              },
+              "Resource": "arn:${AWS::Partition}:states:::aws-sdk:sagemaker:describeProcessingJob",
+              "ResultPath": "$.GetProcessingJob"
+            },
+            "Job Complete?S3Log": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.GetProcessingJob.ProcessingJobStatus",
+                  "StringEquals": "Completed",
+                  "Next": "SplitJobUnstructuredS3Log"
+                },
+                {
+                  "Variable": "$.GetProcessingJob.ProcessingJobStatus",
+                  "StringEquals": "Failed",
+                  "Next": "Unstructured Job FailedS3Log"
+                }
+              ],
+              "Default": "WaitingForProcessingJobS3Log"
+            },
+            "SplitJobUnstructuredS3Log": {
+              "Type": "Task",
+              "Resource": "arn:${AWS::Partition}:states:::lambda:invoke",
+              "OutputPath": "$.Payload",
+              "Parameters": {
+                "Payload.$": "$",
+                "FunctionName": "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:SDPS-LogDetectionTestSplitJob:$LATEST"
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                }
+              ],
+              "Next": "NeedRunUnstructuredJobS3Log"
+            },
+            "NeedRunUnstructuredJobS3Log": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.JobNumber",
+                  "NumericEquals": 0,
+                  "Next": "Unstructured Job SucceededS3Log"
+                }
+              ],
+              "Default": "MapUnstructuredS3Log"
+            },
+            "MapUnstructuredS3Log": {
+              "Type": "Map",
+              "ItemProcessor": {
+                "ProcessorConfig": {
+                  "Mode": "INLINE"
+                },
+                "StartAt": "GlueStartJobRunUnstructuredS3Log",
+                "States": {
+                  "GlueStartJobRunUnstructuredS3Log": {
+                    "Type": "Task",
+                    "Resource": "arn:${AWS::Partition}:states:::glue:startJobRun.sync",
+                    "Parameters": {
+                      "JobName.$": "$.JobNameLog",
+                      "Arguments": {
+                        "--JobId.$": "$.JobId",
+                        "--RunId.$": "$.RunId",
+                        "--RunDatabaseId.$": "$.RunDatabaseId",
+                        "--AccountId.$": "$.AccountId",
+                        "--Region.$": "$.Region",
+                        "--DatabaseType.$": "$.DatabaseType",
+                        "--DatabaseName.$": "$.DatabaseName",
+                        "--TableName.$": "$.TableName",
+                        "--TemplateId.$": "$.TemplateId",
+                        "--TemplateSnapshotNo.$": "$.TemplateSnapshotNo",
+                        "--Depth.$": "$.DepthUnstructured",
+                        "--ExcludeKeywords.$": "$.ExcludeKeywords",
+                        "--IncludeKeywords.$": "$.IncludeKeywords",
+                        "--BaseTime.$": "$.BaseTime",
+                        "--DetectionThreshold.$": "$.DetectionThreshold",
+                        "--AdminAccountId.$": "$.AdminAccountId",
+                        "--AdminBucketName.$": "$.AdminBucketName",
+                        "--AgentBucketName.$": "$.AgentBucketName.Parameter.Value",
+                        "--TableBegin.$": "$.TableBegin",
+                        "--TableEnd.$": "$.TableEnd",
+                        "--enable-glue-datacatalog": "true",
+                        "--additional-python-modules.$": "$.AdditionalPythonModules",
+                        "--extra-py-files.$": "$.ExtraPyFiles"
+                      }
+                    },
+                    "ResultPath": "$.StartJobRun",
+                    "End": true,
+                    "Retry": [
+                      {
+                        "ErrorEquals": [
+                          "States.TaskFailed"
+                        ],
+                        "BackoffRate": 2,
+                        "IntervalSeconds": 100,
+                        "MaxAttempts": 3
+                      }
+                    ]
+                  }
+                }
+              },
+              "Next": "Unstructured Job SucceededS3Log",
+              "OutputPath": "$.[0]",
+              "ItemsPath": "$.JobItems"
+            },
+            "Unstructured Job SucceededS3Log": {
+              "Type": "Pass",
+              "End": true,
+              "Result": {
+                "State": "Succeeded"
+              },
+              "ResultPath": "$.Result"
+            },
+            "Unstructured Job FailedS3Log": {
               "Type": "Pass",
               "ResultPath": "$.Result",
               "Result": {
