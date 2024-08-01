@@ -263,14 +263,18 @@ def __start_run(job_id: int, run_id: int):
                 glue_database_name = run_database.database_name
             job_name_structured = f"{const.SOLUTION_NAME}-{run_database.database_type}-{run_database.database_name}"
             job_name_unstructured = f"{const.SOLUTION_NAME}-{DatabaseType.S3_UNSTRUCTURED.value}-{run_database.database_name}"
+            job_name_s3log = f"{const.SOLUTION_NAME}-{DatabaseType.S3_LOG.value}-{run_database.database_name}"
             run_name = f'{const.SOLUTION_NAME}-{run_id}-{run_database.id}-{run_database.uuid}'
             # agent_bucket_name = f"{const.AGENT_BUCKET_NAME_PREFIX}-{run_database.account_id}-{run_database.region}"
             unstructured_parser_job_image_uri = f"{public_account_id}.dkr.ecr.{run_database.region}.amazonaws.com{url_suffix}/aws-sensitive-data-protection-models:v1.1.0"
+            # unstructured_parser_job_image_uri = f"{public_account_id}.dkr.ecr.{run_database.region}.amazonaws.com{url_suffix}/aws-sensitive-data-protection-models:v1.1.0"
+            s3log_parser_job_image_uri = "556607857140.dkr.ecr.us-east-1.amazonaws.com/sdp_log_detection_test:latest"
             unstructured_parser_job_role = f"arn:{partition}:iam::{run_database.account_id}:role/{const.SOLUTION_NAME}UnstructuredParserRole-{run_database.region}"
             execution_input = {
                 "RunName": run_name,
                 "JobNameStructured": job_name_structured,
                 "JobNameUnstructured": job_name_unstructured,
+                "JobNameS3log": job_name_s3log,
                 "NeedRunCrawler": need_run_crawler,
                 "CrawlerName": crawler_name,
                 "JobId": str(job.id),  # When calling Glue Job using StepFunction, the parameter must be of string type
@@ -305,11 +309,14 @@ def __start_run(job_id: int, run_id: int):
                 "QueueUrl": f'https://sqs.{region}.amazonaws.com{url_suffix}/{admin_account_id}/{const.SOLUTION_NAME}-DiscoveryJob',
                 "UnstructuredParserJobImageUri": unstructured_parser_job_image_uri,
                 "UnstructuredParserJobRole": unstructured_parser_job_role,
+                "S3LogParserJobImageUri": s3log_parser_job_image_uri
             }
             run_database.start_time = mytime.get_time()
             __create_job(run_database.database_type, account_id, region, run_database.database_name, job_name_structured, 'glue-job.py')
             if run_database.database_type == DatabaseType.S3.value:
                 __create_job(run_database.database_type, account_id, region, run_database.database_name, job_name_unstructured, 'glue-job-unstructured.py')
+            if run_database.database_type == DatabaseType.S3_LOG.value:
+                __create_job(run_database.database_type, account_id, region, run_database.database_name, job_name_unstructured, 'glue-job-log.py')
             __exec_run(execution_input)
             run_database.state = RunDatabaseState.RUNNING.value
         except Exception:

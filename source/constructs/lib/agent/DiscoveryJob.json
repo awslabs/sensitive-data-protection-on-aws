@@ -755,7 +755,7 @@
                     "python",
                     "main.py"
                   ],
-                  "ImageUri.$": "$.UnstructuredParserJobImageUri"
+                  "ImageUri.$": "$.S3LogParserJobImageUri"
                 },
                 "ProcessingResources": {
                   "ClusterConfig": {
@@ -846,7 +846,7 @@
                     "Type": "Task",
                     "Resource": "arn:${AWS::Partition}:states:::glue:startJobRun.sync",
                     "Parameters": {
-                      "JobName.$": "$.JobNameLog",
+                      "JobName.$": "$.JobNameS3log",
                       "Arguments": {
                         "--JobId.$": "$.JobId",
                         "--RunId.$": "$.RunId",
