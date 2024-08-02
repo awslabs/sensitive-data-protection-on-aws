@@ -241,6 +241,7 @@ export class DiscoveryJobStack extends Construct {
           effect: Effect.ALLOW,
           actions: [
             'glue:GetTables',
+            's3:GetObject'
           ],
           resources: ['*'],
         }),
@@ -267,6 +268,17 @@ export class DiscoveryJobStack extends Construct {
       runtime: Runtime.PYTHON_3_9,
       handler: 'split_job.lambda_handler',
       code: Code.fromAsset(path.join(__dirname, './split-job')),
+      timeout: Duration.minutes(1),
+      layers: [splitJobLayer],
+      role: splitJobRole,
+    });
+
+    new Function(this, 'LogDetectionFunction', {
+      functionName: `${SolutionInfo.SOLUTION_NAME}-LogDetectionTestSplitJob`, //Name must be specified
+      description: `${SolutionInfo.SOLUTION_FULL_NAME} - split job`,
+      runtime: Runtime.PYTHON_3_9,
+      handler: 'log_detection.lambda_handler',
+      code: Code.fromAsset(path.join(__dirname, './log-detection')),
       timeout: Duration.minutes(1),
       layers: [splitJobLayer],
       role: splitJobRole,
