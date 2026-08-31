@@ -676,6 +676,44 @@ def __remove_query_result_from_s3(query_id):
     return True
 
 
+# Characters / sequences that must never appear in a value that reaches the
+# Athena query builder. Even though the query is parameterized, we reject these
+# up front so a malformed / hostile request fails fast with a clear error.
+__SQL_METACHARACTER_PATTERN = re.compile(r"""['"`;]|--|/\*|\*/""")
+
+# Allowed database types are exactly the DatabaseType enum values.
+__ALLOWED_DATABASE_TYPES = {item.value for item in DatabaseType}
+
+
+def __validate_athena_query_fields(
+        account_id: str,
+        region: str,
+        database_type: str,
+        database_name: str,
+        run_id: str,
+):
+    # database_type is a closed set; validate it against the enum allowlist.
+    if database_type not in __ALLOWED_DATABASE_TYPES:
+        raise BizException(
+            MessageEnum.BIZ_UNKNOWN_ERR.get_code(),
+            f"Invalid database_type: {database_type}",
+        )
+
+    # The remaining fields are free-form strings; reject any value containing a
+    # single/double quote, backtick, semicolon, or SQL comment marker.
+    for field_name, value in (
+        ("account_id", account_id),
+        ("region", region),
+        ("database_name", database_name),
+        ("run_id", run_id),
+    ):
+        if value is None or __SQL_METACHARACTER_PATTERN.search(str(value)):
+            raise BizException(
+                MessageEnum.BIZ_UNKNOWN_ERR.get_code(),
+                f"Invalid characters in field: {field_name}",
+            )
+
+
 def __query_job_result_by_athena(
         account_id: str,
         region: str,
@@ -683,21 +721,29 @@ def __query_job_result_by_athena(
         database_name: str,
         run_id: str,
 ):
+    # Defense-in-depth: reject values that could break out of / manipulate the SQL
+    # before they ever reach Athena. This is layered on top of the parameterized
+    # query below, not a substitute for it.
+    __validate_athena_query_fields(account_id, region, database_type, database_name, run_id)
+
     client = boto3.client("athena")
-    # Select result
+    # Select result.
+    # Values are bound as Athena execution parameters (positional '?' placeholders)
+    # so they are always treated as data and can never be parsed as SQL. The only
+    # interpolated token is the table name, which is a fixed internal constant
+    # (never user-controlled) and cannot be supplied as a parameter by Athena.
     select_sql = (
-            (
-                """SELECT table_name,column_name,cast(identifiers as json) as identifiers_str,CASE WHEN sample_data is NULL then '' else array_join(sample_data, \'|\') end as sample_str, privacy, table_size, s3_location, location 
-            FROM %s 
-            WHERE account_id='%s'
-                AND region='%s' 
-                AND database_type='%s' 
-                AND database_name='%s' 
-                AND run_id='%s' """
-            )
-            % (const.JOB_RESULT_TABLE_NAME, account_id, region, database_type, database_name, run_id)
+        """SELECT table_name,column_name,cast(identifiers as json) as identifiers_str,CASE WHEN sample_data is NULL then '' else array_join(sample_data, \'|\') end as sample_str, privacy, table_size, s3_location, location
+        FROM %s
+        WHERE account_id=?
+            AND region=?
+            AND database_type=?
+            AND database_name=?
+            AND run_id=? """
+        % const.JOB_RESULT_TABLE_NAME
     )
-    logger.debug("Athena SELECT SQL : " + select_sql)
+    execution_parameters = [account_id, region, database_type, database_name, run_id]
+    logger.debug("Athena SELECT SQL : " + select_sql + " params: " + str(execution_parameters))
 
     queryStart = client.start_query_execution(
         QueryString=select_sql,
@@ -705,6 +751,7 @@ def __query_job_result_by_athena(
             "Database": const.JOB_RESULT_DATABASE_NAME,
             "Catalog": "AwsDataCatalog",
         },
+        ExecutionParameters=execution_parameters,
         ResultConfiguration={"OutputLocation": f"s3://{admin_bucket_name}/athena-output/"},
     )
     query_id = queryStart["QueryExecutionId"]
